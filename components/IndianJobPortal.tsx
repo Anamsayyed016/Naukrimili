@@ -423,14 +423,15 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
       console.log('🔍 Fetching jobs with unified API:', params.toString());
       
       // Use the unified job API that aggregates multiple sources
-      const { data } = await axios.get(`/api/jobs?${params.toString()}`);
+      const response = await axios.get(`/api/jobs?${params.toString()}`);
+      const data = response.data;
       
       if (data.error) {
-        console.warn('Unified API error:', data.error);
+        console.warn('Job API error:', data.error);
         throw new Error(data.error);
       }
       
-      console.log('✅ Unified API returned', data.jobs?.length || 0, 'live jobs');
+      console.log('✅ API returned', data.jobs?.length || 0, 'live jobs');
       
       // Attach googleUrl if present
       if (data.googleUrl) {
@@ -499,7 +500,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
     location: job.location.display_name,
     description: job.description,
     salaryFormatted: `₹${(job.salary_min / 100000).toFixed(1)}L - ₹${(job.salary_max / 100000).toFixed(1)}L`,
-    timeAgo: AdzunaService.getRelativeTime(job.created),
+    timeAgo: 'Recently posted',
     isUrgent: job.isUrgent || false,
     isRemote: job.isRemote || false,
     jobType: job.contract_type

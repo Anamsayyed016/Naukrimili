@@ -2,8 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .nav-link {
+    @apply inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-700 hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors;
+  }
+
+  .brand-logo {
+    @apply font-brand font-bold text-[color:var(--brand-primary)] text-2xl;
+  }
+
+  .brand-tagline {
+    @apply text-sm text-gray-500 ml-2;
+  }
+}
+
 @layer base {
   :root {
+    /* Brand Colors */
+    --brand-primary: #2563eb;  /* NaukriMili blue */
+    --brand-secondary: #1e40af;
+    
+    /* System Colors */
     --background: 250 245 255; /* #faf5ff - Vibrant Purple background */
     --foreground: 75 85 99;    /* #4b5563 - Slate Gray */
     --card: 255 255 255;       /* #ffffff - Pure White */

@@ -3,7 +3,7 @@ import ResumeEditor from "./ResumeEditor";
 
 export default function ResumeUpload() {
   const [file, setFile] = useState<File | null>(null);
-  const [parsedResume, setParsedResume] = useState<any>(null);
+  const [uploadedFile, setUploadedFile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,22 +27,36 @@ export default function ResumeUpload() {
         console.error("Expected JSON, got:", text);
         throw new Error("Expected JSON, got: " + text);
       }
+      if (!res.ok) {
+        // Show backend error message if available
+        throw new Error(data.message || "Upload failed");
+      }
       console.log("Backend response:", data); // Debug log
-      if (data.success && data.resume && data.resume.aiData) {
-        console.log("Setting parsed resume:", data.resume.aiData); // Debug log
-        setParsedResume(data.resume.aiData);
+      if (data.success && data.data) {
+        setUploadedFile(data.data);
       } else {
-        setError(data.message || "Failed to parse resume");
+        setError(data.message || "Failed to upload resume");
       }
     } catch (err: any) {
       setError(err.message || "Upload failed");
+      console.error("Upload error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (parsedResume) {
-    return <ResumeEditor initialValues={parsedResume} />;
+  if (uploadedFile) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold text-blue-700">Resume Uploaded</h2>
+        <div className="bg-green-50 p-4 rounded">
+          <p className="text-green-800 font-semibold">File: {uploadedFile.fileName}</p>
+          <p className="text-green-800">Size: {(uploadedFile.fileSize / 1024).toFixed(2)} KB</p>
+          <p className="text-green-800">Type: {uploadedFile.fileType}</p>
+          <p className="text-green-800">Path: {uploadedFile.filePath}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -63,7 +77,7 @@ export default function ResumeUpload() {
               onClick={handleUpload}
               disabled={loading}
             >
-              {loading ? "Parsing with AI..." : "Parse with AI"}
+              {loading ? "Uploading..." : "Upload & Analyze"}
             </button>
           </div>
         )}

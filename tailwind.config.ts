@@ -22,12 +22,21 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
         display: ["var(--font-space-grotesk)", "Space Grotesk", "system-ui", "sans-serif"],
+        brand: ["Poppins", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
+        primary: {
+          DEFAULT: "#2563eb", // NaukriMili blue
+          dark: "#1e40af",
+        },
+        brand: {
+          primary: "#2563eb",
+          secondary: "#1e40af",
+        },
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",

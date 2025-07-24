@@ -1,24 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdzunaService } from '../../../../lib/adzuna-service';
 
 export async function GET(request: NextRequest) {
   try {
-    const adzunaService = getAdzunaService();
-    const result = await adzunaService.getCategories();
-    
-    // Transform the categories into a more usable format
-    const categories = Object.entries(result.results).map(([key, value]) => ({
-      id: key,
-      label: value.label,
-      tag: value.tag
-    }));
-
+    // Fetch job categories from the user's own FastAPI backend
+    const res = await fetch('http://localhost:8000/categories');
+    if (!res.ok) throw new Error('Failed to fetch categories from backend');
+    const categories = await res.json();
     return NextResponse.json({ categories });
-  } catch (error: any) {
-    console.error('Error fetching job categories:', error);
-    return NextResponse.json(
-      { error: error.message || 'An error occurred while fetching job categories.' },
-      { status: 500 }
-    );
+  } catch (error) {
+    return NextResponse.json({ error: 'Unable to fetch categories from backend.' }, { status: 500 });
   }
 }

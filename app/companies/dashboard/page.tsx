@@ -4,13 +4,18 @@ import RoleGuard from '@/components/shared/RoleGuard';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Briefcase, BarChart3, Building2, Sparkles, FileText, ClipboardList, User } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import JobPostWizard from '@/features/company/components/JobPostWizard/JobPostWizard';
-import CandidatePipeline from '@/features/company/components/CandidatePipeline/CandidatePipeline';
-const HiringAnalytics = dynamic(() => import('@/features/company/components/Analytics/HiringAnalytics'), { loading: () => <div className="h-[300px] bg-company-50 animate-pulse rounded" /> });
-import CompanyProfileEditor from '@/features/company/components/CompanyProfileEditor';
-import EmptyState from '@/features/company/components/EmptyState';
-import { useCompanyStats } from '@/features/company/hooks/useCompanyStats';
+import JobPostWizard from '@/components/JobPostWizard';
+import CandidatePipeline from '@/components/CandidatePipeline';
+// import CompanyProfileEditor from '@/features/company/components/CompanyProfileEditor';
+
+function AnalyticsPlaceholder() {
+  return (
+    <div className="flex flex-col items-center justify-center h-48 text-white">
+      <BarChart3 className="h-10 w-10 text-purple-400 mb-2" />
+      <p className="text-lg font-semibold">Analytics coming soon!</p>
+    </div>
+  );
+}
 
 const tabs = [
   { label: 'Overview', key: 'overview' },
@@ -20,18 +25,24 @@ const tabs = [
   { label: 'Profile', key: 'profile' },
 ];
 
+type StatKey = 'activeJobs' | 'candidates' | 'interviews' | 'companyRating';
+
 const statMeta = [
-  { title: "Active Jobs", icon: Briefcase, gradient: "from-blue-500 to-blue-600", key: 'activeJobs' },
-  { title: "Candidates", icon: Users, gradient: "from-green-500 to-green-600", key: 'candidates' },
-  { title: "Interviews", icon: BarChart3, gradient: "from-purple-500 to-purple-600", key: 'interviews' },
-  { title: "Company Rating", icon: Building2, gradient: "from-orange-500 to-orange-600", key: 'companyRating' },
+  { title: "Active Jobs", icon: Briefcase, gradient: "from-blue-500 to-blue-600", key: 'activeJobs' as StatKey },
+  { title: "Candidates", icon: Users, gradient: "from-green-500 to-green-600", key: 'candidates' as StatKey },
+  { title: "Interviews", icon: BarChart3, gradient: "from-purple-500 to-purple-600", key: 'interviews' as StatKey },
+  { title: "Company Rating", icon: Building2, gradient: "from-orange-500 to-orange-600", key: 'companyRating' as StatKey },
 ];
 
 export default function CompanyDashboardPage() {
   const [activeTab, setActiveTab] = useState('overview');
-  // Replace with real companyId from auth/session
-  const companyId = 'mock-company-id';
-  const { stats, isLoading, isError } = useCompanyStats(companyId);
+  // Demo static stats data
+  const stats: Record<StatKey, number> = {
+    activeJobs: 12,
+    candidates: 48,
+    interviews: 7,
+    companyRating: 4.5,
+  };
 
   return (
     <RoleGuard allowedRoles={['company']}>
@@ -70,15 +81,8 @@ export default function CompanyDashboardPage() {
                   <div className="p-6 flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-300">{meta.title}</p>
-                      {isLoading ? (
-                        <div className="h-8 w-20 bg-company-200 animate-pulse rounded mb-2" />
-                      ) : isError ? (
-                        <p className="text-red-400">Error</p>
-                      ) : (
-                        <p className="text-3xl font-bold text-white">{meta.key === 'companyRating' ? stats?.[meta.key]?.toFixed(1) : stats?.[meta.key]}</p>
-                      )}
-                      {/* For demo, show change as static or you can add real change logic */}
-                      <p className="text-sm text-green-400">{isLoading ? <span className="inline-block w-10 h-3 bg-company-200 animate-pulse rounded" /> : '+0' } this month</p>
+                      <p className="text-3xl font-bold text-white">{meta.key === 'companyRating' ? stats[meta.key].toFixed(1) : stats[meta.key]}</p>
+                      <p className="text-sm text-green-400">+0 this month</p>
                     </div>
                     <div className={`p-4 rounded-xl bg-gradient-to-r ${meta.gradient} text-white`}>
                       <meta.icon className="h-6 w-6" />
@@ -86,6 +90,7 @@ export default function CompanyDashboardPage() {
                   </div>
                 </div>
               </motion.div>
+              
             ))}
           </div>
           {/* Tabs Navigation */}
@@ -131,13 +136,13 @@ export default function CompanyDashboardPage() {
             {activeTab === 'analytics' && (
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><BarChart3 className="h-5 w-5 text-purple-400" /> Analytics</h2>
-                <HiringAnalytics />
+                <AnalyticsPlaceholder />
               </div>
             )}
             {activeTab === 'profile' && (
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6">
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 flex flex-col items-center justify-center">
                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><User className="h-5 w-5 text-orange-400" /> Company Profile</h2>
-                <CompanyProfileEditor />
+                <div className="text-lg text-gray-200">Profile editor coming soon!</div>
               </div>
             )}
           </div>

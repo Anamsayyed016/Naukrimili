@@ -8,6 +8,7 @@ import CompanyDashboardPage from "../companies/dashboard/page";
 import AdminDashboardPage from "../admin/dashboard/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ResumeUploader } from "@/components/ResumeUploader";
 import Link from "next/link";
 
 const tabs = [
@@ -40,6 +41,10 @@ export default function Page() {
 
   return (
     <div style={{ maxWidth: 1200, margin: "0 auto", padding: 32 }}>
+      {/* Resume Upload Section */}
+      <div className="mb-8">
+        <ResumeUploader />
+      </div>
       {/* User Welcome Section */}
       <Card className="mb-8 bg-gradient-to-r from-purple-50 to-cyan-50 border-0">
         <CardContent className="p-6">

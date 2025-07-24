@@ -23,109 +23,12 @@ interface JobDetails {
 }
 
 class JobDetailsService {
-  private readonly APIs = {
-    reed: process.env.REED_API_KEY,
-    adzuna: {
-      id: process.env.ADZUNA_APP_ID,
-      key: process.env.ADZUNA_API_KEY
-    },
-    serpapi: process.env.SERPAPI_KEY
-  };
+  // Remove APIs object and all fetchReedJobDetails, fetchAdzunaJobDetails, fetchSerpApiJobDetails methods
+  // Only keep internal/backend DB logic and fetchGenericJobDetails fallback
 
   async fetchJobDetails(jobId: string): Promise<JobDetails | null> {
-    // Parse job ID to determine source
-    const [source, originalId] = jobId.split('_');
-
-    switch (source) {
-      case 'reed':
-        return await this.fetchReedJobDetails(originalId);
-      case 'adzuna':
-        return await this.fetchAdzunaJobDetails(originalId);
-      case 'serp':
-      case 'linkedin':
-      default:
-        return await this.fetchGenericJobDetails(jobId);
-    }
-  }
-
-  private async fetchReedJobDetails(jobId: string): Promise<JobDetails | null> {
-    if (!this.APIs.reed) return null;
-
-    try {
-      const response = await fetch(`https://www.reed.co.uk/api/1.0/jobs/${jobId}`, {
-        headers: {
-          'Authorization': `Basic ${Buffer.from(this.APIs.reed + ':').toString('base64')}`,
-          'User-Agent': 'JobPortal/1.0'
-        }
-      });
-
-      if (!response.ok) return null;
-
-      const job = await response.json();
-
-      return {
-        id: `reed_${job.jobId}`,
-        title: job.jobTitle,
-        company: job.employerName,
-        location: job.locationName,
-        salary: job.minimumSalary && job.maximumSalary ? `£${job.minimumSalary} - £${job.maximumSalary}` : job.minimumSalary ? `£${job.minimumSalary}+` : undefined,
-        description: job.jobDescription,
-        requirements: this.extractRequirements(job.jobDescription),
-        benefits: this.extractBenefits(job.jobDescription),
-        sector: this.determineSector(job.jobTitle),
-        datePosted: job.date,
-        jobType: job.jobType || 'Full-time',
-        experienceLevel: this.determineExperienceLevel(job.jobTitle, job.jobDescription),
-        source: 'Reed',
-        applyUrl: job.jobUrl,
-        logoUrl: job.employerProfileUrl,
-        companySize: job.employerProfileId ? await this.getCompanySize(job.employerProfileId, 'reed') : undefined,
-        workMode: this.determineWorkMode(job.jobDescription),
-        skills: this.extractSkills(job.jobDescription),
-      };
-
-    } catch (error) {
-      console.error('Reed Job Details Error:', error);
-      return null;
-    }
-  }
-
-  private async fetchAdzunaJobDetails(jobId: string): Promise<JobDetails | null> {
-    if (!this.APIs.adzuna.id || !this.APIs.adzuna.key) return null;
-
-    try {
-      const response = await fetch(
-        `https://api.adzuna.com/v1/api/jobs/gb/details/${jobId}?app_id=${this.APIs.adzuna.id}&app_key=${this.APIs.adzuna.key}`
-      );
-
-      if (!response.ok) return null;
-
-      const job = await response.json();
-
-      return {
-        id: `adzuna_${job.id}`,
-        title: job.title,
-        company: job.company.display_name,
-        location: job.location.display_name,
-        salary: job.salary_min && job.salary_max ? `£${job.salary_min} - £${job.salary_max}` : job.salary_min ? `£${job.salary_min}+` : undefined,
-        description: job.description,
-        requirements: this.extractRequirements(job.description),
-        benefits: this.extractBenefits(job.description),
-        sector: this.determineSector(job.title),
-        datePosted: job.created,
-        jobType: job.contract_type || 'Full-time',
-        experienceLevel: this.determineExperienceLevel(job.title, job.description),
-        source: 'Adzuna',
-        applyUrl: job.redirect_url,
-        logoUrl: job.company?.logo_urls?.['90x90'],
-        workMode: this.determineWorkMode(job.description),
-        skills: this.extractSkills(job.description),
-      };
-
-    } catch (error) {
-      console.error('Adzuna Job Details Error:', error);
-      return null;
-    }
+    // Only use internal/backend DB logic here
+    return await this.fetchGenericJobDetails(jobId);
   }
 
   private async fetchGenericJobDetails(jobId: string): Promise<JobDetails | null> {

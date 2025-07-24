@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Briefcase, FileText, BarChart3, Sparkles, User, ClipboardList, Star } from "lucide-react";
-import ResumeManager from "../features/job-seeker/components/ResumeManager";
+
+function ResumeManagerPlaceholder() {
+  return (
+    <div className="flex flex-col items-center justify-center h-32 text-white">
+      <FileText className="h-8 w-8 text-blue-400 mb-2" />
+      <p className="text-lg font-semibold">Resume management coming soon!</p>
+    </div>
+  );
+}
 
 const stats = [
   { title: "Applications", value: "24", change: "+3", icon: ClipboardList, gradient: "from-blue-500 to-blue-600" },
@@ -25,10 +33,10 @@ export default function JobSeekerDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-blue-300 bg-clip-text text-transparent mb-2">
-              Jobseeker Dashboard
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-blue-300 bg-clip-text text-transparent mb-2 brand-logo">
+              Your NaukriMili Dashboard
             </h1>
-            <p className="text-gray-300 text-lg">Your career progress and insights</p>
+            <p className="text-gray-300 text-lg brand-tagline">Manage your job search all in one place</p>
           </div>
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 px-4 py-2 rounded-xl font-semibold text-sm shadow">
@@ -86,7 +94,7 @@ export default function JobSeekerDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FileText className="h-5 w-5 text-blue-400" /> Resume Manager</h2>
-                <ResumeManager />
+                <ResumeManagerPlaceholder />
               </div>
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 flex flex-col items-center justify-center">
                 <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2"><Briefcase className="h-5 w-5 text-cyan-400" /> Job Search</h2>
@@ -97,7 +105,7 @@ export default function JobSeekerDashboard() {
           {activeTab === "resume" && (
             <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FileText className="h-5 w-5 text-blue-400" /> Resume Manager</h2>
-              <ResumeManager />
+              <ResumeManagerPlaceholder />
             </div>
           )}
           {activeTab === "applications" && (
