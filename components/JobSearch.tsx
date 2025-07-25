@@ -15,16 +15,124 @@ import {
   ExclamationTriangleIcon,
   ArrowRightIcon,
   BriefcaseIcon,
-  SparklesIcon
+  SparklesIcon,
+  BookmarkIcon
 } from "@heroicons/react/24/outline";
 import { UnifiedJob } from "@/lib/unified-job-service";
+import SalaryRangeSelector, { SalaryRange } from "./salary/SalaryRangeSelector";
 
 interface JobSearchProps {
   initialQuery?: string;
   initialLocation?: string;
 }
 
-const JobSearch = ({ initialQuery = "", initialLocation = "India" }: JobSearchProps) => {
+const JobCard = ({ job, bookmarked, onBookmark }: { 
+  job: UnifiedJob; 
+  bookmarked: boolean;
+  onBookmark: (id: string) => void;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group"
+  >
+    <div className="p-6">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          {job.isUrgent && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full mb-2">
+              <FireIcon className="w-3 h-3" />
+              Urgent Hiring
+            </span>
+          )}
+          {job.isRemote && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full mb-2 ml-1">
+              🏠 Remote
+            </span>
+          )}
+          <h3 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+            {job.title}
+          </h3>
+          <div className="flex items-center text-gray-600 mb-2">
+            <BuildingOfficeIcon className="w-4 h-4 mr-2" />
+            <span className="font-medium">{job.company}</span>
+          </div>
+          <div className="flex items-center text-gray-500 mb-3">
+            <MapPinIcon className="w-4 h-4 mr-2" />
+            <span className="text-sm">{job.location}</span>
+            {job.jobType && (
+              <>
+                <span className="mx-2">•</span>
+                <span className="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                  {job.jobType}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={() => onBookmark(job.id)}
+          className={`p-2 rounded-full transition-colors ${
+            bookmarked 
+              ? 'text-yellow-500 bg-yellow-50 hover:bg-yellow-100' 
+              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+          }`}
+          title={bookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
+        >
+          <BookmarkIcon className="w-5 h-5" />
+        </button>
+      </div>
+
+      {job.salaryFormatted && (
+        <div className="flex items-center text-green-600 font-semibold mb-3">
+          <CurrencyRupeeIcon className="w-4 h-4 mr-1" />
+          <span>{job.salaryFormatted}</span>
+        </div>
+      )}
+
+      {job.description && (
+        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+          {job.description}
+        </p>
+      )}
+
+      <div className="flex items-center justify-between">
+        {job.timeAgo && (
+          <div className="flex items-center text-gray-400 text-xs">
+            <CalendarIcon className="w-3 h-3 mr-1" />
+            <span>{job.timeAgo}</span>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div className="px-6 py-4 bg-gray-50 border-t">
+      <a
+        href={job.apply_url || job.redirect_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 group"
+      >
+        Apply Now
+        <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+      </a>
+    </div>
+  </motion.div>
+);
+
+const SkeletonCard = () => (
+  <div className="bg-white rounded-xl shadow-md p-6">
+    <div className="animate-pulse">
+      <div className="h-6 bg-gray-200 rounded mb-3"></div>
+      <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
+      <div className="h-4 bg-gray-200 rounded mb-2 w-1/2"></div>
+      <div className="h-4 bg-gray-200 rounded mb-4 w-2/3"></div>
+      <div className="h-12 bg-gray-200 rounded"></div>
+    </div>
+  </div>
+);
+
+export default function JobSearch({ initialQuery = "", initialLocation = "India" }: JobSearchProps) {
   const [query, setQuery] = useState(initialQuery);
   const [location, setLocation] = useState(initialLocation);
   const [jobType, setJobType] = useState("");
@@ -32,6 +140,21 @@ const JobSearch = ({ initialQuery = "", initialLocation = "India" }: JobSearchPr
   const [page, setPage] = useState(1);
   const [allJobs, setAllJobs] = useState<UnifiedJob[]>([]);
   const [searchTrigger, setSearchTrigger] = useState(0);
+  const [showSalaryFilter, setShowSalaryFilter] = useState(false);
+  const [salaryRange, setSalaryRange] = useState<SalaryRange>({
+    min: 30000,
+    max: 150000,
+    currency: "INR",
+    period: "year"
+  });
+  const [bookmarks, setBookmarks] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      return JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
+    }
+    return [];
+  });
+  const [categories, setCategories] = useState<Array<{id: string, label: string}>>([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   // Popular searches for Indian job market
   const popularSearches = [
@@ -53,19 +176,39 @@ const JobSearch = ({ initialQuery = "", initialLocation = "India" }: JobSearchPr
     "Kochi", "Indore", "Jaipur", "Lucknow", "Bhopal"
   ];
 
+  useEffect(() => {
+    localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarks));
+  }, [bookmarks]);
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data } = await axios.get('/api/jobs/categories');
+        setCategories(data.categories || []);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   // Fetch jobs using React Query
   const { data: jobsData, isLoading, error, refetch } = useQuery({
-    queryKey: ["jobs", query, location, jobType, datePosted, page, searchTrigger],
+    queryKey: ["jobs", query, location, jobType, datePosted, page, searchTrigger, selectedCategory, showSalaryFilter ? salaryRange : null],
     queryFn: async () => {
       if (!query.trim()) return { jobs: [], total: 0, hasMore: false };
-      
-      console.log("🔍 Searching jobs:", { query, location, jobType, datePosted, page });
       
       const params = new URLSearchParams();
       params.append("q", query);
       params.append("location", location);
       if (jobType) params.append("job_type", jobType);
       if (datePosted) params.append("date_posted", datePosted);
+      if (selectedCategory) params.append("category", selectedCategory);
+      if (showSalaryFilter) {
+        params.append("salary_min", salaryRange.min.toString());
+        params.append("salary_max", salaryRange.max.toString());
+      }
       params.append("page", page.toString());
       params.append("limit", "20");
       
@@ -108,93 +251,19 @@ const JobSearch = ({ initialQuery = "", initialLocation = "India" }: JobSearchPr
     setSearchTrigger(prev => prev + 1);
   };
 
+  const handleBookmark = (id: string) => {
+    setBookmarks(prev => 
+      prev.includes(id) 
+        ? prev.filter(jobId => jobId !== id)
+        : [...prev, id]
+    );
+  };
+
   const loadMore = () => {
     if (hasMore && !isLoading) {
       setPage(prev => prev + 1);
     }
   };
-
-  const JobCard = ({ job, index }: { job: UnifiedJob; index: number }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group"
-    >
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            {job.isUrgent && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full mb-2">
-                <FireIcon className="w-3 h-3" />
-                Urgent Hiring
-              </span>
-            )}
-            {job.isRemote && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full mb-2 ml-1">
-                🏠 Remote
-              </span>
-            )}
-            <h3 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-              {job.title}
-            </h3>
-            <div className="flex items-center text-gray-600 mb-2">
-              <BuildingOfficeIcon className="w-4 h-4 mr-2" />
-              <span className="font-medium">{job.company}</span>
-            </div>
-            <div className="flex items-center text-gray-500 mb-3">
-              <MapPinIcon className="w-4 h-4 mr-2" />
-              <span className="text-sm">{job.location}</span>
-              {job.jobType && (
-                <>
-                  <span className="mx-2">•</span>
-                  <span className="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                    {job.jobType}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {job.salaryFormatted && (
-          <div className="flex items-center text-green-600 font-semibold mb-3">
-            <CurrencyRupeeIcon className="w-4 h-4 mr-1" />
-            <span>{job.salaryFormatted}</span>
-          </div>
-        )}
-
-        {job.description && (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-            {job.description}
-          </p>
-        )}
-
-        <div className="flex items-center justify-between">
-          {job.timeAgo && (
-            <div className="flex items-center text-gray-400 text-xs">
-              <CalendarIcon className="w-3 h-3 mr-1" />
-              <span>{job.timeAgo}</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2">
-          </div>
-        </div>
-      </div>
-
-      <div className="px-6 py-4 bg-gray-50 border-t">
-        <a
-          href={job.apply_url || job.redirect_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 group"
-        >
-          Apply Now
-          <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </a>
-      </div>
-    </motion.div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -291,6 +360,20 @@ const JobSearch = ({ initialQuery = "", initialLocation = "India" }: JobSearchPr
               </div>
               
               <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.label}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Date Posted</label>
                 <select
                   value={datePosted}
@@ -304,22 +387,39 @@ const JobSearch = ({ initialQuery = "", initialLocation = "India" }: JobSearchPr
                   <option value="month">Past Month</option>
                 </select>
               </div>
-              
-              <div className="flex items-end">
-                <button
-                  type="submit"
-                  disabled={!query.trim() || isLoading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isLoading ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <MagnifyingGlassIcon className="w-4 h-4" />
-                  )}
-                  Search Jobs
-                </button>
-              </div>
             </div>
+
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setShowSalaryFilter(!showSalaryFilter)}
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
+                {showSalaryFilter ? "Hide" : "Show"} Salary Filter
+              </button>
+              <button
+                type="submit"
+                disabled={!query.trim() || isLoading}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-8 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <MagnifyingGlassIcon className="w-4 h-4" />
+                )}
+                Search Jobs
+              </button>
+            </div>
+
+            {showSalaryFilter && (
+              <div className="pt-6 border-t border-gray-200">
+                <SalaryRangeSelector
+                  countryCode="IN"
+                  value={salaryRange}
+                  onChange={setSalaryRange}
+                />
+              </div>
+            )}
           </form>
 
           {/* Popular Searches */}
@@ -362,12 +462,7 @@ const JobSearch = ({ initialQuery = "", initialLocation = "India" }: JobSearchPr
             {isLoading && page === 1 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Array.from({ length: 9 }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-xl shadow-md p-6 animate-pulse">
-                    <div className="h-6 bg-gray-200 rounded mb-3"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2 w-3/4"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-4 w-1/2"></div>
-                    <div className="h-10 bg-gray-200 rounded"></div>
-                  </div>
+                  <SkeletonCard key={i} />
                 ))}
               </div>
             )}
@@ -416,7 +511,12 @@ const JobSearch = ({ initialQuery = "", initialLocation = "India" }: JobSearchPr
               <AnimatePresence>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {allJobs.map((job, index) => (
-                    <JobCard key={job.id} job={job} index={index} />
+                    <JobCard 
+                      key={job.id} 
+                      job={job} 
+                      bookmarked={bookmarks.includes(job.id)}
+                      onBookmark={handleBookmark}
+                    />
                   ))}
                 </div>
               </AnimatePresence>
@@ -444,6 +544,4 @@ const JobSearch = ({ initialQuery = "", initialLocation = "India" }: JobSearchPr
       </div>
     </div>
   );
-};
-
-export default JobSearch;
+}

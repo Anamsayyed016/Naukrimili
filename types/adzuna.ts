@@ -1,35 +1,32 @@
 // Adzuna API Types
-
 export interface AdzunaJob {
   id: string;
   title: string;
   description: string;
   company: {
     display_name: string;
+    __CLASS__?: string;
   };
   category: {
     label: string;
     tag: string;
+    __CLASS__?: string;
   };
   location: {
     area: string[];
     display_name: string;
+    __CLASS__?: string;
   };
   salary_min?: number;
   salary_max?: number;
-  salary_is_predicted?: number;
+  salary_is_predicted?: boolean;
   contract_type?: string;
   contract_time?: string;
   created: string;
   redirect_url: string;
-  adref: string;
-}
-
-export interface AdzunaSearchResponse {
-  results: AdzunaJob[];
-  count: number;
-  mean?: number;
-  __CLASS__: string;
+  adref?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface AdzunaSearchParams {
@@ -50,6 +47,34 @@ export interface AdzunaSearchParams {
   category?: string;
   company?: string;
   title_only?: string;
+}
+
+export interface AdzunaSearchResponse {
+  results: AdzunaJob[];
+  count: number;
+  mean?: number;
+  __CLASS__: string;
+}
+
+export interface FormattedAdzunaJob {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  description: string;
+  salary: {
+    min: number;
+    max: number;
+    predicted: boolean;
+  };
+  type: string;
+  category: string;
+  url: string;
+  postedDate: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 export interface AdzunaCategory {
@@ -89,10 +114,14 @@ export interface AdzunaGeoLocationResponse {
   __CLASS__: string;
 }
 
-// Error response type
+// Error response types
 export interface AdzunaError {
-  exception: string;
-  doc: string;
+  error?: string;
+  title?: string;
+  message?: string;
+  documentation_url?: string;
+  exception?: string;
+  doc?: string;
 }
 
 // Countries supported by Adzuna

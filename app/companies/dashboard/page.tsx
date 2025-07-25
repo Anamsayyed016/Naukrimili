@@ -1,29 +1,11 @@
-'use client';
+"use client";
 
-import RoleGuard from '@/components/shared/RoleGuard';
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Users, Briefcase, BarChart3, Building2, Sparkles, FileText, ClipboardList, User } from 'lucide-react';
-import JobPostWizard from '@/components/JobPostWizard';
-import CandidatePipeline from '@/components/CandidatePipeline';
-// import CompanyProfileEditor from '@/features/company/components/CompanyProfileEditor';
-
-function AnalyticsPlaceholder() {
-  return (
-    <div className="flex flex-col items-center justify-center h-48 text-white">
-      <BarChart3 className="h-10 w-10 text-purple-400 mb-2" />
-      <p className="text-lg font-semibold">Analytics coming soon!</p>
-    </div>
-  );
-}
-
-const tabs = [
-  { label: 'Overview', key: 'overview' },
-  { label: 'Jobs', key: 'jobs' },
-  { label: 'Candidates', key: 'candidates' },
-  { label: 'Analytics', key: 'analytics' },
-  { label: 'Profile', key: 'profile' },
-];
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Briefcase, Users, BarChart3, Building2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 type StatKey = 'activeJobs' | 'candidates' | 'interviews' | 'companyRating';
 
@@ -45,109 +27,63 @@ export default function CompanyDashboardPage() {
   };
 
   return (
-    <RoleGuard allowedRoles={['company']}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/20 to-slate-900 py-8">
-        <div className="container mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-blue-300 bg-clip-text text-transparent mb-2">
-                Company Dashboard
-              </h1>
-              <p className="text-gray-300 text-lg">Manage your company, jobs, and hiring pipeline</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 px-4 py-2 rounded-xl font-semibold text-sm shadow">
-                <Sparkles className="w-4 h-4 mr-2" />
-                AI Powered
-              </span>
-              <button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-4 py-2 rounded-xl font-semibold shadow flex items-center">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                View Stats
-              </button>
-            </div>
-          </div>
-          {/* Stats Cards */}
+    <AuthGuard allowedRoles={['company']}>
+      <div className="container mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-3xl font-bold mb-8">Company Dashboard</h1>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {statMeta.map((meta, index) => (
+            {statMeta.map((stat, index) => (
               <motion.div
-                key={meta.title}
+                key={stat.key}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -5, scale: 1.02 }}
+                transition={{ delay: index * 0.1 }}
               >
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-2xl shadow-lg">
-                  <div className="p-6 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-300">{meta.title}</p>
-                      <p className="text-3xl font-bold text-white">{meta.key === 'companyRating' ? stats[meta.key].toFixed(1) : stats[meta.key]}</p>
-                      <p className="text-sm text-green-400">+0 this month</p>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${stat.gradient} mb-4`}>
+                      <stat.icon className="h-6 w-6 text-white" />
                     </div>
-                    <div className={`p-4 rounded-xl bg-gradient-to-r ${meta.gradient} text-white`}>
-                      <meta.icon className="h-6 w-6" />
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      {stat.title}
+                    </h3>
+                    <div className="text-2xl font-bold mt-2">
+                      {stats[stat.key]}
+                      {stat.key === 'companyRating' && '/5'}
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </motion.div>
-              
             ))}
           </div>
-          {/* Tabs Navigation */}
-          <div className="mb-8">
-            <div className="grid w-full grid-cols-5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl overflow-hidden">
-              {tabs.map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`py-3 font-semibold text-white transition-all ${activeTab === tab.key ? 'bg-gradient-to-r from-blue-600 to-cyan-600' : ''}`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Tab Content */}
-          <div className="space-y-8">
-            {activeTab === 'overview' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6">
-                  <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><FileText className="h-5 w-5 text-blue-400" /> Post a Job</h2>
-                  <JobPostWizard />
-                </div>
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 flex flex-col items-center justify-center">
-                  <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2"><ClipboardList className="h-5 w-5 text-cyan-400" /> Candidate Pipeline</h2>
-                  <CandidatePipeline />
-                </div>
-              </div>
-            )}
-            {activeTab === 'jobs' && (
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Briefcase className="h-5 w-5 text-blue-400" /> Job Management</h2>
-                <JobPostWizard />
-              </div>
-            )}
-            {activeTab === 'candidates' && (
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Users className="h-5 w-5 text-green-400" /> Candidates</h2>
-                <CandidatePipeline />
-              </div>
-            )}
-            {activeTab === 'analytics' && (
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><BarChart3 className="h-5 w-5 text-purple-400" /> Analytics</h2>
-                <AnalyticsPlaceholder />
-              </div>
-            )}
-            {activeTab === 'profile' && (
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-6 flex flex-col items-center justify-center">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><User className="h-5 w-5 text-orange-400" /> Company Profile</h2>
-                <div className="text-lg text-gray-200">Profile editor coming soon!</div>
-              </div>
-            )}
-          </div>
-        </div>
+
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="jobs">Jobs</TabsTrigger>
+              <TabsTrigger value="candidates">Candidates</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            </TabsList>
+            <TabsContent value="overview" className="space-y-4">
+              {/* Overview content */}
+            </TabsContent>
+            <TabsContent value="jobs" className="space-y-4">
+              {/* Jobs content */}
+            </TabsContent>
+            <TabsContent value="candidates" className="space-y-4">
+              {/* Candidates content */}
+            </TabsContent>
+            <TabsContent value="analytics" className="space-y-4">
+              {/* Analytics content */}
+            </TabsContent>
+          </Tabs>
+        </motion.div>
       </div>
-    </RoleGuard>
+    </AuthGuard>
   );
 } 

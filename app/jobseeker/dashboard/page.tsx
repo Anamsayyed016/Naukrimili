@@ -1,12 +1,12 @@
 "use client";
 
 import JobSeekerDashboard from "@/components/JobSeekerDashboard";
-import RoleGuard from "@/components/shared/RoleGuard";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 export default function Page() {
   return (
-    <RoleGuard allowedRoles={["jobseeker"]}>
+    <AuthGuard allowedRoles={["jobseeker"]}>
       <JobSeekerDashboard />
-    </RoleGuard>
+    </AuthGuard>
   );
 } 

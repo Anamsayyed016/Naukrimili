@@ -1,26 +1,29 @@
-'use client';
+"use client";
 
-import { ReactNode } from 'react';
-import { ThemeProvider } from '@/components/theme-provider';
-import { SessionProvider } from 'next-auth/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/components/AuthContext';
-import { HelmetProvider } from 'react-helmet-async';
+import { SessionProvider } from "next-auth/react";
+import ReactQueryProvider from "@/components/ReactQueryProvider";
+import { AuthProvider } from "@/components/auth/AuthContext";
+import { ThemeProvider } from "@/components/theme-provider";
 
-const queryClient = new QueryClient();
+interface ProvidersProps {
+  children: React.ReactNode;
+}
 
-export function Providers({ children }: { children: ReactNode }) {
+export default function Providers({ children }: ProvidersProps) {
   return (
-    <HelmetProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
-          </SessionProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </HelmetProvider>
+    <SessionProvider>
+      <ReactQueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
+      </ReactQueryProvider>
+    </SessionProvider>
   );
 }

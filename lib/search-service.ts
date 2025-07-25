@@ -1,0 +1,34 @@
+import axios from 'axios';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
+export class SearchService {
+  async searchJobs(query: string, filters?: any) {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/jobs/search`, {
+        params: {
+          query,
+          ...filters
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error searching jobs:', error);
+      throw error;
+    }
+  }
+}
+
+export async function getJobDetails(jobId: string) {
+  try {
+    const response = await axios.get(`${SERPAPI_BASE_URL}/jobs/${jobId}`, {
+      params: {
+        api_key: SERPAPI_KEY,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching job details from SerpApi:', error);
+    throw error;
+  }
+}

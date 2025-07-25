@@ -2,13 +2,9 @@
 
 import { Toaster } from '@/components/ui/toaster';
 import dynamic from 'next/dynamic';
+import MainNavigation from '@/components/MainNavigation';
 
-// Dynamic imports for client components
-const Header = dynamic(() => import('@/components/header'), {
-  ssr: true,
-  loading: () => <div className="h-16 animate-pulse bg-gray-100" />
-});
-
+// Dynamic import for footer only
 const Footer = dynamic(() => import('@/components/Footer'), {
   ssr: true,
   loading: () => <div className="h-96 animate-pulse bg-gray-100" />
@@ -21,9 +17,7 @@ interface ClientLayoutProps {
 export function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-100 transition-all">
-        <Header />
-      </header>
+      <MainNavigation />
       <main className="flex-grow">
         {children}
       </main>

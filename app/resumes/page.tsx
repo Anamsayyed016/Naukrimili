@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Eye, Trash2, FileText, Loader2, Upload, User, CheckCircle } from "lucide-react";
 import ProfileCompletionForm from "@/components/ProfileCompletionForm";
+import { ResumeUploadFlow } from "@/components/ResumeUploadFlow";
+import { useRouter } from "next/navigation";
 
 interface Resume {
   id: string;
@@ -29,6 +31,7 @@ export default function ResumeDashboardPage() {
   const [uploadedResumeId, setUploadedResumeId] = useState<string | null>(null);
   const [uploadedResumeData, setUploadedResumeData] = useState<any>(null);
   const [showProfileForm, setShowProfileForm] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchResumes() {
@@ -139,31 +142,12 @@ export default function ResumeDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleUpload} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Resume File
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                  disabled={uploading}
-                />
-              </div>
-              <Button 
-                type="submit" 
-                className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600"
-                disabled={!file || uploading}
-              >
-                {uploading ? (
-                  <><Loader2 className="animate-spin w-4 h-4 mr-2" /> Uploading...</>
-                ) : (
-                  <><Upload className="w-4 h-4 mr-2" /> Upload Resume</>
-                )}
-              </Button>
-            </form>
+            <ResumeUploadFlow 
+              onUploadComplete={(data) => {
+                // Refresh the resumes list or handle the upload completion
+                router.refresh();
+              }}
+            />
           </CardContent>
         </Card>
         
