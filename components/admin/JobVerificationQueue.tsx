@@ -19,7 +19,7 @@ interface JobVerification {
   };
 }
 
-export function JobVerificationQueue() {
+export default function JobVerificationQueue() {
   const [jobs, setJobs] = useState<JobVerification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

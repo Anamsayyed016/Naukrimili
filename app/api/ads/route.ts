@@ -133,7 +133,7 @@ function classifyUser(userData: UserData): string {
     recruiter: recruiterScore
   }
 
-  return Object.entries(scores).reduce((a, b) => scores[a[0]] > scores[b[0]] ? a : b)[0]
+  return Object.entries(scores).reduce((a, b) => scores[a[0] as keyof typeof scores] > scores[b[0] as keyof typeof scores] ? a : b)[0]
 }
 
 // Calculate ad relevance score

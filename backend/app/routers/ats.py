@@ -8,13 +8,13 @@ import json
 load_dotenv()
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-router = APIRouter()
+router = APIRouter(prefix="/ats", tags=["ats"])
 
 class ATSRequest(BaseModel):
     resume_text: str
     job_description: str
 
-@router.post("/ats-score")
+@router.post("/score")
 def ats_score(data: ATSRequest):
     prompt = f"""
 You are an Applicant Tracking System (ATS). Match the candidate resume with the job description.

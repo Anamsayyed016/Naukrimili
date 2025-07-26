@@ -23,7 +23,7 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
       toast({
         title: "Success!",
         description: "Your application has been submitted successfully.",
-        variant: "success",
+        variant: "default",
       });
       
       onSuccess?.();

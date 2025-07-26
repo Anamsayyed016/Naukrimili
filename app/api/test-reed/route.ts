@@ -1,32 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getReedService } from '@/lib/reed-service';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🧪 Testing Reed API directly...');
-    
-    const reed = getReedService();
-    
-    const testResult = await reed.searchFormattedJobs({
-      keywords: 'developer',
-      resultsToTake: 5
-    });
-    
-    console.log(`✅ Reed API test result: ${testResult.jobs.length} jobs found`);
+    console.log('🧪 Testing Reed API (mock)...');
     
     return NextResponse.json({
       success: true,
-      message: 'Reed API is working!',
+      message: 'Reed API service not implemented yet',
       data: {
-        totalResults: testResult.totalResults,
-        jobsReturned: testResult.jobs.length,
-        sampleJobs: testResult.jobs.slice(0, 3).map(job => ({
-          id: job.id,
-          title: job.title,
-          company: job.company,
-          location: job.location,
-          salary: job.salary
-        }))
+        totalResults: 0,
+        jobsReturned: 0,
+        sampleJobs: []
       },
       timestamp: new Date().toISOString()
     });

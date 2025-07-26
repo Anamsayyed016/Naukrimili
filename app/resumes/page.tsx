@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Eye, Trash2, FileText, Loader2, Upload, User, CheckCircle } from "lucide-react";
 import ProfileCompletionForm from "@/components/ProfileCompletionForm";
-import { ResumeUploadFlow } from "@/components/ResumeUploadFlow";
+import ResumeUploadFlow from "@/components/ResumeUploadFlow";
 import { useRouter } from "next/navigation";
 
 interface Resume {

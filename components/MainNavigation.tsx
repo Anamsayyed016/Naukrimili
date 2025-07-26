@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { signOut } from "next-auth/react";
 import {
   Search,
   Bell,
@@ -41,7 +42,7 @@ interface MainNavigationProps {
 }
 
 export default function MainNavigation({ brandName = "NaukriMili" }: MainNavigationProps) {
-  const { user, isAuthenticated, isLoading, signOut } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentLocation, setCurrentLocation] = useState("Bangalore");

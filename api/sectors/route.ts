@@ -135,12 +135,12 @@ export async function GET(request: NextRequest) {
     const sector = searchParams.get('sector');
 
     // If specific sector requested
-    if (sector && JOB_SECTORS[sector]) {
+    if (sector && JOB_SECTORS[sector as keyof typeof JOB_SECTORS]) {
       return NextResponse.json({
         success: true,
         sector: {
           id: sector,
-          ...JOB_SECTORS[sector]
+          ...JOB_SECTORS[sector as keyof typeof JOB_SECTORS]
         }
       });
     }
@@ -210,9 +210,9 @@ export async function POST(request: NextRequest) {
       success: true,
       sector: {
         id: matchedSector,
-        ...JOB_SECTORS[matchedSector],
+        ...JOB_SECTORS[matchedSector as keyof typeof JOB_SECTORS],
         confidence,
-        matchedKeywords: JOB_SECTORS[matchedSector]?.keywords.filter(keyword => 
+        matchedKeywords: JOB_SECTORS[matchedSector as keyof typeof JOB_SECTORS]?.keywords.filter(keyword => 
           text.includes(keyword.toLowerCase())
         ) || []
       }

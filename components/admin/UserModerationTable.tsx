@@ -15,7 +15,7 @@ interface User {
   type: 'jobseeker' | 'employer';
 }
 
-export function UserModerationTable() {
+export default function UserModerationTable() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

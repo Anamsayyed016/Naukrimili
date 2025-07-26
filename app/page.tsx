@@ -49,7 +49,7 @@ export default function HomePage() {
 
   return (
     <main>
-      <HeroSection isAuthenticated={isAuthenticated} />
+      <HeroSection />
 
       {/* Features Section */}
       <motion.section

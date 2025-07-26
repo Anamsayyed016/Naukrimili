@@ -78,10 +78,7 @@ export async function GET(request: NextRequest) {
       });
 
       try {
-        const searchResults = await jobService.searchJobs('software engineer', {
-          location: 'Mumbai',
-          limit: 3
-        });
+        const searchResults = await jobService.searchJobs('software engineer Mumbai');
         
         testResults.tests[3].status = 'passed';
         testResults.tests[3].message = `Found ${searchResults.total || 0} jobs`;

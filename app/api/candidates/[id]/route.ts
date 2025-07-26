@@ -2,13 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { Candidate } from '@/models/Candidate';
 
-interface Props {
-  params: {
-    id: string;
-  };
-}
-
-export async function GET(request: NextRequest, { params }: Props) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const params = await context.params;
   try {
     await connectDB();
     const candidate = await Candidate.findById(params.id);
@@ -30,7 +25,8 @@ export async function GET(request: NextRequest, { params }: Props) {
   }
 }
 
-export async function PUT(request: NextRequest, { params }: Props) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const params = await context.params;
   try {
     await connectDB();
     const data = await request.json();
@@ -61,7 +57,8 @@ export async function PUT(request: NextRequest, { params }: Props) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: Props) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const params = await context.params;
   try {
     await connectDB();
     const candidate = await Candidate.findByIdAndDelete(params.id);

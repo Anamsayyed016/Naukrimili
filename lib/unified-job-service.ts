@@ -1,6 +1,4 @@
-import { getSerpApiService } from './serpapi-service';
 import { AdzunaService } from './adzuna-service';
-import { getReedService } from './reed-service';
 import { sampleIndianJobs } from './sample-indian-jobs';
 import axios from 'axios';
 

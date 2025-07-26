@@ -83,7 +83,7 @@ const multilingualSchema = z.object({
     .array(
       z.object({
         language: z.string().min(1, "Language required"),
-        proficiency: z.enum(["Basic", "Conversational", "Fluent", "Native"], { required_error: "Proficiency required" }),
+        proficiency: z.enum(["Basic", "Conversational", "Fluent", "Native"], { message: "Proficiency required" }),
       })
     )
     .optional(),

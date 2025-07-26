@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNexusAuth } from '@/hooks/use-nexus-auth';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 
 interface NexusAuthCTAProps {
@@ -14,7 +14,7 @@ interface NexusAuthCTAProps {
 }
 
 export default function NexusAuthCTA({ variant = 'dashboard', user }: NexusAuthCTAProps) {
-  const { user: authUser } = useNexusAuth();
+  const { user: authUser } = useAuth();
   const [currentAlert, setCurrentAlert] = useState(0);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [isVisible, setIsVisible] = useState(false);

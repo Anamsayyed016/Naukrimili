@@ -9,6 +9,7 @@ export default function CallToAction() {
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Failed to load call to action.</div>;
+  if (!data) return <div>No data available.</div>;
 
   return (
     <section className="py-12 text-center">

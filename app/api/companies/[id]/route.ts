@@ -90,8 +90,9 @@ let mockCompanies: Company[] = [
 // GET /api/companies/[id] - Get specific company by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     const { id } = params
     
@@ -137,8 +138,9 @@ export async function GET(
 // PUT /api/companies/[id] - Update company information
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     const { id } = params
     const body = await request.json()
@@ -181,8 +183,9 @@ export async function PUT(
 // DELETE /api/companies/[id] - Delete company
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
+  const params = await context.params;
   try {
     const { id } = params
     

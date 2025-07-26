@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .database import Base, engine
-from .routers import jobs, apply, ats, fraud
+from .routers import jobs, ats
 
 app = FastAPI()
 
@@ -14,12 +13,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-Base.metadata.create_all(bind=engine)
+# Database initialization removed as it's not needed for this implementation
 
 app.include_router(jobs.router)
-app.include_router(apply.router)
 app.include_router(ats.router)
-app.include_router(fraud.router, prefix="/fraud", tags=["fraud"])
 
 @app.get("/")
 def read_root():

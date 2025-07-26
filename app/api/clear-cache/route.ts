@@ -3,14 +3,24 @@ import { unifiedJobService } from '@/lib/unified-job-service';
 
 export async function POST(request: NextRequest) {
   try {
-    // Get cache stats before clearing
-    const beforeStats = unifiedJobService.getCacheStats();
+    let beforeStats, afterStats;
     
-    // Clear the cache
-    unifiedJobService.clearCache();
-    
-    // Get cache stats after clearing
-    const afterStats = unifiedJobService.getCacheStats();
+    try {
+      // Get cache stats before clearing
+      beforeStats = unifiedJobService.getCacheStats();
+      
+      // Clear the cache
+      unifiedJobService.clearCache();
+      
+      // Get cache stats after clearing
+      afterStats = unifiedJobService.getCacheStats();
+    } catch (serviceError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Service unavailable - cache clearing failed',
+        timestamp: new Date().toISOString()
+      }, { status: 503 });
+    }
     
     return NextResponse.json({
       success: true,
@@ -23,14 +33,25 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({
       success: false,
-      error: error.message
+      error: error.message || 'Unknown error'
     }, { status: 500 });
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const stats = unifiedJobService.getCacheStats();
+    let stats;
+    
+    try {
+      stats = unifiedJobService.getCacheStats();
+    } catch (serviceError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Service unavailable',
+        cache: { size: 0, keys: [], status: 'unavailable' },
+        timestamp: new Date().toISOString()
+      }, { status: 503 });
+    }
     
     return NextResponse.json({
       success: true,
@@ -41,7 +62,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({
       success: false,
-      error: error.message
+      error: error.message || 'Unknown error'
     }, { status: 500 });
   }
 }

@@ -131,9 +131,9 @@ const CandidatePipeline: React.FC = () => {
                 <div className="space-y-3 min-h-[150px]">
                   {stageCandidates(stage.id).map((candidate) => (
                     <div
-                      key={candidate._id}
+                      key={candidate.email}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, candidate._id, stage.id)}
+                      onDragStart={(e) => handleDragStart(e, candidate.email, stage.id)}
                       className="group bg-white border border-gray-200 p-3 rounded-md 
                         hover:shadow-md hover:border-blue-200 transition-all duration-200 cursor-move"
                     >

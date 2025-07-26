@@ -231,6 +231,10 @@ export async function GET(request: NextRequest) {
       let aValue = a[sortBy as keyof Company]
       let bValue = b[sortBy as keyof Company]
       
+      // Handle undefined values
+      if (aValue === undefined) aValue = ''
+      if (bValue === undefined) bValue = ''
+      
       if (typeof aValue === 'string') aValue = aValue.toLowerCase()
       if (typeof bValue === 'string') bValue = bValue.toLowerCase()
       

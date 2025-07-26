@@ -9,6 +9,7 @@ export default function FeaturedJobs() {
 
   if (isLoading) return <div>Loading featured jobs...</div>;
   if (error) return <div>Failed to load jobs.</div>;
+  if (!data) return <div>No jobs available.</div>;
 
   return (
     <section className="py-8">

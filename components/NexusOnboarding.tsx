@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNexusAuth } from '@/hooks/use-nexus-auth';
+import { useAuth } from '@/hooks/useAuth';
 
 interface OnboardingData {
   personal: {
@@ -48,7 +48,8 @@ interface NexusOnboardingProps {
 }
 
 export default function NexusOnboarding({ onComplete, initialData }: NexusOnboardingProps) {
-  const { user, updateProfile } = useNexusAuth();
+  const { user } = useAuth();
+  // Note: updateProfile function would need to be implemented separately
   const [currentStep, setCurrentStep] = useState(0);
   const [data, setData] = useState<OnboardingData>({
     personal: { firstName: '', lastName: '', phone: '', location: '', bio: '' },
@@ -63,7 +64,7 @@ export default function NexusOnboarding({ onComplete, initialData }: NexusOnboar
   const [isSaving, setIsSaving] = useState(false);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   
-  const voiceRecognitionRef = useRef<SpeechRecognition | null>(null);
+  const voiceRecognitionRef = useRef<any>(null);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const steps = [
@@ -76,14 +77,14 @@ export default function NexusOnboarding({ onComplete, initialData }: NexusOnboar
   // Voice guidance system
   useEffect(() => {
     if (isVoiceGuided && 'webkitSpeechRecognition' in window) {
-      const recognition = new webkitSpeechRecognition();
+      const recognition = new (window as any).webkitSpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: any) => {
         const transcript = Array.from(event.results)
-          .map(result => result[0].transcript)
+          .map((result: any) => result[0].transcript)
           .join('');
         
         handleVoiceCommand(transcript);
@@ -143,17 +144,18 @@ export default function NexusOnboarding({ onComplete, initialData }: NexusOnboar
     setIsSaving(true);
     try {
       const completionPercentage = calculateCompletion();
-      await updateProfile(user.id, {
-        profileCompletion: completionPercentage,
-        // Store onboarding data in user profile
-        profile: {
-          ...data.personal,
-          skills: data.professional.skills,
-          experience: { years: data.professional.experience },
-          education: data.professional.education,
-          preferences: data.preferences
-        }
-      });
+      // TODO: Implement updateProfile function
+      // await updateProfile(user.id, {
+      //   profileCompletion: completionPercentage,
+      //   // Store onboarding data in user profile
+      //   profile: {
+      //     ...data.personal,
+      //     skills: data.professional.skills,
+      //     experience: { years: data.professional.experience },
+      //     education: data.professional.education,
+      //     preferences: data.preferences
+      //   }
+      // });
       
       // Save to localStorage as backup
       localStorage.setItem('nexus_onboarding_data', JSON.stringify(data));

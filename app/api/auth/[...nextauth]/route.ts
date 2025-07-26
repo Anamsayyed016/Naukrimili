@@ -12,29 +12,57 @@ const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // Add your authentication logic here
-        // This is a placeholder implementation
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
         
         try {
-          // TODO: Replace with actual user authentication
-          const user = {
-            id: "1",
-            email: credentials.email,
-            name: "Test User",
-          };
+          // Check if backend API is available for authentication
+          const backendUrl = process.env.BACKEND_API_URL;
+          if (backendUrl) {
+            const response = await fetch(`${backendUrl}/auth/login`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: credentials.email,
+                password: credentials.password,
+              }),
+            });
+
+            if (response.ok) {
+              const user = await response.json();
+              return {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+              };
+            }
+          }
+
+          // Fallback for demo purposes
+          if (credentials.email === 'demo@example.com' && credentials.password === 'demo123') {
+            return {
+              id: "demo-user",
+              email: credentials.email,
+              name: "Demo User",
+            };
+          }
           
-          return user;
+          return null;
         } catch (error) {
           console.error("Authentication error:", error);
           return null;
         }
       }
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      })
+    ] : []),
   ],
   session: {
     strategy: "jwt",
@@ -47,19 +75,20 @@ const authOptions: AuthOptions = {
   callbacks: {
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.sub;
+        session.user.id = (token.sub || token.id) as string;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
+        token.id = user.id;
       }
       return token;
     }
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
 };
 
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST }; 
+export { handler as GET, handler as POST };

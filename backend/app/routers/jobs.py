@@ -127,25 +127,6 @@ async def search_jobs(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error searching jobs: {str(e)}")
 
-@router.get("/{job_id}", response_model=JobResponse)
-async def get_job_by_id(job_id: str):
-    """Get specific job details by ID"""
-    try:
-        job = next((j for j in jobs_db if j['id'] == job_id), None)
-        
-        if not job:
-            raise HTTPException(status_code=404, detail="Job not found")
-        
-        return JobResponse(
-            success=True,
-            job=job
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching job: {str(e)}")
-
 @router.get("/featured/list", response_model=JobResponse)
 async def get_featured_jobs(limit: int = Query(10, description="Number of featured jobs to return")):
     """Get featured/recommended jobs"""
@@ -164,6 +145,40 @@ async def get_featured_jobs(limit: int = Query(10, description="Number of featur
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching featured jobs: {str(e)}")
+
+@router.get("/saved/list", response_model=JobResponse)
+async def get_saved_jobs():
+    """Get user's saved jobs"""
+    try:
+        saved_jobs = [job for job in jobs_db if job['id'] in user_saved_jobs]
+        
+        return JobResponse(
+            success=True,
+            jobs=saved_jobs,
+            total=len(saved_jobs)
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching saved jobs: {str(e)}")
+
+@router.get("/{job_id}", response_model=JobResponse)
+async def get_job_by_id(job_id: str):
+    """Get specific job details by ID"""
+    try:
+        job = next((j for j in jobs_db if j['id'] == job_id), None)
+        
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        return JobResponse(
+            success=True,
+            job=job
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching job: {str(e)}")
 
 @router.post("/{job_id}/apply", response_model=JobResponse)
 async def apply_for_job(job_id: str, application_data: JobApplication):
@@ -232,20 +247,6 @@ async def save_job(job_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving job: {str(e)}")
 
-@router.get("/saved/list", response_model=JobResponse)
-async def get_saved_jobs():
-    """Get user's saved jobs"""
-    try:
-        saved_jobs = [job for job in jobs_db if job['id'] in user_saved_jobs]
-        
-        return JobResponse(
-            success=True,
-            jobs=saved_jobs,
-            total=len(saved_jobs)
-        )
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching saved jobs: {str(e)}")
 
 @router.delete("/{job_id}/unsave", response_model=JobResponse)
 async def unsave_job(job_id: str):

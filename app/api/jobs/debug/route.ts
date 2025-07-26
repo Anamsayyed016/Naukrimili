@@ -7,23 +7,30 @@ export async function GET(request: NextRequest) {
     const testSearch = searchParams.get('test') === 'true';
     
     // Get API status
-    const apiStatus = unifiedJobService.getApiStatus();
-    
-    // Get cache stats
-    const cacheStats = unifiedJobService.getCacheStats();
-    
-    // Test search if requested
+    let apiStatus;
+    let cacheStats;
     let testResult = null;
-    if (testSearch) {
-      try {
-        testResult = await unifiedJobService.searchJobs({
-          query: 'software engineer',
-          location: 'Mumbai',
-          limit: 5
-        });
-      } catch (error) {
-        testResult = { error: error instanceof Error ? error.message : 'Unknown error' };
+    
+    try {
+      apiStatus = unifiedJobService.getApiStatus();
+      cacheStats = unifiedJobService.getCacheStats();
+      
+      // Test search if requested
+      if (testSearch) {
+        try {
+          testResult = await unifiedJobService.searchJobs({
+            query: 'software engineer',
+            location: 'Mumbai',
+            limit: 5
+          });
+        } catch (error) {
+          testResult = { error: error instanceof Error ? error.message : 'Unknown error' };
+        }
       }
+    } catch (serviceError) {
+      console.warn('Unified job service not available:', serviceError);
+      apiStatus = { error: 'Service unavailable' };
+      cacheStats = { size: 0, keys: [] };
     }
 
     // Check environment variables (without exposing actual values)
@@ -87,12 +94,20 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case 'clearCache':
-        unifiedJobService.clearCache();
-        return NextResponse.json({
-          success: true,
-          message: 'Cache cleared successfully',
-          timestamp: new Date().toISOString()
-        });
+        try {
+          unifiedJobService.clearCache();
+          return NextResponse.json({
+            success: true,
+            message: 'Cache cleared successfully',
+            timestamp: new Date().toISOString()
+          });
+        } catch (error) {
+          return NextResponse.json({
+            success: false,
+            error: 'Cache clearing failed - service unavailable',
+            timestamp: new Date().toISOString()
+          });
+        }
 
       case 'testSearch':
         if (!params?.query) {
@@ -102,17 +117,26 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const result = await unifiedJobService.searchJobs({
-          query: params.query,
-          location: params.location || 'India',
-          limit: params.limit || 5
-        });
+        try {
+          const result = await unifiedJobService.searchJobs({
+            query: params.query,
+            location: params.location || 'India',
+            limit: params.limit || 5
+          });
 
-        return NextResponse.json({
-          success: true,
-          testResult: result,
-          timestamp: new Date().toISOString()
-        });
+          return NextResponse.json({
+            success: true,
+            testResult: result,
+            timestamp: new Date().toISOString()
+          });
+        } catch (error) {
+          return NextResponse.json({
+            success: false,
+            error: 'Test search failed - service unavailable',
+            testResult: { error: error instanceof Error ? error.message : 'Unknown error' },
+            timestamp: new Date().toISOString()
+          });
+        }
 
       default:
         return NextResponse.json(

@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import AuthGuard from "@/components/auth/AuthGuard";
 import UserModerationTable from "@/components/admin/UserModerationTable";
 import JobVerificationQueue from "@/components/admin/JobVerificationQueue";
-import FraudDetectionReports from "@/components/admin/FraudDetectionReports";
 import SystemHealthWidgets from "@/components/admin/SystemHealthWidgets";
 
 export default function AdminDashboardPage() {
@@ -23,14 +22,15 @@ export default function AdminDashboardPage() {
         >
           <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
 
-          <SystemHealthWidgets className="mb-8" />
+          <div className="mb-8">
+            <SystemHealthWidgets />
+          </div>
 
           <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="users">User Management</TabsTrigger>
               <TabsTrigger value="jobs">Job Verification</TabsTrigger>
-              <TabsTrigger value="fraud">Fraud Detection</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-4">
@@ -56,15 +56,6 @@ export default function AdminDashboardPage() {
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Job Verification Queue</h2>
                   <JobVerificationQueue />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="fraud" className="space-y-4">
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Fraud Detection</h2>
-                  <FraudDetectionReports />
                 </CardContent>
               </Card>
             </TabsContent>

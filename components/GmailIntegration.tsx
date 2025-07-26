@@ -42,7 +42,10 @@ export default function GmailIntegration() {
 
   // Fetch emails
   const fetchEmails = async (query?: string) => {
-    if (!session?.accessToken) return;
+    if (!session?.accessToken) {
+      console.warn('No access token available');
+      return;
+    }
     
     setLoading(true);
     try {

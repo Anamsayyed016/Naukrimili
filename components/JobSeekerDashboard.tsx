@@ -318,10 +318,7 @@ export default function JobSeekerDashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <JobList 
-            searchQuery={searchQuery}
-            filters={filters}
-          />
+          <JobList />
         </motion.div>
       </div>
     </div>

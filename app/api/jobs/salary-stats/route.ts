@@ -1,23 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdzunaService } from '../../../../lib/adzuna-service';
+import { getJobStats } from '@/lib/adzuna-service';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     
-    const what = searchParams.get('what') || '';
-    const where = searchParams.get('where') || '';
-    const category = searchParams.get('category');
-    const company = searchParams.get('company');
+    const what = searchParams.get('what')?.trim() || '';
+    const where = searchParams.get('where')?.trim() || '';
+    const category = searchParams.get('category')?.trim();
+    const company = searchParams.get('company')?.trim();
 
-    const adzunaService = getAdzunaService();
-    
-    const result = await adzunaService.getSalaryHistogram({
-      what,
-      where,
-      category: category || undefined,
-      company: company || undefined,
-    });
+    if (!what && !where && !category && !company) {
+      return NextResponse.json({ 
+        error: 'At least one search parameter is required' 
+      }, { 
+        status: 400 
+      });
+    }
+
+    const query = [what, where, category, company]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+      
+    const result = await getJobStats(query);
 
     return NextResponse.json(result);
   } catch (error: any) {

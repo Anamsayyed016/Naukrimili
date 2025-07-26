@@ -77,7 +77,7 @@ const THRESHOLDS: SystemThresholds = {
   }
 };
 
-export function SystemHealthWidgets() {
+export default function SystemHealthWidgets() {
   const [healthData, setHealthData] = useState<SystemHealth | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -60,7 +60,7 @@ export async function GET() {
     });
 
     // Process and enhance job results with match scores and distance
-    const enhancedJobs = jobs.map(job => {
+    const enhancedJobs = jobs.map((job: any) => {
       const matchScore = calculateMatchScore({
         jobSkills: job.requiredSkills,
         seekerSkills: seekerProfile.skills,
@@ -89,7 +89,7 @@ export async function GET() {
     });
 
     // Sort by match score descending
-    enhancedJobs.sort((a, b) => b.matchScore - a.matchScore);
+    enhancedJobs.sort((a: any, b: any) => b.matchScore - a.matchScore);
 
     return NextResponse.json({ jobs: enhancedJobs });
 

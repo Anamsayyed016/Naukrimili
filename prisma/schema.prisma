@@ -15,34 +15,12 @@ model User {
   role          Role         @default(USER)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-  fraudReports  FraudReport[] @relation("ReportedUser")
   
   @@map("users")
-}
-
-model FraudReport {
-  id          String      @id @default(cuid())
-  userId      String
-  reason      String
-  reportedBy  String
-  evidence    String?
-  status      ReportStatus @default(PENDING)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  user        User        @relation("ReportedUser", fields: [userId], references: [id])
-
-  @@map("fraud_reports")
 }
 
 enum Role {
   USER
   ADMIN
   EMPLOYER
-}
-
-enum ReportStatus {
-  PENDING
-  INVESTIGATING
-  RESOLVED
-  DISMISSED
 }

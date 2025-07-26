@@ -86,8 +86,8 @@ class JobAggregator {
   }
 
   async aggregateJobs(query: string, location?: string, sector?: string): Promise<JobData[]> {
-    const searchQuery = sector && JOB_SECTORS[sector] 
-      ? JOB_SECTORS[sector][0] 
+    const searchQuery = sector && JOB_SECTORS[sector as keyof typeof JOB_SECTORS] 
+      ? JOB_SECTORS[sector as keyof typeof JOB_SECTORS][0] 
       : query || 'jobs';
 
     console.log(`🔍 Searching for "${searchQuery}" in ${location || 'any location'}`);
