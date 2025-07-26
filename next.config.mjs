@@ -94,7 +94,7 @@ const nextConfig = {
     typedRoutes: true,
   },
   
-  // Output configuration
+  // Output configuration for Vercel
   output: 'standalone',
   
   // Compression

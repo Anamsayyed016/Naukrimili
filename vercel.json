@@ -1,34 +1,8 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "buildCommand": "pnpm dlx prisma generate && SKIP_ENV_VALIDATION=1 next build",
-  "devCommand": "next dev",
-  "installCommand": "pnpm install",
+  "buildCommand": "npm run build",
   "functions": {
-    "app/api/**/*": {
-      "maxDuration": 30
-    },
-    "app/api/resumes/upload/route.ts": {
-      "maxDuration": 60
+    "app/api/**/*.ts": {
+      "runtime": "@vercel/node@3.0.0"
     }
-  },
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    }
-  ]
+  }
 }

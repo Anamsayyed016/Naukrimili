@@ -3,18 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev",
-    "build": "npx prisma generate && npx next build",
-    "start": "npx next start",
-    "lint": "npx next lint",
-    "lint:security": "eslint . --ext .ts,.tsx --config .eslintrc.security.json",
-    "type-check": "tsc --noEmit",
-    "postinstall": "npx prisma generate",
-    "test": "jest --detectOpenHandles",
-    "test:watch": "jest --watch --detectOpenHandles",
-    "test:coverage": "jest --coverage --detectOpenHandles",
-    "security:audit": "npm audit --audit-level moderate",
-    "security:fix": "npm audit fix"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "vercel-build": "next build"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
