@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "SKIP_ENV_VALIDATION=1 next build",
+  "buildCommand": "pnpm dlx prisma generate && SKIP_ENV_VALIDATION=1 next build",
   "devCommand": "next dev",
-  "installCommand": "npm install",
+  "installCommand": "pnpm install",
   "functions": {
     "app/api/**/*": {
       "maxDuration": 30

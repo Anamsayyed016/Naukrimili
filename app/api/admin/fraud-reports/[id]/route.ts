@@ -1,27 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { headers } from 'next/headers';
+import { db } from '@/lib/db';
+
+import { headers } from 'next/headers';
+import { db } from '@/lib/db';
 
 export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const params = await context.params;
     const { id } = params;
     
-    // TODO: Implement fraud report fetching logic
-    const report = {
-      id,
-      type: 'fake_job_posting',
-      status: 'pending',
-      reportedBy: 'user123',
-      description: 'Suspicious job posting',
-      createdAt: new Date().toISOString()
-    };
+    const report = await db.fraudReport.findUnique({
+      where: { id },
+      include: {
+        reportedBy: true,
+        reportedJob: true
+      }
+    });
 
-    return NextResponse.json({ report });
+    if (!report) {
+      return Response.json(
+        { error: 'Fraud report not found' },
+        { status: 404 }
+      );
+    }
+
+    return Response.json({ report });
   } catch (error) {
     console.error('Error fetching fraud report:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Failed to fetch fraud report' },
       { status: 500 }
     );
@@ -29,25 +37,36 @@ export async function GET(
 }
 
 export async function PUT(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const params = await context.params;
     const { id } = params;
     const body = await request.json();
     
-    // TODO: Implement fraud report update logic
-    const updatedReport = {
-      id,
-      ...body,
-      updatedAt: new Date().toISOString()
-    };
+    const existingReport = await db.fraudReport.findUnique({
+      where: { id }
+    });
 
-    return NextResponse.json({ report: updatedReport });
+    if (!existingReport) {
+      return Response.json(
+        { error: 'Fraud report not found' },
+        { status: 404 }
+      );
+    }
+
+    const updatedReport = await db.fraudReport.update({
+      where: { id },
+      data: {
+        ...body,
+        updatedAt: new Date()
+      }
+    });
+
+    return Response.json({ report: updatedReport });
   } catch (error) {
     console.error('Error updating fraud report:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Failed to update fraud report' },
       { status: 500 }
     );
@@ -55,19 +74,31 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const params = await context.params;
     const { id } = params;
+
+    const existingReport = await db.fraudReport.findUnique({
+      where: { id }
+    });
+
+    if (!existingReport) {
+      return Response.json(
+        { error: 'Fraud report not found' },
+        { status: 404 }
+      );
+    }
+
+    await db.fraudReport.delete({
+      where: { id }
+    });
     
-    // TODO: Implement fraud report deletion logic
-    
-    return NextResponse.json({ message: 'Fraud report deleted successfully' });
+    return Response.json({ message: 'Fraud report deleted successfully' });
   } catch (error) {
     console.error('Error deleting fraud report:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Failed to delete fraud report' },
       { status: 500 }
     );

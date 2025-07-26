@@ -1,14 +1,20 @@
-const connectDB = require('../lib/mongodb').default;
+import { connect } from '../lib/mongodb';
+import mongoose from 'mongoose';
 
 async function testConnection() {
   try {
-    const mongoose = await connectDB();
+    await connect();
     console.log('🔍 Testing database connection...');
     
     // Get the database instance
     const db = mongoose.connection.db;
     if (!db) {
       throw new Error('Database connection not established');
+    }
+    
+    // Add connection status check
+    if (mongoose.connection.readyState !== 1) {
+      throw new Error(`Invalid connection state: ${mongoose.connection.readyState}`);
     }
     
     // Test listing collections

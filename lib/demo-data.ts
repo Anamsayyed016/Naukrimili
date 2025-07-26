@@ -101,3 +101,22 @@ export const getDemoHowItWorks = async (): Promise<DemoHowItWorksData> => {
     ]
   };
 };
+
+interface DemoStatsData {
+  jobs: number;
+  companies: number;
+  users: number;
+  hires: number;
+}
+
+export const getDemoStats = async (): Promise<DemoStatsData> => {
+  // Simulating an API call delay
+  await new Promise(resolve => setTimeout(resolve, 400));
+
+  return {
+    jobs: 15420,
+    companies: 2850,
+    users: 48670,
+    hires: 12340
+  };
+};
