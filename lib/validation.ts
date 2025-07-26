@@ -1,9 +1,32 @@
 import { z } from 'zod';
+import DOMPurify from 'isomorphic-dompurify';
 
-// Common validation schemas
-export const emailSchema = z.string().email('Invalid email address');
-export const passwordSchema = z.string().min(8, 'Password must be at least 8 characters');
-export const nameSchema = z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters');
+// Enhanced validation schemas with security
+export const emailSchema = z.string()
+  .email('Invalid email address')
+  .max(254, 'Email address too long')
+  .transform(email => email.toLowerCase().trim());
+
+export const passwordSchema = z.string()
+  .min(8, 'Password must be at least 8 characters')
+  .max(128, 'Password too long')
+  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])/, 
+    'Password must contain uppercase, lowercase, number, and special character');
+
+export const nameSchema = z.string()
+  .min(2, 'Name must be at least 2 characters')
+  .max(50, 'Name must be less than 50 characters')
+  .regex(/^[a-zA-Z\s'-]+$/, 'Name contains invalid characters')
+  .transform(name => name.trim());
+
+// Sanitization helper
+export function sanitizeHtml(input: string): string {
+  if (typeof window !== 'undefined') {
+    return DOMPurify.sanitize(input, { ALLOWED_TAGS: [] });
+  }
+  // Server-side fallback
+  return input.replace(/<[^>]*>/g, '').trim();
+}
 
 // Job validation schemas
 export const jobTitleSchema = z.string().min(3, 'Job title must be at least 3 characters').max(100, 'Job title must be less than 100 characters');
@@ -76,28 +99,97 @@ export const jobSearchSchema = z.object({
   limit: z.number().min(1).max(100).default(20)
 });
 
-// Validation helper function
-export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; errors: z.ZodError } {
+// Enhanced validation helper with detailed error formatting
+export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown): 
+  { success: true; data: T } | { success: false; errors: string[]; details: z.ZodError } {
   try {
     const validatedData = schema.parse(data);
     return { success: true, data: validatedData };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, errors: error };
+      const errors = error.errors.map(err => {
+        const path = err.path.length > 0 ? `${err.path.join('.')}: ` : '';
+        return `${path}${err.message}`;
+      });
+      return { success: false, errors, details: error };
     }
     throw error;
   }
 }
 
-// Sanitization helpers
+// API response validation
+export const apiResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.any().optional(),
+  message: z.string().optional(),
+  errors: z.array(z.string()).optional(),
+  meta: z.object({
+    page: z.number().optional(),
+    limit: z.number().optional(),
+    total: z.number().optional(),
+    timestamp: z.string().optional()
+  }).optional()
+});
+
+export type ApiResponse<T = any> = {
+  success: boolean;
+  data?: T;
+  message?: string;
+  errors?: string[];
+  meta?: {
+    page?: number;
+    limit?: number;
+    total?: number;
+    timestamp?: string;
+  };
+};
+
+// Enhanced sanitization helpers
 export function sanitizeString(input: string): string {
-  return input.trim().replace(/[<>]/g, '');
+  return sanitizeHtml(input).trim().substring(0, 1000);
 }
 
 export function sanitizeEmail(email: string): string {
-  return email.toLowerCase().trim();
+  return email.toLowerCase().trim().substring(0, 254);
 }
 
 export function sanitizeSearchQuery(query: string): string {
-  return query.trim().replace(/[^\w\s-]/g, '').substring(0, 100);
+  return sanitizeHtml(query)
+    .trim()
+    .replace(/[^\w\s-.,]/g, '')
+    .substring(0, 100);
+}
+
+export function sanitizeFileName(fileName: string): string {
+  return fileName
+    .replace(/[^a-zA-Z0-9.-]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .substring(0, 255);
+}
+
+// Input validation for file uploads
+export const fileUploadSchema = z.object({
+  name: z.string().min(1, 'File name is required').max(255, 'File name too long'),
+  size: z.number().max(5 * 1024 * 1024, 'File size must be less than 5MB'),
+  type: z.enum([
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain'
+  ], { errorMap: () => ({ message: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.' }) })
+});
+
+// Security validation for URLs
+export function validateUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
+// SQL injection prevention (for raw queries)
+export function escapeSqlString(input: string): string {
+  return input.replace(/'/g, "''").replace(/\\/g, '\\\\');
 }

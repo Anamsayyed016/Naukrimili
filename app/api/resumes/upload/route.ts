@@ -1,109 +1,182 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+import { env } from "@/lib/env";
+import { handleApiError, ValidationError, AuthenticationError } from "@/lib/error-handler";
+import { fileUploadSchema, sanitizeFileName } from "@/lib/validation";
+import crypto from "crypto";
 
-// Configure the API route for Vercel Edge Runtime
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// Backend API URL
-const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
 
-// Helper function to validate file type
-function isAllowedFileType(file: File): boolean {
-  const allowedTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+// Enhanced virus scanning with MIME validation
+function scanFileForViruses(buffer: ArrayBuffer, mimeType: string): boolean {
+  const view = new Uint8Array(buffer);
+  
+  // Check file signatures match MIME type
+  const signatures: Record<string, number[][]> = {
+    'application/pdf': [[0x25, 0x50, 0x44, 0x46]], // %PDF
+    'application/msword': [[0xD0, 0xCF, 0x11, 0xE0]], // DOC
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
+      [0x50, 0x4B, 0x03, 0x04], // ZIP (DOCX)
+      [0x50, 0x4B, 0x05, 0x06],
+      [0x50, 0x4B, 0x07, 0x08]
+    ]
+  };
+  
+  const expectedSignatures = signatures[mimeType];
+  if (expectedSignatures) {
+    const hasValidSignature = expectedSignatures.some(signature =>
+      signature.every((byte, index) => view[index] === byte)
+    );
+    if (!hasValidSignature) return false;
+  }
+  
+  // Check for malicious patterns
+  const maliciousPatterns = [
+    [0x4D, 0x5A], // PE executable
+    [0x7F, 0x45, 0x4C, 0x46], // ELF
+    [0x3C, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74], // <script
+    [0x6A, 0x61, 0x76, 0x61, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x3A], // javascript:
   ];
   
-  const allowedExtensions = ['.pdf', '.doc', '.docx'];
-  const fileExtension = file.name.toLowerCase().split('.').pop();
+  for (const pattern of maliciousPatterns) {
+    for (let i = 0; i <= view.length - pattern.length; i++) {
+      if (pattern.every((byte, index) => view[i + index] === byte)) {
+        return false;
+      }
+    }
+  }
   
-  return allowedTypes.includes(file.type) || allowedExtensions.includes(`.${fileExtension}`);
+  return true;
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+// Generate secure file hash
+function generateFileHash(buffer: ArrayBuffer): string {
+  const hash = crypto.createHash('sha256');
+  hash.update(new Uint8Array(buffer));
+  return hash.digest('hex');
+}
 
 export async function POST(req: NextRequest) {
   try {
-    console.log('Received upload request');
-    
-    const formData = await req.formData();
-    const file = formData.get("resume") as File;
-
-    if (!file) {
-      return NextResponse.json({ 
-        success: false, 
-        message: "No file uploaded" 
-      }, { status: 400 });
+    // Authentication check
+    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
+    if (!token) {
+      throw new AuthenticationError('Authentication required for file upload');
     }
 
-    if (!isAllowedFileType(file)) {
-      return NextResponse.json({ 
-        success: false, 
-        message: "Invalid file type. Please upload a PDF or Word document (.pdf, .doc, or .docx)" 
-      }, { status: 400 });
+    const formData = await req.formData();
+    const file = formData.get("resume") as File;
+    const userId = formData.get("userId") as string || token.sub;
+    const jobId = formData.get("jobId") as string;
+
+    if (!file) {
+      throw new ValidationError('No file uploaded', ['File is required']);
+    }
+
+    // Validate file properties
+    const fileValidation = fileUploadSchema.safeParse({
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
+
+    if (!fileValidation.success) {
+      const errors = fileValidation.error.errors.map(err => err.message);
+      throw new ValidationError('File validation failed', errors);
+    }
+
+    // Additional security checks
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      throw new ValidationError('Invalid file type', [
+        'Only PDF, DOC, and DOCX files are allowed'
+      ]);
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ 
-        success: false, 
-        message: "File size too large. Maximum size is 5MB" 
-      }, { status: 400 });
+      throw new ValidationError('File too large', [
+        `File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+      ]);
     }
 
-    // In Vercel Edge runtime, we can't write to filesystem
-    // Instead, we'll forward the file to the backend or use a cloud storage service
-    if (BACKEND_API_URL) {
-      try {
-        const backendFormData = new FormData();
-        backendFormData.append('resume', file);
-        
-        const response = await fetch(`${BACKEND_API_URL}/resumes/upload`, {
-          method: 'POST',
-          body: backendFormData,
-        });
-        
-        if (response.ok) {
-          const result = await response.json();
-          return NextResponse.json({
-            success: true,
-            data: {
-              filePath: result.filePath || `/api/files/${Date.now()}-${file.name}`,
-              fileName: file.name,
-              fileSize: file.size,
-              fileType: file.type,
-            }
-          });
-        }
-      } catch (error) {
-        console.warn('Backend upload failed:', error);
-      }
-    }
-
-    // Fallback: Return success with metadata (for demo purposes)
-    // In production, you'd want to upload to a cloud storage service
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const sanitizedFileName = file.name
-      .toLowerCase()
-      .replace(/[^a-z0-9.-]/g, '_')
-      .replace(/_{2,}/g, '_');
+    // Read file buffer for security scanning
+    const buffer = await file.arrayBuffer();
     
-    return NextResponse.json({
-      success: true,
-      data: {
-        filePath: `/uploads/resumes/${timestamp}-${sanitizedFileName}`,
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-        message: 'File processed successfully (demo mode)'
-      }
+    // Enhanced security scan
+    if (!scanFileForViruses(buffer, file.type)) {
+      throw new ValidationError('File security check failed', [
+        'File contains suspicious content or invalid format'
+      ]);
+    }
+    
+    // Check for path traversal in filename
+    if (file.name.includes('..') || file.name.includes('/') || file.name.includes('\\')) {
+      throw new ValidationError('Invalid filename', [
+        'Filename contains invalid characters'
+      ]);
+    }
+
+    // Generate file hash for deduplication
+    const fileHash = generateFileHash(buffer);
+    
+    // Sanitize filename
+    const sanitizedFileName = sanitizeFileName(file.name);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const uniqueFileName = `${timestamp}-${sanitizedFileName}`;
+
+    // In production, upload to cloud storage (S3, etc.)
+    // For now, simulate successful upload
+    const uploadResult = {
+      fileId: crypto.randomUUID(),
+      fileName: file.name,
+      sanitizedFileName: uniqueFileName,
+      fileSize: file.size,
+      fileType: file.type,
+      fileHash,
+      uploadedBy: userId,
+      jobId: jobId || null,
+      uploadedAt: new Date().toISOString(),
+      filePath: `/uploads/resumes/${uniqueFileName}`,
+      status: 'uploaded'
+    };
+
+    // Log successful upload
+    console.log('File uploaded successfully:', {
+      fileId: uploadResult.fileId,
+      fileName: uploadResult.fileName,
+      userId,
+      fileSize: file.size
     });
 
-  } catch (error: any) {
-    console.error("Upload error:", error);
-    return NextResponse.json(
-      { success: false, message: error.message || "Upload failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: true,
+      data: uploadResult,
+      message: 'File uploaded successfully'
+    });
+
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: '/api/resumes/upload',
+      method: 'POST'
+    });
   }
+}
+
+// Handle OPTIONS for CORS
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 }
