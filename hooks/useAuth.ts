@@ -115,14 +115,14 @@ export function useAuth(): AuthState {
 
   // Transform session user to our User type
   const user: User | null = session?.user ? {
-    id: session.user.id,
-    name: session.user.name,
-    email: session.user.email,
-    image: session.user.image,
-    role: (session.user as any)?.role || "jobseeker",
-    profileCompletion: (session.user as any)?.profileCompletion || 0,
-    createdAt: (session.user as any)?.createdAt,
-    updatedAt: (session.user as any)?.updatedAt
+    id: session.user.id || '',
+    name: session.user.name || '',
+    email: session.user.email || '',
+    image: session.user.image || null,
+    role: 'role' in session.user && typeof session.user.role === 'string' ? session.user.role as User['role'] : 'jobseeker',
+    profileCompletion: 'profileCompletion' in session.user && typeof session.user.profileCompletion === 'number' ? session.user.profileCompletion : 0,
+    createdAt: 'createdAt' in session.user && typeof session.user.createdAt === 'string' ? session.user.createdAt : undefined,
+    updatedAt: 'updatedAt' in session.user && typeof session.user.updatedAt === 'string' ? session.user.updatedAt : undefined
   } : null;
 
   return {

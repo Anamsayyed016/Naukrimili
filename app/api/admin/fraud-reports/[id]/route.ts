@@ -1,8 +1,5 @@
 import { headers } from 'next/headers';
-import { db } from '@/lib/db';
-
-import { headers } from 'next/headers';
-import { db } from '@/lib/db';
+import { prisma as db } from '@/lib/mongodb';
 
 export async function GET(
   request: Request,

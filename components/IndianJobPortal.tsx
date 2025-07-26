@@ -11,7 +11,7 @@ import {
   ChevronRightIcon, 
   MapPinIcon, 
   CalendarIcon, 
-  CurrencyRupeeIcon, 
+  CurrencyDollarIcon as CurrencyRupeeIcon, 
   BuildingOffice2Icon as BuildingOfficeIcon, 
   UserGroupIcon, 
   ClockIcon, 
