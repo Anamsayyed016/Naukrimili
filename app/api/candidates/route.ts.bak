@@ -1,0 +1,111 @@
+import { NextRequest } from 'next/server';
+
+// Simple mock response for deployment
+export async function GET() {
+  return new Response(JSON.stringify([
+    {
+      id: '1',
+      name: 'John Doe',
+      email: 'john@example.com',
+      skills: ['JavaScript', 'React', 'Node.js'],
+      experience: 5,
+      education: "Bachelor's in Computer Science"
+    },
+    {
+      id: '2',
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      skills: ['Python', 'Django', 'SQL'],
+      experience: 3,
+      education: "Master's in Software Engineering"
+    }
+  ]), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+// Temporarily disabled for deployment
+export async function POST() {
+  return new Response(JSON.stringify({ message: 'Post functionality temporarily disabled' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+    const data = await request.json();
+    const candidate = await candidatesApi.create(data);
+    return createResponse(candidate, 201);
+  } catch (error) {
+    console.error('Failed to create candidate:', error);
+    return createResponse(
+      { error: 'Failed to create candidate' },
+      500
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { id, ...data } = await request.json();
+    const candidate = await candidatesApi.update(id, data);
+    
+    if (!candidate) {
+      return createResponse(
+        { error: 'Candidate not found' },
+        404
+      );
+    }
+    
+    return createResponse(candidate);
+  } catch (error) {
+    console.error('Failed to update candidate:', error);
+    return createResponse(
+      { error: 'Failed to update candidate' },
+      500
+    );
+  }
+}
+    await connectDB();
+    const data = await request.json();
+    
+    const candidate = await Candidate.create(data);
+    return NextResponse.json(candidate, { status: 201 });
+  } catch (error) {
+    console.error('Error creating candidate:', error);
+    return NextResponse.json(
+      { error: 'Failed to create candidate' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { id, status } = await request.json();
+    await connectDB();
+    
+    const candidate = await Candidate.findByIdAndUpdate(
+      id,
+      { 
+        status,
+        updatedAt: new Date()
+      },
+      { new: true }
+    );
+
+    if (!candidate) {
+      return NextResponse.json(
+        { error: 'Candidate not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(candidate);
+  } catch (error) {
+    console.error('Failed to update candidate:', error);
+    return NextResponse.json(
+      { error: 'Failed to update candidate' },
+      { status: 500 }
+    );
+  }
+}

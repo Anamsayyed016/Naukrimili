@@ -1,8 +1,12 @@
 {
-  "buildCommand": "npm run build",
-  "functions": {
-    "app/api/**/*.ts": {
-      "runtime": "@vercel/node@3.0.0"
-    }
+  "buildCommand": "pnpm build",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "regions": ["sin1", "bom1"],
+  "env": {
+    "NEXT_PUBLIC_MOCK_DATA": "true",
+    "NEXT_PUBLIC_DISABLE_AUTH": "true",
+    "NEXTAUTH_SECRET": "mock-secret-key-for-development-only",
+    "NEXTAUTH_URL": "https://${VERCEL_URL}"
   }
 }

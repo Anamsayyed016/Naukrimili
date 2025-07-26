@@ -1,21 +1,42 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable CSS modules and CSS-in-JS
   compiler: {
-    // Enable SWC minification for better performance
     styledComponents: true,
   },
-  swcMinify: true,
-  reactStrictMode: true,
-  poweredByHeader: false,
-  images: {
-    domains: ['lh3.googleusercontent.com', 'avatars.githubusercontent.com'],
-  },
   typescript: {
-    ignoreBuildErrors: true, // We'll handle these separately
+    ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: true, // We'll handle these separately
+    ignoreDuringBuilds: true,
+  },
+  // Enable static optimization where possible
+  output: 'standalone',
+  images: {
+    domains: ['lh3.googleusercontent.com', 'avatars.githubusercontent.com'],
+    unoptimized: true,
+  },
+  experimental: {
+    runtime: 'edge',
+    serverActions: true,
+  },
+  // Webpack configurations to ignore certain modules
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        mongodb: false,
+        mongoose: false,
+        dns: false,
+        'mock-aws-s3': false,
+        'aws-sdk': false,
+        'nock': false,
+      };
+    }
+    return config;
   },
 }
 

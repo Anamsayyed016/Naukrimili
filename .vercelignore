@@ -1,0 +1,14 @@
+node_modules
+.next
+.env.local
+.env
+*.log
+.DS_Store
+coverage
+.nyc_output
+backend/
+server.js
+routes/
+models/
+config/
+middleware/
