@@ -140,6 +140,7 @@ export default function ResumeUpload({
       const response = await fetch("/api/resumes/upload", {
         method: "POST",
         body: formData,
+        credentials: 'include',
       });
 
       clearInterval(progressInterval);

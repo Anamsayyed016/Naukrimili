@@ -944,16 +944,14 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
               <p className="text-gray-600 dark:text-gray-400 mb-6">
                 Try adjusting your search criteria or explore trending jobs above
               </p>
-              {googleUrl && (
-                <a
-                  href={googleUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-4 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-lg shadow-lg"
-                >
-                  🔗 Search on Google Jobs
-                </a>
-              )}
+              <a
+                href={`https://www.google.com/search?q=${encodeURIComponent(searchQuery + ' jobs ' + location)}&ibp=htl;jobs`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-4 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors text-lg shadow-lg"
+              >
+                🔗 Search on Google Jobs
+              </a>
               <button
                 onClick={() => {
                   setSearchQuery("software engineer");

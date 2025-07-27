@@ -42,24 +42,24 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    // Try to fetch from backend first
-    const backendUrl = process.env.BACKEND_API_URL;
-    if (backendUrl) {
-      try {
-        const res = await fetch(`${backendUrl}/jobs?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&page=${page}&limit=${limit}`, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          cache: 'no-store'
-        });
-        
-        if (res.ok) {
-          const jobs = await res.json();
-          return NextResponse.json({ success: true, jobs });
+    // Use dynamic real API that works like Adzuna
+    try {
+      const realApiUrl = new URL('/api/jobs/real', request.url);
+      realApiUrl.searchParams.set('query', query);
+      realApiUrl.searchParams.set('location', location);
+      realApiUrl.searchParams.set('page', page.toString());
+      realApiUrl.searchParams.set('limit', limit.toString());
+      
+      const realResponse = await fetch(realApiUrl.toString());
+      
+      if (realResponse.ok) {
+        const realData = await realResponse.json();
+        if (realData.success) {
+          return NextResponse.json(realData);
         }
-      } catch (error) {
-        console.warn('Backend API not available, using fallback data');
       }
+    } catch (error) {
+      console.warn('Dynamic real API failed, using fallback');
     }
 
     // Fallback to mock data

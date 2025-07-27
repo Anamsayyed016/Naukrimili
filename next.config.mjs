@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Allow file uploads
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb', // Maximum file size
+    },
+    responseLimit: '12mb',
+  },
+  
   // Security headers
   async headers() {
     return [

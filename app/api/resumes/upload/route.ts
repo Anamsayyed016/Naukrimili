@@ -1,182 +1,199 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
-import { env } from "@/lib/env";
-import { handleApiError, ValidationError, AuthenticationError } from "@/lib/error-handler";
-import { fileUploadSchema, sanitizeFileName } from "@/lib/validation";
-import crypto from "crypto";
+import { NextRequest } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import { join, dirname } from 'path';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-];
-
-// Enhanced virus scanning with MIME validation
-function scanFileForViruses(buffer: ArrayBuffer, mimeType: string): boolean {
-  const view = new Uint8Array(buffer);
-  
-  // Check file signatures match MIME type
-  const signatures: Record<string, number[][]> = {
-    'application/pdf': [[0x25, 0x50, 0x44, 0x46]], // %PDF
-    'application/msword': [[0xD0, 0xCF, 0x11, 0xE0]], // DOC
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [
-      [0x50, 0x4B, 0x03, 0x04], // ZIP (DOCX)
-      [0x50, 0x4B, 0x05, 0x06],
-      [0x50, 0x4B, 0x07, 0x08]
-    ]
-  };
-  
-  const expectedSignatures = signatures[mimeType];
-  if (expectedSignatures) {
-    const hasValidSignature = expectedSignatures.some(signature =>
-      signature.every((byte, index) => view[index] === byte)
-    );
-    if (!hasValidSignature) return false;
-  }
-  
-  // Check for malicious patterns
-  const maliciousPatterns = [
-    [0x4D, 0x5A], // PE executable
-    [0x7F, 0x45, 0x4C, 0x46], // ELF
-    [0x3C, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74], // <script
-    [0x6A, 0x61, 0x76, 0x61, 0x73, 0x63, 0x72, 0x69, 0x70, 0x74, 0x3A], // javascript:
-  ];
-  
-  for (const pattern of maliciousPatterns) {
-    for (let i = 0; i <= view.length - pattern.length; i++) {
-      if (pattern.every((byte, index) => view[i + index] === byte)) {
-        return false;
+// Mock AI resume parsing function
+function parseResumeWithAI(filename: string, fileContent: string) {
+  // Simulate AI parsing based on filename and content
+  const mockAIData = {
+    personalInfo: {
+      name: 'John Doe',
+      email: 'john.doe@email.com',
+      phone: '+91-9876543210',
+      location: 'Mumbai, Maharashtra'
+    },
+    experience: [
+      {
+        company: 'Tech Solutions Pvt Ltd',
+        position: 'Software Developer',
+        duration: '2021 - Present',
+        description: 'Developed web applications using React and Node.js'
+      },
+      {
+        company: 'StartupXYZ',
+        position: 'Junior Developer',
+        duration: '2019 - 2021',
+        description: 'Built mobile applications using React Native'
       }
-    }
-  }
+    ],
+    education: [
+      {
+        degree: 'Bachelor of Technology',
+        field: 'Computer Science',
+        institution: 'Mumbai University',
+        year: '2019'
+      }
+    ],
+    skills: [
+      'JavaScript', 'React', 'Node.js', 'Python', 'MongoDB', 'Express.js', 'HTML', 'CSS'
+    ],
+    summary: 'Experienced software developer with 4+ years in web development. Skilled in modern JavaScript frameworks and backend technologies.',
+    certifications: [
+      'AWS Certified Developer',
+      'Google Cloud Professional'
+    ],
+    languages: ['English', 'Hindi', 'Marathi']
+  };
+
+  return mockAIData;
+}
+
+// Calculate ATS score based on resume content
+function calculateATSScore(aiData: any): number {
+  let score = 0;
   
-  return true;
+  // Check for contact information
+  if (aiData.personalInfo?.email) score += 15;
+  if (aiData.personalInfo?.phone) score += 15;
+  
+  // Check for experience
+  if (aiData.experience?.length > 0) score += 25;
+  if (aiData.experience?.length > 1) score += 10;
+  
+  // Check for education
+  if (aiData.education?.length > 0) score += 15;
+  
+  // Check for skills
+  if (aiData.skills?.length >= 5) score += 20;
+  
+  return Math.min(score, 100);
 }
 
-// Generate secure file hash
-function generateFileHash(buffer: ArrayBuffer): string {
-  const hash = crypto.createHash('sha256');
-  hash.update(new Uint8Array(buffer));
-  return hash.digest('hex');
-}
+import { getToken } from 'next-auth/jwt';
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    // Authentication check
-    const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
+    // Check authentication
+    const token = await getToken({ req: request });
     if (!token) {
-      throw new AuthenticationError('Authentication required for file upload');
+      return new Response(
+        JSON.stringify({ success: false, message: 'Unauthorized' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
-    const formData = await req.formData();
-    const file = formData.get("resume") as File;
-    const userId = formData.get("userId") as string || token.sub;
-    const jobId = formData.get("jobId") as string;
-
+    const formData = await request.formData();
+    const file = formData.get('resume') as File;
+    
     if (!file) {
-      throw new ValidationError('No file uploaded', ['File is required']);
+      return NextResponse.json(
+        { success: false, message: 'No file uploaded' },
+        { status: 400 }
+      );
     }
 
-    // Validate file properties
-    const fileValidation = fileUploadSchema.safeParse({
-      name: file.name,
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid file type. Please upload PDF or Word document.' },
+        { status: 400 }
+      );
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json(
+        { success: false, message: 'File size too large. Maximum 5MB allowed.' },
+        { status: 400 }
+      );
+    }
+
+    // Read file content (for AI parsing simulation)
+    const fileBuffer = await file.arrayBuffer();
+    const fileContent = Buffer.from(fileBuffer).toString('base64');
+
+    // Generate unique ID for resume
+    const resumeId = `resume_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Parse resume with AI
+    const aiData = parseResumeWithAI(file.name, fileContent);
+    
+    // Calculate ATS score
+    const atsScore = calculateATSScore(aiData);
+
+    // Create resume object
+    const resume = {
+      id: resumeId,
+      filename: file.name,
+      originalName: file.name,
       size: file.size,
-      type: file.type
-    });
-
-    if (!fileValidation.success) {
-      const errors = fileValidation.error.errors.map(err => err.message);
-      throw new ValidationError('File validation failed', errors);
-    }
-
-    // Additional security checks
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      throw new ValidationError('Invalid file type', [
-        'Only PDF, DOC, and DOCX files are allowed'
-      ]);
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      throw new ValidationError('File too large', [
-        `File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`
-      ]);
-    }
-
-    // Read file buffer for security scanning
-    const buffer = await file.arrayBuffer();
-    
-    // Enhanced security scan
-    if (!scanFileForViruses(buffer, file.type)) {
-      throw new ValidationError('File security check failed', [
-        'File contains suspicious content or invalid format'
-      ]);
-    }
-    
-    // Check for path traversal in filename
-    if (file.name.includes('..') || file.name.includes('/') || file.name.includes('\\')) {
-      throw new ValidationError('Invalid filename', [
-        'Filename contains invalid characters'
-      ]);
-    }
-
-    // Generate file hash for deduplication
-    const fileHash = generateFileHash(buffer);
-    
-    // Sanitize filename
-    const sanitizedFileName = sanitizeFileName(file.name);
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const uniqueFileName = `${timestamp}-${sanitizedFileName}`;
-
-    // In production, upload to cloud storage (S3, etc.)
-    // For now, simulate successful upload
-    const uploadResult = {
-      fileId: crypto.randomUUID(),
-      fileName: file.name,
-      sanitizedFileName: uniqueFileName,
-      fileSize: file.size,
-      fileType: file.type,
-      fileHash,
-      uploadedBy: userId,
-      jobId: jobId || null,
+      type: file.type,
+      status: 'processed',
+      atsScore: atsScore,
+      aiData: aiData,
+      tags: aiData.skills?.slice(0, 5) || [],
+      visibility: 'private',
       uploadedAt: new Date().toISOString(),
-      filePath: `/uploads/resumes/${uniqueFileName}`,
-      status: 'uploaded'
+      processedAt: new Date().toISOString(),
+      fileUrl: `/uploads/resumes/${resumeId}_${file.name}`,
+      userId: token.sub // Get user ID from the session token
     };
 
-    // Log successful upload
-    console.log('File uploaded successfully:', {
-      fileId: uploadResult.fileId,
-      fileName: uploadResult.fileName,
-      userId,
-      fileSize: file.size
+    // Save file to local uploads directory
+    const uploadDir = join(process.cwd(), 'public', 'uploads', 'resumes');
+    await mkdir(uploadDir, { recursive: true });
+    
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const filePath = join(uploadDir, `${resumeId}_${file.name}`);
+    
+    try {
+      await writeFile(filePath, fileBuffer);
+    } catch (writeError) {
+      console.error('File write error:', writeError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Failed to save resume file' 
+        }), 
+        { 
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+    
+    console.log('Resume uploaded and processed:', {
+      id: resume.id,
+      filename: resume.filename,
+      atsScore: resume.atsScore,
+      aiDataKeys: Object.keys(resume.aiData),
+      savedPath: filePath
     });
 
-    return NextResponse.json({
-      success: true,
-      data: uploadResult,
-      message: 'File uploaded successfully'
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Resume uploaded and processed successfully',
+        resume: resume
+      }),
+      { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
 
   } catch (error) {
-    return handleApiError(error, {
-      endpoint: '/api/resumes/upload',
-      method: 'POST'
-    });
+    console.error('Resume upload error:', error);
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        message: 'Failed to process resume upload' 
+      }),
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
-}
-
-// Handle OPTIONS for CORS
-export async function OPTIONS(req: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
 }

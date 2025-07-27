@@ -7,7 +7,7 @@ const poppins = Poppins({
   weight: ['400', '500', '600', '700'],
   variable: '--font-poppins',
 });
-import Providers from '@/components/providers';
+import Providers from './providers';
 import { ClientLayout } from '@/components/client-layout';
 
 const inter = Inter({ subsets: ['latin'] });
