@@ -43,7 +43,7 @@ export interface JobSearchResponse {
 }
 
 class UnifiedJobService {
-  private readonly API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000';
+  private readonly API_BASE_URL = process.env.BACKEND_API_URL || process.env.API_BASE_URL || 'http://localhost:8000';
   
   async searchJobs(params: JobSearchParams): Promise<{ jobs: UnifiedJob[]; total: number }> {
     try {

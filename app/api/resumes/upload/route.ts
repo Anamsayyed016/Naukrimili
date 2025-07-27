@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join, dirname } from 'path';
 
@@ -140,27 +140,19 @@ export async function POST(request: NextRequest) {
       userId: token.sub // Get user ID from the session token
     };
 
-    // Save file to local uploads directory
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'resumes');
-    await mkdir(uploadDir, { recursive: true });
-    
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
-    const filePath = join(uploadDir, `${resumeId}_${file.name}`);
-    
+    // Save file to local uploads directory (development only)
     try {
-      await writeFile(filePath, fileBuffer);
+      const uploadDir = join(process.cwd(), 'public', 'uploads', 'resumes');
+      await mkdir(uploadDir, { recursive: true });
+      
+      const fileBuffer2 = Buffer.from(await file.arrayBuffer());
+      const filePath = join(uploadDir, `${resumeId}_${file.name}`);
+      
+      await writeFile(filePath, fileBuffer2);
+      console.log('File saved to:', filePath);
     } catch (writeError) {
-      console.error('File write error:', writeError);
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: 'Failed to save resume file' 
-        }), 
-        { 
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+      console.warn('File save failed (expected in production):', writeError);
+      // Continue without saving file in production
     }
     
     console.log('Resume uploaded and processed:', {

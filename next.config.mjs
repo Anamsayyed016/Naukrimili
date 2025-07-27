@@ -7,6 +7,11 @@ const nextConfig = {
     },
     responseLimit: '12mb',
   },
+  output: 'standalone',
+  poweredByHeader: false,
+  experimental: {
+    serverActions: true
+  },
   
   // Security headers
   async headers() {
