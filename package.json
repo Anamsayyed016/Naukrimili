@@ -5,9 +5,19 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "lint": "next lint",
-    "vercel-build": "NEXT_PUBLIC_MOCK_DATA=true next build"
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "test": "jest --coverage",
+    "validate": "npm-run-all --parallel type-check lint test",
+    "prepare": "husky install",
+    "vercel-build": "NEXT_PUBLIC_MOCK_DATA=true next build",
+    "analyze": "cross-env ANALYZE=true next build",
+    "clean": "rimraf .next out",
+    "security-audit": "npm audit && npm outdated",
+    "render-build": "pnpm install && pnpm build",
+    "render-start": "pnpm start"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
