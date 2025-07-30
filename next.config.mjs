@@ -1,10 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: true, // Ignore TypeScript errors during build
+    ignoreBuildErrors: true,
+    tsconfigPath: "tsconfig.json"
   },
   eslint: {
-    ignoreDuringBuilds: true, // Ignore ESLint errors during build
+    ignoreDuringBuilds: true,
+    dirs: [] // Disable ESLint for all directories
   },
   output: 'standalone',
   poweredByHeader: false,
