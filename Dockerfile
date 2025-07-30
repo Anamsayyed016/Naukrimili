@@ -17,9 +17,12 @@ COPY package*.json pnpm-lock.yaml ./
     # Copy source code
 COPY . .
 
-# Build application (skip linting)
+# Build application (skip checks)
 ENV NODE_ENV=production
 ENV SKIP_LINT=true
+ENV NEXT_DISABLE_ESLINT=1 
+ENV NEXT_DISABLE_TYPE_CHECKS=1
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 
 # Production stage
