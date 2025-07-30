@@ -107,11 +107,11 @@ export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown):
     return { success: true, data: validatedData };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors.map(err => {
-        const path = err.path.length > 0 ? `${err.path.join('.')}: ` : '';
-        return `${path}${err.message}`;
+      const errors = (error as z.ZodError).issues.map((issue: z.ZodIssue) => {
+        const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : '';
+        return `${path}${issue.message}`;
       });
-      return { success: false, errors, details: error };
+      return { success: false, errors, details: error as z.ZodError };
     }
     throw error;
   }
@@ -176,7 +176,7 @@ export const fileUploadSchema = z.object({
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'text/plain'
-  ], { errorMap: () => ({ message: 'Invalid file type. Only PDF, DOC, DOCX, and TXT files are allowed.' }) })
+  ])
 });
 
 // Security validation for URLs

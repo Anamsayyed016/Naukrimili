@@ -8,7 +8,9 @@ export function useAuth(): AuthState {
   const { data: session, status } = useSession();
   const [biometric, setBiometric] = useState<BiometricState>({
     isAvailable: false,
-    isEnabled: false
+    isEnabled: false,
+    toggle: async () => false,
+    verify: async () => false
   });
 
   // Check biometric availability
@@ -121,8 +123,8 @@ export function useAuth(): AuthState {
     image: session.user.image || null,
     role: 'role' in session.user && typeof session.user.role === 'string' ? session.user.role as User['role'] : 'jobseeker',
     profileCompletion: 'profileCompletion' in session.user && typeof session.user.profileCompletion === 'number' ? session.user.profileCompletion : 0,
-    createdAt: 'createdAt' in session.user && typeof session.user.createdAt === 'string' ? session.user.createdAt : undefined,
-    updatedAt: 'updatedAt' in session.user && typeof session.user.updatedAt === 'string' ? session.user.updatedAt : undefined
+    createdAt: 'createdAt' in session.user && typeof session.user.createdAt === 'string' ? new Date(session.user.createdAt) : undefined,
+    updatedAt: 'updatedAt' in session.user && typeof session.user.updatedAt === 'string' ? new Date(session.user.updatedAt) : undefined
   } : null;
 
   return {

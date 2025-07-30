@@ -26,43 +26,6 @@ export default function DashboardPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Choose Your Dashboard</h1>
-          <p className="text-gray-600">Select your role to access the appropriate dashboard</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link href="/dashboard/jobseeker" className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="text-center">
-              <div className="text-4xl mb-4">👤</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Job Seeker</h3>
-              <p className="text-gray-600 text-sm">Find jobs, track applications, manage your career</p>
-            </div>
-          </Link>
-
-          <Link href="/dashboard/company" className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="text-center">
-              <div className="text-4xl mb-4">🏢</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Company</h3>
-              <p className="text-gray-600 text-sm">Post jobs, manage applications, hire talent</p>
-            </div>
-          </Link>
-
-          <Link href="/dashboard/admin" className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="text-center">
-              <div className="text-4xl mb-4">⚙️</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Admin</h3>
-              <p className="text-gray-600 text-sm">Manage platform, users, and system settings</p>
-            </div>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-
   const stats = [
     { label: 'Applications Sent', value: '12', color: 'bg-blue-500' },
     { label: 'Profile Views', value: '45', color: 'bg-green-500' },
@@ -75,7 +38,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">
-            Welcome back, {session.user?.name || session.user?.email}!
+            Welcome back, {session?.user?.name || session?.user?.email}!
           </h1>
           <p className="text-gray-600">Here's your job search overview</p>
         </div>

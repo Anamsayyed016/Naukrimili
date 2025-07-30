@@ -1,102 +1,101 @@
-import { headers } from 'next/headers';
-import { prisma as db } from '@/lib/mongodb';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma as _db } from '@/lib/database';
+
+// Mock fraud report data structure
+interface FraudReport {
+  id: string;
+  type: 'job' | 'user' | 'application';
+  reason: string;
+  description: string;
+  status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
+  reportedBy: string;
+  reportedItem: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Mock fraud reports storage
+const mockFraudReports: FraudReport[] = [];
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params;
-    
-    const report = await db.fraudReport.findUnique({
-      where: { id },
-      include: {
-        reportedBy: true,
-        reportedJob: true
-      }
-    });
+
+    const report = mockFraudReports.find(r => r.id === id);
 
     if (!report) {
-      return Response.json(
+      return NextResponse.json(
         { error: 'Fraud report not found' },
         { status: 404 }
       );
     }
 
-    return Response.json({ report });
-  } catch (error) {
-    console.error('Error fetching fraud report:', error);
-    return Response.json(
-      { error: 'Failed to fetch fraud report' },
+    return NextResponse.json(report);
+  } catch (_error) {
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params;
     const body = await request.json();
-    
-    const existingReport = await db.fraudReport.findUnique({
-      where: { id }
-    });
 
-    if (!existingReport) {
-      return Response.json(
+    const reportIndex = mockFraudReports.findIndex(r => r.id === id);
+
+    if (reportIndex === -1) {
+      return NextResponse.json(
         { error: 'Fraud report not found' },
         { status: 404 }
       );
     }
 
-    const updatedReport = await db.fraudReport.update({
-      where: { id },
-      data: {
-        ...body,
-        updatedAt: new Date()
-      }
-    });
+    mockFraudReports[reportIndex] = {
+      ...mockFraudReports[reportIndex],
+      ...body,
+      updatedAt: new Date()
+    };
 
-    return Response.json({ report: updatedReport });
-  } catch (error) {
-    console.error('Error updating fraud report:', error);
-    return Response.json(
-      { error: 'Failed to update fraud report' },
+    return NextResponse.json(mockFraudReports[reportIndex]);
+  } catch (_error) {
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params;
 
-    const existingReport = await db.fraudReport.findUnique({
-      where: { id }
-    });
+    const reportIndex = mockFraudReports.findIndex(r => r.id === id);
 
-    if (!existingReport) {
-      return Response.json(
+    if (reportIndex === -1) {
+      return NextResponse.json(
         { error: 'Fraud report not found' },
         { status: 404 }
       );
     }
 
-    await db.fraudReport.delete({
-      where: { id }
-    });
-    
-    return Response.json({ message: 'Fraud report deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting fraud report:', error);
-    return Response.json(
-      { error: 'Failed to delete fraud report' },
+    mockFraudReports.splice(reportIndex, 1);
+
+    return NextResponse.json({ message: 'Fraud report deleted successfully' });
+  } catch (_error) {
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

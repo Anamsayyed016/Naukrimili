@@ -23,7 +23,7 @@ export function useDebouncedCallback<T extends (...args: any[]) => any>(
   delay: number
 ): T {
   const callbackRef = useRef(callback);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Update callback ref when callback changes
   useEffect(() => {
@@ -109,9 +109,9 @@ export function useAdvancedDebounce<T>(
 ): T {
   const { leading = false, trailing = true, maxWait } = options;
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  const timeoutRef = useRef<NodeJS.Timeout>();
-  const maxTimeoutRef = useRef<NodeJS.Timeout>();
-  const lastCallTime = useRef<number>();
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const maxTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const lastCallTime = useRef<number | undefined>(undefined);
   const lastInvokeTime = useRef(0);
 
   const invokeFunc = useCallback(() => {

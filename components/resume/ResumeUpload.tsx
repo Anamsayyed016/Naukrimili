@@ -191,9 +191,9 @@ export default function ResumeUpload({
     if (onClose) onClose();
   };
 
-  const handleFormComplete = (formData: any) => {
-    if (onUploadComplete) {
-      onUploadComplete({ ...resumeData, profile: formData });
+  const handleFormComplete = () => {
+    if (onUploadComplete && resumeData) {
+      onUploadComplete({ ...resumeData });
     }
     handleClose();
   };

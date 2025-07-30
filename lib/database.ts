@@ -1,7 +1,41 @@
 import mongoose from 'mongoose';
+import { MongoClient, Db, ObjectId } from 'mongodb';
 import { env } from './env';
 
-// Connection state
+// ===== MONGODB CONNECTION (Real Database) =====
+let client: MongoClient;
+let db: Db;
+
+export async function connectDB() {
+  if (db) return db;
+  
+  try {
+    if (!env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable is not configured');
+    }
+    
+    client = new MongoClient(env.MONGODB_URI);
+    await client.connect();
+    db = client.db(process.env.DATABASE_NAME || 'jobportal');
+    
+    // eslint-disable-next-line no-console
+    console.log('✅ Connected to MongoDB');
+    return db;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('❌ MongoDB connection failed:', error);
+    throw error;
+  }
+}
+
+export async function getDB() {
+  if (!db) {
+    await connectDB();
+  }
+  return db;
+}
+
+// ===== MONGOOSE CONNECTION (Alternative) =====
 interface ConnectionState {
   isConnected: boolean;
   connection: typeof mongoose | null;
@@ -14,23 +48,26 @@ const connection: ConnectionState = {
   error: null,
 };
 
-// Connection options
 const connectionOptions: mongoose.ConnectOptions = {
   bufferCommands: false,
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
-  family: 4, // Use IPv4, skip trying IPv6
+  family: 4,
 };
 
-// Connect to MongoDB
 export async function connectToDatabase(): Promise<typeof mongoose> {
   if (connection.isConnected && connection.connection) {
     return connection.connection;
   }
 
   try {
-    console.log('Connecting to MongoDB...');
+    // eslint-disable-next-line no-console
+    console.log('Connecting to MongoDB via Mongoose...');
+    
+    if (!env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable is not configured');
+    }
     
     const db = await mongoose.connect(env.MONGODB_URI, connectionOptions);
     
@@ -38,21 +75,24 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
     connection.connection = db;
     connection.error = null;
     
-    console.log('MongoDB connected successfully');
+    // eslint-disable-next-line no-console
+    console.log('MongoDB connected successfully via Mongoose');
     
-    // Handle connection events
     mongoose.connection.on('error', (error) => {
+      // eslint-disable-next-line no-console
       console.error('MongoDB connection error:', error);
       connection.error = error;
       connection.isConnected = false;
     });
     
     mongoose.connection.on('disconnected', () => {
+      // eslint-disable-next-line no-console
       console.warn('MongoDB disconnected');
       connection.isConnected = false;
     });
     
     mongoose.connection.on('reconnected', () => {
+      // eslint-disable-next-line no-console
       console.log('MongoDB reconnected');
       connection.isConnected = true;
       connection.error = null;
@@ -60,6 +100,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
     
     return db;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to connect to MongoDB:', error);
     connection.error = error as Error;
     connection.isConnected = false;
@@ -67,7 +108,6 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   }
 }
 
-// Disconnect from MongoDB
 export async function disconnectFromDatabase(): Promise<void> {
   if (!connection.isConnected) {
     return;
@@ -78,23 +118,140 @@ export async function disconnectFromDatabase(): Promise<void> {
     connection.isConnected = false;
     connection.connection = null;
     connection.error = null;
+    // eslint-disable-next-line no-console
     console.log('MongoDB disconnected');
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error disconnecting from MongoDB:', error);
     throw error;
   }
 }
 
-// Get connection status
 export function getConnectionStatus(): ConnectionState {
   return { ...connection };
 }
 
-// Health check
+// ===== MOCK DATABASE (Fallback) =====
+export const mockDb = {
+  users: [],
+  jobs: [],
+  applications: [],
+  profiles: [],
+  
+  async connect() {
+    // eslint-disable-next-line no-console
+    console.log('Mock DB connected');
+    return this;
+  },
+  
+  async disconnect() {
+    // eslint-disable-next-line no-console
+    console.log('Mock DB disconnected');
+  }
+};
+
+// ===== COLLECTIONS =====
+export const collections = {
+  users: () => db.collection('users'),
+  jobs: () => db.collection('jobs'),
+  companies: () => db.collection('companies'),
+  resumes: () => db.collection('resumes'),
+  applications: () => db.collection('applications')
+};
+
+// ===== USER OPERATIONS =====
+export const userOperations = {
+  async create(userData: any) {
+    await getDB();
+    return await collections.users().insertOne({
+      ...userData,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+  },
+  
+  async findByEmail(email: string) {
+    await getDB();
+    return await collections.users().findOne({ email });
+  },
+  
+  async update(id: string, updateData: any) {
+    await getDB();
+    return await collections.users().updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { ...updateData, updatedAt: new Date() } }
+    );
+  }
+};
+
+// ===== JOB OPERATIONS =====
+export const jobOperations = {
+  async create(jobData: any) {
+    await getDB();
+    return await collections.jobs().insertOne({
+      ...jobData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      status: 'active'
+    });
+  },
+  
+  async search(query: string, _location?: string, _filters?: any) {
+    await getDB();
+    const searchQuery: any = {
+      status: 'active',
+      $or: [
+        { title: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
+        { skills: { $in: [new RegExp(query, 'i')] } }
+      ]
+    };
+    
+    if (_location) {
+      searchQuery.location = { $regex: _location, $options: 'i' };
+    }
+    
+    return await collections.jobs().find(searchQuery).toArray();
+  },
+  
+  async findById(id: string) {
+    await getDB();
+    return await collections.jobs().findOne({ _id: new ObjectId(id) });
+  }
+};
+
+// ===== RESUME OPERATIONS =====
+export const resumeOperations = {
+  async create(resumeData: any) {
+    await getDB();
+    return await collections.resumes().insertOne({
+      ...resumeData,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+  },
+  
+  async findByUserId(userId: string) {
+    await getDB();
+    return await collections.resumes().find({ userId }).toArray();
+  },
+  
+  async update(id: string, updateData: any) {
+    await getDB();
+    return await collections.resumes().updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { ...updateData, updatedAt: new Date() } }
+    );
+  }
+};
+
+// ===== COMPATIBILITY EXPORTS =====
+export const prisma = mockDb; // For backward compatibility
+
+// ===== HEALTH CHECK =====
 export async function checkDatabaseHealth(): Promise<{
   status: 'healthy' | 'unhealthy';
   details: {
-    connected: boolean;
     readyState: number;
     host: string;
     name: string;
@@ -102,89 +259,43 @@ export async function checkDatabaseHealth(): Promise<{
   };
 }> {
   try {
-    const state = mongoose.connection.readyState;
-    const isHealthy = state === 1; // 1 = connected
+    const database = await getDB();
+    const adminDb = database.admin();
+    const serverStatus = await adminDb.serverStatus();
     
     return {
-      status: isHealthy ? 'healthy' : 'unhealthy',
+      status: 'healthy',
       details: {
-        connected: connection.isConnected,
-        readyState: state,
-        host: mongoose.connection.host || 'unknown',
-        name: mongoose.connection.name || 'unknown',
-        ...(connection.error && { error: connection.error.message }),
-      },
+        readyState: 1,
+        host: serverStatus.host || 'unknown',
+        name: database.databaseName,
+      }
     };
   } catch (error) {
     return {
       status: 'unhealthy',
       details: {
-        connected: false,
         readyState: 0,
         host: 'unknown',
         name: 'unknown',
-        error: (error as Error).message,
-      },
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
     };
   }
 }
 
-// Retry connection with exponential backoff
-export async function connectWithRetry(
-  maxRetries: number = 5,
-  baseDelay: number = 1000
-): Promise<typeof mongoose> {
-  let lastError: Error;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await connectToDatabase();
-    } catch (error) {
-      lastError = error as Error;
-      
-      if (attempt === maxRetries) {
-        throw new Error(
-          `Failed to connect to database after ${maxRetries} attempts: ${lastError.message}`
-        );
-      }
-      
-      const delay = baseDelay * Math.pow(2, attempt - 1);
-      console.log(`Connection attempt ${attempt} failed, retrying in ${delay}ms...`);
-      
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-  
-  throw lastError!;
-}
-
-// Graceful shutdown
+// ===== GRACEFUL SHUTDOWN =====
 export async function gracefulShutdown(): Promise<void> {
-  console.log('Initiating graceful database shutdown...');
-  
   try {
+    if (client) {
+      await client.close();
+    }
     await disconnectFromDatabase();
-    console.log('Database shutdown completed');
+    // eslint-disable-next-line no-console
+    console.log('Database connections closed gracefully');
   } catch (error) {
-    console.error('Error during database shutdown:', error);
+    // eslint-disable-next-line no-console
+    console.error('Error during graceful shutdown:', error);
     throw error;
   }
 }
-
-// Initialize database connection on module load
-if (process.env.NODE_ENV !== 'test') {
-  connectWithRetry().catch((error) => {
-    console.error('Initial database connection failed:', error);
-  });
-}
-
-// Handle process termination
-process.on('SIGINT', async () => {
-  await gracefulShutdown();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  await gracefulShutdown();
-  process.exit(0);
-});

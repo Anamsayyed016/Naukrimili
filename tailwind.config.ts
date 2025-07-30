@@ -29,14 +29,6 @@ const config: Config = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
-        primary: {
-          DEFAULT: "#2563eb", // NaukriMili blue
-          dark: "#1e40af",
-        },
-        brand: {
-          primary: "#2563eb",
-          secondary: "#1e40af",
-        },
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -90,6 +82,10 @@ const config: Config = {
           primary: "hsl(var(--admin-primary))",
           secondary: "hsl(var(--admin-secondary))",
           accent: "hsl(var(--admin-accent))",
+        },
+        brand: {
+          primary: "#2563eb",
+          secondary: "#1e40af",
         },
       },
       borderRadius: {

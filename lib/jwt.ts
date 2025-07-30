@@ -19,6 +19,10 @@ const REFRESH_TOKEN_EXPIRY = '7d';
 const refreshTokenStore = new Map<string, { userId: string; expiresAt: number }>();
 
 export function generateTokenPair(payload: TokenPayload): TokenPair {
+  if (!env.NEXTAUTH_SECRET) {
+    throw new Error('NEXTAUTH_SECRET is not configured');
+  }
+
   const accessToken = jwt.sign(payload, env.NEXTAUTH_SECRET, {
     expiresIn: ACCESS_TOKEN_EXPIRY,
     issuer: 'jobportal',
@@ -42,7 +46,11 @@ export function generateTokenPair(payload: TokenPayload): TokenPair {
 
 export function verifyAccessToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, env.NEXTAUTH_SECRET) as TokenPayload;
+    if (!env.NEXTAUTH_SECRET) {
+      return null;
+    }
+    const decoded = jwt.verify(token, env.NEXTAUTH_SECRET);
+    return decoded as TokenPayload;
   } catch {
     return null;
   }
@@ -50,6 +58,9 @@ export function verifyAccessToken(token: string): TokenPayload | null {
 
 export function refreshAccessToken(refreshToken: string): string | null {
   try {
+    if (!env.NEXTAUTH_SECRET) {
+      return null;
+    }
     const decoded = jwt.verify(refreshToken, env.NEXTAUTH_SECRET) as any;
     const stored = refreshTokenStore.get(refreshToken);
     

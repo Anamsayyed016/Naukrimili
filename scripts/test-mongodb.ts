@@ -17,26 +17,15 @@ if (!mongoURIFormat.test(MONGO_URI)) {
   throw new Error('Invalid MongoDB URI format. URI should start with mongodb:// or mongodb+srv://');
 }
 
-interface MongoConnectionOptions {
-  maxPoolSize: number;
-  serverSelectionTimeoutMS: number;
-  socketTimeoutMS: number;
-  heartbeatFrequencyMS: number;
-  retryWrites: boolean;
-  w: string;
-  directConnection: boolean;
-  family: number;
-}
-
 async function testConnection() {
   try {
-    const options: MongoConnectionOptions = {
+    const options: mongoose.ConnectOptions = {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       heartbeatFrequencyMS: 10000,
       retryWrites: true,
-      w: 'majority',
+      w: 'majority' as any,
       directConnection: false,
       family: 4
     };

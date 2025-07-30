@@ -67,7 +67,7 @@ export const applyForJob = async (jobId: string): Promise<{ success: boolean; me
     const response = await api.post('/apply', { job_id: jobId });
     return response.data;
   } catch (error) {
-    handleApiError(error);
+    return handleApiError(error);
   }
 };
 
@@ -80,7 +80,7 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     }
     return response.data;
   } catch (error) {
-    handleApiError(error);
+    return handleApiError(error);
   }
 };
 
@@ -89,7 +89,7 @@ export const getJobs = async (): Promise<any[]> => {
     const response = await api.get('/jobs');
     return response.data;
   } catch (error) {
-    handleApiError(error);
+    return handleApiError(error);
   }
 };
 
@@ -98,7 +98,7 @@ export const postJob = async (jobData: JobData): Promise<{ id: string; message: 
     const response = await api.post('/jobs', jobData);
     return response.data;
   } catch (error) {
-    handleApiError(error);
+    return handleApiError(error);
   }
 };
 

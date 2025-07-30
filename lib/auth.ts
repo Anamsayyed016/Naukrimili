@@ -84,11 +84,11 @@ export async function register(email: string, password: string, role: UserRole) 
 export async function login(email: string, password: string) {
   return new Promise<{ success: boolean; token?: string; user?: User; error?: string }>((resolve) => {
     setTimeout(() => {
-      let users = getUsers();
+      const users = getUsers();
       let user = users.find(u => u.email === email);
       // For demo: if user does not exist, create one with role based on email
       if (!user) {
-        let role: UserRole = 'jobseeker';
+        const role: UserRole = 'jobseeker';
         if (email.startsWith('company')) role = 'company';
         else if (email.startsWith('admin')) role = 'admin';
         user = { email, password: hashPassword(password), role };
@@ -166,7 +166,7 @@ const authOptions: AuthOptions = {
   callbacks: {
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.sub;
+        session.user.id = token.sub || '';
       }
       return session;
     },

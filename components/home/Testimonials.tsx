@@ -9,6 +9,7 @@ export default function Testimonials() {
 
   if (isLoading) return <div>Loading testimonials...</div>;
   if (error) return <div>Failed to load testimonials.</div>;
+  if (!data) return <div>No testimonials available.</div>;
 
   return (
     <section className="py-8">

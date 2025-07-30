@@ -9,6 +9,7 @@ export default function StatsSection() {
 
   if (isLoading) return <div>Loading stats...</div>;
   if (error) return <div>Failed to load stats.</div>;
+  if (!data) return <div>No data available.</div>;
 
   return (
     <section className="py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">

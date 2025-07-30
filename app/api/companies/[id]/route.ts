@@ -31,7 +31,7 @@ interface Company {
 }
 
 // Same mock data (in production, this would come from a database)
-let mockCompanies: Company[] = [
+const mockCompanies: Company[] = [
   {
     id: "1",
     name: "TechCorp",

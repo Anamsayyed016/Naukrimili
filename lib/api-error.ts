@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export class APIError extends Error {
   constructor(
     message: string,

@@ -240,7 +240,7 @@ export class NexusAuth {
   }): Promise<{ success: boolean; session?: AuthSession; error?: string }> {
     try {
       // Validate email uniqueness
-      if (this.users.find(u => u.email === userData.email)) {
+      if (NexusAuth.users.find((u: NexusUser) => u.email === userData.email)) {
         return { success: false, error: 'Email already registered' };
       }
       
@@ -280,14 +280,14 @@ export class NexusAuth {
         }
       };
       
-      this.users.push(user);
+      NexusAuth.users.push(user);
       this.persistUsers();
       
       // Create session
       const session = this.sessionManager.createSession(user);
       
       return { success: true, session };
-    } catch (error) {
+    } catch (_error) {
       return { success: false, error: 'Registration failed' };
     }
   }
@@ -301,7 +301,7 @@ export class NexusAuth {
     biometricData?: string;
   }): Promise<{ success: boolean; session?: AuthSession; error?: string }> {
     try {
-      const user = this.users.find(u => u.email === credentials.email);
+      const user = NexusAuth.users.find((u: NexusUser) => u.email === credentials.email);
       if (!user) {
         return { success: false, error: 'User not found' };
       }
@@ -345,7 +345,7 @@ export class NexusAuth {
       const session = this.sessionManager.createSession(user);
       
       return { success: true, session };
-    } catch (error) {
+    } catch (_error) {
       return { success: false, error: 'Login failed' };
     }
   }
@@ -383,10 +383,10 @@ export class NexusAuth {
   
   // Update user profile
   async updateProfile(userId: string, updates: Partial<NexusUser>): Promise<boolean> {
-    const userIndex = this.users.findIndex(u => u.id === userId);
+    const userIndex = NexusAuth.users.findIndex((u: NexusUser) => u.id === userId);
     if (userIndex === -1) return false;
     
-    this.users[userIndex] = { ...this.users[userIndex], ...updates };
+    NexusAuth.users[userIndex] = { ...NexusAuth.users[userIndex], ...updates };
     this.persistUsers();
     return true;
   }
@@ -401,7 +401,7 @@ export class NexusAuth {
     return btoa(Math.random().toString()).slice(0, 32);
   }
   
-  private validatePassword(password: string, user: NexusUser): boolean {
+  private validatePassword(password: string, _user: NexusUser): boolean {
     // In a real implementation, this would check against hashed password
     // For demo purposes, we'll use a simple validation
     const validation = NexusPasswordValidator.validate(password);
@@ -410,7 +410,7 @@ export class NexusAuth {
   
   private persistUsers(): void {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('nexus_users', JSON.stringify(this.users));
+      localStorage.setItem('nexus_users', JSON.stringify(NexusAuth.users));
     }
   }
   
@@ -418,7 +418,7 @@ export class NexusAuth {
     if (typeof window !== 'undefined') {
       const usersData = localStorage.getItem('nexus_users');
       if (usersData) {
-        this.users = JSON.parse(usersData);
+        NexusAuth.users = JSON.parse(usersData);
       }
     }
   }

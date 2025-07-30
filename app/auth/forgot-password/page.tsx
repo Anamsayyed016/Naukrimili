@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {
@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
-          <p className="text-gray-600">We've sent a password reset link to {email}</p>
+          <p className="text-gray-600">We&apos;ve sent a password reset link to {email}</p>
           <Link href="/auth/login" className="text-blue-600 hover:text-blue-500 font-medium">
             Back to login
           </Link>

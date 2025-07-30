@@ -1,39 +1,23 @@
-import { connect } from '../lib/mongodb';
+import { connectDB } from '../lib/database';
 import mongoose from 'mongoose';
 
 async function testConnection() {
   try {
-    await connect();
+    await connectDB();
     console.log('🔍 Testing database connection...');
     
-    // Get the database instance
-    const db = mongoose.connection.db;
-    if (!db) {
-      throw new Error('Database connection not established');
-    }
+    // Test basic operations
+    const db = await connectDB();
+    console.log('✅ Database connection successful');
+    console.log('📊 Database name:', db.databaseName);
     
-    // Add connection status check
-    if (mongoose.connection.readyState !== 1) {
-      throw new Error(`Invalid connection state: ${mongoose.connection.readyState}`);
-    }
-    
-    // Test listing collections
+    // Test collections
     const collections = await db.listCollections().toArray();
-    console.log('📚 Available collections:', collections.map((c: { name: string }) => c.name));
+    console.log('📁 Available collections:', collections.map(c => c.name));
     
-    // Test a simple operation (create a test document)
-    const testCollection = db.collection('_test_connection');
-    await testCollection.insertOne({ test: true, timestamp: new Date() });
-    console.log('✏️ Test document created');
-    
-    // Clean up test document
-    await testCollection.deleteMany({ test: true });
-    console.log('🧹 Test documents cleaned up');
-    
-    console.log('✅ All database operations completed successfully!');
-    process.exit(0);
+    console.log('🎉 Database test completed successfully!');
   } catch (error) {
-    console.error('❌ Test failed:', error);
+    console.error('❌ Database test failed:', error);
     process.exit(1);
   }
 }

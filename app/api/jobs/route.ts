@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
       ...(salaryMax && { salaryMax })
     };
 
+    // eslint-disable-next-line no-console
     console.log('🔍 POST unified job search:', searchOptions);
 
     try {

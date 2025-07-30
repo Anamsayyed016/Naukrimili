@@ -30,6 +30,7 @@ class Logger {
         error: '\x1b[31m'  // red
       }[level];
       
+      // eslint-disable-next-line no-console
       console.log(
         `${color}[${entry.timestamp}] ${level.toUpperCase()}\x1b[0m:`,
         entry.message,
@@ -44,6 +45,7 @@ class Logger {
           ...entry,
           context: this.sanitizeContext(entry.context)
         };
+        // eslint-disable-next-line no-console
         console[level](JSON.stringify(sanitizedEntry));
       }
     }
@@ -67,6 +69,7 @@ class Logger {
   private sendToLoggingService(entry: LogEntry): void {
     // In production, integrate with logging service (e.g., Winston, Pino, etc.)
     if (entry.level === 'error') {
+      // eslint-disable-next-line no-console
       console.error(JSON.stringify(entry));
     }
   }

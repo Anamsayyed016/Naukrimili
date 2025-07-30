@@ -23,7 +23,7 @@ export function safeBufferFrom(data: string | ArrayBuffer | Uint8Array, encoding
       if (data.byteLength > 1024 * 1024 * 10) { // Max 10MB
         throw new Error('Buffer too large');
       }
-      return Buffer.from(data);
+      return Buffer.from(data as ArrayBuffer);
     }
     
     throw new Error('Invalid data type');

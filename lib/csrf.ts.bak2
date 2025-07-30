@@ -1,8 +1,0 @@
-// Mock implementation without crypto
-export function generateToken(): string {
-  return 'mock_csrf_token';
-}
-
-export function validateToken(token: string): boolean {
-  return token === 'mock_csrf_token';
-}

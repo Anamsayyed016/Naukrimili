@@ -1,3 +1,5 @@
+import React from 'react';
+
 export type UserRole = "jobseeker" | "company" | "admin";
 
 export interface User {

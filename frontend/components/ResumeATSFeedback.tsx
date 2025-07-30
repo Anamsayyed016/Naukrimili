@@ -1,5 +1,4 @@
 import React from 'react';
-import { CircularProgress, Tooltip } from '@/components/ui';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 interface ATSFeedbackProps {
@@ -39,12 +38,22 @@ const ScoreIndicator = ({ score }: { score: number }) => {
   const color = score >= 80 ? 'text-green-500' : score >= 60 ? 'text-yellow-500' : 'text-red-500';
   return (
     <div className="relative flex items-center justify-center w-32 h-32">
-      <CircularProgress 
-        value={score} 
-        maxValue={100}
-        className={`w-full h-full ${color}`}
-        strokeWidth={8}
-      />
+      <div className={`w-full h-full ${color} flex items-center justify-center`}>
+        <div className="relative w-24 h-24">
+          <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+            <circle
+              cx="50"
+              cy="50"
+              r="40"
+              stroke="currentColor"
+              strokeWidth="8"
+              fill="none"
+              strokeDasharray={`${(score / 100) * 251.2} 251.2`}
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+      </div>
       <div className="absolute flex flex-col items-center">
         <span className={`text-2xl font-bold ${color}`}>{score}%</span>
         <span className="text-sm text-gray-600">ATS Score</span>
@@ -62,24 +71,22 @@ const SectionScore = ({
   score: number; 
   icon: React.ReactNode;
 }) => (
-  <Tooltip content={`${score}% match`}>
-    <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50">
-      <div className={score >= 70 ? 'text-green-500' : score >= 50 ? 'text-yellow-500' : 'text-red-500'}>
-        {icon}
-      </div>
-      <div>
-        <p className="text-sm font-medium">{title}</p>
-        <div className="w-full h-2 mt-1 rounded-full bg-gray-200">
-          <div 
-            className={`h-full rounded-full transition-all duration-500 ${
-              score >= 70 ? 'bg-green-500' : score >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-            }`}
-            style={{ width: `${score}%` }}
-          />
-        </div>
+  <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50">
+    <div className={score >= 70 ? 'text-green-500' : score >= 50 ? 'text-yellow-500' : 'text-red-500'}>
+      {icon}
+    </div>
+    <div>
+      <p className="text-sm font-medium">{title}</p>
+      <div className="w-full h-2 mt-1 rounded-full bg-gray-200">
+        <div 
+          className={`h-full rounded-full transition-all duration-500 ${
+            score >= 70 ? 'bg-green-500' : score >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+          }`}
+          style={{ width: `${score}%` }}
+        />
       </div>
     </div>
-  </Tooltip>
+  </div>
 );
 
 const ResumeATSFeedback = ({ analysis }: ATSFeedbackProps) => {
@@ -118,7 +125,7 @@ const ResumeATSFeedback = ({ analysis }: ATSFeedbackProps) => {
         />
         <SectionScore
           title="Format Score"
-          score={format_analysis.is_appropriate_length ? 100 : 60}
+          score={format_analysis.length.is_appropriate_length ? 100 : 60}
           icon={<CheckCircle className="w-5 h-5" />}
         />
       </div>

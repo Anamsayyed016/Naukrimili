@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   } catch (error) {
     return handleApiError(error, {
       endpoint: 'POST /api/subscribe',
-      context: { email }
+      context: { email: 'unknown' }
     });
   }
 } 

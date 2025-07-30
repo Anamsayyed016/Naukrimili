@@ -44,6 +44,7 @@ export interface CompaniesResponse {
     sizes: string[]
     locations: string[]
   }
+  error?: string
 }
 
 export interface CompanyResponse {
@@ -59,6 +60,7 @@ export interface CompanyResponse {
       growthRate: number
     }
   }
+  error?: string
 }
 
 export interface CompaniesFilters {

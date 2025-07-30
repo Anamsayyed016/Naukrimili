@@ -47,6 +47,7 @@ export interface AdsResponse {
     total_available: number
     context?: string
   }
+  error?: string
 }
 
 export interface AdTrackingData {

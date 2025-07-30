@@ -495,15 +495,15 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
   const displayJobs = jobs.length > 0 ? jobs : (searchQuery || location || jobType || selectedCategory) ? [] : sampleIndianJobs.slice(0, 6).map((job, index) => ({
     id: job.id,
     title: job.title,
-    company: job.company.display_name,
-    redirect_url: job.redirect_url,
-    location: job.location.display_name,
+    company: job.company,
+    redirect_url: job.redirect_url || `/jobs/${job.id}`,
+    location: job.location,
     description: job.description,
-    salaryFormatted: `₹${(job.salary_min / 100000).toFixed(1)}L - ₹${(job.salary_max / 100000).toFixed(1)}L`,
+    salaryFormatted: job.salary,
     timeAgo: 'Recently posted',
-    isUrgent: job.isUrgent || false,
-    isRemote: job.isRemote || false,
-    jobType: job.contract_type
+    isUrgent: false,
+    isRemote: false,
+    jobType: job.type
   }));
 
   const handleBookmark = (id: string) => {

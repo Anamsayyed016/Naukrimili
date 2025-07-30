@@ -26,6 +26,40 @@ export interface Job {
   source?: 'direct' | 'reed' | 'indeed' | 'linkedin';
 }
 
+export interface UnifiedJob {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  type: 'full-time' | 'part-time' | 'contract' | 'internship' | 'remote';
+  experience: string;
+  salary?: {
+    min: number;
+    max: number;
+    currency: string;
+    period: 'hourly' | 'monthly' | 'yearly';
+  };
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+  skills: string[];
+  benefits?: string[];
+  department?: string;
+  industry?: string;
+  education?: string;
+  postedDate: string;
+  closingDate?: string;
+  status: 'draft' | 'published' | 'closed' | 'archived';
+  applicationCount?: number;
+  source?: 'direct' | 'reed' | 'indeed' | 'linkedin';
+  // Additional unified fields
+  salaryFormatted?: string;
+  timeAgo?: string;
+  jobType?: string;
+  isUrgent?: boolean;
+  isRemote?: boolean;
+}
+
 export interface JobSearchFilters {
   keywords?: string;
   location?: string;

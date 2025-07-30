@@ -1,4 +1,22 @@
-import { Skill, JobPreferences, SeekerPreferences } from '@prisma/client';
+// Local type definitions since Prisma client is not available
+interface Skill {
+  id: string;
+  name: string;
+  category: string;
+}
+
+// interface JobPreferences {
+//   experienceRequired: number;
+//   salaryRange: [number, number];
+//   location: any;
+// }
+
+interface SeekerPreferences {
+  totalExperience: number;
+  expectedSalaryMin: number;
+  expectedSalaryMax: number;
+  preferredLocations: string[];
+}
 
 interface MatchParams {
   jobSkills: Skill[];
