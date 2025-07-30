@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { unifiedJobService } from '@/lib/unified-job-service';
+import { handleApiError } from '@/lib/error-handler';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,14 +16,14 @@ export async function POST(request: NextRequest) {
       // Get cache stats after clearing
       afterStats = unifiedJobService.getCacheStats();
     } catch (serviceError) {
-      return NextResponse.json({
+      return Response.json({
         success: false,
         error: 'Service unavailable - cache clearing failed',
         timestamp: new Date().toISOString()
       }, { status: 503 });
     }
     
-    return NextResponse.json({
+    return Response.json({
       success: true,
       message: 'Cache cleared successfully',
       before: beforeStats,
@@ -30,11 +31,13 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
     
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'Unknown error'
-    }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: 'POST /api/clear-cache',
+      context: {
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }
 
@@ -45,7 +48,7 @@ export async function GET(request: NextRequest) {
     try {
       stats = unifiedJobService.getCacheStats();
     } catch (serviceError) {
-      return NextResponse.json({
+      return Response.json({
         success: false,
         error: 'Service unavailable',
         cache: { size: 0, keys: [], status: 'unavailable' },
@@ -53,16 +56,18 @@ export async function GET(request: NextRequest) {
       }, { status: 503 });
     }
     
-    return NextResponse.json({
+    return Response.json({
       success: true,
       cache: stats,
       timestamp: new Date().toISOString()
     });
     
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'Unknown error'
-    }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: 'GET /api/clear-cache',
+      context: {
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }

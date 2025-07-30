@@ -16,8 +16,9 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    runtime: 'edge',
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3000']
+    },
   },
   // Webpack configurations to ignore certain modules
   webpack: (config, { isServer }) => {

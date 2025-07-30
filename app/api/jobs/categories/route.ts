@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest) {
   try {
@@ -6,8 +7,13 @@ export async function GET(request: NextRequest) {
     const res = await fetch('http://localhost:8000/categories');
     if (!res.ok) throw new Error('Failed to fetch categories from backend');
     const categories = await res.json();
-    return NextResponse.json({ categories });
+    return Response.json({ categories });
   } catch (error) {
-    return NextResponse.json({ error: 'Unable to fetch categories from backend.' }, { status: 500 });
+    return handleApiError(error, {
+      endpoint: 'GET /api/jobs/categories',
+      context: {
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }

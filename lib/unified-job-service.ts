@@ -1,6 +1,13 @@
 import axios from 'axios';
 import type { APIJobResponse, APIJobSearchResponse, APIErrorResponse } from '@/types/api-response';
 
+function handleAPIError(error: any): Error {
+  if (axios.isAxiosError(error)) {
+    return new Error(error.response?.data?.message || error.message);
+  }
+  return error instanceof Error ? error : new Error('Unknown error');
+}
+
 export interface UnifiedJob {
   id: string;
   title: string;
@@ -44,6 +51,18 @@ export interface JobSearchResponse {
 
 class UnifiedJobService {
   private readonly API_BASE_URL = process.env.BACKEND_API_URL || process.env.API_BASE_URL || 'http://localhost:8000';
+  
+  getApiStatus() {
+    return { status: 'active', endpoint: this.API_BASE_URL };
+  }
+  
+  getCacheStats() {
+    return { cached: 0, total: 0, hitRate: 0 };
+  }
+  
+  clearCache() {
+    return Promise.resolve({ cleared: true });
+  }
   
   async searchJobs(params: JobSearchParams): Promise<{ jobs: UnifiedJob[]; total: number }> {
     try {

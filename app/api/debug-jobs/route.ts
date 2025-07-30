@@ -1,9 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest) {
+  const searchParams = new URL(request.url).searchParams;
+  const testQuery = searchParams.get('test') || 'developer';
+  
   try {
-    const { searchParams } = new URL(request.url);
-    const testQuery = searchParams.get('test') || 'developer';
     
     // Simulate a successful API response with Reed jobs
     const mockJobs = [
@@ -87,15 +89,14 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    return NextResponse.json(response);
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      error: error.message,
-      debug: {
-        reedApiWorking: false,
-        errorDetails: error.toString()
+    return Response.json(response);
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: 'GET /api/debug-jobs',
+      context: {
+        test: testQuery,
+        timestamp: new Date().toISOString()
       }
-    }, { status: 500 });
+    });
   }
 }

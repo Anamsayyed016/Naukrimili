@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { unifiedJobService } from '@/lib/unified-job-service';
+import { handleApiError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
       DEBUG: process.env.DEBUG === 'true'
     };
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       timestamp: new Date().toISOString(),
       apiStatus,
@@ -74,16 +75,12 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Debug endpoint error:', error);
-    
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+    return handleApiError(error, {
+      endpoint: 'GET /api/jobs/debug',
+      context: {
         timestamp: new Date().toISOString()
-      },
-      { status: 500 }
-    );
+      }
+    });
   }
 }
 
@@ -96,22 +93,24 @@ export async function POST(request: NextRequest) {
       case 'clearCache':
         try {
           unifiedJobService.clearCache();
-          return NextResponse.json({
+          return Response.json({
             success: true,
             message: 'Cache cleared successfully',
             timestamp: new Date().toISOString()
           });
         } catch (error) {
-          return NextResponse.json({
-            success: false,
-            error: 'Cache clearing failed - service unavailable',
-            timestamp: new Date().toISOString()
+          return handleApiError(error, {
+            endpoint: 'POST /api/jobs/debug',
+            context: {
+              action: 'clearCache',
+              timestamp: new Date().toISOString()
+            }
           });
         }
 
       case 'testSearch':
         if (!params?.query) {
-          return NextResponse.json(
+          return Response.json(
             { success: false, error: 'Query parameter required for test search' },
             { status: 400 }
           );
@@ -124,37 +123,35 @@ export async function POST(request: NextRequest) {
             limit: params.limit || 5
           });
 
-          return NextResponse.json({
+          return Response.json({
             success: true,
             testResult: result,
             timestamp: new Date().toISOString()
           });
         } catch (error) {
-          return NextResponse.json({
-            success: false,
-            error: 'Test search failed - service unavailable',
-            testResult: { error: error instanceof Error ? error.message : 'Unknown error' },
-            timestamp: new Date().toISOString()
+          return handleApiError(error, {
+            endpoint: 'POST /api/jobs/debug',
+            context: {
+              action: 'testSearch',
+              query: params.query,
+              timestamp: new Date().toISOString()
+            }
           });
         }
 
       default:
-        return NextResponse.json(
+        return Response.json(
           { success: false, error: 'Invalid action. Use "clearCache" or "testSearch"' },
           { status: 400 }
         );
     }
 
   } catch (error) {
-    console.error('Debug POST error:', error);
-    
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+    return handleApiError(error, {
+      endpoint: 'POST /api/jobs/debug',
+      context: {
         timestamp: new Date().toISOString()
-      },
-      { status: 500 }
-    );
+      }
+    });
   }
 } 

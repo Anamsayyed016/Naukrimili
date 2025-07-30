@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest) {
   try {
     console.log('🧪 Testing Reed API (mock)...');
     
-    return NextResponse.json({
+    return Response.json({
       success: true,
       message: 'Reed API service not implemented yet',
       data: {
@@ -15,16 +16,13 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
     
-  } catch (error: any) {
-    console.error('❌ Reed API test failed:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: error.message,
-      details: {
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: 'GET /api/test-reed',
+      context: {
         apiKey: process.env.REED_API_KEY ? 'configured' : 'missing',
-        errorType: error.constructor.name
+        timestamp: new Date().toISOString()
       }
-    }, { status: 500 });
+    });
   }
 }

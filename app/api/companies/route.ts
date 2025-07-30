@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+
 
 // Tech Giants
 const techGiants = [
@@ -217,7 +217,7 @@ export async function GET(request: Request) {
     );
   }
 
-  return NextResponse.json({
+  return Response.json({
     success: true,
     companies: filteredCompanies,
     total: filteredCompanies.length,

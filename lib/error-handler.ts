@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { env } from './env';
 
@@ -76,11 +75,11 @@ function logError(error: Error, context?: any) {
 }
 
 // Enhanced error handler
-export function handleApiError(error: unknown, context?: any): NextResponse {
+export function handleApiError(error: unknown, context?: any): Response {
   logError(error as Error, context);
   
   if (error instanceof ValidationError) {
-    return NextResponse.json({
+    return Response.json({
       success: false,
       message: error.message,
       errors: error.validationErrors,
@@ -89,7 +88,7 @@ export function handleApiError(error: unknown, context?: any): NextResponse {
   }
   
   if (error instanceof ApiError) {
-    return NextResponse.json({
+    return Response.json({
       success: false,
       message: error.message,
       code: error.code,
@@ -98,12 +97,12 @@ export function handleApiError(error: unknown, context?: any): NextResponse {
   }
   
   if (error instanceof ZodError) {
-    const validationErrors = error.errors.map(err => {
+    const validationErrors = error.issues.map((err: any) => {
       const path = err.path.length > 0 ? `${err.path.join('.')}: ` : '';
       return `${path}${err.message}`;
     });
     
-    return NextResponse.json({
+    return Response.json({
       success: false,
       message: 'Validation failed',
       errors: validationErrors,
@@ -117,7 +116,7 @@ export function handleApiError(error: unknown, context?: any): NextResponse {
       ? 'An unexpected error occurred' 
       : sanitizeErrorMessage(error.message);
       
-    return NextResponse.json({
+    return Response.json({
       success: false,
       message,
       code: 'INTERNAL_ERROR',
@@ -128,7 +127,7 @@ export function handleApiError(error: unknown, context?: any): NextResponse {
     }, { status: 500 });
   }
   
-  return NextResponse.json({
+  return Response.json({
     success: false,
     message: 'An unexpected error occurred',
     code: 'UNKNOWN_ERROR'
@@ -165,7 +164,7 @@ export function handleDatabaseError(error: any): ApiError {
 }
 
 // Legacy compatibility
-export function createErrorResponse(error: unknown): NextResponse {
+export function createErrorResponse(error: unknown): Response {
   return handleApiError(error);
 }
 

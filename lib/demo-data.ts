@@ -120,3 +120,48 @@ export const getDemoStats = async (): Promise<DemoStatsData> => {
     hires: 12340
   };
 };
+
+interface DemoTestimonialsData {
+  testimonials: {
+    id: string;
+    name: string;
+    role: string;
+    company: string;
+    content: string;
+    avatar?: string;
+  }[];
+}
+
+export const getDemoTestimonials = async (): Promise<DemoTestimonialsData> => {
+  // Simulating an API call delay
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  return {
+    testimonials: [
+      {
+        id: "1",
+        name: "Sarah Johnson",
+        role: "Software Engineer",
+        company: "TechCorp",
+        content: "NaukriMili helped me find my dream job in just 2 weeks! The AI matching was incredibly accurate.",
+        avatar: "/placeholder-user.jpg"
+      },
+      {
+        id: "2",
+        name: "Michael Chen",
+        role: "Product Manager",
+        company: "InnovateCo",
+        content: "The resume analysis feature gave me insights I never knew I needed. Highly recommended!",
+        avatar: "/placeholder-user.jpg"
+      },
+      {
+        id: "3",
+        name: "Emily Rodriguez",
+        role: "UX Designer",
+        company: "DesignStudio",
+        content: "Amazing platform! The job recommendations were spot-on and the application process was seamless.",
+        avatar: "/placeholder-user.jpg"
+      }
+    ]
+  };
+};

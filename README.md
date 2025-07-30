@@ -1,5 +1,7 @@
 # Job Portal - AI-Powered Resume Parser
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/fd811132-ac16-4dc8-ad21-a719111efc1b/deploy-status)](https://app.netlify.com/projects/naukrimili/deploys)
+
 A FastAPI-based job portal application that uses AI/NLP to parse resumes, extract structured data, and calculate ATS compatibility scores.
 
 ## Features

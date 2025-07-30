@@ -1,5 +1,3 @@
-import { NextResponse } from 'next/server';
-
 const indianCities = [
   {
     id: 'bangalore',
@@ -49,7 +47,7 @@ const indianCities = [
 ];
 
 export async function GET() {
-  return NextResponse.json({
+  return Response.json({
     success: true,
     locations: indianCities,
     total: indianCities.length

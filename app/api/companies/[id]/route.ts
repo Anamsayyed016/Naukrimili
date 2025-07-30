@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { handleApiError } from '@/lib/error-handler'
 
 // Import the same interface and mock data from the companies route
 interface Company {
@@ -100,7 +101,7 @@ export async function GET(
     const company = mockCompanies.find(c => c.id === id)
     
     if (!company) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: 'Company not found' },
         { status: 404 }
       )
@@ -111,7 +112,7 @@ export async function GET(
       .filter(c => c.id !== id && c.industry === company.industry)
       .slice(0, 3)
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       data: {
         company,
@@ -128,7 +129,7 @@ export async function GET(
 
   } catch (error) {
     console.error('Error fetching company:', error)
-    return NextResponse.json(
+    return Response.json(
       { success: false, error: 'Failed to fetch company' },
       { status: 500 }
     )
@@ -149,7 +150,7 @@ export async function PUT(
     const companyIndex = mockCompanies.findIndex(c => c.id === id)
     
     if (companyIndex === -1) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: 'Company not found' },
         { status: 404 }
       )
@@ -165,18 +166,20 @@ export async function PUT(
 
     mockCompanies[companyIndex] = updatedCompany
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       data: updatedCompany,
       message: 'Company updated successfully'
     })
 
   } catch (error) {
-    console.error('Error updating company:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to update company' },
-      { status: 500 }
-    )
+    return handleApiError(error, {
+      endpoint: 'PATCH /api/companies/[id]',
+      context: {
+        companyId: params.id,
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }
 
@@ -193,7 +196,7 @@ export async function DELETE(
     const companyIndex = mockCompanies.findIndex(c => c.id === id)
     
     if (companyIndex === -1) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: 'Company not found' },
         { status: 404 }
       )
@@ -202,17 +205,19 @@ export async function DELETE(
     // Remove company
     const deletedCompany = mockCompanies.splice(companyIndex, 1)[0]
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       data: deletedCompany,
       message: 'Company deleted successfully'
-    })
+    });
 
   } catch (error) {
-    console.error('Error deleting company:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to delete company' },
-      { status: 500 }
-    )
+    return handleApiError(error, {
+      endpoint: 'DELETE /api/companies/[id]',
+      context: {
+        companyId: params.id,
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }

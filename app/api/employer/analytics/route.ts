@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { handleApiError } from '@/lib/error-handler';
 
 // Mock analytics data for demo purposes
 const mockAnalytics = {
@@ -64,21 +64,22 @@ export async function GET() {
         
         if (response.ok) {
           const analytics = await response.json();
-          return NextResponse.json(analytics);
+          return Response.json(analytics);
         }
-      } catch (error) {
+      } catch (apiError) {
         console.warn('Backend analytics API not available, using mock data');
       }
     }
 
     // Return mock data for demo
-    return NextResponse.json(mockAnalytics);
+    return Response.json(mockAnalytics);
 
   } catch (error) {
-    console.error('Error fetching employer analytics:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch analytics' },
-      { status: 500 }
-    );
+    return handleApiError(error, {
+      endpoint: 'GET /api/employer/analytics',
+      context: {
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }

@@ -1,4 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
+
+interface JobData {
+  title: string;
+  company: string;
+  location: string;
+  description: string;
+  salary: string;
+  timeAgo: string;
+  redirect_url: string;
+  isUrgent: boolean;
+  isRemote: boolean;
+  jobType: string;
+  source: string;
+  sector: string;
+  experience: number;
+  skills: string[];
+}
+
+interface Job extends JobData {
+  id: string;
+}
 
 // Dynamic job generator - creates jobs based on location and sector
 function generateJobsForLocation(location: string, query: string = '') {
@@ -45,7 +67,7 @@ function generateJobsForLocation(location: string, query: string = '') {
     }
   };
 
-  const jobs = [];
+  const jobs: Job[] = [];
   let jobId = 1;
 
   // Generate jobs for each sector
@@ -128,10 +150,11 @@ const indianCities = [
 ];
 
 export async function GET(request: NextRequest) {
+  const searchParams = new URL(request.url).searchParams;
+  const query = searchParams.get('query')?.toLowerCase() || '';
+  const location = searchParams.get('location') || 'Mumbai, Maharashtra';
+
   try {
-    const { searchParams } = new URL(request.url);
-    const query = searchParams.get('query')?.toLowerCase() || '';
-    const location = searchParams.get('location') || 'Mumbai, Maharashtra';
     const sector = searchParams.get('sector') || '';
     const experience = searchParams.get('experience') || '';
     const jobType = searchParams.get('jobType') || '';
@@ -158,11 +181,12 @@ export async function GET(request: NextRequest) {
 
     if (experience) {
       const expRange = experience.split('-').map(Number);
-      jobs = jobs.filter(job => {
-        if (expRange.length === 2) {
+      jobs = jobs.filter((job: Job) => {
+        if (expRange.length === 2 && !Number.isNaN(expRange[0]) && !Number.isNaN(expRange[1]) && expRange[0] !== undefined && expRange[1] !== undefined) {
           return job.experience >= expRange[0] && job.experience <= expRange[1];
         }
-        return job.experience >= parseInt(experience);
+        const minExp = parseInt(experience);
+        return !Number.isNaN(minExp) && job.experience >= minExp;
       });
     }
 
@@ -185,7 +209,7 @@ export async function GET(request: NextRequest) {
     const startIndex = (page - 1) * limit;
     const paginatedJobs = jobs.slice(startIndex, startIndex + limit);
 
-    return NextResponse.json({
+    const response = {
       success: true,
       jobs: paginatedJobs,
       total: jobs.length,
@@ -205,13 +229,18 @@ export async function GET(request: NextRequest) {
         'media': true
       }),
       source: 'dynamic-real-api'
-    });
+    };
+
+    return Response.json(response);
 
   } catch (error) {
-    console.error('Dynamic API error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to generate jobs', jobs: [] },
-      { status: 500 }
-    );
+    return handleApiError(error, {
+      endpoint: 'GET /api/jobs/real',
+      context: {
+        query,
+        location,
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }

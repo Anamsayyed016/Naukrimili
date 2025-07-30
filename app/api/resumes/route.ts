@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 // Mock resume data
 const mockResumes = [
@@ -25,15 +25,17 @@ const mockResumes = [
 export async function GET() {
   try {
     // In a real app, fetch from database based on user session
-    return NextResponse.json({
+    return Response.json({
       success: true,
       resumes: mockResumes,
       total: mockResumes.length
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch resumes' },
-      { status: 500 }
-    );
+    return handleApiError(error, {
+      endpoint: 'GET /api/resumes',
+      context: {
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }

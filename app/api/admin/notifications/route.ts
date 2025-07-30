@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 const notifications = [
   {
@@ -22,25 +22,45 @@ const notifications = [
 ];
 
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    notifications: notifications,
-    unreadCount: notifications.filter(n => !n.read).length
-  });
+  try {
+    return Response.json({
+      success: true,
+      notifications: notifications,
+      unreadCount: notifications.filter(n => !n.read).length
+    });
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: 'GET /api/admin/notifications',
+      context: {
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
 }
 
 export async function POST(request: Request) {
   const { notificationId, action } = await request.json();
   
-  if (action === 'mark_read') {
-    return NextResponse.json({
-      success: true,
-      message: 'Notification marked as read'
+  try {
+    if (action === 'mark_read') {
+      return Response.json({
+        success: true,
+        message: 'Notification marked as read'
+      });
+    }
+    
+    return Response.json(
+      { success: false, message: 'Invalid action' },
+      { status: 400 }
+    );
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: 'POST /api/admin/notifications',
+      context: {
+        action,
+        notificationId,
+        timestamp: new Date().toISOString()
+      }
     });
   }
-  
-  return NextResponse.json(
-    { success: false, message: 'Invalid action' },
-    { status: 400 }
-  );
 }

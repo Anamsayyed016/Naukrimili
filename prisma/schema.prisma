@@ -8,19 +8,128 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String   @unique
-  password      String?
-  role          Role     @default(USER)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  email             String   @unique
+  name              String?
+  image             String?
+  role              Role     @default(JOBSEEKER)
+  profileCompletion Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  jobs              Job[]
+  applications      Application[]
+  profile           Profile?
   
   @@map("users")
 }
 
+model Profile {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String @unique @db.ObjectId
+  skills   String[]
+  location String?
+  bio      String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("profiles")
+}
+
+model Job {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  company     String
+  location    String
+  description String
+  salary      String?
+  type        JobType     @default(FULL_TIME)
+  status      JobStatus   @default(PUBLISHED)
+  sector      String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  userId      String      @db.ObjectId
+  
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications Application[]
+  
+  @@map("jobs")
+}
+
+model Application {
+  id        String            @id @default(auto()) @map("_id") @db.ObjectId
+  status    ApplicationStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  userId    String            @db.ObjectId
+  jobId     String            @db.ObjectId
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  @@map("applications")
+}
+
+model FraudReport {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  type        String
+  description String
+  status      String    @default("pending")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@map("fraud_reports")
+}
+
 enum Role {
-  USER
   ADMIN
-  EMPLOYER
+  JOBSEEKER
+  COMPANY
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  REMOTE
+}
+
+enum JobStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  ARCHIVED
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWED
+  ACCEPTED
+  REJECTED
+}
+
+// Types for job matching
+type Skill {
+  name        String
+  level       String
+  category    String
+}
+
+type JobPreferences {
+  location    String[]
+  salary_min  Int?
+  salary_max  Int?
+  job_types   JobType[]
+  sectors     String[]
+}
+
+type SeekerPreferences {
+  skills           Skill[]
+  experience_level String
+  job_preferences  JobPreferences
+  availability     String
 }

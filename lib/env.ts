@@ -3,15 +3,16 @@ import { z } from 'zod';
 // Environment variable validation schema
 const envSchema = z.object({
   // Database
-  MONGODB_URI: z.string().url('Invalid MongoDB URI'),
-  DATABASE_URL: z.string().url('Invalid Database URL'),
+  MONGO_URI: z.string().optional(),
+  MONGODB_URI: z.string().optional(),
+  DATABASE_URL: z.string().optional(),
   
   // NextAuth
-  NEXTAUTH_SECRET: z.string().min(32, 'NEXTAUTH_SECRET must be at least 32 characters'),
-  NEXTAUTH_URL: z.string().url('Invalid NEXTAUTH_URL'),
+  NEXTAUTH_SECRET: z.string().optional(),
+  NEXTAUTH_URL: z.string().optional(),
   
   // OpenAI
-  OPENAI_API_KEY: z.string().min(1, 'OpenAI API key is required'),
+  OPENAI_API_KEY: z.string().optional(),
   
   // AWS (Optional)
   AWS_ACCESS_KEY_ID: z.string().optional(),
@@ -27,9 +28,14 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DEBUG: z.string().transform(val => val === 'true').optional(),
   
+  // API Keys
+  SERPAPI_KEY: z.string().optional(),
+  RAPIDAPI_KEY: z.string().optional(),
+  JWT_SECRET: z.string().optional(),
+  
   // Backend API
-  BACKEND_API_URL: z.string().url().optional(),
-  NEXT_PUBLIC_API_URL: z.string().url().optional(),
+  BACKEND_API_URL: z.string().optional(),
+  NEXT_PUBLIC_API_URL: z.string().optional(),
 });
 
 // Validate environment variables

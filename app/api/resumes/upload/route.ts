@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join, dirname } from 'path';
+import { handleApiError } from '@/lib/error-handler';
 
 // Mock AI resume parsing function
 function parseResumeWithAI(filename: string, fileContent: string) {
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('resume') as File;
     
     if (!file) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, message: 'No file uploaded' },
         { status: 400 }
       );
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
     // Validate file type
     const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, message: 'Invalid file type. Please upload PDF or Word document.' },
         { status: 400 }
       );
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
 
     // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, message: 'File size too large. Maximum 5MB allowed.' },
         { status: 400 }
       );
@@ -141,12 +142,13 @@ export async function POST(request: NextRequest) {
     };
 
     // Save file to local uploads directory (development only)
+    let filePath = '';
     try {
       const uploadDir = join(process.cwd(), 'public', 'uploads', 'resumes');
       await mkdir(uploadDir, { recursive: true });
       
       const fileBuffer2 = Buffer.from(await file.arrayBuffer());
-      const filePath = join(uploadDir, `${resumeId}_${file.name}`);
+      filePath = join(uploadDir, `${resumeId}_${file.name}`);
       
       await writeFile(filePath, fileBuffer2);
       console.log('File saved to:', filePath);

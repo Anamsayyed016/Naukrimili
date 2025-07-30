@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
 
     if (!email || !email.includes('@')) {
-      return NextResponse.json(
+      return Response.json(
         { error: 'Valid email is required' },
         { status: 400 }
       );
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     console.log('New subscriber:', email);
 
     // For now, just simulate success
-    return NextResponse.json(
+    return Response.json(
       { 
         success: true,
         message: 'Successfully subscribed to newsletter' 
@@ -23,10 +23,9 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Newsletter subscription error:', error);
-    return NextResponse.json(
-      { error: 'Failed to subscribe' },
-      { status: 500 }
-    );
+    return handleApiError(error, {
+      endpoint: 'POST /api/subscribe',
+      context: { email }
+    });
   }
 } 

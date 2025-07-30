@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { unifiedJobService } from '@/lib/unified-job-service';
 import type { JobSearchParams } from '@/lib/unified-job-service';
+import { logger } from '@/lib/logger';
+import { handleApiError } from '@/lib/error-handler';
 
 // Mock jobs data for fallback
 const mockJobs = [
@@ -35,8 +37,9 @@ const mockJobs = [
 ];
 
 export async function GET(request: NextRequest) {
+  let searchParams;
   try {
-    const { searchParams } = new URL(request.url);
+    searchParams = new URL(request.url).searchParams;
     const query = searchParams.get('query') || '';
     const location = searchParams.get('location') || 'India';
     const page = parseInt(searchParams.get('page') || '1');
@@ -55,7 +58,7 @@ export async function GET(request: NextRequest) {
       if (realResponse.ok) {
         const realData = await realResponse.json();
         if (realData.success) {
-          return NextResponse.json(realData);
+          return Response.json(realData);
         }
       }
     } catch (error) {
@@ -63,7 +66,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fallback to mock data
-    return NextResponse.json({ 
+    return Response.json({ 
       success: true, 
       jobs: mockJobs,
       total: mockJobs.length,
@@ -72,11 +75,10 @@ export async function GET(request: NextRequest) {
       hasMore: false
     });
   } catch (error) {
-    console.error('GET jobs error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch jobs', jobs: [] }, 
-      { status: 500 }
-    );
+    return handleApiError(error, { 
+      endpoint: 'GET /api/jobs',
+      context: { query: searchParams?.get('query') ?? null }
+    });
   }
 }
 
@@ -99,7 +101,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!query.trim()) {
-      return NextResponse.json(
+      return Response.json(
         { 
           success: false,
           error: 'Search query is required',
@@ -128,13 +130,20 @@ export async function POST(request: NextRequest) {
 
     try {
       const result = await unifiedJobService.searchJobs(searchOptions);
-      return NextResponse.json({
+      
+      // Calculate pagination info
+      const currentPage = searchOptions.page || 1;
+      const pageSize = searchOptions.limit || 20;
+      const totalPages = Math.ceil(result.total / pageSize);
+      const hasMore = currentPage < totalPages;
+      
+      return Response.json({
         success: true,
         jobs: result.jobs,
         total: result.total,
-        page: result.page,
-        totalPages: result.totalPages,
-        hasMore: result.hasMore,
+        page: currentPage,
+        totalPages,
+        hasMore,
         query: searchOptions,
         meta: {
           searchTime: new Date().toISOString(),
@@ -142,7 +151,7 @@ export async function POST(request: NextRequest) {
         }
       });
     } catch (serviceError) {
-      console.warn('Unified job service failed, using mock data:', serviceError);
+      logger.warn('Unified job service failed, using mock data', { error: serviceError });
       
       // Filter mock jobs based on query
       const filteredJobs = mockJobs.filter(job =>
@@ -151,7 +160,7 @@ export async function POST(request: NextRequest) {
         job.description.toLowerCase().includes(query.toLowerCase())
       );
 
-      return NextResponse.json({
+      return Response.json({
         success: true,
         jobs: filteredJobs,
         total: filteredJobs.length,
@@ -168,19 +177,12 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('❌ POST unified job search error:', error);
-    
-    return NextResponse.json(
-      { 
-        success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
-        jobs: [],
-        debug: {
-          message: 'POST request failed',
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
-      },
-      { status: 500 }
-    );
+    return handleApiError(error, {
+      endpoint: 'POST /api/jobs',
+      context: {
+        request: 'Search jobs',
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }

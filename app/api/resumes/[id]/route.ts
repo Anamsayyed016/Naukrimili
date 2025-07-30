@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 export async function DELETE(
   request: NextRequest,
@@ -10,15 +11,15 @@ export async function DELETE(
     // In a real app, delete from database and file storage
     console.log(`Deleting resume with ID: ${id}`);
     
-    return NextResponse.json({
+    return Response.json({
       success: true,
       message: 'Resume deleted successfully'
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: 'Failed to delete resume' },
-      { status: 500 }
-    );
+    return handleApiError(error, {
+      endpoint: 'DELETE /api/resumes/[id]',
+      context: { resumeId: params.id }
+    });
   }
 }
 
@@ -55,14 +56,14 @@ export async function GET(
       uploadedAt: '2024-01-15T10:30:00Z'
     };
     
-    return NextResponse.json({
+    return Response.json({
       success: true,
       resume: resume
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch resume' },
-      { status: 500 }
-    );
+    return handleApiError(error, {
+      endpoint: 'GET /api/resumes/[id]',
+      context: { resumeId: params.id }
+    });
   }
 }

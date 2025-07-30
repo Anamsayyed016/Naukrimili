@@ -1,1 +1,190 @@
-import mongoose from 'mongoose';\nimport { env } from './env';\n\n// Connection state\ninterface ConnectionState {\n  isConnected: boolean;\n  connection: typeof mongoose | null;\n  error: Error | null;\n}\n\nconst connection: ConnectionState = {\n  isConnected: false,\n  connection: null,\n  error: null,\n};\n\n// Connection options\nconst connectionOptions: mongoose.ConnectOptions = {\n  bufferCommands: false,\n  maxPoolSize: 10,\n  serverSelectionTimeoutMS: 5000,\n  socketTimeoutMS: 45000,\n  family: 4, // Use IPv4, skip trying IPv6\n};\n\n// Connect to MongoDB\nexport async function connectToDatabase(): Promise<typeof mongoose> {\n  if (connection.isConnected && connection.connection) {\n    return connection.connection;\n  }\n\n  try {\n    console.log('Connecting to MongoDB...');\n    \n    const db = await mongoose.connect(env.MONGODB_URI, connectionOptions);\n    \n    connection.isConnected = true;\n    connection.connection = db;\n    connection.error = null;\n    \n    console.log('MongoDB connected successfully');\n    \n    // Handle connection events\n    mongoose.connection.on('error', (error) => {\n      console.error('MongoDB connection error:', error);\n      connection.error = error;\n      connection.isConnected = false;\n    });\n    \n    mongoose.connection.on('disconnected', () => {\n      console.warn('MongoDB disconnected');\n      connection.isConnected = false;\n    });\n    \n    mongoose.connection.on('reconnected', () => {\n      console.log('MongoDB reconnected');\n      connection.isConnected = true;\n      connection.error = null;\n    });\n    \n    return db;\n  } catch (error) {\n    console.error('Failed to connect to MongoDB:', error);\n    connection.error = error as Error;\n    connection.isConnected = false;\n    throw error;\n  }\n}\n\n// Disconnect from MongoDB\nexport async function disconnectFromDatabase(): Promise<void> {\n  if (!connection.isConnected) {\n    return;\n  }\n\n  try {\n    await mongoose.disconnect();\n    connection.isConnected = false;\n    connection.connection = null;\n    connection.error = null;\n    console.log('MongoDB disconnected');\n  } catch (error) {\n    console.error('Error disconnecting from MongoDB:', error);\n    throw error;\n  }\n}\n\n// Get connection status\nexport function getConnectionStatus(): ConnectionState {\n  return { ...connection };\n}\n\n// Health check\nexport async function checkDatabaseHealth(): Promise<{\n  status: 'healthy' | 'unhealthy';\n  details: {\n    connected: boolean;\n    readyState: number;\n    host: string;\n    name: string;\n    error?: string;\n  };\n}> {\n  try {\n    const state = mongoose.connection.readyState;\n    const isHealthy = state === 1; // 1 = connected\n    \n    return {\n      status: isHealthy ? 'healthy' : 'unhealthy',\n      details: {\n        connected: connection.isConnected,\n        readyState: state,\n        host: mongoose.connection.host || 'unknown',\n        name: mongoose.connection.name || 'unknown',\n        ...(connection.error && { error: connection.error.message }),\n      },\n    };\n  } catch (error) {\n    return {\n      status: 'unhealthy',\n      details: {\n        connected: false,\n        readyState: 0,\n        host: 'unknown',\n        name: 'unknown',\n        error: (error as Error).message,\n      },\n    };\n  }\n}\n\n// Retry connection with exponential backoff\nexport async function connectWithRetry(\n  maxRetries: number = 5,\n  baseDelay: number = 1000\n): Promise<typeof mongoose> {\n  let lastError: Error;\n  \n  for (let attempt = 1; attempt <= maxRetries; attempt++) {\n    try {\n      return await connectToDatabase();\n    } catch (error) {\n      lastError = error as Error;\n      \n      if (attempt === maxRetries) {\n        throw new Error(\n          `Failed to connect to database after ${maxRetries} attempts: ${lastError.message}`\n        );\n      }\n      \n      const delay = baseDelay * Math.pow(2, attempt - 1);\n      console.log(`Connection attempt ${attempt} failed, retrying in ${delay}ms...`);\n      \n      await new Promise(resolve => setTimeout(resolve, delay));\n    }\n  }\n  \n  throw lastError!;\n}\n\n// Graceful shutdown\nexport async function gracefulShutdown(): Promise<void> {\n  console.log('Initiating graceful database shutdown...');\n  \n  try {\n    await disconnectFromDatabase();\n    console.log('Database shutdown completed');\n  } catch (error) {\n    console.error('Error during database shutdown:', error);\n    throw error;\n  }\n}\n\n// Initialize database connection on module load\nif (process.env.NODE_ENV !== 'test') {\n  connectWithRetry().catch((error) => {\n    console.error('Initial database connection failed:', error);\n  });\n}\n\n// Handle process termination\nprocess.on('SIGINT', async () => {\n  await gracefulShutdown();\n  process.exit(0);\n});\n\nprocess.on('SIGTERM', async () => {\n  await gracefulShutdown();\n  process.exit(0);\n});
+import mongoose from 'mongoose';
+import { env } from './env';
+
+// Connection state
+interface ConnectionState {
+  isConnected: boolean;
+  connection: typeof mongoose | null;
+  error: Error | null;
+}
+
+const connection: ConnectionState = {
+  isConnected: false,
+  connection: null,
+  error: null,
+};
+
+// Connection options
+const connectionOptions: mongoose.ConnectOptions = {
+  bufferCommands: false,
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  family: 4, // Use IPv4, skip trying IPv6
+};
+
+// Connect to MongoDB
+export async function connectToDatabase(): Promise<typeof mongoose> {
+  if (connection.isConnected && connection.connection) {
+    return connection.connection;
+  }
+
+  try {
+    console.log('Connecting to MongoDB...');
+    
+    const db = await mongoose.connect(env.MONGODB_URI, connectionOptions);
+    
+    connection.isConnected = true;
+    connection.connection = db;
+    connection.error = null;
+    
+    console.log('MongoDB connected successfully');
+    
+    // Handle connection events
+    mongoose.connection.on('error', (error) => {
+      console.error('MongoDB connection error:', error);
+      connection.error = error;
+      connection.isConnected = false;
+    });
+    
+    mongoose.connection.on('disconnected', () => {
+      console.warn('MongoDB disconnected');
+      connection.isConnected = false;
+    });
+    
+    mongoose.connection.on('reconnected', () => {
+      console.log('MongoDB reconnected');
+      connection.isConnected = true;
+      connection.error = null;
+    });
+    
+    return db;
+  } catch (error) {
+    console.error('Failed to connect to MongoDB:', error);
+    connection.error = error as Error;
+    connection.isConnected = false;
+    throw error;
+  }
+}
+
+// Disconnect from MongoDB
+export async function disconnectFromDatabase(): Promise<void> {
+  if (!connection.isConnected) {
+    return;
+  }
+
+  try {
+    await mongoose.disconnect();
+    connection.isConnected = false;
+    connection.connection = null;
+    connection.error = null;
+    console.log('MongoDB disconnected');
+  } catch (error) {
+    console.error('Error disconnecting from MongoDB:', error);
+    throw error;
+  }
+}
+
+// Get connection status
+export function getConnectionStatus(): ConnectionState {
+  return { ...connection };
+}
+
+// Health check
+export async function checkDatabaseHealth(): Promise<{
+  status: 'healthy' | 'unhealthy';
+  details: {
+    connected: boolean;
+    readyState: number;
+    host: string;
+    name: string;
+    error?: string;
+  };
+}> {
+  try {
+    const state = mongoose.connection.readyState;
+    const isHealthy = state === 1; // 1 = connected
+    
+    return {
+      status: isHealthy ? 'healthy' : 'unhealthy',
+      details: {
+        connected: connection.isConnected,
+        readyState: state,
+        host: mongoose.connection.host || 'unknown',
+        name: mongoose.connection.name || 'unknown',
+        ...(connection.error && { error: connection.error.message }),
+      },
+    };
+  } catch (error) {
+    return {
+      status: 'unhealthy',
+      details: {
+        connected: false,
+        readyState: 0,
+        host: 'unknown',
+        name: 'unknown',
+        error: (error as Error).message,
+      },
+    };
+  }
+}
+
+// Retry connection with exponential backoff
+export async function connectWithRetry(
+  maxRetries: number = 5,
+  baseDelay: number = 1000
+): Promise<typeof mongoose> {
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await connectToDatabase();
+    } catch (error) {
+      lastError = error as Error;
+      
+      if (attempt === maxRetries) {
+        throw new Error(
+          `Failed to connect to database after ${maxRetries} attempts: ${lastError.message}`
+        );
+      }
+      
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.log(`Connection attempt ${attempt} failed, retrying in ${delay}ms...`);
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
+}
+
+// Graceful shutdown
+export async function gracefulShutdown(): Promise<void> {
+  console.log('Initiating graceful database shutdown...');
+  
+  try {
+    await disconnectFromDatabase();
+    console.log('Database shutdown completed');
+  } catch (error) {
+    console.error('Error during database shutdown:', error);
+    throw error;
+  }
+}
+
+// Initialize database connection on module load
+if (process.env.NODE_ENV !== 'test') {
+  connectWithRetry().catch((error) => {
+    console.error('Initial database connection failed:', error);
+  });
+}
+
+// Handle process termination
+process.on('SIGINT', async () => {
+  await gracefulShutdown();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await gracefulShutdown();
+  process.exit(0);
+});

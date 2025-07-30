@@ -6,8 +6,8 @@ interface LogEntry {
   level: LogLevel;
   message: string;
   timestamp: string;
-  context?: Record<string, unknown>;
-  stack?: string;
+  context: Record<string, unknown> | undefined;
+  stack: string | undefined;
 }
 
 class Logger {
@@ -19,14 +19,33 @@ class Logger {
       message,
       timestamp: new Date().toISOString(),
       context: this.sanitizeContext(context),
-      ...(error && { stack: error.stack })
+      stack: error && this.isDevelopment ? error.stack : undefined
     };
     
     if (this.isDevelopment) {
-      console[level === 'debug' ? 'log' : level](entry);
+      const color = {
+        debug: '\x1b[36m', // cyan
+        info: '\x1b[32m',  // green
+        warn: '\x1b[33m',  // yellow
+        error: '\x1b[31m'  // red
+      }[level];
+      
+      console.log(
+        `${color}[${entry.timestamp}] ${level.toUpperCase()}\x1b[0m:`,
+        entry.message,
+        entry.context ? JSON.stringify(entry.context, null, 2) : '',
+        error ? `\n${error.stack}` : ''
+      );
     } else {
-      // In production, send to logging service
-      this.sendToLoggingService(entry);
+      // In production, only log errors and warnings
+      if (level === 'error' || level === 'warn') {
+        // Remove sensitive data from production logs
+        const sanitizedEntry = {
+          ...entry,
+          context: this.sanitizeContext(entry.context)
+        };
+        console[level](JSON.stringify(sanitizedEntry));
+      }
     }
   }
   

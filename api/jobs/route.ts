@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // Job sectors configuration
 const JOB_SECTORS = {
@@ -24,13 +25,7 @@ const JOB_SECTORS = {
   'telecommunications': ['network engineer', 'telecom technician', 'call center agent', 'field technician']
 };
 
-console.log('🚀 Jobs API route loaded');
-console.log('Environment check:', {
-  SERPAPI_KEY: process.env.SERPAPI_KEY ? 'SET' : 'NOT SET',
-  ADZUNA_APP_ID: process.env.ADZUNA_APP_ID ? 'SET' : 'NOT SET',
-  ADZUNA_API_KEY: process.env.ADZUNA_API_KEY ? 'SET' : 'NOT SET',
-  REED_API_KEY: process.env.REED_API_KEY ? 'SET' : 'NOT SET'
-});
+// Environment check removed for production build
 
 interface JobData {
   id: string;
@@ -89,8 +84,6 @@ class JobAggregator {
     const searchQuery = sector && JOB_SECTORS[sector as keyof typeof JOB_SECTORS] 
       ? JOB_SECTORS[sector as keyof typeof JOB_SECTORS][0] 
       : query || 'jobs';
-
-    console.log(`🔍 Searching for "${searchQuery}" in ${location || 'any location'}`);
 
     // Only use internal/backend DB logic here
     // If no jobs found, provide mock data
@@ -226,8 +219,6 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Jobs API Error:', error);
-    
     // Fallback to Google search if API fails
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || searchParams.get('query') || 'jobs';

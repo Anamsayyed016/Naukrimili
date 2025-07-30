@@ -23,10 +23,22 @@ export const mockDatabase = {
       email: 'test@example.com',
     },
   ],
+  applications: [],
+  profiles: [],
+  fraudReport: [],
 };
 
 // Mock database functions
 export const mockDb = {
+  users: [],
+  jobs: [],
+  applications: [],
+  profiles: [],
+  fraudReport: [],
+  
+  connect: async () => Promise.resolve(),
+  disconnect: async () => Promise.resolve(),
+  
   findJobs: async (query = '') => {
     return mockDatabase.jobs.filter(job => 
       job.title.toLowerCase().includes(query.toLowerCase()) ||

@@ -1,26 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { handleApiError } from '@/lib/error-handler'
 
 // This would typically import from your Python backend
 // For now, we'll create a TypeScript version of the key functionality
 
 interface UserData {
   user_id: string
-  job_searches?: string[]
-  job_applications?: string[]
-  skills?: string[]
-  industry?: string
-  location?: string
-  profile_completeness?: number
-  job_postings?: string[]
-  candidate_searches?: string[]
-  company_profile_views?: string[]
-  recruitment_tool_usage?: number
-  is_student?: boolean
-  career_resource_views?: string[]
-  candidate_contacts?: string[]
-  ats_usage?: number
-  talent_pool_searches?: string[]
-  recruitment_events?: string[]
+  job_searches?: string[] | undefined
+  job_applications?: string[] | undefined
+  skills?: string[] | undefined
+  industry?: string | undefined
+  location?: string | undefined
+  profile_completeness?: number | undefined
+  job_postings?: string[] | undefined
+  candidate_searches?: string[] | undefined
+  company_profile_views?: string[] | undefined
+  recruitment_tool_usage?: number | undefined
+  is_student?: boolean | undefined
+  career_resource_views?: string[] | undefined
+  candidate_contacts?: string[] | undefined
+  ats_usage?: number | undefined
+  talent_pool_searches?: string[] | undefined
+  recruitment_events?: string[] | undefined
 }
 
 interface AdData {
@@ -229,7 +230,7 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       data: {
         ads: selectedAds,
@@ -240,11 +241,12 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching ads:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch ads' },
-      { status: 500 }
-    )
+    return handleApiError(error, {
+      endpoint: 'GET /api/ads',
+      context: {
+        timestamp: new Date().toISOString()
+      }
+    })
   }
 }
 
@@ -256,7 +258,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!ad_id || !event_type) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: 'Missing required fields: ad_id, event_type' },
         { status: 400 }
       )
@@ -265,7 +267,7 @@ export async function POST(request: NextRequest) {
     // Find the ad
     const ad = mockAds.find(a => a.id === ad_id)
     if (!ad) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: 'Ad not found' },
         { status: 404 }
       )
@@ -277,35 +279,39 @@ export async function POST(request: NextRequest) {
     // 3. Adjust ad spend and budget
     // 4. Send data to your Python backend for ML model updates
 
-    const trackingData = {
-      ad_id,
-      event_type,
-      user_id: user_id || 'anonymous',
-      timestamp: new Date().toISOString(),
-      conversion_value: conversion_value || 0,
-      cost: event_type === 'click' ? ad.cpc : (event_type === 'impression' ? ad.cpm / 1000 : 0)
-    }
-
     // Here you would typically call your Python backend
     // await fetch('http://localhost:8000/api/ads/track', {
     //   method: 'POST',
     //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(trackingData)
+    //   body: JSON.stringify({
+    //     ad_id,
+    //     event_type,
+    //     user_id,
+    //     conversion_value
+    //   })
     // })
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       data: {
         message: `${event_type} tracked successfully`,
-        tracking_data: trackingData
+        tracking_data: {
+          ad_id,
+          event_type,
+          user_id: user_id || 'anonymous',
+          timestamp: new Date().toISOString(),
+          conversion_value: conversion_value || 0,
+          cost: event_type === 'click' ? ad.cpc : (event_type === 'impression' ? ad.cpm / 1000 : 0)
+        }
       }
     })
 
   } catch (error) {
-    console.error('Error tracking ad event:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to track ad event' },
-      { status: 500 }
-    )
+    return handleApiError(error, {
+      endpoint: 'POST /api/ads/track',
+      context: {
+        timestamp: new Date().toISOString()
+      }
+    })
   }
 }

@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,17 +14,19 @@ export async function POST(request: NextRequest) {
       applications: 0
     };
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       message: 'Job posted successfully',
       job: newJob
     });
 
   } catch (error) {
-    return NextResponse.json(
-      { success: false, message: 'Failed to post job' },
-      { status: 500 }
-    );
+    return handleApiError(error, {
+      endpoint: 'POST /api/company/jobs',
+      context: {
+        timestamp: new Date().toISOString()
+      }
+    });
   }
 }
 
@@ -41,7 +44,7 @@ export async function GET() {
     }
   ];
 
-  return NextResponse.json({
+  return Response.json({
     success: true,
     jobs: jobs,
     total: jobs.length

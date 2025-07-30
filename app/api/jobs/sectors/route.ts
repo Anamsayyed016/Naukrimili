@@ -1,5 +1,3 @@
-import { NextResponse } from 'next/server';
-
 const sectors = [
   {
     id: 'technology',
@@ -48,7 +46,7 @@ const sectors = [
 ];
 
 export async function GET() {
-  return NextResponse.json({
+  return Response.json({
     success: true,
     sectors: sectors,
     total: sectors.length,

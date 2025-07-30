@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest, context: { params: Promise<{ jobId: string }> }) {
   const params = await context.params;
@@ -23,16 +24,17 @@ export async function GET(request: NextRequest, context: { params: Promise<{ job
     const job = await res.json();
     
     if (!job) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+      return Response.json({ error: 'Job not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ job });
-  } catch (error: any) {
-    console.error('Error fetching job details:', error);
-    return NextResponse.json({ 
-      error: error.message || 'Unable to fetch job details from backend.'
-    }, { 
-      status: error.message?.includes('not found') ? 404 : 500 
+    return Response.json({ job });
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: 'GET /api/jobs/[jobId]',
+      context: {
+        jobId: params.jobId,
+        timestamp: new Date().toISOString()
+      }
     });
   }
 }

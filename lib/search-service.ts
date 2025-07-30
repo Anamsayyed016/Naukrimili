@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const SERPAPI_BASE_URL = process.env.SERPAPI_BASE_URL || 'https://serpapi.com/search';
+const SERPAPI_KEY = process.env.SERPAPI_KEY || 'demo-key';
 
 export class SearchService {
   async searchJobs(query: string, filters?: any) {
