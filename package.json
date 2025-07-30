@@ -16,8 +16,9 @@
     "analyze": "cross-env ANALYZE=true next build",
     "clean": "rimraf .next out",
     "security-audit": "npm audit && npm outdated",
-    "render-build": "pnpm install && pnpm build",
-    "render-start": "pnpm start"
+    "render-build": "chmod +x .render/build.sh && .render/build.sh",
+    "render-start": "pnpm start",
+    "render-deploy": "git push render main"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
