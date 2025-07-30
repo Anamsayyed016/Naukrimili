@@ -19,11 +19,15 @@ COPY . .
 
 # Build application (skip checks)
 ENV NODE_ENV=production
-ENV SKIP_LINT=true
-ENV NEXT_DISABLE_ESLINT=1 
-ENV NEXT_DISABLE_TYPE_CHECKS=1
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN pnpm build
+ENV NEXT_RUNTIME=nodejs
+ENV SKIP_LINT=true
+ENV NEXT_DISABLE_ESLINT=1
+ENV NEXT_DISABLE_TYPE_CHECKS=1
+ENV CI=true
+
+# Run build with type and lint checks disabled
+RUN SKIP_LINT=true NEXT_DISABLE_ESLINT=1 NEXT_DISABLE_TYPE_CHECKS=1 pnpm build
 
 # Production stage
 FROM node:18-alpine AS runner

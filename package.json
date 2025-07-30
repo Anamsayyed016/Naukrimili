@@ -16,9 +16,9 @@
     "analyze": "cross-env ANALYZE=true next build",
     "clean": "rimraf .next out",
     "security-audit": "npm audit && npm outdated",
-    "render-build": "chmod +x .render/build.sh && .render/build.sh",
+    "render-build": "pnpm install && pnpm build",
     "render-start": "pnpm start",
-    "render-deploy": "git push render main"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
