@@ -1,37 +1,40 @@
-# Simple Docker setup for development
 version: '3.8'
 
 services:
-  # MongoDB Database
-  mongodb:
-    image: mongo:6.0
-    container_name: jobportal-db
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: jobportal
-    volumes:
-      - mongodb_data:/data/db
-
-  # Backend API
-  backend:
+  frontend:
     build: .
-    container_name: jobportal-backend
-    restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=mongodb://admin:password@mongodb:27017/jobportal?authSource=admin
-      - NEXTAUTH_SECRET=your-production-secret-here
-      - PORT=8000
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=test-secret-key
     depends_on:
-      - mongodb
+      - backend
     volumes:
       - ./uploads:/app/uploads
 
-volumes:
-  mongodb_data:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - MONGODB_URI=mongodb://localhost:27017
+      - JWT_SECRET_KEY=test-jwt-secret
+    volumes:
+      - ./uploads:/app/uploads
+
+  # Optional: Add MongoDB for local testing
+  # mongodb:
+  #   image: mongo:latest
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     - MONGO_INITDB_DATABASE=naukrimili
+  #   volumes:
+  #     - mongodb_data:/data/db
+
+# volumes:
+#   mongodb_data:

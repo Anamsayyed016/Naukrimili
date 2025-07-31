@@ -18,7 +18,7 @@
     "security-audit": "npm audit && npm outdated",
     "render-build": "pnpm install && pnpm build",
     "render-start": "pnpm start",
-    "postinstall": "prisma generate"
+    "postinstall": "echo 'Skipping Prisma generate for deployment'"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
