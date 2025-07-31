@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { APIJobResponse, APIJobSearchResponse } from '@/types/api-response';
+import { safeLogger } from '@/lib/safe-logger';
 
 // ===== UNIFIED JOB INTERFACES =====
 export interface UnifiedJob {
@@ -77,10 +78,12 @@ export class AdzunaJobService {
         total: response.data.count
       };
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Adzuna API error:', {
+      safeLogger.error('Adzuna API error', {
+        code: 'ADZUNA_API_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        query,
+        location
       });
       throw error;
     }
@@ -119,8 +122,13 @@ export class ReedJobService {
         total: response.data.totalResults
       };
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Reed API error:', error);
+      safeLogger.error('Reed API error', {
+        code: 'REED_API_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+        query,
+        location
+      });
       throw error;
     }
   }
@@ -176,8 +184,14 @@ class UnifiedJobService {
         total: response.data.total
       };
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error searching jobs:', error);
+      safeLogger.error('Error searching jobs', {
+        code: 'UNIFIED_JOB_SEARCH_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        params: {
+          query: params.query,
+          location: params.location
+        }
+      });
       throw this.handleAPIError(error);
     }
   }
@@ -187,8 +201,11 @@ class UnifiedJobService {
       const response = await axios.get<APIJobResponse>(`${this.API_BASE_URL}/api/jobs/${jobId}`);
       return this.mapToUnifiedJob(response.data);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error getting job details:', error);
+      safeLogger.error('Error getting job details', {
+        code: 'JOB_DETAILS_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        jobId
+      });
       throw this.handleAPIError(error);
     }
   }
@@ -204,8 +221,12 @@ class UnifiedJobService {
       results.push(...adzunaResults.jobs);
       sources.push('adzuna');
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.warn('Adzuna API failed:', error);
+      safeLogger.warn('Adzuna API failed', {
+        code: 'ADZUNA_API_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        query,
+        location
+      });
     }
 
     try {
@@ -214,8 +235,12 @@ class UnifiedJobService {
       results.push(...reedResults.jobs.slice(0, 10)); // Limit Reed results
       sources.push('reed');
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.warn('Reed API failed:', error);
+      safeLogger.warn('Reed API failed', {
+        code: 'REED_API_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        query,
+        location
+      });
     }
 
     return {
