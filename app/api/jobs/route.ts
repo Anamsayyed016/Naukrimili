@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { unifiedJobService } from '@/lib/unified-job-service';
 import type { JobSearchParams } from '@/lib/unified-job-service';
-import { logger } from '@/lib/logger';
+import { safeLogger } from '@/lib/safe-logger';
 import { handleApiError } from '@/lib/error-handler';
 
 // Mock jobs data for fallback
@@ -35,6 +35,21 @@ const mockJobs = [
     source: 'sample' as const
   }
 ];
+
+function sanitizeJobsResponse(jobs: any[]) {
+  return jobs.map(job => ({
+    id: job.id,
+    title: job.title,
+    company: job.company,
+    location: job.location,
+    description: job.description?.substring(0, 500), // Limit description length
+    redirect_url: job.redirect_url,
+    isUrgent: job.isUrgent,
+    isRemote: job.isRemote,
+    jobType: job.jobType,
+    source: job.source
+  }));
+}
 
 export async function GET(request: NextRequest) {
   let searchParams;
@@ -72,7 +87,7 @@ export async function GET(request: NextRequest) {
     // Fallback to mock data
     return Response.json({ 
       success: true, 
-      jobs: mockJobs,
+      jobs: sanitizeJobsResponse(mockJobs),
       total: mockJobs.length,
       page: 1,
       totalPages: 1,
@@ -130,8 +145,12 @@ export async function POST(request: NextRequest) {
       ...(salaryMax && { salaryMax })
     };
 
-    // eslint-disable-next-line no-console
-    console.log('🔍 POST unified job search:', searchOptions);
+    safeLogger.info('POST unified job search', {
+      query: searchOptions.query,
+      location: searchOptions.location,
+      page: searchOptions.page,
+      limit: searchOptions.limit
+    });
 
     try {
       const result = await unifiedJobService.searchJobs(searchOptions);
@@ -144,7 +163,7 @@ export async function POST(request: NextRequest) {
       
       return Response.json({
         success: true,
-        jobs: result.jobs,
+        jobs: sanitizeJobsResponse(result.jobs),
         total: result.total,
         page: currentPage,
         totalPages,
@@ -156,10 +175,11 @@ export async function POST(request: NextRequest) {
         }
       });
     } catch (serviceError) {
-      // Safely log error without potential circular references
-      logger.warn('Unified job service failed, using mock data', { 
+      // Log error summary only
+      safeLogger.warn('Unified job service failed, using mock data', { 
+        code: 'UNIFIED_JOB_SERVICE_ERROR',
         message: serviceError instanceof Error ? serviceError.message : 'Unknown error',
-        timestamp: new Date().toISOString()
+        time: new Date().toISOString()
       });
       
       // Filter mock jobs based on query

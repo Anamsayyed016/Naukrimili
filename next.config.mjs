@@ -3,6 +3,7 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
+  output: 'standalone',
   
   // Security headers
   async headers() {

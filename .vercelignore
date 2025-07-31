@@ -1,14 +1,61 @@
+# Dependencies
 node_modules
+.pnpm-store
+
+# Build output
 .next
-.env.local
-.env
+out/_next/cache
+
+# Environment and config
+.env*
+*.config.js
+*.config.ts
+*.config.mjs
+
+# Development files
+.git
+.github
+.gitignore
 *.log
 .DS_Store
 coverage
 .nyc_output
+__tests__
+test
+jest*
+
+# Backend files
 backend/
 server.js
 routes/
 models/
 config/
 middleware/
+*.py
+requirements.txt
+instance/
+tests/
+
+# Documentation and assets
+*.md
+!README.md
+assets/raw/
+docs/
+
+# Docker
+Dockerfile
+docker-compose.yml
+*.dockerfile
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
