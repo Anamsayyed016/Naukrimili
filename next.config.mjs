@@ -63,12 +63,12 @@ const nextConfig = {
   
   // Build configuration
   eslint: {
-    ignoreDuringBuilds: true, // Disable ESLint during builds for deployment
+    ignoreDuringBuilds: false, // Enable ESLint during builds
     dirs: ['app', 'components', 'lib', 'types'],
   },
   
   typescript: {
-    ignoreBuildErrors: true, // Disable TypeScript checking for deployment
+    ignoreBuildErrors: false, // Enable TypeScript checking
   },
   
   // Image optimization
@@ -110,7 +110,7 @@ const nextConfig = {
   
   // Experimental features
   experimental: {
-    serverExternalPackages: ['mongoose'],
+    serverComponentsExternalPackages: ['mongoose'],
     typedRoutes: true,
   },
   

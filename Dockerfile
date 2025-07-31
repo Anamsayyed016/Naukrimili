@@ -1,41 +1,66 @@
-# Use the official Node.js runtime as the base image
-FROM node:18-alpine
+# Build stage
+FROM node:18-alpine AS builder
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apk add --no-cache python3 make g++
+# Install necessary build tools and pnpm
+RUN apk add --no-cache python3 make g++ curl && \
+    npm install -g pnpm
 
 # Copy package files
-COPY package*.json ./
-COPY pnpm-lock.yaml ./
+COPY package*.json pnpm-lock.yaml ./
 
-# Install pnpm
-RUN npm install -g pnpm
+    # Install dependencies (skip prepare scripts)
+    RUN pnpm install --no-frozen-lockfile --ignore-scripts
 
-# Install dependencies with production flags
-RUN pnpm install --frozen-lockfile --production=false
-
-# Copy the rest of the application
+    # Copy source code
 COPY . .
 
-# Set environment variables for build
+# Build application
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_LINT=true
 ENV NEXT_DISABLE_ESLINT=1
 ENV NEXT_DISABLE_TYPE_CHECKS=1
 
-# Build the application
+# Increase memory limit for Node.js
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Run build with all checks disabled
 RUN pnpm build
 
-# Expose the port
+# Production stage
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy necessary files from builder
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
+# Create uploads directory and set permissions
+RUN mkdir -p uploads && \
+    addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001 && \
+    chown -R nextjs:nodejs /app
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port (default Next.js port)
 EXPOSE 3000
 
-# Set environment for runtime
-ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
+ENV PORT=3000 \
+    HOSTNAME="0.0.0.0"
 
-# Start the application
-CMD ["pnpm", "start"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q --spider http://localhost:3000/api/health || exit 1
+
+# Start application
+CMD ["node", "server.js"]
