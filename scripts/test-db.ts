@@ -6,10 +6,11 @@ async function testConnection() {
     await connectDB();
     console.log('🔍 Testing database connection...');
     
-    // Test basic operations
-    const db = await connectDB();
-    console.log('✅ Database connection successful');
-    console.log('📊 Database name:', db.databaseName);
+    // Get the database instance
+    const db = mongoose.connection.db;
+    if (!db) {
+      throw new Error('Database connection not established');
+    }
     
     // Test collections
     const collections = await db.listCollections().toArray();

@@ -1,143 +1,138 @@
-# Vercel Deployment Guide for Job Portal
+# Job Portal Deployment Guide - Render
 
-## Pre-deployment Checklist ✅
+## 🚀 Deployment Overview
 
-### 1. API Routes Fixed
-- ✅ Fixed `/app/api/jobs/route.ts` - Added proper imports and fallback data
-- ✅ Fixed `/app/api/resumes/upload/route.ts` - Updated for Edge runtime compatibility
-- ✅ Fixed `/app/api/auth/[...nextauth]/route.ts` - Added proper error handling
-- ✅ Fixed `/app/api/employer/analytics/route.ts` - Added mock data fallback
-- ✅ Fixed `/app/api/employer/fraud-flag/route.ts` - Simplified without Prisma dependencies
-- ✅ Fixed debug endpoints with proper error handling
+This guide will help you deploy your job portal application on Render with:
+- **Frontend**: Next.js application
+- **Backend**: Python Flask/FastAPI API
+- **Database**: MongoDB Atlas
+- **File Storage**: AWS S3
 
-### 2. Environment Variables Required
+## 📋 Prerequisites
 
-#### Essential (Required for deployment)
-```env
-NEXTAUTH_URL=https://your-app.vercel.app
-NEXTAUTH_SECRET=your-nextauth-secret-min-32-chars
+1. **Render Account**: Sign up at [render.com](https://render.com)
+2. **GitHub Repository**: Your code should be in a GitHub repository
+3. **MongoDB Atlas**: Set up a MongoDB Atlas cluster
+4. **AWS S3**: Configure S3 bucket for file storage
+5. **API Keys**: Get your OpenAI API key
+
+## 🔧 Step-by-Step Deployment
+
+### Step 1: Prepare Your Repository
+
+Ensure your repository has the following structure:
+```
+jobportal/
+├── package.json              # Frontend dependencies
+├── render.yaml              # Render configuration
+├── backend/
+│   ├── requirements.txt     # Python dependencies
+│   ├── Procfile           # Backend startup command
+│   └── app.py             # Main Flask app
+└── README.md
 ```
 
-#### Optional (for enhanced functionality)
-```env
-# Database (if using Prisma/PostgreSQL)
-DATABASE_URL=postgresql://username:password@host:5432/database
+### Step 2: Connect to Render
 
-# Backend API (if separate Python backend is deployed)
-BACKEND_API_URL=https://your-backend-api.herokuapp.com
-NEXT_PUBLIC_API_URL=https://your-backend-api.herokuapp.com
+1. **Login to Render Dashboard**
+2. **Click "New +" → "Blueprint"**
+3. **Connect your GitHub repository**
+4. **Select the repository containing your job portal**
 
-# Google OAuth (optional)
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
+### Step 3: Configure Environment Variables
 
-# Job APIs (optional - fallback to mock data if not provided)
-SERPAPI_KEY=your_serpapi_key
-ADZUNA_APP_ID=your_adzuna_app_id
-ADZUNA_API_KEY=your_adzuna_api_key
-REED_API_KEY=your_reed_api_key
-
-# AI Features (optional)
-OPENAI_API_KEY=your_openai_api_key
-
-# Cloud Storage (optional)
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+#### Frontend Service Variables:
+```
+NODE_ENV=production
+NEXT_PUBLIC_API_URL=https://your-backend-service.onrender.com
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+DATABASE_URL=mongodb+srv://username:password@cluster.mongodb.net/database
+NEXTAUTH_URL=https://your-frontend-service.onrender.com
+NEXTAUTH_SECRET=your-secret-key
+OPENAI_API_KEY=your-openai-api-key
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
 AWS_REGION=us-east-1
 S3_BUCKET_NAME=your-s3-bucket-name
 ```
 
-### 3. Vercel Configuration
-- ✅ Updated `vercel.json` with proper function configurations
-- ✅ Set appropriate timeouts for API routes
-- ✅ Added security headers
+#### Backend Service Variables:
+```
+PYTHON_VERSION=3.11.0
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+OPENAI_API_KEY=your-openai-api-key
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+AWS_REGION=us-east-1
+S3_BUCKET_NAME=your-s3-bucket-name
+JWT_SECRET_KEY=your-jwt-secret
+FLASK_ENV=production
+```
 
-### 4. Build Configuration
-- ✅ Package.json scripts are correct
-- ✅ TypeScript configuration is valid
-- ✅ Next.js configuration supports the project structure
+### Step 4: Deploy
 
-## Deployment Steps
+1. **Review the blueprint configuration**
+2. **Click "Apply" to deploy both services**
+3. **Wait for deployment to complete (5-10 minutes)**
 
-### Step 1: Environment Setup in Vercel
-1. Go to your Vercel dashboard
-2. Import your GitHub repository
-3. Add environment variables in Project Settings:
-   - `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`
-   - `NEXTAUTH_URL`: Your Vercel app URL (e.g., `https://your-app.vercel.app`)
-   - Add other optional variables as needed
+## 🔍 Service URLs
 
-### Step 2: Deploy
-1. Push your code to GitHub
-2. Vercel will automatically deploy
-3. Check deployment logs for any issues
+After deployment, you'll get:
+- **Frontend**: `https://jobportal-frontend.onrender.com`
+- **Backend**: `https://jobportal-backend.onrender.com`
 
-### Step 3: Test Core Features
-After deployment, test these endpoints:
-- ✅ `/api/jobs` - Should return mock job data
-- ✅ `/api/companies` - Should return company listings
-- ✅ `/api/locations` - Should return Indian cities
-- ✅ `/api/auth/[...nextauth]` - Should handle authentication
-- ✅ `/api/resumes/upload` - Should handle file uploads
+## 🛠️ Troubleshooting
 
-### Step 4: Optional Backend Integration
-If you have a separate Python backend:
-1. Deploy your Flask/FastAPI backend to Heroku/Railway/etc.
-2. Set `BACKEND_API_URL` environment variable
-3. API routes will automatically fallback to backend when available
+### Common Issues:
 
-## Features Working Without Backend
+1. **Build Failures**:
+   - Check that all dependencies are in `package.json` and `requirements.txt`
+   - Ensure Python version is compatible (3.11.0)
 
-The application will work with these features using mock data:
-- ✅ Job search and listings
-- ✅ Company profiles
-- ✅ Location-based search
-- ✅ User authentication (demo mode)
-- ✅ Resume upload (file validation only)
-- ✅ Employer analytics (mock data)
+2. **Environment Variables**:
+   - Verify all required variables are set
+   - Check that API keys are valid
 
-## Troubleshooting Common Issues
+3. **Database Connection**:
+   - Ensure MongoDB Atlas is accessible from Render
+   - Check connection string format
 
-### Build Errors
-1. **TypeScript errors**: Check imports and type definitions
-2. **Missing dependencies**: Run `npm install` locally to verify
-3. **API route errors**: Check for proper Next.js 13+ App Router syntax
+4. **File Upload Issues**:
+   - Verify S3 credentials are correct
+   - Check bucket permissions
 
-### Runtime Errors
-1. **Authentication issues**: Verify `NEXTAUTH_SECRET` and `NEXTAUTH_URL`
-2. **API failures**: Check environment variables are set correctly
-3. **File upload issues**: Edge runtime has limitations, files are validated but not persisted
+### Health Checks:
 
-### Performance Issues
-1. **Cold starts**: First requests may be slower on Vercel free tier
-2. **API timeouts**: Adjusted to 30s for most routes, 60s for uploads
-3. **Large dependencies**: Optimized imports to reduce bundle size
+- **Frontend**: `https://jobportal-frontend.onrender.com/api/health`
+- **Backend**: `https://jobportal-backend.onrender.com/`
 
-## Monitoring & Maintenance
+## 📊 Monitoring
 
-### Health Checks
-- `/api/jobs/debug` - Comprehensive system status
-- `/api/clear-cache` - Cache management
-- Vercel Analytics for performance monitoring
+1. **Render Dashboard**: Monitor service health and logs
+2. **Custom Domains**: Add your domain in Render settings
+3. **SSL**: Automatically provided by Render
 
-### Updates
-1. Update dependencies regularly
-2. Monitor API usage for external services
-3. Check Vercel function invocation limits
+## 🔄 Continuous Deployment
 
-## Security Considerations
-- ✅ Added security headers in vercel.json
-- ✅ Input validation on all API routes
-- ✅ Authentication required for sensitive operations
-- ✅ File upload restrictions and validation
-- ✅ No sensitive data in client-side code
+- **Auto-deploy**: Enabled by default
+- **Manual deploy**: Available in Render dashboard
+- **Rollback**: Previous versions can be restored
 
-## Next Steps After Deployment
-1. Set up domain name (optional)
-2. Configure analytics and monitoring
-3. Set up backend API if needed
-4. Add real payment processing if required
-5. Set up email notifications
-6. Configure database for persistent data
+## 💰 Cost Optimization
 
-Your job portal should now be successfully deployed on Vercel! 🚀
+- **Free Tier**: 750 hours/month per service
+- **Upgrade**: When you need more resources
+- **Scaling**: Automatic scaling available on paid plans
+
+## 🚀 Next Steps
+
+1. **Test all features** after deployment
+2. **Set up custom domain** if needed
+3. **Configure monitoring** and alerts
+4. **Set up CI/CD** for automated deployments
+
+## 📞 Support
+
+- **Render Documentation**: [docs.render.com](https://docs.render.com)
+- **Render Support**: Available in dashboard
+- **Community**: Render Discord and forums

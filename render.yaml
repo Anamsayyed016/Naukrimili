@@ -1,6 +1,7 @@
 services:
+  # Frontend Service (Next.js)
   - type: web
-    name: jobportal-next
+    name: jobportal-frontend
     env: node
     plan: free
     buildCommand: pnpm install && pnpm build
@@ -37,3 +38,33 @@ services:
       name: uploads
       mountPath: /opt/render/project/src/uploads
       sizeGB: 1
+
+  # Backend Service (Python Flask/FastAPI)
+  - type: web
+    name: jobportal-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && gunicorn --bind 0.0.0.0:$PORT app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MONGODB_URI
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: S3_BUCKET_NAME
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: FLASK_ENV
+        value: production
+    autoDeploy: true
+    branch: main
+    healthCheckPath: /

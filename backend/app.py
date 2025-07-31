@@ -35,6 +35,15 @@ client = MongoClient(MONGO_URI)
 db = client.naukrimili
 jobs_collection = db.jobs
 
+# Health check endpoint
+@app.route('/')
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "message": "Job Portal Backend API is running",
+        "timestamp": datetime.utcnow().isoformat()
+    }), 200
+
 # Initialize sample data if collection is empty
 if jobs_collection.count_documents({}) == 0:
     jobs_collection.insert_many([

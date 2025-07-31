@@ -7,6 +7,9 @@ pymongo==4.6.2
 python-dotenv==1.0.1
 bson==0.5.10
 
+# Production Server
+gunicorn==21.2.0
+
 # Document Processing
 PyPDF2>=3.0.0
 python-docx>=0.8.11
