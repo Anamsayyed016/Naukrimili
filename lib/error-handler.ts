@@ -51,27 +51,21 @@ export class RateLimitError extends ApiError {
 
 // Secure error logging
 function logError(error: Error, context?: any) {
-  const sanitizedContext = context ? {
-    url: context.url?.replace(/[?&](token|key|password|secret)=[^&]*/gi, '$1=***'),
-    method: context.method,
-    userId: context.userId,
-    ip: context.ip
-  } : undefined;
-  
-  const errorInfo = {
-    name: error.name,
-    message: env.NODE_ENV === 'production' ? 'Internal server error' : error.message,
-    context: sanitizedContext,
-    timestamp: new Date().toISOString(),
-    errorId: crypto.randomUUID()
-  };
-  
-  // Log full details internally
-  console.error('API Error [' + errorInfo.errorId + ']:', {
-    ...errorInfo,
-    message: error.message,
-    stack: env.NODE_ENV !== 'production' ? error.stack : undefined
-  });
+  try {
+    const errorId = Math.random().toString(36).substring(7);
+    const message = env.NODE_ENV === 'production' ? 'Internal server error' : error.message;
+    
+    // Safe logging without JSON.stringify
+    console.error(`API Error [${errorId}]:`, message);
+    if (env.NODE_ENV !== 'production' && error.stack) {
+      console.error('Stack:', error.stack);
+    }
+    if (context?.endpoint) {
+      console.error('Endpoint:', context.endpoint);
+    }
+  } catch (logError) {
+    console.error('Failed to log error:', logError);
+  }
 }
 
 // Enhanced error handler
