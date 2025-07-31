@@ -496,7 +496,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
     id: job.id,
     title: job.title,
     company: job.company,
-    redirect_url: job.redirect_url || `/jobs/${job.id}`,
+    redirect_url: `/jobs/${job.id}`,
     location: job.location,
     description: job.description,
     salaryFormatted: job.salary,

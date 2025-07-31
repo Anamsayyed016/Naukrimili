@@ -17,18 +17,18 @@ COPY package*.json pnpm-lock.yaml ./
     # Copy source code
 COPY . .
 
-# Build application (skip checks)
+# Build application
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NEXT_RUNTIME=nodejs
 ENV SKIP_LINT=true
 ENV NEXT_DISABLE_ESLINT=1
 ENV NEXT_DISABLE_TYPE_CHECKS=1
-ENV CI=true
+
+# Increase memory limit for Node.js
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Run build with all checks disabled
-ENV NODE_OPTIONS='--max_old_space_size=4096'
-RUN NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production pnpm build || (echo "Build failed but continuing..." && exit 0)
+RUN pnpm build
 
 # Production stage
 FROM node:18-alpine AS runner

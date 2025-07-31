@@ -1,18 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: true,
-    tsconfigPath: "tsconfig.json"
+    ignoreBuildErrors: true
   },
   eslint: {
-    ignoreDuringBuilds: true,
-    dirs: [] // Disable ESLint for all directories
+    ignoreDuringBuilds: true
   },
   output: 'standalone',
   poweredByHeader: false,
   experimental: {
-    serverActions: true,
-    serverComponentsExternalPackages: [] // Empty array but defined to prevent warning
+    serverActions: true
   },
   
   // Security headers
@@ -129,19 +126,10 @@ const nextConfig = {
   // Strict mode
   reactStrictMode: true,
   
-  // SWC minification
-  swcMinify: true,
-
-  // Additional security measures
-  poweredByHeader: false,
-  
   // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  
-  // Build optimizations
-  optimizeFonts: true,
   
   // Cache optimization
   onDemandEntries: {
