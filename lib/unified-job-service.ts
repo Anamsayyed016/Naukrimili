@@ -78,7 +78,10 @@ export class AdzunaJobService {
       };
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Adzuna API error:', error);
+      console.error('Adzuna API error:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
       throw error;
     }
   }

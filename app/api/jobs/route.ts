@@ -62,7 +62,11 @@ export async function GET(request: NextRequest) {
         }
       }
     } catch (error) {
-      console.warn('Dynamic real API failed, using fallback');
+      // Safely log error without potential circular references
+      console.warn('Dynamic real API failed, using fallback:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
     }
 
     // Fallback to mock data
@@ -152,7 +156,11 @@ export async function POST(request: NextRequest) {
         }
       });
     } catch (serviceError) {
-      logger.warn('Unified job service failed, using mock data', { error: serviceError });
+      // Safely log error without potential circular references
+      logger.warn('Unified job service failed, using mock data', { 
+        message: serviceError instanceof Error ? serviceError.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
       
       // Filter mock jobs based on query
       const filteredJobs = mockJobs.filter(job =>
