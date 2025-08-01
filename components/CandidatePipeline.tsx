@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from 'next/image';
 import { toast } from "sonner";
 import { useCandidates } from "@/context/CandidateContext";
-import type { ICandidate } from "@/models/Candidate";
+import type { ICandidate } from "../models/Candidate";
 
 interface PipelineStage {
   id: ICandidate['status'];
