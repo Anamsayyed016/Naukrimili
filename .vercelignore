@@ -8,9 +8,14 @@ out/_next/cache
 
 # Environment and config
 .env*
-*.config.js
-*.config.ts
-*.config.mjs
+# Keep CSS/build config files
+!tailwind.config.*
+!postcss.config.*
+!next.config.*
+# Exclude other config files
+jest.config.*
+vite.config.*
+webpack.config.*
 
 # Development files
 .git
