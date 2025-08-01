@@ -167,10 +167,12 @@ export default function MainNavigation({ brandName = "NaukriMili" }: MainNavigat
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                      <img
+                      <Image
                         src={user?.image || "/placeholder-user.jpg"}
                         alt={user?.name || "User"}
-                        className="h-10 w-10 rounded-full"
+                        width={40}
+                        height={40}
+                        className="rounded-full"
                       />
                     </Button>
                   </DropdownMenuTrigger>

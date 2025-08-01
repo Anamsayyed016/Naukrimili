@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { getDemoHero } from '@/lib/demo-data';
 import { useQuery } from '@tanstack/react-query';
@@ -27,11 +28,16 @@ export default function HeroSection({ isDemoMode = false }: HeroSectionProps) {
         <h1 className="text-4xl font-bold mb-4">{demoData.headline}</h1>
         <p className="text-lg mb-6">{demoData.subheadline}</p>
         {demoData.image && (
-          <img 
-            src={demoData.image} 
-            alt="Hero" 
-            className="mx-auto max-w-md rounded-lg shadow" 
-          />
+          <div className="relative mx-auto max-w-md">
+            <Image 
+              src={demoData.image} 
+              alt="Hero" 
+              width={768}
+              height={432}
+              className="rounded-lg shadow" 
+              priority
+            />
+          </div>
         )}
       </section>
     );

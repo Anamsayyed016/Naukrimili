@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import Image from 'next/image';
 import { useForm, FormProvider, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -322,7 +323,13 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
                 <div className="flex items-center gap-4">
                   <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border">
                     {photoPreview ? (
-                      <img src={photoPreview} alt="Profile Preview" className="object-cover w-full h-full" />
+                      <Image 
+                        src={photoPreview} 
+                        alt="Profile Preview" 
+                        width={96}
+                        height={96}
+                        className="object-cover" 
+                      />
                     ) : (
                       <span className="text-gray-400">No photo</span>
                     )}
@@ -434,7 +441,17 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
                 <h3 className="font-semibold mb-2">Photo/Portfolio</h3>
                 <div className="flex items-center gap-2">
                   <b>Profile Photo:</b>
-                  {formData.profilePhoto ? <span className="inline-block w-12 h-12 rounded-full overflow-hidden border"><img src={formData.profilePhoto instanceof File ? URL.createObjectURL(formData.profilePhoto) : formData.profilePhoto} alt="Profile" className="object-cover w-full h-full" /></span> : <span className="text-gray-400">None</span>}
+                  {formData.profilePhoto ? (
+                    <span className="inline-block w-12 h-12 rounded-full overflow-hidden border">
+                      <Image 
+                        src={formData.profilePhoto instanceof File ? URL.createObjectURL(formData.profilePhoto) : formData.profilePhoto} 
+                        alt="Profile" 
+                        width={48}
+                        height={48}
+                        className="object-cover w-full h-full" 
+                      />
+                    </span>
+                  ) : <span className="text-gray-400">None</span>}
                 </div>
                 <div><b>Portfolio Link:</b> {formData.portfolioLink || <span className="text-gray-400">None</span>}</div>
               </div>

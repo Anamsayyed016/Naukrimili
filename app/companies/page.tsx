@@ -1,5 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 
 interface Company {
   id: string;
@@ -22,11 +23,7 @@ export default function CompaniesPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [categories, setCategories] = useState<Record<string, number>>({});
 
-  useEffect(() => {
-    fetchCompanies();
-  }, [selectedCategory]);
-
-  const fetchCompanies = async () => {
+  const fetchCompanies = useCallback(async () => {
     setLoading(true);
     try {
       const url = selectedCategory 
@@ -45,7 +42,12 @@ export default function CompaniesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCategory]);
+
+  // Fetch companies when component mounts or category changes
+  useEffect(() => {
+    fetchCompanies();
+  }, [fetchCompanies]);
 
   const categoryNames = {
     'tech-giants': 'Tech Giants',
@@ -111,12 +113,15 @@ export default function CompaniesPage() {
             <div key={company.id} className="bg-white rounded-lg shadow-md border p-6 hover:shadow-lg transition-shadow">
               {/* Company Header */}
               <div className="flex items-center mb-4">
-                <img 
+                <Image 
                   src={company.logo} 
                   alt={`${company.name} logo`}
-                  className="w-12 h-12 rounded-lg mr-4"
+                  width={48}
+                  height={48}
+                  className="rounded-lg mr-4"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/placeholder-logo.png';
+                    // @ts-ignore - Type 'string' is not assignable to type 'never'
+                    e.currentTarget.src = '/placeholder-logo.png';
                   }}
                 />
                 <div>

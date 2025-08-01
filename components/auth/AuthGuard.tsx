@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -42,7 +42,7 @@ export default function AuthGuard({
   const [accessDenied, setAccessDenied] = useState(false);
 
   // Check access permissions
-  const checkAccess = () => {
+  const checkAccess = useCallback(() => {
     // Not authenticated
     if (status === "unauthenticated") {
       return {
@@ -92,15 +92,15 @@ export default function AuthGuard({
     }
 
     return { hasAccess: true, reason: "", targetPath: "" };
-  };
+  }, [status, session?.user?.role, allowedRoles, requireProfileCompletion, useBiometric, redirectTo]);
 
   // Handle redirects with animation
-  const handleRedirect = (targetPath: string, reason: string) => {
-    if (!targetPath) return;
+  const handleRedirect = useCallback((path: string, reason: string) => {
+    if (!path) return;
     
     setRedirectState({
       isRedirecting: true,
-      targetPath,
+      targetPath: path,
       reason
     });
 
@@ -114,9 +114,9 @@ export default function AuthGuard({
 
     // Animated redirect
     setTimeout(() => {
-      router.push(targetPath);
+      router.push(path);
     }, 1000);
-  };
+  }, [router, pathname, setRedirectState, setShowLoader]);
 
   // Main effect for access control
   useEffect(() => {
@@ -130,7 +130,7 @@ export default function AuthGuard({
       setShowLoader(false);
       setAccessDenied(false);
     }
-  }, [status, session, pathname]);
+  }, [checkAccess, handleRedirect]);
 
   // Loading state
   if (status === "loading" || showLoader) {
@@ -142,9 +142,7 @@ export default function AuthGuard({
           className="text-white text-center"
         >
           <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" />
-          <p className="text-lg font-medium">
-            {redirectState.reason || "Loading..."}
-          </p>
+          <p className="text-lg font-medium">{redirectState.reason || "Loading..."}</p>
         </motion.div>
       </div>
     );

@@ -384,9 +384,9 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
     } else {
       setAvailableAreas([]);
     }
-  }, [locationFilter.city]);
+  }, [locationFilter, popularCities, setAvailableAreas, setLocationFilter]);
 
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     const params = new URLSearchParams();
     if (searchQuery) params.append('q', searchQuery);
     
@@ -456,7 +456,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
       console.error('❌ Error fetching live jobs:', error);
       throw error; // Re-throw to be handled by React Query
     }
-  };
+  }, [searchQuery, location, showAdvancedLocation, locationFilter, jobType, selectedCategory, experienceLevel, companyType, sortBy, salaryRange, showSalaryFilter]);
 
   const { data: jobs = [], isLoading, error } = useQuery({
     queryKey: [
@@ -489,7 +489,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
     } else {
       setGoogleUrl(null);
     }
-  }, [jobs, isLoading, error]);
+  }, [jobs, isLoading, error, fetchJobs, setGoogleUrl]);
 
   // Show sample jobs by default to demonstrate the portal
   const displayJobs = jobs.length > 0 ? jobs : (searchQuery || location || jobType || selectedCategory) ? [] : sampleIndianJobs.slice(0, 6).map((job, index) => ({

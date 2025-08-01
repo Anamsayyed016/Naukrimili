@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,7 +41,7 @@ export default function GmailIntegration() {
   });
 
   // Fetch emails
-  const fetchEmails = async (query?: string) => {
+  const fetchEmails = useCallback(async (query?: string) => {
     if (!session?.accessToken) {
       console.warn('No access token available');
       return;
@@ -64,7 +64,7 @@ export default function GmailIntegration() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session?.accessToken, setLoading, setEmails]);
 
   // Send email
   const sendEmail = async () => {
@@ -100,7 +100,7 @@ export default function GmailIntegration() {
     if (session?.accessToken) {
       fetchEmails();
     }
-  }, [session]);
+  }, [session, fetchEmails]);
 
   if (!session?.accessToken) {
     return (
