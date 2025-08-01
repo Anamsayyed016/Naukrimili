@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from 'next/image';
 import { toast } from "sonner";
 import { useCandidates } from "@/context/CandidateContext";
-import type { ICandidate } from "@/models";
+import type { ICandidate } from "@/types/candidate";
 
 interface PipelineStage {
   id: ICandidate['status'];
@@ -63,7 +63,6 @@ const CandidatePipeline: React.FC = () => {
       }));
       setIsDragging(true);
     } catch (err) {
-      console.error(err);
       toast.error("Failed to start drag operation");
     }
   };

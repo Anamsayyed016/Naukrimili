@@ -88,7 +88,7 @@ export async function login(email: string, password: string) {
       let user = users.find(u => u.email === email);
       // For demo: if user does not exist, create one with role based on email
       if (!user) {
-        const role: UserRole = 'jobseeker';
+        let role: UserRole = 'jobseeker';
         if (email.startsWith('company')) role = 'company';
         else if (email.startsWith('admin')) role = 'admin';
         user = { email, password: hashPassword(password), role };

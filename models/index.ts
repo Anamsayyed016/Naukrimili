@@ -1,1 +1,2 @@
-export { ICandidate, Candidate } from './Candidate';
+export type { ICandidate } from './Candidate';
+export { Candidate } from './Candidate';
