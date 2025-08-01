@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from 'next/image';
 import { toast } from "sonner";
 import { useCandidates } from "@/context/CandidateContext";
-import type { ICandidate } from "../models/Candidate";
+import type { ICandidate } from "@/models/Candidate";
 
 interface PipelineStage {
   id: ICandidate['status'];
@@ -19,28 +19,33 @@ const CandidatePipeline: React.FC = () => {
   
   const [stages] = useState<PipelineStage[]>([
     {
-      id: "pending",
+      id: "new",
       name: "New Applications",
       candidates: []
     },
     {
-      id: "reviewing",
+      id: "screening",
       name: "Under Review",
       candidates: []
     },
     {
-      id: "shortlisted",
-      name: "Shortlisted",
+      id: "interview",
+      name: "Interview Stage",
       candidates: []
     },
     {
-      id: "rejected",
-      name: "Rejected",
+      id: "offer",
+      name: "Offer Stage",
       candidates: []
     },
     {
       id: "hired",
       name: "Hired",
+      candidates: []
+    },
+    {
+      id: "rejected",
+      name: "Rejected",
       candidates: []
     }
   ]);
