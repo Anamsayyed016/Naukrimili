@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from 'next/image';
 import { toast } from "sonner";
 import { useCandidates } from "@/context/CandidateContext";
-import type { ICandidate } from "../models/Candidate";
+import type { ICandidate } from "@/models/Candidate";
 
 interface PipelineStage {
   id: ICandidate['status'];
@@ -16,6 +16,7 @@ interface PipelineStage {
 const CandidatePipeline: React.FC = () => {
   const { candidates, loading, error, refreshCandidates, updateCandidateStatus } = useCandidates();
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [statusUpdateLoading, setStatusUpdateLoading] = useState<{[key: string]: boolean}>({});
   
   const [stages] = useState<PipelineStage[]>([
     {
@@ -54,10 +55,12 @@ const CandidatePipeline: React.FC = () => {
     refreshCandidates();
   }, [refreshCandidates]);
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, candidateId: string, fromStage: string): void => {
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, candidateId: string, fromStage: ICandidate['status']): void => {
     try {
-      e.dataTransfer.setData("candidateId", candidateId);
-      e.dataTransfer.setData("fromStage", fromStage);
+      e.dataTransfer.setData("application/json", JSON.stringify({
+        candidateId,
+        fromStage,
+      }));
       setIsDragging(true);
     } catch (err) {
       console.error(err);
@@ -70,19 +73,48 @@ const CandidatePipeline: React.FC = () => {
     setIsDragging(false);
     
     try {
-      const candidateId = e.dataTransfer.getData("candidateId");
-      const fromStage = e.dataTransfer.getData("fromStage");
-      
-      if (!candidateId || !fromStage) {
+      const data = e.dataTransfer.getData("application/json");
+      if (!data) {
         throw new Error("Missing drag data");
       }
 
+      const { candidateId, fromStage } = JSON.parse(data) as {
+        candidateId: string;
+        fromStage: ICandidate['status'];
+      };
+
       if (fromStage !== toStage) {
-        await updateCandidateStatus(candidateId, toStage);
+        setStatusUpdateLoading(prev => ({ ...prev, [candidateId]: true }));
+        const loadingToast = toast.loading('Updating candidate status...');
+        
+        try {
+          // Optimistic update
+          const candidateToUpdate = candidates.find(c => c.email === candidateId);
+          if (candidateToUpdate) {
+            const optimisticCandidates = candidates.map(c => 
+              c.email === candidateId ? { ...c, status: toStage } : c
+            );
+            // Update local state immediately
+            setCandidates?.(optimisticCandidates);
+          }
+
+          await updateCandidateStatus(candidateId, toStage);
+          toast.success('Candidate status updated successfully', {
+            id: loadingToast,
+          });
+        } catch (error) {
+          // Revert optimistic update on error
+          await refreshCandidates();
+          toast.error(error instanceof Error ? error.message : 'Failed to update candidate status', {
+            id: loadingToast,
+          });
+          throw error; // Re-throw to be caught by the outer catch block
+        } finally {
+          setStatusUpdateLoading(prev => ({ ...prev, [candidateId]: false }));
+        }
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to move candidate";
-      toast.error(message);
+      toast.error(error instanceof Error ? error.message : 'Failed to move candidate');
     }
   };
 
@@ -90,7 +122,8 @@ const CandidatePipeline: React.FC = () => {
     e.preventDefault();
   };
 
-  const handleDragEnd = (): void => {
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>): void => {
+    e.preventDefault();
     setIsDragging(false);
   };
 
@@ -117,7 +150,7 @@ const CandidatePipeline: React.FC = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             {stages.map((stage) => (
               <div
                 key={stage.id}
@@ -140,8 +173,10 @@ const CandidatePipeline: React.FC = () => {
                       key={candidate.email}
                       draggable
                       onDragStart={(e) => handleDragStart(e, candidate.email, stage.id)}
-                      className="group bg-white border border-gray-200 p-3 rounded-md 
-                        hover:shadow-md hover:border-blue-200 transition-all duration-200 cursor-move"
+                      onDragEnd={handleDragEnd}
+                      className={`group bg-white border border-gray-200 p-3 rounded-md 
+                        hover:shadow-md hover:border-blue-200 transition-all duration-200 cursor-move
+                        ${statusUpdateLoading[candidate.email] ? 'opacity-50 pointer-events-none' : ''}`}
                     >
                       <div className="flex items-center gap-3">
                         <Image
