@@ -131,7 +131,16 @@ export default function ResumeDashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50 py-12 px-4">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900">My Resumes</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">My Resumes</h1>
+          <Button
+            onClick={() => router.push('/resumes/upload')}
+            className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload New Resume
+          </Button>
+        </div>
         
         {/* Upload Form */}
         <Card className="mb-8 bg-white/90 border-0 shadow-lg">

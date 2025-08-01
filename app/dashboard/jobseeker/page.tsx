@@ -43,8 +43,8 @@ export default function JobSeekerDashboard() {
               <Link href="/jobs" className="block w-full bg-blue-600 text-white text-center py-3 rounded-md hover:bg-blue-700">
                 Browse Jobs
               </Link>
-              <Link href="/resumes" className="block w-full border text-center py-3 rounded-md hover:bg-gray-50">
-                Upload Resume
+              <Link href="/resumes/upload" className="block w-full bg-green-600 text-white text-center py-3 rounded-md hover:bg-green-700">
+                📄 Upload Resume
               </Link>
             </div>
           </div>
