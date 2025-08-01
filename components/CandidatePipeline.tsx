@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from 'next/image';
 import { toast } from "sonner";
 import { useCandidates } from "@/context/CandidateContext";
-import type { ICandidate } from "@/models/Candidate";
+import type { ICandidate } from "@/models";
 
 interface PipelineStage {
   id: ICandidate['status'];
@@ -88,15 +88,8 @@ const CandidatePipeline: React.FC = () => {
         const loadingToast = toast.loading('Updating candidate status...');
         
         try {
-          // Optimistic update
-          const candidateToUpdate = candidates.find(c => c.email === candidateId);
-          if (candidateToUpdate) {
-            const optimisticCandidates = candidates.map(c => 
-              c.email === candidateId ? { ...c, status: toStage } : c
-            );
-            // Update local state immediately
-            setCandidates?.(optimisticCandidates);
-          }
+          // Note: Optimistic update would require setCandidates from context
+          // For now, we'll rely on the refresh after successful update
 
           await updateCandidateStatus(candidateId, toStage);
           toast.success('Candidate status updated successfully', {

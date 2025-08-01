@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 import { toast } from 'sonner';
-import { ICandidate } from '@/models/Candidate';
+import { ICandidate } from '@/models';
 
 interface CandidateContextType {
   candidates: ICandidate[];

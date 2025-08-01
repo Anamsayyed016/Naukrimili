@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { AdzunaJob } from "../types/adzuna";
@@ -458,7 +458,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
     }
   }, [searchQuery, location, showAdvancedLocation, locationFilter, jobType, selectedCategory, experienceLevel, companyType, sortBy, salaryRange, showSalaryFilter]);
 
-  const { data: jobs = [], isLoading, error } = useQuery({
+  const { data: jobs = [], isLoading, error } = useQuery<any[]>({
     queryKey: [
       "indianJobs", 
       searchQuery, 
