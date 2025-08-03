@@ -10,6 +10,7 @@ Header always set X-Frame-Options DENY
 Header always set X-Content-Type-Options nosniff
 Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
 # Cache control for static assets
 <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
@@ -35,7 +36,7 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
 # Prevent access to sensitive files
-<FilesMatch "\.(env|git|md|log)$">
+<FilesMatch "\.(env|log|sql|md|txt)$">
     Order allow,deny
     Deny from all
 </FilesMatch> 

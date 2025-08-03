@@ -3,9 +3,11 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
-  output: 'export',  // Changed to static export for Hostinger
+  // Removed static export for Hostinger Node.js deployment
   images: {
-    unoptimized: true, // Required for static export
+    domains: ['localhost', 'example.com'], // Restrict allowed domains
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
   },
   
   // Security headers
@@ -67,12 +69,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Image optimization
-  images: {
-    domains: ['localhost', 'example.com'], // Restrict allowed domains
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
-  },
+
   
   // Webpack configuration
   webpack: (config, { dev, isServer }) => {

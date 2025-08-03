@@ -61,7 +61,7 @@ model Job {
   
   // Relations
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  applications Application[]
+  jobApplications Application[]
   
   @@map("jobs")
   @@index([userId])
