@@ -1,3 +1,5 @@
+import { handleApiError } from '@/lib/error-handler';
+
 const indianCities = [
   {
     id: 'bangalore',
@@ -47,9 +49,16 @@ const indianCities = [
 ];
 
 export async function GET() {
-  return Response.json({
-    success: true,
-    locations: indianCities,
-    total: indianCities.length
-  });
+  try {
+    return Response.json({
+      success: true,
+      locations: indianCities,
+      total: indianCities.length
+    });
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: 'GET /api/locations',
+      context: { timestamp: new Date().toISOString() }
+    });
+  }
 }

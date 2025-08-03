@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { handleApiError } from '@/lib/error-handler';
 
 // Mock system health data
 const generateMockHealthData = () => {
@@ -86,10 +87,9 @@ export async function GET() {
     return NextResponse.json(mockData);
 
   } catch (error) {
-    console.error('Error fetching system health:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch system health' },
-      { status: 500 }
-    );
+    return handleApiError(error, {
+      endpoint: 'GET /api/admin/system/health',
+      context: { timestamp: new Date().toISOString() }
+    });
   }
 }

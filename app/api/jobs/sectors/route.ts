@@ -1,3 +1,5 @@
+import { handleApiError } from '@/lib/error-handler';
+
 const sectors = [
   {
     id: 'technology',
@@ -46,10 +48,17 @@ const sectors = [
 ];
 
 export async function GET() {
-  return Response.json({
-    success: true,
-    sectors: sectors,
-    total: sectors.length,
-    totalJobs: sectors.reduce((sum, sector) => sum + sector.jobCount, 0)
-  });
+  try {
+    return Response.json({
+      success: true,
+      sectors: sectors,
+      total: sectors.length,
+      totalJobs: sectors.reduce((sum, sector) => sum + sector.jobCount, 0)
+    });
+  } catch (error) {
+    return handleApiError(error, {
+      endpoint: 'GET /api/jobs/sectors',
+      context: { timestamp: new Date().toISOString() }
+    });
+  }
 }

@@ -1,28 +1,40 @@
-import { NextRequest } from 'next/server';
 import { handleApiError } from '@/lib/error-handler';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    console.log('🧪 Testing Reed API (mock)...');
-    
-    return Response.json({
+    // Mock Reed API test response
+    const testData = {
       success: true,
-      message: 'Reed API service not implemented yet',
-      data: {
-        totalResults: 0,
-        jobsReturned: 0,
-        sampleJobs: []
-      },
-      timestamp: new Date().toISOString()
-    });
-    
+      message: 'Reed API test endpoint',
+      apiStatus: 'mock',
+      timestamp: new Date().toISOString(),
+      mockJobs: [
+        {
+          id: 'reed-1',
+          title: 'Software Engineer',
+          company: 'Tech Company UK',
+          location: 'London, UK',
+          salary: '£45,000 - £55,000',
+          description: 'Exciting opportunity for a software engineer...',
+          source: 'reed'
+        },
+        {
+          id: 'reed-2',
+          title: 'Data Analyst',
+          company: 'Data Corp UK',
+          location: 'Manchester, UK',
+          salary: '£35,000 - £45,000',
+          description: 'Looking for a skilled data analyst...',
+          source: 'reed'
+        }
+      ]
+    };
+
+    return Response.json(testData);
   } catch (error) {
     return handleApiError(error, {
       endpoint: 'GET /api/test-reed',
-      context: {
-        apiKey: process.env.REED_API_KEY ? 'configured' : 'missing',
-        timestamp: new Date().toISOString()
-      }
+      context: { timestamp: new Date().toISOString() }
     });
   }
 }
