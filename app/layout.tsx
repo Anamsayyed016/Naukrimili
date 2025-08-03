@@ -1,68 +1,78 @@
-import type { Metadata } from 'next';
-import { Inter, Poppins } from 'next/font/google';
-import './globals.css';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import Providers from './providers'
+import { ErrorBoundary } from '@/lib/error-boundary'
+import Navigation from '@/components/navigation/Navigation'
 
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-poppins',
-});
-import Providers from './providers';
-import { ClientLayout } from '@/components/client-layout';
-
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: {
-    default: 'NaukriMili - Find Your Perfect Job Match',
-    template: '%s | NaukriMili',
+  title: 'NaukriMili - AI-Powered Job Portal',
+  description: 'Find your dream job with AI-powered resume parsing and intelligent job matching',
+  keywords: 'jobs, career, employment, AI, resume, job portal, India',
+  authors: [{ name: 'NaukriMili Team' }],
+  creator: 'NaukriMili',
+  publisher: 'NaukriMili',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
   },
-  description: 'NaukriMili connects job seekers with top employers across industries. Find your dream job today!',
-  keywords: 'jobs, career, employment, job search, job portal, india jobs, recruitment, hiring',
-  metadataBase: new URL('https://naukrimili.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://naukrimili.com'),
   openGraph: {
-    title: 'NaukriMili - Find Your Perfect Job Match',
-    description: 'NaukriMili connects job seekers with top employers across industries. Find your dream job today!',
-    type: 'website',
-    locale: 'en_IN',
+    title: 'NaukriMili - AI-Powered Job Portal',
+    description: 'Find your dream job with AI-powered resume parsing and intelligent job matching',
+    url: 'https://naukrimili.com',
     siteName: 'NaukriMili',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'NaukriMili - AI-Powered Job Portal',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NaukriMili - Find Your Perfect Job Match',
-    description: 'NaukriMili connects job seekers with top employers across industries. Find your dream job today!',
+    title: 'NaukriMili - AI-Powered Job Portal',
+    description: 'Find your dream job with AI-powered resume parsing and intelligent job matching',
+    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
-  manifest: '/manifest.json',
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
   },
-};
-
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-};
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} ${poppins.variable}`}>
-        <Providers>
-          <ClientLayout>
+      <body className={inter.className}>
+        <ErrorBoundary>
+          <Providers>
+            <Navigation />
             {children}
-          </ClientLayout>
-        </Providers>
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
-  );
+  )
 }

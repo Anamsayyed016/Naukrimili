@@ -1,41 +1,56 @@
+'use client';
+
 import React from 'react';
-import { applyForJob } from '@/lib/api';
+import { applicationApi } from '@/lib/api';
+import { useErrorHandler } from '@/lib/error-boundary';
 import { toast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface JobApplicationProps {
   jobId: string;
   onSuccess?: () => void;
   onError?: (error: any) => void;
+  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  className?: string;
 }
 
 export const JobApplication: React.FC<JobApplicationProps> = ({
   jobId,
   onSuccess,
-  onError
+  onError,
+  variant = 'default',
+  size = 'default',
+  className = ''
 }) => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { handleError } = useErrorHandler();
 
   const handleApply = async () => {
     try {
       setIsSubmitting(true);
-      await applyForJob(jobId);
+      
+      await applicationApi.applyForJob(jobId, {
+        jobId,
+        status: 'applied',
+        appliedAt: new Date().toISOString()
+      });
       
       toast({
-        title: "Success!",
-        description: "Your application has been submitted successfully.",
+        title: "Application Submitted!",
+        description: "Your application has been submitted successfully. We'll notify you of any updates.",
         variant: "default",
       });
       
       onSuccess?.();
     } catch (error: any) {
-      console.error('Error applying:', error);
+      console.error('Error applying for job:', error);
       
-      toast({
-        title: "Error",
-        description: error.response?.data?.error || "Failed to submit application",
-        variant: "destructive",
-      });
+      // Use the error handler for consistent error handling
+      handleError(error, 'JobApplication');
       
+      // Call the onError callback if provided
       onError?.(error);
     } finally {
       setIsSubmitting(false);
@@ -43,13 +58,22 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
   };
 
   return (
-    <button
+    <Button
       onClick={handleApply}
       disabled={isSubmitting}
-      className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50"
+      variant={variant}
+      size={size}
+      className={className}
     >
-      {isSubmitting ? 'Submitting...' : 'Apply Now'}
-    </button>
+      {isSubmitting ? (
+        <>
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          Submitting...
+        </>
+      ) : (
+        'Apply Now'
+      )}
+    </Button>
   );
 };
 
