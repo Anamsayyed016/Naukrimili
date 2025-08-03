@@ -32,22 +32,35 @@ const professionalDetailsSchema = z.object({
 const photoPortfolioSchema = z.object({
   profilePhoto: z
     .any()
-    .refine((file) => !file || (file instanceof File && file.size <= 5 * 1024 * 1024), "Max file size is 5MB")
-    .refine((file) => !file || (file instanceof File && file.type.startsWith("image/")), "Must be an image file")
+    .nullable()
+    .refine(
+      (file) => !file || (file instanceof File && file.size <= 5 * 1024 * 1024), 
+      "Max file size is 5MB"
+    )
+    .refine(
+      (file) => !file || (file instanceof File && file.type.startsWith("image/")), 
+      "Must be an image file"
+    )
     .refine(
       async (file) => {
-        if (!file) return true;
-        // Check aspect ratio 1:1
-        return new Promise<boolean>((resolve) => {
-          const img = new window.Image();
-          img.onload = function () {
-            resolve(img.width === img.height);
-          };
-          img.onerror = function () {
-            resolve(false);
-          };
-          img.src = URL.createObjectURL(file);
-        });
+        if (!file || !(file instanceof File)) return true;
+        try {
+          return new Promise<boolean>((resolve) => {
+            const img = new window.Image();
+            img.onload = function () {
+              const isSquare = Math.abs(img.width - img.height) <= 2; // Allow 2px difference
+              URL.revokeObjectURL(img.src); // Clean up
+              resolve(isSquare);
+            };
+            img.onerror = function () {
+              URL.revokeObjectURL(img.src); // Clean up
+              resolve(false);
+            };
+            img.src = URL.createObjectURL(file);
+          });
+        } catch (error) {
+          return false;
+        }
       },
       { message: "Image must be square (1:1 aspect ratio)", path: ["profilePhoto"] }
     ),
@@ -155,17 +168,44 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
   // Profile photo preview
   const profilePhoto = methods.watch("profilePhoto");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (profilePhoto && profilePhoto instanceof File) {
-      const url = URL.createObjectURL(profilePhoto);
-      setPhotoPreview(url);
-      return () => URL.revokeObjectURL(url);
+      try {
+        const url = URL.createObjectURL(profilePhoto);
+        setPhotoPreview(url);
+        setImageError(null);
+        
+        // Validate image dimensions
+        const img = new Image();
+        img.onload = () => {
+          if (Math.abs(img.width - img.height) > 2) {
+            setImageError("Image must be square (1:1 aspect ratio)");
+            methods.setError("profilePhoto", { 
+              type: "manual", 
+              message: "Image must be square (1:1 aspect ratio)" 
+            });
+          }
+          URL.revokeObjectURL(img.src);
+        };
+        img.onerror = () => {
+          setImageError("Failed to load image");
+          URL.revokeObjectURL(img.src);
+        };
+        img.src = url;
+
+        return () => URL.revokeObjectURL(url);
+      } catch (error) {
+        setImageError("Failed to process image");
+        setPhotoPreview(null);
+      }
     } else {
       setPhotoPreview(null);
+      setImageError(null);
     }
-  }, [profilePhoto]);
+  }, [profilePhoto, methods]);
 
   // Multilingual step: manage language fields
   const { fields, append, remove } = useFieldArray({
@@ -281,6 +321,79 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
                   <div className="text-red-500 text-sm mt-1">{methods.formState.errors.keySkills.message as string}</div>
                 )}
               </div>
+              {/* Profile Photo Upload */}
+              <div className="space-y-4">
+                <Label>Profile Photo</Label>
+                <div className="flex items-start space-x-4">
+                  <div className="relative w-32 h-32">
+                    {photoPreview ? (
+                      <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-purple-500">
+                        <Image
+                          src={photoPreview}
+                          alt="Profile preview"
+                          layout="fill"
+                          objectFit="cover"
+                          onError={() => {
+                            setPhotoPreview(null);
+                            setImageError("Failed to load image");
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            methods.setValue("profilePhoto", null);
+                            setPhotoPreview(null);
+                            setImageError(null);
+                          }}
+                          className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 m-1 hover:bg-red-600 transition-colors"
+                          aria-label="Remove photo"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      ref={fileInputRef}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          methods.setValue("profilePhoto", file, { shouldValidate: true });
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full"
+                    >
+                      {photoPreview ? "Change Photo" : "Upload Photo"}
+                    </Button>
+                    <p className="text-xs text-gray-500">
+                      Square image recommended, max 5MB
+                    </p>
+                    {imageError && (
+                      <p className="text-red-500 text-sm">{imageError}</p>
+                    )}
+                    {methods.formState.errors.profilePhoto && (
+                      <p className="text-red-500 text-sm">
+                        {methods.formState.errors.profilePhoto.message as string}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="experience">Experience</Label>
                 <select

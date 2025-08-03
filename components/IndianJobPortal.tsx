@@ -3,10 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { AdzunaJob } from "../types/adzuna";
-import { AdzunaService } from "../lib/adzuna-service";
 import SalaryRangeSelector, { SalaryRange } from "./salary/SalaryRangeSelector";
-import { sampleIndianJobs } from "../lib/sample-indian-jobs";
 import { 
   ChevronRightIcon, 
   MapPinIcon, 

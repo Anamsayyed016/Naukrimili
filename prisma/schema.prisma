@@ -43,10 +43,18 @@ model Job {
   company     String
   location    String
   description String
-  salary      String?
+  requirements String[]
+  benefits    String[]
+  skills      String[]
+  salary      SalaryRange?
   type        JobType     @default(FULL_TIME)
+  level       ExperienceLevel @default(ENTRY)
+  remote      Boolean     @default(false)
   status      JobStatus   @default(PUBLISHED)
   sector      String?
+  views       Int         @default(0)
+  applications Int        @default(0)
+  expiresAt   DateTime?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   userId      String      @db.ObjectId
@@ -56,6 +64,8 @@ model Job {
   applications Application[]
   
   @@map("jobs")
+  @@index([userId])
+  @@index([status])
 }
 
 model Application {
@@ -107,9 +117,25 @@ enum JobStatus {
 
 enum ApplicationStatus {
   PENDING
-  REVIEWED
-  ACCEPTED
+  REVIEWING
+  SHORTLISTED
+  INTERVIEWED
+  OFFERED
   REJECTED
+  WITHDRAWN
+}
+
+enum ExperienceLevel {
+  ENTRY
+  MID
+  SENIOR
+  EXECUTIVE
+}
+
+type SalaryRange {
+  min         Int
+  max         Int
+  currency    String
 }
 
 // Types for job matching
