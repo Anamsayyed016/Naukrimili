@@ -24,18 +24,8 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   };
 }
 
-// Error types
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public code?: string,
-    public details?: any
-  ) {
-    super(message);
-    this.name = 'ApiError';
-  }
-}
+// Import ApiError from types
+import { ApiError } from '@/types/api';
 
 // API Client configuration
 class ApiClient {

@@ -16,7 +16,23 @@ interface Job {
   postedAt?: string;
 }
 
-export function JobList() {
+interface JobListProps {
+  searchQuery?: string;
+  filters?: {
+    location: string;
+    jobType: string;
+    salary: number[];
+    experienceLevel: string;
+  };
+  limit?: number;
+}
+
+export function JobList({ searchQuery = "", filters = {
+  location: "",
+  jobType: "",
+  salary: [0, 100000],
+  experienceLevel: ""
+}, limit = 10 }: JobListProps = {}) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

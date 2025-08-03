@@ -1,5 +1,18 @@
 // Comprehensive API type definitions
 
+// API Error class
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public code?: string,
+    public details?: any
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { sampleIndianJobs } from "@/lib/sample-indian-jobs";
 import SalaryRangeSelector, { SalaryRange } from "./salary/SalaryRangeSelector";
 import { 
   ChevronRightIcon, 
@@ -489,7 +490,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
   }, [jobs, isLoading, error, fetchJobs, setGoogleUrl]);
 
   // Show sample jobs by default to demonstrate the portal
-  const displayJobs = jobs.length > 0 ? jobs : (searchQuery || location || jobType || selectedCategory) ? [] : sampleIndianJobs.slice(0, 6).map((job, index) => ({
+  const displayJobs = jobs.length > 0 ? jobs : (searchQuery || location || jobType || selectedCategory) ? [] : sampleIndianJobs.slice(0, 6).map((job: any, index: number) => ({
     id: job.id,
     title: job.title,
     company: job.company,

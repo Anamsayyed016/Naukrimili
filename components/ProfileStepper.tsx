@@ -179,7 +179,7 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
         setImageError(null);
         
         // Validate image dimensions
-        const img = new Image();
+        const img = document.createElement('img');
         img.onload = () => {
           if (Math.abs(img.width - img.height) > 2) {
             setImageError("Image must be square (1:1 aspect ratio)");

@@ -1,5 +1,8 @@
 import { apiClient, ApiError } from './api-client';
-import type { Job, User, Application, Resume } from '@/types';
+import type { Job } from '@/types/job';
+import type { User } from '@/types/user';
+import type { JobApplication as Application } from '@/types/job-application';
+import type { Resume } from '@/types/resume';
 
 // ===== JOB API METHODS =====
 export const jobApi = {

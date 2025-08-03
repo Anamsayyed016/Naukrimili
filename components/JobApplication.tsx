@@ -33,8 +33,7 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
       
       await applicationApi.applyForJob(jobId, {
         jobId,
-        status: 'applied',
-        appliedAt: new Date().toISOString()
+        status: 'submitted'
       });
       
       toast({
