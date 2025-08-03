@@ -3,9 +3,9 @@ from app import create_app, db
 from app.models.user import User, user_placed_job
 from app.models.job import Job
 
-def test_job_placement():
+def test_job_placement(app):
     """Test the job placement and affiliate payout system."""
-    try:
+    with app.app_context():
         # Create tables
         db.create_all()
         
@@ -14,20 +14,10 @@ def test_job_placement():
             name="Test User",
             email="test@example.com",
             experience_years=3,
-            premium=1
+            premium=True
         )
         db.session.add(test_user)
-    
-    with app.app_context():
-        try:
-            # Create tables
-            db.create_all()
-            
-            # Create test user
-            test_user = User(
-                name="Test User",
-                email="test@example.com",
-                experience_years=3,
+        db.session.commit()
                 premium=1
             )
             db.session.add(test_user)

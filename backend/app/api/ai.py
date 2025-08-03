@@ -123,12 +123,6 @@ def calculate_ats_score(response: Dict[str, Any], job_target: str) -> int:
     except Exception as e:
         logger.error(f"Error calculating ATS score: {str(e)}")
         return 0
-    for keyword in keywords:
-        if keyword in content:
-            score += 1
-    
-    # Cap the score at 100
-    return min(score, 100)
 
 @ai_blueprint.route('/resume/ai-generate', methods=['POST'])
 @validate_api_key

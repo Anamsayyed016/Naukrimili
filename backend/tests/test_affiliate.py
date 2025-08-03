@@ -1,16 +1,24 @@
 import os
 import sys
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+import pytest
+from app import create_app, db
+from app.models import User
 
-# Initialize Flask and SQLAlchemy
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+@pytest.fixture
+def app():
+    app = create_app('testing')
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()
+        db.drop_all()
 
-# Models
-class User(db.Model):
+@pytest.fixture
+def client(app):
+    return app.test_client()
+
+@pytest.fixture
+def user(app):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)

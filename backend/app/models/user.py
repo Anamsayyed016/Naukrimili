@@ -1,7 +1,6 @@
 from typing import Optional
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from ..affiliate import ATSAnalyzer, calculate_payout
 
 db = SQLAlchemy()
 
@@ -107,6 +106,8 @@ def user_placed_job(user_id: int, job_id: int) -> bool:
             'experience_years': user.experience_years
         }
         
+        # Import here to avoid circular imports
+        from ..affiliate import calculate_payout
         payout_amount = calculate_payout(user_data)
         
         # Add payout to user's wallet
