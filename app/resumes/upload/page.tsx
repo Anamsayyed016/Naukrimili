@@ -1,3 +1,4 @@
+﻿'use client';
 "use client";
 
 import { useState } from "react";
@@ -92,19 +93,19 @@ export default function ResumeUploadPage() {
             <CardContent>
               <ul className="space-y-2 text-blue-700">
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-500">•</span>
+                  <span className="text-blue-500">â€¢</span>
                   <span>Supported formats: PDF, DOC, DOCX (max 5MB)</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-500">•</span>
+                  <span className="text-blue-500">â€¢</span>
                   <span>Make sure your resume includes contact information</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-500">•</span>
+                  <span className="text-blue-500">â€¢</span>
                   <span>Include relevant skills and work experience</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-500">•</span>
+                  <span className="text-blue-500">â€¢</span>
                   <span>AI will extract and analyze your information automatically</span>
                 </li>
               </ul>
@@ -115,3 +116,4 @@ export default function ResumeUploadPage() {
     </div>
   );
 }
+

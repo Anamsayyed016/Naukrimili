@@ -1,3 +1,4 @@
+﻿'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -38,8 +39,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ icon, title, count, badge, 
         {badge && <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{badge}</span>}
       </div>
       {count && <div className="text-sm text-gray-500 mb-1">{count.toLocaleString()}+ Open Roles</div>}
-      {city && <div className="flex items-center text-sm text-gray-700 mb-1"><span className="mr-1">📍</span>{city}</div>}
-      {jobCount && <div className="text-xs text-right text-gray-500">{jobCount.toLocaleString()} Jobs{isTrending && <span className="ml-1 text-teal-600">🔥</span>}</div>}
+      {city && <div className="flex items-center text-sm text-gray-700 mb-1"><span className="mr-1">ðŸ“</span>{city}</div>}
+      {jobCount && <div className="text-xs text-right text-gray-500">{jobCount.toLocaleString()} Jobs{isTrending && <span className="ml-1 text-teal-600">ðŸ”¥</span>}</div>}
       {cta && <button className="mt-2 bg-teal-600 text-white text-sm font-medium px-4 py-1.5 rounded hover:bg-teal-700 transition">{cta}</button>}
     </div>
   );

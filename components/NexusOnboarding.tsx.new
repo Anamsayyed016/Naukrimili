@@ -6,6 +6,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { PersonalInfoStep } from '@/components/steps/PersonalInfoStep';
+import { ProfessionalDetailsStep } from '@/components/steps/ProfessionalDetailsStep';
+import { JobPreferencesStep } from '@/components/steps/JobPreferencesStep';
+import { PortfolioStep } from '@/components/steps/PortfolioStep';
 
 interface OnboardingData {
   personal: {

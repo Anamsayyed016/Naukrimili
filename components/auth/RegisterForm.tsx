@@ -1,3 +1,4 @@
+﻿'use client';
 "use client";
 
 import { useState } from "react";
@@ -170,7 +171,7 @@ export default function RegisterForm({
               type="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               className="pl-10"
               required
             />

@@ -246,6 +246,9 @@ importers:
       '@netlify/plugin-nextjs':
         specifier: ^5.11.6
         version: 5.11.6
+      '@next/env':
+        specifier: ^15.4.5
+        version: 15.4.5
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
@@ -253,7 +256,7 @@ importers:
         specifier: ^9.0.7
         version: 9.0.10
       '@types/node':
-        specifier: ^22
+        specifier: ^22.17.0
         version: 22.17.0
       '@types/qrcode':
         specifier: ^1.5.5

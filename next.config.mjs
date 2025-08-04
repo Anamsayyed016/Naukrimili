@@ -3,9 +3,10 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
-  output: 'export',  // Changed to static export for Hostinger
+  output: 'export',
+  trailingSlash: true,
   images: {
-    unoptimized: true, // Required for static export
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -13,6 +14,9 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    domains: ['localhost', 'example.com'],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
   },
   
   // Security headers
@@ -72,13 +76,6 @@ const nextConfig = {
   
   typescript: {
     ignoreBuildErrors: true,
-  },
-  
-  // Image optimization
-  images: {
-    domains: ['localhost', 'example.com'], // Restrict allowed domains
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
   },
   
   // Webpack configuration

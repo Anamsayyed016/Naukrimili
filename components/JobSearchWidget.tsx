@@ -1,3 +1,4 @@
+﻿'use client';
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -46,7 +47,7 @@ export default function JobSearchWidget({ location, onSearch }: JobSearchWidgetP
       <input
         type="text"
         className="flex-1 px-4 py-3 rounded border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-base"
-        placeholder="🔍 Job title, skills, or company"
+        placeholder="ðŸ” Job title, skills, or company"
         value={title}
         onChange={e => setTitle(e.target.value)}
         aria-label="Job title, skills, or company"
@@ -54,7 +55,7 @@ export default function JobSearchWidget({ location, onSearch }: JobSearchWidgetP
       <input
         type="text"
         className="flex-1 px-4 py-3 rounded border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-base"
-        placeholder="📍 Location"
+        placeholder="ðŸ“ Location"
         value={loc}
         onChange={e => setLoc(e.target.value)}
         aria-label="Location"
@@ -77,3 +78,4 @@ export default function JobSearchWidget({ location, onSearch }: JobSearchWidgetP
     </form>
   );
 }
+

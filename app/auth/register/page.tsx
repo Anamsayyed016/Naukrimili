@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
@@ -141,7 +141,7 @@ export default function RegisterPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? 'ðŸ™ˆ' : 'ðŸ‘ï¸'}
                 </button>
               </div>
             </div>
@@ -166,7 +166,7 @@ export default function RegisterPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
-                  {showConfirmPassword ? '🙈' : '👁️'}
+                  {showConfirmPassword ? 'ðŸ™ˆ' : 'ðŸ‘ï¸'}
                 </button>
               </div>
             </div>

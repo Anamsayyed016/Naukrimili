@@ -1,3 +1,4 @@
+﻿'use client';
 "use client"
 
 import { useState } from "react"
@@ -36,7 +37,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname } from 'next/navigation'
 
 const mainNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
@@ -232,3 +233,4 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
+
