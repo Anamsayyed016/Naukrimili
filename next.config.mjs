@@ -3,11 +3,16 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
-  // Removed static export for Hostinger Node.js deployment
+  output: 'export',  // Changed to static export for Hostinger
   images: {
-    domains: ['localhost', 'example.com'], // Restrict allowed domains
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
+    unoptimized: true, // Required for static export
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'logo.clearbit.com',
+        pathname: '/**',
+      },
+    ],
   },
   
   // Security headers
@@ -69,7 +74,12 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-
+  // Image optimization
+  images: {
+    domains: ['localhost', 'example.com'], // Restrict allowed domains
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
+  },
   
   // Webpack configuration
   webpack: (config, { dev, isServer }) => {

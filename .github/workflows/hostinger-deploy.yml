@@ -19,19 +19,67 @@ jobs:
           node-version: '18.x'
           
       - name: Install pnpm
-        run: npm install -g pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install Project Dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build Project
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          NODE_ENV: production
         run: pnpm build
 
-      - name: Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
         with:
-          server: ${{ secrets.HOSTINGER_SERVER }}
-          username: ${{ secrets.HOSTINGER_USERNAME }}
-          password: ${{ secrets.HOSTINGER_PASSWORD }}
-          local-dir: ./out/  # Next.js static export directory
-          server-dir: ./public_html/  # Hostinger public directory
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
+
+      - name: Deploy to KVM Server
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+        run: |
+          # Create backup of current deployment
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www && [ -d html ] && cp -r html html_backup || echo "No existing deployment to backup"'
+          
+          # Deploy static files
+          rsync -avz --delete out/ $SERVER_USERNAME@$SERVER_IP:/var/www/html/
+          rsync -avz package.json pnpm-lock.yaml $SERVER_USERNAME@$SERVER_IP:/var/www/html/
+          
+          # Setup and restart on server
+          ssh $SERVER_USERNAME@$SERVER_IP '
+            cd /var/www/html && \
+            curl -fsSL https://get.pnpm.io/install.sh | sh - && \
+            source ~/.bashrc && \
+            pnpm install --frozen-lockfile --prod && \
+            if pm2 describe "jobportal" > /dev/null; then
+              pm2 reload "jobportal"
+            else
+              pm2 start "npm" --name "jobportal" -- start
+            fi
+          '
+          
+          # Verify deployment
+          echo "Verifying deployment..."
+          if curl -f -s "https://${SERVER_IP}" > /dev/null; then
+            echo "✅ Deployment successful"
+          else
+            echo "❌ Deployment verification failed"
+            # Rollback if verification fails
+            ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www && [ -d html_backup ] && rm -rf html && mv html_backup html'
+            exit 1
+          fi
