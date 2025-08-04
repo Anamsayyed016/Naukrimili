@@ -55,12 +55,20 @@ if (fs.existsSync(deployDir)) {
 }
 fs.mkdirSync(deployDir, { recursive: true });
 
-// Copy files
+// Copy files (excluding cache)
 deploymentFiles.forEach(file => {
   if (fs.existsSync(file)) {
     const stats = fs.statSync(file);
     if (stats.isDirectory()) {
-      fs.cpSync(file, path.join(deployDir, file), { recursive: true });
+      if (file === '.next') {
+        // Copy .next but exclude cache directory
+        fs.cpSync(file, path.join(deployDir, file), { 
+          recursive: true,
+          filter: (src) => !src.includes('/cache/') && !src.includes('\\cache\\')
+        });
+      } else {
+        fs.cpSync(file, path.join(deployDir, file), { recursive: true });
+      }
     } else {
       fs.copyFileSync(file, path.join(deployDir, file));
     }
