@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diagnostic Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            margin: 0; 
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            text-align: center; 
+        }
+        .card { 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 10px; 
+            padding: 20px; 
+            margin: 20px 0; 
+            backdrop-filter: blur(10px);
+        }
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background: #45a049; }
+        .status { color: #90EE90; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 NaukriMili Diagnostic Test</h1>
+        <div class="card">
+            <h2>Status Check</h2>
+            <p class="status">✅ HTML/CSS Loading: Working</p>
+            <p class="status">✅ Basic Styling: Working</p>
+            <p id="js-status">⏳ JavaScript: Testing...</p>
+        </div>
+        
+        <div class="card">
+            <h2>Quick Links</h2>
+            <a href="http://localhost:3000" class="btn">Next.js App</a>
+            <a href="http://69.62.73.84" class="btn">Production Site</a>
+            <a href="https://github.com/Anamsayyed016/Naukrimili/actions" class="btn">GitHub Actions</a>
+        </div>
+        
+        <div class="card">
+            <h2>Troubleshooting</h2>
+            <p>If you see this page with colors and styling, the basic web server is working.</p>
+            <p>If the Next.js app shows only white background:</p>
+            <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
+                <li>Check browser console for JavaScript errors</li>
+                <li>Verify Tailwind CSS is loading</li>
+                <li>Check if components are rendering</li>
+                <li>Clear browser cache and reload</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('js-status').innerHTML = '✅ JavaScript: Working';
+        console.log('✅ Diagnostic test loaded successfully');
+        
+        // Test fetch to Next.js app
+        fetch('http://localhost:3000')
+            .then(response => {
+                console.log('Next.js app response status:', response.status);
+                return response.text();
+            })
+            .then(html => {
+                console.log('Next.js app HTML length:', html.length);
+                if (html.includes('NaukriMili')) {
+                    console.log('✅ NaukriMili brand found in response');
+                } else {
+                    console.log('⚠️ NaukriMili brand not found in response');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error fetching Next.js app:', error);
+            });
+    </script>
+</body>
+</html>
