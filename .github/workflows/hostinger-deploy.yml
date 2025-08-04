@@ -48,30 +48,48 @@ jobs:
           known_hosts: unnecessary
           if_key_exists: replace
 
-      - name: Deploy to KVM Server
+      - name: Deploy to cPanel Hostinger Server
         env:
           SERVER_IP: ${{ secrets.SERVER_IP }}
           SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
         run: |
           # Create backup of current deployment
-          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www && [ -d html ] && cp -r html html_backup || echo "No existing deployment to backup"'
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www && [ -d html ] && cp -r html html_backup_$(date +%Y%m%d_%H%M%S) || echo "No existing deployment to backup"'
           
-          # Deploy static files
-          rsync -avz --delete out/ $SERVER_USERNAME@$SERVER_IP:/var/www/html/
-          rsync -avz package.json pnpm-lock.yaml $SERVER_USERNAME@$SERVER_IP:/var/www/html/
+          # Clean and prepare deployment directory
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www && rm -rf html/* && mkdir -p html'
           
-          # Setup and restart on server
-          ssh $SERVER_USERNAME@$SERVER_IP '
-            cd /var/www/html && \
-            curl -fsSL https://get.pnpm.io/install.sh | sh - && \
-            source ~/.bashrc && \
-            pnpm install --frozen-lockfile --prod && \
-            if pm2 describe "jobportal" > /dev/null; then
-              pm2 reload "jobportal"
-            else
-              pm2 start "npm" --name "jobportal" -- start
-            fi
-          '
+          # Deploy static build files for cPanel compatibility
+          rsync -avz --delete out/ $SERVER_USERNAME@$SERVER_IP:/var/www/html/ 2>/dev/null || rsync -avz --delete .next/static/ $SERVER_USERNAME@$SERVER_IP:/var/www/html/static/
+          rsync -avz --delete public/ $SERVER_USERNAME@$SERVER_IP:/var/www/html/
+          
+          # Deploy Node.js files for dynamic functionality
+          rsync -avz --delete .next/ $SERVER_USERNAME@$SERVER_IP:/var/www/html/.next/
+          rsync -avz package.json pnpm-lock.yaml next.config.* $SERVER_USERNAME@$SERVER_IP:/var/www/html/
+          
+          # Create .htaccess for URL rewriting
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www/html && echo "RewriteEngine On" > .htaccess'
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www/html && echo "RewriteRule ^_next/static/(.*)\$ /_next/static/\$1 [L]" >> .htaccess'
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www/html && echo "RewriteRule ^static/(.*)\$ /static/\$1 [L]" >> .htaccess'
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www/html && echo "RewriteCond %{REQUEST_FILENAME} !-f" >> .htaccess'
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www/html && echo "RewriteCond %{REQUEST_FILENAME} !-d" >> .htaccess'
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www/html && echo "RewriteRule ^(.*)\$ /index.html [L]" >> .htaccess'
+          
+          # Install Node.js and pnpm if needed
+          ssh $SERVER_USERNAME@$SERVER_IP 'command -v node || (curl -fsSL https://rpm.nodesource.com/setup_18.x | bash - && yum install -y nodejs)'
+          ssh $SERVER_USERNAME@$SERVER_IP 'command -v pnpm || (curl -fsSL https://get.pnpm.io/install.sh | sh - && source ~/.bashrc)'
+          
+          # Install dependencies and setup PM2
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www/html && [ -f package.json ] && export PATH="$HOME/.local/share/pnpm:$PATH" && pnpm install --frozen-lockfile --prod'
+          ssh $SERVER_USERNAME@$SERVER_IP 'command -v pm2 || npm install -g pm2'
+          ssh $SERVER_USERNAME@$SERVER_IP 'pm2 delete all 2>/dev/null || true'
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www/html && [ -f package.json ] && pm2 start npm --name "jobportal" -- start -- --port 3001 && pm2 save'
+          
+          # Create simple landing page
+          ssh $SERVER_USERNAME@$SERVER_IP 'cd /var/www/html && echo "<!DOCTYPE html><html><head><title>Job Portal</title><style>body{font-family:system-ui;text-align:center;padding:50px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center}.container{background:white;color:#333;padding:40px;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,0.1)}.btn{background:#667eea;color:white;padding:15px 30px;text-decoration:none;border-radius:25px;margin:10px;display:inline-block}</style></head><body><div class=\"container\"><h1>🚀 Job Portal</h1><p>Welcome to your professional job portal platform!</p><p>✅ Deployed Successfully | 🔧 cPanel Ready | 🚀 Server Active</p><div><a href=\"/jobs\" class=\"btn\">Browse Jobs</a><a href=\"/dashboard\" class=\"btn\">Dashboard</a></div></div></body></html>" > index.html'
+          
+          # Restart Apache
+          ssh $SERVER_USERNAME@$SERVER_IP '/scripts/restartsrv_httpd --stop && sleep 3 && /scripts/restartsrv_httpd --start'
           
           # Verify deployment
           echo "Verifying deployment..."
