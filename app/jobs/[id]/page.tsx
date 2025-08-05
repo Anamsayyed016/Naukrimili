@@ -527,4 +527,4 @@ export default function JobDetailPage() {
       </div>
     </div>
   )
-} 
+}
