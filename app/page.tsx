@@ -1,83 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  salary?: string;
-  timeAgo?: string;
-  isUrgent?: boolean;
-  isRemote?: boolean;
-}
-
-interface Company {
-  id: string;
-  name: string;
-  logo: string;
-  industry: string;
-  location: string;
-  openJobs: number;
-  rating: number;
-}
-
-interface Stats {
-  jobs: number;
-  companies: number;
-  seekers: number;
-  successRate: number;
-}
 
 export default function HomePage() {
-  const [featuredJobs, setFeaturedJobs] = useState<Job[]>([]);
-  const [topCompanies, setTopCompanies] = useState<Company[]>([]);
-  const [stats, setStats] = useState<Stats>({
-    jobs: 10000,
-    companies: 5000,
-    seekers: 50000,
-    successRate: 95
-  });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch featured jobs
-        const jobsResponse = await fetch('/api/jobs?limit=6');
-        if (jobsResponse.ok) {
-          const jobsData = await jobsResponse.json();
-          if (jobsData.success) {
-            setFeaturedJobs(jobsData.jobs.slice(0, 6));
-          }
-        }
-
-        // Fetch top companies
-        const companiesResponse = await fetch('/api/companies?limit=8');
-        if (companiesResponse.ok) {
-          const companiesData = await companiesResponse.json();
-          if (companiesData.success) {
-            setTopCompanies(companiesData.companies.slice(0, 8));
-            // Update stats based on real data
-            setStats(prev => ({
-              ...prev,
-              companies: companiesData.total || prev.companies,
-              jobs: companiesData.companies.reduce((sum: number, company: Company) => sum + company.openJobs, 0) || prev.jobs
-            }));
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching homepage data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   return (
     <div className="min-h-screen">
       {/* Navigation */}
@@ -131,112 +56,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Jobs Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-800">Featured Jobs</h2>
-            <Link href="/jobs" className="text-blue-600 hover:text-blue-700 font-medium">
-              View All Jobs →
-            </Link>
-          </div>
-          
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-gray-100 p-6 rounded-lg animate-pulse">
-                  <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-300 rounded mb-4 w-3/4"></div>
-                  <div className="h-3 bg-gray-300 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredJobs.map((job) => (
-                <div key={job.id} className="bg-white border border-gray-200 p-6 rounded-lg hover:shadow-lg transition-shadow">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">{job.title}</h3>
-                    {job.isUrgent && (
-                      <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">Urgent</span>
-                    )}
-                  </div>
-                  <p className="text-gray-600 mb-2">{job.company}</p>
-                  <p className="text-gray-500 text-sm mb-2">📍 {job.location}</p>
-                  {job.salary && (
-                    <p className="text-green-600 font-medium mb-3">💰 {job.salary}</p>
-                  )}
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400 text-sm">{job.timeAgo || 'Recently posted'}</span>
-                    <Link 
-                      href={`/jobs/${job.id}`}
-                      className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
-                    >
-                      Apply Now
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Top Companies Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-800">Top Companies</h2>
-            <Link href="/companies" className="text-blue-600 hover:text-blue-700 font-medium">
-              View All Companies →
-            </Link>
-          </div>
-          
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-white p-6 rounded-lg animate-pulse">
-                  <div className="w-16 h-16 bg-gray-300 rounded-full mx-auto mb-4"></div>
-                  <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                  <div className="h-3 bg-gray-300 rounded w-3/4 mx-auto"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {topCompanies.map((company) => (
-                <Link key={company.id} href={`/companies/${company.id}`} className="bg-white p-6 rounded-lg hover:shadow-lg transition-shadow text-center">
-                  <img 
-                    src={company.logo} 
-                    alt={company.name}
-                    className="w-16 h-16 mx-auto mb-4 rounded-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/placeholder-logo.png';
-                    }}
-                  />
-                  <h3 className="font-semibold text-gray-800 mb-1">{company.name}</h3>
-                  <p className="text-gray-500 text-sm mb-2">{company.industry}</p>
-                  <p className="text-blue-600 text-sm font-medium">{company.openJobs} open jobs</p>
-                  <div className="flex items-center justify-center mt-2">
-                    <span className="text-yellow-500">⭐</span>
-                    <span className="text-gray-600 text-sm ml-1">{company.rating}</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">
             Why Choose NaukriMili?
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="bg-gray-50 p-8 rounded-xl hover:shadow-lg transition-shadow">
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">🤖</span>
               </div>
@@ -246,7 +74,7 @@ export default function HomePage() {
               </p>
             </div>
             
-            <div className="bg-gray-50 p-8 rounded-xl hover:shadow-lg transition-shadow">
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">🏢</span>
               </div>
@@ -256,7 +84,7 @@ export default function HomePage() {
               </p>
             </div>
             
-            <div className="bg-gray-50 p-8 rounded-xl hover:shadow-lg transition-shadow">
+            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">⚡</span>
               </div>
@@ -274,19 +102,19 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold mb-2">{stats.jobs.toLocaleString()}+</div>
+              <div className="text-4xl font-bold mb-2">10K+</div>
               <div className="text-blue-100">Active Jobs</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">{stats.companies.toLocaleString()}+</div>
+              <div className="text-4xl font-bold mb-2">5K+</div>
               <div className="text-blue-100">Companies</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">{stats.seekers.toLocaleString()}+</div>
+              <div className="text-4xl font-bold mb-2">50K+</div>
               <div className="text-blue-100">Job Seekers</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">{stats.successRate}%</div>
+              <div className="text-4xl font-bold mb-2">95%</div>
               <div className="text-blue-100">Success Rate</div>
             </div>
           </div>
