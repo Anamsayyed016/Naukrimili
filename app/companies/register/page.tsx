@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -68,7 +67,7 @@ export default function CompanyRegisterPage() {
       });
       if (!res.ok) throw new Error("Registration failed");
       setSuccess(true);
-    } catch (err: any) {
+    } catch (err: Record<string, unknown>) {
       setError(err.message || "Registration failed");
     } finally {
       setLoading(false);

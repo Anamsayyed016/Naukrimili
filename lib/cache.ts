@@ -84,9 +84,7 @@ class MemoryCache {
 
     expiredKeys.forEach(key => this.cache.delete(key));
     
-    if (expiredKeys.length > 0) {
-      console.log(`Cache cleanup: removed ${expiredKeys.length} expired items`);
-    }
+    if (expiredKeys.length > 0) {}
   }
 
   destroy(): void {
@@ -112,7 +110,7 @@ export const cache = {
   keys: () => globalCache.keys(),
 
   // Memoization wrapper
-  memoize: <T extends (...args: any[]) => any>(
+  memoize: <T extends (...args: Record<string, unknown>[]) => any>(
     fn: T,
     keyGenerator?: (...args: Parameters<T>) => string,
     ttlMs?: number
@@ -133,7 +131,7 @@ export const cache = {
   },
 
   // Async memoization wrapper
-  memoizeAsync: <T extends (...args: any[]) => Promise<any>>(
+  memoizeAsync: <T extends (...args: Record<string, unknown>[]) => Promise<any>>(
     fn: T,
     keyGenerator?: (...args: Parameters<T>) => string,
     ttlMs?: number

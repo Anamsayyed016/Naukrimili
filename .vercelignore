@@ -47,11 +47,6 @@ tests/
 assets/raw/
 docs/
 
-# Docker
-Dockerfile
-docker-compose.yml
-*.dockerfile
-
 # Debug logs
 npm-debug.log*
 yarn-debug.log*

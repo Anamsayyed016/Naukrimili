@@ -1,5 +1,4 @@
 "use client";
-
 import { useSession, signOut as nextAuthSignOut, signIn as nextAuthSignIn } from "next-auth/react";
 import { useState, useEffect, useCallback } from "react";
 import type { AuthState, BiometricState, User } from "@/types/auth";

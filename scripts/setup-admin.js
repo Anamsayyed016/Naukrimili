@@ -6,11 +6,7 @@ async function testAdminConnection() {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-    });
-    
-    console.log('✅ Connected as admin');
-    
-    // Create a test admin user in MongoDB
+    });// Create a test admin user in MongoDB
     const db = mongoose.connection.db;
     await db.addUser(
       "copilot_admin",
@@ -21,10 +17,7 @@ async function testAdminConnection() {
           { role: "dbAdmin", db: "jobportal" }
         ]
       }
-    );
-    
-    console.log('✅ Admin user created successfully');
-    process.exit(0);
+    );process.exit(0);
   } catch (error) {
     console.error('❌ Error:', error.message);
     process.exit(1);

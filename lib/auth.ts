@@ -122,7 +122,6 @@ export async function getMe(token: string) {
     }, 300);
   });
 }
-
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";

@@ -1,5 +1,5 @@
+import React from "react";
 "use client";
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Upload, Loader2, CheckCircle, AlertCircle, FileText, ArrowLeft } from "lucide-react";
@@ -10,7 +10,7 @@ import { useResumeUpload } from "@/hooks/useResumeUpload";
 import ResumeEditor from "./ResumeEditor";
 
 export interface ResumeUploadFlowProps {
-  onUploadComplete?: (data: any) => void;
+  onUploadComplete?: (data: Record<string, unknown>) => void;
   className?: string;
 }
 

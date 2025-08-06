@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -19,7 +18,7 @@ import ProfileCompletionForm from "@/components/ProfileCompletionForm";
 interface ResumeUploadProps {
   isOpen?: boolean;
   onClose?: () => void;
-  onUploadComplete?: (data: any) => void;
+  onUploadComplete?: (data: Record<string, unknown>) => void;
   showProfileForm?: boolean;
   standalone?: boolean;
 }
@@ -28,7 +27,7 @@ interface ResumeData {
   id: string;
   filename: string;
   url: string;
-  parsed_data?: any;
+  parsed_data?: Record<string, unknown>;
 }
 
 export default function ResumeUpload({ 
@@ -174,7 +173,7 @@ export default function ResumeUpload({
       } else if (onUploadComplete) {
         onUploadComplete(data.data);
       }
-    } catch (err: any) {
+    } catch (err: Record<string, unknown>) {
       setError(err.message || "Failed to upload resume");
       toast({
         title: "Error",

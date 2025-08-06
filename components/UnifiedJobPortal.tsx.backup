@@ -1,0 +1,707 @@
+"use client";
+
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import { sampleIndianJobs } from "@/lib/sample-indian-jobs";
+import SalaryRangeSelector, { SalaryRange } from "./salary/SalaryRangeSelector";
+import JobResults from "./JobResults";
+import { useLocationDetection } from "@/hooks/useLocationDetection";
+import { useRealTimeJobSearch } from "@/hooks/useRealTimeJobSearch";
+import { useUserActivity } from "@/lib/userActivityService";
+import { 
+  ChevronRightIcon, 
+  MapPinIcon, 
+  CalendarIcon, 
+  CurrencyDollarIcon as CurrencyRupeeIcon, 
+  BuildingOffice2Icon as BuildingOfficeIcon, 
+  UserGroupIcon, 
+  ClockIcon, 
+  FireIcon, 
+  ChartBarIcon, 
+  StarIcon,
+  ChevronDownIcon,
+  GlobeAltIcon,
+  MagnifyingGlassIcon,
+  AdjustmentsHorizontalIcon,
+  ArrowTrendingUpIcon,
+  EyeIcon,
+  HeartIcon,
+  SparklesIcon,
+  LightBulbIcon
+} from "@heroicons/react/24/outline";
+
+// Enhanced interfaces
+interface TrendingCategory {
+  name: string;
+  count: number;
+  growth: number;
+  isHot: boolean;
+  userInterested: boolean;
+  icon: string;
+  userRelevance?: number;
+}
+
+// Indian States
+const indianStates = [
+  { code: 'MH', name: 'Maharashtra' },
+  { code: 'KA', name: 'Karnataka' },
+  { code: 'DL', name: 'Delhi' },
+  { code: 'TN', name: 'Tamil Nadu' },
+  { code: 'TG', name: 'Telangana' },
+  { code: 'GJ', name: 'Gujarat' },
+  { code: 'WB', name: 'West Bengal' },
+  { code: 'RJ', name: 'Rajasthan' },
+  { code: 'UP', name: 'Uttar Pradesh' },
+  { code: 'HR', name: 'Haryana' },
+  { code: 'KL', name: 'Kerala' },
+  { code: 'MP', name: 'Madhya Pradesh' }
+];
+
+// Popular Indian Cities with state mapping
+const popularCities = [
+  { name: "Mumbai", state: 'MH', areas: ['Andheri', 'Bandra', 'Powai', 'Lower Parel', 'Goregaon'] },
+  { name: "Delhi", state: 'DL', areas: ['Connaught Place', 'Karol Bagh', 'Lajpat Nagar', 'Dwarka', 'Rohini'] },
+  { name: "Bangalore", state: 'KA', areas: ['Koramangala', 'Indiranagar', 'Whitefield', 'Electronic City', 'HSR Layout'] },
+  { name: "Hyderabad", state: 'TG', areas: ['Hitech City', 'Gachibowli', 'Madhapur', 'Banjara Hills', 'Jubilee Hills'] },
+  { name: "Pune", state: 'MH', areas: ['Hinjewadi', 'Koregaon Park', 'Viman Nagar', 'Wakad', 'Baner'] },
+  { name: "Chennai", state: 'TN', areas: ['Anna Nagar', 'T. Nagar', 'Velachery', 'OMR', 'Guindy'] },
+  { name: "Kolkata", state: 'WB', areas: ['Salt Lake', 'Park Street', 'Ballygunge', 'New Town', 'Rajarhat'] },
+  { name: "Ahmedabad", state: 'GJ', areas: ['SG Highway', 'Vastrapur', 'Maninagar', 'Satellite', 'Prahlad Nagar'] }
+];
+
+// Base job categories
+const baseJobCategories = [
+  { name: "Software Development", icon: "💻", baseCount: 1250 },
+  { name: "Data Science", icon: "📊", baseCount: 890 },
+  { name: "Digital Marketing", icon: "📱", baseCount: 670 },
+  { name: "Product Management", icon: "🚀", baseCount: 450 },
+  { name: "UI/UX Design", icon: "🎨", baseCount: 380 },
+  { name: "DevOps", icon: "⚙️", baseCount: 320 },
+  { name: "Sales", icon: "💼", baseCount: 980 },
+  { name: "Finance", icon: "💰", baseCount: 560 },
+  { name: "HR", icon: "👥", baseCount: 420 },
+  { name: "Content Writing", icon: "✍️", baseCount: 290 },
+  { name: "Customer Support", icon: "🎧", baseCount: 340 },
+  { name: "Business Analyst", icon: "📈", baseCount: 410 }
+];
+
+export default function UnifiedJobPortal() {
+  // State to track if component is mounted (client-side)
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Enhanced user activity tracking
+  const { 
+    track, 
+    getTrendingCategories, 
+    getPersonalizedFilters, 
+    getSmartSuggestions 
+  } = useUserActivity();
+
+  // Search state
+  const [searchMode, setSearchMode] = useState<'dynamic' | 'advanced'>('dynamic');
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedArea, setSelectedArea] = useState("");
+  const [selectedExperience, setSelectedExperience] = useState("");
+  const [selectedCompanyType, setSelectedCompanyType] = useState("");
+  const [jobType, setJobType] = useState("");
+  
+  // Advanced filters
+  const [salaryRange, setSalaryRange] = useState<SalaryRange>({ 
+    min: 0, 
+    max: 2000000, 
+    currency: 'INR', 
+    period: 'year' 
+  });
+  const [showSalaryFilter, setShowSalaryFilter] = useState(false);
+  const [showAdvancedLocation, setShowAdvancedLocation] = useState(false);
+  
+  // UI state
+  const [showQuickFilters, setShowQuickFilters] = useState(true);
+  const [showTrendingSection, setShowTrendingSection] = useState(true);
+
+  // Location detection
+  const { location, isLoading: locationLoading } = useLocationDetection();
+
+  // Real-time search integration
+  const {
+    jobs: searchResults,
+    filters: realTimeFilters,
+    isLoading: isSearching,
+    updateFilter,
+    resetFilters,
+    searchHistory
+  } = useRealTimeJobSearch({
+    query: '',
+    location: location?.country === 'IN' ? selectedCity || 'Mumbai' : 'Mumbai',
+    country: 'IN',
+    jobType,
+    experienceLevel: selectedExperience,
+    companyType: selectedCompanyType,
+    category: selectedCategory
+  });
+
+  // Generate dynamic trending data based on user activity
+  const dynamicTrendingData = useMemo(() => {
+    // Only generate data on client side to prevent hydration mismatch
+    if (!isMounted) {
+      return {
+        categories: [],
+        locations: [],
+        smartSuggestions: {
+          suggestedSearches: [],
+          suggestedCategories: [],
+          suggestedLocations: []
+        }
+      };
+    }
+
+    const trendingCategories = getTrendingCategories(baseJobCategories);
+    const personalizedFilters = getPersonalizedFilters();
+    const smartSuggestions = getSmartSuggestions();
+    
+    // Enhanced trending categories with user personalization
+    const enhancedCategories = trendingCategories.map(metric => {
+      const baseCategory = baseJobCategories.find(cat => cat.name === metric.category);
+      return {
+        name: metric.category,
+        count: baseCategory ? baseCategory.baseCount + 150 : 250, // Fixed increment instead of random
+        growth: metric.growth,
+        isHot: metric.growth > 15,
+        userInterested: metric.userRelevance > 0,
+        icon: baseCategory?.icon || "💼",
+        userRelevance: metric.userRelevance
+      };
+    });
+
+    // Dynamic location trends with user preferences (deterministic)
+    const locationTrends = popularCities.map((city, index) => {
+      const isPreferred = personalizedFilters.preferredLocations.includes(city.name);
+      return {
+        name: city.name,
+        count: 400 + (index * 50), // Deterministic count based on index
+        growth: (index % 3) * 5 + (isPreferred ? 10 : 0), // Deterministic growth
+        isPreferred
+      };
+    }).sort((a, b) => b.count - a.count);
+
+    return {
+      categories: enhancedCategories.slice(0, 8),
+      locations: locationTrends.slice(0, 6),
+      smartSuggestions
+    };
+  }, [isMounted, getTrendingCategories, getPersonalizedFilters, getSmartSuggestions]);
+
+  // Track user interactions
+  const trackUserActivity = useCallback((type: string, value: string, metadata?: any) => {
+    track({
+      type: type as any,
+      value,
+      metadata
+    });
+  }, [track]);
+
+  // Handle category selection
+  const handleCategoryClick = useCallback((categoryName: string) => {
+    setSelectedCategory(categoryName);
+    updateFilter('category', categoryName);
+    trackUserActivity('category_view', categoryName);
+  }, [updateFilter, trackUserActivity]);
+
+  // Handle search query changes
+  const handleSearchChange = useCallback((query: string) => {
+    updateFilter('query', query);
+    if (query.trim()) {
+      trackUserActivity('search', query.trim());
+    }
+  }, [updateFilter, trackUserActivity]);
+
+  // Handle location changes
+  const handleLocationChange = useCallback((locationValue: string) => {
+    setSelectedLocation(locationValue);
+    updateFilter('location', locationValue);
+    if (locationValue) {
+      trackUserActivity('location_search', locationValue);
+    }
+  }, [updateFilter, trackUserActivity]);
+
+  // Advanced filters sync
+  useEffect(() => {
+    if (searchMode === 'advanced') {
+      updateFilter('jobType', jobType);
+      updateFilter('experienceLevel', selectedExperience);
+      updateFilter('companyType', selectedCompanyType);
+      updateFilter('salaryMin', salaryRange.min);
+      updateFilter('salaryMax', salaryRange.max);
+    }
+  }, [searchMode, jobType, selectedExperience, selectedCompanyType, salaryRange, updateFilter]);
+
+  // Client-side mount effect
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Trending Categories Component
+  const TrendingCategoriesSection = () => {
+    // Show loading state until mounted to prevent hydration mismatch
+    if (!isMounted) {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <ArrowTrendingUpIcon className="h-6 w-6 text-orange-500" />
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Trending for You
+              </h2>
+              <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium rounded-full">
+                Loading...
+              </span>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-gray-200 dark:bg-gray-700 animate-pulse rounded-xl p-4 h-32"
+              />
+            ))}
+          </div>
+        </motion.div>
+      );
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <ArrowTrendingUpIcon className="h-6 w-6 text-orange-500" />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Trending for You
+            </h2>
+            <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium rounded-full">
+              Live
+            </span>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowTrendingSection(!showTrendingSection)}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <ChevronDownIcon className={`h-5 w-5 transition-transform ${showTrendingSection ? 'rotate-180' : ''}`} />
+          </motion.button>
+        </div>
+
+        <AnimatePresence>
+        {showTrendingSection && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          >
+            {dynamicTrendingData.categories.map((category, index) => (
+              <motion.div
+                key={category.name}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleCategoryClick(category.name)}
+                className={`
+                  relative p-4 rounded-xl cursor-pointer transition-all duration-300
+                  ${category.userInterested 
+                    ? 'bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-700' 
+                    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+                  }
+                  shadow-sm hover:shadow-lg
+                `}
+              >
+                {category.isHot && (
+                  <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
+                    <FireIcon className="h-3 w-3" />
+                    <span>Hot</span>
+                  </div>
+                )}
+                
+                {category.userInterested && (
+                  <div className="absolute -top-2 -left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
+                    <HeartIcon className="h-3 w-3" />
+                  </div>
+                )}
+
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <div className="text-3xl">{category.icon}</div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
+                      {category.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                      {category.count.toLocaleString()} jobs
+                    </p>
+                    <div className={`
+                      text-xs font-medium flex items-center justify-center space-x-1
+                      ${category.growth > 0 
+                        ? 'text-green-600 dark:text-green-400' 
+                        : 'text-red-600 dark:text-red-400'
+                      }
+                    `}>
+                      <ChartBarIcon className="h-3 w-3" />
+                      <span>{category.growth > 0 ? '+' : ''}{category.growth.toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+
+  // Smart Suggestions Component
+  const SmartSuggestionsSection = () => {
+    const suggestions = dynamicTrendingData.smartSuggestions;
+    
+    if (!suggestions || (!suggestions.suggestedSearches?.length && !suggestions.suggestedCategories?.length)) {
+      return null;
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <div className="flex items-center space-x-3 mb-4">
+          <SparklesIcon className="h-5 w-5 text-purple-500" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Smart Suggestions for You
+          </h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Suggested Searches */}
+          {suggestions.suggestedSearches && suggestions.suggestedSearches.length > 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-2 mb-3">
+                <MagnifyingGlassIcon className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Recent Searches</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {suggestions.suggestedSearches.slice(0, 3).map((search, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSearchChange(search)}
+                    className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                  >
+                    {search}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Suggested Categories */}
+          {suggestions.suggestedCategories && suggestions.suggestedCategories.length > 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-2 mb-3">
+                <LightBulbIcon className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">You Might Like</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {suggestions.suggestedCategories.slice(0, 3).map((category, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleCategoryClick(category)}
+                    className="px-3 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full text-sm hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors"
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
+  // Unified Search Bar Component
+  const UnifiedSearchBar = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-8"
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
+        {/* Search Mode Toggle */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <button
+              onClick={() => setSearchMode('dynamic')}
+              className={`
+                px-4 py-2 rounded-md text-sm font-medium transition-all
+                ${searchMode === 'dynamic' 
+                  ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                }
+              `}
+            >
+              🔥 Dynamic Search
+            </button>
+            <button
+              onClick={() => setSearchMode('advanced')}
+              className={`
+                px-4 py-2 rounded-md text-sm font-medium transition-all
+                ${searchMode === 'advanced' 
+                  ? 'bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400 shadow-sm' 
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                }
+              `}
+            >
+              ⚙️ Advanced Search
+            </button>
+          </div>
+          
+          {searchHistory && searchHistory.length > 0 && (
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {searchResults.length.toLocaleString()} jobs found
+              {isSearching && <span className="ml-2 animate-pulse">Searching...</span>}
+            </div>
+          )}
+        </div>
+
+        {/* Dynamic Search Mode */}
+        {searchMode === 'dynamic' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search jobs, companies, skills..."
+                  value={realTimeFilters.query}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              
+              <div className="relative">
+                <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <select
+                  value={realTimeFilters.location}
+                  onChange={(e) => handleLocationChange(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
+                >
+                  <option value="">Select Location</option>
+                  {popularCities.map(city => (
+                    <option key={city.name} value={city.name}>{city.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            {/* Quick Filters */}
+            <div className="flex flex-wrap gap-2">
+              {['Remote', 'Full-time', 'Part-time', 'Fresher', 'Experienced'].map(filter => (
+                <button
+                  key={filter}
+                  onClick={() => {
+                    if (filter === 'Remote') updateFilter('location', 'Remote');
+                    else if (['Full-time', 'Part-time'].includes(filter)) updateFilter('jobType', filter);
+                    else updateFilter('experienceLevel', filter);
+                  }}
+                  className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Advanced Search Mode */}
+        {searchMode === 'advanced' && (
+          <div className="space-y-6">
+            {/* Main search row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Job title, skills, company..."
+                  value={realTimeFilters.query}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              
+              <div className="relative">
+                <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <select
+                  value={selectedCity}
+                  onChange={(e) => {
+                    setSelectedCity(e.target.value);
+                    handleLocationChange(e.target.value);
+                  }}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
+                >
+                  <option value="">Select City</option>
+                  {popularCities.map(city => (
+                    <option key={city.name} value={city.name}>{city.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <select
+                value={selectedCategory}
+                onChange={(e) => handleCategoryClick(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="">All Categories</option>
+                {baseJobCategories.map(category => (
+                  <option key={category.name} value={category.name}>{category.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Advanced filters row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <select
+                value={selectedExperience}
+                onChange={(e) => {
+                  setSelectedExperience(e.target.value);
+                  updateFilter('experienceLevel', e.target.value);
+                }}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="">Experience Level</option>
+                <option value="Fresher">Fresher (0-1 years)</option>
+                <option value="Junior">Junior (1-3 years)</option>
+                <option value="Mid">Mid-level (3-7 years)</option>
+                <option value="Senior">Senior (7+ years)</option>
+              </select>
+
+              <select
+                value={jobType}
+                onChange={(e) => {
+                  setJobType(e.target.value);
+                  updateFilter('jobType', e.target.value);
+                }}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="">Job Type</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Contract">Contract</option>
+                <option value="Freelance">Freelance</option>
+                <option value="Internship">Internship</option>
+              </select>
+
+              <select
+                value={selectedCompanyType}
+                onChange={(e) => {
+                  setSelectedCompanyType(e.target.value);
+                  updateFilter('companyType', e.target.value);
+                }}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              >
+                <option value="">Company Type</option>
+                <option value="Startup">Startup</option>
+                <option value="MNC">MNC</option>
+                <option value="Product">Product Company</option>
+                <option value="Service">Service Company</option>
+                <option value="Government">Government</option>
+              </select>
+
+              <button
+                onClick={() => setShowSalaryFilter(!showSalaryFilter)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white flex items-center justify-center space-x-2"
+              >
+                <CurrencyRupeeIcon className="h-5 w-5" />
+                <span>Salary Filter</span>
+              </button>
+            </div>
+
+            {/* Salary filter */}
+            {showSalaryFilter && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4"
+              >
+                <SalaryRangeSelector
+                  value={salaryRange}
+                  onChange={setSalaryRange}
+                />
+              </motion.div>
+            )}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            Find Your Dream Job
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Discover opportunities tailored to your interests with real-time search and personalized recommendations
+          </p>
+        </motion.div>
+
+        {/* Location Detection Banner */}
+        {location && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-6 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg p-4 flex items-center justify-center space-x-2"
+          >
+            <GlobeAltIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <span className="text-green-800 dark:text-green-200">
+              📍 Showing jobs for {location.city}, {location.country}
+            </span>
+          </motion.div>
+        )}
+
+        {/* Trending Categories */}
+        <TrendingCategoriesSection />
+
+        {/* Smart Suggestions */}
+        <SmartSuggestionsSection />
+
+        {/* Unified Search */}
+        <UnifiedSearchBar />
+
+        {/* Job Results */}
+        <JobResults 
+          jobs={searchResults}
+          isLoading={isSearching}
+        />
+      </div>
+    </div>
+  );
+}

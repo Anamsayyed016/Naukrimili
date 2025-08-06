@@ -8,7 +8,7 @@ interface Skill {
 // interface JobPreferences {
 //   experienceRequired: number;
 //   salaryRange: [number, number];
-//   location: any;
+//   location: Record<string, unknown>;
 // }
 
 interface SeekerPreferences {
@@ -24,7 +24,7 @@ interface MatchParams {
   jobPreferences: {
     experienceRequired: number;
     salaryRange: [number, number];
-    location: any; // Using any for brevity, should match your location type
+    location: Record<string, unknown>; // Using any for brevity, should match your location type
   };
   seekerPreferences: SeekerPreferences | null;
 }
@@ -102,7 +102,7 @@ function calculateSalaryMatch(
   return Math.max((1 - normalizedDiff) * 100, 0);
 }
 
-function calculateLocationMatch(jobLocation: any, preferredLocations: string[]): number {
+function calculateLocationMatch(jobLocation: Record<string, unknown>, preferredLocations: string[]): number {
   // Simple location matching - can be enhanced with actual geocoding
   const jobCity = jobLocation.city.toLowerCase();
   const matchingLocation = preferredLocations.some(loc => 

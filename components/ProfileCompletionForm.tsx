@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, User, MapPin, Phone, Mail, Briefcase, GraduationCap, Award, Globe } from "lucide-react";
 
 interface ProfileCompletionFormProps {
-  resumeData: any;
+  resumeData: Record<string, unknown>;
   onComplete?: () => void;
   onClose?: () => void;
 }
@@ -23,11 +23,7 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    // Debug logging
-    console.log('ProfileCompletionForm - resumeData:', resumeData);
-    console.log('ProfileCompletionForm - resumeData.aiData:', resumeData?.aiData);
-    
-    if (resumeData && resumeData.aiData) {
+    // Debug loggingif (resumeData && resumeData.aiData) {
       setData(resumeData.aiData);
       setFormData(resumeData.aiData);
       setLoading(false);
@@ -43,8 +39,8 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
     }
   }, [resumeData]);
 
-  const handleInputChange = (section: string, field: string, value: any) => {
-    setFormData((prev: any) => ({
+  const handleInputChange = (section: string, field: string, value: Record<string, unknown>) => {
+    setFormData((prev: Record<string, unknown>) => ({
       ...prev,
       [section]: {
         ...prev[section],
@@ -230,7 +226,7 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
               <Label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-4">
                 <Briefcase className="w-4 h-4" /> Work Experience
               </Label>
-              {data.experience?.map((exp: any, index: number) => (
+              {data.experience?.map((exp: Record<string, unknown>, index: number) => (
                 <Card key={index} className="p-4 border-l-4 border-purple-500">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <Input
@@ -256,7 +252,7 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
               <Label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-4">
                 <GraduationCap className="w-4 h-4" /> Education
               </Label>
-              {data.education?.map((edu: any, index: number) => (
+              {data.education?.map((edu: Record<string, unknown>, index: number) => (
                 <Card key={index} className="p-4 border-l-4 border-blue-500">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input

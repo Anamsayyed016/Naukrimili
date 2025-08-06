@@ -7,7 +7,7 @@ export class ApiError extends Error {
     public statusCode: number,
     message: string,
     public code?: string,
-    public details?: any
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'ApiError';
@@ -50,7 +50,7 @@ export class RateLimitError extends ApiError {
 }
 
 // Secure error logging
-function logError(error: Error, context?: any) {
+function logError(error: Error, context?: Record<string, unknown>) {
   try {
     const errorId = Math.random().toString(36).substring(7);
     const message = env.NODE_ENV === 'production' ? 'Internal server error' : error.message;
@@ -69,7 +69,7 @@ function logError(error: Error, context?: any) {
 }
 
 // Enhanced error handler
-export function handleApiError(error: unknown, context?: any): Response {
+export function handleApiError(error: unknown, context?: Record<string, unknown>): Response {
   logError(error as Error, context);
   
   if (error instanceof ValidationError) {
@@ -91,7 +91,7 @@ export function handleApiError(error: unknown, context?: any): Response {
   }
   
   if (error instanceof ZodError) {
-    const validationErrors = error.issues.map((err: any) => {
+    const validationErrors = error.issues.map((err: Record<string, unknown>) => {
       const path = err.path.length > 0 ? `${err.path.join('.')}: ` : '';
       return `${path}${err.message}`;
     });
@@ -130,7 +130,7 @@ export function handleApiError(error: unknown, context?: any): Response {
 
 // Async error wrapper for API routes
 export function withErrorHandler(handler: Function) {
-  return async (req: any, res?: any) => {
+  return async (req: Record<string, unknown>, res?: Record<string, unknown>) => {
     try {
       return await handler(req, res);
     } catch (error) {
@@ -140,13 +140,13 @@ export function withErrorHandler(handler: Function) {
 }
 
 // Database error handler
-export function handleDatabaseError(error: any): ApiError {
+export function handleDatabaseError(error: Record<string, unknown>): ApiError {
   if (error.code === 11000) {
     return new ApiError(409, 'Resource already exists', 'DUPLICATE_ERROR');
   }
   
   if (error.name === 'ValidationError') {
-    const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+    const validationErrors = Object.values(error.errors).map((err: Record<string, unknown>) => err.message);
     return new ValidationError('Database validation failed', validationErrors);
   }
   

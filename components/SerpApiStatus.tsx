@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -9,7 +8,7 @@ interface ApiStatus {
   message: string;
   testResults?: {
     jobCount: number;
-    sampleJob?: any;
+    sampleJob?: Record<string, unknown>;
     error?: string;
   };
 }

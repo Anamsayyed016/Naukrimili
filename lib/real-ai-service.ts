@@ -104,7 +104,7 @@ export class RealAIService {
   }
 
   // Calculate real ATS score
-  calculateATSScore(resumeData: any): number {
+  calculateATSScore(resumeData: Record<string, unknown>): number {
     let score = 0;
     const maxScore = 100;
 
@@ -133,7 +133,7 @@ export class RealAIService {
   }
 
   // Generate improvement suggestions
-  generateSuggestions(resumeData: any, atsScore: number): string[] {
+  generateSuggestions(resumeData: Record<string, unknown>, atsScore: number): string[] {
     const suggestions = [];
 
     if (atsScore < 60) {

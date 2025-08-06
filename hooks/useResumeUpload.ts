@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 interface AIData {
-  parsedResume?: any;
+  parsedResume?: Record<string, unknown>;
   atsScore?: number;
   suggestions?: string[];
 }

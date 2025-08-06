@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from 'react';
 import { useUsersApi } from '@/hooks/useUsersApi';
 
@@ -38,7 +37,7 @@ export default function UserAdminPanel() {
         )}
       </form>
       <ul>
-        {users.map((user: any) => (
+        {users.map((user: Record<string, unknown>) => (
           <li key={user.id} className="flex items-center justify-between border-b py-2">
             <span>{user.name} - {user.email}</span>
             <div className="flex gap-2">

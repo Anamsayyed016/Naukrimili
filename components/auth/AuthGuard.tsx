@@ -1,6 +1,6 @@
+import React from "react";
 ﻿'use client';
 "use client";
-
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
@@ -68,7 +68,6 @@ export default function AuthGuard({
       if (!allowedRoles.includes(userRole)) {
         const roleRedirects: Record<string, string> = {
           jobseeker: "/jobseeker/dashboard",
-          company: "/company/dashboard",
           admin: "/admin/dashboard"
         };
         

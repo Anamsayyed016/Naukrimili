@@ -51,9 +51,7 @@ export default function CompanyDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
 
   const handlePostJob = () => {
-    // Implement job posting logic
-    console.log("Post job clicked");
-  };
+    // Implement job posting logic};
 
   const handleViewAnalytics = () => {
     setActiveTab("analytics");

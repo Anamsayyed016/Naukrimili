@@ -1,0 +1,26 @@
+export async function GET() {
+  return new Response(JSON.stringify({
+    message: 'Fraud report API temporarily disabled'
+  }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+export async function PUT() {
+  return new Response(JSON.stringify({
+    message: 'Fraud report update temporarily disabled'
+  }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+export async function DELETE() {
+  return new Response(JSON.stringify({
+    message: 'Fraud report deletion temporarily disabled'
+  }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}

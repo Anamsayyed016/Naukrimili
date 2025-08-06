@@ -5,7 +5,7 @@ const SERPAPI_BASE_URL = process.env.SERPAPI_BASE_URL || 'https://serpapi.com/se
 const SERPAPI_KEY = process.env.SERPAPI_KEY || 'demo-key';
 
 export class SearchService {
-  async searchJobs(query: string, filters?: any) {
+  async searchJobs(query: string, filters?: Record<string, unknown>) {
     try {
       const response = await axios.get(`${API_BASE_URL}/jobs/search`, {
         params: {

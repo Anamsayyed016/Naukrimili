@@ -2,7 +2,7 @@ interface LogContext {
   message?: string;
   code?: string;
   time?: string;
-  [key: string]: any;
+  [key: string]: Record<string, unknown>;
 }
 
 function truncateString(str: string, maxLength = 1000): string {
@@ -10,7 +10,7 @@ function truncateString(str: string, maxLength = 1000): string {
   return str.substring(0, maxLength) + '...';
 }
 
-function sanitizeValue(value: any, depth = 0): any {
+function sanitizeValue(value: Record<string, unknown>, depth = 0): Record<string, unknown> {
   if (depth > 2) return '[Nested Object]';
   
   if (Array.isArray(value)) {
@@ -48,9 +48,9 @@ export const safeLogger = {
   warn(message: string, context?: LogContext) {
     try {
       const sanitizedContext = context ? sanitizeValue(context) : undefined;
-      console.warn(message, sanitizedContext);
+      // console.warn(message, sanitizedContext);
     } catch (error) {
-      console.warn('Logging failed:', error instanceof Error ? error.message : 'Unknown error');
+      // console.warn('Logging failed:', error instanceof Error ? error.message : 'Unknown error');
     }
   },
   

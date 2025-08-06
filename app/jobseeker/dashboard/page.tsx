@@ -1,5 +1,4 @@
 "use client";
-
 import JobSeekerView from "@/components/dashboard/JobSeekerView";
 import AuthGuard from "@/components/auth/AuthGuard";
 

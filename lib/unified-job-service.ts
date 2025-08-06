@@ -64,7 +64,7 @@ export class AdzunaJobService {
       });
 
       return {
-        jobs: response.data.results.map((job: any) => ({
+        jobs: response.data.results.map((job: Record<string, unknown>) => ({
           id: job.id,
           title: job.title,
           company: job.company.display_name,
@@ -109,7 +109,7 @@ export class ReedJobService {
       });
 
       return {
-        jobs: response.data.results.map((job: any) => ({
+        jobs: response.data.results.map((job: Record<string, unknown>) => ({
           id: job.jobId,
           title: job.jobTitle,
           company: job.employerName,
@@ -272,7 +272,7 @@ class UnifiedJobService {
     };
   }
 
-  private handleAPIError(error: any): Error {
+  private handleAPIError(error: Record<string, unknown>): Error {
     if (axios.isAxiosError(error)) {
       return new Error(error.response?.data?.message || error.message);
     }

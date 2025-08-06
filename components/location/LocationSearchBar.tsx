@@ -49,7 +49,7 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ value, onC
   };
 
   // Handle suggestion select
-  const handleSuggestionSelect = async (suggestion: any) => {
+  const handleSuggestionSelect = async (suggestion: Record<string, unknown>) => {
     setInput("");
     setSuggestions([]);
     setShowDropdown(false);
@@ -60,8 +60,8 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ value, onC
     );
     const data = await res.json();
     const details = data.result;
-    const city = details.address_components?.find((c: any) => c.types.includes("locality"))?.long_name || details.name;
-    const country = details.address_components?.find((c: any) => c.types.includes("country"))?.long_name;
+    const city = details.address_components?.find((c: Record<string, unknown>) => c.types.includes("locality"))?.long_name || details.name;
+    const country = details.address_components?.find((c: Record<string, unknown>) => c.types.includes("country"))?.long_name;
     const coordinates: [number, number] = [details.geometry.location.lat, details.geometry.location.lng];
     const newLoc: Location = { city, country, coordinates };
     setSelectedCity(newLoc);

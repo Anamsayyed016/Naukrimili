@@ -1,6 +1,6 @@
+import React from "react";
 ﻿'use client';
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -87,7 +87,7 @@ export default function RegisterForm({
       } else {
         router.push(redirectTo);
       }
-    } catch (err: any) {
+    } catch (err: Record<string, unknown>) {
       setError(err.message || "An error occurred");
       toast({
         title: "Error",

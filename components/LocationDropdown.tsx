@@ -25,16 +25,11 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ onLocationChange, c
   useEffect(() => {
     const fetchCities = async () => {
       setLoading(true);
-      try {
-        console.log('Fetching locations from API...');
-        const response = await fetch("/api/locations");
+      try {const response = await fetch("/api/locations");
         if (!response.ok) {
           throw new Error('Failed to fetch locations');
         }
-        const data = await response.json();
-        console.log('Locations fetched successfully:', data.length, 'cities');
-        console.log('Cities include Bhopal:', data.some((city: City) => city.city === "Bhopal"));
-        setCities(data);
+        const data = await response.json();setCities(data);
       } catch (error) {
         console.error('Error fetching locations:', error);
         // Fallback to default cities if API fails
@@ -46,9 +41,7 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ onLocationChange, c
           { city: "Chennai", jobCount: 7230 },
           { city: "Pune", jobCount: 6540 },
           { city: "Bhopal", jobCount: 1430 },
-        ];
-        console.log('Using fallback cities:', fallbackCities);
-        setCities(fallbackCities);
+        ];setCities(fallbackCities);
       } finally {
         setLoading(false);
       }

@@ -87,7 +87,7 @@ class ApiClient {
     return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private handleResponseError(error: any): never {
+  private handleResponseError(error: Record<string, unknown>): never {
     let apiError: ApiError;
 
     if (axios.isAxiosError(error)) {
@@ -194,17 +194,17 @@ class ApiClient {
     return response.data.data;
   }
 
-  async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  async post<T = any>(url: string, data?: Record<string, unknown>, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.post<ApiResponse<T>>(url, data, config);
     return response.data.data;
   }
 
-  async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  async put<T = any>(url: string, data?: Record<string, unknown>, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.put<ApiResponse<T>>(url, data, config);
     return response.data.data;
   }
 
-  async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  async patch<T = any>(url: string, data?: Record<string, unknown>, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.patch<ApiResponse<T>>(url, data, config);
     return response.data.data;
   }

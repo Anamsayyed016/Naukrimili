@@ -1,6 +1,5 @@
 ﻿'use client';
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,7 @@ export default function ResumeUploadPage() {
   const { toast } = useToast();
   const [uploadCompleted, setUploadCompleted] = useState(false);
 
-  const handleUploadComplete = (data: any) => {
+  const handleUploadComplete = (data: Record<string, unknown>) => {
     setUploadCompleted(true);
     toast({
       title: "Success!",

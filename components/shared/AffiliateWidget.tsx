@@ -1,5 +1,4 @@
 'use client';
-
 import useSWR from 'swr';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

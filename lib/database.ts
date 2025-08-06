@@ -18,9 +18,7 @@ export async function connectDB() {
     await client.connect();
     db = client.db(process.env.DATABASE_NAME || 'jobportal');
     
-    // eslint-disable-next-line no-console
-    console.log('✅ Connected to MongoDB');
-    return db;
+    // eslint-disable-next-line no-consolereturn db;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('❌ MongoDB connection failed:', error);
@@ -62,10 +60,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   }
 
   try {
-    // eslint-disable-next-line no-console
-    console.log('Connecting to MongoDB via Mongoose...');
-    
-    if (!env.MONGODB_URI) {
+    // eslint-disable-next-line no-consoleif (!env.MONGODB_URI) {
       throw new Error('MONGODB_URI environment variable is not configured');
     }
     
@@ -75,10 +70,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
     connection.connection = db;
     connection.error = null;
     
-    // eslint-disable-next-line no-console
-    console.log('MongoDB connected successfully via Mongoose');
-    
-    mongoose.connection.on('error', (error) => {
+    // eslint-disable-next-line no-consolemongoose.connection.on('error', (error) => {
       // eslint-disable-next-line no-console
       console.error('MongoDB connection error:', error);
       connection.error = error;
@@ -87,14 +79,12 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
     
     mongoose.connection.on('disconnected', () => {
       // eslint-disable-next-line no-console
-      console.warn('MongoDB disconnected');
+      // console.warn('MongoDB disconnected');
       connection.isConnected = false;
     });
     
     mongoose.connection.on('reconnected', () => {
-      // eslint-disable-next-line no-console
-      console.log('MongoDB reconnected');
-      connection.isConnected = true;
+      // eslint-disable-next-line no-consoleconnection.isConnected = true;
       connection.error = null;
     });
     
@@ -118,9 +108,7 @@ export async function disconnectFromDatabase(): Promise<void> {
     connection.isConnected = false;
     connection.connection = null;
     connection.error = null;
-    // eslint-disable-next-line no-console
-    console.log('MongoDB disconnected');
-  } catch (error) {
+    // eslint-disable-next-line no-console} catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error disconnecting from MongoDB:', error);
     throw error;
@@ -139,15 +127,11 @@ export const mockDb = {
   profiles: [],
   
   async connect() {
-    // eslint-disable-next-line no-console
-    console.log('Mock DB connected');
-    return this;
+    // eslint-disable-next-line no-consolereturn this;
   },
   
   async disconnect() {
-    // eslint-disable-next-line no-console
-    console.log('Mock DB disconnected');
-  }
+    // eslint-disable-next-line no-console}
 };
 
 // ===== COLLECTIONS =====
@@ -161,7 +145,7 @@ export const collections = {
 
 // ===== USER OPERATIONS =====
 export const userOperations = {
-  async create(userData: any) {
+  async create(userData: Record<string, unknown>) {
     await getDB();
     return await collections.users().insertOne({
       ...userData,
@@ -175,7 +159,7 @@ export const userOperations = {
     return await collections.users().findOne({ email });
   },
   
-  async update(id: string, updateData: any) {
+  async update(id: string, updateData: Record<string, unknown>) {
     await getDB();
     return await collections.users().updateOne(
       { _id: new ObjectId(id) },
@@ -186,7 +170,7 @@ export const userOperations = {
 
 // ===== JOB OPERATIONS =====
 export const jobOperations = {
-  async create(jobData: any) {
+  async create(jobData: Record<string, unknown>) {
     await getDB();
     return await collections.jobs().insertOne({
       ...jobData,
@@ -196,9 +180,9 @@ export const jobOperations = {
     });
   },
   
-  async search(query: string, _location?: string, _filters?: any) {
+  async search(query: string, _location?: string, _filters?: Record<string, unknown>) {
     await getDB();
-    const searchQuery: any = {
+    const searchQuery: Record<string, unknown> = {
       status: 'active',
       $or: [
         { title: { $regex: query, $options: 'i' } },
@@ -222,7 +206,7 @@ export const jobOperations = {
 
 // ===== RESUME OPERATIONS =====
 export const resumeOperations = {
-  async create(resumeData: any) {
+  async create(resumeData: Record<string, unknown>) {
     await getDB();
     return await collections.resumes().insertOne({
       ...resumeData,
@@ -236,7 +220,7 @@ export const resumeOperations = {
     return await collections.resumes().find({ userId }).toArray();
   },
   
-  async update(id: string, updateData: any) {
+  async update(id: string, updateData: Record<string, unknown>) {
     await getDB();
     return await collections.resumes().updateOne(
       { _id: new ObjectId(id) },
@@ -291,9 +275,7 @@ export async function gracefulShutdown(): Promise<void> {
       await client.close();
     }
     await disconnectFromDatabase();
-    // eslint-disable-next-line no-console
-    console.log('Database connections closed gracefully');
-  } catch (error) {
+    // eslint-disable-next-line no-console} catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error during graceful shutdown:', error);
     throw error;

@@ -6,7 +6,7 @@ export class ApiError extends Error {
     message: string,
     public status: number,
     public code?: string,
-    public details?: any
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'ApiError';
@@ -44,7 +44,7 @@ export interface ErrorResponse {
   message: string;
   errors?: string[];
   code: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 // File upload types
@@ -256,7 +256,7 @@ export interface NotificationData {
   type: 'job_match' | 'application_update' | 'interview_scheduled' | 'system_update';
   title: string;
   message: string;
-  data?: any;
+  data?: Record<string, unknown>;
   isRead: boolean;
   createdAt: string;
 }

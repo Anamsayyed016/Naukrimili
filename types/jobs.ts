@@ -1,134 +1,38 @@
-export interface Job {
+export interface JobResult {
   id: string;
   title: string;
   company: string;
   location: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'internship' | 'remote';
-  experience: string;
-  salary?: {
-    min: number;
-    max: number;
-    currency: string;
-    period: 'hourly' | 'monthly' | 'yearly';
-  };
   description: string;
-  requirements: string[];
-  responsibilities: string[];
-  skills: string[];
-  benefits?: string[];
-  department?: string;
-  industry?: string;
-  education?: string;
-  postedDate: string;
-  closingDate?: string;
-  status: 'draft' | 'published' | 'closed' | 'archived';
-  applicationCount?: number;
-  source?: 'direct' | 'reed' | 'indeed' | 'linkedin';
-}
-
-export interface UnifiedJob {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'internship' | 'remote';
-  experience: string;
-  salary?: {
-    min: number;
-    max: number;
-    currency: string;
-    period: 'hourly' | 'monthly' | 'yearly';
-  };
-  description: string;
-  requirements: string[];
-  responsibilities: string[];
-  skills: string[];
-  benefits?: string[];
-  department?: string;
-  industry?: string;
-  education?: string;
-  postedDate: string;
-  closingDate?: string;
-  status: 'draft' | 'published' | 'closed' | 'archived';
-  applicationCount?: number;
-  source?: 'direct' | 'reed' | 'indeed' | 'linkedin';
-  // Additional unified fields
-  salaryFormatted?: string;
-  timeAgo?: string;
-  jobType?: string;
-  isUrgent?: boolean;
-  isRemote?: boolean;
+  salary_formatted?: string;
+  time_ago: string;
+  redirect_url: string;
+  is_remote?: boolean;
+  job_type?: string;
+  skills?: string[];
+  experience_level?: string;
+  sector?: string;
 }
 
 export interface JobSearchFilters {
-  keywords?: string;
-  location?: string;
-  type?: string[];
-  experience?: string[];
-  salary?: {
-    min?: number;
-    max?: number;
-    currency?: string;
-  };
-  skills?: string[];
-  industry?: string[];
-  postedWithin?: '24h' | '7d' | '14d' | '30d' | 'any';
-  sortBy?: 'relevance' | 'date' | 'salary';
+  query: string;
+  location: string;
+  salary_min?: number;
+  salary_max?: number;
+  job_type?: string;
+  experience_level?: string;
+  remote_only?: boolean;
+  sector?: string;
 }
 
 export interface JobSearchResponse {
-  jobs: Job[];
-  totalResults: number;
-  currentPage: number;
-  totalPages: number;
-  filters: JobSearchFilters;
-}
-
-export interface JobApplication {
-  id: string;
-  jobId: string;
-  userId: string;
-  resumeUrl: string;
-  coverLetter?: string;
-  status: 'pending' | 'reviewing' | 'shortlisted' | 'rejected' | 'accepted';
-  appliedDate: string;
-  lastUpdated: string;
-  notes?: string;
-  additionalDocuments?: {
-    name: string;
-    url: string;
-  }[];
-}
-
-export interface JobAlert {
-  id: string;
-  userId: string;
-  keywords: string[];
-  location?: string;
-  jobTypes?: string[];
-  salary?: {
-    min?: number;
-    max?: number;
-    currency: string;
-  };
-  frequency: 'daily' | 'weekly' | 'monthly';
-  status: 'active' | 'paused';
-  lastSent?: string;
-}
-
-export interface JobAnalytics {
-  jobId: string;
-  views: number;
-  applications: number;
-  conversionRate: number;
-  averageTimeToHire?: number;
-  sourcesBreakdown: {
-    source: string;
-    count: number;
-  }[];
-  demographicData?: {
-    experienceLevels: { [key: string]: number };
-    locations: { [key: string]: number };
-    skills: { [key: string]: number };
-  };
+  jobs: JobResult[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+  has_google_fallback?: boolean;
+  google_fallback_urls?: string[];
+  search_time_ms?: number;
+  message?: string;
 }

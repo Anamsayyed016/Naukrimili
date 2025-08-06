@@ -1,10 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // output: 'export',  // Keep disabled for server-side API routes
   trailingSlash: true,
   poweredByHeader: false,
   reactStrictMode: true,
   compress: true,
+  
+  // Ensure dynamic routes work properly
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
+  },
   
   images: {
     unoptimized: true,

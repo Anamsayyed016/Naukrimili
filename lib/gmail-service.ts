@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 
 export class GmailService {
-  private gmail: any;
+  private gmail: Record<string, unknown>;
 
   constructor(accessToken: string) {
     const oauth2Client = new google.auth.OAuth2();
@@ -113,7 +113,7 @@ export class GmailService {
 }
 
 // Helper function to decode email body
-export function decodeEmailBody(body: any): string {
+export function decodeEmailBody(body: Record<string, unknown>): string {
   if (!body) return '';
   
   if (body.data) {
@@ -133,7 +133,7 @@ export function decodeEmailBody(body: any): string {
 }
 
 // Helper function to extract email headers
-export function extractEmailHeaders(headers: any[]): Record<string, string> {
+export function extractEmailHeaders(headers: Record<string, unknown>[]): Record<string, string> {
   const headerMap: Record<string, string> = {};
   
   headers.forEach(header => {

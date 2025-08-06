@@ -30,14 +30,7 @@ class Logger {
         error: '\x1b[31m'  // red
       }[level];
       
-      // eslint-disable-next-line no-console
-      console.log(
-        `${color}[${entry.timestamp}] ${level.toUpperCase()}\x1b[0m:`,
-        entry.message,
-        entry.context ? JSON.stringify(entry.context, null, 2) : '',
-        error ? `\n${error.stack}` : ''
-      );
-    } else {
+      // eslint-disable-next-line no-console} else {
       // In production, only log errors and warnings
       if (level === 'error' || level === 'warn') {
         // Remove sensitive data from production logs
@@ -98,6 +91,6 @@ if (env.NODE_ENV === 'production') {
   console.log = () => {}; // Disable console.log in production
   console.debug = () => {};
   console.info = (message: string) => logger.info(message);
-  console.warn = (message: string) => logger.warn(message);
+  // console.warn = (message: string) => logger.warn(message);
   console.error = (message: string) => logger.error(message);
 }

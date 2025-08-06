@@ -1,6 +1,5 @@
 ﻿'use client';
 "use client";
-
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -98,12 +97,7 @@ export default function ResumeDashboardPage() {
       if (data.success) {
         setUploadSuccess(true);
         setShowForm(true);
-        setUploadedResumeId(data.resume.id);
-        console.log('Upload successful, resume data:', data.resume);
-        console.log('AI data present:', !!data.resume.aiData);
-        if (data.resume.aiData) {
-          console.log('AI data keys:', Object.keys(data.resume.aiData));
-        }
+        setUploadedResumeId(data.resume.id);if (data.resume.aiData) {}
         setUploadedResumeData(data.resume); // Store full resume data with AI info
         setShowProfileForm(true); // Auto-show profile form
         setFile(null);
@@ -186,12 +180,7 @@ export default function ResumeDashboardPage() {
             </Card>
 
             {/* Profile Completion Form */}
-            {showProfileForm && (() => {
-              console.log('Rendering profile form conditions:');
-              console.log('showProfileForm:', showProfileForm);
-              console.log('uploadedResumeData:', uploadedResumeData);
-              console.log('uploadedResumeData.aiData:', uploadedResumeData?.aiData);
-              return uploadedResumeData && uploadedResumeData.aiData;
+            {showProfileForm && (() => {return uploadedResumeData && uploadedResumeData.aiData;
             })() && (
               <ProfileCompletionForm resumeData={uploadedResumeData} />
             )}

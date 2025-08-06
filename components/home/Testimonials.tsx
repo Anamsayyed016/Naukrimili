@@ -15,7 +15,7 @@ export default function Testimonials() {
     <section className="py-8">
       <h2 className="text-2xl font-bold mb-4">Testimonials</h2>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {data.testimonials.map((t: any) => (
+        {data.testimonials.map((t: Record<string, unknown>) => (
           <div key={t.id} className="p-4 bg-white rounded shadow">
             <p className="mb-2">"{t.text}"</p>
             <div className="font-semibold text-company-700">- {t.name}</div>

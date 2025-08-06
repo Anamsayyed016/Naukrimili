@@ -42,20 +42,12 @@ app.prepare().then(() => {
     console.error('Server error:', err);
     process.exit(1);
   })
-  .listen(port, () => {
-    console.log(`> Ready on http://${hostname}:${port}`);
-    console.log(`> Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`> Health check: http://${hostname}:${port}/api/health`);
-  });
+  .listen(port, () => {});
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  process.exit(0);
+process.on('SIGTERM', () => {process.exit(0);
 });
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully');
-  process.exit(0);
+process.on('SIGINT', () => {process.exit(0);
 });

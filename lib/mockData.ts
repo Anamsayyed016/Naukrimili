@@ -32,7 +32,7 @@ export const candidatesApi = {
     return mockCandidates.find(c => c.id === id);
   },
 
-  create: async (data: any) => {
+  create: async (data: Record<string, unknown>) => {
     const newCandidate = {
       id: String(mockCandidates.length + 1),
       ...data,
@@ -42,7 +42,7 @@ export const candidatesApi = {
     return newCandidate;
   },
 
-  update: async (id: string, data: any) => {
+  update: async (id: string, data: Record<string, unknown>) => {
     const index = mockCandidates.findIndex(c => c.id === id);
     if (index === -1) return null;
     

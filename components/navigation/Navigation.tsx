@@ -1,11 +1,12 @@
 ﻿'use client';
-
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
+import { useMessages } from '@/hooks/useMessages';
 import { signOut } from 'next-auth/react';
 import {
   Search,
@@ -62,9 +63,18 @@ export default function Navigation({
   const [searchValue, setSearchValue] = useState('');
   const [currentLocation, setCurrentLocation] = useState('Bangalore');
   const pathname = usePathname();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const { unreadCount: notificationCount } = useNotifications();
+  const { unreadCount: messageCount } = useMessages();
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  const getUserInitials = (name: string) => {
+    if (!name) return '?';
+    const names = name.split(' ');
+    if (names.length === 1) return names[0].charAt(0).toUpperCase();
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  };
 
   const navLinks = [
     { title: "Home", href: "/", icon: Home },
@@ -184,33 +194,68 @@ export default function Navigation({
             {/* Notifications */}
             <Button variant="ghost" size="sm" className={cn('relative', styles.text, styles.hover)}>
               <Bell className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
-                3
-              </Badge>
+              {notificationCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
+                  {notificationCount > 9 ? '9+' : notificationCount}
+                </Badge>
+              )}
             </Button>
 
             {/* Messages */}
             <Button variant="ghost" size="sm" className={cn('relative', styles.text, styles.hover)}>
               <MessageSquare className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
-                1
-              </Badge>
+              {messageCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">
+                  {messageCount > 9 ? '9+' : messageCount}
+                </Badge>
+              )}
             </Button>
 
             {/* User Menu */}
-            {isAuthenticated ? (
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+                <div className="w-20 h-4 bg-gray-200 rounded animate-pulse hidden sm:block"></div>
+              </div>
+            ) : isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className={cn('flex items-center gap-2', styles.text, styles.hover)}>
-                    <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4" />
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                      {user?.image ? (
+                        <Image 
+                          src={user.image} 
+                          alt={user.name || 'User'} 
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-white text-sm font-semibold">
+                          {getUserInitials(user?.name || user?.email || 'User')}
+                        </span>
+                      )}
                     </div>
-                    <span className="hidden sm:inline">{user?.name || 'User'}</span>
+                    <div className="hidden sm:block text-left">
+                      <div className="text-sm font-medium">
+                        {user?.name || user?.email || 'User'}
+                      </div>
+                      <div className="text-xs text-gray-500 capitalize">
+                        {user?.role || 'Job Seeker'}
+                      </div>
+                    </div>
                     <ChevronDown className="w-3 h-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>
+                    <div>
+                      <div className="font-medium">{user?.name || user?.email || 'User'}</div>
+                      <div className="text-sm font-normal text-gray-500 capitalize">
+                        {user?.role || 'Job Seeker'}
+                      </div>
+                    </div>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <User className="w-4 h-4 mr-2" />
@@ -229,7 +274,7 @@ export default function Navigation({
                     Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut()}>
+                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>
@@ -306,7 +351,102 @@ export default function Navigation({
               </div>
 
               {/* Mobile User Actions */}
-              {!isAuthenticated && (
+              {isLoading ? (
+                <div className="flex items-center space-x-3 pt-4 border-t border-gray-200 px-4">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+                  <div className="flex-1">
+                    <div className="w-24 h-4 bg-gray-200 rounded animate-pulse mb-1"></div>
+                    <div className="w-16 h-3 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              ) : isAuthenticated ? (
+                <div className="pt-4 border-t border-gray-200 space-y-4">
+                  {/* Mobile User Info */}
+                  <div className="flex items-center space-x-3 px-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                      {user?.image ? (
+                        <Image 
+                          src={user.image} 
+                          alt={user.name || 'User'} 
+                          width={40}
+                          height={40}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-white font-semibold">
+                          {getUserInitials(user?.name || user?.email || 'User')}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {user?.name || user?.email || 'User'}
+                      </div>
+                      <div className="text-sm text-gray-500 capitalize">
+                        {user?.role || 'Job Seeker'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Notifications and Messages */}
+                  <div className="flex items-center justify-around px-4">
+                    <Button variant="ghost" size="sm" className={cn('flex items-center gap-2', styles.text, styles.hover)}>
+                      <Bell className="w-5 h-5" />
+                      <span>Notifications</span>
+                      {notificationCount > 0 && (
+                        <Badge className="h-5 w-5 rounded-full p-0 text-xs">
+                          {notificationCount > 9 ? '9+' : notificationCount}
+                        </Badge>
+                      )}
+                    </Button>
+                    <Button variant="ghost" size="sm" className={cn('flex items-center gap-2', styles.text, styles.hover)}>
+                      <MessageSquare className="w-5 h-5" />
+                      <span>Messages</span>
+                      {messageCount > 0 && (
+                        <Badge className="h-5 w-5 rounded-full p-0 text-xs">
+                          {messageCount > 9 ? '9+' : messageCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Mobile User Menu Items */}
+                  <div className="space-y-1 px-4">
+                    <Link href="/profile">
+                      <Button variant="ghost" className={cn('w-full justify-start', styles.text, styles.hover)} onClick={closeMenu}>
+                        <User className="w-4 h-4 mr-2" />
+                        Profile
+                      </Button>
+                    </Link>
+                    <Link href="/dashboard">
+                      <Button variant="ghost" className={cn('w-full justify-start', styles.text, styles.hover)} onClick={closeMenu}>
+                        <BarChartIcon className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/applications">
+                      <Button variant="ghost" className={cn('w-full justify-start', styles.text, styles.hover)} onClick={closeMenu}>
+                        <FileTextIcon className="w-4 h-4 mr-2" />
+                        My Applications
+                      </Button>
+                    </Link>
+                    <Link href="/settings">
+                      <Button variant="ghost" className={cn('w-full justify-start', styles.text, styles.hover)} onClick={closeMenu}>
+                        <Settings className="w-4 h-4 mr-2" />
+                        Settings
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start text-red-600 hover:bg-red-50" 
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </div>
+                </div>
+              ) : (
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                   <Link href="/auth/login">
                     <Button variant="ghost" className={cn('w-full justify-start', styles.text, styles.hover)}>

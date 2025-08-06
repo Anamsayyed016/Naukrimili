@@ -1,4 +1,6 @@
-﻿'use client';
+'use client';
+
+import React from "react";
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
@@ -117,7 +119,6 @@ export default function RegisterPage() {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="jobseeker">Job Seeker</option>
-                <option value="employer">Employer</option>
               </select>
             </div>
             

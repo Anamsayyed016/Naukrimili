@@ -153,51 +153,31 @@ function makeRequest(endpoint) {
 
 // Test individual endpoint
 async function testEndpoint(endpoint) {
-  try {
-    console.log(`🔍 Testing: ${endpoint.name} (${endpoint.method} ${endpoint.path})`);
-    
-    const response = await makeRequest(endpoint);
+  try {const response = await makeRequest(endpoint);
     
     // Check if response is successful (2xx status codes)
-    if (response.status >= 200 && response.status < 300) {
-      console.log(`✅ PASS: ${endpoint.name} - Status: ${response.status}`);
-      results.passed++;
+    if (response.status >= 200 && response.status < 300) {results.passed++;
       
       // Log response structure for debugging
       if (response.data && typeof response.data === 'object') {
-        const keys = Object.keys(response.data);
-        console.log(`   📊 Response keys: ${keys.join(', ')}`);
-      }
-    } else {
-      console.log(`❌ FAIL: ${endpoint.name} - Status: ${response.status}`);
-      console.log(`   📝 Response: ${JSON.stringify(response.data, null, 2)}`);
-      results.failed++;
+        const keys = Object.keys(response.data);}
+    } else {results.failed++;
       results.errors.push({
         endpoint: endpoint.name,
         status: response.status,
         error: response.data?.message || 'Unknown error'
       });
     }
-  } catch (error) {
-    console.log(`💥 ERROR: ${endpoint.name} - ${error.error || error.message}`);
-    results.failed++;
+  } catch (error) {results.failed++;
     results.errors.push({
       endpoint: endpoint.name,
       error: error.error || error.message
     });
-  }
-  
-  console.log(''); // Empty line for readability
+  }// Empty line for readability
 }
 
 // Main test function
-async function runTests() {
-  console.log('🚀 Starting API Tests for NaukriMili Job Portal\n');
-  console.log(`📍 Base URL: ${BASE_URL}`);
-  console.log(`⏱️  Timeout: ${TIMEOUT}ms`);
-  console.log(`📊 Total endpoints to test: ${API_ENDPOINTS.length}\n`);
-  
-  const startTime = Date.now();
+async function runTests() {const startTime = Date.now();
   
   // Test each endpoint
   for (const endpoint of API_ENDPOINTS) {
@@ -209,49 +189,13 @@ async function runTests() {
   const endTime = Date.now();
   const duration = endTime - startTime;
   
-  // Print summary
-  console.log('📊 TEST SUMMARY');
-  console.log('================');
-  console.log(`✅ Passed: ${results.passed}`);
-  console.log(`❌ Failed: ${results.failed}`);
-  console.log(`⏱️  Duration: ${duration}ms`);
-  console.log(`📈 Success Rate: ${((results.passed / API_ENDPOINTS.length) * 100).toFixed(1)}%`);
-  
-  if (results.errors.length > 0) {
-    console.log('\n❌ ERRORS DETAILS:');
-    console.log('==================');
-    results.errors.forEach((error, index) => {
-      console.log(`${index + 1}. ${error.endpoint}: ${error.error}`);
-    });
-  }
-  
-  console.log('\n🎯 RECOMMENDATIONS:');
-  console.log('==================');
-  
-  if (results.failed === 0) {
-    console.log('🎉 All APIs are working correctly!');
-  } else {
-    console.log('🔧 Some APIs need attention:');
-    console.log('   - Check server logs for detailed error messages');
-    console.log('   - Verify environment variables are set correctly');
-    console.log('   - Ensure all dependencies are installed');
-    console.log('   - Check database connections if applicable');
-  }
-  
-  console.log('\n📝 Next Steps:');
-  console.log('   - Review failed endpoints and fix issues');
-  console.log('   - Add proper error handling where needed');
-  console.log('   - Implement authentication for protected endpoints');
-  console.log('   - Add rate limiting for production use');
-  
-  // Exit with appropriate code
+  // Print summaryif (results.errors.length > 0) {results.errors.forEach((error, index) => {});
+  }if (results.failed === 0) {} else {}// Exit with appropriate code
   process.exit(results.failed === 0 ? 0 : 1);
 }
 
 // Handle process termination
-process.on('SIGINT', () => {
-  console.log('\n\n⏹️  Tests interrupted by user');
-  process.exit(1);
+process.on('SIGINT', () => {process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {

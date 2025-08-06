@@ -28,13 +28,7 @@ async function testConnection() {
       w: 'majority' as any,
       directConnection: false,
       family: 4
-    };
-
-    console.log('🔍 Attempting to connect to MongoDB...');
-    await mongoose.connect(MONGO_URI as string, options);
-    console.log('Successfully connected to MongoDB!');
-    
-    // Verify the connection
+    };await mongoose.connect(MONGO_URI as string, options);// Verify the connection
     if (!mongoose.connection.db) {
       throw new Error('Database connection not established');
     }
@@ -43,22 +37,10 @@ async function testConnection() {
     const collections = await mongoose.connection.db.listCollections().toArray();
     if (!collections) {
       throw new Error('Failed to retrieve collections');
-    }
-    
-    console.log('📚 Available collections:', collections.map(c => c.name));
-    
-    // Test write operation
+    }// Test write operation
     const testCollection = mongoose.connection.db.collection('_test_connection');
-    await testCollection.insertOne({ test: true, timestamp: new Date() });
-    console.log('✅ Test write operation successful');
-    
-    // Clean up test data
-    await testCollection.deleteMany({ test: true });
-    console.log('🧹 Test data cleaned up');
-    
-    await mongoose.disconnect();
-    console.log('✨ Successfully disconnected from MongoDB');
-    return true;
+    await testCollection.insertOne({ test: true, timestamp: new Date() });// Clean up test data
+    await testCollection.deleteMany({ test: true });await mongoose.disconnect();return true;
   } catch (error) {
     if (error instanceof Error) {
       console.error('❌ MongoDB Error:', error.message);
@@ -76,24 +58,18 @@ async function testConnection() {
 }
 
 // Add connection event listeners
-mongoose.connection.on('connected', () => {
-  console.log('🌟 Mongoose connected to MongoDB');
-});
+mongoose.connection.on('connected', () => {});
 
 mongoose.connection.on('error', (err) => {
   console.error('❌ Mongoose connection error:', err);
 });
 
-mongoose.connection.on('disconnected', () => {
-  console.log('⚡ Mongoose disconnected from MongoDB');
-});
+mongoose.connection.on('disconnected', () => {});
 
 // Handle cleanup on process termination
 process.on('SIGINT', async () => {
   try {
-    await mongoose.disconnect();
-    console.log('💤 Disconnected from MongoDB due to application termination');
-    process.exit(0);
+    await mongoose.disconnect();process.exit(0);
   } catch (error) {
     console.error('❌ Error during cleanup:', error);
     process.exit(1);
@@ -112,6 +88,4 @@ process.on('uncaughtException', (error: Error) => {
   process.exit(1);
 });
 
-// Run the test
-console.log('🚀 Starting MongoDB connection test...');
-testConnection();
+// Run the testtestConnection();

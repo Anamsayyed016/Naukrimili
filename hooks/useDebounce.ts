@@ -18,7 +18,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 }
 
 // Debounced callback hook
-export function useDebouncedCallback<T extends (...args: any[]) => any>(
+export function useDebouncedCallback<T extends (...args: Record<string, unknown>[]) => any>(
   callback: T,
   delay: number
 ): T {
@@ -75,7 +75,7 @@ export function useThrottle<T>(value: T, limit: number): T {
 }
 
 // Throttled callback hook
-export function useThrottledCallback<T extends (...args: any[]) => any>(
+export function useThrottledCallback<T extends (...args: Record<string, unknown>[]) => any>(
   callback: T,
   limit: number
 ): T {

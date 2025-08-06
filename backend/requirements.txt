@@ -1,43 +1,48 @@
-# Web Framework
-flask==3.0.2
-flask-cors==4.0.0
-flask-jwt-extended==4.6.0
-flask-restful>=0.3.10
-pymongo==4.6.2
-python-dotenv==1.0.1
+# FastAPI Backend Requirements
+# Production-ready job portal backend with database support
 
-# Production Server
+# Core FastAPI and async support
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Database drivers - async support
+aiomysql==0.2.0
+motor==3.3.2  # MongoDB async driver
+pymongo==4.6.0
+
+# Redis for caching
+redis==5.0.1
+aioredis==2.0.1
+
+# HTTP client for external APIs
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Security and authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# CORS and middleware
+fastapi-cors==0.0.6
+slowapi==0.1.9  # Rate limiting
+
+# Environment and configuration
+python-dotenv==1.0.0
+
+# Logging and monitoring
+structlog==23.2.0
+
+# Data validation and utilities
+email-validator==2.1.0
+python-dateutil==2.8.2
+
+# Testing (optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx[testing]==0.25.2
+
+# Production server
 gunicorn==21.2.0
-
-# Document Processing
-PyPDF2>=3.0.0
-python-docx>=0.8.11
-PyMuPDF>=1.22.3
-pytesseract>=0.3.10
-
-# Image Processing
-Pillow==10.2.0
-imagehash>=4.3.1
-opencv-python>=4.8.0
-
-# Machine Learning & Data Processing
-numpy>=1.24.0
-scikit-learn>=1.3.0
-nltk>=3.8.1
-openai>=1.12.0
-
-# System Utilities
-python-magic>=0.4.27
-python-magic-bin>=0.4.14; sys_platform == 'win32'
-
-# Testing & Development
-pytest>=7.4.0
-pytest-cov>=4.1.0
-mypy>=1.4.0
-black>=23.7.0
-flake8>=6.0.0
-isort>=5.12.0
-
-# Type Stubs
-types-Pillow>=10.0.0
-types-PyPDF2>=3.0.0

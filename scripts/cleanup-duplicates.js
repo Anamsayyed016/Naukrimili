@@ -83,9 +83,7 @@ function createBackup(filePath) {
       fs.mkdirSync(backupDir, { recursive: true });
     }
     
-    fs.copyFileSync(filePath, backupPath);
-    console.log(`✅ Backed up: ${filePath}`);
-  }
+    fs.copyFileSync(filePath, backupPath);}
 }
 
 function removeFile(filePath) {
@@ -94,16 +92,12 @@ function removeFile(filePath) {
   if (fs.existsSync(fullPath)) {
     try {
       createBackup(filePath);
-      fs.unlinkSync(fullPath);
-      console.log(`🗑️  Removed: ${filePath}`);
-      return true;
+      fs.unlinkSync(fullPath);return true;
     } catch (error) {
       console.error(`❌ Error removing ${filePath}:`, error.message);
       return false;
     }
-  } else {
-    console.log(`⚠️  File not found: ${filePath}`);
-    return false;
+  } else {return false;
   }
 }
 
@@ -114,12 +108,8 @@ function removeEmptyDirectories(dirPath) {
     try {
       const files = fs.readdirSync(fullPath);
       if (files.length === 0) {
-        fs.rmdirSync(fullPath);
-        console.log(`🗑️  Removed empty directory: ${dirPath}`);
-        return true;
-      } else {
-        console.log(`📁 Directory not empty: ${dirPath} (${files.length} files)`);
-        return false;
+        fs.rmdirSync(fullPath);return true;
+      } else {return false;
       }
     } catch (error) {
       console.error(`❌ Error checking directory ${dirPath}:`, error.message);
@@ -137,9 +127,7 @@ function updateFileImports(filePath, search, replace) {
       let content = fs.readFileSync(fullPath, 'utf8');
       if (content.includes(search)) {
         content = content.replace(search, replace);
-        fs.writeFileSync(fullPath, content);
-        console.log(`✏️  Updated imports in: ${filePath}`);
-        return true;
+        fs.writeFileSync(fullPath, content);return true;
       }
     } catch (error) {
       console.error(`❌ Error updating ${filePath}:`, error.message);
@@ -149,10 +137,7 @@ function updateFileImports(filePath, search, replace) {
   return false;
 }
 
-function findUnusedImports() {
-  console.log('\n🔍 Scanning for unused imports...');
-  
-  const searchPatterns = [
+function findUnusedImports() {const searchPatterns = [
     "from '@/lib/adzuna-service'",
     "import.*adzuna-service",
     "from './JobApplication.js'",
@@ -160,27 +145,18 @@ function findUnusedImports() {
   ];
   
   // This is a simplified check - in a real scenario, you'd want to use a proper AST parser
-  searchPatterns.forEach(pattern => {
-    console.log(`Looking for: ${pattern}`);
-  });
+  searchPatterns.forEach(pattern => {});
 }
 
 // Main cleanup function
-function runCleanup() {
-  console.log('🧹 Starting NaukriMili Codebase Cleanup...\n');
-  
-  // Create backup directory
+function runCleanup() {// Create backup directory
   if (!fs.existsSync(BACKUP_DIR)) {
-    fs.mkdirSync(BACKUP_DIR, { recursive: true });
-    console.log(`📁 Created backup directory: ${BACKUP_DIR}\n`);
-  }
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });}
   
   let removedCount = 0;
   let errorCount = 0;
   
-  // Remove duplicate files
-  console.log('🗑️  Removing duplicate files...');
-  FILES_TO_REMOVE.forEach(filePath => {
+  // Remove duplicate filesFILES_TO_REMOVE.forEach(filePath => {
     if (removeFile(filePath)) {
       removedCount++;
     } else {
@@ -188,36 +164,18 @@ function runCleanup() {
     }
   });
   
-  // Update file imports
-  console.log('\n✏️  Updating file imports...');
-  FILES_TO_UPDATE.forEach(({ file, search, replace }) => {
+  // Update file importsFILES_TO_UPDATE.forEach(({ file, search, replace }) => {
     updateFileImports(file, search, replace);
   });
   
-  // Clean up empty directories
-  console.log('\n📁 Cleaning up empty directories...');
-  DIRECTORIES_TO_CLEAN.forEach(dirPath => {
+  // Clean up empty directoriesDIRECTORIES_TO_CLEAN.forEach(dirPath => {
     removeEmptyDirectories(dirPath);
   });
   
   // Find unused imports
   findUnusedImports();
   
-  // Summary
-  console.log('\n📊 Cleanup Summary:');
-  console.log(`✅ Files removed: ${removedCount}`);
-  console.log(`❌ Errors encountered: ${errorCount}`);
-  console.log(`📁 Backup location: ${BACKUP_DIR}`);
-  
-  if (errorCount === 0) {
-    console.log('\n🎉 Cleanup completed successfully!');
-    console.log('💡 Next steps:');
-    console.log('   1. Review the backup directory to ensure nothing important was removed');
-    console.log('   2. Run your test suite to verify everything still works');
-    console.log('   3. Commit the changes with a descriptive message');
-  } else {
-    console.log('\n⚠️  Cleanup completed with some errors. Please review the output above.');
-  }
+  // Summaryif (errorCount === 0) {} else {}
 }
 
 // Run cleanup if this script is executed directly

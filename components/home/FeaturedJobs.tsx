@@ -15,7 +15,7 @@ export default function FeaturedJobs() {
     <section className="py-8">
       <h2 className="text-2xl font-bold mb-4">Featured Jobs</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {data.jobs.map((job: any) => (
+        {data.jobs.map((job: Record<string, unknown>) => (
           <div key={job.id} className="p-4 bg-white rounded shadow">
             <h3 className="font-semibold">{job.title}</h3>
             <p>{job.company}</p>

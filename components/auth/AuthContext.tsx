@@ -1,5 +1,5 @@
+import React from "react";
 "use client";
-
 import { createContext, useContext } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import type { AuthState } from "@/types/auth";

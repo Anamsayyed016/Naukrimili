@@ -1,5 +1,5 @@
+import React from "react";
 'use client';
-
 import { Toaster } from '@/components/ui/toaster';
 import dynamic from 'next/dynamic';
 import MainNavigation from '@/components/MainNavigation';

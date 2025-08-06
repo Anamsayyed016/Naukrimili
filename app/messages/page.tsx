@@ -1,5 +1,4 @@
 "use client"
-
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Search, Send, Paperclip, MoreVertical, Phone, Video, Star } from "lucide-react"

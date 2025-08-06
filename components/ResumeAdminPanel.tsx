@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from 'react';
 import { useResumesApi } from '@/hooks/useResumesApi';
 
@@ -38,7 +37,7 @@ export default function ResumeAdminPanel() {
         )}
       </form>
       <ul>
-        {resumes.map((resume: any) => (
+        {resumes.map((resume: Record<string, unknown>) => (
           <li key={resume.id} className="flex items-center justify-between border-b py-2">
             <span>User: {resume.userId} | File: {resume.fileUrl}</span>
             <div className="flex gap-2">

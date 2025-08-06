@@ -1,5 +1,4 @@
 'use client';
-
 import React from 'react';
 import { applicationApi } from '@/lib/api';
 import { useErrorHandler } from '@/lib/error-boundary';
@@ -10,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 interface JobApplicationProps {
   jobId: string;
   onSuccess?: () => void;
-  onError?: (error: any) => void;
+  onError?: (error: Record<string, unknown>) => void;
   variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
@@ -43,7 +42,7 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
       });
       
       onSuccess?.();
-    } catch (error: any) {
+    } catch (error: Record<string, unknown>) {
       console.error('Error applying for job:', error);
       
       // Use the error handler for consistent error handling

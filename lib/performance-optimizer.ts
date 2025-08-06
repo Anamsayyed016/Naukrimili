@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 
 // ===== DEBOUNCE UTILITY =====
-export function useDebounce<T extends (...args: any[]) => any>(
+export function useDebounce<T extends (...args: Record<string, unknown>[]) => any>(
   callback: T,
   delay: number
 ): T {
@@ -19,7 +19,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
 }
 
 // ===== THROTTLE UTILITY =====
-export function useThrottle<T extends (...args: any[]) => any>(
+export function useThrottle<T extends (...args: Record<string, unknown>[]) => any>(
   callback: T,
   delay: number
 ): T {
@@ -77,7 +77,7 @@ export function useLazyLoad<T>(
 }
 
 // ===== MEMOIZATION UTILITY =====
-export function useDeepMemo<T>(value: T, deps: any[]): T {
+export function useDeepMemo<T>(value: T, deps: Record<string, unknown>[]): T {
   return useMemo(() => value, deps);
 }
 
@@ -213,9 +213,7 @@ export function usePerformanceMonitor(componentName: string) {
     const currentTime = performance.now();
     const timeSinceLastRender = currentTime - lastRenderTime.current;
     
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`${componentName} render #${renderCount.current} (${timeSinceLastRender.toFixed(2)}ms)`);
-    }
+    if (process.env.NODE_ENV === 'development') {}
     
     lastRenderTime.current = currentTime;
   });
@@ -229,7 +227,7 @@ export function usePerformanceMonitor(componentName: string) {
 // ===== MEMORY LEAK PREVENTION =====
 export function useCleanupEffect(
   effect: () => void | (() => void),
-  deps: any[] = []
+  deps: Record<string, unknown>[] = []
 ) {
   useEffect(() => {
     const cleanup = effect();
@@ -242,7 +240,7 @@ export function useCleanupEffect(
 }
 
 // ===== REQUEST CACHING =====
-const cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+const cache = new Map<string, { data: Record<string, unknown>; timestamp: number; ttl: number }>();
 
 export function useCachedRequest<T>(
   key: string,

@@ -82,6 +82,6 @@ export interface Resume {
     lastUpdated: string;
     visibility: 'public' | 'private' | 'hidden';
     completeness?: number;
-    parsedData?: any;
+    parsedData?: Record<string, unknown>;
   };
 }

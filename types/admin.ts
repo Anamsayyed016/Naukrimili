@@ -1,118 +1,31 @@
-export interface AdminDashboardStats {
-  totalUsers: number;
-  activeJobs: number;
-  totalApplications: number;
-  newUsersToday: number;
-  revenueStats?: {
-    daily: number;
-    monthly: number;
-    yearly: number;
-  };
-}
-
-export interface AdminUserManagement {
-  users: {
-    total: number;
-    jobseekers: number;
-    employers: number;
-    admins: number;
-    blocked: number;
-  };
-  verificationPending: number;
-  reportedUsers: number;
-}
-
-export interface AdminJobStats {
-  total: number;
-  active: number;
-  expired: number;
-  featured: number;
-  reported: number;
-  byCategory: {
-    [key: string]: number;
-  };
-  byLocation: {
-    [key: string]: number;
-  };
-}
-
-export interface AdminApplicationStats {
-  total: number;
-  pending: number;
-  accepted: number;
-  rejected: number;
-  conversion: {
-    rate: number;
-    byJobType: {
-      [key: string]: number;
-    };
-  };
-}
-
-export interface AdminUserActivity {
-  userId: string;
-  name: string;
+export interface AdminUser {
+  id: string;
   email: string;
-  action: string;
-  timestamp: string;
-  details?: any;
-  ip?: string;
+  role: 'admin' | 'moderator' | 'support';
+  permissions: string[];
+  created_at: string;
+  last_login?: string;
 }
 
-export interface AdminAuditLog {
-  id: string;
-  userId: string;
-  action: 'create' | 'update' | 'delete' | 'login' | 'logout';
-  resource: string;
-  details: any;
-  timestamp: string;
-  ip: string;
+export interface SystemHealth {
+  status: 'healthy' | 'warning' | 'critical';
+  uptime: number;
+  memory_usage: number;
+  cpu_usage: number;
+  active_users: number;
+  pending_jobs: number;
 }
 
-export interface AdminReportedContent {
+export interface FraudAlert {
   id: string;
-  type: 'job' | 'user' | 'company' | 'review';
+  type: 'fake_job' | 'suspicious_employer' | 'duplicate_profile' | 'payment_fraud';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  title: string;
+  description: string;
+  entityId: string;
+  entityType: 'job' | 'employer' | 'candidate' | 'payment';
   reportedBy: string;
-  reason: string;
-  details: string;
+  reportedAt: string;
   status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
-  timestamp: string;
-  resolution?: {
-    action: string;
-    note: string;
-    by: string;
-    date: string;
-  };
-}
-
-export interface AdminSettings {
-  general: {
-    siteName: string;
-    maintenance: boolean;
-    registrationOpen: boolean;
-  };
-  email: {
-    provider: string;
-    fromEmail: string;
-    templates: {
-      [key: string]: {
-        subject: string;
-        body: string;
-      };
-    };
-  };
-  jobPostings: {
-    requireApproval: boolean;
-    maxDuration: number;
-    featuredCost: number;
-  };
-  security: {
-    maxLoginAttempts: number;
-    passwordPolicy: {
-      minLength: number;
-      requireNumbers: boolean;
-      requireSymbols: boolean;
-    };
-    twoFactorEnabled: boolean;
-  };
+  metadata: Record<string, unknown>;
 }

@@ -10,11 +10,11 @@ export default function HolographicSearchBar() {
   // Voice-to-text
   useEffect(() => {
     if (typeof window === "undefined" || !('webkitSpeechRecognition' in window)) return;
-    // @ts-ignore
+    // @ts-expect-error
     const recognition = new window.webkitSpeechRecognition();
     recognition.lang = "en-IN";
     recognition.interimResults = false;
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: Record<string, unknown>) => {
       setInput(event.results[0][0].transcript);
       setListening(false);
     };

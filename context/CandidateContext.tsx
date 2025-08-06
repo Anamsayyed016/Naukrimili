@@ -1,3 +1,4 @@
+import React from "react";
 import { createContext, useContext, useState } from 'react';
 import { toast } from 'sonner';
 import { ICandidate } from '@/types/candidate';

@@ -2,57 +2,31 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
-
-console.log('🚀 NaukriMili - Hostinger Deployment Script');
-console.log('==========================================\n');
-
-// Check if we're in the right directory
+const { execSync } = require('child_process');// Check if we're in the right directory
 if (!fs.existsSync('package.json')) {
   console.error('❌ Error: package.json not found. Please run this script from the project root.');
   process.exit(1);
 }
 
-// Step 1: Clean previous builds
-console.log('📦 Step 1: Cleaning previous builds...');
-try {
-  execSync('npm run clean', { stdio: 'inherit' });
-  console.log('✅ Clean completed');
-} catch (error) {
-  console.log('⚠️  Clean failed, continuing...');
-}
+// Step 1: Clean previous buildstry {
+  execSync('npm run clean', { stdio: 'inherit' });} catch (error) {}
 
-// Step 2: Install dependencies
-console.log('\n📦 Step 2: Installing dependencies...');
-try {
-  execSync('npm install', { stdio: 'inherit' });
-  console.log('✅ Dependencies installed');
-} catch (error) {
+// Step 2: Install dependenciestry {
+  execSync('npm install', { stdio: 'inherit' });} catch (error) {
   console.error('❌ Failed to install dependencies');
   process.exit(1);
 }
 
-// Step 3: Build for production
-console.log('\n🔨 Step 3: Building for production...');
-try {
-  execSync('npm run hostinger-build', { stdio: 'inherit' });
-  console.log('✅ Build completed');
-} catch (error) {
+// Step 3: Build for productiontry {
+  execSync('npm run hostinger-build', { stdio: 'inherit' });} catch (error) {
   console.error('❌ Build failed');
   process.exit(1);
 }
 
-// Step 4: Check if .next directory exists
-console.log('\n📁 Step 4: Verifying build output...');
-if (!fs.existsSync('.next')) {
+// Step 4: Check if .next directory existsif (!fs.existsSync('.next')) {
   console.error('❌ .next directory not found. Build may have failed.');
   process.exit(1);
-}
-console.log('✅ Build output verified');
-
-// Step 5: Create deployment checklist
-console.log('\n📋 Step 5: Creating deployment checklist...');
-const checklist = `
+}// Step 5: Create deployment checklistconst checklist = `
 🎯 HOSTINGER DEPLOYMENT CHECKLIST
 ================================
 
@@ -109,16 +83,4 @@ const checklist = `
 Need help? Check the HOSTINGER_DEPLOYMENT.md file for detailed instructions.
 `;
 
-fs.writeFileSync('HOSTINGER_CHECKLIST.md', checklist);
-console.log('✅ Deployment checklist created: HOSTINGER_CHECKLIST.md');
-
-// Step 6: Show next steps
-console.log('\n🎯 NEXT STEPS:');
-console.log('1. Upload your project folder to Hostinger public_html/');
-console.log('2. Configure Node.js in Hostinger control panel');
-console.log('3. Set environment variables in .env.local');
-console.log('4. Test your application');
-console.log('\n📖 For detailed instructions, see: HOSTINGER_DEPLOYMENT.md');
-console.log('📋 For checklist, see: HOSTINGER_CHECKLIST.md');
-
-console.log('\n🚀 Ready for Hostinger deployment!'); 
+fs.writeFileSync('HOSTINGER_CHECKLIST.md', checklist);// Step 6: Show next steps

@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 
 interface HealthData {
@@ -27,7 +26,7 @@ interface ApiTest {
   name: string;
   url: string;
   status: 'pending' | 'success' | 'error';
-  response?: any;
+  response?: Record<string, unknown>;
   error?: string;
 }
 

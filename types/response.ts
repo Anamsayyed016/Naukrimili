@@ -4,7 +4,7 @@ export interface APIResponse<T = any> {
   error?: {
     code: string;
     message: string;
-    details?: any;
+    details?: Record<string, unknown>;
   };
   metadata?: {
     timestamp: string;
@@ -29,7 +29,7 @@ export interface ErrorResponse {
   error: {
     code: string;
     message: string;
-    details?: any;
+    details?: Record<string, unknown>;
     stack?: string;
   };
   metadata: {
@@ -45,7 +45,7 @@ export interface ValidationError extends ErrorResponse {
     details: {
       field: string;
       message: string;
-      value?: any;
+      value?: Record<string, unknown>;
     }[];
   };
 }

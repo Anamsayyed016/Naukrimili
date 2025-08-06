@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,7 @@ export default function JobSeekerProfilePage() {
     if (token) {
       const decoded = JSON.parse(atob(token));
       const users = JSON.parse(localStorage.getItem("mock_users") || "[]");
-      const user = users.find((u: any) => u.email === decoded.email);
+      const user = users.find((u: Record<string, unknown>) => u.email === decoded.email);
       setProfile(user);
     }
   }, []);
@@ -90,7 +89,7 @@ export default function JobSeekerProfilePage() {
             </h3>
             <div className="space-y-2">
               {profile.experience && Array.isArray(profile.experience) && profile.experience.length > 0 ? (
-                profile.experience.map((exp: any, idx: number) => (
+                profile.experience.map((exp: Record<string, unknown>, idx: number) => (
                   <div key={idx} className="p-3 bg-gray-50 rounded-lg text-gray-700">
                     {typeof exp === "string" ? exp : JSON.stringify(exp)}
                   </div>
@@ -108,7 +107,7 @@ export default function JobSeekerProfilePage() {
             </h3>
             <div className="space-y-2">
               {profile.education && Array.isArray(profile.education) && profile.education.length > 0 ? (
-                profile.education.map((edu: any, idx: number) => (
+                profile.education.map((edu: Record<string, unknown>, idx: number) => (
                   <div key={idx} className="p-3 bg-cyan-50 rounded-lg text-gray-700">
                     {typeof edu === "string" ? edu : JSON.stringify(edu)}
                   </div>

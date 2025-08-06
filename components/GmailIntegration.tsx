@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,7 +42,7 @@ export default function GmailIntegration() {
   // Fetch emails
   const fetchEmails = useCallback(async (query?: string) => {
     if (!session?.accessToken) {
-      console.warn('No access token available');
+      // console.warn('No access token available');
       return;
     }
     

@@ -1,6 +1,6 @@
+import React from "react";
 ﻿'use client';
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -32,7 +32,7 @@ export default function LoginForm() {
         description: "You have been logged in successfully.",
       });
       router.push("/dashboard");
-    } catch (error: any) {
+    } catch (error: Record<string, unknown>) {
       toast({
         variant: "destructive",
         title: "Error",

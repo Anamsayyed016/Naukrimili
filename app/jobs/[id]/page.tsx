@@ -1,7 +1,33 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+
+// Generate static params for build time
+export async function generateStaticParams() {
+  // Generate some default job IDs for static generation
+  return [
+    { id: '1' },
+    { id: '2' },
+    { id: '3' },
+    { id: '4' },
+    { id: '5' }
+  ]
+}
+
+// Make the component support both static and dynamic generation
+export const dynamicParams = trueate, useEffect } from "react"
+import { motion } from "framer-motion"
+
+// Generate static params for build time
+export async function generateStaticParams() {
+  // Generate some default job IDs for static generation
+  return [
+    { id: '1' },
+    { id: '2' },
+    { id: '3' },
+    { id: '4' },
+    { id: '5' }
+  ]
+}
 import { 
   ArrowLeft, 
   MapPin, 
@@ -31,7 +57,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 

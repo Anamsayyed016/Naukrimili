@@ -2,7 +2,6 @@
 // Features: Profile completion alerts, Feature unlock notifications, Personalized recommendations
 
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,7 +9,7 @@ import Link from 'next/link';
 
 interface NexusAuthCTAProps {
   variant?: 'dashboard' | 'sidebar' | 'notification' | 'banner';
-  user?: any;
+  user?: Record<string, unknown>;
 }
 
 export default function NexusAuthCTA({ variant = 'dashboard', user }: NexusAuthCTAProps) {

@@ -30,9 +30,7 @@ class AuditLogger {
     }
 
     // Log to console in development
-    if (env.NODE_ENV === 'development') {
-      console.log('AUDIT:', auditEvent);
-    }
+    if (env.NODE_ENV === 'development') {}
 
     // Alert on critical events
     if (event.severity === 'critical') {

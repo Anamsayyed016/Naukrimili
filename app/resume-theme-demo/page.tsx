@@ -1,9 +1,8 @@
 'use client';
-
 import React from 'react';
-import ResumeDisplayProfessional from '../../components/ResumeDisplayProfessional';
-import { Button } from '../../components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import ResumeDisplayProfessional from "@/components/ResumeDisplayProfessional';
+import { Button } from "@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs';
 import { ArrowLeft, Download, Eye } from 'lucide-react';
 import Link from 'next/link';
 

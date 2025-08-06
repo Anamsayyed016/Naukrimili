@@ -17,7 +17,7 @@ export interface SoftDelete {
 export type MongoDocument<T> = T & Document & WithTimestamps & SoftDelete;
 
 export interface MongoModel<T> extends Model<MongoDocument<T>> {
-  paginate(query: any, options: PaginationOptions): Promise<PaginatedResult<T>>;
+  paginate(query: Record<string, unknown>, options: PaginationOptions): Promise<PaginatedResult<T>>;
   softDelete(id: string): Promise<void>;
   restore(id: string): Promise<void>;
 }

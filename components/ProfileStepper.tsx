@@ -114,7 +114,7 @@ const steps = [
   { label: "Review", schema: reviewSchema },
 ];
 
-export default function ProfileStepper({ defaultValues = {}, onComplete }: { defaultValues?: any, onComplete?: () => void }) {
+export default function ProfileStepper({ defaultValues = {}, onComplete }: { defaultValues?: Record<string, unknown>, onComplete?: () => void }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState(defaultValues);
   const methods = useForm({
@@ -123,8 +123,8 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
     mode: "onChange",
   });
 
-  const onSubmit = async (data: any) => {
-    setFormData((prev: any) => ({ ...prev, ...data }));
+  const onSubmit = async (data: Record<string, unknown>) => {
+    setFormData((prev: Record<string, unknown>) => ({ ...prev, ...data }));
     if (currentStep < steps.length - 1) {
       setCurrentStep((s) => s + 1);
     } else {
@@ -133,7 +133,7 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
       if (token) {
         const users = JSON.parse(localStorage.getItem('mock_users') || '[]');
         const decoded = JSON.parse(atob(token));
-        const idx = users.findIndex((u: any) => u.email === decoded.email);
+        const idx = users.findIndex((u: Record<string, unknown>) => u.email === decoded.email);
         if (idx !== -1) {
           users[idx] = { ...users[idx], ...formData, ...data };
           localStorage.setItem('mock_users', JSON.stringify(users));
@@ -572,7 +572,7 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
                 <h3 className="font-semibold mb-2">Languages</h3>
                 {(formData.languages && formData.languages.length > 0) ? (
                   <ul className="list-disc ml-6">
-                    {formData.languages.map((lang: any, idx: number) => (
+                    {formData.languages.map((lang: Record<string, unknown>, idx: number) => (
                       <li key={idx}>{lang.language} ({lang.proficiency})</li>
                     ))}
                   </ul>

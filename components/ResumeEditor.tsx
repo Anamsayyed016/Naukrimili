@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
-export default function ResumeEditor({ initialValues }: { initialValues: any }) {
-  console.log("ResumeEditor received initialValues:", initialValues); // Debug log
+export default function ResumeEditor({ initialValues }: { initialValues: Record<string, unknown> }) {// Debug log
   
   // Ensure we have valid initial values with defaults
   const defaultValues = {
@@ -27,12 +26,10 @@ export default function ResumeEditor({ initialValues }: { initialValues: any }) 
   const [form, setForm] = useState({
     ...defaultValues,
     ...initialValues
-  });
+  });// Debug log
 
-  console.log("Form state initialized:", form); // Debug log
-
-  const handleChange = (section: string, key: string, value: any, idx?: number) => {
-    setForm((prev: any) => {
+  const handleChange = (section: string, key: string, value: Record<string, unknown>, idx?: number) => {
+    setForm((prev: Record<string, unknown>) => {
       const updated = { ...prev };
       if (Array.isArray(updated[section]) && typeof idx === 'number') {
         updated[section][idx][key] = value;
@@ -47,9 +44,7 @@ export default function ResumeEditor({ initialValues }: { initialValues: any }) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: send form data to backend
-    console.log("Final resume data:", form);
-    alert("Resume saved! (see console)");
+    // TODO: send form data to backendalert("Resume saved! (see console)");
   };
 
   return (
@@ -69,7 +64,7 @@ export default function ResumeEditor({ initialValues }: { initialValues: any }) 
       {/* Experience */}
       <div>
         <h3 className="font-semibold mb-2">Experience</h3>
-        {(form.experience || []).map((exp: any, idx: number) => (
+        {(form.experience || []).map((exp: Record<string, unknown>, idx: number) => (
           <div key={idx} className="border p-3 rounded mb-2">
             <input className="input" placeholder="Job Title" value={exp.job_title || ''} onChange={e => handleChange('experience', 'job_title', e.target.value, idx)} />
             <input className="input" placeholder="Company" value={exp.company || ''} onChange={e => handleChange('experience', 'company', e.target.value, idx)} />
@@ -83,7 +78,7 @@ export default function ResumeEditor({ initialValues }: { initialValues: any }) 
       {/* Education */}
       <div>
         <h3 className="font-semibold mb-2">Education</h3>
-        {(form.education || []).map((edu: any, idx: number) => (
+        {(form.education || []).map((edu: Record<string, unknown>, idx: number) => (
           <div key={idx} className="border p-3 rounded mb-2">
             <input className="input" placeholder="Degree" value={edu.degree || ''} onChange={e => handleChange('education', 'degree', e.target.value, idx)} />
             <input className="input" placeholder="Institution" value={edu.institution || ''} onChange={e => handleChange('education', 'institution', e.target.value, idx)} />

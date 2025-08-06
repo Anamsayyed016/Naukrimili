@@ -1,5 +1,4 @@
 "use client";
-
 import { SessionProvider } from "next-auth/react";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
 import { AuthProvider } from "@/components/auth/AuthContext";

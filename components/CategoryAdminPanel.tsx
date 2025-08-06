@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from 'react';
 import { useCategoriesApi } from '@/hooks/useCategoriesApi';
 
@@ -43,7 +42,7 @@ export default function CategoryAdminPanel() {
         )}
       </form>
       <ul>
-        {categories.map((cat: any) => (
+        {categories.map((cat: Record<string, unknown>) => (
           <li key={cat.id} className="flex items-center justify-between border-b py-2">
             {editId === cat.id ? null : <span>{cat.name}</span>}
             <div className="flex gap-2">

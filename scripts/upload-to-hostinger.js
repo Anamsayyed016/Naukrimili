@@ -2,21 +2,13 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
-
-console.log('🚀 NaukriMili - Hostinger Upload Preparation');
-console.log('============================================\n');
-
-// Check if we're in the right directory
+const { execSync } = require('child_process');// Check if we're in the right directory
 if (!fs.existsSync('package.json')) {
   console.error('❌ Error: package.json not found. Please run this script from the project root.');
   process.exit(1);
 }
 
-// Step 1: Create deployment package
-console.log('📦 Step 1: Creating deployment package...');
-
-// Create deployment directory
+// Step 1: Create deployment package// Create deployment directory
 const deployDir = 'hostinger-deploy';
 if (fs.existsSync(deployDir)) {
   fs.rmSync(deployDir, { recursive: true, force: true });
@@ -33,32 +25,18 @@ const essentialFiles = [
   'next.config.mjs',
   'prisma',
   'env.hostinger.example'
-];
-
-console.log('📁 Copying essential files...');
-essentialFiles.forEach(file => {
+];essentialFiles.forEach(file => {
   if (fs.existsSync(file)) {
     if (fs.lstatSync(file).isDirectory()) {
       fs.cpSync(file, path.join(deployDir, file), { recursive: true });
     } else {
       fs.copyFileSync(file, path.join(deployDir, file));
-    }
-    console.log(`✅ Copied: ${file}`);
-  } else {
-    console.log(`⚠️  Missing: ${file}`);
-  }
+    }} else {}
 });
 
 // Copy node_modules (optional - can install on server)
-if (fs.existsSync('node_modules')) {
-  console.log('📦 Copying node_modules (large file, may take time)...');
-  try {
-    fs.cpSync('node_modules', path.join(deployDir, 'node_modules'), { recursive: true });
-    console.log('✅ Copied: node_modules');
-  } catch (error) {
-    console.log('⚠️  Could not copy node_modules (too large or busy)');
-    console.log('💡 You can install dependencies on the server instead');
-  }
+if (fs.existsSync('node_modules')) {try {
+    fs.cpSync('node_modules', path.join(deployDir, 'node_modules'), { recursive: true });} catch (error) {}
 }
 
 // Create deployment instructions
@@ -118,12 +96,7 @@ METHOD 2: FTP (RECOMMENDED)
 🎉 Your NaukriMili job portal will be live once uploaded!
 `;
 
-fs.writeFileSync(path.join(deployDir, 'DEPLOYMENT_INSTRUCTIONS.txt'), instructions);
-console.log('✅ Created: DEPLOYMENT_INSTRUCTIONS.txt');
-
-// Show file sizes
-console.log('\n📊 DEPLOYMENT PACKAGE SIZE:');
-const getDirSize = (dir) => {
+fs.writeFileSync(path.join(deployDir, 'DEPLOYMENT_INSTRUCTIONS.txt'), instructions);// Show file sizesconst getDirSize = (dir) => {
   let size = 0;
   if (fs.existsSync(dir)) {
     const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -140,19 +113,4 @@ const getDirSize = (dir) => {
 };
 
 const totalSize = getDirSize(deployDir);
-const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);
-console.log(`📁 Total size: ${sizeInMB} MB`);
-
-// Show next steps
-console.log('\n🎯 NEXT STEPS:');
-console.log(`1. Upload files from '${deployDir}' folder to Hostinger`);
-console.log('2. Configure Node.js in Hostinger control panel');
-console.log('3. Set environment variables');
-console.log('4. Test your deployment');
-console.log('\n📖 For detailed instructions, see:');
-console.log(`   - ${deployDir}/DEPLOYMENT_INSTRUCTIONS.txt`);
-console.log('   - HOSTINGER_DEPLOYMENT_GUIDE.md');
-console.log('   - DEPLOYMENT_SUMMARY.md');
-
-console.log('\n🚀 Ready for Hostinger deployment!');
-console.log(`📁 Your deployment files are in: ${deployDir}/`); 
+const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);// Show next steps

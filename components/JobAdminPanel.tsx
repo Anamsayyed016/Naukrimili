@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from 'react';
 import { useJobsApi } from '@/hooks/useJobsApi';
 
@@ -39,7 +38,7 @@ export default function JobAdminPanel() {
         )}
       </form>
       <ul>
-        {jobs.map((job: any) => (
+        {jobs.map((job: Record<string, unknown>) => (
           <li key={job.id} className="flex items-center justify-between border-b py-2">
             <span>{job.title} - {job.location}</span>
             <div className="flex gap-2">

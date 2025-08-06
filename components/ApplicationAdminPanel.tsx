@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from 'react';
 import { useApplicationsApi } from '@/hooks/useApplicationsApi';
 
@@ -39,7 +38,7 @@ export default function ApplicationAdminPanel() {
         )}
       </form>
       <ul>
-        {applications.map((app: any) => (
+        {applications.map((app: Record<string, unknown>) => (
           <li key={app.id} className="flex items-center justify-between border-b py-2">
             <span>Job: {app.jobId} | User: {app.userId} | Status: {app.status}</span>
             <div className="flex gap-2">
