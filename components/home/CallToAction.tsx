@@ -17,6 +17,4 @@ export default function CallToAction() {
       <a href={data.link} className="inline-block bg-company-500 text-white px-6 py-3 rounded shadow hover:bg-company-600 transition">
         {data.button}
       </a>
-    </section>
-  );
-} 
+    </section>)} 

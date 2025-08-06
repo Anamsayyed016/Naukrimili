@@ -12,6 +12,4 @@ export default function GuestCTAs() {
           ✨ Get personalized jobs →
         </button>
       </Link>
-    </div>
-  );
-} 
+    </div>)} 

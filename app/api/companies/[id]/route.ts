@@ -128,6 +128,8 @@ export async function GET(
     })
 
   } catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Error fetching company:', error)
     return Response.json(
       { success: false, error: 'Failed to fetch company' },
@@ -140,7 +142,7 @@ export async function GET(
 export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
-) {
+) {;
   const params = await context.params;
   try {
     const { id } = params
@@ -173,14 +175,14 @@ export async function PUT(
     })
 
   } catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'PATCH /api/companies/[id]',
       context: {
         companyId: params.id,
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 }
 
 // DELETE /api/companies/[id] - Delete company
@@ -208,16 +210,13 @@ export async function DELETE(
     return Response.json({
       success: true,
       data: deletedCompany,
-      message: 'Company deleted successfully'
-    });
-
-  } catch (error) {
+      message: 'Company deleted successfully'})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'DELETE /api/companies/[id]',
       context: {
         companyId: params.id,
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 }

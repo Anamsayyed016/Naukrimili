@@ -9,8 +9,7 @@ interface PipelineStage {
   id: ICandidate['status'];
   name: string;
   candidates: ICandidate[];
-  limit?: number;
-}
+  limit?: number}
 
 const CandidatePipeline: React.FC = () => {
   const { candidates, loading, error, refreshCandidates, updateCandidateStatus } = useCandidates();
@@ -51,8 +50,7 @@ const CandidatePipeline: React.FC = () => {
   ]);
 
   useEffect(() => {
-    refreshCandidates();
-  }, [refreshCandidates]);
+    refreshCandidates()}, [refreshCandidates]);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, candidateId: string, fromStage: ICandidate['status']): void => {
     try {
@@ -60,10 +58,8 @@ const CandidatePipeline: React.FC = () => {
         candidateId,
         fromStage,
       }));
-      setIsDragging(true);
-    } catch (err) {
-      toast.error("Failed to start drag operation");
-    }
+      setIsDragging(true)} catch (err) {
+      toast.error("Failed to start drag operation")}
   };
 
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>, toStage: ICandidate['status']): Promise<void> => {
@@ -73,13 +69,11 @@ const CandidatePipeline: React.FC = () => {
     try {
       const data = e.dataTransfer.getData("application/json");
       if (!data) {
-        throw new Error("Missing drag data");
-      }
+        throw new Error("Missing drag data")}
 
       const { candidateId, fromStage } = JSON.parse(data) as {
         candidateId: string;
-        fromStage: ICandidate['status'];
-      };
+        fromStage: ICandidate['status']};
 
       if (fromStage !== toStage) {
         setStatusUpdateLoading(prev => ({ ...prev, [candidateId]: true }));
@@ -92,35 +86,31 @@ const CandidatePipeline: React.FC = () => {
           await updateCandidateStatus(candidateId, toStage);
           toast.success('Candidate status updated successfully', {
             id: loadingToast,
-          });
-        } catch (error) {
+          })} catch (error) {
           // Revert optimistic update on error
           await refreshCandidates();
           toast.error(error instanceof Error ? error.message : 'Failed to update candidate status', {
             id: loadingToast,
-          });
+    console.error("Error:", error);
+    throw error;
+  });
           throw error; // Re-throw to be caught by the outer catch block
         } finally {
-          setStatusUpdateLoading(prev => ({ ...prev, [candidateId]: false }));
-        }
+          setStatusUpdateLoading(prev => ({ ...prev, [candidateId]: false }))}
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to move candidate');
-    }
+      toast.error(error instanceof Error ? error.message : 'Failed to move candidate')}
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
-    e.preventDefault();
-  };
+    e.preventDefault()};
 
   const handleDragEnd = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
-    setIsDragging(false);
-  };
+    setIsDragging(false)};
 
   const stageCandidates = (stage: PipelineStage['id']) => {
-    return candidates.filter(candidate => candidate.status === stage);
-  };
+    return candidates.filter(candidate => candidate.status === stage)};
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -176,10 +166,9 @@ const CandidatePipeline: React.FC = () => {
                           width={40}
                           height={40}
                           className="rounded-full"
-                          onError={(e) => {
+                          onError={(e) => {;
                             const target = e.target as HTMLImageElement;
-                            target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(candidate.name)}`;
-                          }}
+                            target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(candidate.name)}`}}
                         />
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-800">
@@ -212,7 +201,6 @@ const CandidatePipeline: React.FC = () => {
         )}
       </div>
     </div>
-  );
-}
+  )}
 
 export default CandidatePipeline;

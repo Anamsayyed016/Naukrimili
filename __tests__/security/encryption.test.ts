@@ -18,16 +18,14 @@ describe('Encryption Security', () => {
     
     expect(encrypted1).not.toBe(encrypted2);
     expect(decrypt(encrypted1)).toBe(plaintext);
-    expect(decrypt(encrypted2)).toBe(plaintext);
-  });
+    expect(decrypt(encrypted2)).toBe(plaintext)});
   
   it('should fail on tampered ciphertext', () => {
     const plaintext = 'test data';
     const encrypted = encrypt(plaintext);
     const tampered = encrypted.replace(/.$/, '0'); // Change last character
     
-    expect(() => decrypt(tampered)).toThrow();
-  });
+    expect(() => decrypt(tampered)).toThrow()});
   
   it('should use secure comparison', () => {
     const str1 = 'secret123';
@@ -36,8 +34,7 @@ describe('Encryption Security', () => {
     
     expect(secureCompare(str1, str2)).toBe(true);
     expect(secureCompare(str1, str3)).toBe(false);
-    expect(secureCompare('', '')).toBe(true);
-  });
+    expect(secureCompare('', '')).toBe(true)});
   
   it('should generate secure tokens', () => {
     const token1 = generateSecureToken(32);
@@ -45,6 +42,4 @@ describe('Encryption Security', () => {
     
     expect(token1).not.toBe(token2);
     expect(token1.length).toBe(64); // 32 bytes = 64 hex chars
-    expect(/^[a-f0-9]+$/.test(token1)).toBe(true);
-  });
-});
+    expect(/^[a-f0-9]+$/.test(token1)).toBe(true)})});

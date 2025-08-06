@@ -16,23 +16,19 @@ export default function HolographicSearchBar() {
     recognition.interimResults = false;
     recognition.onresult = (event: Record<string, unknown>) => {
       setInput(event.results[0][0].transcript);
-      setListening(false);
-    };
+      setListening(false)};
     recognition.onend = () => setListening(false);
-    recognitionRef.current = recognition;
-  }, []);
+    recognitionRef.current = recognition}, []);
 
   const handleMic = () => {
     if (recognitionRef.current) {
       setListening(true);
-      recognitionRef.current.start();
-    }
+      recognitionRef.current.start()}
   };
 
   // Auto-detect location (mock)
   useEffect(() => {
-    setLocation("Delhi");
-  }, []);
+    setLocation("Delhi")}, []);
 
   return (
     <div className="relative w-full max-w-2xl mx-auto" style={{ minHeight: 80 }}>
@@ -69,6 +65,4 @@ export default function HolographicSearchBar() {
           Search Jobs
         </button>
       </form>
-    </div>
-  );
-} 
+    </div>)} 

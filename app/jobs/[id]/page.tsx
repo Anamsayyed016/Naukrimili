@@ -5,6 +5,8 @@ import { motion } from "framer-motion"
 export async function generateStaticParams() {
   // Generate some default job IDs for static generation
   return [
+  // TODO: Complete function implementation
+}
     { id: '1' },
     { id: '2' },
     { id: '3' },
@@ -14,20 +16,8 @@ export async function generateStaticParams() {
 }
 
 // Make the component support both static and dynamic generation
-export const dynamicParams = trueate, useEffect } from "react"
-import { motion } from "framer-motion"
+export const dynamicParams = true
 
-// Generate static params for build time
-export async function generateStaticParams() {
-  // Generate some default job IDs for static generation
-  return [
-    { id: '1' },
-    { id: '2' },
-    { id: '3' },
-    { id: '4' },
-    { id: '5' }
-  ]
-}
 import { 
   ArrowLeft, 
   MapPin, 
@@ -552,4 +542,4 @@ export default function JobDetailPage() {
       </div>
     </div>
   )
-}
+};

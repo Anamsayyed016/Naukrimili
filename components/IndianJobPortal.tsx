@@ -99,8 +99,7 @@ interface JobSearchFilters {
   salaryMin?: number;
   salaryMax?: number;
   remoteOnly?: boolean;
-  category?: string;
-}
+  category?: string}
 
 interface JobCardProps {
   job: {
@@ -113,11 +112,9 @@ interface JobCardProps {
     experience?: string;
     description?: string;
     posted?: string;
-    redirect_url?: string;
-  };
+    redirect_url?: string};
   bookmarked: boolean;
-  onBookmark: (jobId: string) => void;
-}
+  onBookmark: (jobId: string) => void}
 
 // Job Card Component
 function JobCard({ job, bookmarked, onBookmark }: JobCardProps) {
@@ -182,9 +179,7 @@ function JobCard({ job, bookmarked, onBookmark }: JobCardProps) {
           Apply Now
         </a>
       </div>
-    </motion.div>
-  );
-}
+    </motion.div>)}
 
 // Skeleton Card Component
 function SkeletonCard() {
@@ -199,16 +194,13 @@ function SkeletonCard() {
           <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-20"></div>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}
 
 // Category Card Component
 function CategoryCard({ category, isSelected, onClick }: { 
   category: { id: string; name: string; icon: string; trending?: boolean; hot?: boolean }; 
   isSelected: boolean; 
-  onClick: () => void;
-}) {
+  onClick: () => void}) {
   return (
     <motion.div
       whileHover={{ scale: 1.05 }}
@@ -238,9 +230,7 @@ function CategoryCard({ category, isSelected, onClick }: {
           ⭐ New
         </div>
       )}
-    </motion.div>
-  );
-}
+    </motion.div>)}
 
 // Trending Jobs Section Component
 function TrendingJobsSection() {
@@ -268,9 +258,7 @@ function TrendingJobsSection() {
           />
         ))}
       </div>
-    </div>
-  );
-}
+    </div>)}
 
 // Quick Filters Section Component
 function QuickFiltersSection({ 
@@ -278,8 +266,7 @@ function QuickFiltersSection({
   onCategorySelect 
 }: { 
   onCitySelect: (city: string) => void;
-  onCategorySelect: (category: string) => void;
-}) {
+  onCategorySelect: (category: string) => void}) {
   return (
     <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white mb-8">
       <h2 className="text-2xl font-bold mb-6 text-center">🚀 Quick Job Search</h2>
@@ -336,9 +323,7 @@ function QuickFiltersSection({
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}
 
 export default function IndianJobPortal() {
   // Search state
@@ -372,8 +357,7 @@ export default function IndianJobPortal() {
   useEffect(() => {
     const savedBookmarks = localStorage.getItem('jobBookmarks');
     if (savedBookmarks) {
-      setBookmarks(JSON.parse(savedBookmarks));
-    }
+      setBookmarks(JSON.parse(savedBookmarks))}
   }, []);
 
   // Save bookmarks to localStorage
@@ -383,36 +367,29 @@ export default function IndianJobPortal() {
       : [...bookmarks, jobId];
     
     setBookmarks(newBookmarks);
-    localStorage.setItem('jobBookmarks', JSON.stringify(newBookmarks));
-  }, [bookmarks]);
+    localStorage.setItem('jobBookmarks', JSON.stringify(newBookmarks))}, [bookmarks]);
 
   // Handle job updates from dynamic search
   const handleJobsUpdate = useCallback((jobs: JobResult[]) => {
-    setCurrentJobs(jobs);
-  }, []);
+    setCurrentJobs(jobs)}, []);
 
   // Handle filter changes from dynamic search
   const handleFiltersChange = useCallback((filters: JobSearchFilters) => {
-    setCurrentFilters(filters);
-  }, []);
+    setCurrentFilters(filters)}, []);
 
   // Handle quick city selection
   const handleQuickCitySelect = useCallback((city: string) => {
     if (showLegacySearch) {
-      setLocation(city);
-    } else {
-      setCurrentFilters(prev => ({ ...prev, location: city }));
-    }
+      setLocation(city)} else {
+      setCurrentFilters(prev => ({ ...prev, location: city }))}
   }, [showLegacySearch]);
 
   // Handle quick category selection
   const handleQuickCategorySelect = useCallback((query: string) => {
     if (showLegacySearch) {
       setSearchQuery(query);
-      setSelectedCategory(query);
-    } else {
-      setCurrentFilters(prev => ({ ...prev, query, category: query }));
-    }
+      setSelectedCategory(query)} else {
+      setCurrentFilters(prev => ({ ...prev, query, category: query }))}
   }, [showLegacySearch]);
 
   // Fetch jobs using React Query
@@ -420,8 +397,7 @@ export default function IndianJobPortal() {
     queryKey: ['indianJobs', searchQuery, location, jobType, experienceLevel, companyType, selectedCategory],
     queryFn: async () => {
       if (!searchQuery && !location && !jobType && !selectedCategory) {
-        return [];
-      }
+        return []}
 
       try {
         const params = new URLSearchParams();
@@ -432,11 +408,11 @@ export default function IndianJobPortal() {
         if (companyType) params.append('company_type', companyType);
         
         const response = await axios.get(`/api/jobs?${params.toString()}`);
-        return response.data.jobs || [];
-      } catch (error) {
+        return response.data.jobs || []} catch (error) {
+    console.error("Error:", error);
+    throw error}
         // console.warn('API failed, using sample data:', error);
-        return [];
-      }
+        return []}
     },
     enabled: !!(searchQuery || location || jobType || selectedCategory),
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -657,13 +633,12 @@ export default function IndianJobPortal() {
                 <div className="flex flex-col sm:flex-row gap-4 pt-6">
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={() => {;
                       setSearchQuery("");
                       setLocation("");
                       setJobType("");
                       setExperienceLevel("");
-                      setCompanyType("");
-                    }}
+                      setCompanyType("")}}
                     className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
                   >
                     Clear Filters
@@ -788,5 +763,4 @@ export default function IndianJobPortal() {
         )}
       </div>
     </div>
-  );
-}
+  )}

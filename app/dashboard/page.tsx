@@ -9,9 +9,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+      </div>)}
 
   if (!session) {
     return (
@@ -22,9 +20,7 @@ export default function DashboardPage() {
             Go to login
           </Link>
         </div>
-      </div>
-    );
-  }
+      </div>)}
 
   const stats = [
     { label: 'Applications Sent', value: '12', color: 'bg-blue-500' },
@@ -111,6 +107,4 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}

@@ -39,8 +39,7 @@ export interface APIJobResponse {
   type: z.infer<typeof jobTypeSchema>;
   salary?: {
     formatted: string;
-    details?: z.infer<typeof salarySchema>;
-  };
+    details?: z.infer<typeof salarySchema>};
   status: z.infer<typeof jobStatusSchema>;
   source: z.infer<typeof jobSourceSchema>;
   requirements?: string[];
@@ -56,23 +55,20 @@ export interface APIJobResponse {
   is_remote: boolean;
   is_urgent?: boolean;
   company_logo?: string;
-  apply_url?: string;
-}
+  apply_url?: string}
 
 export interface APIJobSearchResponse {
   jobs: APIJobResponse[];
   total: number;
   page: number;
   total_pages: number;
-  has_more: boolean;
-}
+  has_more: boolean}
 
 export interface APIErrorResponse {
   error: string;
   status: number;
   code?: string;
-  details?: Record<string, unknown>;
-}
+  details?: Record<string, unknown>}
 
 // Validation function
 export function validateJobResponse(data: unknown): APIJobResponse {
@@ -105,5 +101,4 @@ export function validateJobResponse(data: unknown): APIJobResponse {
     apply_url: z.string().url().optional()
   });
 
-  return schema.parse(data);
-}
+  return schema.parse(data)}

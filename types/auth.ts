@@ -10,39 +10,33 @@ export interface User {
   role: "jobseeker" | "company" | "admin";
   profileCompletion: number;
   createdAt?: Date;
-  updatedAt?: Date;
-}
+  updatedAt?: Date}
 
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   biometric: BiometricState;
-  signIn: (credentials: { email: string; password: string }) => Promise<any>;
-}
+  signIn: (credentials: { email: string; password: string }) => Promise<any>}
 
 export interface BiometricState {
   isAvailable: boolean;
   isEnabled: boolean;
   toggle: () => Promise<boolean>;
-  verify: () => Promise<boolean>;
-}
+  verify: () => Promise<boolean>}
 
 export interface Credentials {
   email: string;
-  password: string;
-}
+  password: string}
 
 export interface AuthResponse {
   user: User;
   token: string;
-  refreshToken?: string;
-}
+  refreshToken?: string}
 
 export interface AuthError {
   message: string;
-  code?: string;
-}
+  code?: string}
 
 export interface RegistrationData {
   email: string;
@@ -52,42 +46,33 @@ export interface RegistrationData {
   company?: {
     name: string;
     website?: string;
-    industry?: string;
-  };
-}
+    industry?: string}}
 
 export interface PasswordResetRequest {
-  email: string;
-}
+  email: string}
 
 export interface PasswordResetConfirm {
   token: string;
-  newPassword: string;
-}
+  newPassword: string}
 
 export interface EmailVerification {
-  token: string;
-}
+  token: string}
 
 export interface Session {
   user: {
     id: string;
     email: string;
     name: string;
-    role: string;
-  };
+    role: string};
   expires: string;
-  accessToken: string;
-}
+  accessToken: string}
 
 export interface TokenPayload {
   userId: string;
   email: string;
   role: string;
   iat: number;
-  exp: number;
-}
+  exp: number}
 
 export interface AuthProviderProps {
-  children: React.ReactNode;
-}
+  children: React.ReactNode}

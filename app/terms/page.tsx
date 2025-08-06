@@ -11,6 +11,4 @@ export default function TermsPage() {
         <li>Do not misuse the platform or attempt to access unauthorized areas.</li>
       </ul>
       <p>Contact us if you have any questions about these terms.</p>
-    </div>
-  );
-} 
+    </div>)} 

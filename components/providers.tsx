@@ -6,8 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { CandidateProvider } from "@/context/CandidateContext";
 
 interface ProvidersProps {
-  children: React.ReactNode;
-}
+  children: React.ReactNode}
 
 export default function Providers({ children }: ProvidersProps) {
   return (
@@ -26,6 +25,4 @@ export default function Providers({ children }: ProvidersProps) {
           </AuthProvider>
         </ThemeProvider>
       </ReactQueryProvider>
-    </SessionProvider>
-  );
-}
+    </SessionProvider>)}

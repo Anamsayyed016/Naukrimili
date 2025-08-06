@@ -11,8 +11,7 @@ interface FraudReport {
   reportedBy: string;
   reportedItem: string;
   createdAt: Date;
-  updatedAt: Date;
-}
+  updatedAt: Date}
 
 // Mock fraud reports storage
 const mockFraudReports: FraudReport[] = [];
@@ -29,17 +28,12 @@ export async function GET(
     if (!report) {
       return NextResponse.json(
         { error: 'Fraud report not found' },
-        { status: 404 }
-      );
-    }
+        { status: 404 })}
 
-    return NextResponse.json(report);
-  } catch (_error) {
+    return NextResponse.json(report)} catch (_error) {
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }
 
 export async function PUT(
@@ -55,9 +49,7 @@ export async function PUT(
     if (reportIndex === -1) {
       return NextResponse.json(
         { error: 'Fraud report not found' },
-        { status: 404 }
-      );
-    }
+        { status: 404 })}
 
     mockFraudReports[reportIndex] = {
       ...mockFraudReports[reportIndex],
@@ -65,13 +57,10 @@ export async function PUT(
       updatedAt: new Date()
     };
 
-    return NextResponse.json(mockFraudReports[reportIndex]);
-  } catch (_error) {
+    return NextResponse.json(mockFraudReports[reportIndex])} catch (_error) {
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }
 
 export async function DELETE(
@@ -86,17 +75,12 @@ export async function DELETE(
     if (reportIndex === -1) {
       return NextResponse.json(
         { error: 'Fraud report not found' },
-        { status: 404 }
-      );
-    }
+        { status: 404 })}
 
     mockFraudReports.splice(reportIndex, 1);
 
-    return NextResponse.json({ message: 'Fraud report deleted successfully' });
-  } catch (_error) {
+    return NextResponse.json({ message: 'Fraud report deleted successfully' })} catch (_error) {
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }

@@ -11,14 +11,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={auth}>
       {children}
-    </AuthContext.Provider>
-  );
-}
+    </AuthContext.Provider>)}
 
 export function useAuthContext(): AuthState {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuthContext must be used within an AuthProvider");
-  }
-  return context;
-} 
+    throw new Error("useAuthContext must be used within an AuthProvider")}
+  return context} 

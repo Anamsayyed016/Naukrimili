@@ -12,16 +12,14 @@ export default function JobAdminPanel() {
       <h2 className="text-2xl font-bold mb-4">Manage Jobs</h2>
       {error && <div className="text-red-500 mb-2">{error}</div>}
       <form
-        onSubmit={e => {
+        onSubmit={e => {;
           e.preventDefault();
           if (editId !== null) {
             updateJob(editId, form);
             setEditId(null);
-            setForm({ title: '', description: '', location: '' });
-          } else {
+            setForm({ title: '', description: '', location: '' })} else {
             createJob(form);
-            setForm({ title: '', description: '', location: '' });
-          }
+            setForm({ title: '', description: '', location: '' })}
         }}
         className="flex flex-col gap-2 mb-4"
       >
@@ -32,7 +30,7 @@ export default function JobAdminPanel() {
           {editId !== null ? 'Update' : 'Add'}
         </button>
         {editId !== null && (
-          <button type="button" className="ml-2 text-gray-500" onClick={() => { setEditId(null); setForm({ title: '', description: '', location: '' }); }}>
+          <button type="button" className="ml-2 text-gray-500" onClick={() => { setEditId(null); setForm({ title: '', description: '', location: '' })}}>
             Cancel
           </button>
         )}
@@ -42,7 +40,7 @@ export default function JobAdminPanel() {
           <li key={job.id} className="flex items-center justify-between border-b py-2">
             <span>{job.title} - {job.location}</span>
             <div className="flex gap-2">
-              <button className="text-blue-600" onClick={() => { setEditId(job.id); setForm({ title: job.title, description: job.description, location: job.location }); }}>Edit</button>
+              <button className="text-blue-600" onClick={() => { setEditId(job.id); setForm({ title: job.title, description: job.description, location: job.location })}}>Edit</button>
               <button className="text-red-600" onClick={() => deleteJob(job.id)}>Delete</button>
             </div>
           </li>
@@ -50,5 +48,4 @@ export default function JobAdminPanel() {
       </ul>
       {loading && <div className="mt-2 text-gray-500">Loading...</div>}
     </div>
-  );
-}
+  )}

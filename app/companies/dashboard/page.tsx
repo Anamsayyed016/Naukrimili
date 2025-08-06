@@ -6,6 +6,4 @@ export default function CompanyDashboardPage() {
   return (
     <AuthGuard allowedRoles={['employer']}>
       <CompanyView />
-    </AuthGuard>
-  );
-} 
+    </AuthGuard>)} 

@@ -19,12 +19,9 @@ export function useUsersApi() {
     try {
       const res = await fetch('/api/users');
       const data = await res.json();
-      setUsers(data);
-    } catch (err) {
-      setError('Failed to fetch users');
-    } finally {
-      setLoading(false);
-    }
+      setUsers(data)} catch (err) {
+      setError('Failed to fetch users')} finally {
+      setLoading(false)}
   };
 
   const createUser = async (user: User): Promise<void> => {
@@ -37,12 +34,9 @@ export function useUsersApi() {
         body: JSON.stringify(user),
       });
       if (!res.ok) throw new Error('Failed to create');
-      await fetchUsers();
-    } catch (err) {
-      setError('Failed to create user');
-    } finally {
-      setLoading(false);
-    }
+      await fetchUsers()} catch (err) {
+      setError('Failed to create user')} finally {
+      setLoading(false)}
   };
 
   const updateUser = async (id: number, user: User): Promise<void> => {
@@ -55,12 +49,9 @@ export function useUsersApi() {
         body: JSON.stringify(user),
       });
       if (!res.ok) throw new Error('Failed to update');
-      await fetchUsers();
-    } catch (err) {
-      setError('Failed to update user');
-    } finally {
-      setLoading(false);
-    }
+      await fetchUsers()} catch (err) {
+      setError('Failed to update user')} finally {
+      setLoading(false)}
   };
 
   const deleteUser = async (id: number): Promise<void> => {
@@ -69,15 +60,11 @@ export function useUsersApi() {
     try {
       const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
-      await fetchUsers();
-    } catch (err) {
-      setError('Failed to delete user');
-    } finally {
-      setLoading(false);
-    }
+      await fetchUsers()} catch (err) {
+      setError('Failed to delete user')} finally {
+      setLoading(false)}
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => { fetchUsers()}, []);
 
-  return { users, loading, error, fetchUsers, createUser, updateUser, deleteUser };
-}
+  return { users, loading, error, fetchUsers, createUser, updateUser, deleteUser }}

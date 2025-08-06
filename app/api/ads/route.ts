@@ -184,6 +184,8 @@ function calculateRelevance(ad: AdData, userSegment: string, userData: UserData)
 // GET /api/ads - Get personalized ads for user
 export async function GET(request: NextRequest) {
   try {
+  // TODO: Complete function implementation
+}
     const { searchParams } = new URL(request.url)
     
     // Extract user data from query parameters or request headers
@@ -241,6 +243,8 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/ads',
       context: {
@@ -254,6 +258,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+  // TODO: Complete function implementation
+}
     const { ad_id, event_type, user_id, conversion_value } = body
 
     // Validate required fields
@@ -307,6 +313,8 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'POST /api/ads/track',
       context: {
@@ -315,3 +323,4 @@ export async function POST(request: NextRequest) {
     })
   }
 }
+;

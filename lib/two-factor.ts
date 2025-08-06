@@ -14,8 +14,7 @@ export function generateTwoFactorSecret(userId: string): { secret: string; qrCod
     enabled: false
   });
   
-  return { secret, qrCode };
-}
+  return { secret, qrCode }}
 
 export function enableTwoFactor(userId: string, token: string): boolean {
   const userTwoFactor = twoFactorStore.get(userId);
@@ -24,10 +23,8 @@ export function enableTwoFactor(userId: string, token: string): boolean {
   const isValid = authenticator.verify({ token, secret: userTwoFactor.secret });
   if (isValid) {
     userTwoFactor.enabled = true;
-    return true;
-  }
-  return false;
-}
+    return true}
+  return false}
 
 export function verifyTwoFactorToken(userId: string, token: string): boolean {
   const userTwoFactor = twoFactorStore.get(userId);
@@ -35,25 +32,19 @@ export function verifyTwoFactorToken(userId: string, token: string): boolean {
   
   // Check TOTP token
   if (authenticator.verify({ token, secret: userTwoFactor.secret })) {
-    return true;
-  }
+    return true}
   
   // Check backup codes
   const codeIndex = userTwoFactor.backupCodes.indexOf(token);
   if (codeIndex !== -1) {
     userTwoFactor.backupCodes.splice(codeIndex, 1); // Use backup code once
-    return true;
-  }
+    return true}
   
-  return false;
-}
+  return false}
 
 export function disableTwoFactor(userId: string): void {
-  twoFactorStore.delete(userId);
-}
+  twoFactorStore.delete(userId)}
 
 function generateBackupCodes(): string[] {
   return Array.from({ length: 10 }, () => 
-    crypto.randomBytes(4).toString('hex').toUpperCase()
-  );
-}
+    crypto.randomBytes(4).toString('hex').toUpperCase())}

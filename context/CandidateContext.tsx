@@ -8,8 +8,7 @@ interface CandidateContextType {
   loading: boolean;
   error: string | null;
   refreshCandidates: () => Promise<void>;
-  updateCandidateStatus: (candidateId: string, status: ICandidate['status']) => Promise<void>;
-}
+  updateCandidateStatus: (candidateId: string, status: ICandidate['status']) => Promise<void>}
 
 const CandidateContext = createContext<CandidateContextType | undefined>(undefined);
 
@@ -24,16 +23,12 @@ export function CandidateProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       const response = await fetch('/api/candidates');
       if (!response.ok) {
-        throw new Error('Failed to fetch candidates');
-      }
+        throw new Error('Failed to fetch candidates')}
       const data = await response.json();
-      setCandidates(data);
-    } catch (err) {
+      setCandidates(data)} catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      toast.error('Failed to fetch candidates');
-    } finally {
-      setLoading(false);
-    }
+      toast.error('Failed to fetch candidates')} finally {
+      setLoading(false)}
   };
 
   const updateCandidateStatus = async (candidateId: string, status: ICandidate['status']) => {
@@ -49,17 +44,13 @@ export function CandidateProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update candidate status');
-      }
+        throw new Error('Failed to update candidate status')}
 
       await refreshCandidates();
-      toast.success('Candidate status updated successfully');
-    } catch (err) {
+      toast.success('Candidate status updated successfully')} catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      toast.error('Failed to update candidate status');
-    } finally {
-      setLoading(false);
-    }
+      toast.error('Failed to update candidate status')} finally {
+      setLoading(false)}
   };
 
   const value = {
@@ -73,14 +64,10 @@ export function CandidateProvider({ children }: { children: React.ReactNode }) {
   return (
     <CandidateContext.Provider value={value}>
       {children}
-    </CandidateContext.Provider>
-  );
-}
+    </CandidateContext.Provider>)}
 
 export function useCandidates() {
   const context = useContext(CandidateContext);
   if (context === undefined) {
-    throw new Error('useCandidates must be used within a CandidateProvider');
-  }
-  return context;
-}
+    throw new Error('useCandidates must be used within a CandidateProvider')}
+  return context}

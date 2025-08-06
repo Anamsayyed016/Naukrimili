@@ -46,8 +46,7 @@ function parseResumeWithAI(filename: string, fileContent: string) {
     languages: ['English', 'Hindi', 'Marathi']
   };
 
-  return mockAIData;
-}
+  return mockAIData}
 
 // Calculate ATS score based on resume content
 function calculateATSScore(aiData: Record<string, unknown>): number {
@@ -67,20 +66,19 @@ function calculateATSScore(aiData: Record<string, unknown>): number {
   // Check for skills
   if (aiData.skills?.length >= 5) score += 20;
   
-  return Math.min(score, 100);
-}
+  return Math.min(score, 100)}
 import { getToken } from 'next-auth/jwt';
 
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
+  // TODO: Complete function implementation
+}
     const token = await getToken({ req: request });
     if (!token) {
       return new Response(
         JSON.stringify({ success: false, message: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+        { status: 401, headers: { 'Content-Type': 'application/json' } })}
 
     const formData = await request.formData();
     const file = formData.get('resume') as File;
@@ -88,26 +86,20 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return Response.json(
         { success: false, message: 'No file uploaded' },
-        { status: 400 }
-      );
-    }
+        { status: 400 })}
 
     // Validate file type
     const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!allowedTypes.includes(file.type)) {
       return Response.json(
         { success: false, message: 'Invalid file type. Please upload PDF or Word document.' },
-        { status: 400 }
-      );
-    }
+        { status: 400 })}
 
     // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       return Response.json(
         { success: false, message: 'File size too large. Maximum 5MB allowed.' },
-        { status: 400 }
-      );
-    }
+        { status: 400 })}
 
     // Read file content (for AI parsing simulation)
     const fileBuffer = await file.arrayBuffer();
@@ -149,7 +141,7 @@ export async function POST(request: NextRequest) {
       const fileBuffer2 = Buffer.from(await file.arrayBuffer());
       filePath = join(uploadDir, `${resumeId}_${file.name}`);
       
-      await writeFile(filePath, fileBuffer2);} catch (writeError) {
+      await writeFile(filePath, fileBuffer2)} catch (writeError) {
       // console.warn('File save failed (expected in production):', writeError);
       // Continue without saving file in production
     }return new Response(
@@ -161,10 +153,9 @@ export async function POST(request: NextRequest) {
       { 
         status: 200,
         headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
-  } catch (error) {
+      })} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Resume upload error:', error);
     return new Response(
       JSON.stringify({ 
@@ -174,7 +165,5 @@ export async function POST(request: NextRequest) {
       { 
         status: 500,
         headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
+      })}
 }

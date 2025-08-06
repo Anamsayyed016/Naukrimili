@@ -13,16 +13,14 @@ export default function CategoryAdminPanel() {
       <h2 className="text-2xl font-bold mb-4">Manage Categories</h2>
       {error && <div className="text-red-500 mb-2">{error}</div>}
       <form
-        onSubmit={e => {
+        onSubmit={e => {;
           e.preventDefault();
           if (editId !== null) {
             updateCategory(editId, editName);
             setEditId(null);
-            setEditName('');
-          } else {
+            setEditName('')} else {
             createCategory(newName);
-            setNewName('');
-          }
+            setNewName('')}
         }}
         className="flex gap-2 mb-4"
       >
@@ -36,7 +34,7 @@ export default function CategoryAdminPanel() {
           {editId !== null ? 'Update' : 'Add'}
         </button>
         {editId !== null && (
-          <button type="button" className="ml-2 text-gray-500" onClick={() => { setEditId(null); setEditName(''); }}>
+          <button type="button" className="ml-2 text-gray-500" onClick={() => { setEditId(null); setEditName('')}}>
             Cancel
           </button>
         )}
@@ -48,7 +46,7 @@ export default function CategoryAdminPanel() {
             <div className="flex gap-2">
               <button
                 className="text-blue-600"
-                onClick={() => { setEditId(cat.id); setEditName(cat.name); }}
+                onClick={() => { setEditId(cat.id); setEditName(cat.name)}}
               >Edit</button>
               <button
                 className="text-red-600"
@@ -60,5 +58,4 @@ export default function CategoryAdminPanel() {
       </ul>
       {loading && <div className="mt-2 text-gray-500">Loading...</div>}
     </div>
-  );
-}
+  )}

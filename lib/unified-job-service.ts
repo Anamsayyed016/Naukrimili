@@ -20,8 +20,7 @@ export interface UnifiedJob {
   company_logo?: string;
   posted_date?: string;
   requirements?: string[];
-  benefits?: string[];
-}
+  benefits?: string[]}
 
 export interface JobSearchParams {
   query: string;
@@ -32,8 +31,7 @@ export interface JobSearchParams {
   salaryMax?: number;
   remote?: boolean;
   page?: number;
-  limit?: number;
-}
+  limit?: number}
 
 export interface JobSearchResponse {
   jobs: UnifiedJob[];
@@ -41,8 +39,7 @@ export interface JobSearchResponse {
   page: number;
   totalPages: number;
   hasMore: boolean;
-  googleUrl?: string;
-}
+  googleUrl?: string}
 
 // ===== ADZUNA API SERVICE =====
 export class AdzunaJobService {
@@ -75,18 +72,17 @@ export class AdzunaJobService {
           posted_date: job.created,
           source: 'adzuna' as const
         })),
-        total: response.data.count
-      };
-    } catch (error) {
+        total: response.data.count}} catch (error) {
       safeLogger.error('Adzuna API error', {
         code: 'ADZUNA_API_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
         query,
         location
-      });
-      throw error;
-    }
+    console.error("Error:", error);
+    throw error;
+  });
+      throw error}
   }
 }
 
@@ -119,18 +115,17 @@ export class ReedJobService {
           redirect_url: job.jobUrl,
           source: 'reed' as const
         })),
-        total: response.data.totalResults
-      };
-    } catch (error) {
+        total: response.data.totalResults}} catch (error) {
       safeLogger.error('Reed API error', {
         code: 'REED_API_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
         query,
         location
-      });
-      throw error;
-    }
+    console.error("Error:", error);
+    throw error;
+  });
+      throw error}
   }
 }
 
@@ -141,8 +136,7 @@ export class IndeedJobService {
   async searchJobs(_query: string, _location: string) {
     // Indeed API implementation
     // Note: Indeed has restricted API access
-    return { jobs: [], total: 0 };
-  }
+    return { jobs: [], total: 0 }}
 }
 
 // ===== UNIFIED JOB SERVICE =====
@@ -153,16 +147,13 @@ class UnifiedJobService {
   private indeed = new IndeedJobService();
   
   getApiStatus() {
-    return { status: 'active', endpoint: this.API_BASE_URL };
-  }
+    return { status: 'active', endpoint: this.API_BASE_URL }}
   
   getCacheStats() {
-    return { cached: 0, total: 0, hitRate: 0 };
-  }
+    return { cached: 0, total: 0, hitRate: 0 }}
   
   clearCache() {
-    return Promise.resolve({ cleared: true });
-  }
+    return Promise.resolve({ cleared: true })}
   
   async searchJobs(params: JobSearchParams): Promise<{ jobs: UnifiedJob[]; total: number }> {
     try {
@@ -181,33 +172,32 @@ class UnifiedJobService {
 
       return {
         jobs: response.data.jobs.map(this.mapToUnifiedJob.bind(this)),
-        total: response.data.total
-      };
-    } catch (error) {
+        total: response.data.total}} catch (error) {
       safeLogger.error('Error searching jobs', {
         code: 'UNIFIED_JOB_SEARCH_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         params: {
           query: params.query,
           location: params.location
-        }
+    console.error("Error:", error);
+    throw error;
+  }
       });
-      throw this.handleAPIError(error);
-    }
+      throw this.handleAPIError(error)}
   }
 
   async getJobById(jobId: string): Promise<UnifiedJob | null> {
     try {
       const response = await axios.get<APIJobResponse>(`${this.API_BASE_URL}/api/jobs/${jobId}`);
-      return this.mapToUnifiedJob(response.data);
-    } catch (error) {
+      return this.mapToUnifiedJob(response.data)} catch (error) {
       safeLogger.error('Error getting job details', {
         code: 'JOB_DETAILS_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         jobId
-      });
-      throw this.handleAPIError(error);
-    }
+    console.error("Error:", error);
+    throw error;
+  });
+      throw this.handleAPIError(error)}
   }
 
   // Multi-source job search
@@ -219,36 +209,34 @@ class UnifiedJobService {
       // Try Adzuna first (India focused)
       const adzunaResults = await this.adzuna.searchJobs(query, location, page);
       results.push(...adzunaResults.jobs);
-      sources.push('adzuna');
-    } catch (error) {
+      sources.push('adzuna')} catch (error) {
       safeLogger.warn('Adzuna API failed', {
         code: 'ADZUNA_API_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         query,
         location
-      });
-    }
+    console.error("Error:", error);
+    throw error;
+  })}
 
     try {
       // Try Reed for additional results
       const reedResults = await this.reed.searchJobs(query, location);
       results.push(...reedResults.jobs.slice(0, 10)); // Limit Reed results
-      sources.push('reed');
-    } catch (error) {
+      sources.push('reed')} catch (error) {
       safeLogger.warn('Reed API failed', {
         code: 'REED_API_ERROR',
         message: error instanceof Error ? error.message : 'Unknown error',
         query,
         location
-      });
-    }
+    console.error("Error:", error);
+    throw error;
+  })}
 
     return {
       jobs: results,
       total: results.length,
-      sources
-    };
-  }
+      sources}}
 
   private mapToUnifiedJob(job: APIJobResponse): UnifiedJob {
     return {
@@ -268,16 +256,12 @@ class UnifiedJobService {
       company_logo: job.company_logo,
       posted_date: job.posted_date,
       requirements: job.requirements,
-      benefits: job.benefits
-    };
-  }
+      benefits: job.benefits}}
 
   private handleAPIError(error: Record<string, unknown>): Error {
     if (axios.isAxiosError(error)) {
-      return new Error(error.response?.data?.message || error.message);
-    }
-    return error instanceof Error ? error : new Error('Unknown error');
-  }
+      return new Error(error.response?.data?.message || error.message)}
+    return error instanceof Error ? error : new Error('Unknown error')}
 }
 
 // ===== EXPORTS =====

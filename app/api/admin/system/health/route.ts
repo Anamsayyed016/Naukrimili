@@ -14,8 +14,7 @@ const generateMockHealthData = () => {
       responseTime: Math.floor(Math.random() * 200) + 300, // 300-500ms
       errorRate: Math.random() * 2, // 0-2% error rate
       requestCount: Math.floor(Math.random() * 1000) + 500
-    });
-  }
+    })}
 
   return {
     status: 'healthy' as const,
@@ -57,9 +56,7 @@ const generateMockHealthData = () => {
         lastIncident: undefined
       }
     ],
-    performanceHistory
-  };
-};
+    performanceHistory}};
 
 export async function GET() {
   try {
@@ -67,6 +64,8 @@ export async function GET() {
     const backendUrl = process.env.BACKEND_API_URL;
     if (backendUrl) {
       try {
+  // TODO: Complete function implementation
+}
         const response = await fetch(`${backendUrl}/admin/system/health`, {
           headers: {
             'Content-Type': 'application/json'
@@ -75,21 +74,19 @@ export async function GET() {
         
         if (response.ok) {
           const healthData = await response.json();
-          return NextResponse.json(healthData);
-        }
+          return NextResponse.json(healthData)}
       } catch (error) {
-        // console.warn('Backend health API not available, using mock data');
-      }
+    console.error("Error:", error);
+    throw error}
+        // console.warn('Backend health API not available, using mock data')}
     }
 
     // Return mock data
     const mockData = generateMockHealthData();
-    return NextResponse.json(mockData);
-
-  } catch (error) {
+    return NextResponse.json(mockData)} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/admin/system/health',
-      context: { timestamp: new Date().toISOString() }
-    });
-  }
+      context: { timestamp: new Date().toISOString() }})}
 }

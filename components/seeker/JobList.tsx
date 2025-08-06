@@ -12,8 +12,7 @@ interface Job {
   matchScore: number;
   salary: string;
   location: string;
-  postedAt?: string;
-}
+  postedAt?: string}
 
 interface JobListProps {
   searchQuery?: string;
@@ -21,10 +20,8 @@ interface JobListProps {
     location: string;
     jobType: string;
     salary: number[];
-    experienceLevel: string;
-  };
-  limit?: number;
-}
+    experienceLevel: string};
+  limit?: number}
 
 export function JobList({ searchQuery = "", filters = {
   location: "",
@@ -37,20 +34,16 @@ export function JobList({ searchQuery = "", filters = {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchJobs();
-  }, []);
+    fetchJobs()}, []);
 
   const fetchJobs = async () => {
     try {
       const response = await fetch('/api/seeker/jobs');
       if (!response.ok) throw new Error('Failed to fetch jobs');
       const data = await response.json();
-      setJobs(data.jobs);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch jobs');
-    } finally {
-      setIsLoading(false);
-    }
+      setJobs(data.jobs)} catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch jobs')} finally {
+      setIsLoading(false)}
   };
 
   if (isLoading) {
@@ -68,17 +61,13 @@ export function JobList({ searchQuery = "", filters = {
             </div>
           </Card>
         ))}
-      </div>
-    );
-  }
+      </div>)}
 
   if (error) {
     return (
       <Card className="p-6">
         <div className="text-red-500">{error}</div>
-      </Card>
-    );
-  }
+      </Card>)}
 
   if (!jobs.length) {
     return (
@@ -86,9 +75,7 @@ export function JobList({ searchQuery = "", filters = {
         <div className="text-center text-gray-500">
           No jobs found matching your profile. Please update your preferences to see more jobs.
         </div>
-      </Card>
-    );
-  }
+      </Card>)}
 
   return (
     <div className="space-y-4">
@@ -132,6 +119,4 @@ export function JobList({ searchQuery = "", filters = {
           </div>
         </Card>
       ))}
-    </div>
-  );
-}
+    </div>)}

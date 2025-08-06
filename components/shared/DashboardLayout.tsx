@@ -4,8 +4,7 @@ import clsx from "clsx";
 interface DashboardLayoutProps {
   sidebar: React.ReactNode;
   children: React.ReactNode;
-  className?: string;
-}
+  className?: string}
 
 export default function DashboardLayout({ sidebar, children, className }: DashboardLayoutProps) {
   return (
@@ -22,6 +21,4 @@ export default function DashboardLayout({ sidebar, children, className }: Dashbo
         </header>
         <section className="flex-1 p-6 bg-background">{children}</section>
       </main>
-    </div>
-  );
-} 
+    </div>)} 

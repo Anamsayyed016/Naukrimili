@@ -3,8 +3,7 @@ import { useState } from 'react';
 interface AIData {
   parsedResume?: Record<string, unknown>;
   atsScore?: number;
-  suggestions?: string[];
-}
+  suggestions?: string[]}
 
 export function useResumeUpload() {
   const [loading, setLoading] = useState(false);
@@ -36,21 +35,15 @@ export function useResumeUpload() {
             'Include quantifiable achievements',
             'Optimize keywords for ATS systems'
           ]
-        });
-      } else {
-        setError(data.message || 'Upload failed');
-      }
+        })} else {
+        setError(data.message || 'Upload failed')}
     } catch (err) {
-      setError('Network error occurred');
-    } finally {
-      setLoading(false);
-    }
+      setError('Network error occurred')} finally {
+      setLoading(false)}
   };
 
   return {
     uploadResume,
     loading,
     aiData,
-    error
-  };
-}
+    error}}

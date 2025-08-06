@@ -1,5 +1,4 @@
 ﻿'use client';
-"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,9 +21,7 @@ export default function ResumeUploadPage() {
     
     // Redirect to resumes page after a short delay
     setTimeout(() => {
-      router.push("/resumes");
-    }, 2000);
-  };
+      router.push("/resumes")}, 2000)};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50 py-12 px-4">
@@ -112,7 +109,5 @@ export default function ResumeUploadPage() {
           </Card>
         )}
       </div>
-    </div>
-  );
-}
+    </div>)}
 

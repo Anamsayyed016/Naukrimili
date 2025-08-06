@@ -11,6 +11,4 @@ export default function PrivacyPage() {
         <li>You can request deletion of your data at any time.</li>
       </ul>
       <p>Contact us if you have any questions about our privacy practices.</p>
-    </div>
-  );
-} 
+    </div>)} 

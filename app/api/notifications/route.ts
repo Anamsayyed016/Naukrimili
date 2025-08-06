@@ -11,8 +11,7 @@ export interface Notification {
   isRead: boolean;
   createdAt: Date;
   actionUrl?: string;
-  priority: 'low' | 'medium' | 'high';
-}
+  priority: 'low' | 'medium' | 'high'}
 
 // Mock notifications data - replace with actual database calls
 const mockNotifications: Notification[] = [
@@ -79,8 +78,9 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // TODO: Complete function implementation
+}
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })}
 
     const { searchParams } = new URL(request.url);
     const unreadOnly = searchParams.get('unreadOnly') === 'true';
@@ -91,8 +91,7 @@ export async function GET(request: NextRequest) {
     let userNotifications = mockNotifications.filter(n => n.userId === session.user.id);
 
     if (unreadOnly) {
-      userNotifications = userNotifications.filter(n => !n.isRead);
-    }
+      userNotifications = userNotifications.filter(n => !n.isRead)}
 
     // Sort by creation date (newest first)
     userNotifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -113,16 +112,13 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(totalCount / limit),
         hasMore: startIndex + limit < totalCount
       },
-      unreadCount
-    });
-
-  } catch (error) {
+      unreadCount})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Error fetching notifications:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }
 
 // POST /api/notifications (mark as read)
@@ -131,8 +127,9 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // TODO: Complete function implementation
+}
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })}
 
     const body = await request.json();
     const { notificationIds, markAllAsRead } = body;
@@ -141,26 +138,20 @@ export async function POST(request: NextRequest) {
       // Mark all notifications as read for this user
       mockNotifications.forEach(notification => {
         if (notification.userId === session.user.id) {
-          notification.isRead = true;
-        }
-      });
-    } else if (notificationIds && Array.isArray(notificationIds)) {
+          notification.isRead = true}
+      })} else if (notificationIds && Array.isArray(notificationIds)) {
       // Mark specific notifications as read
       notificationIds.forEach(id => {
         const notification = mockNotifications.find(n => n.id === id && n.userId === session.user.id);
         if (notification) {
-          notification.isRead = true;
-        }
-      });
-    }
+          notification.isRead = true}
+      })}
 
-    return NextResponse.json({ success: true });
-
-  } catch (error) {
+    return NextResponse.json({ success: true })} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Error updating notifications:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }

@@ -11,8 +11,7 @@ import { Loader2, User, MapPin, Phone, Mail, Briefcase, GraduationCap, Award, Gl
 interface ProfileCompletionFormProps {
   resumeData: Record<string, unknown>;
   onComplete?: () => void;
-  onClose?: () => void;
-}
+  onClose?: () => void}
 
 export default function ProfileCompletionForm({ resumeData, onComplete, onClose }: ProfileCompletionFormProps) {
   const [loading, setLoading] = useState(false);
@@ -23,20 +22,20 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    // Debug loggingif (resumeData && resumeData.aiData) {
+    // Debug logging
+    console.log('ProfileCompletionForm - Received resumeData:', resumeData);
+    
+    if (resumeData && resumeData.aiData) {
       setData(resumeData.aiData);
       setFormData(resumeData.aiData);
-      setLoading(false);
-    } else if (resumeData && resumeData.structured_data) {
+      setLoading(false)} else if (resumeData && resumeData.structured_data) {
       // Handle case where data is directly in structured_data
       setData(resumeData.structured_data);
       setFormData(resumeData.structured_data);
-      setLoading(false);
-    } else {
+      setLoading(false)} else {
       console.error('ProfileCompletionForm - Missing or invalid resume data:', { resumeData });
       setError("No resume data provided");
-      setLoading(false);
-    }
+      setLoading(false)}
   }, [resumeData]);
 
   const handleInputChange = (section: string, field: string, value: Record<string, unknown>) => {
@@ -46,20 +45,18 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
         ...prev[section],
         [field]: value
       }
-    }));
-  };
+    }))};
 
   const handleSave = async () => {
     setSaving(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
       setSaved(true);
-      if (onComplete) onComplete();
-    } catch (error) {
-      alert("Error saving profile.");
-    } finally {
-      setSaving(false);
-    }
+      if (onComplete) onComplete()} catch (error) {
+    console.error("Error:", error);
+    throw error}
+      alert("Error saving profile.")} finally {
+      setSaving(false)}
   };
 
   if (saved) {
@@ -69,9 +66,7 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
           <div className="text-2xl font-bold text-green-700 mb-2">Profile updated successfully!</div>
           <Button onClick={() => window.location.href = "/jobseeker/profile"}>Close</Button>
         </CardContent>
-      </Card>
-    );
-  }
+      </Card>)}
 
   if (loading) {
     return (
@@ -80,9 +75,7 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
           <Loader2 className="animate-spin w-8 h-8 text-purple-500 mr-2" />
           <span className="text-gray-600">Loading AI-extracted data...</span>
         </CardContent>
-      </Card>
-    );
-  }
+      </Card>)}
 
   if (error) {
     return (
@@ -90,9 +83,7 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
         <CardContent className="py-8">
           <div className="text-center text-red-600 font-semibold">{error}</div>
         </CardContent>
-      </Card>
-    );
-  }
+      </Card>)}
 
   if (!data || !data.personal_info) {
     return (
@@ -102,9 +93,7 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
             AI processing is still in progress. Please wait a moment and try again.
           </div>
         </CardContent>
-      </Card>
-    );
-  }
+      </Card>)}
 
   return (
     <Card className="bg-white/90 border-0 shadow-lg">
@@ -291,11 +280,9 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
             variant="outline" 
             className="border-gray-300 text-gray-700 hover:bg-gray-50"
             onClick={() => {
-              if (onClose) {
-                onClose();
-              } else {
-                window.location.href = '/dashboard';
-              }
+              if (onClose) {;
+                onClose()} else {
+                window.location.href = '/dashboard'}
             }}
           >
             Skip for Now
@@ -314,6 +301,5 @@ export default function ProfileCompletionForm({ resumeData, onComplete, onClose 
         </div>
       </CardContent>
     </Card>
-  );
-}
+  )}
 

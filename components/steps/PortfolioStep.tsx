@@ -8,17 +8,13 @@ interface PortfolioStepProps {
     socialLinks: {
       linkedin: string;
       github: string;
-      portfolio: string;
-    };
-  };
-  onUpdate: (updates: Partial<PortfolioStepProps['data']>) => void;
-}
+      portfolio: string}};
+  onUpdate: (updates: Partial<PortfolioStepProps['data']>) => void}
 
 export function PortfolioStep({ data, onUpdate }: PortfolioStepProps) {
   const handleFileChange = useCallback((field: 'resume' | 'profilePicture') => (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
-    onUpdate({ [field]: file });
-  }, [onUpdate]);
+    onUpdate({ [field]: file })}, [onUpdate]);
 
   const handleSocialLinkChange = useCallback((platform: keyof typeof data.socialLinks) => (event: React.ChangeEvent<HTMLInputElement>) => {
     onUpdate({
@@ -26,8 +22,7 @@ export function PortfolioStep({ data, onUpdate }: PortfolioStepProps) {
         ...data.socialLinks,
         [platform]: event.target.value
       }
-    });
-  }, [data.socialLinks, onUpdate]);
+    })}, [data.socialLinks, onUpdate]);
 
   return (
     <div className="space-y-6">
@@ -144,6 +139,4 @@ export function PortfolioStep({ data, onUpdate }: PortfolioStepProps) {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}

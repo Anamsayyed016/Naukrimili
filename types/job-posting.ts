@@ -4,14 +4,12 @@ export interface JobPosting {
   company: {
     id: string;
     name: string;
-    logo?: string;
-  };
+    logo?: string};
   location: {
     city: string;
     state?: string;
     country: string;
-    remote?: boolean;
-  };
+    remote?: boolean};
   employmentType: 'full-time' | 'part-time' | 'contract' | 'internship' | 'remote';
   experienceLevel: 'entry' | 'mid' | 'senior' | 'lead' | 'executive';
   salary: {
@@ -19,8 +17,7 @@ export interface JobPosting {
     max?: number;
     currency: string;
     period: 'hourly' | 'monthly' | 'yearly';
-    isVisible: boolean;
-  };
+    isVisible: boolean};
   description: string;
   requirements: string[];
   responsibilities: string[];
@@ -28,8 +25,7 @@ export interface JobPosting {
     education?: string[];
     experience?: string;
     skills: string[];
-    languages?: string[];
-  };
+    languages?: string[]};
   benefits: string[];
   status: 'draft' | 'published' | 'closed' | 'expired';
   visibility: 'public' | 'private' | 'featured';
@@ -45,6 +41,4 @@ export interface JobPosting {
     views: number;
     applications: number;
     shares: number;
-    sourceUrl?: string;
-  };
-}
+    sourceUrl?: string}}

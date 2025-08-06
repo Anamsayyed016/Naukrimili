@@ -1,5 +1,4 @@
 ﻿'use client';
-"use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -7,8 +6,7 @@ const experienceLevels = ["Any", "Fresher", "1-3 Years", "3-5 Years", "5+ Years"
 
 interface JobSearchWidgetProps {
   location?: string;
-  onSearch?: (params: { what: string; where: string; experience: string }) => void;
-}
+  onSearch?: (params: { what: string; where: string; experience: string }) => void}
 
 export default function JobSearchWidget({ location, onSearch }: JobSearchWidgetProps) {
   const [title, setTitle] = useState("");
@@ -26,16 +24,14 @@ export default function JobSearchWidget({ location, onSearch }: JobSearchWidgetP
     };
 
     if (onSearch) {
-      onSearch(searchParams);
-    } else {
+      onSearch(searchParams)} else {
       // Navigate to jobs page with search parameters
       const params = new URLSearchParams();
       if (title) params.append('what', title);
       if (loc) params.append('where', loc);
       if (exp !== 'Any') params.append('experience', exp);
       
-      router.push(`/jobs?${params.toString()}`);
-    }
+      router.push(`/jobs?${params.toString()}`)}
   };
 
   return (
@@ -75,7 +71,5 @@ export default function JobSearchWidget({ location, onSearch }: JobSearchWidgetP
       >
         Search Jobs
       </button>
-    </form>
-  );
-}
+    </form>)}
 

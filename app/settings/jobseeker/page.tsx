@@ -13,8 +13,7 @@ export default function JobSeekerSettings() {
     setSettings(prev => ({
       ...prev,
       [key]: !prev[key as keyof typeof prev]
-    }));
-  };
+    }))};
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -64,6 +63,4 @@ export default function JobSeekerSettings() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}

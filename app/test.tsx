@@ -5,4 +5,4 @@ export default function TestPage() {
       <p>This is a test</p>
     </div>
   )
-} 
+} ;

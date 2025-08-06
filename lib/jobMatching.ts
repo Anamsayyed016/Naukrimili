@@ -2,8 +2,7 @@
 interface Skill {
   id: string;
   name: string;
-  category: string;
-}
+  category: string}
 
 // interface JobPreferences {
 //   experienceRequired: number;
@@ -15,8 +14,7 @@ interface SeekerPreferences {
   totalExperience: number;
   expectedSalaryMin: number;
   expectedSalaryMax: number;
-  preferredLocations: string[];
-}
+  preferredLocations: string[]}
 
 interface MatchParams {
   jobSkills: Skill[];
@@ -26,8 +24,7 @@ interface MatchParams {
     salaryRange: [number, number];
     location: Record<string, unknown>; // Using any for brevity, should match your location type
   };
-  seekerPreferences: SeekerPreferences | null;
-}
+  seekerPreferences: SeekerPreferences | null}
 
 export function calculateMatchScore({
   jobSkills,
@@ -58,8 +55,7 @@ export function calculateMatchScore({
     seekerPreferences.preferredLocations
   ) * 0.1;
 
-  return skillsScore + experienceScore + salaryScore + locationScore;
-}
+  return skillsScore + experienceScore + salaryScore + locationScore}
 
 function calculateSkillsMatch(jobSkills: Skill[], seekerSkills: Skill[]): number {
   const requiredSkills = new Set(jobSkills.map(s => s.name.toLowerCase()));
@@ -69,15 +65,13 @@ function calculateSkillsMatch(jobSkills: Skill[], seekerSkills: Skill[]): number
     candidateSkills.has(skill)
   ).length;
 
-  return (matchingSkills / requiredSkills.size) * 100;
-}
+  return (matchingSkills / requiredSkills.size) * 100}
 
 function calculateExperienceMatch(required: number, actual: number): number {
   if (actual >= required) return 100;
   if (actual >= required * 0.8) return 80;
   if (actual >= required * 0.6) return 60;
-  return Math.max((actual / required) * 50, 0);
-}
+  return Math.max((actual / required) * 50, 0)}
 
 function calculateSalaryMatch(
   jobRange: [number, number],
@@ -88,8 +82,7 @@ function calculateSalaryMatch(
 
   if (jobMax >= expectedMin && jobMin <= expectedMax) {
     // Ranges overlap - good match
-    return 100;
-  }
+    return 100}
 
   // Calculate how far off the ranges are
   const difference = Math.min(
@@ -99,8 +92,7 @@ function calculateSalaryMatch(
 
   // Normalize the difference (assuming 5 LPA difference is maximum mismatch)
   const normalizedDiff = Math.min(difference / 500000, 1);
-  return Math.max((1 - normalizedDiff) * 100, 0);
-}
+  return Math.max((1 - normalizedDiff) * 100, 0)}
 
 function calculateLocationMatch(jobLocation: Record<string, unknown>, preferredLocations: string[]): number {
   // Simple location matching - can be enhanced with actual geocoding
@@ -109,5 +101,4 @@ function calculateLocationMatch(jobLocation: Record<string, unknown>, preferredL
     jobCity.includes(loc.toLowerCase())
   );
 
-  return matchingLocation ? 100 : 0;
-}
+  return matchingLocation ? 100 : 0}

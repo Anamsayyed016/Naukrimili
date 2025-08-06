@@ -26,6 +26,8 @@ async function fixDuplicateImports() {
             name: 'Duplicate React imports (wildcard + default)',
             pattern: /import \* as React from ["']react["']\s*\n\s*import React from ["']react["'];?/g,
             replacement: 'import * as React from "react"'
+  // TODO: Complete function implementation
+}
           },
           {
             name: 'Duplicate React imports (default + wildcard)', 
@@ -50,8 +52,7 @@ async function fixDuplicateImports() {
           if (content !== before) {
             console.log(`✅ Fixed ${name} in ${path.relative('.', filePath)}`);
             changed = true;
-            totalFixes++;
-          }
+            totalFixes++}
         }
         
         // Fix other common import issues
@@ -63,7 +64,7 @@ async function fixDuplicateImports() {
           },
           {
             name: 'Multiple consecutive newlines in imports',
-            pattern: /(import[^;]+;)\n\n\n+(import)/g,
+            pattern: /(import[^;]+)\n\n\n+(import)/g,
             replacement: '$1\n$2'
           }
         ];
@@ -72,55 +73,52 @@ async function fixDuplicateImports() {
           const before = content;
           content = content.replace(pattern, replacement);
           if (content !== before) {
-            changed = true;
-          }
+            changed = true}
         }
         
         if (changed) {
-          await fs.writeFile(filePath, content, 'utf8');
-        }
+          await fs.writeFile(filePath, content, 'utf8')}
         
       } catch (error) {
-        console.warn(`⚠️  Could not process ${filePath}:`, error.message);
-      }
+    console.error("Error:", error);
+    throw error}
+        console.warn(`⚠️  Could not process ${filePath}:`, error.message)}
     }
     
-    console.log(`\n🎉 Fixed ${totalFixes} duplicate import issues!\n`);
-    
-  } catch (error) {
-    console.error('❌ Error fixing imports:', error);
-  }
+    console.log(`\n🎉 Fixed ${totalFixes} duplicate import issues!\n`)} catch (error) {
+    console.error("Error:", error);
+    throw error}
+    console.error('❌ Error fixing imports:', error)}
 }
 
 async function getAllFiles(dir, extensions) {
   const files = [];
   
   try {
+  // TODO: Complete function implementation
+}
     const entries = await fs.readdir(dir, { withFileTypes: true });
     
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       
       if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
-        files.push(...await getAllFiles(fullPath, extensions));
-      } else if (entry.isFile()) {
+        files.push(...await getAllFiles(fullPath, extensions))} else if (entry.isFile()) {
         const ext = path.extname(entry.name).slice(1);
         if (extensions.includes(ext)) {
-          files.push(fullPath);
-        }
+          files.push(fullPath)}
       }
     }
   } catch (error) {
-    console.warn(`Could not read directory ${dir}:`, error.message);
-  }
+    console.error("Error:", error);
+    throw error}
+    console.warn(`Could not read directory ${dir}:`, error.message)}
   
-  return files;
-}
+  return files}
 
 // Run the fixes
 fixDuplicateImports().then(() => {
   console.log('✨ Import fixes completed!');
   console.log('\n🔍 To verify fixes:');
   console.log('   npm run type-check');
-  console.log('   npm run build');
-});
+  console.log('   npm run build')});

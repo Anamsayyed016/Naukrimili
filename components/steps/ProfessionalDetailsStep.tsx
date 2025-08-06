@@ -8,11 +8,8 @@ interface ProfessionalDetailsStepProps {
     education: {
       degree: string;
       institution: string;
-      year: number;
-    }[];
-  };
-  onUpdate: (updates: Partial<ProfessionalDetailsStepProps['data']>) => void;
-}
+      year: number}[]};
+  onUpdate: (updates: Partial<ProfessionalDetailsStepProps['data']>) => void}
 
 export function ProfessionalDetailsStep({ data, onUpdate }: ProfessionalDetailsStepProps) {
   const addEducation = () => {
@@ -21,20 +18,17 @@ export function ProfessionalDetailsStep({ data, onUpdate }: ProfessionalDetailsS
         ...data.education,
         { degree: '', institution: '', year: new Date().getFullYear() }
       ]
-    });
-  };
+    })};
 
   const updateEducation = (index: number, updates: Partial<ProfessionalDetailsStepProps['data']['education'][0]>) => {
     const newEducation = [...data.education];
     newEducation[index] = { ...newEducation[index], ...updates };
-    onUpdate({ education: newEducation });
-  };
+    onUpdate({ education: newEducation })};
 
   const removeEducation = (index: number) => {
     onUpdate({
       education: data.education.filter((_, i) => i !== index)
-    });
-  };
+    })};
 
   return (
     <div className="space-y-6">
@@ -134,6 +128,4 @@ export function ProfessionalDetailsStep({ data, onUpdate }: ProfessionalDetailsS
           </div>
         ))}
       </div>
-    </div>
-  );
-}
+    </div>)}

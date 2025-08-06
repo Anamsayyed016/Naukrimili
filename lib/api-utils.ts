@@ -9,9 +9,7 @@ export interface AuthenticatedRequest extends NextRequest {
     email?: string | null;
     image?: string | null;
     role: 'jobseeker' | 'employer' | 'recruiter' | 'admin';
-    profileCompletion: number;
-  };
-}
+    profileCompletion: number}}
 
 /**
  * Middleware to authenticate API requests
@@ -19,13 +17,14 @@ export interface AuthenticatedRequest extends NextRequest {
  */
 export async function authenticateApiRequest(): Promise<{
   user: AuthenticatedRequest['user'];
+  // TODO: Complete function implementation
+}
 } | null> {
   try {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return null;
-    }
+      return null}
 
     return {
       user: {
@@ -35,20 +34,18 @@ export async function authenticateApiRequest(): Promise<{
         image: session.user.image,
         role: session.user.role,
         profileCompletion: session.user.profileCompletion
-      }
-    };
-  } catch (error) {
+      }}} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Authentication error:', error);
-    return null;
-  }
+    return null}
 }
 
 /**
  * Check if user has required role
  */
 export function hasRole(userRole: string, requiredRoles: string[]): boolean {
-  return requiredRoles.includes(userRole);
-}
+  return requiredRoles.includes(userRole)}
 
 /**
  * Format error response
@@ -56,9 +53,7 @@ export function hasRole(userRole: string, requiredRoles: string[]): boolean {
 export function errorResponse(message: string, status: number = 400) {
   return Response.json(
     { error: message, success: false },
-    { status }
-  );
-}
+    { status })}
 
 /**
  * Format success response
@@ -67,9 +62,7 @@ export function successResponse(data: Record<string, unknown>, message?: string)
   return Response.json({
     success: true,
     ...(message && { message }),
-    ...data
-  });
-}
+    ...data})}
 
 /**
  * Validate pagination parameters
@@ -78,8 +71,7 @@ export function validatePagination(searchParams: URLSearchParams) {
   const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '10')));
   
-  return { page, limit };
-}
+  return { page, limit }}
 
 /**
  * Calculate pagination metadata
@@ -101,6 +93,4 @@ export function getPaginationMetadata(
     hasMore,
     hasPrevious,
     startIndex: (page - 1) * limit,
-    endIndex: Math.min(page * limit - 1, totalCount - 1)
-  };
-}
+    endIndex: Math.min(page * limit - 1, totalCount - 1)}}

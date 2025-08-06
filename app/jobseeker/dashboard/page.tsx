@@ -6,6 +6,4 @@ export default function Page() {
   return (
     <AuthGuard allowedRoles={["jobseeker"]}>
       <JobSeekerView />
-    </AuthGuard>
-  );
-} 
+    </AuthGuard>)} 

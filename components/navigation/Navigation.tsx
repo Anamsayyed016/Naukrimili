@@ -48,8 +48,7 @@ export interface NavigationProps {
   showLogo?: boolean;
   theme?: 'light' | 'dark' | 'auto';
   brandName?: string;
-  className?: string;
-}
+  className?: string}
 
 export default function Navigation({
   variant = 'main',
@@ -73,8 +72,7 @@ export default function Navigation({
     if (!name) return '?';
     const names = name.split(' ');
     if (names.length === 1) return names[0].charAt(0).toUpperCase();
-    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
-  };
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase()};
 
   const navLinks = [
     { title: "Home", href: "/", icon: Home },
@@ -89,23 +87,19 @@ export default function Navigation({
           nav: 'bg-black/90 backdrop-blur-md border-b border-white/10',
           text: 'text-white',
           hover: 'hover:bg-white/10',
-          search: 'bg-white/10 border-white/20 text-white placeholder:text-white/60'
-        };
+          search: 'bg-white/10 border-white/20 text-white placeholder:text-white/60'};
       case 'simple':
         return {
           nav: 'bg-white border-b border-gray-200',
           text: 'text-gray-700',
           hover: 'hover:bg-gray-100',
-          search: 'bg-gray-100 border-gray-300 text-gray-900 placeholder:text-gray-500'
-        };
+          search: 'bg-gray-100 border-gray-300 text-gray-900 placeholder:text-gray-500'};
       default: // main
         return {
           nav: 'bg-white border-b border-gray-200',
           text: 'text-gray-700',
           hover: 'hover:bg-gray-100',
-          search: 'bg-gray-100 border-gray-300 text-gray-900 placeholder:text-gray-500'
-        };
-    }
+          search: 'bg-gray-100 border-gray-300 text-gray-900 placeholder:text-gray-500'}}
   };
 
   const styles = getVariantStyles();
@@ -464,6 +458,4 @@ export default function Navigation({
           </motion.div>
         )}
       </div>
-    </nav>
-  );
-} 
+    </nav>)} 

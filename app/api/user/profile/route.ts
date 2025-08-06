@@ -20,26 +20,21 @@ export interface UserProfile {
     position: string;
     startDate: Date;
     endDate?: Date;
-    description: string;
-  }[];
+    description: string}[];
   education?: {
     institution: string;
     degree: string;
     field: string;
     startDate: Date;
-    endDate?: Date;
-  }[];
+    endDate?: Date}[];
   preferences?: {
     jobTypes: string[];
     locations: string[];
     salaryRange: {
       min: number;
       max: number;
-      currency: string;
-    };
-    remoteWork: boolean;
-  };
-}
+      currency: string};
+    remoteWork: boolean}}
 
 // Mock user profiles - replace with actual database
 const mockUserProfiles = new Map<string, UserProfile>([
@@ -93,8 +88,9 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // TODO: Complete function implementation
+}
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })}
 
     const { searchParams } = new URL(request.url);
     const includeStats = searchParams.get('includeStats') === 'true';
@@ -103,8 +99,7 @@ export async function GET(request: NextRequest) {
     const userProfile = mockUserProfiles.get(session.user.id);
     
     if (!userProfile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-    }
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })}
 
     let response: Record<string, unknown> = {
       success: true,
@@ -118,18 +113,15 @@ export async function GET(request: NextRequest) {
         applicationsCount: 12,
         savedJobs: 8,
         responseRate: 25
-      };
-    }
+      }}
 
-    return NextResponse.json(response);
-
-  } catch (error) {
+    return NextResponse.json(response)} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Error fetching user profile:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }
 
 // PUT /api/user/profile (update profile)
@@ -138,8 +130,9 @@ export async function PUT(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // TODO: Complete function implementation
+}
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })}
 
     const body = await request.json();
     const updates = body.updates;
@@ -147,8 +140,7 @@ export async function PUT(request: NextRequest) {
     // Get current profile
     const currentProfile = mockUserProfiles.get(session.user.id);
     if (!currentProfile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-    }
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })}
 
     // Update profile
     const updatedProfile: UserProfile = {
@@ -166,16 +158,13 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       profile: updatedProfile,
-      message: 'Profile updated successfully'
-    });
-
-  } catch (error) {
+      message: 'Profile updated successfully'})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Error updating user profile:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }
 
 // Calculate profile completion percentage
@@ -194,5 +183,4 @@ function calculateProfileCompletion(profile: UserProfile): number {
   if (profile.preferences) completed++;
   if (profile.image) completed++;
 
-  return Math.round((completed / totalFields) * 100);
-}
+  return Math.round((completed / totalFields) * 100)}

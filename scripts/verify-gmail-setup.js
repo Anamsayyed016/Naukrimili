@@ -5,8 +5,7 @@ const path = require('path');// Check environment variables
 const envPath = path.join(__dirname, '..', '.env.local');
 const envExists = fs.existsSync(envPath);
 
-if (!envExists) {process.exit(1);
-}
+if (!envExists) {process.exit(1)}
 
 const envContent = fs.readFileSync(envPath, 'utf8');
 const requiredEnvVars = [
@@ -17,8 +16,7 @@ const requiredEnvVars = [
 ];let missingVars = [];
 
 requiredEnvVars.forEach(varName => {
-  if (envContent.includes(`${varName}=`) && !envContent.includes(`${varName}=your_`)) {} else {missingVars.push(varName);
-  }
+  if (envContent.includes(`${varName}=`) && !envContent.includes(`${varName}=your_`)) {} else {missingVars.push(varName)}
 });
 
 if (missingVars.length > 0) {}if (missingVars.length === 0) {} else {}

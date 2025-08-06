@@ -5,9 +5,7 @@ export interface JobAnalytics {
     unique: number;
     byDate: {
       date: string;
-      count: number;
-    }[];
-  };
+      count: number}[]};
   applications: {
     total: number;
     status: {
@@ -15,63 +13,49 @@ export interface JobAnalytics {
       reviewing: number;
       shortlisted: number;
       rejected: number;
-      hired: number;
-    };
+      hired: number};
     byDate: {
       date: string;
-      count: number;
-    }[];
-  };
+      count: number}[]};
   demographics: {
     locations: {
       city: string;
-      count: number;
-    }[];
+      count: number}[];
     experience: {
       range: string;
-      count: number;
-    }[];
+      count: number}[];
     education: {
       level: string;
-      count: number;
-    }[];
-  };
+      count: number}[]};
   engagement: {
     averageTimeOnPage: number;
     bookmarks: number;
-    shares: number;
-  };
+    shares: number};
   sourceAnalytics: {
     source: string;
     views: number;
     applications: number;
-    conversionRate: number;
-  }[];
+    conversionRate: number}[];
   performanceMetrics: {
     timeToHire?: number;
     costPerHire?: number;
     applicantQuality: {
       qualified: number;
       underqualified: number;
-      overqualified: number;
-    };
-  };
-}
+      overqualified: number}}}
 
 export interface JobAnalyticsFilter {
   startDate?: string;
   endDate?: string;
   source?: string[];
   location?: string[];
-  jobType?: string[];
-}
+  jobType?: string[]}
 
 export interface AnalyticsTimeframe {
   daily: JobAnalytics[];
   weekly: JobAnalytics[];
   monthly: JobAnalytics[];
-  yearly: JobAnalytics[];
-}
+  yearly: JobAnalytics[]}
 
 export interface ComparisonAnalytics {
   current: JobAnalytics;
@@ -79,6 +63,4 @@ export interface ComparisonAnalytics {
   change: {
     views: number;
     applications: number;
-    conversionRate: number;
-  };
-}
+    conversionRate: number}}

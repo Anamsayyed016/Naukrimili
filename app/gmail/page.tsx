@@ -15,6 +15,4 @@ export default function GmailPage() {
         
         <GmailIntegration />
       </div>
-    </div>
-  );
-} 
+    </div>)} 

@@ -22,6 +22,4 @@ export default function HowItWorks() {
           </div>
         ))}
       </div>
-    </section>
-  );
-} 
+    </section>)} 

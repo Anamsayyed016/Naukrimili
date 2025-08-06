@@ -9,8 +9,7 @@ interface AuditEvent {
   userAgent: string;
   success: boolean;
   details?: Record<string, any>;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-}
+  severity: 'low' | 'medium' | 'high' | 'critical'}
 
 class AuditLogger {
   private logs: AuditEvent[] = [];
@@ -26,16 +25,14 @@ class AuditLogger {
     
     // Keep only recent logs
     if (this.logs.length > this.maxLogs) {
-      this.logs = this.logs.slice(-this.maxLogs);
-    }
+      this.logs = this.logs.slice(-this.maxLogs)}
 
     // Log to console in development
     if (env.NODE_ENV === 'development') {}
 
     // Alert on critical events
     if (event.severity === 'critical') {
-      this.alertCriticalEvent(auditEvent);
-    }
+      this.alertCriticalEvent(auditEvent)}
   }
 
   private alertCriticalEvent(event: AuditEvent): void {
@@ -44,23 +41,19 @@ class AuditLogger {
   }
 
   getRecentLogs(limit: number = 100): AuditEvent[] {
-    return this.logs.slice(-limit);
-  }
+    return this.logs.slice(-limit)}
 
   getLogsByUser(userId: string, limit: number = 100): AuditEvent[] {
     return this.logs
-      .filter(log => log.userId === userId)
-      .slice(-limit);
-  }
+      .filter(log => log.userId === userId);
+      .slice(-limit)}
 
   getFailedAttempts(action: string, timeWindow: number = 3600000): AuditEvent[] {
     const cutoff = Date.now() - timeWindow;
     return this.logs.filter(log => 
       log.action === action && 
       !log.success && 
-      new Date(log.timestamp).getTime() > cutoff
-    );
-  }
+      new Date(log.timestamp).getTime() > cutoff)}
 }
 
 export const auditLogger = new AuditLogger();
@@ -93,8 +86,7 @@ export function logSecurityEvent(
     ip?: string;
     userAgent?: string;
     details?: Record<string, any>;
-    severity?: AuditEvent['severity'];
-  } = {}
+    severity?: AuditEvent['severity']} = {}
 ): void {
   auditLogger.log({
     action,
@@ -105,8 +97,7 @@ export function logSecurityEvent(
     userAgent: options.userAgent || 'unknown',
     details: options.details,
     severity: options.severity || 'medium'
-  });
-}
+  })}
 
 export function logAuthEvent(
   action: string,
@@ -120,8 +111,7 @@ export function logAuthEvent(
     ip,
     details,
     severity: success ? 'low' : 'high'
-  });
-}
+  })}
 
 export function logFileEvent(
   action: string,
@@ -135,5 +125,4 @@ export function logFileEvent(
     ip,
     details: { filename },
     severity: success ? 'low' : 'medium'
-  });
-}
+  })}

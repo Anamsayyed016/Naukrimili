@@ -19,8 +19,7 @@ interface JobListing {
   requirements: string[];
   isHot?: boolean;
   isNew?: boolean;
-  postedAt: string;
-}
+  postedAt: string}
 
 interface TrendingCategory {
   name: string;
@@ -28,14 +27,12 @@ interface TrendingCategory {
   growth: number;
   icon: string;
   searches: number;
-  userEngagement: number;
-}
+  userEngagement: number}
 
 interface SmartSuggestion {
   text: string;
   type: 'location' | 'skill' | 'company' | 'category';
-  confidence: number;
-}
+  confidence: number}
 
 const UnifiedJobPortal: React.FC = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -101,7 +98,13 @@ const UnifiedJobPortal: React.FC = () => {
           { name: 'Product Management', count: 567, growth: 8.5, icon: '🚀', searches: 0, userEngagement: 0 },
           { name: 'Digital Marketing', count: 432, growth: 12.3, icon: '📢', searches: 0, userEngagement: 0 },
           { name: 'UX/UI Design', count: 398, growth: 18.7, icon: '🎨', searches: 0, userEngagement: 0 },
-          { name: 'DevOps Engineering', count: 321, growth: 25.4, icon: '⚙️', searches: 0, userEngagement: 0 }
+          { name: 'DevOps Engineering', count: 321, growth: 25.4, icon: '⚙️', searches: 0, userEngagement: 0 },
+          { name: 'Cybersecurity', count: 289, growth: 31.2, icon: '🔒', searches: 0, userEngagement: 0 },
+          { name: 'Mobile Development', count: 267, growth: 19.8, icon: '📱', searches: 0, userEngagement: 0 },
+          { name: 'Machine Learning', count: 245, growth: 28.5, icon: '🤖', searches: 0, userEngagement: 0 },
+          { name: 'Cloud Computing', count: 223, growth: 22.1, icon: '☁️', searches: 0, userEngagement: 0 },
+          { name: 'Business Analyst', count: 198, growth: 14.6, icon: '📈', searches: 0, userEngagement: 0 },
+          { name: 'Sales & Marketing', count: 176, growth: 16.9, icon: '💼', searches: 0, userEngagement: 0 }
         ];
 
         // Enhance with user activity data
@@ -130,11 +133,11 @@ const UnifiedJobPortal: React.FC = () => {
 
         // Set location if detected
         if (detectedLocation?.city && !location) {
-          setLocation(`${detectedLocation.city}${detectedLocation.state ? ', ' + detectedLocation.state : ''}`);
-        }
+          setLocation(`${detectedLocation.city}${detectedLocation.state ? ', ' + detectedLocation.state : ''}`)}
       } catch (error) {
-        console.error('Error initializing data:', error);
-      }
+    console.error("Error:", error);
+    throw error;
+  }
     };
 
     initializeData();
@@ -149,10 +152,10 @@ const UnifiedJobPortal: React.FC = () => {
           type: interaction.type as any,
           value: interaction.searchQuery || interaction.category,
           metadata: interaction.metadata
-        });
-      } catch (error) {
-        console.error('Error tracking interaction:', error);
-      }
+        })} catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
     }
   };
 
@@ -182,8 +185,7 @@ const UnifiedJobPortal: React.FC = () => {
       jobType,
       salaryMin: salaryRange === '0-50k' ? 0 : salaryRange === '50k-80k' ? 50000 : salaryRange === '80k-120k' ? 80000 : undefined,
       salaryMax: salaryRange === '0-50k' ? 50000 : salaryRange === '50k-80k' ? 80000 : salaryRange === '80k-120k' ? 120000 : undefined
-    });
-  };
+    })};
 
   const handleCategoryClick = async (categoryName: string) => {
     setSelectedCategory(categoryName);
@@ -193,15 +195,12 @@ const UnifiedJobPortal: React.FC = () => {
       type: 'category_view',
       category: categoryName,
       metadata: { source: 'trending_categories' }
-    });
-  };
+    })};
 
   const handleSuggestionClick = async (suggestion: SmartSuggestion) => {
     if (suggestion.type === 'location') {
-      setLocation(suggestion.text);
-    } else {
-      setSearchQuery(suggestion.text);
-    }
+      setLocation(suggestion.text)} else {
+      setSearchQuery(suggestion.text)}
 
     await trackInteraction({
       type: 'search',
@@ -211,8 +210,7 @@ const UnifiedJobPortal: React.FC = () => {
         suggestionType: suggestion.type,
         confidence: suggestion.confidence 
       }
-    });
-  };
+    })};
 
   // Prevent hydration errors by not rendering dynamic content until mounted
   if (!isMounted) {
@@ -226,9 +224,7 @@ const UnifiedJobPortal: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
+      </div>)}
 
   const TrendingCategoriesSection = () => (
     <motion.div
@@ -254,8 +250,8 @@ const UnifiedJobPortal: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {trendingCategories.slice(0, 6).map((category, index) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {trendingCategories.slice(0, 12).map((category, index) => (
           <motion.div
             key={category.name}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -311,6 +307,107 @@ const UnifiedJobPortal: React.FC = () => {
     </motion.div>
   );
 
+  // Enhanced Featured Jobs Section - Old Rich Job Section
+  const FeaturedJobsSection = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
+      className="mb-12"
+    >
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-2">
+          <Star className="w-6 h-6 text-yellow-500" />
+          <h2 className="text-2xl font-bold text-gray-800">Featured Jobs</h2>
+          <span className="text-sm text-gray-500 bg-yellow-100 px-2 py-1 rounded-full">
+            🔥 Hot picks
+          </span>
+        </div>
+        <button className="text-blue-600 hover:text-blue-800 font-medium">
+          View All →
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {searchResults.slice(0, 6).map((job, index) => (
+          <motion.div
+            key={job.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
+            className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 cursor-pointer border border-gray-100 hover:border-blue-200 group relative overflow-hidden"
+            onClick={() => window.open(job.redirect_url, '_blank')}
+            whileHover={{ y: -5 }}
+          >
+            {job.isUrgent && (
+              <div className="absolute top-3 right-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                🚨 Urgent
+              </div>
+            )}
+            
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                  {job.title}
+                </h3>
+                <div className="flex items-center text-gray-600 mb-2">
+                  <Briefcase className="w-4 h-4 mr-2" />
+                  <span className="font-medium">{job.company}</span>
+                </div>
+                <div className="flex items-center text-sm text-gray-500 mb-3">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  <span>{job.location}</span>
+                  {job.isRemote && (
+                    <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
+                      Remote
+                    </span>
+                  )}
+                </div>
+                
+                {job.salaryFormatted && (
+                  <div className="flex items-center text-sm font-medium text-green-600 mb-3">
+                    <span className="text-lg">💰</span>
+                    <span className="ml-1">{job.salaryFormatted}</span>
+                  </div>
+                )}
+                
+                <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                  {job.description}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center text-xs text-gray-500">
+                <Clock className="w-3 h-3 mr-1" />
+                <span>{job.timeAgo}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button 
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Handle bookmark
+                  }}
+                >
+                  <BookmarkPlus className="w-4 h-4 text-gray-500" />
+                </button>
+                <button 
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(job.redirect_url, '_blank')}}
+                >
+                  Apply Now
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+
   const SmartSuggestionsSection = () => {
     if (!smartSuggestions.length) return null;
 
@@ -343,9 +440,88 @@ const UnifiedJobPortal: React.FC = () => {
             </motion.button>
           ))}
         </div>
-      </motion.div>
-    );
-  };
+      </motion.div>)};
+
+  // Quick Filters Section - From old job section
+  const QuickFiltersSection = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.1 }}
+      className="mb-8"
+    >
+      <div className="flex items-center space-x-2 mb-4">
+        <Filter className="w-5 h-5 text-purple-500" />
+        <h3 className="text-lg font-semibold text-gray-800">Quick Filters</h3>
+      </div>
+      
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Popular Cities */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">🏙️ Top Cities</h4>
+          <div className="flex flex-wrap gap-1">
+            {['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Pune'].map((city) => (
+              <button
+                key={city}
+                onClick={() => setLocation(city)}
+                className="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-xs font-medium transition-colors"
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Job Types */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">💼 Job Types</h4>
+          <div className="flex flex-wrap gap-1">
+            {['Full-time', 'Part-time', 'Remote', 'Internship'].map((type) => (
+              <button
+                key={type}
+                onClick={() => setJobType(type)}
+                className="px-2 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded text-xs font-medium transition-colors"
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Experience Levels */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">⭐ Experience</h4>
+          <div className="flex flex-wrap gap-1">
+            {['0-1 years', '1-3 years', '3-5 years', '5+ years'].map((exp) => (
+              <button
+                key={exp}
+                onClick={() => setExperienceLevel(exp)}
+                className="px-2 py-1 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded text-xs font-medium transition-colors"
+              >
+                {exp}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Salary Ranges */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">💰 Salary</h4>
+          <div className="flex flex-wrap gap-1">
+            {['0-5 LPA', '5-10 LPA', '10-15 LPA', '15+ LPA'].map((salary) => (
+              <button
+                key={salary}
+                onClick={() => setSalaryRange(salary)}
+                className="px-2 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded text-xs font-medium transition-colors"
+              >
+                {salary}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
 
   const UnifiedSearchBar = () => (
     <motion.div
@@ -505,9 +681,29 @@ const UnifiedJobPortal: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Find Your Dream Job with{' '}
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              AI Power
+            </span>
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Discover opportunities from top companies, get personalized recommendations, 
+            and accelerate your career growth.
+          </p>
+        </motion.div>
+
         <UnifiedSearchBar />
+        <QuickFiltersSection />
         <SmartSuggestionsSection />
         <TrendingCategoriesSection />
+        <FeaturedJobsSection />
         
         {/* Search Results */}
         {searchResults.length > 0 && (
@@ -517,9 +713,15 @@ const UnifiedJobPortal: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="mt-8"
           >
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              Search Results ({searchResults.length})
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                Search Results ({searchResults.length})
+              </h2>
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Clock className="w-4 h-4" />
+                <span>Updated just now</span>
+              </div>
+            </div>
             <div className="space-y-4">
               {searchResults.map((job: Record<string, unknown>, index: number) => (
                 <motion.div
@@ -527,14 +729,24 @@ const UnifiedJobPortal: React.FC = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-100"
+                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 hover:border-blue-200"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
-                        <h3 className="text-xl font-semibold text-gray-800">
+                        <h3 className="text-xl font-semibold text-gray-800 hover:text-blue-600 cursor-pointer">
                           {job.title}
                         </h3>
+                        {job.isUrgent && (
+                          <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
+                            Urgent
+                          </span>
+                        )}
+                        {job.isRemote && (
+                          <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                            Remote
+                          </span>
+                        )}
                         {job.isHot && (
                           <span className="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs font-medium">
                             Hot
@@ -643,8 +855,6 @@ const UnifiedJobPortal: React.FC = () => {
           </motion.div>
         )}
       </div>
-    </div>
-  );
-};
+    </div>)};
 
 export default UnifiedJobPortal;

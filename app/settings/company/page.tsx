@@ -13,8 +13,7 @@ export default function CompanySettings() {
     setSettings(prev => ({
       ...prev,
       [key]: !prev[key as keyof typeof prev]
-    }));
-  };
+    }))};
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -88,6 +87,4 @@ export default function CompanySettings() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}

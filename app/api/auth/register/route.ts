@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+  // TODO: Complete function implementation
+}
     const { name, email, password, role } = await request.json();
 
     // Mock user registration
@@ -21,13 +23,10 @@ export async function POST(request: NextRequest) {
         name: user.name,
         email: user.email,
         role: user.role
-      }
-    });
-
-  } catch (error) {
+      }})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return NextResponse.json(
       { success: false, message: 'Registration failed' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }

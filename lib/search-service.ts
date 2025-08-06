@@ -13,24 +13,22 @@ export class SearchService {
           ...filters
         }
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error searching jobs:', error);
-      throw error;
-    }
+      throw error}
   }
 }
 
 export async function getJobDetails(jobId: string) {
   try {
+  // TODO: Complete function implementation
+}
     const response = await axios.get(`${SERPAPI_BASE_URL}/jobs/${jobId}`, {
       params: {
         api_key: SERPAPI_KEY,
       },
     });
-    return response.data;
-  } catch (error) {
+    return response.data} catch (error) {
     console.error('Error fetching job details from SerpApi:', error);
-    throw error;
-  }
+    throw error}
 }

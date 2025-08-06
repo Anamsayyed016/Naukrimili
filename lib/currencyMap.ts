@@ -5,8 +5,7 @@ export interface CurrencyInfo {
   step: number;
   min: number;
   max: number;
-  locale: string;
-}
+  locale: string}
 
 export const currencyMap: Record<string, CurrencyInfo> = {
   US: {
@@ -60,5 +59,4 @@ export function getCurrencyInfo(countryCode: string | undefined): CurrencyInfo {
   if (!countryCode) return currencyMap.US;
   if (currencyMap[countryCode]) return currencyMap[countryCode];
   // fallback to US
-  return currencyMap.US;
-} 
+  return currencyMap.US} 

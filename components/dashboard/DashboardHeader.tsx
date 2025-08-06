@@ -8,9 +8,7 @@ interface DashboardHeaderProps {
   actions?: {
     icon: LucideIcon;
     label: string;
-    onClick: () => void;
-  }[];
-}
+    onClick: () => void}[]}
 
 export default function DashboardHeader({ title, subtitle, actions = [] }: DashboardHeaderProps) {
   return (
@@ -37,6 +35,4 @@ export default function DashboardHeader({ title, subtitle, actions = [] }: Dashb
           </button>
         ))}
       </div>
-    </div>
-  );
-} 
+    </div>)} 

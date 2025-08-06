@@ -9,14 +9,11 @@ export function useDebounce<T extends (...args: Record<string, unknown>[]) => an
 
   return useCallback(
     (...args: Parameters<T>) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      timeoutRef.current = setTimeout(() => callback(...args), delay);
-    },
+      if (timeoutRef.current) {;
+        clearTimeout(timeoutRef.current)}
+      timeoutRef.current = setTimeout(() => callback(...args), delay)},
     [callback, delay]
-  ) as T;
-}
+  ) as T}
 
 // ===== THROTTLE UTILITY =====
 export function useThrottle<T extends (...args: Record<string, unknown>[]) => any>(
@@ -27,24 +24,19 @@ export function useThrottle<T extends (...args: Record<string, unknown>[]) => an
   const lastCallTimer = useRef<NodeJS.Timeout>();
 
   return useCallback(
-    (...args: Parameters<T>) => {
+    (...args: Parameters<T>) => {;
       const now = Date.now();
       if (now - lastCall.current >= delay) {
         callback(...args);
-        lastCall.current = now;
-      } else {
+        lastCall.current = now} else {
         if (lastCallTimer.current) {
-          clearTimeout(lastCallTimer.current);
-        }
+          clearTimeout(lastCallTimer.current)}
         lastCallTimer.current = setTimeout(() => {
           callback(...args);
-          lastCall.current = Date.now();
-        }, delay - (now - lastCall.current));
-      }
+          lastCall.current = Date.now()}, delay - (now - lastCall.current))}
     },
     [callback, delay]
-  ) as T;
-}
+  ) as T}
 
 // ===== LAZY LOADING UTILITY =====
 export function useLazyLoad<T>(
@@ -59,27 +51,22 @@ export function useLazyLoad<T>(
     const endIndex = page * pageSize;
     const newItems = items.slice(0, endIndex);
     setDisplayedItems(newItems);
-    setHasMore(endIndex < items.length);
-  }, [items, page, pageSize]);
+    setHasMore(endIndex < items.length)}, [items, page, pageSize]);
 
   const loadMore = useCallback(() => {
     if (hasMore) {
-      setPage(prev => prev + 1);
-    }
+      setPage(prev => prev + 1)}
   }, [hasMore]);
 
   return {
     displayedItems,
     hasMore,
     loadMore,
-    reset: () => setPage(1)
-  };
-}
+    reset: () => setPage(1)}}
 
 // ===== MEMOIZATION UTILITY =====
 export function useDeepMemo<T>(value: T, deps: Record<string, unknown>[]): T {
-  return useMemo(() => value, deps);
-}
+  return useMemo(() => value, deps)}
 
 // ===== INTERSECTION OBSERVER HOOK =====
 export function useIntersectionObserver(
@@ -92,16 +79,13 @@ export function useIntersectionObserver(
     if (node !== null) {
       const observer = new IntersectionObserver(([entry]) => {
         setIsIntersecting(entry.isIntersecting);
-        setEntry(entry);
-      }, options);
+        setEntry(entry)}, options);
 
       observer.observe(node);
-      return () => observer.disconnect();
-    }
+      return () => observer.disconnect()}
   }, [options]);
 
-  return { elementRef, isIntersecting, entry };
-}
+  return { elementRef, isIntersecting, entry }}
 
 // ===== VIRTUALIZATION UTILITY =====
 export function useVirtualization<T>(
@@ -126,20 +110,16 @@ export function useVirtualization<T>(
         top: (startIndex + index) * itemHeight,
         height: itemHeight,
         width: '100%',
-      },
-    }));
-  }, [items, itemHeight, containerHeight, scrollTop]);
+      },}))}, [items, itemHeight, containerHeight, scrollTop]);
 
   const totalHeight = items.length * itemHeight;
 
   return {
     visibleItems,
     totalHeight,
-    onScroll: (e: React.UIEvent<HTMLDivElement>) => {
-      setScrollTop(e.currentTarget.scrollTop);
-    },
-  };
-}
+    onScroll: (e: React.UIEvent<HTMLDivElement>) => {;
+      setScrollTop(e.currentTarget.scrollTop)},
+  }}
 
 // ===== IMAGE OPTIMIZATION =====
 export function useImageOptimization(
@@ -148,8 +128,7 @@ export function useImageOptimization(
     width?: number;
     height?: number;
     quality?: number;
-    format?: 'webp' | 'jpeg' | 'png';
-  } = {}
+    format?: 'webp' | 'jpeg' | 'png'} = {}
 ) {
   const { width, height, quality = 75, format = 'webp' } = options;
 
@@ -164,14 +143,11 @@ export function useImageOptimization(
       params.append('q', quality.toString());
       params.append('f', format);
 
-      return `${src}?${params.toString()}`;
-    }
+      return `${src}?${params.toString()}`}
 
-    return src;
-  }, [src, width, height, quality, format]);
+    return src}, [src, width, height, quality, format]);
 
-  return optimizedSrc;
-}
+  return optimizedSrc}
 
 // ===== BUNDLE SIZE OPTIMIZATION =====
 export function useDynamicImport<T>(
@@ -188,20 +164,15 @@ export function useDynamicImport<T>(
       importFn()
         .then((module) => {
           setComponent(module.default);
-          setError(null);
-        })
+          setError(null)})
         .catch((err) => {
           setError(err);
-          console.error('Dynamic import failed:', err);
-        })
+          console.error('Dynamic import failed:', err)})
         .finally(() => {
-          setLoading(false);
-        });
-    }
+          setLoading(false)})}
   }, [importFn, fallback]);
 
-  return { Component, loading, error };
-}
+  return { Component, loading, error }}
 
 // ===== PERFORMANCE MONITORING =====
 export function usePerformanceMonitor(componentName: string) {
@@ -215,14 +186,11 @@ export function usePerformanceMonitor(componentName: string) {
     
     if (process.env.NODE_ENV === 'development') {}
     
-    lastRenderTime.current = currentTime;
-  });
+    lastRenderTime.current = currentTime});
 
   return {
     renderCount: renderCount.current,
-    timeSinceLastRender: performance.now() - lastRenderTime.current,
-  };
-}
+    timeSinceLastRender: performance.now() - lastRenderTime.current,}}
 
 // ===== MEMORY LEAK PREVENTION =====
 export function useCleanupEffect(
@@ -232,12 +200,9 @@ export function useCleanupEffect(
   useEffect(() => {
     const cleanup = effect();
     return () => {
-      if (typeof cleanup === 'function') {
-        cleanup();
-      }
-    };
-  }, deps);
-}
+      if (typeof cleanup === 'function') {;
+        cleanup()}
+    }}, deps)}
 
 // ===== REQUEST CACHING =====
 const cache = new Map<string, { data: Record<string, unknown>; timestamp: number; ttl: number }>();
@@ -257,8 +222,7 @@ export function useCachedRequest<T>(
 
     if (cached && now - cached.timestamp < cached.ttl) {
       setData(cached.data);
-      return;
-    }
+      return}
 
     setLoading(true);
     setError(null);
@@ -266,17 +230,12 @@ export function useCachedRequest<T>(
     try {
       const result = await requestFn();
       cache.set(key, { data: result, timestamp: now, ttl });
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Request failed'));
-    } finally {
-      setLoading(false);
-    }
+      setData(result)} catch (err) {
+      setError(err instanceof Error ? err : new Error('Request failed'))} finally {
+      setLoading(false)}
   }, [key, requestFn, ttl]);
 
   useEffect(() => {
-    executeRequest();
-  }, [executeRequest]);
+    executeRequest()}, [executeRequest]);
 
-  return { data, loading, error, refetch: executeRequest };
-} 
+  return { data, loading, error, refetch: executeRequest }} 

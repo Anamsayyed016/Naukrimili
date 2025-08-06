@@ -20,8 +20,7 @@ export default function AdminDashboard() {
   const markAsRead = (id: number) => {
     setNotifications(prev => 
       prev.map(notif => notif.id === id ? { ...notif, read: true } : notif)
-    );
-  };
+    )};
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -141,6 +140,4 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}

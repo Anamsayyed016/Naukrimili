@@ -67,9 +67,7 @@ function ResumeManagerPlaceholder() {
           <p className="text-gray-400 text-sm">Job Matches</p>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}
 
 const stats = [
   { title: "Applications", value: "24", change: "+3", icon: ClipboardList, gradient: "from-blue-500 to-blue-600" },
@@ -96,8 +94,7 @@ export default function JobSeekerDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
 
   const handleViewStats = () => {
-    setActiveTab("overview");
-  };
+    setActiveTab("overview")};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/20 to-slate-900 py-8">
@@ -241,9 +238,7 @@ export default function JobSeekerDashboard() {
                       location: '',
                       jobType: '',
                       salary: [0, 50],
-                      experienceLevel: '',
-                    });
-                  }}
+                      experienceLevel: '',})}}
                   variant="outline"
                 >
                   Reset Filters
@@ -322,8 +317,7 @@ export default function JobSeekerDashboard() {
         </motion.div>
       </div>
     </div>
-  );
-}
+  )}
 
 const jobTypes = [
   'Full Time',

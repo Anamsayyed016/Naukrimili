@@ -5,10 +5,8 @@ interface JobPreferencesStepProps {
     jobTypes: string[];
     salaryRange: { min: number; max: number };
     remoteWork: boolean;
-    travelWillingness: boolean;
-  };
-  onUpdate: (updates: Partial<JobPreferencesStepProps['data']>) => void;
-}
+    travelWillingness: boolean};
+  onUpdate: (updates: Partial<JobPreferencesStepProps['data']>) => void}
 
 export function JobPreferencesStep({ data, onUpdate }: JobPreferencesStepProps) {
   const jobTypeOptions = [
@@ -40,13 +38,11 @@ export function JobPreferencesStep({ data, onUpdate }: JobPreferencesStepProps) 
                 type="checkbox"
                 checked={data.jobTypes.includes(type)}
                 onChange={(e) => {
-                  if (e.target.checked) {
-                    onUpdate({ jobTypes: [...data.jobTypes, type] });
-                  } else {
+                  if (e.target.checked) {;
+                    onUpdate({ jobTypes: [...data.jobTypes, type] })} else {
                     onUpdate({
                       jobTypes: data.jobTypes.filter((t) => t !== type)
-                    });
-                  }
+                    })}
                 }}
                 className="sr-only"
               />
@@ -114,5 +110,4 @@ export function JobPreferencesStep({ data, onUpdate }: JobPreferencesStepProps) 
         </div>
       </div>
     </div>
-  );
-}
+  )}

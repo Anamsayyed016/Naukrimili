@@ -4,15 +4,13 @@ import { NextRequest } from 'next/server';
 interface RateLimitConfig {
   windowMs: number;
   maxRequests: number;
-  skipSuccessfulRequests?: boolean;
-}
+  skipSuccessfulRequests?: boolean}
 
 interface RateLimitResult {
   allowed: boolean;
   remaining: number;
   resetTime: number;
-  retryAfter?: number;
-}
+  retryAfter?: number}
 
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
@@ -42,9 +40,7 @@ export function checkRateLimit(
     return { 
       allowed: true, 
       remaining: config.maxRequests - 1, 
-      resetTime: record.resetTime 
-    };
-  }
+      resetTime: record.resetTime }}
   
   if (record.count >= config.maxRequests) {
     const retryAfter = Math.ceil((record.resetTime - now) / 1000);
@@ -52,22 +48,17 @@ export function checkRateLimit(
       allowed: false, 
       remaining: 0, 
       resetTime: record.resetTime,
-      retryAfter
-    };
-  }
+      retryAfter}}
   
   record.count++;
   return { 
     allowed: true, 
     remaining: config.maxRequests - record.count, 
-    resetTime: record.resetTime 
-  };
-}
+    resetTime: record.resetTime }}
 
 // ===== CLIENT IDENTIFIER =====
 function getClientIdentifier(req: NextRequest): string {
-  return req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-}
+  return req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown'}
 
 // ===== LEGACY RATE LIMITER CLASS (DEPRECATED) =====
 /**
@@ -77,8 +68,7 @@ function getClientIdentifier(req: NextRequest): string {
  */
 interface RateLimiterOptions {
   windowMs: number;
-  max: number;
-}
+  max: number}
 
 export class RateLimiter {
   private readonly requests: Map<string, number[]> = new Map();
@@ -87,8 +77,7 @@ export class RateLimiter {
 
   constructor(options: RateLimiterOptions) {
     this.windowMs = options.windowMs;
-    this.max = options.max;
-  }
+    this.max = options.max}
 
   async check(key: string): Promise<{ success: boolean; retryAfter?: number }> {
     const now = Date.now();
@@ -100,8 +89,7 @@ export class RateLimiter {
     if (requests.length < this.max) {
       requests.push(now);
       this.requests.set(key, requests);
-      return { success: true };
-    }
+      return { success: true }}
 
     this.requests.set(key, requests);
     const oldestRequest = requests[0]!;
@@ -109,17 +97,13 @@ export class RateLimiter {
 
     return {
       success: false,
-      retryAfter
-    };
-  }
+      retryAfter}}
 
   clear(key: string): void {
-    this.requests.delete(key);
-  }
+    this.requests.delete(key)}
 
   clearAll(): void {
-    this.requests.clear();
-  }
+    this.requests.clear()}
 }
 
 // ===== CLEANUP EXPIRED ENTRIES =====
@@ -127,8 +111,7 @@ setInterval(() => {
   const now = Date.now();
   for (const [key, record] of rateLimitStore.entries()) {
     if (now > record.resetTime) {
-      rateLimitStore.delete(key);
-    }
+      rateLimitStore.delete(key)}
   }
 }, 60000);
 
@@ -140,12 +123,9 @@ export function getRateLimitHeaders(result: RateLimitResult): Record<string, str
   };
 
   if (result.retryAfter) {
-    headers['Retry-After'] = result.retryAfter.toString();
-  }
+    headers['Retry-After'] = result.retryAfter.toString()}
 
-  return headers;
-}
+  return headers}
 
 export function isRateLimited(result: RateLimitResult): boolean {
-  return !result.allowed;
-}
+  return !result.allowed}

@@ -50,6 +50,5 @@ export function generateCSP(): string {
   };
 
   return Object.entries(csp)
-    .map(([key, values]) => `${key} ${values.join(' ')}`)
-    .join('; ');
-}
+    .map(([key, values]) => `${key} ${values.join(' ')}`);
+    .join('; ')}

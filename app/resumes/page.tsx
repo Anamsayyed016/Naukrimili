@@ -1,5 +1,4 @@
 ﻿'use client';
-"use client";
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,8 +15,7 @@ interface Resume {
   atsScore: number;
   tags: string[];
   visibility: string;
-  uploadedAt: string;
-}
+  uploadedAt: string}
 
 export default function ResumeDashboardPage() {
   const [resumes, setResumes] = useState<Resume[]>([]);
@@ -42,17 +40,15 @@ export default function ResumeDashboardPage() {
         const data = await res.json();
         if (data.success) {
           setResumes(data.resumes);
+  // TODO: Complete function implementation
+}
         } else {
-          setError("Failed to fetch resumes.");
-        }
+          setError("Failed to fetch resumes.")}
       } catch (err) {
-        setError("Failed to fetch resumes.");
-      } finally {
-        setLoading(false);
-      }
+        setError("Failed to fetch resumes.")} finally {
+        setLoading(false)}
     }
-    fetchResumes();
-  }, []);
+    fetchResumes()}, []);
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this resume?")) return;
@@ -61,15 +57,11 @@ export default function ResumeDashboardPage() {
       const res = await fetch(`/api/resumes/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
-        setResumes((prev) => prev.filter((r) => r.id !== id));
-      } else {
-        alert("Failed to delete resume.");
-      }
+        setResumes((prev) => prev.filter((r) => r.id !== id))} else {
+        alert("Failed to delete resume.")}
     } catch {
-      alert("Failed to delete resume.");
-    } finally {
-      setDeletingId(null);
-    }
+      alert("Failed to delete resume.")} finally {
+      setDeletingId(null)}
   };
 
   const handleUpload = async (event: React.FormEvent) => {
@@ -80,8 +72,7 @@ export default function ResumeDashboardPage() {
     if (!file) {
       alert('Please select a file to upload.');
       setUploading(false);
-      return;
-    }
+      return}
 
     const formData = new FormData();
     formData.append('resume', file);
@@ -105,23 +96,18 @@ export default function ResumeDashboardPage() {
         const refreshRes = await fetch("/api/resumes");
         const refreshData = await refreshRes.json();
         if (refreshData.success) {
-          setResumes(refreshData.resumes);
-        }
+          setResumes(refreshData.resumes)}
       } else {
-        alert('Upload failed: ' + data.message);
-      }
+        alert('Upload failed: ' + data.message)}
     } catch (err) {
-      alert('Error uploading resume.');
-    } finally {
-      setUploading(false);
-    }
+      alert('Error uploading resume.')} finally {
+      setUploading(false)}
   };
 
   const resetForm = () => {
     setShowForm(false);
     setUploadSuccess(false);
-    setFile(null);
-  };
+    setFile(null)};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50 py-12 px-4">
@@ -148,9 +134,8 @@ export default function ResumeDashboardPage() {
           <CardContent>
             <ResumeUploadFlow 
               onUploadComplete={(data) => {
-                // Refresh the resumes list or handle the upload completion
-                router.refresh();
-              }}
+                // Refresh the resumes list or handle the upload completion;
+                router.refresh()}}
             />
           </CardContent>
         </Card>
@@ -180,8 +165,7 @@ export default function ResumeDashboardPage() {
             </Card>
 
             {/* Profile Completion Form */}
-            {showProfileForm && (() => {return uploadedResumeData && uploadedResumeData.aiData;
-            })() && (
+            {showProfileForm && (() => {return uploadedResumeData && uploadedResumeData.aiData})() && (
               <ProfileCompletionForm resumeData={uploadedResumeData} />
             )}
             
@@ -290,5 +274,4 @@ export default function ResumeDashboardPage() {
         )}
       </div>
     </div>
-  );
-} 
+  )} 

@@ -19,6 +19,4 @@ export default function SideCTAs() {
         <div className="text-lg font-semibold text-gray-900" style={{ fontFamily: 'Inter' }}>More features coming soon!</div>
         <div className="text-sm text-gray-600 mt-2">Stay tuned for exciting updates</div>
       </div>
-    </div>
-  );
-} 
+    </div>)} 

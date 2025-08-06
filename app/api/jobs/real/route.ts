@@ -15,12 +15,10 @@ interface JobData {
   source: string;
   sector: string;
   experience: number;
-  skills: string[];
-}
+  skills: string[]}
 
 interface Job extends JobData {
-  id: string;
-}
+  id: string}
 
 // Dynamic job generator - creates jobs based on location and sector
 function generateJobsForLocation(location: string, query: string = '') {
@@ -75,16 +73,14 @@ function generateJobsForLocation(location: string, query: string = '') {
     // Skip sector if query doesn't match
     if (query && !sector.toLowerCase().includes(query.toLowerCase()) && 
         !data.roles.some(role => role.toLowerCase().includes(query.toLowerCase()))) {
-      return;
-    }
+      return}
 
     data.companies.forEach(company => {
       data.roles.forEach(role => {
         // Filter by query if provided
         if (query && !role.toLowerCase().includes(query.toLowerCase()) && 
             !company.toLowerCase().includes(query.toLowerCase())) {
-          return;
-        }
+          return}
 
         const salary = Math.floor(Math.random() * (data.salaries.max - data.salaries.min) + data.salaries.min);
         const isRemote = Math.random() > 0.7;
@@ -107,13 +103,9 @@ function generateJobsForLocation(location: string, query: string = '') {
           sector: sector,
           experience: Math.floor(Math.random() * 8) + 1,
           skills: getSkillsForRole(role, sector)
-        });
-      });
-    });
-  });
+        })})})});
 
-  return jobs;
-}
+  return jobs}
 
 function getSkillsForRole(role: string, sector: string): string[] {
   const skillMap: Record<string, string[]> = {
@@ -130,8 +122,7 @@ function getSkillsForRole(role: string, sector: string): string[] {
     'Production Engineer': ['Manufacturing', 'Quality Control', 'Lean Manufacturing', 'Six Sigma']
   };
 
-  return skillMap[role] || ['Communication', 'Leadership', 'Problem Solving'];
-}
+  return skillMap[role] || ['Communication', 'Leadership', 'Problem Solving']}
 
 // Indian cities with their states
 const indianCities = [
@@ -168,42 +159,36 @@ export async function GET(request: NextRequest) {
       const matchedCity = indianCities.find(city => 
         city.toLowerCase().startsWith(location.toLowerCase())
       );
-      normalizedLocation = matchedCity || `${location}, India`;
-    }
+  // TODO: Complete function implementation
+}
+      normalizedLocation = matchedCity || `${location}, India`}
 
     // Generate jobs for the location
     let jobs = generateJobsForLocation(normalizedLocation, query);
 
     // Apply filters
     if (sector) {
-      jobs = jobs.filter(job => job.sector === sector);
-    }
+      jobs = jobs.filter(job => job.sector === sector)}
 
     if (experience) {
       const expRange = experience.split('-').map(Number);
       jobs = jobs.filter((job: Job) => {
         if (expRange.length === 2 && !Number.isNaN(expRange[0]) && !Number.isNaN(expRange[1]) && expRange[0] !== undefined && expRange[1] !== undefined) {
-          return job.experience >= expRange[0] && job.experience <= expRange[1];
-        }
+          return job.experience >= expRange[0] && job.experience <= expRange[1]}
         const minExp = parseInt(experience);
-        return !Number.isNaN(minExp) && job.experience >= minExp;
-      });
-    }
+        return !Number.isNaN(minExp) && job.experience >= minExp})}
 
     if (jobType && jobType !== 'Full-time') {
-      jobs = jobs.filter(job => job.jobType === jobType);
-    }
+      jobs = jobs.filter(job => job.jobType === jobType)}
 
     if (remote) {
-      jobs = jobs.filter(job => job.isRemote);
-    }
+      jobs = jobs.filter(job => job.isRemote)}
 
     // Sort by relevance (urgent first, then by time)
     jobs.sort((a, b) => {
       if (a.isUrgent && !b.isUrgent) return -1;
       if (!a.isUrgent && b.isUrgent) return 1;
-      return a.timeAgo.localeCompare(b.timeAgo);
-    });
+      return a.timeAgo.localeCompare(b.timeAgo)});
 
     // Pagination
     const startIndex = (page - 1) * limit;
@@ -231,16 +216,14 @@ export async function GET(request: NextRequest) {
       source: 'dynamic-real-api'
     };
 
-    return Response.json(response);
-
-  } catch (error) {
+    return Response.json(response)} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/jobs/real',
       context: {
         query,
         location,
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 }

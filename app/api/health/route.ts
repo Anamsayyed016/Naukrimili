@@ -10,9 +10,12 @@ export async function GET(request: NextRequest) {
     try {
       // You can add actual database health check here
       dbStatus = 'healthy';
+  // TODO: Complete function implementation
+}
     } catch (error) {
-      dbStatus = 'error';
-    }
+    console.error("Error:", error);
+    throw error}
+      dbStatus = 'error'}
 
     // Check API endpoints
     const apiChecks = {
@@ -29,10 +32,10 @@ export async function GET(request: NextRequest) {
       
       // Test companies API
       const companiesResponse = await fetch(`${baseUrl}/api/companies?limit=1`);
-      apiChecks.companies = companiesResponse.ok;
-    } catch (error) {
-      // console.warn('API health check failed:', error);
-    }
+      apiChecks.companies = companiesResponse.ok} catch (error) {
+    console.error("Error:", error);
+    throw error}
+      // console.warn('API health check failed:', error)}
 
     const healthData = {
       status: 'healthy',
@@ -57,16 +60,14 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
-      }
-    });
-  } catch (error) {
+      }})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return Response.json(
       {
         status: 'error',
         timestamp: new Date().toISOString(),
         error: error instanceof Error ? error.message : 'Unknown error'
       },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }

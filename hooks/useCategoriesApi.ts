@@ -19,12 +19,9 @@ export function useCategoriesApi() {
     try {
       const res = await fetch('/api/categories');
       const data = await res.json();
-      setCategories(data);
-    } catch (err) {
-      setError('Failed to fetch categories');
-    } finally {
-      setLoading(false);
-    }
+      setCategories(data)} catch (err) {
+      setError('Failed to fetch categories')} finally {
+      setLoading(false)}
   };
 
   // Create a new category
@@ -38,12 +35,9 @@ export function useCategoriesApi() {
         body: JSON.stringify({ name }),
       });
       if (!res.ok) throw new Error('Failed to create');
-      await fetchCategories();
-    } catch (err) {
-      setError('Failed to create category');
-    } finally {
-      setLoading(false);
-    }
+      await fetchCategories()} catch (err) {
+      setError('Failed to create category')} finally {
+      setLoading(false)}
   };
 
   // Update a category
@@ -57,12 +51,9 @@ export function useCategoriesApi() {
         body: JSON.stringify({ name }),
       });
       if (!res.ok) throw new Error('Failed to update');
-      await fetchCategories();
-    } catch (err) {
-      setError('Failed to update category');
-    } finally {
-      setLoading(false);
-    }
+      await fetchCategories()} catch (err) {
+      setError('Failed to update category')} finally {
+      setLoading(false)}
   };
 
   // Delete a category
@@ -72,15 +63,11 @@ export function useCategoriesApi() {
     try {
       const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
-      await fetchCategories();
-    } catch (err) {
-      setError('Failed to delete category');
-    } finally {
-      setLoading(false);
-    }
+      await fetchCategories()} catch (err) {
+      setError('Failed to delete category')} finally {
+      setLoading(false)}
   };
 
-  useEffect(() => { fetchCategories(); }, []);
+  useEffect(() => { fetchCategories()}, []);
 
-  return { categories, loading, error, fetchCategories, createCategory, updateCategory, deleteCategory };
-}
+  return { categories, loading, error, fetchCategories, createCategory, updateCategory, deleteCategory }}

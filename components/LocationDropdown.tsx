@@ -4,13 +4,11 @@ import React, { useEffect, useState, useRef } from "react";
 interface City {
   city: string;
   jobCount: number;
-  isTrending?: boolean;
-}
+  isTrending?: boolean}
 
 interface LocationDropdownProps {
   onLocationChange?: (city: string) => void;
-  currentLocation?: string;
-}
+  currentLocation?: string}
 
 const LocationDropdown: React.FC<LocationDropdownProps> = ({ onLocationChange, currentLocation }) => {
   const [cities, setCities] = useState<City[]>([]);
@@ -27,10 +25,10 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ onLocationChange, c
       setLoading(true);
       try {const response = await fetch("/api/locations");
         if (!response.ok) {
-          throw new Error('Failed to fetch locations');
-        }
-        const data = await response.json();setCities(data);
-      } catch (error) {
+          throw new Error('Failed to fetch locations')}
+        const data = await response.json();setCities(data)} catch (error) {
+    console.error("Error:", error);
+    throw error}
         console.error('Error fetching locations:', error);
         // Fallback to default cities if API fails
         const fallbackCities = [
@@ -41,37 +39,30 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ onLocationChange, c
           { city: "Chennai", jobCount: 7230 },
           { city: "Pune", jobCount: 6540 },
           { city: "Bhopal", jobCount: 1430 },
-        ];setCities(fallbackCities);
-      } finally {
-        setLoading(false);
-      }
+        ];setCities(fallbackCities)} finally {
+        setLoading(false)}
     };
     
     fetchCities();
-    setSelected(currentLocation || "Delhi");
-  }, [currentLocation]);
+    setSelected(currentLocation || "Delhi")}, [currentLocation]);
 
   useEffect(() => {
     const onScroll = () => setFloating(window.scrollY > 80);
     window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    return () => window.removeEventListener("scroll", onScroll)}, []);
 
   // Keyboard nav
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
+      if (e.key === "Escape") setOpen(false)};
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [open]);
+    return () => window.removeEventListener("keydown", handler)}, [open]);
 
   const handleSelect = (city: string) => {
     setSelected(city);
     setOpen(false);
-    onLocationChange?.(city);
-  };
+    onLocationChange?.(city)};
 
   const handleCurrentLocation = () => {
     setDetectingLocation(true);
@@ -88,36 +79,27 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ onLocationChange, c
           // Mock reverse geocoding based on coordinates
           if (latitude > 20 && latitude < 30 && longitude > 70 && longitude < 90) {
             // India coordinates - could be Mumbai, Delhi, etc.
-            detectedCity = "Mumbai";
-          } else if (latitude > 25 && latitude < 30 && longitude > 75 && longitude < 85) {
-            detectedCity = "Delhi";
-          } else if (latitude > 12 && latitude < 14 && longitude > 77 && longitude < 78) {
-            detectedCity = "Bangalore";
-          } else if (latitude > 17 && latitude < 18 && longitude > 78 && longitude < 79) {
-            detectedCity = "Hyderabad";
-          } else if (latitude > 23 && latitude < 24 && longitude > 77 && longitude < 78) {
-            detectedCity = "Bhopal";
-          }
+            detectedCity = "Mumbai"} else if (latitude > 25 && latitude < 30 && longitude > 75 && longitude < 85) {
+            detectedCity = "Delhi"} else if (latitude > 12 && latitude < 14 && longitude > 77 && longitude < 78) {
+            detectedCity = "Bangalore"} else if (latitude > 17 && latitude < 18 && longitude > 78 && longitude < 79) {
+            detectedCity = "Hyderabad"} else if (latitude > 23 && latitude < 24 && longitude > 77 && longitude < 78) {
+            detectedCity = "Bhopal"}
           
           setSelected(detectedCity);
           setOpen(false);
           onLocationChange?.(detectedCity);
-          setDetectingLocation(false);
-        },
+          setDetectingLocation(false)},
         () => {
           alert("Unable to access location. Please select manually.");
-          setDetectingLocation(false);
-        },
+          setDetectingLocation(false)},
         {
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 300000 // 5 minutes
         }
-      );
-    } else {
+      )} else {
       alert("Geolocation not supported by your browser");
-      setDetectingLocation(false);
-    }
+      setDetectingLocation(false)}
   };
 
   const filtered = cities.filter(c => c.city.toLowerCase().includes(search.toLowerCase()));
@@ -237,8 +219,6 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ onLocationChange, c
           </div>
         )}
       </div>
-    </>
-  );
-};
+    </>)};
 
 export default LocationDropdown; 

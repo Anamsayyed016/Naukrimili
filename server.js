@@ -26,28 +26,21 @@ app.prepare().then(() => {
         if (req.method === 'OPTIONS') {
           res.writeHead(200);
           res.end();
-          return;
-        }
+          return}
       }
 
       // Handle the request with Next.js
-      await handle(req, res, parsedUrl);
-    } catch (err) {
+      await handle(req, res, parsedUrl)} catch (err) {
       console.error('Error occurred handling', req.url, err);
       res.statusCode = 500;
-      res.end('Internal Server Error');
-    }
+      res.end('Internal Server Error')}
   })
   .once('error', (err) => {
     console.error('Server error:', err);
-    process.exit(1);
-  })
-  .listen(port, () => {});
-});
+    process.exit(1)})
+  .listen(port, () => {})});
 
 // Graceful shutdown
-process.on('SIGTERM', () => {process.exit(0);
-});
+process.on('SIGTERM', () => {process.exit(0)});
 
-process.on('SIGINT', () => {process.exit(0);
-});
+process.on('SIGINT', () => {process.exit(0)});

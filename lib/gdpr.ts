@@ -7,14 +7,12 @@ interface ConsentRecord {
   granted: boolean;
   timestamp: string;
   ipAddress: string;
-  userAgent: string;
-}
+  userAgent: string}
 
 interface DataRetentionPolicy {
   dataType: string;
   retentionPeriod: number; // in days
-  autoDelete: boolean;
-}
+  autoDelete: boolean}
 
 // Consent management
 const consentStore = new Map<string, ConsentRecord[]>();
@@ -33,8 +31,7 @@ export function recordConsent(consent: ConsentRecord): void {
     success: true,
     severity: 'low',
     details: { consentType: consent.consentType, granted: consent.granted }
-  });
-}
+  })}
 
 export function getConsent(userId: string, consentType: ConsentRecord['consentType']): boolean {
   const userConsents = consentStore.get(userId) || [];
@@ -42,8 +39,7 @@ export function getConsent(userId: string, consentType: ConsentRecord['consentTy
     .filter(c => c.consentType === consentType)
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
     
-  return latestConsent?.granted || false;
-}
+  return latestConsent?.granted || false}
 
 export function withdrawConsent(userId: string, consentType: ConsentRecord['consentType'], ip: string, userAgent: string): void {
   recordConsent({
@@ -53,8 +49,7 @@ export function withdrawConsent(userId: string, consentType: ConsentRecord['cons
     timestamp: new Date().toISOString(),
     ipAddress: ip,
     userAgent
-  });
-}
+  })}
 
 // Data retention policies
 const retentionPolicies: DataRetentionPolicy[] = [
@@ -66,8 +61,7 @@ const retentionPolicies: DataRetentionPolicy[] = [
 ];
 
 export function getRetentionPolicy(dataType: string): DataRetentionPolicy | null {
-  return retentionPolicies.find(policy => policy.dataType === dataType) || null;
-}
+  return retentionPolicies.find(policy => policy.dataType === dataType) || null}
 
 export function isDataExpired(dataType: string, createdAt: Date): boolean {
   const policy = getRetentionPolicy(dataType);
@@ -76,8 +70,7 @@ export function isDataExpired(dataType: string, createdAt: Date): boolean {
   const expiryDate = new Date(createdAt);
   expiryDate.setDate(expiryDate.getDate() + policy.retentionPeriod);
   
-  return new Date() > expiryDate;
-}
+  return new Date() > expiryDate}
 
 // Data export for GDPR requests
 export interface UserDataExport {
@@ -85,8 +78,7 @@ export interface UserDataExport {
   activityData: Record<string, any>;
   consentHistory: ConsentRecord[];
   exportedAt: string;
-  exportId: string;
-}
+  exportId: string}
 
 export async function exportUserData(userId: string): Promise<UserDataExport> {
   const exportId = crypto.randomUUID();
@@ -95,6 +87,8 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
   const exportData: UserDataExport = {
     personalData: {
       // Collect from user profile, resumes, etc.
+  // TODO: Complete function implementation
+}
     },
     activityData: {
       // Collect from audit logs, application history, etc.
@@ -115,8 +109,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     details: { exportId }
   });
   
-  return exportData;
-}
+  return exportData}
 
 // Data deletion for GDPR requests
 export async function deleteUserData(userId: string, reason: string): Promise<void> {
@@ -136,12 +129,13 @@ export async function deleteUserData(userId: string, reason: string): Promise<vo
     userAgent: 'system',
     success: true,
     severity: 'high',
+  // TODO: Complete function implementation
+}
     details: { reason, deletedAt: new Date().toISOString() }
   });
   
   // Remove consent records
-  consentStore.delete(userId);
-}
+  consentStore.delete(userId)}
 
 // Cookie consent banner data
 export const cookieCategories = {

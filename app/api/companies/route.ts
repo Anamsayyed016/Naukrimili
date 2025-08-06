@@ -201,6 +201,8 @@ const bankingFinance = [
 const allCompanies = [...techGiants, ...indianUnicorns, ...itServices, ...bankingFinance];
 
 export async function GET(request: Request) {
+  // TODO: Complete function implementation
+}
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
   const industry = searchParams.get('industry');
@@ -208,14 +210,12 @@ export async function GET(request: Request) {
   let filteredCompanies = allCompanies;
 
   if (category) {
-    filteredCompanies = filteredCompanies.filter(company => company.category === category);
-  }
+    filteredCompanies = filteredCompanies.filter(company => company.category === category)}
 
   if (industry) {
     filteredCompanies = filteredCompanies.filter(company => 
       company.industry.toLowerCase().includes(industry.toLowerCase())
-    );
-  }
+    )}
 
   return Response.json({
     success: true,
@@ -226,6 +226,4 @@ export async function GET(request: Request) {
       'unicorns': indianUnicorns.length,
       'it-services': itServices.length,
       'banking': bankingFinance.length
-    }
-  });
-}
+    }})}

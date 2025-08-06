@@ -7,8 +7,7 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       NODE_ENV: 'development' | 'production' | 'test';
-      [key: string]: string | undefined;
-    }
+      [key: string]: string | undefined}
   }
 
   // Web API types
@@ -24,8 +23,7 @@ declare global {
     referrerPolicy?: 'no-referrer' | 'no-referrer-when-downgrade' | 'origin' | 'origin-when-cross-origin' | 'same-origin' | 'strict-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url';
     integrity?: string;
     keepalive?: boolean;
-    signal?: AbortSignal | null;
-  }
+    signal?: AbortSignal | null}
 
   // Buffer types
   type BufferEncoding = 'ascii' | 'utf8' | 'utf-8' | 'utf16le' | 'ucs2' | 'ucs-2' | 'base64' | 'base64url' | 'latin1' | 'binary' | 'hex';
@@ -35,21 +33,18 @@ declare global {
     interface ReactElement<P = unknown, T extends string | JSXElementConstructor<unknown> = string | JSXElementConstructor<unknown>> {
       type: T;
       props: P;
-      key: Key | null;
-    }
+      key: Key | null}
   }
 
   // DMMF types (for Prisma)
   interface DMMF {
     modelMap: Record<string, unknown>;
     enumMap: Record<string, unknown>;
-    typeMap: Record<string, unknown>;
-  }
+    typeMap: Record<string, unknown>}
 
   // Proxy types
   interface ProxyConstructor {
-    new <T extends object>(target: T, handler: ProxyHandler<T>): T;
-  }
+    new <T extends object>(target: T, handler: ProxyHandler<T>): T}
 }
 
 export {}; 

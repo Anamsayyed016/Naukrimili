@@ -12,8 +12,7 @@ interface JobApplicationProps {
   onError?: (error: Record<string, unknown>) => void;
   variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
-  className?: string;
-}
+  className?: string}
 
 export const JobApplication: React.FC<JobApplicationProps> = ({
   jobId,
@@ -41,18 +40,15 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
         variant: "default",
       });
       
-      onSuccess?.();
-    } catch (error: Record<string, unknown>) {
+      onSuccess?.()} catch (error: Record<string, unknown>) {
       console.error('Error applying for job:', error);
       
       // Use the error handler for consistent error handling
       handleError(error, 'JobApplication');
       
       // Call the onError callback if provided
-      onError?.(error);
-    } finally {
-      setIsSubmitting(false);
-    }
+      onError?.(error)} finally {
+      setIsSubmitting(false)}
   };
 
   return (
@@ -71,8 +67,6 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
       ) : (
         'Apply Now'
       )}
-    </Button>
-  );
-};
+    </Button>)};
 
 export default JobApplication;

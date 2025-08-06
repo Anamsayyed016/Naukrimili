@@ -8,8 +8,7 @@ import Link from 'next/link';
 
 interface NexusGuestCTAProps {
   variant?: 'hero' | 'sidebar' | 'floating' | 'modal';
-  theme?: 'dark' | 'light' | 'holographic';
-}
+  theme?: 'dark' | 'light' | 'holographic'}
 
 export default function NexusGuestCTA({ variant = 'hero', theme = 'dark' }: NexusGuestCTAProps) {
   const [currentTile, setCurrentTile] = useState(0);
@@ -57,10 +56,8 @@ export default function NexusGuestCTA({ variant = 'hero', theme = 'dark' }: Nexu
   // Auto-rotate tiles
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTile((prev) => (prev + 1) % tiles.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [tiles.length]);
+      setCurrentTile((prev) => (prev + 1) % tiles.length)}, 4000);
+    return () => clearInterval(interval)}, [tiles.length]);
 
   // Intersection observer for visibility
   useEffect(() => {
@@ -72,8 +69,7 @@ export default function NexusGuestCTA({ variant = 'hero', theme = 'dark' }: Nexu
     const element = document.getElementById('nexus-guest-cta');
     if (element) observer.observe(element);
     
-    return () => observer.disconnect();
-  }, []);
+    return () => observer.disconnect()}, []);
 
   // Hero variant
   if (variant === 'hero') {
@@ -240,9 +236,7 @@ export default function NexusGuestCTA({ variant = 'hero', theme = 'dark' }: Nexu
             </motion.div>
           </div>
         </div>
-      </div>
-    );
-  }
+      </div>)}
 
   // Sidebar variant
   if (variant === 'sidebar') {
@@ -284,9 +278,7 @@ export default function NexusGuestCTA({ variant = 'hero', theme = 'dark' }: Nexu
             </motion.button>
           </Link>
         </div>
-      </motion.div>
-    );
-  }
+      </motion.div>)}
 
   // Floating variant
   if (variant === 'floating') {
@@ -326,9 +318,7 @@ export default function NexusGuestCTA({ variant = 'hero', theme = 'dark' }: Nexu
             )}
           </AnimatePresence>
         </motion.div>
-      </motion.div>
-    );
-  }
+      </motion.div>)}
 
   // Modal variant
   if (variant === 'modal') {
@@ -382,9 +372,6 @@ export default function NexusGuestCTA({ variant = 'hero', theme = 'dark' }: Nexu
             </div>
           </div>
         </motion.div>
-      </motion.div>
-    );
-  }
+      </motion.div>)}
 
-  return null;
-} 
+  return null} 

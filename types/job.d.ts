@@ -7,13 +7,11 @@ export interface Job {
   type: string;
   description: string;
   postedAt: string;
-  redirect_url?: string;
-}
+  redirect_url?: string}
 
 export interface DisplayJob extends Job {
   salaryFormatted: string;
   timeAgo: string;
   isUrgent: boolean;
   isRemote: boolean;
-  jobType: string;
-}
+  jobType: string}

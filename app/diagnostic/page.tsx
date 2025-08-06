@@ -9,26 +9,21 @@ interface HealthData {
   environment: string;
   apis: {
     jobs: boolean;
-    companies: boolean;
-  };
+    companies: boolean};
   database: string;
   server: {
     platform: string;
     nodeVersion: string;
     memory: {
       used: string;
-      total: string;
-    };
-  };
-}
+      total: string}}}
 
 interface ApiTest {
   name: string;
   url: string;
   status: 'pending' | 'success' | 'error';
   response?: Record<string, unknown>;
-  error?: string;
-}
+  error?: string}
 
 export default function DiagnosticPage() {
   const [healthData, setHealthData] = useState<HealthData | null>(null);
@@ -40,8 +35,7 @@ export default function DiagnosticPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    runDiagnostics();
-  }, []);
+    runDiagnostics()}, []);
 
   const runDiagnostics = async () => {
     setLoading(true);
@@ -59,30 +53,26 @@ export default function DiagnosticPage() {
           test.response = data;
           
           if (test.name === 'Health Check') {
-            setHealthData(data);
-          }
+            setHealthData(data)}
         } else {
           test.status = 'error';
-          test.error = `HTTP ${response.status}: ${response.statusText}`;
-        }
+          test.error = `HTTP ${response.status}: ${response.statusText}`}
       } catch (error) {
+    console.error("Error:", error);
+    throw error}
         test.status = 'error';
-        test.error = error instanceof Error ? error.message : 'Unknown error';
-      }
+        test.error = error instanceof Error ? error.message : 'Unknown error'}
       
-      setApiTests([...updatedTests]);
-    }
+      setApiTests([...updatedTests])}
     
-    setLoading(false);
-  };
+    setLoading(false)};
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'success': return 'text-green-600 bg-green-100';
       case 'error': return 'text-red-600 bg-red-100';
       case 'pending': return 'text-yellow-600 bg-yellow-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
+      default: return 'text-gray-600 bg-gray-100'}
   };
 
   const getStatusIcon = (status: string) => {
@@ -90,8 +80,7 @@ export default function DiagnosticPage() {
       case 'success': return '✅';
       case 'error': return '❌';
       case 'pending': return '⏳';
-      default: return '❓';
-    }
+      default: return '❓'}
   };
 
   return (
@@ -186,6 +175,4 @@ export default function DiagnosticPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}

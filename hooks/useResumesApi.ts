@@ -19,12 +19,9 @@ export function useResumesApi() {
     try {
       const res = await fetch('/api/resumes');
       const data = await res.json();
-      setResumes(data);
-    } catch (err) {
-      setError('Failed to fetch resumes');
-    } finally {
-      setLoading(false);
-    }
+      setResumes(data)} catch (err) {
+      setError('Failed to fetch resumes')} finally {
+      setLoading(false)}
   };
 
   const createResume = async (resume: Resume): Promise<void> => {
@@ -37,12 +34,9 @@ export function useResumesApi() {
         body: JSON.stringify(resume),
       });
       if (!res.ok) throw new Error('Failed to create');
-      await fetchResumes();
-    } catch (err) {
-      setError('Failed to create resume');
-    } finally {
-      setLoading(false);
-    }
+      await fetchResumes()} catch (err) {
+      setError('Failed to create resume')} finally {
+      setLoading(false)}
   };
 
   const updateResume = async (id: number, resume: Resume): Promise<void> => {
@@ -55,12 +49,9 @@ export function useResumesApi() {
         body: JSON.stringify(resume),
       });
       if (!res.ok) throw new Error('Failed to update');
-      await fetchResumes();
-    } catch (err) {
-      setError('Failed to update resume');
-    } finally {
-      setLoading(false);
-    }
+      await fetchResumes()} catch (err) {
+      setError('Failed to update resume')} finally {
+      setLoading(false)}
   };
 
   const deleteResume = async (id: number): Promise<void> => {
@@ -69,15 +60,11 @@ export function useResumesApi() {
     try {
       const res = await fetch(`/api/resumes/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
-      await fetchResumes();
-    } catch (err) {
-      setError('Failed to delete resume');
-    } finally {
-      setLoading(false);
-    }
+      await fetchResumes()} catch (err) {
+      setError('Failed to delete resume')} finally {
+      setLoading(false)}
   };
 
-  useEffect(() => { fetchResumes(); }, []);
+  useEffect(() => { fetchResumes()}, []);
 
-  return { resumes, loading, error, fetchResumes, createResume, updateResume, deleteResume };
-}
+  return { resumes, loading, error, fetchResumes, createResume, updateResume, deleteResume }}

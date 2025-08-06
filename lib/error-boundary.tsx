@@ -7,24 +7,20 @@ import { toast } from '@/components/ui/use-toast';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
-}
+  onError?: (error: Error, errorInfo: ErrorInfo) => void}
 
 interface State {
   hasError: boolean;
   error?: Error;
-  errorInfo?: ErrorInfo;
-}
+  errorInfo?: ErrorInfo}
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false };
-  }
+    this.state = { hasError: false }}
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
-  }
+    return { hasError: true, error }}
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
@@ -39,22 +35,18 @@ export class ErrorBoundary extends Component<Props, State> {
       title: "Something went wrong",
       description: "An error occurred. Please try refreshing the page.",
       variant: "destructive",
-    });
-  }
+    })}
 
   handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
-  };
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined })};
 
   handleGoHome = () => {
-    window.location.href = '/';
-  };
+    window.location.href = '/'};
 
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback;
-      }
+        return this.props.fallback}
 
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -109,12 +101,9 @@ export class ErrorBoundary extends Component<Props, State> {
               </Button>
             </div>
           </div>
-        </div>
-      );
-    }
+        </div>)}
 
-    return this.props.children;
-  }
+    return this.props.children}
 }
 
 // Hook for functional components
@@ -126,11 +115,9 @@ export function useErrorHandler() {
       title: "Error",
       description: error.message || "An unexpected error occurred",
       variant: "destructive",
-    });
-  }, []);
+    })}, []);
 
-  return { handleError };
-}
+  return { handleError }}
 
 // Higher-order component for error handling
 export function withErrorBoundary<P extends object>(
@@ -141,7 +128,4 @@ export function withErrorBoundary<P extends object>(
     return (
       <ErrorBoundary fallback={fallback}>
         <Component {...props} />
-      </ErrorBoundary>
-    );
-  };
-} 
+      </ErrorBoundary>)}} 

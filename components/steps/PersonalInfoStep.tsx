@@ -6,10 +6,8 @@ interface PersonalInfoStepProps {
     lastName: string;
     phone: string;
     location: string;
-    bio: string;
-  };
-  onUpdate: (updates: Partial<PersonalInfoStepProps['data']>) => void;
-}
+    bio: string};
+  onUpdate: (updates: Partial<PersonalInfoStepProps['data']>) => void}
 
 export function PersonalInfoStep({ data, onUpdate }: PersonalInfoStepProps) {
   return (
@@ -71,6 +69,4 @@ export function PersonalInfoStep({ data, onUpdate }: PersonalInfoStepProps) {
           placeholder="Tell us about yourself..."
         />
       </div>
-    </div>
-  );
-}
+    </div>)}

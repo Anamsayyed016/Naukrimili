@@ -12,24 +12,19 @@ interface Job {
   salary?: {
     min: number;
     max: number;
-    currency: string;
-  };
-  createdAt: string;
-}
+    currency: string};
+  createdAt: string}
 
 interface JobCardProps {
-  job: Job;
-}
+  job: Job}
 
 export default function JobCard({ job }: JobCardProps) {
   const formatSalary = (salary: Job['salary']) => {
     if (!salary) return null;
-    return `${salary.currency} ${salary.min.toLocaleString()} - ${salary.max.toLocaleString()}`;
-  };
+    return `${salary.currency} ${salary.min.toLocaleString()} - ${salary.max.toLocaleString()}`};
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString();
-  };
+    return new Date(date).toLocaleDateString()};
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
@@ -67,6 +62,4 @@ export default function JobCard({ job }: JobCardProps) {
         </div>
         <span>{formatDate(job.createdAt)}</span>
       </div>
-    </div>
-  );
-}
+    </div>)}

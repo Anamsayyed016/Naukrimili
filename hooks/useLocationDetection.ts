@@ -37,19 +37,16 @@ export interface LocationData {
   state?: string;
   coordinates?: {
     lat: number;
-    lng: number;
-  };
+    lng: number};
   currency: string;
   currencySymbol: string;
   isDetected: boolean;
-  error?: string;
-}
+  error?: string}
 
 interface UseLocationDetectionOptions {
   autoDetect?: boolean;
   fallbackCountry?: CountryCode;
-  enableHighAccuracy?: boolean;
-}
+  enableHighAccuracy?: boolean}
 
 export function useLocationDetection(options: UseLocationDetectionOptions = {}) {
   const {
@@ -80,9 +77,7 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
           country: data.country_code,
           countryName: data.country_name,
           city: data.city,
-          state: data.region
-        };
-      },
+          state: data.region}},
       // Fallback service 1
       async () => {
         const response = await fetch('https://ip-api.com/json/');
@@ -91,9 +86,7 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
           country: data.countryCode,
           countryName: data.country,
           city: data.city,
-          state: data.regionName
-        };
-      },
+          state: data.regionName}},
       // Fallback service 2
       async () => {
         const response = await fetch('https://freegeoip.app/json/');
@@ -102,33 +95,29 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
           country: data.country_code,
           countryName: data.country_name,
           city: data.city,
-          state: data.region_name
-        };
-      }
+          state: data.region_name}}
     ];
 
     for (const service of services) {
       try {
         const result = await service();
         if (result.country && TARGET_COUNTRIES[result.country as CountryCode]) {
-          return result;
-        }
+          return result}
       } catch (error) {
+    console.error("Error:", error);
+    throw error}
         // console.warn('Location service failed, trying next...', error);
-        continue;
-      }
+        continue}
     }
     
-    return null;
-  }, []);
+    return null}, []);
 
   // Detect location using GPS
   const detectLocationFromGPS = useCallback((): Promise<Partial<LocationData> | null> => {
     return new Promise((resolve) => {
-      if (!navigator.geolocation) {
+      if (!navigator.geolocation) {;
         resolve(null);
-        return;
-      }
+        return}
 
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -149,28 +138,24 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
                 city: data.city,
                 state: data.principalSubdivision,
                 coordinates: { lat: latitude, lng: longitude }
-              });
-            } else {
-              resolve(null);
-            }
+              })} else {
+              resolve(null)}
           } catch (error) {
+    console.error("Error:", error);
+    throw error}
             // console.warn('GPS location detection failed:', error);
-            resolve(null);
-          }
+            resolve(null)}
         },
         (error) => {
           // console.warn('GPS permission denied or failed:', error);
           setHasPermission(false);
-          resolve(null);
-        },
+          resolve(null)},
         {
           enableHighAccuracy,
           timeout: 10000,
           maximumAge: 300000 // 5 minutes
         }
-      );
-    });
-  }, [enableHighAccuracy]);
+      )})}, [enableHighAccuracy]);
 
   // Main detection function
   const detectLocation = useCallback(async (useGPS: boolean = false) => {
@@ -184,14 +169,12 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
         setHasPermission(null); // Reset permission state
         locationData = await detectLocationFromGPS();
         if (locationData) {
-          setHasPermission(true);
-        }
+          setHasPermission(true)}
       }
 
       // Fallback to IP detection
       if (!locationData) {
-        locationData = await detectCountryFromIP();
-      }
+        locationData = await detectCountryFromIP()}
 
       if (locationData && locationData.country && TARGET_COUNTRIES[locationData.country as CountryCode]) {
         const countryCode = locationData.country as CountryCode;
@@ -206,24 +189,22 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
           currency: countryInfo.currency,
           currencySymbol: countryInfo.currencySymbol,
           isDetected: true
-        });
-      } else {
+        })} else {
         // Use fallback country
         const countryInfo = TARGET_COUNTRIES[fallbackCountry];
         setLocation(prev => ({
           ...prev,
           error: 'Could not detect your location. Using default country.'
-        }));
-      }
+        }))}
     } catch (error) {
+    console.error("Error:", error);
+    throw error}
       console.error('Location detection failed:', error);
       setLocation(prev => ({
         ...prev,
         error: 'Location detection failed. Using default country.'
-      }));
-    } finally {
-      setIsLoading(false);
-    }
+      }))} finally {
+      setIsLoading(false)}
   }, [hasPermission, detectLocationFromGPS, detectCountryFromIP, fallbackCountry]);
 
   // Manual country selection
@@ -240,8 +221,7 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
       coordinates: undefined,
       isDetected: false,
       error: undefined
-    }));
-  }, []);
+    }))}, []);
 
   // Auto-detect on mount
   useEffect(() => {
@@ -256,6 +236,4 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
     hasPermission,
     detectLocation,
     setCountry,
-    targetCountries: TARGET_COUNTRIES
-  };
-}
+    targetCountries: TARGET_COUNTRIES}}

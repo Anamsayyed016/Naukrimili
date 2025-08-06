@@ -9,32 +9,28 @@ interface ApiStatus {
   testResults?: {
     jobCount: number;
     sampleJob?: Record<string, unknown>;
-    error?: string;
-  };
-}
+    error?: string}}
 
 export const SerpApiStatus = () => {
   const [status, setStatus] = useState<ApiStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    testConnection();
-  }, []);
+    testConnection()}, []);
 
   const testConnection = async () => {
     setLoading(true);
     try {
       const response = await fetch('/api/jobs/serpapi/test');
       const data = await response.json();
-      setStatus(data);
-    } catch (error) {
+      setStatus(data)} catch (error) {
+    console.error("Error:", error);
+    throw error}
       setStatus({
         connected: false,
         message: 'Failed to connect to SerpApi service',
-      });
-    } finally {
-      setLoading(false);
-    }
+      })} finally {
+      setLoading(false)}
   };
 
   if (loading) {
@@ -42,9 +38,7 @@ export const SerpApiStatus = () => {
       <Alert>
         <Loader2 className="h-4 w-4 animate-spin" />
         <AlertDescription>Testing SerpApi connection...</AlertDescription>
-      </Alert>
-    );
-  }
+      </Alert>)}
 
   if (!status) return null;
 
@@ -83,6 +77,4 @@ export const SerpApiStatus = () => {
           </div>
         )}
       </AlertDescription>
-    </Alert>
-  );
-};
+    </Alert>)};

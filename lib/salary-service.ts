@@ -11,11 +11,9 @@ export class SalaryService {
           location,
         }
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error fetching salary statistics:', error);
-    throw error;
-  }
+    throw error}
 }
 
   async searchJobs(query: string, location?: string) {
@@ -26,11 +24,9 @@ export class SalaryService {
           location,
         }
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error searching jobs:', error);
-      throw error;
-    }
+      throw error}
   }
 }
 

@@ -5,14 +5,11 @@ export interface JobSearchResult {
   total: number;
   page: number;
   totalPages: number;
-  hasMore: boolean;
-}
+  hasMore: boolean}
 
 export interface JobSearchResponse {
   success: boolean;
   data?: JobSearchResult;
   error?: {
     message: string;
-    details?: unknown;
-  };
-}
+    details?: unknown}}

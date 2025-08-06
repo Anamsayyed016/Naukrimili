@@ -47,9 +47,7 @@ function sanitizeJobsResponse(jobs: Record<string, unknown>[]) {
     isUrgent: job.isUrgent,
     isRemote: job.isRemote,
     jobType: job.jobType,
-    source: job.source
-  }));
-}
+    source: job.source}))}
 
 export async function GET(request: NextRequest) {let searchParams;
   try {
@@ -70,17 +68,21 @@ export async function GET(request: NextRequest) {let searchParams;
         const realData = await realResponse.json();
         if (realData.success) {
           return Response.json(realData);
+  // TODO: Complete function implementation
+}
         }
       }
     } catch (error) {
+    console.error("Error:", error);
+    throw error}
       // Safely log error without potential circular references
       // console.warn('Dynamic real API failed, using fallback:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      });
-    }
+      //   message: error instanceof Error ? error.message : 'Unknown error',
+      //   timestamp: new Date().toISOString()
+      // })}
 
-    // Fallback to mock dataconst response = { 
+    // Fallback to mock data
+    const response = { 
       success: true, 
       jobs: sanitizeJobsResponse(mockJobs),
       total: mockJobs.length,
@@ -91,13 +93,14 @@ export async function GET(request: NextRequest) {let searchParams;
         source: 'mock',
         timestamp: new Date().toISOString()
       }
-    };return Response.json(response);
-  } catch (error) {
+    };
+
+    return Response.json(response)} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, { 
       endpoint: 'GET /api/jobs',
-      context: { query: searchParams?.get('query') ?? null }
-    });
-  }
+      context: { query: searchParams?.get('query') ?? null }})}
 }
 
 // Handle POST requests for complex search queries
@@ -115,6 +118,8 @@ export async function POST(request: NextRequest) {
       limit = 20,
       salaryMin,
       salaryMax,
+  // TODO: Complete function implementation
+}
       filters = {}
     } = body;
 
@@ -128,9 +133,7 @@ export async function POST(request: NextRequest) {
             message: 'No search query provided in POST body'
           }
         },
-        { status: 400 }
-      );
-    }
+        { status: 400 })}
 
     const searchOptions: JobSearchParams = {
       query: query.trim(),
@@ -171,9 +174,7 @@ export async function POST(request: NextRequest) {
         meta: {
           searchTime: new Date().toISOString(),
           method: 'POST'
-        }
-      });
-    } catch (serviceError) {
+        }})} catch (serviceError) {
       // Log error summary only
       safeLogger.warn('Unified job service failed, using mock data', { 
         code: 'UNIFIED_JOB_SERVICE_ERROR',
@@ -200,17 +201,15 @@ export async function POST(request: NextRequest) {
           searchTime: new Date().toISOString(),
           method: 'POST',
           source: 'mock'
-        }
-      });
-    }
+        }})}
 
   } catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'POST /api/jobs',
       context: {
         request: 'Search jobs',
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 }

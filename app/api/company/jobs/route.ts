@@ -12,22 +12,21 @@ export async function POST(request: NextRequest) {
       status: 'active',
       createdAt: new Date().toISOString(),
       applications: 0
+  // TODO: Complete function implementation
+}
     };
 
     return Response.json({
       success: true,
       message: 'Job posted successfully',
-      job: newJob
-    });
-
-  } catch (error) {
+      job: newJob})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'POST /api/company/jobs',
       context: {
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 }
 
 export async function GET() {
@@ -41,12 +40,12 @@ export async function GET() {
       status: 'active',
       applications: 25,
       createdAt: '2024-01-15T10:00:00Z'
+  // TODO: Complete function implementation
+}
     }
   ];
 
   return Response.json({
     success: true,
     jobs: jobs,
-    total: jobs.length
-  });
-}
+    total: jobs.length})}

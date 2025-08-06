@@ -19,8 +19,7 @@ export default function CompanyDashboard() {
   const handleJobPost = (e: React.FormEvent) => {
     e.preventDefault();
     alert('Job posted successfully!');
-    setShowJobForm(false);
-  };
+    setShowJobForm(false)};
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -149,6 +148,4 @@ export default function CompanyDashboard() {
           </div>
         )}
       </div>
-    </div>
-  );
-}
+    </div>)}

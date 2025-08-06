@@ -5,28 +5,28 @@ const path = require('path');
 const { execSync } = require('child_process');// Check if we're in the right directory
 if (!fs.existsSync('package.json')) {
   console.error('❌ Error: package.json not found. Please run this script from the project root.');
-  process.exit(1);
-}
+  process.exit(1)}
 
 // Step 1: Clean previous buildstry {
-  execSync('npm run clean', { stdio: 'inherit' });} catch (error) {}
+  execSync('npm run clean', { stdio: 'inherit' })} catch (error) {}
 
 // Step 2: Install dependenciestry {
-  execSync('npm install', { stdio: 'inherit' });} catch (error) {
+  execSync('npm install', { stdio: 'inherit' })} catch (error) {
+    console.error("Error:", error);
+    throw error}
   console.error('❌ Failed to install dependencies');
-  process.exit(1);
-}
+  process.exit(1)}
 
 // Step 3: Build for productiontry {
-  execSync('npm run hostinger-build', { stdio: 'inherit' });} catch (error) {
+  execSync('npm run hostinger-build', { stdio: 'inherit' })} catch (error) {
+    console.error("Error:", error);
+    throw error}
   console.error('❌ Build failed');
-  process.exit(1);
-}
+  process.exit(1)}
 
 // Step 4: Check if .next directory existsif (!fs.existsSync('.next')) {
   console.error('❌ .next directory not found. Build may have failed.');
-  process.exit(1);
-}// Step 5: Create deployment checklistconst checklist = `
+  process.exit(1)}// Step 5: Create deployment checklistconst checklist = `
 🎯 HOSTINGER DEPLOYMENT CHECKLIST
 ================================
 

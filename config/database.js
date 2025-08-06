@@ -6,10 +6,11 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.DATABASE_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    });} catch (error) {
+    })} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Database connection failed:', error.message);
-    process.exit(1);
-  }
+    process.exit(1)}
 };
 
 module.exports = connectDB;

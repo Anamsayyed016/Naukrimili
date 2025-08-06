@@ -23,8 +23,7 @@ import {
 interface SocialIconProps {
   href: string;
   icon: React.ReactNode;
-  label: string;
-}
+  label: string}
 
 const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label }) => (
   <a
@@ -83,22 +82,19 @@ export default function Footer() {
       if (response.ok) {
         setStatus('success');
         setMessage('Successfully subscribed to newsletter!');
-        setEmail('');
-      } else {
+        setEmail('')} else {
         setStatus('error');
-        setMessage(data.error || 'Failed to subscribe. Please try again.');
-      }
+        setMessage(data.error || 'Failed to subscribe. Please try again.')}
     } catch (error) {
+    console.error("Error:", error);
+    throw error}
       setStatus('error');
-      setMessage('Failed to subscribe. Please try again.');
-    }
+      setMessage('Failed to subscribe. Please try again.')}
 
     // Reset status after 3 seconds
     setTimeout(() => {
       setStatus('idle');
-      setMessage('');
-    }, 3000);
-  };
+      setMessage('')}, 3000)};
 
   return (
     <footer className="bg-gray-900 text-gray-300 pt-12 pb-6 px-4 sm:px-6 lg:px-8">
@@ -219,6 +215,4 @@ export default function Footer() {
           </div>
         </div>
       </div>
-    </footer>
-  );
-}
+    </footer>)}

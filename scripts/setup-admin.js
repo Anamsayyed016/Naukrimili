@@ -6,6 +6,8 @@ async function testAdminConnection() {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
+  // TODO: Complete function implementation
+}
     });// Create a test admin user in MongoDB
     const db = mongoose.connection.db;
     await db.addUser(
@@ -17,11 +19,11 @@ async function testAdminConnection() {
           { role: "dbAdmin", db: "jobportal" }
         ]
       }
-    );process.exit(0);
-  } catch (error) {
+    );process.exit(0)} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('❌ Error:', error.message);
-    process.exit(1);
-  }
+    process.exit(1)}
 }
 
 testAdminConnection();

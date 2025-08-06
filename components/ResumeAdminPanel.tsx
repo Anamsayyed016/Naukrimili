@@ -12,16 +12,14 @@ export default function ResumeAdminPanel() {
       <h2 className="text-2xl font-bold mb-4">Manage Resumes</h2>
       {error && <div className="text-red-500 mb-2">{error}</div>}
       <form
-        onSubmit={e => {
+        onSubmit={e => {;
           e.preventDefault();
           if (editId !== null) {
             updateResume(editId, form);
             setEditId(null);
-            setForm({ userId: '', fileUrl: '' });
-          } else {
+            setForm({ userId: '', fileUrl: '' })} else {
             createResume(form);
-            setForm({ userId: '', fileUrl: '' });
-          }
+            setForm({ userId: '', fileUrl: '' })}
         }}
         className="flex flex-col gap-2 mb-4"
       >
@@ -31,7 +29,7 @@ export default function ResumeAdminPanel() {
           {editId !== null ? 'Update' : 'Add'}
         </button>
         {editId !== null && (
-          <button type="button" className="ml-2 text-gray-500" onClick={() => { setEditId(null); setForm({ userId: '', fileUrl: '' }); }}>
+          <button type="button" className="ml-2 text-gray-500" onClick={() => { setEditId(null); setForm({ userId: '', fileUrl: '' })}}>
             Cancel
           </button>
         )}
@@ -41,7 +39,7 @@ export default function ResumeAdminPanel() {
           <li key={resume.id} className="flex items-center justify-between border-b py-2">
             <span>User: {resume.userId} | File: {resume.fileUrl}</span>
             <div className="flex gap-2">
-              <button className="text-blue-600" onClick={() => { setEditId(resume.id); setForm({ userId: resume.userId, fileUrl: resume.fileUrl }); }}>Edit</button>
+              <button className="text-blue-600" onClick={() => { setEditId(resume.id); setForm({ userId: resume.userId, fileUrl: resume.fileUrl })}}>Edit</button>
               <button className="text-red-600" onClick={() => deleteResume(resume.id)}>Delete</button>
             </div>
           </li>
@@ -49,5 +47,4 @@ export default function ResumeAdminPanel() {
       </ul>
       {loading && <div className="mt-2 text-gray-500">Loading...</div>}
     </div>
-  );
-}
+  )}

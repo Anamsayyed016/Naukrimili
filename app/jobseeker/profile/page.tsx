@@ -15,8 +15,7 @@ export default function JobSeekerProfilePage() {
       const decoded = JSON.parse(atob(token));
       const users = JSON.parse(localStorage.getItem("mock_users") || "[]");
       const user = users.find((u: Record<string, unknown>) => u.email === decoded.email);
-      setProfile(user);
-    }
+      setProfile(user)}
   }, []);
 
   if (!profile) {
@@ -31,9 +30,7 @@ export default function JobSeekerProfilePage() {
             <p className="text-gray-600 mt-2">Please log in to view your profile.</p>
           </CardHeader>
         </Card>
-      </main>
-    );
-  }
+      </main>)}
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900">
@@ -119,6 +116,4 @@ export default function JobSeekerProfilePage() {
           </div>
         </CardContent>
       </Card>
-    </main>
-  );
-} 
+    </main>)} 

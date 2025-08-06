@@ -15,12 +15,10 @@ interface ResumeData {
   skills: string[];
   experience: string[];
   education: string[];
-  recommendations?: string[];
-}
+  recommendations?: string[]}
 
 interface ResumeDisplayProps {
-  resumeData: ResumeData;
-}
+  resumeData: ResumeData}
 
 /**
  * Professional Resume Display Component
@@ -168,8 +166,6 @@ const ResumeDisplayProfessional: React.FC<ResumeDisplayProps> = ({ resumeData })
           </CardContent>
         </Card>
       )}
-    </div>
-  );
-};
+    </div>)};
 
 export default ResumeDisplayProfessional;

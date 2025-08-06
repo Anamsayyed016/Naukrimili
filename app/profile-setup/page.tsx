@@ -24,6 +24,4 @@ export default function ProfileSetupPage() {
           </Card>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}

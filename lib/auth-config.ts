@@ -12,9 +12,7 @@ declare module 'next-auth' {
       role: 'jobseeker' | 'employer' | 'recruiter' | 'admin';
       profileCompletion: number;
       createdAt?: Date;
-      updatedAt?: Date;
-    };
-  }
+      updatedAt?: Date}}
 
   interface User {
     id: string;
@@ -24,8 +22,7 @@ declare module 'next-auth' {
     role: 'jobseeker' | 'employer' | 'recruiter' | 'admin';
     profileCompletion: number;
     createdAt?: Date;
-    updatedAt?: Date;
-  }
+    updatedAt?: Date}
 }
 
 declare module 'next-auth/jwt' {
@@ -34,8 +31,7 @@ declare module 'next-auth/jwt' {
     role: 'jobseeker' | 'employer' | 'recruiter' | 'admin';
     profileCompletion: number;
     createdAt?: Date;
-    updatedAt?: Date;
-  }
+    updatedAt?: Date}
 }
 
 // Mock user database - replace with actual database
@@ -85,20 +81,17 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+          return null}
 
         // Find user in mock database
         const user = mockUsers.find(u => u.email === credentials.email);
         
         if (!user) {
-          return null;
-        }
+          return null}
 
         // In a real app, verify hashed password
         if (user.password !== credentials.password) {
-          return null;
-        }
+          return null}
 
         // Return user object (excluding password)
         return {
@@ -109,9 +102,7 @@ export const authOptions: NextAuthOptions = {
           role: user.role,
           profileCompletion: user.profileCompletion,
           createdAt: user.createdAt,
-          updatedAt: user.updatedAt
-        };
-      }
+          updatedAt: user.updatedAt}}
     })
   ],
   pages: {
@@ -125,20 +116,16 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role;
         session.user.profileCompletion = token.profileCompletion;
         session.user.createdAt = token.createdAt;
-        session.user.updatedAt = token.updatedAt;
-      }
-      return session;
-    },
+        session.user.updatedAt = token.updatedAt}
+      return session},
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
         token.profileCompletion = user.profileCompletion;
         token.createdAt = user.createdAt;
-        token.updatedAt = user.updatedAt;
-      }
-      return token;
-    }
+        token.updatedAt = user.updatedAt}
+      return token}
   },
   session: {
     strategy: 'jwt',

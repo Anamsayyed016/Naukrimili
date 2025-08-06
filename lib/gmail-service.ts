@@ -9,8 +9,7 @@ export class GmailService {
       access_token: accessToken,
     });
 
-    this.gmail = google.gmail({ version: 'v1', auth: oauth2Client });
-  }
+    this.gmail = google.gmail({ version: 'v1', auth: oauth2Client })}
 
   // Get user's Gmail profile
   async getProfile() {
@@ -18,11 +17,9 @@ export class GmailService {
       const response = await this.gmail.users.getProfile({
         userId: 'me',
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error getting Gmail profile:', error);
-      throw error;
-    }
+      throw error}
   }
 
   // Get emails from Gmail
@@ -33,11 +30,9 @@ export class GmailService {
         maxResults,
         q: 'is:inbox', // Only inbox emails
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error getting emails:', error);
-      throw error;
-    }
+      throw error}
   }
 
   // Get specific email by ID
@@ -47,11 +42,9 @@ export class GmailService {
         userId: 'me',
         id: messageId,
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error getting email:', error);
-      throw error;
-    }
+      throw error}
   }
 
   // Send email
@@ -74,11 +67,9 @@ export class GmailService {
           raw: encodedMessage,
         },
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error sending email:', error);
-      throw error;
-    }
+      throw error}
   }
 
   // Search emails
@@ -89,11 +80,9 @@ export class GmailService {
         maxResults,
         q: query,
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error searching emails:', error);
-      throw error;
-    }
+      throw error}
   }
 
   // Get email attachments
@@ -104,11 +93,9 @@ export class GmailService {
         messageId,
         id: attachmentId,
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error getting attachment:', error);
-      throw error;
-    }
+      throw error}
   }
 }
 
@@ -117,28 +104,23 @@ export function decodeEmailBody(body: Record<string, unknown>): string {
   if (!body) return '';
   
   if (body.data) {
-    return Buffer.from(body.data, 'base64').toString('utf-8');
-  }
+    return Buffer.from(body.data, 'base64').toString('utf-8')}
   
   if (body.parts) {
     // Handle multipart emails
     for (const part of body.parts) {
       if (part.mimeType === 'text/plain') {
-        return decodeEmailBody(part.body);
-      }
+        return decodeEmailBody(part.body)}
     }
   }
   
-  return '';
-}
+  return ''}
 
 // Helper function to extract email headers
 export function extractEmailHeaders(headers: Record<string, unknown>[]): Record<string, string> {
   const headerMap: Record<string, string> = {};
   
   headers.forEach(header => {
-    headerMap[header.name] = header.value;
-  });
+    headerMap[header.name] = header.value});
   
-  return headerMap;
-} 
+  return headerMap} 

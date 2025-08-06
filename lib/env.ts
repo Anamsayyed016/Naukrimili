@@ -41,16 +41,13 @@ const envSchema = z.object({
 // Validate environment variables
 function validateEnv() {
   try {
-    return envSchema.parse(process.env);
-  } catch (error) {
+    return envSchema.parse(process.env)} catch (error) {
     if (error instanceof z.ZodError) {
       const missingVars = (error as z.ZodError).issues.map((issue: z.ZodIssue) => 
         `${issue.path.join('.')}: ${issue.message}`
       );
-      throw new Error(`Environment validation failed:\n${missingVars.join('\n')}`);
-    }
-    throw error;
-  }
+      throw new Error(`Environment validation failed:\n${missingVars.join('\n')}`)}
+    throw error}
 }
 
 // Export validated environment variables
@@ -67,13 +64,10 @@ export const isTest = env.NODE_ENV === 'test';
 // Security helpers
 export function maskSensitiveValue(value: string): string {
   if (value.length <= 8) return '***';
-  return value.slice(0, 4) + '***' + value.slice(-4);
-}
+  return value.slice(0, 4) + '***' + value.slice(-4)}
 
 export function getPublicEnvVars() {
   return {
     NODE_ENV: env.NODE_ENV,
     NEXTAUTH_URL: env.NEXTAUTH_URL,
-    NEXT_PUBLIC_API_URL: env.NEXT_PUBLIC_API_URL,
-  };
-}
+    NEXT_PUBLIC_API_URL: env.NEXT_PUBLIC_API_URL,}}

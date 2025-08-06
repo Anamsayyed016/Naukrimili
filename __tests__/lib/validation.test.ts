@@ -22,10 +22,8 @@ describe('Validation Library', () => {
         const result = emailSchema.safeParse(email);
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toBe(email.toLowerCase());
-        }
-      });
-    });
+          expect(result.data).toBe(email.toLowerCase())}
+      })});
 
     it('should reject invalid email addresses', () => {
       const invalidEmails = [
@@ -38,10 +36,7 @@ describe('Validation Library', () => {
 
       invalidEmails.forEach(email => {
         const result = emailSchema.safeParse(email);
-        expect(result.success).toBe(false);
-      });
-    });
-  });
+        expect(result.success).toBe(false)})})});
 
   describe('passwordSchema', () => {
     it('should validate strong passwords', () => {
@@ -53,9 +48,7 @@ describe('Validation Library', () => {
 
       validPasswords.forEach(password => {
         const result = passwordSchema.safeParse(password);
-        expect(result.success).toBe(true);
-      });
-    });
+        expect(result.success).toBe(true)})});
 
     it('should reject weak passwords', () => {
       const invalidPasswords = [
@@ -70,10 +63,7 @@ describe('Validation Library', () => {
 
       invalidPasswords.forEach(password => {
         const result = passwordSchema.safeParse(password);
-        expect(result.success).toBe(false);
-      });
-    });
-  });
+        expect(result.success).toBe(false)})})});
 
   describe('nameSchema', () => {
     it('should validate proper names', () => {
@@ -88,10 +78,8 @@ describe('Validation Library', () => {
         const result = nameSchema.safeParse(name);
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data).toBe(name.trim());
-        }
-      });
-    });
+          expect(result.data).toBe(name.trim())}
+      })});
 
     it('should reject invalid names', () => {
       const invalidNames = [
@@ -104,77 +92,61 @@ describe('Validation Library', () => {
 
       invalidNames.forEach(name => {
         const result = nameSchema.safeParse(name);
-        expect(result.success).toBe(false);
-      });
-    });
-  });
+        expect(result.success).toBe(false)})})});
 
   describe('validateInput', () => {
-    it('should return success for valid input', () => {
+    it('should return success for valid input', () => {;
       const result = validateInput(emailSchema, 'test@example.com');
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data).toBe('test@example.com');
-      }
+        expect(result.data).toBe('test@example.com')}
     });
 
-    it('should return errors for invalid input', () => {
+    it('should return errors for invalid input', () => {;
       const result = validateInput(emailSchema, 'invalid-email');
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.errors).toHaveLength(1);
-        expect(result.errors[0]).toContain('Invalid email address');
-      }
-    });
-  });
+        expect(result.errors[0]).toContain('Invalid email address')}
+    })});
 
   describe('sanitizeString', () => {
     it('should remove HTML tags and trim whitespace', () => {
       const input = '  <script>alert("xss")</script>Hello World  ';
       const result = sanitizeString(input);
-      expect(result).toBe('Hello World');
-    });
+      expect(result).toBe('Hello World')});
 
     it('should limit string length', () => {
       const longString = 'a'.repeat(1500);
       const result = sanitizeString(longString);
-      expect(result.length).toBeLessThanOrEqual(1000);
-    });
-  });
+      expect(result.length).toBeLessThanOrEqual(1000)})});
 
   describe('sanitizeEmail', () => {
     it('should convert to lowercase and trim', () => {
       const input = '  TEST@EXAMPLE.COM  ';
       const result = sanitizeEmail(input);
-      expect(result).toBe('test@example.com');
-    });
+      expect(result).toBe('test@example.com')});
 
     it('should limit email length', () => {
       const longEmail = 'a'.repeat(300) + '@example.com';
       const result = sanitizeEmail(longEmail);
-      expect(result.length).toBeLessThanOrEqual(254);
-    });
-  });
+      expect(result.length).toBeLessThanOrEqual(254)})});
 
   describe('sanitizeSearchQuery', () => {
     it('should remove dangerous characters', () => {
       const input = '<script>alert("xss")</script>javascript developer';
       const result = sanitizeSearchQuery(input);
-      expect(result).toBe('javascript developer');
-    });
+      expect(result).toBe('javascript developer')});
 
     it('should preserve safe characters', () => {
       const input = 'React.js developer - remote work';
       const result = sanitizeSearchQuery(input);
-      expect(result).toBe('React.js developer - remote work');
-    });
+      expect(result).toBe('React.js developer - remote work')});
 
     it('should limit query length', () => {
       const longQuery = 'developer '.repeat(20);
       const result = sanitizeSearchQuery(longQuery);
-      expect(result.length).toBeLessThanOrEqual(100);
-    });
-  });
+      expect(result.length).toBeLessThanOrEqual(100)})});
 
   describe('validateUrl', () => {
     it('should validate HTTP and HTTPS URLs', () => {
@@ -185,9 +157,7 @@ describe('Validation Library', () => {
       ];
 
       validUrls.forEach(url => {
-        expect(validateUrl(url)).toBe(true);
-      });
-    });
+        expect(validateUrl(url)).toBe(true)})});
 
     it('should reject invalid URLs', () => {
       const invalidUrls = [
@@ -199,8 +169,4 @@ describe('Validation Library', () => {
       ];
 
       invalidUrls.forEach(url => {
-        expect(validateUrl(url)).toBe(false);
-      });
-    });
-  });
-});
+        expect(validateUrl(url)).toBe(false)})})})});

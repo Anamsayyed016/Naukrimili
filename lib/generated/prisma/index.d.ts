@@ -151,8 +151,7 @@ export class PrismaClient<
     * const jobs = await prisma.job.findMany()
     * ```
     */
-  get job(): Prisma.JobDelegate<ExtArgs, ClientOptions>;
-}
+  get job(): Prisma.JobDelegate<ExtArgs, ClientOptions>}
 
 export namespace Prisma {
   export import DMMF = runtime.DMMF
@@ -318,9 +317,8 @@ export namespace Prisma {
   /**
    * From T, pick a set of properties whose keys are in the union K
    */
-  type Prisma__Pick<T, K extends keyof T> = {
-      [P in K]: T[P];
-  };
+  type Prisma__Pick<T, K extends keyof T> = {;
+      [P in K]: T[P]};
 
 
   export type Enumerable<T> = T | Array<T>;
@@ -340,8 +338,7 @@ export namespace Prisma {
    * @desc From `T` pick properties that exist in `U`. Simple version of Intersection
    */
   export type Subset<T, U> = {
-    [key in keyof T]: key extends keyof U ? T[key] : never;
-  };
+    [key in keyof T]: key extends keyof U ? T[key] : never};
 
   /**
    * SelectSubset
@@ -442,13 +439,11 @@ export namespace Prisma {
     ? I
     : never
 
-  export type Overwrite<O extends object, O1 extends object> = {
-      [K in keyof O]: K extends keyof O1 ? O1[K] : O[K];
-  } & {};
+  export type Overwrite<O extends object, O1 extends object> = {;
+      [K in keyof O]: K extends keyof O1 ? O1[K] : O[K]} & {};
 
   type _Merge<U extends object> = IntersectOf<Overwrite<U, {
-      [K in keyof U]-?: At<U, K>;
-  }>>;
+      [K in keyof U]-?: At<U, K>}>>;
 
   type Key = string | number | symbol;
   type AtBasic<O extends object, K extends Key> = K extends keyof O ? O[K] : never;
@@ -456,20 +451,16 @@ export namespace Prisma {
   type AtLoose<O extends object, K extends Key> = O extends unknown ? AtStrict<O, K> : never;
   export type At<O extends object, K extends Key, strict extends Boolean = 1> = {
       1: AtStrict<O, K>;
-      0: AtLoose<O, K>;
-  }[strict];
+      0: AtLoose<O, K>}[strict];
 
   export type ComputeRaw<A extends any> = A extends Function ? A : {
-    [K in keyof A]: A[K];
-  } & {};
+    [K in keyof A]: A[K]} & {};
 
   export type OptionalFlat<O> = {
-    [K in keyof O]?: O[K];
-  } & {};
+    [K in keyof O]?: O[K]} & {};
 
   type _Record<K extends keyof any, T> = {
-    [P in K]: T;
-  };
+    [P in K]: T};
 
   // cause typescript not to expand types and preserve names
   type NoExpand<T> = T extends unknown ? T : never;
@@ -846,7 +837,7 @@ export namespace Prisma {
     next: (params: MiddlewareParams) => $Utils.JsPromise<T>,
   ) => $Utils.JsPromise<T>
 
-  // tested in getLogLevel.test.ts
+  // tested in getLogLevel.test.ts;
   export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
 
   /**
@@ -1629,9 +1620,8 @@ export namespace Prisma {
     >(args: SubsetIntersection<T, JobGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJobGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
    * Fields of the Job model
-   */
-  readonly fields: JobFieldRefs;
-  }
+   */;
+  readonly fields: JobFieldRefs}
 
   /**
    * The delegate class that acts as a "Promise-like" for Job.

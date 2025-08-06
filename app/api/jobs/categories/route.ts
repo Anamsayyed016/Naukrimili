@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
     // Try to fetch from backend first, but have a fallback
     try {
       const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+  // TODO: Complete function implementation
+}
       const res = await fetch(`${backendUrl}/categories`, {
         headers: {
           'Content-Type': 'application/json',
@@ -40,21 +42,17 @@ export async function GET(request: NextRequest) {
       
       if (res.ok) {
         const categories = await res.json();
-        return Response.json({ categories });
-      }
+        return Response.json({ categories })}
     } catch (backendError) {
-      // console.warn('Backend not available, using mock data:', backendError);
-    }
+      // console.warn('Backend not available, using mock data:', backendError)}
     
     // Fallback to mock data
-    return Response.json({ categories: mockCategories });
-    
-  } catch (error) {
+    return Response.json({ categories: mockCategories })} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/jobs/categories',
       context: {
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 }

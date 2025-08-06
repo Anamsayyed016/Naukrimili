@@ -5,14 +5,12 @@ const path = require('path');
 const { execSync } = require('child_process');// Check if we're in the right directory
 if (!fs.existsSync('package.json')) {
   console.error('❌ Error: package.json not found. Please run this script from the project root.');
-  process.exit(1);
-}
+  process.exit(1)}
 
 // Step 1: Create deployment package// Create deployment directory
 const deployDir = 'hostinger-deploy';
 if (fs.existsSync(deployDir)) {
-  fs.rmSync(deployDir, { recursive: true, force: true });
-}
+  fs.rmSync(deployDir, { recursive: true, force: true })}
 fs.mkdirSync(deployDir);
 
 // Copy essential files
@@ -28,15 +26,13 @@ const essentialFiles = [
 ];essentialFiles.forEach(file => {
   if (fs.existsSync(file)) {
     if (fs.lstatSync(file).isDirectory()) {
-      fs.cpSync(file, path.join(deployDir, file), { recursive: true });
-    } else {
-      fs.copyFileSync(file, path.join(deployDir, file));
-    }} else {}
+      fs.cpSync(file, path.join(deployDir, file), { recursive: true })} else {
+      fs.copyFileSync(file, path.join(deployDir, file))}} else {}
 });
 
 // Copy node_modules (optional - can install on server)
 if (fs.existsSync('node_modules')) {try {
-    fs.cpSync('node_modules', path.join(deployDir, 'node_modules'), { recursive: true });} catch (error) {}
+    fs.cpSync('node_modules', path.join(deployDir, 'node_modules'), { recursive: true })} catch (error) {}
 }
 
 // Create deployment instructions
@@ -103,14 +99,10 @@ fs.writeFileSync(path.join(deployDir, 'DEPLOYMENT_INSTRUCTIONS.txt'), instructio
     files.forEach(file => {
       const filePath = path.join(dir, file.name);
       if (file.isDirectory()) {
-        size += getDirSize(filePath);
-      } else {
-        size += fs.statSync(filePath).size;
-      }
-    });
-  }
-  return size;
-};
+        size += getDirSize(filePath)} else {
+        size += fs.statSync(filePath).size}
+    })}
+  return size};
 
 const totalSize = getDirSize(deployDir);
 const sizeInMB = (totalSize / (1024 * 1024)).toFixed(2);// Show next steps

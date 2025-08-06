@@ -9,8 +9,7 @@ import Link from 'next/link';
 
 interface NexusAuthCTAProps {
   variant?: 'dashboard' | 'sidebar' | 'notification' | 'banner';
-  user?: Record<string, unknown>;
-}
+  user?: Record<string, unknown>}
 
 export default function NexusAuthCTA({ variant = 'dashboard', user }: NexusAuthCTAProps) {
   const { user: authUser } = useAuth();
@@ -119,10 +118,8 @@ export default function NexusAuthCTA({ variant = 'dashboard', user }: NexusAuthC
   // Auto-rotate alerts
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentAlert((prev) => (prev + 1) % alerts.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [alerts.length]);
+      setCurrentAlert((prev) => (prev + 1) % alerts.length)}, 5000);
+    return () => clearInterval(interval)}, [alerts.length]);
 
   // Intersection observer
   useEffect(() => {
@@ -134,8 +131,7 @@ export default function NexusAuthCTA({ variant = 'dashboard', user }: NexusAuthC
     const element = document.getElementById('nexus-auth-cta');
     if (element) observer.observe(element);
     
-    return () => observer.disconnect();
-  }, []);
+    return () => observer.disconnect()}, []);
 
   // Dashboard variant
   if (variant === 'dashboard') {
@@ -291,9 +287,7 @@ export default function NexusAuthCTA({ variant = 'dashboard', user }: NexusAuthC
             ))}
           </div>
         </motion.div>
-      </div>
-    );
-  }
+      </div>)}
 
   // Sidebar variant
   if (variant === 'sidebar') {
@@ -330,9 +324,7 @@ export default function NexusAuthCTA({ variant = 'dashboard', user }: NexusAuthC
             </Link>
           </div>
         ))}
-      </motion.div>
-    );
-  }
+      </motion.div>)}
 
   // Notification variant
   if (variant === 'notification') {
@@ -372,9 +364,7 @@ export default function NexusAuthCTA({ variant = 'dashboard', user }: NexusAuthC
             )
           ))}
         </AnimatePresence>
-      </motion.div>
-    );
-  }
+      </motion.div>)}
 
   // Banner variant
   if (variant === 'banner') {
@@ -404,9 +394,6 @@ export default function NexusAuthCTA({ variant = 'dashboard', user }: NexusAuthC
             </Link>
           </div>
         </div>
-      </motion.div>
-    );
-  }
+      </motion.div>)}
 
-  return null;
-} 
+  return null} 

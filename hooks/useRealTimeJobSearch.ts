@@ -15,8 +15,7 @@ export interface JobSearchFilters {
   salaryMax?: number;
   sortBy: 'relevance' | 'date' | 'salary';
   remote: boolean;
-  datePosted: '24h' | '3d' | '7d' | '14d' | '30d' | 'any';
-}
+  datePosted: '24h' | '3d' | '7d' | '14d' | '30d' | 'any'}
 
 export interface Job {
   id: string;
@@ -32,15 +31,13 @@ export interface Job {
   jobType: string;
   skills?: string[];
   benefits?: string[];
-  companyLogo?: string;
-}
+  companyLogo?: string}
 
 interface UseRealTimeJobSearchOptions {
   debounceMs?: number;
   enabled?: boolean;
   staleTime?: number;
-  gcTime?: number;
-}
+  gcTime?: number}
 
 export function useRealTimeJobSearch(
   initialFilters: Partial<JobSearchFilters>,
@@ -78,27 +75,22 @@ export function useRealTimeJobSearch(
   // Debounce the filters
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedFilters(filters);
-    }, debounceMs);
+      setDebouncedFilters(filters)}, debounceMs);
 
-    return () => clearTimeout(timer);
-  }, [filters, debounceMs]);
+    return () => clearTimeout(timer)}, [filters, debounceMs]);
 
   // Build search parameters
   const searchParams = useMemo(() => {
     const params = new URLSearchParams();
     
     if (debouncedFilters.query.trim()) {
-      params.append('q', debouncedFilters.query.trim());
-    }
+      params.append('q', debouncedFilters.query.trim())}
     
     if (debouncedFilters.location.trim()) {
-      params.append('location', debouncedFilters.location.trim());
-    }
+      params.append('location', debouncedFilters.location.trim())}
     
     if (debouncedFilters.country) {
-      params.append('country', debouncedFilters.country);
-    }
+      params.append('country', debouncedFilters.country)}
     
     if (debouncedFilters.jobType) {
       // Map to API format
@@ -109,38 +101,30 @@ export function useRealTimeJobSearch(
         'Internship': 'internship',
         'Freelance': 'freelance'
       };
-      params.append('job_type', jobTypeMapping[debouncedFilters.jobType] || debouncedFilters.jobType);
-    }
+      params.append('job_type', jobTypeMapping[debouncedFilters.jobType] || debouncedFilters.jobType)}
     
     if (debouncedFilters.experienceLevel) {
-      params.append('experience_level', debouncedFilters.experienceLevel);
-    }
+      params.append('experience_level', debouncedFilters.experienceLevel)}
     
     if (debouncedFilters.category) {
-      params.append('category', debouncedFilters.category);
-    }
+      params.append('category', debouncedFilters.category)}
     
     if (debouncedFilters.remote) {
-      params.append('remote', 'true');
-    }
+      params.append('remote', 'true')}
     
     if (debouncedFilters.datePosted !== 'any') {
-      params.append('date_posted', debouncedFilters.datePosted);
-    }
+      params.append('date_posted', debouncedFilters.datePosted)}
     
     if (debouncedFilters.salaryMin) {
-      params.append('salary_min', debouncedFilters.salaryMin.toString());
-    }
+      params.append('salary_min', debouncedFilters.salaryMin.toString())}
     
     if (debouncedFilters.salaryMax) {
-      params.append('salary_max', debouncedFilters.salaryMax.toString());
-    }
+      params.append('salary_max', debouncedFilters.salaryMax.toString())}
     
     // Always include num parameter for consistency
     params.append('num', '50');
     
-    return params.toString();
-  }, [debouncedFilters]);
+    return params.toString()}, [debouncedFilters]);
 
   // Generate cache key for React Query
   const cacheKey = useMemo(() => [
@@ -167,8 +151,7 @@ export function useRealTimeJobSearch(
       const data = response.data;
       
       if (data.error) {
-        throw new Error(data.error);
-      }
+        throw new Error(data.error)}
       
       // Handle FastAPI backend response
       if (data.jobs && Array.isArray(data.jobs)) {
@@ -187,16 +170,14 @@ export function useRealTimeJobSearch(
           skills: job.skills || [],
           benefits: job.benefits || [],
           companyLogo: job.company_logo || job.companyLogo
-        }));return jobs;
-      }
+        }));return jobs}
       
       // Fallback: Try legacy API format
       const legacyResponse = await axios.get(`/api/jobs?${searchParams}`);
       const legacyData = legacyResponse.data;
       
       if (legacyData.error) {
-        throw new Error(legacyData.error);
-      }
+        throw new Error(legacyData.error)}
       
       const legacyJobs = (legacyData.jobs || []).map((job: Record<string, unknown>) => ({
         id: job.id || `job-${Math.random().toString(36).substr(2, 9)}`,
@@ -213,17 +194,15 @@ export function useRealTimeJobSearch(
         skills: job.skills || [],
         benefits: job.benefits || [],
         companyLogo: job.companyLogo
-      }));return legacyJobs;
-      
-    } catch (error) {
+      }));return legacyJobs} catch (error) {
+    console.error("Error:", error);
+    throw error}
       console.error('❌ Real-time search error:', error);
       // console.warn('🔄 Falling back to mock data...');
       
       // Return enhanced mock data based on filters
-      return generateMockJobs(debouncedFilters);
-    } finally {
-      setIsSearching(false);
-    }
+      return generateMockJobs(debouncedFilters)} finally {
+      setIsSearching(false)}
   }, [enabled, searchParams, debouncedFilters]);
 
   // React Query for job fetching
@@ -258,8 +237,7 @@ export function useRealTimeJobSearch(
       setSearchHistory(prev => {
         const newHistory = [value.trim(), ...prev.filter(item => item !== value.trim())];
         return newHistory.slice(0, 10); // Keep last 10 searches
-      });
-    }
+      })}
   }, []);
 
   // Bulk update filters
@@ -267,8 +245,7 @@ export function useRealTimeJobSearch(
     setFilters(prev => ({
       ...prev,
       ...newFilters
-    }));
-  }, []);
+    }))}, []);
 
   // Reset filters
   const resetFilters = useCallback(() => {
@@ -283,16 +260,14 @@ export function useRealTimeJobSearch(
       sortBy: 'relevance',
       remote: false,
       datePosted: 'any'
-    });
-  }, []);
+    })}, []);
 
   // Clear search
   const clearSearch = useCallback(() => {
     setFilters(prev => ({
       ...prev,
       query: ''
-    }));
-  }, []);
+    }))}, []);
 
   return {
     // Data
@@ -317,9 +292,7 @@ export function useRealTimeJobSearch(
     searchParams,
     hasActiveFilters: Object.values(debouncedFilters).some(value => 
       value !== '' && value !== 'any' && value !== 'relevance' && value !== false
-    )
-  };
-}
+    )}}
 
 // Generate mock jobs based on filters
 function generateMockJobs(filters: JobSearchFilters): Job[] {
@@ -367,14 +340,11 @@ function generateMockJobs(filters: JobSearchFilters): Job[] {
   ];
 
   // Filter mock jobs based on query
-  return baseMockJobs.filter(job => {
+  return baseMockJobs.filter(job => {;
     if (!filters.query) return true;
     const query = filters.query.toLowerCase();
     return (
       job.title.toLowerCase().includes(query) ||
       job.company.toLowerCase().includes(query) ||
       job.description.toLowerCase().includes(query) ||
-      job.skills?.some(skill => skill.toLowerCase().includes(query))
-    );
-  });
-}
+      job.skills?.some(skill => skill.toLowerCase().includes(query)))})}

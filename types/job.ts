@@ -6,31 +6,26 @@ export interface Job {
     id: string;
     name: string;
     logo?: string;
-    website?: string;
-  };
+    website?: string};
   location: {
     city: string;
     state?: string;
     country: string;
-    type: 'onsite' | 'remote' | 'hybrid';
-  };
+    type: 'onsite' | 'remote' | 'hybrid'};
   employmentDetails: {
     type: 'full-time' | 'part-time' | 'contract' | 'internship';
     schedule?: string;
     workHours?: string;
-    overtime?: boolean;
-  };
+    overtime?: boolean};
   compensation: {
     salary?: {
       min: number;
       max: number;
       currency: string;
-      period: 'hourly' | 'monthly' | 'yearly';
-    };
+      period: 'hourly' | 'monthly' | 'yearly'};
     benefits?: string[];
     equity?: string;
-    bonus?: string;
-  };
+    bonus?: string};
   requirements: {
     education?: string[];
     experience: string;
@@ -38,29 +33,23 @@ export interface Job {
     certifications?: string[];
     languages?: {
       name: string;
-      level: 'basic' | 'intermediate' | 'fluent' | 'native';
-    }[];
-  };
+      level: 'basic' | 'intermediate' | 'fluent' | 'native'}[]};
   responsibilities: string[];
   status: {
     isActive: boolean;
     isVerified: boolean;
     isFeatured: boolean;
-    closingDate?: string;
-  };
+    closingDate?: string};
   applicationProcess: {
     type: 'direct' | 'email' | 'external';
     url?: string;
     email?: string;
     instructions?: string;
-    requiredDocuments?: string[];
-  };
+    requiredDocuments?: string[]};
   metadata: {
     postedDate: string;
     lastModified: string;
     views: number;
     applications: number;
     source?: string;
-    tags?: string[];
-  };
-}
+    tags?: string[]}}

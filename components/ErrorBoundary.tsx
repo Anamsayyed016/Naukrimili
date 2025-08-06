@@ -7,14 +7,12 @@ import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
-}
+  onError?: (error: Error, errorInfo: ErrorInfo) => void}
 
 interface State {
   hasError: boolean;
   error: Error | null;
-  errorInfo: ErrorInfo | null;
-}
+  errorInfo: ErrorInfo | null}
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -23,16 +21,13 @@ export class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-    };
-  }
+    }}
 
   static getDerivedStateFromError(error: Error): State {
     return {
       hasError: true,
       error,
-      errorInfo: null,
-    };
-  }
+      errorInfo: null,}}
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({
@@ -45,13 +40,11 @@ export class ErrorBoundary extends Component<Props, State> {
     
     // Call custom error handler if provided
     if (this.props.onError) {
-      this.props.onError(error, errorInfo);
-    }
+      this.props.onError(error, errorInfo)}
 
     // In production, send to error reporting service
     if (process.env.NODE_ENV === 'production') {
-      // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
-    }
+      // Example: Sentry.captureException(error, { contexts: { react: errorInfo } })}
   }
 
   handleRetry = () => {
@@ -59,19 +52,16 @@ export class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-    });
-  };
+    })};
 
   handleGoHome = () => {
-    window.location.href = '/';
-  };
+    window.location.href = '/'};
 
   render() {
     if (this.state.hasError) {
       // Custom fallback UI
       if (this.props.fallback) {
-        return this.props.fallback;
-      }
+        return this.props.fallback}
 
       // Default error UI
       return (
@@ -128,25 +118,20 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
             </CardContent>
           </Card>
-        </div>
-      );
-    }
+        </div>)}
 
-    return this.props.children;
-  }
+    return this.props.children}
 }
 
 // Hook for functional components to handle errors
 export function useErrorHandler() {
-  return (error: Error, errorInfo?: ErrorInfo) => {
+  return (error: Error, errorInfo?: ErrorInfo) => {;
     console.error('Error caught by error handler:', error, errorInfo);
     
     // In production, send to error reporting service
     if (process.env.NODE_ENV === 'production') {
-      // Example: Sentry.captureException(error);
-    }
-  };
-}
+      // Example: Sentry.captureException(error)}
+  }}
 
 // Higher-order component for wrapping components with error boundary
 export function withErrorBoundary<P extends object>(
@@ -161,8 +146,7 @@ export function withErrorBoundary<P extends object>(
 
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
   
-  return WrappedComponent;
-}
+  return WrappedComponent}
 
 // Async error boundary for handling promise rejections
 export class AsyncErrorBoundary extends Component<Props, State> {
@@ -172,17 +156,14 @@ export class AsyncErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-    };
-  }
+    }}
 
   componentDidMount() {
     // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', this.handleUnhandledRejection);
-  }
+    window.addEventListener('unhandledrejection', this.handleUnhandledRejection)}
 
   componentWillUnmount() {
-    window.removeEventListener('unhandledrejection', this.handleUnhandledRejection);
-  }
+    window.removeEventListener('unhandledrejection', this.handleUnhandledRejection)}
 
   handleUnhandledRejection = (event: PromiseRejectionEvent) => {
     console.error('Unhandled promise rejection:', event.reason);
@@ -194,16 +175,13 @@ export class AsyncErrorBoundary extends Component<Props, State> {
     });
 
     // Prevent the default browser behavior
-    event.preventDefault();
-  };
+    event.preventDefault()};
 
   static getDerivedStateFromError(error: Error): State {
     return {
       hasError: true,
       error,
-      errorInfo: null,
-    };
-  }
+      errorInfo: null,}}
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({
@@ -214,8 +192,7 @@ export class AsyncErrorBoundary extends Component<Props, State> {
     console.error('Async Error Boundary caught an error:', error, errorInfo);
     
     if (this.props.onError) {
-      this.props.onError(error, errorInfo);
-    }
+      this.props.onError(error, errorInfo)}
   }
 
   render() {
@@ -223,10 +200,7 @@ export class AsyncErrorBoundary extends Component<Props, State> {
       return this.props.fallback || (
         <ErrorBoundary>
           {this.props.children}
-        </ErrorBoundary>
-      );
-    }
+        </ErrorBoundary>)}
 
-    return this.props.children;
-  }
+    return this.props.children}
 }

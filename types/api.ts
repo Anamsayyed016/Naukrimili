@@ -9,8 +9,7 @@ export class ApiError extends Error {
     public details?: Record<string, unknown>
   ) {
     super(message);
-    this.name = 'ApiError';
-  }
+    this.name = 'ApiError'}
 }
 
 export interface ApiResponse<T = any> {
@@ -23,9 +22,7 @@ export interface ApiResponse<T = any> {
     page?: number;
     limit?: number;
     total?: number;
-    timestamp?: string;
-  };
-}
+    timestamp?: string}}
 
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   meta: {
@@ -35,17 +32,14 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     totalPages: number;
     hasNext: boolean;
     hasPrev: boolean;
-    timestamp: string;
-  };
-}
+    timestamp: string}}
 
 export interface ErrorResponse {
   success: false;
   message: string;
   errors?: string[];
   code: string;
-  details?: Record<string, unknown>;
-}
+  details?: Record<string, unknown>}
 
 // File upload types
 export interface FileUploadResponse {
@@ -59,8 +53,7 @@ export interface FileUploadResponse {
   jobId?: string;
   uploadedAt: string;
   filePath: string;
-  status: 'uploaded' | 'processing' | 'processed' | 'failed';
-}
+  status: 'uploaded' | 'processing' | 'processed' | 'failed'}
 
 // Resume types
 export interface ResumeData {
@@ -78,8 +71,7 @@ export interface ResumeData {
       phone?: string;
       address?: string;
       linkedin?: string;
-      github?: string;
-    };
+      github?: string};
     summary?: string;
     skills: string[];
     experience: Array<{
@@ -88,27 +80,22 @@ export interface ResumeData {
       startDate: string;
       endDate?: string;
       description: string;
-      current: boolean;
-    }>;
+      current: boolean}>;
     education: Array<{
       institution: string;
       degree: string;
       field: string;
       startDate: string;
       endDate?: string;
-      gpa?: string;
-    }>;
+      gpa?: string}>;
     certifications?: Array<{
       name: string;
       issuer: string;
       date: string;
-      expiryDate?: string;
-    }>;
-  };
+      expiryDate?: string}>};
   atsScore?: number;
   createdAt: string;
-  updatedAt: string;
-}
+  updatedAt: string}
 
 // Job types
 export interface JobData {
@@ -123,8 +110,7 @@ export interface JobData {
     min: number;
     max: number;
     currency: string;
-    period: 'hourly' | 'monthly' | 'yearly';
-  };
+    period: 'hourly' | 'monthly' | 'yearly'};
   type: 'full-time' | 'part-time' | 'contract' | 'internship' | 'remote';
   experienceLevel: 'entry' | 'mid' | 'senior' | 'lead' | 'executive';
   skills: string[];
@@ -136,8 +122,7 @@ export interface JobData {
   viewsCount: number;
   createdAt: string;
   updatedAt: string;
-  expiresAt?: string;
-}
+  expiresAt?: string}
 
 // User types
 export interface UserProfile {
@@ -158,29 +143,24 @@ export interface UserProfile {
     position: string;
     startDate: string;
     endDate?: string;
-    current: boolean;
-  }>;
+    current: boolean}>;
   education?: Array<{
     institution: string;
     degree: string;
     field: string;
-    graduationYear: number;
-  }>;
+    graduationYear: number}>;
   preferences?: {
     jobTypes: string[];
     locations: string[];
     salaryRange: {
       min: number;
       max: number;
-      currency: string;
-    };
-    remoteWork: boolean;
-  };
+      currency: string};
+    remoteWork: boolean};
   isVerified: boolean;
   lastActive: string;
   createdAt: string;
-  updatedAt: string;
-}
+  updatedAt: string}
 
 // Application types
 export interface JobApplication {
@@ -198,9 +178,7 @@ export interface JobApplication {
     date: string;
     type: 'phone' | 'video' | 'in-person';
     location?: string;
-    meetingLink?: string;
-  };
-}
+    meetingLink?: string}}
 
 // Search types
 export interface SearchFilters {
@@ -213,15 +191,13 @@ export interface SearchFilters {
   isRemote?: boolean;
   skills?: string[];
   company?: string;
-  postedWithin?: '1d' | '3d' | '7d' | '30d';
-}
+  postedWithin?: '1d' | '3d' | '7d' | '30d'}
 
 export interface SearchParams extends SearchFilters {
   page?: number;
   limit?: number;
   sortBy?: 'relevance' | 'date' | 'salary' | 'company';
-  sortOrder?: 'asc' | 'desc';
-}
+  sortOrder?: 'asc' | 'desc'}
 
 // Analytics types
 export interface AnalyticsData {
@@ -232,22 +208,17 @@ export interface AnalyticsData {
   recentActivity: Array<{
     type: 'job_posted' | 'application_submitted' | 'user_registered';
     count: number;
-    date: string;
-  }>;
+    date: string}>;
   topSkills: Array<{
     skill: string;
-    count: number;
-  }>;
+    count: number}>;
   topLocations: Array<{
     location: string;
-    count: number;
-  }>;
+    count: number}>;
   salaryTrends: Array<{
     period: string;
     average: number;
-    median: number;
-  }>;
-}
+    median: number}>}
 
 // Notification types
 export interface NotificationData {
@@ -258,8 +229,7 @@ export interface NotificationData {
   message: string;
   data?: Record<string, unknown>;
   isRead: boolean;
-  createdAt: string;
-}
+  createdAt: string}
 
 // Company types
 export interface CompanyProfile {
@@ -277,14 +247,12 @@ export interface CompanyProfile {
   socialLinks?: {
     linkedin?: string;
     twitter?: string;
-    facebook?: string;
-  };
+    facebook?: string};
   isVerified: boolean;
   jobsCount: number;
   followersCount: number;
   createdAt: string;
-  updatedAt: string;
-}
+  updatedAt: string}
 
 // Request/Response type helpers
 export type CreateJobRequest = Omit<JobData, 'id' | 'createdAt' | 'updatedAt' | 'applicationsCount' | 'viewsCount' | 'status'>;
@@ -298,69 +266,48 @@ export interface ApiEndpoints {
   '/api/auth/login': {
     POST: {
       body: { email: string; password: string };
-      response: ApiResponse<{ user: UserProfile; token: string }>;
-    };
-  };
+      response: ApiResponse<{ user: UserProfile; token: string }>}};
   '/api/auth/register': {
     POST: {
       body: CreateUserRequest & { password: string };
-      response: ApiResponse<{ user: UserProfile; token: string }>;
-    };
-  };
+      response: ApiResponse<{ user: UserProfile; token: string }>}};
   
   // Jobs
   '/api/jobs': {
     GET: {
       query: SearchParams;
-      response: PaginatedResponse<JobData>;
-    };
+      response: PaginatedResponse<JobData>};
     POST: {
       body: CreateJobRequest;
-      response: ApiResponse<JobData>;
-    };
-  };
+      response: ApiResponse<JobData>}};
   '/api/jobs/[id]': {
     GET: {
-      response: ApiResponse<JobData>;
-    };
+      response: ApiResponse<JobData>};
     PUT: {
       body: UpdateJobRequest;
-      response: ApiResponse<JobData>;
-    };
+      response: ApiResponse<JobData>};
     DELETE: {
-      response: ApiResponse<{ message: string }>;
-    };
-  };
+      response: ApiResponse<{ message: string }>}};
   
   // Resumes
   '/api/resumes/upload': {
     POST: {
       body: FormData;
-      response: ApiResponse<FileUploadResponse>;
-    };
-  };
+      response: ApiResponse<FileUploadResponse>}};
   '/api/resumes/[id]': {
     GET: {
-      response: ApiResponse<ResumeData>;
-    };
+      response: ApiResponse<ResumeData>};
     PUT: {
       body: Partial<ResumeData>;
-      response: ApiResponse<ResumeData>;
-    };
+      response: ApiResponse<ResumeData>};
     DELETE: {
-      response: ApiResponse<{ message: string }>;
-    };
-  };
+      response: ApiResponse<{ message: string }>}};
   
   // Applications
   '/api/applications': {
     GET: {
       query: { userId?: string; jobId?: string; status?: string };
-      response: PaginatedResponse<JobApplication>;
-    };
+      response: PaginatedResponse<JobApplication>};
     POST: {
       body: { jobId: string; resumeId: string; coverLetter?: string };
-      response: ApiResponse<JobApplication>;
-    };
-  };
-}
+      response: ApiResponse<JobApplication>}}}

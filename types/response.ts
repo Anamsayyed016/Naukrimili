@@ -4,14 +4,11 @@ export interface APIResponse<T = any> {
   error?: {
     code: string;
     message: string;
-    details?: Record<string, unknown>;
-  };
+    details?: Record<string, unknown>};
   metadata?: {
     timestamp: string;
     requestId: string;
-    processingTime?: number;
-  };
-}
+    processingTime?: number}}
 
 export interface PaginatedResponse<T> extends APIResponse<T[]> {
   pagination: {
@@ -20,9 +17,7 @@ export interface PaginatedResponse<T> extends APIResponse<T[]> {
     totalItems: number;
     itemsPerPage: number;
     hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
-}
+    hasPreviousPage: boolean}}
 
 export interface ErrorResponse {
   success: false;
@@ -30,13 +25,10 @@ export interface ErrorResponse {
     code: string;
     message: string;
     details?: Record<string, unknown>;
-    stack?: string;
-  };
+    stack?: string};
   metadata: {
     timestamp: string;
-    requestId: string;
-  };
-}
+    requestId: string}}
 
 export interface ValidationError extends ErrorResponse {
   error: {
@@ -45,10 +37,7 @@ export interface ValidationError extends ErrorResponse {
     details: {
       field: string;
       message: string;
-      value?: Record<string, unknown>;
-    }[];
-  };
-}
+      value?: Record<string, unknown>}[]}}
 
 export interface AuthenticationError extends ErrorResponse {
   error: {
@@ -56,10 +45,7 @@ export interface AuthenticationError extends ErrorResponse {
     message: string;
     details?: {
       reason: string;
-      requiredPermissions?: string[];
-    };
-  };
-}
+      requiredPermissions?: string[]}}}
 
 export interface SuccessResponse<T> {
   success: true;
@@ -67,6 +53,4 @@ export interface SuccessResponse<T> {
   metadata: {
     timestamp: string;
     requestId: string;
-    processingTime?: number;
-  };
-}
+    processingTime?: number}}

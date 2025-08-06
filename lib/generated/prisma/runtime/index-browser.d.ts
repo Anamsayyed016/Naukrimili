@@ -1,22 +1,15 @@
 declare class AnyNull extends NullTypesEnumValue {
-    #private;
-}
+    #private}
 
 declare type Args<T, F extends Operation> = T extends {
     [K: symbol]: {
         types: {
             operations: {
                 [K in F]: {
-                    args: Record<string, unknown>;
-                };
-            };
-        };
-    };
-} ? T[symbol]['types']['operations'][F]['args'] : Record<string, unknown>;
+                    args: Record<string, unknown>}}}}} ? T[symbol]['types']['operations'][F]['args'] : Record<string, unknown>;
 
 declare class DbNull extends NullTypesEnumValue {
-    #private;
-}
+    #private}
 
 export declare function Decimal(n: Decimal.Value): Decimal;
 
@@ -37,8 +30,7 @@ export declare namespace Decimal {
         maxE?: number;
         crypto?: boolean;
         modulo?: Modulo;
-        defaults?: boolean;
-    }
+        defaults?: boolean}
 }
 
 export declare class Decimal {
@@ -284,24 +276,20 @@ export declare class Decimal {
     static readonly ROUND_HALF_EVEN: 6;
     static readonly ROUND_HALF_CEIL: 7;
     static readonly ROUND_HALF_FLOOR: 8;
-    static readonly EUCLID: 9;
-}
+    static readonly EUCLID: 9}
 
 declare type Exact<A, W> = (A extends unknown ? (W extends A ? {
-    [K in keyof A]: Exact<A[K], W[K]>;
-} : W) : never) | (A extends Narrowable ? A : never);
+    [K in keyof A]: Exact<A[K], W[K]>} : W) : never) | (A extends Narrowable ? A : never);
 
 export declare function getRuntime(): GetRuntimeOutput;
 
 declare type GetRuntimeOutput = {
     id: RuntimeName;
     prettyName: string;
-    isEdge: boolean;
-};
+    isEdge: boolean};
 
 declare class JsonNull extends NullTypesEnumValue {
-    #private;
-}
+    #private}
 
 /**
  * Generates more strict variant of an enum which, unlike regular enum,
@@ -324,8 +312,7 @@ export declare function makeStrictEnum<T extends Record<PropertyKey, string | nu
 declare type Narrowable = string | number | bigint | boolean | [];
 
 declare class NullTypesEnumValue extends ObjectEnumValue {
-    _getNamespace(): string;
-}
+    _getNamespace(): string}
 
 /**
  * Base class for unique values of object-valued enums.
@@ -334,21 +321,17 @@ declare abstract class ObjectEnumValue {
     constructor(arg?: symbol);
     abstract _getNamespace(): string;
     _getName(): string;
-    toString(): string;
-}
+    toString(): string}
 
 export declare const objectEnumValues: {
     classes: {
         DbNull: typeof DbNull;
         JsonNull: typeof JsonNull;
-        AnyNull: typeof AnyNull;
-    };
+        AnyNull: typeof AnyNull};
     instances: {
         DbNull: DbNull;
         JsonNull: JsonNull;
-        AnyNull: AnyNull;
-    };
-};
+        AnyNull: AnyNull}};
 
 declare type Operation = 'findFirst' | 'findFirstOrThrow' | 'findUnique' | 'findUniqueOrThrow' | 'findMany' | 'create' | 'createMany' | 'createManyAndReturn' | 'update' | 'updateMany' | 'updateManyAndReturn' | 'upsert' | 'delete' | 'deleteMany' | 'aggregate' | 'count' | 'groupBy' | '$queryRaw' | '$executeRaw' | '$queryRawUnsafe' | '$executeRawUnsafe' | 'findRaw' | 'aggregateRaw' | '$runCommandRaw';
 

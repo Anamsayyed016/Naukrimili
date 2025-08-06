@@ -7,8 +7,7 @@ interface LogEntry {
   message: string;
   timestamp: string;
   context: Record<string, unknown> | undefined;
-  stack: string | undefined;
-}
+  stack: string | undefined}
 
 class Logger {
   private isDevelopment = env.NODE_ENV === 'development';
@@ -39,8 +38,7 @@ class Logger {
           context: this.sanitizeContext(entry.context)
         };
         // eslint-disable-next-line no-console
-        console[level](JSON.stringify(sanitizedEntry));
-      }
+        console[level](JSON.stringify(sanitizedEntry))}
     }
   }
   
@@ -52,36 +50,29 @@ class Logger {
     
     for (const key of Object.keys(sanitized)) {
       if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))) {
-        sanitized[key] = '[REDACTED]';
-      }
+        sanitized[key] = '[REDACTED]'}
     }
     
-    return sanitized;
-  }
+    return sanitized}
   
   private sendToLoggingService(entry: LogEntry): void {
     // In production, integrate with logging service (e.g., Winston, Pino, etc.)
     if (entry.level === 'error') {
       // eslint-disable-next-line no-console
-      console.error(JSON.stringify(entry));
-    }
+      console.error(JSON.stringify(entry))}
   }
   
   debug(message: string, context?: Record<string, unknown>): void {
-    this.log('debug', message, context);
-  }
+    this.log('debug', message, context)}
   
   info(message: string, context?: Record<string, unknown>): void {
-    this.log('info', message, context);
-  }
+    this.log('info', message, context)}
   
   warn(message: string, context?: Record<string, unknown>): void {
-    this.log('warn', message, context);
-  }
+    this.log('warn', message, context)}
   
   error(message: string, context?: Record<string, unknown>, error?: Error): void {
-    this.log('error', message, context, error);
-  }
+    this.log('error', message, context, error)}
 }
 
 export const logger = new Logger();
@@ -92,5 +83,4 @@ if (env.NODE_ENV === 'production') {
   console.debug = () => {};
   console.info = (message: string) => logger.info(message);
   // console.warn = (message: string) => logger.warn(message);
-  console.error = (message: string) => logger.error(message);
-}
+  console.error = (message: string) => logger.error(message)}

@@ -18,10 +18,12 @@ export async function GET(request: NextRequest) {
           isUrgent: false,
           isRemote: false,
           jobType: 'Full-time'
+  // TODO: Complete function implementation
+}
         }
-      ]
-    });
-  } catch (error) {
+      ]})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('❌ TEST API Error:', error);
     return Response.json(
       { 
@@ -29,7 +31,5 @@ export async function GET(request: NextRequest) {
         error: 'Test API failed',
         message: error instanceof Error ? error.message : 'Unknown error'
       }, 
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }

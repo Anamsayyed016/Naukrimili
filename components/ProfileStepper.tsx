@@ -24,8 +24,7 @@ const professionalDetailsSchema = z.object({
   experience: z.enum(["fresher", "1-3", "4+"]),
   currentCompany: z.string().optional().refine((val) => {
     // This will be validated separately in the form
-    return true;
-  }, { message: "Current company required if experienced" }),
+    return true}, { message: "Current company required if experienced" }),
 });
 
 // Step 3: Photo/Portfolio Schema
@@ -45,22 +44,19 @@ const photoPortfolioSchema = z.object({
       async (file) => {
         if (!file || !(file instanceof File)) return true;
         try {
-          return new Promise<boolean>((resolve) => {
+          return new Promise<boolean>((resolve) => {;
             const img = new window.Image();
             img.onload = function () {
               const isSquare = Math.abs(img.width - img.height) <= 2; // Allow 2px difference
               URL.revokeObjectURL(img.src); // Clean up
-              resolve(isSquare);
-            };
+              resolve(isSquare)};
             img.onerror = function () {
               URL.revokeObjectURL(img.src); // Clean up
-              resolve(false);
-            };
-            img.src = URL.createObjectURL(file);
-          });
-        } catch (error) {
-          return false;
-        }
+              resolve(false)};
+            img.src = URL.createObjectURL(file)})} catch (error) {
+    console.error("Error:", error);
+    throw error}
+          return false}
       },
       { message: "Image must be square (1:1 aspect ratio)", path: ["profilePhoto"] }
     ),
@@ -126,8 +122,7 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
   const onSubmit = async (data: Record<string, unknown>) => {
     setFormData((prev: Record<string, unknown>) => ({ ...prev, ...data }));
     if (currentStep < steps.length - 1) {
-      setCurrentStep((s) => s + 1);
-    } else {
+      setCurrentStep((s) => s + 1)} else {
       // Final submit logic: update user profile in localStorage
       const token = localStorage.getItem('mock_token');
       if (token) {
@@ -136,16 +131,14 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
         const idx = users.findIndex((u: Record<string, unknown>) => u.email === decoded.email);
         if (idx !== -1) {
           users[idx] = { ...users[idx], ...formData, ...data };
-          localStorage.setItem('mock_users', JSON.stringify(users));
-        }
+          localStorage.setItem('mock_users', JSON.stringify(users))}
       }
       toast({ 
         title: 'Profile Completed!',
         description: 'Your profile is now complete. You can now access all job seeker features.'
       });
       if (onComplete) onComplete();
-      else window.location.reload();
-    }
+      else window.location.reload()}
   };
 
   // Key Skills chip input state (local, not in RHF)
@@ -156,12 +149,10 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
     const val = skillInput.trim();
     if (val && !keySkills.includes(val)) {
       methods.setValue("keySkills", [...keySkills, val], { shouldValidate: true });
-      setSkillInput("");
-    }
+      setSkillInput("")}
   };
   const removeSkill = (skill: string) => {
-    methods.setValue("keySkills", keySkills.filter((s: string) => s !== skill), { shouldValidate: true });
-  };
+    methods.setValue("keySkills", keySkills.filter((s: string) => s !== skill), { shouldValidate: true })};
 
   const experience = methods.watch("experience");
 
@@ -186,25 +177,21 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
             methods.setError("profilePhoto", { 
               type: "manual", 
               message: "Image must be square (1:1 aspect ratio)" 
-            });
-          }
-          URL.revokeObjectURL(img.src);
-        };
+            })}
+          URL.revokeObjectURL(img.src)};
         img.onerror = () => {
           setImageError("Failed to load image");
-          URL.revokeObjectURL(img.src);
-        };
+          URL.revokeObjectURL(img.src)};
         img.src = url;
 
-        return () => URL.revokeObjectURL(url);
-      } catch (error) {
+        return () => URL.revokeObjectURL(url)} catch (error) {
+    console.error("Error:", error);
+    throw error}
         setImageError("Failed to process image");
-        setPhotoPreview(null);
-      }
+        setPhotoPreview(null)}
     } else {
       setPhotoPreview(null);
-      setImageError(null);
-    }
+      setImageError(null)}
   }, [profilePhoto, methods]);
 
   // Multilingual step: manage language fields
@@ -309,8 +296,8 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
                 <div className="flex gap-2">
                   <Input
                     value={skillInput}
-                    onChange={e => setSkillInput(e.target.value)}
-                    onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
+                    onChange={e => setSkillInput(e.target.value)};
+                    onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addSkill()} }}
                     placeholder="Add a skill and press Enter"
                   />
                   <Button type="button" onClick={addSkill} disabled={!skillInput.trim()}>Add</Button>
@@ -335,16 +322,14 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
                           objectFit="cover"
                           onError={() => {
                             setPhotoPreview(null);
-                            setImageError("Failed to load image");
-                          }}
+                            setImageError("Failed to load image")}}
                         />
                         <button
                           type="button"
                           onClick={() => {
                             methods.setValue("profilePhoto", null);
                             setPhotoPreview(null);
-                            setImageError(null);
-                          }}
+                            setImageError(null)}}
                           className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 m-1 hover:bg-red-600 transition-colors"
                           aria-label="Remove photo"
                         >
@@ -368,8 +353,7 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          methods.setValue("profilePhoto", file, { shouldValidate: true });
-                        }
+                          methods.setValue("profilePhoto", file, { shouldValidate: true })}
                       }}
                     />
                     <Button
@@ -456,16 +440,14 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
                       style={{ display: "none" }}
                       onChange={e => {
                         const file = e.target.files?.[0];
-                        methods.setValue("profilePhoto", file, { shouldValidate: true });
-                      }}
+                        methods.setValue("profilePhoto", file, { shouldValidate: true })}}
                     />
                     <Button type="button" onClick={() => fileInputRef.current?.click()}>Upload Photo</Button>
                     {profilePhoto && (
                       <Button type="button" variant="outline" className="ml-2" onClick={() => {
                         methods.setValue("profilePhoto", null, { shouldValidate: true });
                         setPhotoPreview(null);
-                        if (fileInputRef.current) fileInputRef.current.value = "";
-                      }}>Remove</Button>
+                        if (fileInputRef.current) fileInputRef.current.value = ""}}>Remove</Button>
                     )}
                   </div>
                 </div>
@@ -521,9 +503,7 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
                           ))}
                         </select>
                         <Button type="button" variant="outline" size="sm" onClick={() => remove(idx)} aria-label="Remove language">Remove</Button>
-                      </div>
-                    );
-                  })}
+                      </div>)})}
                   <Button type="button" className="mt-2 w-fit" onClick={() => append({ language: "", proficiency: "" })}>Add Language</Button>
                 </div>
                 {methods.formState.errors.languages && (
@@ -594,5 +574,4 @@ export default function ProfileStepper({ defaultValues = {}, onComplete }: { def
         </form>
       </FormProvider>
     </div>
-  );
-} 
+  )} 

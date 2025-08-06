@@ -9,15 +9,13 @@ interface Referral {
   candidateName: string;
   status: 'pending' | 'paid';
   amount?: number;
-  hireDate?: string;
-}
+  hireDate?: string}
 
 interface AffiliateStats {
   userId: string;
   referrals: Referral[];
   totalEarnings: number;
-  pendingEarnings: number;
-}
+  pendingEarnings: number}
 
 export function AffiliateWidget() {
   const { data, error, isLoading } = useSWR<AffiliateStats>('/api/affiliate/stats');
@@ -31,21 +29,16 @@ export function AffiliateWidget() {
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
         </div>
-      </Card>
-    );
-  }
+      </Card>)}
 
   if (error) {
     return (
       <Card className="p-4">
         <p className="text-red-500">Failed to load affiliate data</p>
-      </Card>
-    );
-  }
+      </Card>)}
 
   if (!data) {
-    return null;
-  }
+    return null}
 
   return (
     <Card className="p-6 space-y-6">
@@ -111,8 +104,6 @@ export function AffiliateWidget() {
           )}
         </div>
       </div>
-    </Card>
-  );
-}
+    </Card>)}
 
 export default AffiliateWidget;

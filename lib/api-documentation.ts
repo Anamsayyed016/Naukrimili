@@ -434,8 +434,7 @@ export interface ApiResponse<T = any> {
   data: T;
   message?: string;
   error?: string;
-  code?: string;
-}
+  code?: string}
 
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   pagination: {
@@ -444,9 +443,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     total: number;
     totalPages: number;
     hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
+    hasPrev: boolean}}
 
 export interface Job {
   id: string;
@@ -459,8 +456,7 @@ export interface Job {
   salary: {
     min: number;
     max: number;
-    currency: string;
-  };
+    currency: string};
   type: 'full-time' | 'part-time' | 'contract' | 'internship';
   remote: boolean;
   postedBy: string;
@@ -468,8 +464,7 @@ export interface Job {
   views: number;
   applications: number;
   createdAt: string;
-  updatedAt: string;
-}
+  updatedAt: string}
 
 export interface User {
   id: string;
@@ -486,11 +481,9 @@ export interface User {
     startDate: string;
     endDate?: string;
     current: boolean;
-    description: string;
-  }>;
+    description: string}>;
   createdAt: string;
-  updatedAt: string;
-}
+  updatedAt: string}
 
 export interface Application {
   id: string;
@@ -500,8 +493,7 @@ export interface Application {
   resumeId?: string;
   coverLetter?: string;
   appliedAt: string;
-  updatedAt: string;
-}
+  updatedAt: string}
 
 export interface Resume {
   id: string;
@@ -515,12 +507,10 @@ export interface Resume {
     company: string;
     position: string;
     duration: string;
-    description: string;
-  }>;
+    description: string}>;
   atsScore: number;
   createdAt: string;
-  updatedAt: string;
-}
+  updatedAt: string}
 
 // ===== USAGE EXAMPLES =====
 /**

@@ -23,9 +23,7 @@ export interface Message {
     name: string;
     url: string;
     type: string;
-    size: number;
-  }[];
-}
+    size: number}[]}
 
 // Mock messages data - replace with actual database calls
 const mockMessages: Message[] = [
@@ -122,8 +120,9 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // TODO: Complete function implementation
+}
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })}
 
     const { searchParams } = new URL(request.url);
     const unreadOnly = searchParams.get('unreadOnly') === 'true';
@@ -135,12 +134,10 @@ export async function GET(request: NextRequest) {
     let userMessages = mockMessages.filter(m => m.receiverId === session.user.id);
 
     if (unreadOnly) {
-      userMessages = userMessages.filter(m => !m.isRead);
-    }
+      userMessages = userMessages.filter(m => !m.isRead)}
 
     if (type) {
-      userMessages = userMessages.filter(m => m.type === type);
-    }
+      userMessages = userMessages.filter(m => m.type === type)}
 
     // Sort by creation date (newest first)
     userMessages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -171,16 +168,13 @@ export async function GET(request: NextRequest) {
           interview: userMessages.filter(m => m.type === 'interview').length,
           system: userMessages.filter(m => m.type === 'system').length
         }
-      }
-    });
-
-  } catch (error) {
+      }})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Error fetching messages:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }
 
 // POST /api/messages (mark as read, send message)
@@ -189,8 +183,9 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // TODO: Complete function implementation
+}
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })}
 
     const body = await request.json();
     const { action, messageIds, markAllAsRead, newMessage } = body;
@@ -201,21 +196,16 @@ export async function POST(request: NextRequest) {
         mockMessages.forEach(message => {
           if (message.receiverId === session.user.id) {
             message.isRead = true;
-            message.updatedAt = new Date();
-          }
-        });
-      } else if (messageIds && Array.isArray(messageIds)) {
+            message.updatedAt = new Date()}
+        })} else if (messageIds && Array.isArray(messageIds)) {
         // Mark specific messages as read
         messageIds.forEach(id => {
           const message = mockMessages.find(m => m.id === id && m.receiverId === session.user.id);
           if (message) {
             message.isRead = true;
-            message.updatedAt = new Date();
-          }
-        });
-      }
-      return NextResponse.json({ success: true });
-    }
+            message.updatedAt = new Date()}
+        })}
+      return NextResponse.json({ success: true })}
 
     if (action === 'send' && newMessage) {
       // Create new message (simplified - in real app, validate recipient exists)
@@ -238,16 +228,13 @@ export async function POST(request: NextRequest) {
       };
 
       mockMessages.push(message);
-      return NextResponse.json({ success: true, message });
-    }
+      return NextResponse.json({ success: true, message })}
 
-    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
-
-  } catch (error) {
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 })} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Error processing messages:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+      { status: 500 })}
 }

@@ -54,8 +54,7 @@ export default function CompanyDashboard() {
     // Implement job posting logic};
 
   const handleViewAnalytics = () => {
-    setActiveTab("analytics");
-  };
+    setActiveTab("analytics")};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/20 to-slate-900 py-8">
@@ -177,6 +176,4 @@ export default function CompanyDashboard() {
           )}
         </div>
       </div>
-    </div>
-  );
-} 
+    </div>)} 

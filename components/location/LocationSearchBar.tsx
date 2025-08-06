@@ -6,13 +6,11 @@ export interface Location {
   city: string;
   country: string;
   coordinates?: [number, number];
-  isRemote?: boolean;
-}
+  isRemote?: boolean}
 
 interface LocationSearchBarProps {
   value: Location[];
-  onChange: (locations: Location[]) => void;
-}
+  onChange: (locations: Location[]) => void}
 
 const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY"; // Replace with env var in production
 
@@ -33,20 +31,16 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ value, onC
         `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=(cities)&key=${GOOGLE_API_KEY}`
       );
       const data = await res.json();
-      setSuggestions(data.predictions || []);
-    } catch (e) {
-      setSuggestions([]);
-    }
-    setLoading(false);
-  };
+      setSuggestions(data.predictions || [])} catch (e) {
+      setSuggestions([])}
+    setLoading(false)};
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setInput(val);
     if (val.length > 1) fetchSuggestions(val);
-    else setSuggestions([]);
-  };
+    else setSuggestions([])};
 
   // Handle suggestion select
   const handleSuggestionSelect = async (suggestion: Record<string, unknown>) => {
@@ -65,23 +59,19 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ value, onC
     const coordinates: [number, number] = [details.geometry.location.lat, details.geometry.location.lng];
     const newLoc: Location = { city, country, coordinates };
     setSelectedCity(newLoc);
-    onChange([...value, newLoc]);
-  };
+    onChange([...value, newLoc])};
 
   // Remove a location
   const handleRemove = (idx: number) => {
     const newArr = value.slice();
     newArr.splice(idx, 1);
-    onChange(newArr);
-  };
+    onChange(newArr)};
 
   // Toggle remote
   const handleRemoteToggle = () => {
     if (value.some(loc => loc.isRemote)) {
-      onChange(value.filter(loc => !loc.isRemote));
-    } else {
-      onChange([...value, { city: "Remote", country: "", isRemote: true }]);
-    }
+      onChange(value.filter(loc => !loc.isRemote))} else {
+      onChange([...value, { city: "Remote", country: "", isRemote: true }])}
   };
 
   return (
@@ -188,8 +178,6 @@ export const LocationSearchBar: React.FC<LocationSearchBarProps> = ({ value, onC
           </div>
         )}
       </div>
-    </div>
-  );
-};
+    </div>)};
 
 export default LocationSearchBar; 

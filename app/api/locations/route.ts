@@ -53,12 +53,13 @@ export async function GET() {
     return Response.json({
       success: true,
       locations: indianCities,
-      total: indianCities.length
-    });
-  } catch (error) {
+      total: indianCities.length;
+  // TODO: Complete function implementation
+}
+    })} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/locations',
-      context: { timestamp: new Date().toISOString() }
-    });
-  }
+      context: { timestamp: new Date().toISOString() }})}
 }

@@ -25,6 +25,5 @@ declare namespace NodeJS {
     DEBUG?: string;
     
     // Node Environment
-    NODE_ENV: 'development' | 'production' | 'test';
-  }
+    NODE_ENV: 'development' | 'production' | 'test'}
 }

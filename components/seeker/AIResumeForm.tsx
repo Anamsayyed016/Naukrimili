@@ -21,28 +21,22 @@ interface FormData {
     title: string;
     company: string;
     description: string;
-    years: number;
-  }[];
-}
+    years: number}[]}
 
 interface ATSScoreBadgeProps {
   score: number;
-  className?: string;
-}
+  className?: string}
 
 const ATSScoreBadge = ({ score, className }: ATSScoreBadgeProps) => {
   const getScoreColor = () => {
     if (score >= 80) return 'bg-green-100 text-green-800';
     if (score >= 60) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-red-100 text-red-800';
-  };
+    return 'bg-red-100 text-red-800'};
 
   return (
     <Badge className={`${getScoreColor()} ${className}`}>
       ATS Score: {score}%
-    </Badge>
-  );
-};
+    </Badge>)};
 
 export const AIResumeForm = () => {
   const [formData, setFormData] = useState<FormData>({
@@ -61,16 +55,14 @@ export const AIResumeForm = () => {
         ...formData,
         skills: [...formData.skills, currentSkill.trim()]
       });
-      setCurrentSkill('');
-    }
+      setCurrentSkill('')}
   };
 
   const removeSkill = (skillToRemove: string) => {
     setFormData({
       ...formData,
       skills: formData.skills.filter(skill => skill !== skillToRemove)
-    });
-  };
+    })};
 
   const generateResume = async () => {
     try {
@@ -81,16 +73,15 @@ export const AIResumeForm = () => {
       toast({
         title: "Resume Generated",
         description: "Your optimized resume has been generated successfully.",
-      });
-    } catch (error) {
+      })} catch (error) {
+    console.error("Error:", error);
+    throw error}
       toast({
         title: "Error",
         description: "Failed to generate resume. Please try again.",
         variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+      })} finally {
+      setIsLoading(false)}
   };
 
   return (
@@ -158,6 +149,4 @@ export const AIResumeForm = () => {
           </div>
         )}
       </div>
-    </Card>
-  );
-};
+    </Card>)};

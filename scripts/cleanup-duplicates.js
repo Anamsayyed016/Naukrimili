@@ -80,10 +80,9 @@ function createBackup(filePath) {
     const backupDir = path.dirname(backupPath);
     
     if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir, { recursive: true });
-    }
+      fs.mkdirSync(backupDir, { recursive: true })}
     
-    fs.copyFileSync(filePath, backupPath);}
+    fs.copyFileSync(filePath, backupPath)}
 }
 
 function removeFile(filePath) {
@@ -92,13 +91,12 @@ function removeFile(filePath) {
   if (fs.existsSync(fullPath)) {
     try {
       createBackup(filePath);
-      fs.unlinkSync(fullPath);return true;
-    } catch (error) {
+      fs.unlinkSync(fullPath);return true} catch (error) {
+    console.error("Error:", error);
+    throw error}
       console.error(`❌ Error removing ${filePath}:`, error.message);
-      return false;
-    }
-  } else {return false;
-  }
+      return false}
+  } else {return false}
 }
 
 function removeEmptyDirectories(dirPath) {
@@ -108,16 +106,14 @@ function removeEmptyDirectories(dirPath) {
     try {
       const files = fs.readdirSync(fullPath);
       if (files.length === 0) {
-        fs.rmdirSync(fullPath);return true;
-      } else {return false;
-      }
+        fs.rmdirSync(fullPath);return true} else {return false}
     } catch (error) {
+    console.error("Error:", error);
+    throw error}
       console.error(`❌ Error checking directory ${dirPath}:`, error.message);
-      return false;
-    }
+      return false}
   }
-  return false;
-}
+  return false}
 
 function updateFileImports(filePath, search, replace) {
   const fullPath = path.join(ROOT_DIR, filePath);
@@ -127,15 +123,14 @@ function updateFileImports(filePath, search, replace) {
       let content = fs.readFileSync(fullPath, 'utf8');
       if (content.includes(search)) {
         content = content.replace(search, replace);
-        fs.writeFileSync(fullPath, content);return true;
-      }
+        fs.writeFileSync(fullPath, content);return true}
     } catch (error) {
+    console.error("Error:", error);
+    throw error}
       console.error(`❌ Error updating ${filePath}:`, error.message);
-      return false;
-    }
+      return false}
   }
-  return false;
-}
+  return false}
 
 function findUnusedImports() {const searchPatterns = [
     "from '@/lib/adzuna-service'",
@@ -145,32 +140,27 @@ function findUnusedImports() {const searchPatterns = [
   ];
   
   // This is a simplified check - in a real scenario, you'd want to use a proper AST parser
-  searchPatterns.forEach(pattern => {});
-}
+  searchPatterns.forEach(pattern => {})}
 
 // Main cleanup function
 function runCleanup() {// Create backup directory
   if (!fs.existsSync(BACKUP_DIR)) {
-    fs.mkdirSync(BACKUP_DIR, { recursive: true });}
+    fs.mkdirSync(BACKUP_DIR, { recursive: true })}
   
   let removedCount = 0;
   let errorCount = 0;
   
   // Remove duplicate filesFILES_TO_REMOVE.forEach(filePath => {
     if (removeFile(filePath)) {
-      removedCount++;
-    } else {
-      errorCount++;
-    }
+      removedCount++} else {
+      errorCount++}
   });
   
   // Update file importsFILES_TO_UPDATE.forEach(({ file, search, replace }) => {
-    updateFileImports(file, search, replace);
-  });
+    updateFileImports(file, search, replace)});
   
   // Clean up empty directoriesDIRECTORIES_TO_CLEAN.forEach(dirPath => {
-    removeEmptyDirectories(dirPath);
-  });
+    removeEmptyDirectories(dirPath)});
   
   // Find unused imports
   findUnusedImports();
@@ -180,8 +170,7 @@ function runCleanup() {// Create backup directory
 
 // Run cleanup if this script is executed directly
 if (require.main === module) {
-  runCleanup();
-}
+  runCleanup()}
 
 module.exports = {
   runCleanup,

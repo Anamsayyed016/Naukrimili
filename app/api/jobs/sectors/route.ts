@@ -53,12 +53,13 @@ export async function GET() {
       success: true,
       sectors: sectors,
       total: sectors.length,
-      totalJobs: sectors.reduce((sum, sector) => sum + sector.jobCount, 0)
-    });
-  } catch (error) {
+      totalJobs: sectors.reduce((sum, sector) => sum + sector.jobCount, 0);
+  // TODO: Complete function implementation
+}
+    })} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/jobs/sectors',
-      context: { timestamp: new Date().toISOString() }
-    });
-  }
+      context: { timestamp: new Date().toISOString() }})}
 }

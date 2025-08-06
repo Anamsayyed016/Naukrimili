@@ -33,22 +33,17 @@ export default function CompanyRegisterPage() {
   // Validation helpers
   const validateStep = () => {
     if (step === 0) {
-      return company.name && company.industry && company.size && company.location;
-    }
+      return company.name && company.industry && company.size && company.location}
     if (step === 1) {
-      return user.name && user.email && user.password;
-    }
+      return user.name && user.email && user.password}
     if (step === 2) {
-      return documents.length > 0;
-    }
-    return true;
-  };
+      return documents.length > 0}
+    return true};
 
   // File upload handler
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setDocuments(Array.from(e.target.files));
-    }
+      setDocuments(Array.from(e.target.files))}
   };
 
   // Submit handler
@@ -66,12 +61,9 @@ export default function CompanyRegisterPage() {
         body: formData,
       });
       if (!res.ok) throw new Error("Registration failed");
-      setSuccess(true);
-    } catch (err: Record<string, unknown>) {
-      setError(err.message || "Registration failed");
-    } finally {
-      setLoading(false);
-    }
+      setSuccess(true)} catch (err: Record<string, unknown>) {
+      setError(err.message || "Registration failed")} finally {
+      setLoading(false)}
   };
 
   if (success) {
@@ -86,9 +78,7 @@ export default function CompanyRegisterPage() {
             <Button onClick={() => window.location.href = "/"}>Go Home</Button>
           </CardContent>
         </Card>
-      </div>
-    );
-  }
+      </div>)}
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/20 to-slate-900 py-8">
@@ -158,6 +148,4 @@ export default function CompanyRegisterPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
-} 
+    </div>)} 

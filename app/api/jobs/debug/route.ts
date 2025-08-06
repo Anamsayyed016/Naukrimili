@@ -4,6 +4,8 @@ import { handleApiError } from '@/lib/error-handler';
 
 export async function GET(request: NextRequest) {
   try {
+  // TODO: Complete function implementation
+}
     const { searchParams } = new URL(request.url);
     const testSearch = searchParams.get('test') === 'true';
     
@@ -23,16 +25,15 @@ export async function GET(request: NextRequest) {
             query: 'software engineer',
             location: 'Mumbai',
             limit: 5
-          });
-        } catch (error) {
-          testResult = { error: error instanceof Error ? error.message : 'Unknown error' };
-        }
+          })} catch (error) {
+    console.error("Error:", error);
+    throw error}
+          testResult = { error: error instanceof Error ? error.message : 'Unknown error' }}
       }
     } catch (serviceError) {
       // console.warn('Unified job service not available:', serviceError);
       apiStatus = { error: 'Service unavailable' };
-      cacheStats = { size: 0, keys: [] };
-    }
+      cacheStats = { size: 0, keys: [] }}
 
     // Check environment variables (without exposing actual values)
     const envCheck = {
@@ -71,22 +72,21 @@ export async function GET(request: NextRequest) {
           adzuna: 'Get Adzuna keys from https://developer.adzuna.com/',
           reed: 'Get Reed key from https://www.reed.co.uk/developers'
         }
-      }
-    });
-
-  } catch (error) {
+      }})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/jobs/debug',
       context: {
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+  // TODO: Complete function implementation
+}
     const { action, params } = body;
 
     switch (action) {
@@ -96,25 +96,21 @@ export async function POST(request: NextRequest) {
           return Response.json({
             success: true,
             message: 'Cache cleared successfully',
-            timestamp: new Date().toISOString()
-          });
-        } catch (error) {
+            timestamp: new Date().toISOString()})} catch (error) {
+    console.error("Error:", error);
+    throw error}
           return handleApiError(error, {
             endpoint: 'POST /api/jobs/debug',
             context: {
               action: 'clearCache',
               timestamp: new Date().toISOString()
-            }
-          });
-        }
+            }})}
 
       case 'testSearch':
         if (!params?.query) {
           return Response.json(
             { success: false, error: 'Query parameter required for test search' },
-            { status: 400 }
-          );
-        }
+            { status: 400 })}
 
         try {
           const result = await unifiedJobService.searchJobs({
@@ -126,32 +122,28 @@ export async function POST(request: NextRequest) {
           return Response.json({
             success: true,
             testResult: result,
-            timestamp: new Date().toISOString()
-          });
-        } catch (error) {
+            timestamp: new Date().toISOString()})} catch (error) {
+    console.error("Error:", error);
+    throw error}
           return handleApiError(error, {
             endpoint: 'POST /api/jobs/debug',
             context: {
               action: 'testSearch',
               query: params.query,
               timestamp: new Date().toISOString()
-            }
-          });
-        }
+            }})}
 
       default:
         return Response.json(
           { success: false, error: 'Invalid action. Use "clearCache" or "testSearch"' },
-          { status: 400 }
-        );
-    }
+          { status: 400 })}
 
   } catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'POST /api/jobs/debug',
       context: {
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 } 

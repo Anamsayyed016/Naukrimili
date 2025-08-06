@@ -17,8 +17,7 @@ const mockGetToken = require('next-auth/jwt').getToken;
 
 describe('/api/resumes/upload', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-  });
+    jest.clearAllMocks()});
 
   it('should reject unauthenticated requests', async () => {
     mockGetToken.mockResolvedValue(null);
@@ -37,8 +36,7 @@ describe('/api/resumes/upload', () => {
 
     expect(response.status).toBe(401);
     expect(data.success).toBe(false);
-    expect(data.message).toContain('Authentication required');
-  });
+    expect(data.message).toContain('Authentication required')});
 
   it('should reject requests without file', async () => {
     mockGetToken.mockResolvedValue({ sub: 'user-123' });
@@ -54,8 +52,7 @@ describe('/api/resumes/upload', () => {
 
     expect(response.status).toBe(400);
     expect(data.success).toBe(false);
-    expect(data.errors).toContain('File is required');
-  });
+    expect(data.errors).toContain('File is required')});
 
   it('should reject invalid file types', async () => {
     mockGetToken.mockResolvedValue({ sub: 'user-123' });
@@ -74,8 +71,7 @@ describe('/api/resumes/upload', () => {
 
     expect(response.status).toBe(400);
     expect(data.success).toBe(false);
-    expect(data.errors).toContain('Only PDF, DOC, and DOCX files are allowed');
-  });
+    expect(data.errors).toContain('Only PDF, DOC, and DOCX files are allowed')});
 
   it('should reject files that are too large', async () => {
     mockGetToken.mockResolvedValue({ sub: 'user-123' });
@@ -96,8 +92,7 @@ describe('/api/resumes/upload', () => {
 
     expect(response.status).toBe(400);
     expect(data.success).toBe(false);
-    expect(data.errors).toContain('File size must be less than 5MB');
-  });
+    expect(data.errors).toContain('File size must be less than 5MB')});
 
   it('should successfully upload valid file', async () => {
     mockGetToken.mockResolvedValue({ sub: 'user-123' });
@@ -122,8 +117,7 @@ describe('/api/resumes/upload', () => {
     expect(data.data).toHaveProperty('fileSize', file.size);
     expect(data.data).toHaveProperty('fileType', 'application/pdf');
     expect(data.data).toHaveProperty('uploadedBy', 'user-123');
-    expect(data.message).toBe('File uploaded successfully');
-  });
+    expect(data.message).toBe('File uploaded successfully')});
 
   it('should handle file with job ID', async () => {
     mockGetToken.mockResolvedValue({ sub: 'user-123' });
@@ -144,8 +138,7 @@ describe('/api/resumes/upload', () => {
 
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
-    expect(data.data).toHaveProperty('jobId', 'job-456');
-  });
+    expect(data.data).toHaveProperty('jobId', 'job-456')});
 
   it('should sanitize file names', async () => {
     mockGetToken.mockResolvedValue({ sub: 'user-123' });
@@ -165,8 +158,7 @@ describe('/api/resumes/upload', () => {
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    expect(data.data.sanitizedFileName).toMatch(/^[\d-T:Z-]+my_resume_with_spaces___symbols_.pdf$/);
-  });
+    expect(data.data.sanitizedFileName).toMatch(/^[\d-T:Z-]+my_resume_with_spaces___symbols_.pdf$/)});
 
   it('should generate file hash for deduplication', async () => {
     mockGetToken.mockResolvedValue({ sub: 'user-123' });
@@ -187,5 +179,4 @@ describe('/api/resumes/upload', () => {
     expect(data.data).toHaveProperty('fileHash');
     expect(typeof data.data.fileHash).toBe('string');
     expect(data.data.fileHash.length).toBe(64); // SHA-256 hash length
-  });
-});
+  })});

@@ -7,12 +7,10 @@ interface StatItem {
   value: string;
   change?: string;
   icon: LucideIcon;
-  gradient: string;
-}
+  gradient: string}
 
 interface DashboardStatsProps {
-  stats: StatItem[];
-}
+  stats: StatItem[]}
 
 export default function DashboardStats({ stats }: DashboardStatsProps) {
   return (
@@ -40,6 +38,4 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
           </div>
         </motion.div>
       ))}
-    </div>
-  );
-} 
+    </div>)} 

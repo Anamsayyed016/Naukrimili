@@ -23,6 +23,4 @@ export default function FeaturedJobs() {
           </div>
         ))}
       </div>
-    </section>
-  );
-} 
+    </section>)} 

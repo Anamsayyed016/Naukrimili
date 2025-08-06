@@ -23,8 +23,7 @@ interface Email {
   snippet: string;
   headers: Record<string, string>;
   body: string;
-  internalDate: string;
-}
+  internalDate: string}
 
 export default function GmailIntegration() {
   const { data: session } = useSession();
@@ -43,8 +42,7 @@ export default function GmailIntegration() {
   const fetchEmails = useCallback(async (query?: string) => {
     if (!session?.accessToken) {
       // console.warn('No access token available');
-      return;
-    }
+      return}
     
     setLoading(true);
     try {
@@ -56,13 +54,12 @@ export default function GmailIntegration() {
       const data = await response.json();
       
       if (data.success) {
-        setEmails(data.emails);
-      }
+        setEmails(data.emails)}
     } catch (error) {
-      console.error('Error fetching emails:', error);
-    } finally {
-      setLoading(false);
-    }
+    console.error("Error:", error);
+    throw error}
+      console.error('Error fetching emails:', error)} finally {
+      setLoading(false)}
   }, [session?.accessToken, setLoading, setEmails]);
 
   // Send email
@@ -85,20 +82,18 @@ export default function GmailIntegration() {
         setShowCompose(false);
         setComposeData({ to: '', subject: '', body: '' });
         // Refresh emails
-        fetchEmails();
-      }
+        fetchEmails()}
     } catch (error) {
-      console.error('Error sending email:', error);
-    } finally {
-      setSending(false);
-    }
+    console.error("Error:", error);
+    throw error}
+      console.error('Error sending email:', error)} finally {
+      setSending(false)}
   };
 
   // Load emails on component mount
   useEffect(() => {
     if (session?.accessToken) {
-      fetchEmails();
-    }
+      fetchEmails()}
   }, [session, fetchEmails]);
 
   if (!session?.accessToken) {
@@ -110,9 +105,7 @@ export default function GmailIntegration() {
             <span>Please sign in with Google to access Gmail integration</span>
           </div>
         </CardContent>
-      </Card>
-    );
-  }
+      </Card>)}
 
   return (
     <div className="space-y-6">
@@ -258,6 +251,4 @@ export default function GmailIntegration() {
           ))
         )}
       </div>
-    </div>
-  );
-} 
+    </div>)} 

@@ -7,8 +7,7 @@ export interface SEOProps {
   description?: string;
   keywords?: string;
   ogImage?: string;
-  ogUrl?: string;
-}
+  ogUrl?: string}
 
 export const SEO: React.FC<SEOProps> = ({
   title = "NaukriMili - India's Smartest Job Portal",
@@ -38,7 +37,7 @@ export const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
 
-      {/* Additional Meta Tags */}
+      {/* Additional Meta Tags */};
       <meta httpEquiv="Content-Type" content="text/html; charset=utf-8" />
       <meta name="language" content="English" />
       <meta name="revisit-after" content="7 days" />
@@ -48,7 +47,6 @@ export const SEO: React.FC<SEOProps> = ({
       <meta name="robots" content="index, follow" />
       <meta name="googlebot" content="index, follow" />
     </Helmet>
-  );
-};
+  )};
 
 export default SEO;

@@ -20,8 +20,7 @@ type Role = keyof typeof roleColorMap;
 type DataTableProps<T> = {
   data: T[];
   columns: { key: keyof T; header: string }[];
-  role: Role;
-};
+  role: Role};
 
 export function DataTable<T>({ data, columns, role }: DataTableProps<T>) {
   const color = roleColorMap[role];
@@ -49,6 +48,4 @@ export function DataTable<T>({ data, columns, role }: DataTableProps<T>) {
           ))}
         </TableBody>
       </Table>
-    </div>
-  );
-} 
+    </div>)} 

@@ -19,7 +19,7 @@ const { execSync } = require('child_process');// Fix 1: Ensure all required dire
 
 requiredDirs.forEach(dir => {
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });}
+    fs.mkdirSync(dir, { recursive: true })}
 });
 
 // Fix 2: Create missing __init__.py files for Python packagesconst pythonPackages = [
@@ -34,7 +34,7 @@ requiredDirs.forEach(dir => {
 pythonPackages.forEach(pkg => {
   const initFile = path.join(pkg, '__init__.py');
   if (!fs.existsSync(initFile)) {
-    fs.writeFileSync(initFile, '# Package initialization\n');}
+    fs.writeFileSync(initFile, '# Package initialization\n')}
 });
 
 // Fix 3: Update Next.js configuration for better error handlingconst nextConfigPath = 'next.config.mjs';
@@ -59,12 +59,11 @@ if (fs.existsSync(nextConfigPath)) {
   Object.entries(requiredOptions).forEach(([key, value]) => {
     if (tsconfig.compilerOptions[key] !== value) {
       tsconfig.compilerOptions[key] = value;
-      updated = true;
-    }
+      updated = true}
   });
   
   if (updated) {
-    fs.writeFileSync('tsconfig.json', JSON.stringify(tsconfig, null, 2));} else {}
+    fs.writeFileSync('tsconfig.json', JSON.stringify(tsconfig, null, 2))} else {}
 }
 
 // Fix 5: Create a comprehensive .gitignore if missingconst gitignoreContent = `# Dependencies
@@ -112,13 +111,13 @@ build/
 `;
 
 if (!fs.existsSync('.gitignore')) {
-  fs.writeFileSync('.gitignore', gitignoreContent);} else {}
+  fs.writeFileSync('.gitignore', gitignoreContent)} else {}
 
 // Fix 6: Ensure environment example files existif (!fs.existsSync('.env.example') && fs.existsSync('.env.local')) {
   // Create .env.example from .env.local (masking sensitive data)
   let envContent = fs.readFileSync('.env.local', 'utf8');
   envContent = envContent.replace(/=.+$/gm, '=your-value-here');
-  fs.writeFileSync('.env.example', envContent);}
+  fs.writeFileSync('.env.example', envContent)}
 
 // Fix 7: Create a startup scriptconst startupScript = `#!/bin/bash
 # Quick start script for the job portal
@@ -186,10 +185,10 @@ fs.writeFileSync('start.bat', startupScriptWindows);// Fix 8: Create debugging s
  */
 
 const { execSync } = require('child_process');// Check Next.jstry {
-  const nextInfo = execSync('npx next info', { encoding: 'utf8' });} catch (error) {}
+  const nextInfo = execSync('npx next info', { encoding: 'utf8' })} catch (error) {}
 
 // Check TypeScripttry {
-  execSync('npx tsc --noEmit --skipLibCheck', { stdio: 'pipe' });} catch (error) {}
+  execSync('npx tsc --noEmit --skipLibCheck', { stdio: 'pipe' })} catch (error) {}
 
 // Check portstry {
   const netstat = execSync('netstat -an | findstr "3000\\|8000"', { encoding: 'utf8' }).trim();
@@ -218,6 +217,5 @@ const backendInits = [
 
 backendInits.forEach(file => {
   if (!fs.existsSync(file)) {
-    fs.writeFileSync(file, '# Package initialization\n');
-  }
+    fs.writeFileSync(file, '# Package initialization\n')}
 });

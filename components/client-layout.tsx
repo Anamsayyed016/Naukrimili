@@ -11,8 +11,7 @@ const Footer = dynamic(() => import('@/components/Footer'), {
 });
 
 interface ClientLayoutProps {
-  children: React.ReactNode;
-}
+  children: React.ReactNode}
 
 export function ClientLayout({ children }: ClientLayoutProps) {
   return (
@@ -25,6 +24,4 @@ export function ClientLayout({ children }: ClientLayoutProps) {
         <Footer />
       </footer>
       <Toaster />
-    </div>
-  );
-}
+    </div>)}

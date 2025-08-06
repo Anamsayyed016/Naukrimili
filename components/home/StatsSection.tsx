@@ -29,6 +29,4 @@ export default function StatsSection() {
         <div className="text-3xl font-bold">{data.hires}</div>
         <div className="text-gray-500">Hires</div>
       </div>
-    </section>
-  );
-} 
+    </section>)} 

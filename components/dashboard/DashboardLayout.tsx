@@ -29,15 +29,13 @@ export interface DashboardStats {
   value: string | number;
   change?: string;
   trend?: 'up' | 'down' | 'neutral';
-  icon?: ReactNode;
-}
+  icon?: ReactNode}
 
 export interface DashboardAction {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   onClick: () => void;
-  variant?: 'default' | 'outline' | 'secondary';
-}
+  variant?: 'default' | 'outline' | 'secondary'}
 
 export interface DashboardLayoutProps {
   title: string;
@@ -46,8 +44,7 @@ export interface DashboardLayoutProps {
   actions?: DashboardAction[];
   children: ReactNode;
   userRole?: 'jobseeker' | 'employer' | 'admin';
-  className?: string;
-}
+  className?: string}
 
 export default function DashboardLayout({
   title,
@@ -69,8 +66,7 @@ export default function DashboardLayout({
       case 'admin':
         return <Shield className="w-5 h-5" />;
       default:
-        return <User className="w-5 h-5" />;
-    }
+        return <User className="w-5 h-5" />}
   };
 
   const getRoleColor = () => {
@@ -82,8 +78,7 @@ export default function DashboardLayout({
       case 'admin':
         return 'bg-purple-500';
       default:
-        return 'bg-gray-500';
-    }
+        return 'bg-gray-500'}
   };
 
   return (
@@ -226,6 +221,4 @@ export default function DashboardLayout({
           {children}
         </motion.div>
       </div>
-    </div>
-  );
-} 
+    </div>)} 

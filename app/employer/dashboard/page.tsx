@@ -150,6 +150,4 @@ export default function EmployerDashboard() {
           )}
         </motion.div>
       </main>
-    </div>
-  );
-}
+    </div>)}

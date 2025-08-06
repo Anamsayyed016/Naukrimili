@@ -23,14 +23,14 @@ export async function middleware(request: NextRequest) {
     
     if (rateLimit === 'exceeded') {
       return new NextResponse(
+  // TODO: Complete function implementation
+}
         JSON.stringify({ error: 'Too many requests' }), 
-        { status: 429 }
-      );
-    }
+        { status: 429 })}
 
-    return response;
-  } catch (error) {
+    return response} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('Middleware error:', error);
-    return NextResponse.next();
-  }
+    return NextResponse.next()}
 }

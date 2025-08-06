@@ -10,19 +10,15 @@ interface CategoryCardProps {
   cta?: string;
   city?: string;
   jobCount?: number;
-  isTrending?: boolean;
-}
+  isTrending?: boolean}
 
 const CategoryCard: React.FC<CategoryCardProps> = ({ icon, title, count, badge, cta, city, jobCount, isTrending }) => {
   const router = useRouter();
   const handleClick = () => {
     if (city && title) {
-      router.push(`/jobs?location=${encodeURIComponent(city)}&category=${encodeURIComponent(title)}`);
-    } else if (title) {
-      router.push(`/jobs?category=${encodeURIComponent(title)}`);
-    } else if (city) {
-      router.push(`/jobs?location=${encodeURIComponent(city)}`);
-    }
+      router.push(`/jobs?location=${encodeURIComponent(city)}&category=${encodeURIComponent(title)}`)} else if (title) {
+      router.push(`/jobs?category=${encodeURIComponent(title)}`)} else if (city) {
+      router.push(`/jobs?location=${encodeURIComponent(city)}`)}
   };
   return (
     <div
@@ -42,8 +38,6 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ icon, title, count, badge, 
       {city && <div className="flex items-center text-sm text-gray-700 mb-1"><span className="mr-1">ðŸ“</span>{city}</div>}
       {jobCount && <div className="text-xs text-right text-gray-500">{jobCount.toLocaleString()} Jobs{isTrending && <span className="ml-1 text-teal-600">ðŸ”¥</span>}</div>}
       {cta && <button className="mt-2 bg-teal-600 text-white text-sm font-medium px-4 py-1.5 rounded hover:bg-teal-700 transition">{cta}</button>}
-    </div>
-  );
-};
+    </div>)};
 
 export default CategoryCard; 

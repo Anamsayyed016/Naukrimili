@@ -10,8 +10,7 @@ export interface Notification {
   isRead: boolean;
   createdAt: Date;
   actionUrl?: string;
-  priority: 'low' | 'medium' | 'high';
-}
+  priority: 'low' | 'medium' | 'high'}
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -22,8 +21,7 @@ export function useNotifications() {
   const fetchNotifications = async (options?: { unreadOnly?: boolean; limit?: number }) => {
     if (!session?.user) {
       setIsLoading(false);
-      return;
-    }
+      return}
 
     try {
       const params = new URLSearchParams();
@@ -33,8 +31,7 @@ export function useNotifications() {
       const response = await fetch(`/api/notifications?${params.toString()}`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch notifications');
-      }
+        throw new Error('Failed to fetch notifications')}
 
       const data = await response.json();
       
@@ -45,8 +42,7 @@ export function useNotifications() {
       }));
 
       setNotifications(processedNotifications);
-      setError(null);
-    } catch (err) {
+      setError(null)} catch (err) {
       console.error('Error fetching notifications:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
       
@@ -86,15 +82,12 @@ export function useNotifications() {
           priority: 'low'
         }
       ];
-      setNotifications(mockNotifications);
-    } finally {
-      setIsLoading(false);
-    }
+      setNotifications(mockNotifications)} finally {
+      setIsLoading(false)}
   };
 
   useEffect(() => {
-    fetchNotifications();
-  }, [session]);
+    fetchNotifications()}, [session]);
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -115,11 +108,9 @@ export function useNotifications() {
               ? { ...notification, isRead: true }
               : notification
           )
-        );
-      }
+        )}
     } catch (err) {
-      console.error('Error marking notification as read:', err);
-    }
+      console.error('Error marking notification as read:', err)}
   };
 
   const markAllAsRead = async () => {
@@ -137,11 +128,9 @@ export function useNotifications() {
       if (response.ok) {
         setNotifications(prev => 
           prev.map(notification => ({ ...notification, isRead: true }))
-        );
-      }
+        )}
     } catch (err) {
-      console.error('Error marking all notifications as read:', err);
-    }
+      console.error('Error marking all notifications as read:', err)}
   };
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
@@ -153,6 +142,4 @@ export function useNotifications() {
     error,
     markAsRead,
     markAllAsRead,
-    refresh: fetchNotifications
-  };
-}
+    refresh: fetchNotifications}}

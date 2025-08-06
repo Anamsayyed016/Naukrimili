@@ -106,8 +106,7 @@ export default function CompanyView() {
       case 'pending':
         return 'bg-yellow-500';
       default:
-        return 'bg-gray-500';
-    }
+        return 'bg-gray-500'}
   };
 
   return (
@@ -277,6 +276,4 @@ export default function CompanyView() {
           </motion.div>
         )}
       </div>
-    </DashboardLayout>
-  );
-} 
+    </DashboardLayout>)} 

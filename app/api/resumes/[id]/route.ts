@@ -8,16 +8,16 @@ export async function DELETE(
   try {
     const { id } = params;
     
-    // In a real app, delete from database and file storagereturn Response.json({
+    // In a real app, delete from database and file storage
+    
+    return Response.json({
       success: true,
-      message: 'Resume deleted successfully'
-    });
-  } catch (error) {
+      message: 'Resume deleted successfully'})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'DELETE /api/resumes/[id]',
-      context: { resumeId: params.id }
-    });
-  }
+      context: { resumeId: params.id }})}
 }
 
 export async function GET(
@@ -55,12 +55,10 @@ export async function GET(
     
     return Response.json({
       success: true,
-      resume: resume
-    });
-  } catch (error) {
+      resume: resume})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/resumes/[id]',
-      context: { resumeId: params.id }
-    });
-  }
+      context: { resumeId: params.id }})}
 }

@@ -3,8 +3,7 @@ export interface EmployerDashboardStats {
   activeJobPostings: number;
   totalApplications: number;
   newApplications: number;
-  totalHires: number;
-}
+  totalHires: number}
 
 export interface JobPosting {
   id: string;
@@ -15,8 +14,7 @@ export interface JobPosting {
   status: 'draft' | 'published' | 'closed';
   publishDate?: string;
   closingDate?: string;
-  applicationsCount: number;
-}
+  applicationsCount: number}
 
 export interface Candidate {
   id: string;
@@ -28,8 +26,7 @@ export interface Candidate {
   status: 'new' | 'reviewing' | 'shortlisted' | 'rejected' | 'hired';
   resumeUrl: string;
   rating?: number;
-  notes?: string;
-}
+  notes?: string}
 
 export interface InterviewSchedule {
   id: string;
@@ -40,15 +37,13 @@ export interface InterviewSchedule {
   dateTime: string;
   type: 'onsite' | 'remote' | 'phone';
   status: 'scheduled' | 'completed' | 'cancelled';
-  feedback?: string;
-}
+  feedback?: string}
 
 export interface EmployerDashboardData {
   stats: EmployerDashboardStats;
   recentJobPostings: JobPosting[];
   recentApplications: Candidate[];
-  upcomingInterviews: InterviewSchedule[];
-}
+  upcomingInterviews: InterviewSchedule[]}
 
 export interface CompanyProfile {
   id: string;
@@ -62,6 +57,4 @@ export interface CompanyProfile {
   socialLinks?: {
     linkedin?: string;
     twitter?: string;
-    facebook?: string;
-  };
-}
+    facebook?: string}}

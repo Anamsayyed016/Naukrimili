@@ -82,7 +82,7 @@ const results = {
 
 // Helper function to make HTTP requests
 function makeRequest(endpoint) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {;
     const url = new URL(endpoint.path, BASE_URL);
     const options = {
       hostname: url.hostname,
@@ -97,15 +97,13 @@ function makeRequest(endpoint) {
     };
 
     if (endpoint.body) {
-      options.headers['Content-Length'] = Buffer.byteLength(endpoint.body);
-    }
+      options.headers['Content-Length'] = Buffer.byteLength(endpoint.body)}
 
     const req = http.request(options, (res) => {
       let data = '';
       
       res.on('data', (chunk) => {
-        data += chunk;
-      });
+        data += chunk});
       
       res.on('end', () => {
         try {
@@ -115,41 +113,35 @@ function makeRequest(endpoint) {
             headers: res.headers,
             data: responseData,
             endpoint: endpoint.name
-          });
-        } catch (error) {
+          })} catch (error) {
+    console.error("Error:", error);
+    throw error}
           resolve({
             status: res.statusCode,
             headers: res.headers,
             data: data,
             endpoint: endpoint.name,
             parseError: error.message
-          });
-        }
-      });
-    });
+          })}
+      })});
 
     req.on('error', (error) => {
       reject({
         error: error.message,
         endpoint: endpoint.name
-      });
-    });
+      })});
 
     req.on('timeout', () => {
       req.destroy();
       reject({
         error: 'Request timeout',
         endpoint: endpoint.name
-      });
-    });
+      })});
 
     if (endpoint.body) {
-      req.write(endpoint.body);
-    }
+      req.write(endpoint.body)}
     
-    req.end();
-  });
-}
+    req.end()})}
 
 // Test individual endpoint
 async function testEndpoint(endpoint) {
@@ -160,20 +152,22 @@ async function testEndpoint(endpoint) {
       
       // Log response structure for debugging
       if (response.data && typeof response.data === 'object') {
-        const keys = Object.keys(response.data);}
+  // TODO: Complete function implementation
+}
+        const keys = Object.keys(response.data)}
     } else {results.failed++;
       results.errors.push({
         endpoint: endpoint.name,
         status: response.status,
         error: response.data?.message || 'Unknown error'
-      });
-    }
+      })}
   } catch (error) {results.failed++;
     results.errors.push({
       endpoint: endpoint.name,
       error: error.error || error.message
-    });
-  }// Empty line for readability
+    console.error("Error:", error);
+    throw error;
+  })}// Empty line for readability
 }
 
 // Main test function
@@ -184,32 +178,28 @@ async function runTests() {const startTime = Date.now();
     await testEndpoint(endpoint);
     // Small delay to avoid overwhelming the server
     await new Promise(resolve => setTimeout(resolve, 100));
+  // TODO: Complete function implementation
+}
   }
   
   const endTime = Date.now();
   const duration = endTime - startTime;
   
-  // Print summaryif (results.errors.length > 0) {results.errors.forEach((error, index) => {});
-  }if (results.failed === 0) {} else {}// Exit with appropriate code
-  process.exit(results.failed === 0 ? 0 : 1);
-}
+  // Print summaryif (results.errors.length > 0) {results.errors.forEach((error, index) => {})}if (results.failed === 0) {} else {}// Exit with appropriate code
+  process.exit(results.failed === 0 ? 0 : 1)}
 
 // Handle process termination
-process.on('SIGINT', () => {process.exit(1);
-});
+process.on('SIGINT', () => {process.exit(1)});
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1);
-});
+  process.exit(1)});
 
 // Run tests if this script is executed directly
 if (require.main === module) {
   runTests().catch(error => {
     console.error('Test runner error:', error);
-    process.exit(1);
-  });
-}
+    process.exit(1)})}
 
 module.exports = {
   testEndpoint,

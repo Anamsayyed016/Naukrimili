@@ -1,8 +1,7 @@
 interface Location {
   latitude: number;
   longitude: number;
-  city: string;
-}
+  city: string}
 
 export function calculateDistance(from: Location, to: Location): number {
   const R = 6371; // Earth's radius in km
@@ -17,9 +16,7 @@ export function calculateDistance(from: Location, to: Location): number {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   const distance = R * c;
   
-  return Math.round(distance);
-}
+  return Math.round(distance)}
 
 function toRad(degrees: number): number {
-  return degrees * (Math.PI / 180);
-}
+  return degrees * (Math.PI / 180)}

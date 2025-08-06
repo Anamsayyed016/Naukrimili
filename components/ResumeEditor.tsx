@@ -32,20 +32,14 @@ export default function ResumeEditor({ initialValues }: { initialValues: Record<
     setForm((prev: Record<string, unknown>) => {
       const updated = { ...prev };
       if (Array.isArray(updated[section]) && typeof idx === 'number') {
-        updated[section][idx][key] = value;
-      } else if (section in updated) {
-        updated[section][key] = value;
-      } else {
-        updated[section] = value;
-      }
-      return updated;
-    });
-  };
+        updated[section][idx][key] = value} else if (section in updated) {
+        updated[section][key] = value} else {
+        updated[section] = value}
+      return updated})};
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: send form data to backendalert("Resume saved! (see console)");
-  };
+    // TODO: send form data to backendalert("Resume saved! (see console)")};
 
   return (
     <form className="space-y-6 max-w-2xl mx-auto bg-white p-6 rounded shadow" onSubmit={handleSubmit}>

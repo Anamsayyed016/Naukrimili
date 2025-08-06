@@ -10,6 +10,8 @@ export async function GET() {
         description: "Looking for an experienced software engineer...",
         requirements: ["JavaScript", "React", "Node.js"],
         postedDate: "2025-07-20T00:00:00Z"
+  // TODO: Complete function implementation
+}
       },
       {
         id: "2",
@@ -24,15 +26,13 @@ export async function GET() {
     ]
   }), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' }
-  });
-}
+    headers: { 'Content-Type': 'application/json' }})}
 
 export async function POST() {
   return new Response(JSON.stringify({
     message: "Job application functionality temporarily disabled"
+  // TODO: Complete function implementation
+}
   }), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' }
-  });
-}
+    headers: { 'Content-Type': 'application/json' }})}

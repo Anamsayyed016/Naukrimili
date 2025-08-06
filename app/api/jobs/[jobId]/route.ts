@@ -49,24 +49,20 @@ export async function GET(request: NextRequest, context: { params: Promise<{ job
       if (res.ok) {
         const job = await res.json();
         if (job) {
-          return Response.json({ job });
-        }
+          return Response.json({ job })}
       }
     } catch (backendError) {
-      // console.warn('Backend not available for job details, using mock data:', backendError);
-    }
+      // console.warn('Backend not available for job details, using mock data:', backendError)}
     
     // Fallback to mock data with the requested ID
     const fallbackJob = { ...mockJob, id: params.jobId };
-    return Response.json({ job: fallbackJob });
-    
-  } catch (error) {
+    return Response.json({ job: fallbackJob })} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/jobs/[jobId]',
       context: {
         jobId: params.jobId,
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 }

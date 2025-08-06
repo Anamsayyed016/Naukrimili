@@ -14,28 +14,25 @@ interface JobVerification {
   employerInfo: {
     name: string;
     email: string;
-    verificationScore: number;
-  };
-}
+    verificationScore: number}}
 
 export default function JobVerificationQueue() {
   const [jobs, setJobs] = useState<JobVerification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchJobs();
-  }, []);
+    fetchJobs()}, []);
 
   const fetchJobs = async () => {
     try {
       const response = await fetch('/api/admin/jobs/verification');
       const data = await response.json();
-      setJobs(data);
-    } catch (error) {
-      console.error('Error fetching jobs:', error);
-    } finally {
-      setIsLoading(false);
-    }
+      setJobs(data)} catch (error) {
+    console.error("Error:", error);
+    throw error;
+  } finally {
+    setIsLoading(false);
+  }
   };
 
   const handleJobAction = async (jobId: string, action: 'approve' | 'reject') => {
@@ -52,8 +49,9 @@ export default function JobVerificationQueue() {
         fetchJobs(); // Refresh the list
       }
     } catch (error) {
-      console.error('Error verifying job:', error);
-    }
+    console.error("Error:", error);
+    throw error;
+  }
   };
 
   return (
@@ -143,6 +141,4 @@ export default function JobVerificationQueue() {
           </TableBody>
         </Table>
       )}
-    </div>
-  );
-}
+    </div>)}

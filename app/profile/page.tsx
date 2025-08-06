@@ -19,13 +19,11 @@ export default function ProfilePage() {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
-    }));
-  };
+    }))};
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Profile updated successfully!');
-  };
+    alert('Profile updated successfully!')};
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -116,6 +114,4 @@ export default function ProfilePage() {
           </form>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}

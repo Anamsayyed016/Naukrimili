@@ -39,8 +39,7 @@ import { Job } from '@/hooks/useRealTimeJobSearch';
 interface JobResultsProps {
   jobs: Job[];
   isLoading: boolean;
-  className?: string;
-}
+  className?: string}
 
 type ViewMode = 'list' | 'grid';
 type SortOption = 'relevance' | 'date' | 'salary' | 'company';
@@ -78,24 +77,20 @@ const JobCard = ({
   isBookmarked: boolean;
   onBookmark: (id: string) => void;
   onShare: (job: Job) => void;
-  onView: (job: Job) => void;
-}) => {
+  onView: (job: Job) => void}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleApply = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(job.redirect_url, '_blank', 'noopener,noreferrer');
-  };
+    window.open(job.redirect_url, '_blank', 'noopener,noreferrer')};
 
   const handleBookmark = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onBookmark(job.id);
-  };
+    onBookmark(job.id)};
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onShare(job);
-  };
+    onShare(job)};
 
   const cardClass = viewMode === 'grid' 
     ? 'h-full cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1'
@@ -317,9 +312,7 @@ const JobCard = ({
           )}
         </CardContent>
       </Card>
-    </motion.div>
-  );
-};
+    </motion.div>)};
 
 export default function JobResults({ jobs, isLoading, className = '' }: JobResultsProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -333,17 +326,15 @@ export default function JobResults({ jobs, isLoading, className = '' }: JobResul
     switch (sortBy) {
       case 'date':
         return jobsCopy.sort((a, b) => {
-          // Parse timeAgo and sort by most recent
+          // Parse timeAgo and sort by most recent;
           const aTime = parseTimeAgo(a.timeAgo);
           const bTime = parseTimeAgo(b.timeAgo);
-          return aTime - bTime;
-        });
+          return aTime - bTime});
       case 'salary':
-        return jobsCopy.sort((a, b) => {
+        return jobsCopy.sort((a, b) => {;
           const aSalary = extractSalary(a.salaryFormatted);
           const bSalary = extractSalary(b.salaryFormatted);
-          return bSalary - aSalary;
-        });
+          return bSalary - aSalary});
       case 'company':
         return jobsCopy.sort((a, b) => a.company.localeCompare(b.company));
       default:
@@ -356,16 +347,12 @@ export default function JobResults({ jobs, isLoading, className = '' }: JobResul
     setBookmarkedJobs(prev => {
       const newBookmarks = new Set(prev);
       if (newBookmarks.has(jobId)) {
-        newBookmarks.delete(jobId);
-      } else {
-        newBookmarks.add(jobId);
-      }
+        newBookmarks.delete(jobId)} else {
+        newBookmarks.add(jobId)}
       
       // Save to localStorage
       localStorage.setItem('bookmarkedJobs', JSON.stringify([...newBookmarks]));
-      return newBookmarks;
-    });
-  };
+      return newBookmarks})};
 
   // Handle job share
   const handleShare = async (job: Job) => {
@@ -375,33 +362,30 @@ export default function JobResults({ jobs, isLoading, className = '' }: JobResul
           title: `${job.title} at ${job.company}`,
           text: `Check out this job opportunity: ${job.title} at ${job.company}`,
           url: window.location.href + `?job=${job.id}`
-        });
-      } catch (error) {copyToClipboard(job);
-      }
+        })} catch (error) {copyToClipboard(job)}
     } else {
-      copyToClipboard(job);
-    }
+      copyToClipboard(job)}
   };
 
   // Fallback copy to clipboard
   const copyToClipboard = (job: Job) => {
     const text = `${job.title} at ${job.company} - ${window.location.href}?job=${job.id}`;
     navigator.clipboard.writeText(text).then(() => {
-      // You might want to show a toast notification here});
-  };
+      // You might want to show a toast notification here
+    }).then(() => {
+      // Success
+    })};
 
   // Handle job view
   const handleView = (job: Job) => {
     // Navigate to job details or open in modal
-    window.open(`/jobs/${job.id}`, '_blank');
-  };
+    window.open(`/jobs/${job.id}`, '_blank')};
 
   // Load bookmarks from localStorage on mount
   React.useEffect(() => {
     const saved = localStorage.getItem('bookmarkedJobs');
     if (saved) {
-      setBookmarkedJobs(new Set(JSON.parse(saved)));
-    }
+      setBookmarkedJobs(new Set(JSON.parse(saved)))}
   }, []);
 
   if (isLoading) {
@@ -416,9 +400,7 @@ export default function JobResults({ jobs, isLoading, className = '' }: JobResul
             <JobCardSkeleton key={index} viewMode={viewMode} />
           ))}
         </div>
-      </div>
-    );
-  }
+      </div>)}
 
   if (jobs.length === 0) {
     return (
@@ -439,9 +421,7 @@ export default function JobResults({ jobs, isLoading, className = '' }: JobResul
             <p>⚙️ Remove some filters</p>
           </div>
         </div>
-      </div>
-    );
-  }
+      </div>)}
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -520,9 +500,7 @@ export default function JobResults({ jobs, isLoading, className = '' }: JobResul
           ))}
         </motion.div>
       </AnimatePresence>
-    </div>
-  );
-}
+    </div>)}
 
 // Utility functions
 function parseTimeAgo(timeAgo: string): number {
@@ -541,8 +519,7 @@ function parseTimeAgo(timeAgo: string): number {
     month: 30 * 24 * 60 * 60 * 1000
   };
   
-  return now - (value * (multipliers[unit as keyof typeof multipliers] || 0));
-}
+  return now - (value * (multipliers[unit as keyof typeof multipliers] || 0))}
 
 function extractSalary(salaryStr?: string): number {
   if (!salaryStr) return 0;
@@ -553,5 +530,4 @@ function extractSalary(salaryStr?: string): number {
   
   // Get the highest number (assuming it's the max salary)
   const numbers = matches.map(s => parseInt(s.replace(/,/g, '')));
-  return Math.max(...numbers);
-}
+  return Math.max(...numbers)}

@@ -13,8 +13,7 @@ export default function ForgotPasswordPage() {
     
     await new Promise(resolve => setTimeout(resolve, 1000));
     setSent(true);
-    setLoading(false);
-  };
+    setLoading(false)};
 
   if (sent) {
     return (
@@ -25,15 +24,14 @@ export default function ForgotPasswordPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>;
           <p className="text-gray-600">We&apos;ve sent a password reset link to {email}</p>
           <Link href="/auth/login" className="text-blue-600 hover:text-blue-500 font-medium">
             Back to login
           </Link>
         </div>
       </div>
-    );
-  }
+    )}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -74,6 +72,4 @@ export default function ForgotPasswordPage() {
           </div>
         </form>
       </div>
-    </div>
-  );
-}
+    </div>)}

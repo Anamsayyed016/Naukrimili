@@ -6,8 +6,7 @@ import { getDemoHero } from '@/lib/demo-data';
 import { useQuery } from '@tanstack/react-query';
 
 interface HeroSectionProps {
-  isDemoMode?: boolean;
-}
+  isDemoMode?: boolean}
 
 export default function HeroSection({ isDemoMode = false }: HeroSectionProps) {
   const { data: session } = useSession();
@@ -38,9 +37,7 @@ export default function HeroSection({ isDemoMode = false }: HeroSectionProps) {
             />
           </div>
         )}
-      </section>
-    );
-  }
+      </section>)}
 
   // Main hero section
   return (
@@ -78,6 +75,4 @@ export default function HeroSection({ isDemoMode = false }: HeroSectionProps) {
           )}
         </div>
       </div>
-    </section>
-  );
-} 
+    </section>)} 

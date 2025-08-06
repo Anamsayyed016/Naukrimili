@@ -15,21 +15,17 @@ export interface NexusUser {
   preferences: {
     theme: 'light' | 'dark' | 'holographic';
     notifications: boolean;
-    voiceEnabled: boolean;
-  };
+    voiceEnabled: boolean};
   security: {
     gesturePattern?: string;
     voiceSignature?: string;
-    biometricData?: string;
-  };
-}
+    biometricData?: string}}
 
 export interface AuthSession {
   token: string;
   user: NexusUser;
   expiresAt: Date;
-  deviceFingerprint: string;
-}
+  deviceFingerprint: string}
 
 // Unique Session Management with Device Fingerprinting
 class NexusSessionManager {
@@ -39,10 +35,8 @@ class NexusSessionManager {
 
   static getInstance(): NexusSessionManager {
     if (!NexusSessionManager.instance) {
-      NexusSessionManager.instance = new NexusSessionManager();
-    }
-    return NexusSessionManager.instance;
-  }
+      NexusSessionManager.instance = new NexusSessionManager()}
+    return NexusSessionManager.instance}
 
   generateDeviceFingerprint(): string {
     const canvas = document.createElement('canvas');
@@ -59,8 +53,7 @@ class NexusSessionManager {
       canvas.toDataURL()
     ].join('|');
     
-    return btoa(fingerprint).slice(0, 32);
-  }
+    return btoa(fingerprint).slice(0, 32)}
 
   createSession(user: NexusUser): AuthSession {
     const deviceFingerprint = this.generateDeviceFingerprint();
@@ -77,20 +70,17 @@ class NexusSessionManager {
     this.sessions.set(token, session);
     this.persistSession(session);
     
-    return session;
-  }
+    return session}
 
   private generateSecureToken(userId: string, deviceFingerprint: string): string {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2);
     const payload = `${userId}:${deviceFingerprint}:${timestamp}:${random}`;
-    return btoa(payload).replace(/[^a-zA-Z0-9]/g, '');
-  }
+    return btoa(payload).replace(/[^a-zA-Z0-9]/g, '')}
 
   private persistSession(session: AuthSession): void {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('nexus_session', JSON.stringify(session));
-    }
+      localStorage.setItem('nexus_session', JSON.stringify(session))}
   }
 
   getSession(token: string): AuthSession | null {
@@ -99,17 +89,14 @@ class NexusSessionManager {
     
     if (session.expiresAt < new Date()) {
       this.sessions.delete(token);
-      return null;
-    }
+      return null}
     
-    return session;
-  }
+    return session}
 
   invalidateSession(token: string): void {
     this.sessions.delete(token);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('nexus_session');
-    }
+      localStorage.removeItem('nexus_session')}
   }
 }
 
@@ -130,43 +117,35 @@ class NexusPasswordValidator {
     // Unique patterns detection
     if (/(.)\1{2,}/.test(password)) {
       score -= 10;
-      feedback.push('Avoid repeated characters');
-    }
+      feedback.push('Avoid repeated characters')}
     
     if (/123|abc|qwe/i.test(password)) {
       score -= 15;
-      feedback.push('Avoid common sequences');
-    }
+      feedback.push('Avoid common sequences')}
     
     // Check for keyboard patterns
     const keyboardPatterns = /qwerty|asdfgh|zxcvbn/i;
     if (keyboardPatterns.test(password)) {
       score -= 20;
-      feedback.push('Avoid keyboard patterns');
-    }
+      feedback.push('Avoid keyboard patterns')}
     
     const isValid = score >= 60;
     
     if (score < 60) {
-      feedback.unshift('Password is too weak');
-    } else if (score >= 80) {
-      feedback.unshift('Excellent password strength');
-    } else {
-      feedback.unshift('Good password strength');
-    }
+      feedback.unshift('Password is too weak')} else if (score >= 80) {
+      feedback.unshift('Excellent password strength')} else {
+      feedback.unshift('Good password strength')}
     
-    return { isValid, score, feedback };
-  }
+    return { isValid, score, feedback }}
 }
 
 // Voice Authentication System
 class NexusVoiceAuth {
   static async captureVoiceSignature(): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {;
         reject(new Error('Voice capture not supported'));
-        return;
-      }
+        return}
       
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
@@ -184,11 +163,8 @@ class NexusVoiceAuth {
           const signature = this.generateVoiceSignature(analyser, dataArray);
           
           stream.getTracks().forEach(track => track.stop());
-          resolve(signature);
-        })
-        .catch(reject);
-    });
-  }
+          resolve(signature)})
+        .catch(reject)})}
   
   private static generateVoiceSignature(analyser: AnalyserNode, dataArray: Uint8Array): string {
     analyser.getByteFrequencyData(dataArray);
@@ -196,8 +172,7 @@ class NexusVoiceAuth {
       .slice(0, 64) // Take first 64 frequency bins
       .map(val => val.toString(16).padStart(2, '0'))
       .join('');
-    return signature;
-  }
+    return signature}
 }
 
 // Gesture Pattern Authentication
@@ -214,13 +189,11 @@ class NexusGestureAuth {
       if (distance < 2) return false; // Points too close
     }
     
-    return true;
-  }
+    return true}
   
   static generateGestureHash(pattern: number[]): string {
     const patternString = pattern.join(',');
-    return btoa(patternString).replace(/[^a-zA-Z0-9]/g, '');
-  }
+    return btoa(patternString).replace(/[^a-zA-Z0-9]/g, '')}
 }
 
 // Main Authentication API
@@ -236,26 +209,21 @@ export class NexusAuth {
     role: NexusUserRole;
     authMethod: AuthMethod;
     gesturePattern?: number[];
-    voiceSignature?: string;
-  }): Promise<{ success: boolean; session?: AuthSession; error?: string }> {
+    voiceSignature?: string}): Promise<{ success: boolean; session?: AuthSession; error?: string }> {
     try {
       // Validate email uniqueness
       if (NexusAuth.users.find((u: NexusUser) => u.email === userData.email)) {
-        return { success: false, error: 'Email already registered' };
-      }
+        return { success: false, error: 'Email already registered' }}
       
       // Validate based on auth method
       if (userData.authMethod === 'traditional' && !userData.password) {
-        return { success: false, error: 'Password required for traditional auth' };
-      }
+        return { success: false, error: 'Password required for traditional auth' }}
       
       if (userData.authMethod === 'gesture' && !userData.gesturePattern) {
-        return { success: false, error: 'Gesture pattern required' };
-      }
+        return { success: false, error: 'Gesture pattern required' }}
       
       if (userData.authMethod === 'voice' && !userData.voiceSignature) {
-        return { success: false, error: 'Voice signature required' };
-      }
+        return { success: false, error: 'Voice signature required' }}
       
       // Create user
       const user: NexusUser = {
@@ -286,10 +254,8 @@ export class NexusAuth {
       // Create session
       const session = this.sessionManager.createSession(user);
       
-      return { success: true, session };
-    } catch (_error) {
-      return { success: false, error: 'Registration failed' };
-    }
+      return { success: true, session }} catch (_error) {
+      return { success: false, error: 'Registration failed' }}
   }
   
   // Unique Login with Multiple Auth Methods
@@ -298,13 +264,11 @@ export class NexusAuth {
     password?: string;
     gesturePattern?: number[];
     voiceSignature?: string;
-    biometricData?: string;
-  }): Promise<{ success: boolean; session?: AuthSession; error?: string }> {
+    biometricData?: string}): Promise<{ success: boolean; session?: AuthSession; error?: string }> {
     try {
       const user = NexusAuth.users.find((u: NexusUser) => u.email === credentials.email);
       if (!user) {
-        return { success: false, error: 'User not found' };
-      }
+        return { success: false, error: 'User not found' }}
       
       // Validate based on user's auth method
       let isValid = false;
@@ -312,30 +276,24 @@ export class NexusAuth {
       switch (user.authMethod) {
         case 'traditional':
           if (credentials.password) {
-            isValid = this.validatePassword(credentials.password, user);
-          }
+            isValid = this.validatePassword(credentials.password, user)}
           break;
         case 'gesture':
           if (credentials.gesturePattern) {
             const gestureHash = NexusGestureAuth.generateGestureHash(credentials.gesturePattern);
-            isValid = gestureHash === user.security.gesturePattern;
-          }
+            isValid = gestureHash === user.security.gesturePattern}
           break;
         case 'voice':
           if (credentials.voiceSignature) {
-            isValid = credentials.voiceSignature === user.security.voiceSignature;
-          }
+            isValid = credentials.voiceSignature === user.security.voiceSignature}
           break;
         case 'biometric':
           if (credentials.biometricData) {
-            isValid = credentials.biometricData === user.security.biometricData;
-          }
-          break;
-      }
+            isValid = credentials.biometricData === user.security.biometricData}
+          break}
       
       if (!isValid) {
-        return { success: false, error: 'Authentication failed' };
-      }
+        return { success: false, error: 'Authentication failed' }}
       
       // Update last active
       user.lastActive = new Date();
@@ -344,10 +302,8 @@ export class NexusAuth {
       // Create session
       const session = this.sessionManager.createSession(user);
       
-      return { success: true, session };
-    } catch (_error) {
-      return { success: false, error: 'Login failed' };
-    }
+      return { success: true, session }} catch (_error) {
+      return { success: false, error: 'Login failed' }}
   }
   
   // Get current session
@@ -363,22 +319,18 @@ export class NexusAuth {
       
       if (!validSession) {
         this.logout();
-        return null;
-      }
+        return null}
       
-      return validSession;
-    } catch {
+      return validSession} catch {
       this.logout();
-      return null;
-    }
+      return null}
   }
   
   // Logout
   logout(): void {
     const session = this.getCurrentSession();
     if (session) {
-      this.sessionManager.invalidateSession(session.token);
-    }
+      this.sessionManager.invalidateSession(session.token)}
   }
   
   // Update user profile
@@ -388,44 +340,37 @@ export class NexusAuth {
     
     NexusAuth.users[userIndex] = { ...NexusAuth.users[userIndex], ...updates };
     this.persistUsers();
-    return true;
-  }
+    return true}
   
   // Private helper methods
   private generateUserId(): string {
-    return 'nexus_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  }
+    return 'nexus_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)}
   
   private generateBiometricData(): string {
     // Simulate biometric data generation
-    return btoa(Math.random().toString()).slice(0, 32);
-  }
+    return btoa(Math.random().toString()).slice(0, 32)}
   
   private validatePassword(password: string, _user: NexusUser): boolean {
     // In a real implementation, this would check against hashed password
     // For demo purposes, we'll use a simple validation
     const validation = NexusPasswordValidator.validate(password);
-    return validation.isValid;
-  }
+    return validation.isValid}
   
   private persistUsers(): void {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('nexus_users', JSON.stringify(NexusAuth.users));
-    }
+      localStorage.setItem('nexus_users', JSON.stringify(NexusAuth.users))}
   }
   
   private loadUsers(): void {
     if (typeof window !== 'undefined') {
       const usersData = localStorage.getItem('nexus_users');
       if (usersData) {
-        NexusAuth.users = JSON.parse(usersData);
-      }
+        NexusAuth.users = JSON.parse(usersData)}
     }
   }
   
   constructor() {
-    this.loadUsers();
-  }
+    this.loadUsers()}
 }
 
 // Export singleton instance

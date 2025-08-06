@@ -18,15 +18,12 @@ export function useAuth(): AuthState {
       try {
         if (window.PublicKeyCredential) {
           const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-          setBiometric(prev => ({ ...prev, isAvailable: available }));
-        }
+          setBiometric(prev => ({ ...prev, isAvailable: available }))}
       } catch (error) {
-        console.error("Biometric check failed:", error);
-      }
+        console.error("Biometric check failed:", error)}
     };
 
-    checkBiometricAvailability();
-  }, []);
+    checkBiometricAvailability()}, []);
 
   // Sign in function
   const signIn = useCallback(async (credentials: { email: string; password: string }) => {
@@ -37,13 +34,10 @@ export function useAuth(): AuthState {
       });
 
       if (result?.error) {
-        throw new Error(result.error);
-      }
+        throw new Error(result.error)}
 
-      return result;
-    } catch (error) {
-      throw error;
-    }
+      return result} catch (error) {
+      throw error}
   }, []);
 
   // Enable/disable biometric
@@ -79,20 +73,16 @@ export function useAuth(): AuthState {
 
         if (credential) {
           setBiometric(prev => ({ ...prev, isEnabled: true }));
-          return true;
-        }
+          return true}
       } else {
         // Disable biometric
         setBiometric(prev => ({ ...prev, isEnabled: false }));
-        return true;
-      }
+        return true}
     } catch (error) {
       console.error("Biometric toggle failed:", error);
-      return false;
-    }
+      return false}
 
-    return false;
-  }, [biometric.isAvailable, biometric.isEnabled, session]);
+    return false}, [biometric.isAvailable, biometric.isEnabled, session]);
 
   // Verify biometric
   const verifyBiometric = useCallback(async () => {
@@ -107,11 +97,9 @@ export function useAuth(): AuthState {
         }
       });
 
-      return !!assertion;
-    } catch (error) {
+      return !!assertion} catch (error) {
       console.error("Biometric verification failed:", error);
-      return false;
-    }
+      return false}
   }, [biometric.isEnabled]);
 
   // Transform session user to our User type
@@ -135,6 +123,4 @@ export function useAuth(): AuthState {
       ...biometric,
       toggle: toggleBiometric,
       verify: verifyBiometric
-    }
-  };
-}
+    }}}

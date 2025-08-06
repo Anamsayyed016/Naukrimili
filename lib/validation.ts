@@ -22,11 +22,9 @@ export const nameSchema = z.string()
 // Sanitization helper
 export function sanitizeHtml(input: string): string {
   if (typeof window !== 'undefined') {
-    return DOMPurify.sanitize(input, { ALLOWED_TAGS: [] });
-  }
+    return DOMPurify.sanitize(input, { ALLOWED_TAGS: [] })}
   // Server-side fallback
-  return input.replace(/<[^>]*>/g, '').trim();
-}
+  return input.replace(/<[^>]*>/g, '').trim()}
 
 // Job validation schemas
 export const jobTitleSchema = z.string().min(3, 'Job title must be at least 3 characters').max(100, 'Job title must be less than 100 characters');
@@ -104,17 +102,13 @@ export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown):
   { success: true; data: T } | { success: false; errors: string[]; details: z.ZodError } {
   try {
     const validatedData = schema.parse(data);
-    return { success: true, data: validatedData };
-  } catch (error) {
+    return { success: true, data: validatedData }} catch (error) {
     if (error instanceof z.ZodError) {
       const errors = (error as z.ZodError).issues.map((issue: z.ZodIssue) => {
         const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : '';
-        return `${path}${issue.message}`;
-      });
-      return { success: false, errors, details: error as z.ZodError };
-    }
-    throw error;
-  }
+        return `${path}${issue.message}`});
+      return { success: false, errors, details: error as z.ZodError }}
+    throw error}
 }
 
 // API response validation
@@ -140,32 +134,26 @@ export type ApiResponse<T = any> = {
     page?: number;
     limit?: number;
     total?: number;
-    timestamp?: string;
-  };
-};
+    timestamp?: string}};
 
 // Enhanced sanitization helpers
 export function sanitizeString(input: string): string {
-  return sanitizeHtml(input).trim().substring(0, 1000);
-}
+  return sanitizeHtml(input).trim().substring(0, 1000)}
 
 export function sanitizeEmail(email: string): string {
-  return email.toLowerCase().trim().substring(0, 254);
-}
+  return email.toLowerCase().trim().substring(0, 254)}
 
 export function sanitizeSearchQuery(query: string): string {
   return sanitizeHtml(query)
     .trim()
-    .replace(/[^\w\s-.,]/g, '')
-    .substring(0, 100);
-}
+    .replace(/[^\w\s-.,]/g, '');
+    .substring(0, 100)}
 
 export function sanitizeFileName(fileName: string): string {
   return fileName
     .replace(/[^a-zA-Z0-9.-]/g, '_')
-    .replace(/_{2,}/g, '_')
-    .substring(0, 255);
-}
+    .replace(/_{2,}/g, '_');
+    .substring(0, 255)}
 
 // Input validation for file uploads
 export const fileUploadSchema = z.object({
@@ -183,13 +171,10 @@ export const fileUploadSchema = z.object({
 export function validateUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
-    return ['http:', 'https:'].includes(parsed.protocol);
-  } catch {
-    return false;
-  }
+    return ['http:', 'https:'].includes(parsed.protocol)} catch {
+    return false}
 }
 
 // SQL injection prevention (for raw queries)
 export function escapeSqlString(input: string): string {
-  return input.replace(/'/g, "''").replace(/\\/g, '\\\\');
-}
+  return input.replace(/'/g, "''").replace(/\\/g, '\\\\')}

@@ -14,8 +14,7 @@ interface Company {
   description: string;
   benefits: string[];
   techStack: string[];
-  category: string;
-}
+  category: string}
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -35,19 +34,17 @@ export default function CompaniesPage() {
       
       if (data.success) {
         setCompanies(data.companies);
-        setCategories(data.categories);
-      }
+        setCategories(data.categories)}
     } catch (error) {
-      console.error('Error fetching companies:', error);
-    } finally {
-      setLoading(false);
-    }
+    console.error("Error:", error);
+    throw error}
+      console.error('Error fetching companies:', error)} finally {
+      setLoading(false)}
   }, [selectedCategory]);
 
   // Fetch companies when component mounts or category changes
   useEffect(() => {
-    fetchCompanies();
-  }, [fetchCompanies]);
+    fetchCompanies()}, [fetchCompanies]);
 
   const categoryNames = {
     'tech-giants': 'Tech Giants',
@@ -63,9 +60,7 @@ export default function CompaniesPage() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading companies...</p>
         </div>
-      </div>
-    );
-  }
+      </div>)}
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -120,9 +115,8 @@ export default function CompaniesPage() {
                   height={48}
                   className="rounded-lg mr-4"
                   onError={(e) => {
-                    // @ts-ignore - Type 'string' is not assignable to type 'never'
-                    e.currentTarget.src = '/placeholder-logo.png';
-                  }}
+                    // @ts-ignore - Type 'string' is not assignable to type 'never';
+                    e.currentTarget.src = '/placeholder-logo.png'}}
                 />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{company.name}</h3>
@@ -197,5 +191,4 @@ export default function CompaniesPage() {
         )}
       </div>
     </div>
-  );
-}
+  )}

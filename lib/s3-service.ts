@@ -18,8 +18,7 @@ export class S3Service {
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
       },
     });
-    this.bucketName = process.env.S3_BUCKET_NAME!;
-  }
+    this.bucketName = process.env.S3_BUCKET_NAME!}
 
   // Upload file to S3
   async uploadFile(file: File, key: string): Promise<string> {
@@ -39,11 +38,11 @@ export class S3Service {
 
       await this.s3Client.send(command);
       
-      return `https://${this.bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
-    } catch (error) {
+      return `https://${this.bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`} catch (error) {
+    console.error("Error:", error);
+    throw error}
       console.error('S3 upload error:', error);
-      throw new Error('Failed to upload file to S3');
-    }
+      throw new Error('Failed to upload file to S3')}
   }
 
   // Generate presigned URL for secure access
@@ -54,11 +53,11 @@ export class S3Service {
         Key: key,
       });
 
-      return await getSignedUrl(this.s3Client, command, { expiresIn });
-    } catch (error) {
+      return await getSignedUrl(this.s3Client, command, { expiresIn })} catch (error) {
+    console.error("Error:", error);
+    throw error}
       console.error('S3 presigned URL error:', error);
-      throw new Error('Failed to generate presigned URL');
-    }
+      throw new Error('Failed to generate presigned URL')}
   }
 
   // Delete file from S3
@@ -69,11 +68,11 @@ export class S3Service {
         Key: key,
       });
 
-      await this.s3Client.send(command);
-    } catch (error) {
+      await this.s3Client.send(command)} catch (error) {
+    console.error("Error:", error);
+    throw error}
       console.error('S3 delete error:', error);
-      throw new Error('Failed to delete file from S3');
-    }
+      throw new Error('Failed to delete file from S3')}
   }
 
   // Generate unique file key
@@ -82,8 +81,7 @@ export class S3Service {
     const randomString = Math.random().toString(36).substring(2, 15);
     const extension = originalName.split('.').pop();
     
-    return `resumes/${userId}/${timestamp}_${randomString}.${extension}`;
-  }
+    return `resumes/${userId}/${timestamp}_${randomString}.${extension}`}
 }
 
 export const s3Service = new S3Service();

@@ -12,16 +12,14 @@ export default function ApplicationAdminPanel() {
       <h2 className="text-2xl font-bold mb-4">Manage Applications</h2>
       {error && <div className="text-red-500 mb-2">{error}</div>}
       <form
-        onSubmit={e => {
+        onSubmit={e => {;
           e.preventDefault();
           if (editId !== null) {
             updateApplication(editId, form);
             setEditId(null);
-            setForm({ jobId: '', userId: '', status: '' });
-          } else {
+            setForm({ jobId: '', userId: '', status: '' })} else {
             createApplication(form);
-            setForm({ jobId: '', userId: '', status: '' });
-          }
+            setForm({ jobId: '', userId: '', status: '' })}
         }}
         className="flex flex-col gap-2 mb-4"
       >
@@ -32,7 +30,7 @@ export default function ApplicationAdminPanel() {
           {editId !== null ? 'Update' : 'Add'}
         </button>
         {editId !== null && (
-          <button type="button" className="ml-2 text-gray-500" onClick={() => { setEditId(null); setForm({ jobId: '', userId: '', status: '' }); }}>
+          <button type="button" className="ml-2 text-gray-500" onClick={() => { setEditId(null); setForm({ jobId: '', userId: '', status: '' })}}>
             Cancel
           </button>
         )}
@@ -42,7 +40,7 @@ export default function ApplicationAdminPanel() {
           <li key={app.id} className="flex items-center justify-between border-b py-2">
             <span>Job: {app.jobId} | User: {app.userId} | Status: {app.status}</span>
             <div className="flex gap-2">
-              <button className="text-blue-600" onClick={() => { setEditId(app.id); setForm({ jobId: app.jobId, userId: app.userId, status: app.status }); }}>Edit</button>
+              <button className="text-blue-600" onClick={() => { setEditId(app.id); setForm({ jobId: app.jobId, userId: app.userId, status: app.status })}}>Edit</button>
               <button className="text-red-600" onClick={() => deleteApplication(app.id)}>Delete</button>
             </div>
           </li>
@@ -50,5 +48,4 @@ export default function ApplicationAdminPanel() {
       </ul>
       {loading && <div className="mt-2 text-gray-500">Loading...</div>}
     </div>
-  );
-}
+  )}

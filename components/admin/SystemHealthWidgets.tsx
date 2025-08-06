@@ -20,12 +20,10 @@ type MetricThreshold = {
   warning: number;
   critical: number;
   unit: string;
-  description: string;
-};
+  description: string};
 
 type SystemThresholds = {
-  [key in 'cpu' | 'memory' | 'disk' | 'responseTime']: MetricThreshold;
-};
+  [key in 'cpu' | 'memory' | 'disk' | 'responseTime']: MetricThreshold};
 
 interface SystemHealth {
   status: 'healthy' | 'warning' | 'critical';
@@ -33,21 +31,17 @@ interface SystemHealth {
     cpuUsage: number;
     memoryUsage: number;
     diskSpace: number;
-    responseTime: number;
-  };
+    responseTime: number};
   services: {
     name: string;
     status: 'up' | 'down' | 'degraded';
     uptime: number;
-    lastIncident?: string;
-  }[];
+    lastIncident?: string}[];
   performanceHistory: {
     timestamp: string;
     responseTime: number;
     errorRate: number;
-    requestCount: number;
-  }[];
-}
+    requestCount: number}[]}
 
 const THRESHOLDS: SystemThresholds = {
   cpu: {
@@ -86,25 +80,23 @@ export default function SystemHealthWidgets() {
     try {
       const response = await fetch('/api/admin/system/health');
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+        throw new Error(`HTTP error! status: ${response.status}`)}
       const data = await response.json();
       setHealthData(data);
       setError(null);
-      setLastUpdated(new Date());
-    } catch (error) {
+      setLastUpdated(new Date())} catch (error) {
+    console.error("Error:", error);
+    throw error}
       setError(error instanceof Error ? error.message : 'Failed to fetch system health');
-      console.error('Error fetching system health:', error);
-    } finally {
-      setIsLoading(false);
-    }
+      console.error('Error fetching system health:', error)} finally {
+    setIsLoading(false);
+  }
   }, []);
 
   useEffect(() => {
     fetchHealthData();
     const interval = setInterval(fetchHealthData, 60000); // Update every minute
-    return () => clearInterval(interval);
-  }, [fetchHealthData]);
+    return () => clearInterval(interval)}, [fetchHealthData]);
 
   if (isLoading) {
     return (
@@ -120,9 +112,7 @@ export default function SystemHealthWidgets() {
         <Card className="p-4">
           <Skeleton className="h-[300px]" />
         </Card>
-      </div>
-    );
-  }
+      </div>)}
 
   if (error) {
     return (
@@ -131,20 +121,16 @@ export default function SystemHealthWidgets() {
         <AlertDescription>
           {error}
         </AlertDescription>
-      </Alert>
-    );
-  }
+      </Alert>)}
 
   if (!healthData) {
-    return null;
-  }
+    return null}
 
   const getMetricStatus = (value: number, type: keyof typeof THRESHOLDS) => {
     const threshold = THRESHOLDS[type];
     if (value >= threshold.critical) return 'critical';
     if (value >= threshold.warning) return 'warning';
-    return 'healthy';
-  };
+    return 'healthy'};
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -158,8 +144,7 @@ export default function SystemHealthWidgets() {
       case 'down':
         return 'bg-red-100 text-red-700 border-red-800';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-800';
-    }
+        return 'bg-gray-100 text-gray-700 border-gray-800'}
   };
 
   const getStatusIcon = (status: string) => {
@@ -174,8 +159,7 @@ export default function SystemHealthWidgets() {
       case 'down':
         return <AlertCircle className="h-4 w-4 text-red-600" />;
       default:
-        return null;
-    }
+        return null}
   };
 
   return (
@@ -301,6 +285,4 @@ export default function SystemHealthWidgets() {
           ))}
         </div>
       </Card>
-    </div>
-  );
-}
+    </div>)}

@@ -11,6 +11,4 @@ export default function AICompanion() {
         <span className="font-semibold text-[#7B4EFF]">AI Companion:</span> <br />
         <span>Based on your skills, try: <span className="font-semibold">AR Designer</span> <span aria-label="arrow" role="img">↗</span></span>
       </div>
-    </div>
-  );
-} 
+    </div>)} 

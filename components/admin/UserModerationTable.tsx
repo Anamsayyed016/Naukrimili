@@ -11,27 +11,25 @@ interface User {
   status: 'active' | 'suspended' | 'warning';
   reportCount: number;
   lastActivity: string;
-  type: 'jobseeker' | 'employer';
-}
+  type: 'jobseeker' | 'employer'}
 
 export default function UserModerationTable() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers()}, []);
 
   const fetchUsers = async () => {
     try {
       const response = await fetch('/api/admin/users/moderation');
       const data = await response.json();
-      setUsers(data);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
-      setIsLoading(false);
-    }
+      setUsers(data)} catch (error) {
+    console.error("Error:", error);
+    throw error;
+  } finally {
+    setIsLoading(false);
+  }
   };
 
   const handleUserAction = async (userId: string, action: 'suspend' | 'activate' | 'warn') => {
@@ -48,8 +46,9 @@ export default function UserModerationTable() {
         fetchUsers(); // Refresh the list
       }
     } catch (error) {
-      console.error('Error moderating user:', error);
-    }
+    console.error("Error:", error);
+    throw error;
+  }
   };
 
   const getStatusBadge = (status: string) => {
@@ -58,8 +57,7 @@ export default function UserModerationTable() {
       suspended: 'bg-red-100 text-red-800',
       warning: 'bg-yellow-100 text-yellow-800',
     };
-    return styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800';
-  };
+    return styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800'};
 
   return (
     <div>
@@ -129,6 +127,4 @@ export default function UserModerationTable() {
           </TableBody>
         </Table>
       )}
-    </div>
-  );
-}
+    </div>)}

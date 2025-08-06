@@ -73,6 +73,4 @@ export default function JobSeekerDashboard() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    </div>)}

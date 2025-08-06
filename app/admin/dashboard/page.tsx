@@ -61,6 +61,4 @@ export default function AdminDashboardPage() {
           </Tabs>
         </motion.div>
       </div>
-    </AuthGuard>
-  );
-} 
+    </AuthGuard>)} 

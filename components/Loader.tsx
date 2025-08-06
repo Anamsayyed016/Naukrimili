@@ -3,8 +3,7 @@ import React from 'react';
 
 interface LoaderProps {
   size?: 'small' | 'medium' | 'large';
-  fullScreen?: boolean;
-}
+  fullScreen?: boolean}
 
 const Loader: React.FC<LoaderProps> = ({ 
   size = 'medium',
@@ -28,8 +27,6 @@ const Loader: React.FC<LoaderProps> = ({
           <div className={`spinner ${sizeClasses[size]} border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto`} />
         </div>
       </div>
-    </div>
-  );
-};
+    </div>)};
 
 export default Loader;

@@ -17,6 +17,8 @@ export async function GET() {
           salary: '£45,000 - £55,000',
           description: 'Exciting opportunity for a software engineer...',
           source: 'reed'
+  // TODO: Complete function implementation
+}
         },
         {
           id: 'reed-2',
@@ -30,11 +32,10 @@ export async function GET() {
       ]
     };
 
-    return Response.json(testData);
-  } catch (error) {
+    return Response.json(testData)} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/test-reed',
-      context: { timestamp: new Date().toISOString() }
-    });
-  }
+      context: { timestamp: new Date().toISOString() }})}
 }

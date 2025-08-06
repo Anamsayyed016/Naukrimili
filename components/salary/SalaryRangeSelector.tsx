@@ -5,14 +5,12 @@ export interface SalaryRange {
   min: number;
   max: number;
   currency: string;
-  period: "year" | "month";
-}
+  period: "year" | "month"}
 
 interface SalaryRangeSelectorProps {
   countryCode?: string; // e.g. 'US', 'IN', 'DE', 'GB', 'EU'
   value: SalaryRange;
-  onChange: (range: SalaryRange) => void;
-}
+  onChange: (range: SalaryRange) => void}
 
 const SalaryRangeSelector: React.FC<SalaryRangeSelectorProps> = ({ countryCode, value, onChange }) => {
   const [currency, setCurrency] = useState<CurrencyInfo>(getCurrencyInfo(countryCode));
@@ -36,22 +34,18 @@ const SalaryRangeSelector: React.FC<SalaryRangeSelectorProps> = ({ countryCode, 
     let newMin = min, newMax = max;
     if (p === "month") {
       newMin = Math.round(min / 12);
-      newMax = Math.round(max / 12);
-    } else {
+      newMax = Math.round(max / 12)} else {
       newMin = Math.round(min * 12);
-      newMax = Math.round(max * 12);
-    }
+      newMax = Math.round(max * 12)}
     setMin(newMin);
     setMax(newMax);
-    onChange({ min: newMin, max: newMax, currency: currency.code, period: p });
-  };
+    onChange({ min: newMin, max: newMax, currency: currency.code, period: p })};
 
   // Handle slider change
   const handleSlider = (newMin: number, newMax: number) => {
     setMin(newMin);
     setMax(newMax);
-    onChange({ min: newMin, max: newMax, currency: currency.code, period });
-  };
+    onChange({ min: newMin, max: newMax, currency: currency.code, period })};
 
   // Snap to step
   const snap = (val: number) => Math.round(val / currency.step) * currency.step;
@@ -126,8 +120,6 @@ const SalaryRangeSelector: React.FC<SalaryRangeSelectorProps> = ({ countryCode, 
       <div style={{ fontSize: 13, color: "#6b7280", marginTop: 8 }}>
         <span title={`Salaries shown in ${currency.symbol} based on ${countryCode || 'your country'}`}>Salaries shown in <b>{currency.symbol}</b> based on <b>{countryCode || 'your country'}</b>.</span>
       </div>
-    </div>
-  );
-};
+    </div>)};
 
 export default SalaryRangeSelector; 

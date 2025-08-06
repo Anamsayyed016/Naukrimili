@@ -95,8 +95,7 @@ export default function JobSeekerView() {
   ];
 
   const handleViewStats = () => {
-    setActiveTab("overview");
-  };
+    setActiveTab("overview")};
 
   return (
     <DashboardLayout
@@ -240,6 +239,4 @@ export default function JobSeekerView() {
           </motion.div>
         )}
       </div>
-    </DashboardLayout>
-  );
-} 
+    </DashboardLayout>)} 

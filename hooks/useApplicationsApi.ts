@@ -20,12 +20,9 @@ export function useApplicationsApi() {
     try {
       const res = await fetch('/api/applications');
       const data = await res.json();
-      setApplications(data);
-    } catch (err) {
-      setError('Failed to fetch applications');
-    } finally {
-      setLoading(false);
-    }
+      setApplications(data)} catch (err) {
+      setError('Failed to fetch applications')} finally {
+      setLoading(false)}
   };
 
   const createApplication = async (application: Application): Promise<void> => {
@@ -38,12 +35,9 @@ export function useApplicationsApi() {
         body: JSON.stringify(application),
       });
       if (!res.ok) throw new Error('Failed to create');
-      await fetchApplications();
-    } catch (err) {
-      setError('Failed to create application');
-    } finally {
-      setLoading(false);
-    }
+      await fetchApplications()} catch (err) {
+      setError('Failed to create application')} finally {
+      setLoading(false)}
   };
 
   const updateApplication = async (id: number, application: Application): Promise<void> => {
@@ -56,12 +50,9 @@ export function useApplicationsApi() {
         body: JSON.stringify(application),
       });
       if (!res.ok) throw new Error('Failed to update');
-      await fetchApplications();
-    } catch (err) {
-      setError('Failed to update application');
-    } finally {
-      setLoading(false);
-    }
+      await fetchApplications()} catch (err) {
+      setError('Failed to update application')} finally {
+      setLoading(false)}
   };
 
   const deleteApplication = async (id: number): Promise<void> => {
@@ -70,15 +61,11 @@ export function useApplicationsApi() {
     try {
       const res = await fetch(`/api/applications/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
-      await fetchApplications();
-    } catch (err) {
-      setError('Failed to delete application');
-    } finally {
-      setLoading(false);
-    }
+      await fetchApplications()} catch (err) {
+      setError('Failed to delete application')} finally {
+      setLoading(false)}
   };
 
-  useEffect(() => { fetchApplications(); }, []);
+  useEffect(() => { fetchApplications()}, []);
 
-  return { applications, loading, error, fetchApplications, createApplication, updateApplication, deleteApplication };
-}
+  return { applications, loading, error, fetchApplications, createApplication, updateApplication, deleteApplication }}

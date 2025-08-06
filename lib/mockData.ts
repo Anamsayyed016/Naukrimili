@@ -24,13 +24,10 @@ export const mockCandidates = [
 export const candidatesApi = {
   getAll: async () => {
     return [...mockCandidates].sort((a, b) => 
-      new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime()
-    );
-  },
+      new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime())},
   
   getById: async (id: string) => {
-    return mockCandidates.find(c => c.id === id);
-  },
+    return mockCandidates.find(c => c.id === id)},
 
   create: async (data: Record<string, unknown>) => {
     const newCandidate = {
@@ -39,8 +36,7 @@ export const candidatesApi = {
       appliedDate: new Date().toISOString()
     };
     mockCandidates.push(newCandidate);
-    return newCandidate;
-  },
+    return newCandidate},
 
   update: async (id: string, data: Record<string, unknown>) => {
     const index = mockCandidates.findIndex(c => c.id === id);
@@ -50,14 +46,12 @@ export const candidatesApi = {
       ...mockCandidates[index],
       ...data
     };
-    return mockCandidates[index];
-  },
+    return mockCandidates[index]},
 
   delete: async (id: string) => {
     const index = mockCandidates.findIndex(c => c.id === id);
     if (index === -1) return false;
     
     mockCandidates.splice(index, 1);
-    return true;
-  }
+    return true}
 };

@@ -1,6 +1,5 @@
 import React from "react";
 ﻿'use client';
-"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -31,16 +30,13 @@ export default function LoginForm() {
         title: "Success",
         description: "You have been logged in successfully.",
       });
-      router.push("/dashboard");
-    } catch (error: Record<string, unknown>) {
+      router.push("/dashboard")} catch (error: Record<string, unknown>) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message || "Failed to login. Please try again.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+      })} finally {
+      setIsLoading(false)}
   };
 
   return (
@@ -142,6 +138,4 @@ export default function LoginForm() {
           </div>
         </CardFooter>
       </form>
-    </Card>
-  );
-} 
+    </Card>)} 

@@ -72,26 +72,26 @@ async function getAllFiles(dir, extensions) {
   const files = [];
   
   try {
+  // TODO: Complete function implementation
+}
     const entries = await fs.readdir(dir, { withFileTypes: true });
     
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       
       if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
-        files.push(...await getAllFiles(fullPath, extensions));
-      } else if (entry.isFile()) {
+        files.push(...await getAllFiles(fullPath, extensions))} else if (entry.isFile()) {
         const ext = path.extname(entry.name).slice(1);
         if (extensions.includes(ext)) {
-          files.push(fullPath);
-        }
+          files.push(fullPath)}
       }
     }
   } catch (error) {
-    // console.warn(`Could not read directory ${dir}:`, error.message);
-  }
+    console.error("Error:", error);
+    throw error}
+    // console.warn(`Could not read directory ${dir}:`, error.message)}
   
-  return files;
-}
+  return files}
 
 async function applyFixes() {
   try {
@@ -112,6 +112,8 @@ async function applyFixes() {
             // Check condition if exists
             if (fix.condition && !fix.condition(content)) {
               continue;
+  // TODO: Complete function implementation
+}
             }
             
             const before = content;
@@ -119,8 +121,7 @@ async function applyFixes() {
             
             if (content !== before) {
               fileFixes++;
-              fileFixed = true;
-            }
+              fileFixed = true}
           }
         }
         
@@ -133,8 +134,7 @@ async function applyFixes() {
             
             if (content !== before) {
               fileFixes++;
-              fileFixed = true;
-            }
+              fileFixed = true}
           }
         }
         
@@ -147,22 +147,20 @@ async function applyFixes() {
           if (content.includes('JobResult') && !content.includes('import') && !content.includes('interface JobResult')) {
             content = `import type { JobResult } from '@/types/jobs';\n${content}`;
             fileFixes++;
-            fileFixed = true;
-          }
+            fileFixed = true}
           
           // Fix error handling types
           content = content.replace(/} catch \(error: any\) {/g, '} catch (error: unknown) {');
-          content = content.replace(/} catch \(err: any\) {/g, '} catch (err: unknown) {');
-        }
+          content = content.replace(/} catch \(err: any\) {/g, '} catch (err: unknown) {')}
         
         // Write back if changed
         if (fileFixed) {
-          await fs.writeFile(filePath, content, 'utf8');totalFixes += fileFixes;
-        }
+          await fs.writeFile(filePath, content, 'utf8');totalFixes += fileFixes}
         
       } catch (error) {
-        // console.warn(`⚠️  Could not process ${filePath}:`, error.message);
-      }
+    console.error("Error:", error);
+    throw error}
+        // console.warn(`⚠️  Could not process ${filePath}:`, error.message)}
     }// Create missing type definitions
     await createMissingTypes();
     
@@ -171,14 +169,11 @@ async function applyFixes() {
     
     return new Promise((resolve) => {
       exec('npx tsc --noEmit --skipLibCheck', (error, stdout, stderr) => {
-        if (error) {} else {}
-        resolve();
-      });
-    });
-    
-  } catch (error) {
-    console.error('❌ Error during fixes:', error);
-  }
+        if (error) {} else {};
+        resolve()})})} catch (error) {
+    console.error("Error:", error);
+    throw error}
+    console.error('❌ Error during fixes:', error)}
 }
 
 async function createMissingTypes() {const jobResultType = `export interface JobResult {
@@ -195,6 +190,8 @@ async function createMissingTypes() {const jobResultType = `export interface Job
   skills?: string[];
   experience_level?: string;
   sector?: string;
+  // TODO: Complete function implementation
+}
 }
 
 export interface JobSearchFilters {
@@ -205,8 +202,7 @@ export interface JobSearchFilters {
   job_type?: string;
   experience_level?: string;
   remote_only?: boolean;
-  sector?: string;
-}
+  sector?: string}
 
 export interface JobSearchResponse {
   jobs: JobResult[];
@@ -217,13 +213,13 @@ export interface JobSearchResponse {
   has_google_fallback?: boolean;
   google_fallback_urls?: string[];
   search_time_ms?: number;
-  message?: string;
-}`;
+  message?: string}`;
 
   try {
-    await fs.writeFile('types/jobs.ts', jobResultType, 'utf8');} catch (error) {
-    // console.warn('⚠️  Could not create job types:', error.message);
-  }
+    await fs.writeFile('types/jobs.ts', jobResultType, 'utf8')} catch (error) {
+    console.error("Error:", error);
+    throw error}
+    // console.warn('⚠️  Could not create job types:', error.message)}
   
   // Create admin types
   const adminTypes = `export interface AdminUser {
@@ -232,8 +228,7 @@ export interface JobSearchResponse {
   role: 'admin' | 'moderator' | 'support';
   permissions: string[];
   created_at: string;
-  last_login?: string;
-}
+  last_login?: string}
 
 export interface SystemHealth {
   status: 'healthy' | 'warning' | 'critical';
@@ -241,8 +236,7 @@ export interface SystemHealth {
   memory_usage: number;
   cpu_usage: number;
   active_users: number;
-  pending_jobs: number;
-}
+  pending_jobs: number}
 
 export interface FraudAlert {
   id: string;
@@ -255,13 +249,13 @@ export interface FraudAlert {
   reportedBy: string;
   reportedAt: string;
   status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
-  metadata: Record<string, unknown>;
-}`;
+  metadata: Record<string, unknown>}`;
 
   try {
-    await fs.writeFile('types/admin.ts', adminTypes, 'utf8');} catch (error) {
-    // console.warn('⚠️  Could not create admin types:', error.message);
-  }
+    await fs.writeFile('types/admin.ts', adminTypes, 'utf8')} catch (error) {
+    console.error("Error:", error);
+    throw error}
+    // console.warn('⚠️  Could not create admin types:', error.message)}
 }
 
 async function fixImportPaths() {const files = await getAllFiles('.', ['tsx', 'ts']);
@@ -293,15 +287,18 @@ async function fixImportPaths() {const files = await getAllFiles('.', ['tsx', 't
         if (content !== beforeContent) {
           await fs.writeFile(filePath, content, 'utf8');
           fixed = true;
+  // TODO: Complete function implementation
+}
         }
       }
       
       if (fixed) {
-        const relativePath = path.relative('.', filePath).replace(/\\/g, '/');}
+        const relativePath = path.relative('.', filePath).replace(/\\/g, '/')}
       
     } catch (error) {
-      // console.warn(`⚠️  Could not fix imports in ${filePath}:`, error.message);
-    }
+    console.error("Error:", error);
+    throw error}
+      // console.warn(`⚠️  Could not fix imports in ${filePath}:`, error.message)}
   }
 }
 

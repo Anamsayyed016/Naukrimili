@@ -28,14 +28,15 @@ export async function GET() {
     return Response.json({
       success: true,
       resumes: mockResumes,
-      total: mockResumes.length
-    });
-  } catch (error) {
+      total: mockResumes.length;
+  // TODO: Complete function implementation
+}
+    })} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/resumes',
       context: {
         timestamp: new Date().toISOString()
-      }
-    });
-  }
+      }})}
 }

@@ -12,17 +12,14 @@ export interface ApiResponse<T = any> {
   data: T;
   message?: string;
   success: boolean;
-  error?: string;
-}
+  error?: string}
 
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   pagination: {
     page: number;
     limit: number;
     total: number;
-    totalPages: number;
-  };
-}
+    totalPages: number}}
 
 // Import ApiError from types
 import { ApiError } from '@/types/api';
@@ -40,8 +37,7 @@ class ApiClient {
       },
     });
 
-    this.setupInterceptors();
-  }
+    this.setupInterceptors()}
 
   private setupInterceptors() {
     // Request interceptor
@@ -50,42 +46,33 @@ class ApiClient {
         // Add auth token if available
         const token = this.getAuthToken();
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+          config.headers.Authorization = `Bearer ${token}`}
 
         // Add request ID for tracking
         config.headers['X-Request-ID'] = this.generateRequestId();
 
-        return config;
-      },
+        return config},
       (error) => {
         console.error('Request interceptor error:', error);
-        return Promise.reject(error);
-      }
+        return Promise.reject(error)}
     );
 
     // Response interceptor
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
-        return response;
-      },
+        return response},
       (error) => {
-        return this.handleResponseError(error);
-      }
-    );
-  }
+        return this.handleResponseError(error)}
+    )}
 
   private getAuthToken(): string | null {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('auth_token') || 
-             sessionStorage.getItem('auth_token');
-    }
-    return null;
-  }
+      return localStorage.getItem('auth_token') || ;
+             sessionStorage.getItem('auth_token')}
+    return null}
 
   private generateRequestId(): string {
-    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
+    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`}
 
   private handleResponseError(error: Record<string, unknown>): never {
     let apiError: ApiError;
@@ -120,40 +107,28 @@ class ApiClient {
           break;
         case 500:
           this.handleServerError();
-          break;
-      }
+          break}
     } else {
       apiError = new ApiError(
         error.message || 'Network error',
         0,
         'NETWORK_ERROR'
-      );
-    }
+      )}
 
     // Log error for debugging
-    console.error('API Error:', {
-      message: apiError.message,
-      status: apiError.status,
-      code: apiError.code,
-      details: apiError.details,
-      url: error.config?.url,
-      method: error.config?.method,
-    });
+    );
 
-    throw apiError;
-  }
+    throw apiError}
 
   private handleUnauthorized() {
     // Clear auth tokens
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_token');
-      sessionStorage.removeItem('auth_token');
-    }
+      sessionStorage.removeItem('auth_token')}
     
     // Redirect to login
     if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
-      window.location.href = '/auth/login';
-    }
+      window.location.href = '/auth/login'}
   }
 
   private handleForbidden() {
@@ -161,58 +136,49 @@ class ApiClient {
       title: "Access Denied",
       description: "You don't have permission to perform this action.",
       variant: "destructive",
-    });
-  }
+    })}
 
   private handleNotFound() {
     toast({
       title: "Not Found",
       description: "The requested resource was not found.",
       variant: "destructive",
-    });
-  }
+    })}
 
   private handleRateLimit() {
     toast({
       title: "Rate Limited",
       description: "Too many requests. Please try again later.",
       variant: "destructive",
-    });
-  }
+    })}
 
   private handleServerError() {
     toast({
       title: "Server Error",
       description: "Something went wrong on our end. Please try again later.",
       variant: "destructive",
-    });
-  }
+    })}
 
   // Generic request methods
   async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.get<ApiResponse<T>>(url, config);
-    return response.data.data;
-  }
+    return response.data.data}
 
   async post<T = any>(url: string, data?: Record<string, unknown>, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.post<ApiResponse<T>>(url, data, config);
-    return response.data.data;
-  }
+    return response.data.data}
 
   async put<T = any>(url: string, data?: Record<string, unknown>, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.put<ApiResponse<T>>(url, data, config);
-    return response.data.data;
-  }
+    return response.data.data}
 
   async patch<T = any>(url: string, data?: Record<string, unknown>, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.patch<ApiResponse<T>>(url, data, config);
-    return response.data.data;
-  }
+    return response.data.data}
 
   async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.delete<ApiResponse<T>>(url, config);
-    return response.data.data;
-  }
+    return response.data.data}
 
   // File upload method
   async upload<T = any>(url: string, file: File, onProgress?: (progress: number) => void): Promise<T> {
@@ -226,13 +192,11 @@ class ApiClient {
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          onProgress(progress);
-        }
+          onProgress(progress)}
       },
     });
 
-    return response.data.data;
-  }
+    return response.data.data}
 
   // Paginated request method
   async getPaginated<T = any>(
@@ -251,8 +215,7 @@ class ApiClient {
       config
     );
 
-    return response.data;
-  }
+    return response.data}
 }
 
 // Create singleton instance

@@ -22,9 +22,7 @@ export interface Message {
     name: string;
     url: string;
     type: string;
-    size: number;
-  }[];
-}
+    size: number}[]}
 
 export function useMessages() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -35,8 +33,7 @@ export function useMessages() {
   const fetchMessages = async (options?: { unreadOnly?: boolean; limit?: number; type?: string }) => {
     if (!session?.user) {
       setIsLoading(false);
-      return;
-    }
+      return}
 
     try {
       const params = new URLSearchParams();
@@ -47,8 +44,7 @@ export function useMessages() {
       const response = await fetch(`/api/messages?${params.toString()}`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch messages');
-      }
+        throw new Error('Failed to fetch messages')}
 
       const data = await response.json();
       
@@ -60,8 +56,7 @@ export function useMessages() {
       }));
 
       setMessages(processedMessages);
-      setError(null);
-    } catch (err) {
+      setError(null)} catch (err) {
       console.error('Error fetching messages:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
       
@@ -102,15 +97,12 @@ export function useMessages() {
           threadId: 'thread_2'
         }
       ];
-      setMessages(mockMessages);
-    } finally {
-      setIsLoading(false);
-    }
+      setMessages(mockMessages)} finally {
+      setIsLoading(false)}
   };
 
   useEffect(() => {
-    fetchMessages();
-  }, [session]);
+    fetchMessages()}, [session]);
 
   const markAsRead = async (messageId: string) => {
     try {
@@ -132,11 +124,9 @@ export function useMessages() {
               ? { ...message, isRead: true, updatedAt: new Date() }
               : message
           )
-        );
-      }
+        )}
     } catch (err) {
-      console.error('Error marking message as read:', err);
-    }
+      console.error('Error marking message as read:', err)}
   };
 
   const markAllAsRead = async () => {
@@ -159,19 +149,16 @@ export function useMessages() {
             isRead: true, 
             updatedAt: new Date() 
           }))
-        );
-      }
+        )}
     } catch (err) {
-      console.error('Error marking all messages as read:', err);
-    }
+      console.error('Error marking all messages as read:', err)}
   };
 
   const sendMessage = async (newMessage: {
     receiverId: string;
     subject: string;
     content: string;
-    threadId?: string;
-  }) => {
+    threadId?: string}) => {
     try {
       const response = await fetch('/api/messages', {
         method: 'POST',
@@ -188,12 +175,10 @@ export function useMessages() {
         const data = await response.json();
         // Refresh messages to get the latest state
         await fetchMessages();
-        return data.message;
-      }
+        return data.message}
     } catch (err) {
       console.error('Error sending message:', err);
-      throw err;
-    }
+      throw err}
   };
 
   const unreadCount = messages.filter(m => !m.isRead).length;
@@ -206,6 +191,4 @@ export function useMessages() {
     markAsRead,
     markAllAsRead,
     sendMessage,
-    refresh: fetchMessages
-  };
-}
+    refresh: fetchMessages}}

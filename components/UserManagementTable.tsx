@@ -26,6 +26,4 @@ export function UserManagementTable() {
           Export Data
         </button>
       </div>
-    </div>
-  );
-} 
+    </div>)} 

@@ -7,12 +7,14 @@ async function testConnection() {
     await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+  // TODO: Complete function implementation
+}
     });// Test a simple operation
-    const collections = await mongoose.connection.db.listCollections().toArray();process.exit(0);
-  } catch (error) {
+    const collections = await mongoose.connection.db.listCollections().toArray();process.exit(0)} catch (error) {
+    console.error("Error:", error);
+    throw error}
     console.error('❌ Connection error:', error.message);
-    process.exit(1);
-  }
+    process.exit(1)}
 }
 
 testConnection();

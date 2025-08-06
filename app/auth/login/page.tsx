@@ -27,15 +27,11 @@ export default function LoginPage() {
       });
 
       if (result?.ok) {
-        router.push('/dashboard');
-      } else {
-        setError('Invalid credentials');
-      }
+        router.push('/dashboard')} else {
+        setError('Invalid credentials')}
     } catch (err) {
-      setError('Login failed');
-    } finally {
-      setLoading(false);
-    }
+      setError('Login failed')} finally {
+      setLoading(false)}
   };
 
   return (
@@ -132,6 +128,4 @@ export default function LoginPage() {
           </div>
         </form>
       </div>
-    </div>
-  );
-}
+    </div>)}

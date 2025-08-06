@@ -4,8 +4,7 @@ export interface AdminUser {
   role: 'admin' | 'moderator' | 'support';
   permissions: string[];
   created_at: string;
-  last_login?: string;
-}
+  last_login?: string}
 
 export interface SystemHealth {
   status: 'healthy' | 'warning' | 'critical';
@@ -13,8 +12,7 @@ export interface SystemHealth {
   memory_usage: number;
   cpu_usage: number;
   active_users: number;
-  pending_jobs: number;
-}
+  pending_jobs: number}
 
 export interface FraudAlert {
   id: string;
@@ -27,5 +25,4 @@ export interface FraudAlert {
   reportedBy: string;
   reportedAt: string;
   status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
-  metadata: Record<string, unknown>;
-}
+  metadata: Record<string, unknown>}

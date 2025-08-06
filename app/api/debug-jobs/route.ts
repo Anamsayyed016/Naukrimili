@@ -14,6 +14,8 @@ export async function GET() {
           reed: 3200,
           indeed: 2800,
           manual: 920
+  // TODO: Complete function implementation
+}
         },
         lastJobSync: new Date(Date.now() - 3600000).toISOString(),
         cacheStatus: 'healthy',
@@ -43,11 +45,10 @@ export async function GET() {
       ]
     };
 
-    return Response.json(debugData);
-  } catch (error) {
+    return Response.json(debugData)} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/debug-jobs',
-      context: { timestamp: new Date().toISOString() }
-    });
-  }
+      context: { timestamp: new Date().toISOString() }})}
 }

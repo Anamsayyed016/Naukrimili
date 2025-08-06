@@ -1,6 +1,5 @@
 import React from "react";
 ﻿'use client';
-"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -14,15 +13,13 @@ import { useToast } from "@/hooks/use-toast";
 interface RegisterFormProps {
   type: "jobseeker" | "company";
   onSuccess?: () => void;
-  redirectTo?: string;
-}
+  redirectTo?: string}
 
 interface FormData {
   name?: string;
   companyName?: string;
   email: string;
-  password: string;
-}
+  password: string}
 
 export default function RegisterForm({
   type,
@@ -41,8 +38,7 @@ export default function RegisterForm({
   const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    setFormData({ ...formData, [e.target.name]: e.target.value })};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,8 +59,7 @@ export default function RegisterForm({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
-      }
+        throw new Error(data.message || "Registration failed")}
 
       // Auto-login after registration
       const signInResult = await signIn("credentials", {
@@ -74,8 +69,7 @@ export default function RegisterForm({
       });
 
       if (signInResult?.error) {
-        throw new Error("Login after registration failed");
-      }
+        throw new Error("Login after registration failed")}
 
       toast({
         title: "Success",
@@ -83,20 +77,16 @@ export default function RegisterForm({
       });
 
       if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push(redirectTo);
-      }
+        onSuccess()} else {
+        router.push(redirectTo)}
     } catch (err: Record<string, unknown>) {
       setError(err.message || "An error occurred");
       toast({
         title: "Error",
         description: err.message || "Registration failed",
         variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+      })} finally {
+      setIsLoading(false)}
   };
 
   return (
@@ -201,6 +191,4 @@ export default function RegisterForm({
           )}
         </Button>
       </form>
-    </motion.div>
-  );
-} 
+    </motion.div>)} 

@@ -5,13 +5,11 @@ interface SearchFilters {
   location: string;
   type: string;
   level: string;
-  remote: boolean;
-}
+  remote: boolean}
 
 interface JobSearchProps {
   onSearch: (filters: SearchFilters) => void;
-  loading?: boolean;
-}
+  loading?: boolean}
 
 export default function JobSearch({ onSearch, loading = false }: JobSearchProps) {
   const [filters, setFilters] = useState<SearchFilters>({
@@ -24,15 +22,13 @@ export default function JobSearch({ onSearch, loading = false }: JobSearchProps)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(filters);
-  };
+    onSearch(filters)};
 
   const handleInputChange = (field: keyof SearchFilters, value: string | boolean) => {
     setFilters(prev => ({
       ...prev,
       [field]: value
-    }));
-  };
+    }))};
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -106,6 +102,4 @@ export default function JobSearch({ onSearch, loading = false }: JobSearchProps)
           {loading ? 'Searching...' : 'Search Jobs'}
         </button>
       </form>
-    </div>
-  );
-}
+    </div>)}

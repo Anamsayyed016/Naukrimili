@@ -20,15 +20,13 @@ interface ResumeUploadProps {
   onClose?: () => void;
   onUploadComplete?: (data: Record<string, unknown>) => void;
   showProfileForm?: boolean;
-  standalone?: boolean;
-}
+  standalone?: boolean}
 
 interface ResumeData {
   id: string;
   filename: string;
   url: string;
-  parsed_data?: Record<string, unknown>;
-}
+  parsed_data?: Record<string, unknown>}
 
 export default function ResumeUpload({ 
   isOpen = false, 
@@ -55,17 +53,14 @@ export default function ResumeUpload({
     setUploaded(false);
     setResumeData(null);
     setError(null);
-    setShowForm(false);
-  };
+    setShowForm(false)};
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
+      setDragActive(true)} else if (e.type === "dragleave") {
+      setDragActive(false)}
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -73,8 +68,7 @@ export default function ResumeUpload({
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelect(e.dataTransfer.files[0]);
-    }
+      handleFileSelect(e.dataTransfer.files[0])}
   }, []);
 
   const handleFileSelect = (selectedFile: File) => {
@@ -92,8 +86,7 @@ export default function ResumeUpload({
         description: "Please upload a PDF or Word document",
         variant: "destructive",
       });
-      return;
-    }
+      return}
 
     if (selectedFile.size > 5 * 1024 * 1024) {
       setError("File size must be less than 5MB");
@@ -102,16 +95,13 @@ export default function ResumeUpload({
         description: "File size must be less than 5MB",
         variant: "destructive",
       });
-      return;
-    }
+      return}
 
-    setFile(selectedFile);
-  };
+    setFile(selectedFile)};
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      handleFileSelect(e.target.files[0]);
-    }
+      handleFileSelect(e.target.files[0])}
   };
 
   const handleUpload = async () => {
@@ -130,11 +120,8 @@ export default function ResumeUpload({
         setUploadProgress(prev => {
           if (prev >= 85) {
             clearInterval(progressInterval);
-            return 85;
-          }
-          return prev + 10;
-        });
-      }, 200);
+            return 85}
+          return prev + 10})}, 200);
 
       const response = await fetch("/api/resumes/upload", {
         method: "POST",
@@ -149,16 +136,13 @@ export default function ResumeUpload({
       let data;
       
       if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
+        data = await response.json()} else {
         const text = await response.text();
         console.error("Expected JSON, got:", text);
-        throw new Error("Invalid server response");
-      }
+        throw new Error("Invalid server response")}
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "Upload failed");
-      }
+        throw new Error(data.message || "Upload failed")}
 
       setResumeData(data.data);
       setUploaded(true);
@@ -169,33 +153,26 @@ export default function ResumeUpload({
       });
 
       if (showProfileForm) {
-        setShowForm(true);
-      } else if (onUploadComplete) {
-        onUploadComplete(data.data);
-      }
+        setShowForm(true)} else if (onUploadComplete) {
+        onUploadComplete(data.data)}
     } catch (err: Record<string, unknown>) {
       setError(err.message || "Failed to upload resume");
       toast({
         title: "Error",
         description: err.message || "Failed to upload resume",
         variant: "destructive",
-      });
-    } finally {
-      setUploading(false);
-    }
+      })} finally {
+      setUploading(false)}
   };
 
   const handleClose = () => {
     resetState();
-    if (onClose) onClose();
-  };
+    if (onClose) onClose()};
 
   const handleFormComplete = () => {
     if (onUploadComplete && resumeData) {
-      onUploadComplete({ ...resumeData });
-    }
-    handleClose();
-  };
+      onUploadComplete({ ...resumeData })}
+    handleClose()};
 
   const UploadContent = () => (
     <div 
@@ -280,8 +257,7 @@ export default function ResumeUpload({
   );
 
   if (standalone) {
-    return content;
-  }
+    return content}
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -299,6 +275,4 @@ export default function ResumeUpload({
         </div>
         {content}
       </DialogContent>
-    </Dialog>
-  );
-} 
+    </Dialog>)} 

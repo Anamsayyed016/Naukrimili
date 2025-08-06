@@ -24,11 +24,8 @@ export interface ICandidate {
     type: 'phone' | 'video' | 'onsite';
     status: 'scheduled' | 'completed' | 'cancelled';
     feedback?: string;
-    interviewer?: string;
-  }[];
+    interviewer?: string}[];
   education?: {
     degree: string;
     institution: string;
-    year: number;
-  }[];
-}
+    year: number}[]}

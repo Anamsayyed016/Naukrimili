@@ -4,8 +4,7 @@ import React from "react";
 interface UserWelcomeProps {
   name?: string;
   matches?: number;
-  profileStrength?: number;
-}
+  profileStrength?: number}
 
 export default function UserWelcome({ 
   name = "User", 
@@ -36,6 +35,4 @@ export default function UserWelcome({
       <div className="text-sm text-gray-600 mt-1">
         Profile strength: {profileStrength}% complete
       </div>
-    </div>
-  );
-} 
+    </div>)} 

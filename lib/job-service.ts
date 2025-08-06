@@ -11,21 +11,17 @@ export class JobService {
           location,
         }
       });
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error fetching jobs:', error);
-      throw error;
-    }
+      throw error}
   }
 
   async getJob(jobId: string) {
     try {
       const response = await axios.get(`${API_BASE_URL}/jobs/${jobId}`);
-      return response.data;
-    } catch (error) {
+      return response.data} catch (error) {
       console.error('Error fetching job details:', error);
-      throw error;
-    }
+      throw error}
   }
 }
 

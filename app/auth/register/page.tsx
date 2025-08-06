@@ -24,8 +24,7 @@ export default function RegisterPage() {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
-    }));
-  };
+    }))};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +34,7 @@ export default function RegisterPage() {
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
-      return;
-    }
+      return}
 
     try {
       // Mock registration - just sign in directly
@@ -47,15 +45,11 @@ export default function RegisterPage() {
       });
 
       if (result?.ok) {
-        router.push('/dashboard');
-      } else {
-        setError('Registration failed');
-      }
+        router.push('/dashboard')} else {
+        setError('Registration failed')}
     } catch (err) {
-      setError('Registration failed');
-    } finally {
-      setLoading(false);
-    }
+      setError('Registration failed')} finally {
+      setLoading(false)}
   };
 
   return (
@@ -216,6 +210,4 @@ export default function RegisterPage() {
           </div>
         </form>
       </div>
-    </div>
-  );
-}
+    </div>)}

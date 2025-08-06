@@ -36,6 +36,4 @@ export default function JobPostForm() {
           Publish Job
         </button>
       </form>
-    </div>
-  );
-} 
+    </div>)} 

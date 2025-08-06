@@ -19,12 +19,9 @@ export function useJobsApi() {
     try {
       const res = await fetch('/api/jobs');
       const data = await res.json();
-      setJobs(data);
-    } catch (err) {
-      setError('Failed to fetch jobs');
-    } finally {
-      setLoading(false);
-    }
+      setJobs(data)} catch (err) {
+      setError('Failed to fetch jobs')} finally {
+      setLoading(false)}
   };
 
   const createJob = async (job: Job): Promise<void> => {
@@ -37,12 +34,9 @@ export function useJobsApi() {
         body: JSON.stringify(job),
       });
       if (!res.ok) throw new Error('Failed to create');
-      await fetchJobs();
-    } catch (err) {
-      setError('Failed to create job');
-    } finally {
-      setLoading(false);
-    }
+      await fetchJobs()} catch (err) {
+      setError('Failed to create job')} finally {
+      setLoading(false)}
   };
 
   const updateJob = async (id: number, job: Job): Promise<void> => {
@@ -55,12 +49,9 @@ export function useJobsApi() {
         body: JSON.stringify(job),
       });
       if (!res.ok) throw new Error('Failed to update');
-      await fetchJobs();
-    } catch (err) {
-      setError('Failed to update job');
-    } finally {
-      setLoading(false);
-    }
+      await fetchJobs()} catch (err) {
+      setError('Failed to update job')} finally {
+      setLoading(false)}
   };
 
   const deleteJob = async (id: number): Promise<void> => {
@@ -69,15 +60,11 @@ export function useJobsApi() {
     try {
       const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
-      await fetchJobs();
-    } catch (err) {
-      setError('Failed to delete job');
-    } finally {
-      setLoading(false);
-    }
+      await fetchJobs()} catch (err) {
+      setError('Failed to delete job')} finally {
+      setLoading(false)}
   };
 
-  useEffect(() => { fetchJobs(); }, []);
+  useEffect(() => { fetchJobs()}, []);
 
-  return { jobs, loading, error, fetchJobs, createJob, updateJob, deleteJob };
-}
+  return { jobs, loading, error, fetchJobs, createJob, updateJob, deleteJob }}

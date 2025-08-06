@@ -9,6 +9,8 @@ export async function GET() {
       salaryRange: {
         min: 50000,
         max: 100000
+  // TODO: Complete function implementation
+}
       },
       jobCount: 150,
       topCompanies: [
@@ -19,12 +21,10 @@ export async function GET() {
         'Health Insurance',
         'Remote Work',
         '401k'
-      ]
-    });
-  } catch (error) {
+      ]})} catch (error) {
+    console.error("Error:", error);
+    throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/jobs/salary-stats',
-      context: { timestamp: new Date().toISOString() }
-    });
-  }
+      context: { timestamp: new Date().toISOString() }})}
 }

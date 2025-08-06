@@ -26,16 +26,14 @@ interface FraudAlert {
   reportedBy: string;
   reportedAt: string;
   status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
-  metadata: Record<string, unknown>;
-}
+  metadata: Record<string, unknown>}
 
 interface FraudStats {
   totalReports: number;
   pendingReports: number;
   resolvedToday: number;
   criticalAlerts: number;
-  topFraudTypes: Array<{ type: string; count: number }>;
-}
+  topFraudTypes: Array<{ type: string; count: number }>}
 
 const FraudDetectionReports: React.FC = () => {
   const [alerts, setAlerts] = useState<FraudAlert[]>([]);
@@ -45,8 +43,7 @@ const FraudDetectionReports: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'critical'>('all');
 
   useEffect(() => {
-    loadFraudData();
-  }, []);
+    loadFraudData()}, []);
 
   const loadFraudData = async (): Promise<void> => {
     try {
@@ -123,12 +120,11 @@ const FraudDetectionReports: React.FC = () => {
       };
 
       setAlerts(mockAlerts);
-      setStats(mockStats);
-    } catch (error) {
-      console.error('Error loading fraud data:', error);
-    } finally {
-      setLoading(false);
-    }
+      setStats(mockStats)} catch (error) {
+    console.error("Error:", error);
+    throw error}
+      console.error('Error loading fraud data:', error)} finally {
+      setLoading(false)}
   };
 
   const handleAlertAction = async (alertId: string, action: 'investigate' | 'resolve' | 'dismiss'): Promise<void> => {
@@ -141,10 +137,10 @@ const FraudDetectionReports: React.FC = () => {
       ));
 
       // Simulate API call
-      console.log(`Action ${action} performed on alert ${alertId}`);
-    } catch (error) {
-      console.error('Error performing alert action:', error);
-    }
+      console.log(`Action ${action} performed on alert ${alertId}`)} catch (error) {
+    console.error("Error:", error);
+    throw error}
+      console.error('Error performing alert action:', error)}
   };
 
   const getSeverityColor = (severity: FraudAlert['severity']): string => {
@@ -154,8 +150,7 @@ const FraudDetectionReports: React.FC = () => {
       high: 'bg-orange-100 text-orange-800',
       critical: 'bg-red-100 text-red-800'
     };
-    return colors[severity];
-  };
+    return colors[severity]};
 
   const getTypeIcon = (type: FraudAlert['type']) => {
     const icons = {
@@ -165,22 +160,18 @@ const FraudDetectionReports: React.FC = () => {
       payment_fraud: AlertTriangle
     };
     const IconComponent = icons[type];
-    return <IconComponent className="h-4 w-4" />;
-  };
+    return <IconComponent className="h-4 w-4" />};
 
   const filteredAlerts = alerts.filter(alert => {
     if (filter === 'pending') return alert.status === 'pending';
     if (filter === 'critical') return alert.severity === 'critical';
-    return true;
-  });
+    return true});
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+      </div>)}
 
   return (
     <div className="space-y-6">
@@ -437,8 +428,6 @@ const FraudDetectionReports: React.FC = () => {
           </Card>
         </div>
       )}
-    </div>
-  );
-};
+    </div>)};
 
 export default FraudDetectionReports;

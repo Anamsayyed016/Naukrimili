@@ -8,8 +8,7 @@ import type { JobResult, JobSearchFilters } from '@/types/jobs';
 interface DynamicJobSearchProps {
   onJobsUpdate?: (jobs: JobResult[]) => void;
   onFiltersChange?: (filters: JobSearchFilters) => void;
-  className?: string;
-}
+  className?: string}
 
 export default function DynamicJobSearch({ 
   onJobsUpdate, 
@@ -46,17 +45,14 @@ export default function DynamicJobSearch({
   // Effect to notify parent components
   useEffect(() => {
     if (onJobsUpdate) {
-      onJobsUpdate(mockJobs);
-    }
+      onJobsUpdate(mockJobs)}
     if (onFiltersChange) {
-      onFiltersChange(filters);
-    }
+      onFiltersChange(filters)}
   }, [filters, onJobsUpdate, onFiltersChange]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((key: keyof JobSearchFilters, value: string | number | boolean) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  }, []);
+    setFilters(prev => ({ ...prev, [key]: value }))}, []);
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -174,6 +170,4 @@ export default function DynamicJobSearch({
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
-}
+    </div>)}
