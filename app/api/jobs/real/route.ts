@@ -159,9 +159,8 @@ export async function GET(request: NextRequest) {
       const matchedCity = indianCities.find(city => 
         city.toLowerCase().startsWith(location.toLowerCase())
       );
-  // TODO: Complete function implementation
-}
-      normalizedLocation = matchedCity || `${location}, India`}
+      normalizedLocation = matchedCity || `${location}, India`;
+    }
 
     // Generate jobs for the location
     let jobs = generateJobsForLocation(normalizedLocation, query);
@@ -225,5 +224,6 @@ export async function GET(request: NextRequest) {
         query,
         location,
         timestamp: new Date().toISOString()
-      }})}
+      }
+})}
 }

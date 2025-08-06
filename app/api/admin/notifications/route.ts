@@ -13,8 +13,7 @@ export async function GET() {
         timestamp: new Date().toISOString(),
         read: false,
         action: 'view_system_health'
-  // TODO: Complete function implementation
-}
+  
       },
       {
         id: '2',
@@ -67,8 +66,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  // TODO: Complete function implementation
-}
+  
   const { notificationId, action } = await request.json();
   
   try {

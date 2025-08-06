@@ -80,17 +80,18 @@ export default function SystemHealthWidgets() {
     try {
       const response = await fetch('/api/admin/system/health');
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)}
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setHealthData(data);
       setError(null);
-      setLastUpdated(new Date())} catch (error) {
-    console.error("Error:", error);
-    throw error}
+      setLastUpdated(new Date());
+    } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to fetch system health');
-      console.error('Error fetching system health:', error)} finally {
-    setIsLoading(false);
-  }
+      console.error('Error fetching system health:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -112,7 +113,8 @@ export default function SystemHealthWidgets() {
         <Card className="p-4">
           <Skeleton className="h-[300px]" />
         </Card>
-      </div>)}
+      </div>
+)}
 
   if (error) {
     return (
@@ -121,7 +123,8 @@ export default function SystemHealthWidgets() {
         <AlertDescription>
           {error}
         </AlertDescription>
-      </Alert>)}
+      </Alert>
+)}
 
   if (!healthData) {
     return null}
@@ -285,4 +288,5 @@ export default function SystemHealthWidgets() {
           ))}
         </div>
       </Card>
-    </div>)}
+    </div>
+)}

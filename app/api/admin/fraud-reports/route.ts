@@ -14,8 +14,6 @@ export async function GET() {
         status: 'pending',
         timestamp: new Date().toISOString(),
         description: 'This job posting appears to be fake with unrealistic requirements and salary.'
-  // TODO: Complete function implementation
-}
       },
       {
         id: '2',
@@ -49,19 +47,22 @@ export async function GET() {
         pending: fraudReports.filter(r => r.status === 'pending').length,
         investigating: fraudReports.filter(r => r.status === 'investigating').length,
         resolved: fraudReports.filter(r => r.status === 'resolved').length
-      }})} catch (error) {
+      }
+})} catch (error) {
     console.error("Error:", error);
     throw error}
     return handleApiError(error, {
       endpoint: 'GET /api/admin/fraud-reports',
-      context: { timestamp: new Date().toISOString() }})}
+      context: { timestamp: new Date().toISOString() }
+})}
 }
 
 export async function POST() {
   return new Response(JSON.stringify({
     message: "Fraud report creation temporarily disabled"
-  // TODO: Complete function implementation
-}
+  
   }), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' }})}
+    headers: { 'Content-Type': 'application/json' }
+})}
+

@@ -51,7 +51,7 @@ class UserActivityService {
         views: 0,
         growth: deterministicGrowth,
         userRelevance: 0
-      })});
+  })});
 
     // Calculate user activity impact
     const recentInteractions = this.getRecentInteractions(7); // Last 7 days
@@ -67,13 +67,14 @@ class UserActivityService {
               if (interaction.type === 'category_view') metrics.views++;
               metrics.userRelevance += 1}
           }
-        })}
-    });
+  })}
+  });
 
     // Calculate final trending scores
     return Array.from(categoryMetrics.values()).map(metric => ({
       ...metric,
-      growth: metric.growth + (metric.userRelevance * 5), // User activity boosts growth})).sort((a, b) => b.growth - a.growth)}
+      growth: metric.growth + (metric.userRelevance * 5), // User activity boosts growth
+  })).sort((a, b) => b.growth - a.growth)}
 
   // Get personalized job recommendations
   getPersonalizedFilters() {
@@ -95,7 +96,7 @@ class UserActivityService {
           if (interaction.metadata?.filterType === 'experience') {
             experienceFreq.set(interaction.value, (experienceFreq.get(interaction.value) || 0) + 1)}
           break}
-    });
+  });
 
     return {
       preferredLocations: this.getTopEntries(locationFreq, 3),
@@ -136,7 +137,8 @@ class UserActivityService {
     return Array.from(map.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, limit);
-      .map(entry => entry[0])}
+      .map(entry => entry[0]);
+  }
 
   private extractKeywords(searchInteractions: UserInteraction[]): string[] {
     const keywords = new Map<string, number>();
@@ -146,7 +148,7 @@ class UserActivityService {
       words.forEach(word => {
         if (word.length > 2) { // Ignore short words
           keywords.set(word, (keywords.get(word) || 0) + 1)}
-      })});
+  })});
 
     return this.getTopEntries(keywords, 10)}
 
@@ -155,7 +157,8 @@ class UserActivityService {
     
     searchInteractions.forEach(interaction => {
       const hour = interaction.timestamp.getHours();
-      hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1)});
+      hourCounts.set(hour, (hourCounts.get(hour) || 0) + 1)
+  });
 
     const peakHour = this.getTopEntries(hourCounts, 1)[0];
     let peakPeriod = 'morning';
@@ -193,7 +196,7 @@ class UserActivityService {
           this.interactions = parsed.map((item: Record<string, unknown>) => ({
             ...item,
             timestamp: new Date(item.timestamp)
-          }))}
+  }))}
       } catch (error) {
     console.error("Error:", error);
     throw error}
@@ -219,7 +222,8 @@ class UserActivityService {
     const byType = new Map<string, number>();
     
     this.interactions.forEach(interaction => {
-      byType.set(interaction.type, (byType.get(interaction.type) || 0) + 1)});
+      byType.set(interaction.type, (byType.get(interaction.type) || 0) + 1)
+  });
 
     return {
       totalInteractions: total,
@@ -253,4 +257,6 @@ export function useUserActivity() {
     getTrendingCategories,
     getPersonalizedFilters,
     getSmartSuggestions,
-    getActivitySummary}}
+    getActivitySummary};
+}
+

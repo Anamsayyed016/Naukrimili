@@ -47,31 +47,36 @@ export function EmployerAnalytics() {
         const response = await fetch('/api/employer/analytics');
         if (!response.ok) {
           throw new Error('Failed to fetch analytics');
-  // TODO: Complete function implementation
-}
         }
         const analyticsData = await response.json();
-        setData(analyticsData)} catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')} finally {
-        setIsLoading(false)}
-    }
+        setData(analyticsData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     fetchAnalytics();
+    
     // Refresh every 5 minutes
     const interval = setInterval(fetchAnalytics, 300000);
-    return () => clearInterval(interval)}, []);
+    return () => clearInterval(interval);
+  }, []);
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-      </div>)}
+      </div>
+)}
 
   if (error) {
     return (
       <Alert variant="destructive">
         <AlertDescription>{error}</AlertDescription>
-      </Alert>)}
+      </Alert>
+)}
 
   if (!data) return null;
 
@@ -194,4 +199,5 @@ export function EmployerAnalytics() {
           </div>
         </Card>
       </motion.div>
-    </div>)}
+    </div>
+)}

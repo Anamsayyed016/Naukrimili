@@ -11,7 +11,8 @@ import ResumeEditor from "./ResumeEditor";
 
 export interface ResumeUploadFlowProps {
   onUploadComplete?: (data: Record<string, unknown>) => void;
-  className?: string}
+  className?: string;
+}
 
 export default function ResumeUploadFlow({ onUploadComplete, className = "" }: ResumeUploadFlowProps) {
   const [file, setFile] = useState<File | null>(null);
@@ -26,9 +27,11 @@ export default function ResumeUploadFlow({ onUploadComplete, className = "" }: R
       if (selectedFile.type === "application/pdf") {
         setFile(selectedFile);
         setError(null);
-        setUploadProgress(0)} else {
+        setUploadProgress(0);
+      } else {
         setError("Please upload a PDF file");
-        setFile(null)}
+        setFile(null);
+      }
     }
   };
 
@@ -40,7 +43,9 @@ export default function ResumeUploadFlow({ onUploadComplete, className = "" }: R
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) return prev;
-          return prev + 10})}, 200);
+          return prev + 10;
+        });
+      }, 200);
 
       await uploadResume(file);
       
@@ -49,24 +54,28 @@ export default function ResumeUploadFlow({ onUploadComplete, className = "" }: R
       setUploadProgress(100);
 
       if (onUploadComplete && aiData) {
-        onUploadComplete(aiData)}
+        onUploadComplete(aiData as any);
+      }
 
       // Show editor with parsed data
       if (aiData?.parsedResume) {
-        setShowEditor(true)}
+        setShowEditor(true);
+      }
     } catch (err) {
-      setError(uploadError || "Failed to upload resume. Please try again.")}
-  };
+      setError(uploadError || "Failed to upload resume. Please try again.");
+    }
 
   const getStatusColor = () => {
     if (error || uploadError) return "text-red-500";
     if (aiData) return "text-green-500";
-    return "text-primary"};
+    return "text-primary";
+  };
 
   const getStatusIcon = () => {
     if (error || uploadError) return <AlertCircle className="w-8 h-8 text-red-500" />;
     if (aiData) return <CheckCircle className="w-8 h-8 text-green-500" />;
-    return <Upload className="w-8 h-8 text-primary" />};
+    return <Upload className="w-8 h-8 text-primary" />;
+  };
 
   return (
     <div className={`w-full max-w-md mx-auto ${className}`}>
@@ -167,7 +176,12 @@ export default function ResumeUploadFlow({ onUploadComplete, className = "" }: R
               Back to Upload
             </Button>
           </div>
-          <ResumeEditor initialValues={aiData?.parsedResume || {}} />
+          <ResumeEditor 
+            initialValues={aiData?.parsedResume || {}} 
+            onSave={(data) => console.log('Resume saved:', data)}
+          />
         </div>
       )}
-    </div>)} 
+    </div>
+  );
+} 

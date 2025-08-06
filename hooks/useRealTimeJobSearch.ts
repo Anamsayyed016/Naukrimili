@@ -42,7 +42,7 @@ interface UseRealTimeJobSearchOptions {
 export function useRealTimeJobSearch(
   initialFilters: Partial<JobSearchFilters>,
   options: UseRealTimeJobSearchOptions = {}
-) {
+  }) {
   const {
     debounceMs = 500,
     enabled = true,
@@ -75,9 +75,11 @@ export function useRealTimeJobSearch(
   // Debounce the filters
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedFilters(filters)}, debounceMs);
+      setDebouncedFilters(filters);
+  }, debounceMs);
 
-    return () => clearTimeout(timer)}, [filters, debounceMs]);
+    return () => clearTimeout(timer);
+  }, [filters, debounceMs]);
 
   // Build search parameters
   const searchParams = useMemo(() => {
@@ -124,7 +126,8 @@ export function useRealTimeJobSearch(
     // Always include num parameter for consistency
     params.append('num', '50');
     
-    return params.toString()}, [debouncedFilters]);
+    return params.toString();
+  }, [debouncedFilters]);
 
   // Generate cache key for React Query
   const cacheKey = useMemo(() => [
@@ -146,7 +149,7 @@ export function useRealTimeJobSearch(
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         }
-      });
+  });
       
       const data = response.data;
       
@@ -170,7 +173,7 @@ export function useRealTimeJobSearch(
           skills: job.skills || [],
           benefits: job.benefits || [],
           companyLogo: job.company_logo || job.companyLogo
-        }));return jobs}
+  }));return jobs}
       
       // Fallback: Try legacy API format
       const legacyResponse = await axios.get(`/api/jobs?${searchParams}`);
@@ -194,15 +197,19 @@ export function useRealTimeJobSearch(
         skills: job.skills || [],
         benefits: job.benefits || [],
         companyLogo: job.companyLogo
-      }));return legacyJobs} catch (error) {
+  }));return legacyJobs} catch (error) {
     console.error("Error:", error);
     throw error}
       console.error('❌ Real-time search error:', error);
       // console.warn('🔄 Falling back to mock data...');
       
       // Return enhanced mock data based on filters
-      return generateMockJobs(debouncedFilters)} finally {
-      setIsSearching(false)}
+      return generateMockJobs(debouncedFilters);
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setIsSearching(false);
+    };
   }, [enabled, searchParams, debouncedFilters]);
 
   // React Query for job fetching
@@ -230,14 +237,14 @@ export function useRealTimeJobSearch(
     setFilters(prev => ({
       ...prev,
       [key]: value
-    }));
+  }));
     
     // Add to search history if it's a query update
     if (key === 'query' && typeof value === 'string' && value.trim()) {
       setSearchHistory(prev => {
         const newHistory = [value.trim(), ...prev.filter(item => item !== value.trim())];
         return newHistory.slice(0, 10); // Keep last 10 searches
-      })}
+  })};
   }, []);
 
   // Bulk update filters
@@ -245,7 +252,8 @@ export function useRealTimeJobSearch(
     setFilters(prev => ({
       ...prev,
       ...newFilters
-    }))}, []);
+  }));
+  }, []);
 
   // Reset filters
   const resetFilters = useCallback(() => {
@@ -260,14 +268,15 @@ export function useRealTimeJobSearch(
       sortBy: 'relevance',
       remote: false,
       datePosted: 'any'
-    })}, []);
+  })}, []);
 
   // Clear search
   const clearSearch = useCallback(() => {
     setFilters(prev => ({
       ...prev,
       query: ''
-    }))}, []);
+  }));
+  }, []);
 
   return {
     // Data
@@ -309,8 +318,8 @@ function generateMockJobs(filters: JobSearchFilters): Job[] {
       isUrgent: true,
       isRemote: filters.remote,
       jobType: filters.jobType || 'Full-time',
-      skills: ['React', 'Node.js', 'TypeScript'],
-    },
+      skills: ['React', 'Node.js', 'TypeScript'],;
+  },
     {
       id: 'mock-2',
       title: 'Product Manager',
@@ -322,8 +331,8 @@ function generateMockJobs(filters: JobSearchFilters): Job[] {
       redirect_url: '/jobs/mock-2',
       isRemote: filters.remote,
       jobType: filters.jobType || 'Full-time',
-      skills: ['Product Strategy', 'Analytics', 'Agile'],
-    },
+      skills: ['Product Strategy', 'Analytics', 'Agile'],;
+  },
     {
       id: 'mock-3',
       title: 'UX Designer',
@@ -335,9 +344,8 @@ function generateMockJobs(filters: JobSearchFilters): Job[] {
       redirect_url: '/jobs/mock-3',
       isRemote: filters.remote,
       jobType: filters.jobType || 'Full-time',
-      skills: ['Figma', 'User Research', 'Prototyping'],
-    }
-  ];
+      skills: ['Figma', 'User Research', 'Prototyping'],;
+  }];
 
   // Filter mock jobs based on query
   return baseMockJobs.filter(job => {;
@@ -347,4 +355,7 @@ function generateMockJobs(filters: JobSearchFilters): Job[] {
       job.title.toLowerCase().includes(query) ||
       job.company.toLowerCase().includes(query) ||
       job.description.toLowerCase().includes(query) ||
-      job.skills?.some(skill => skill.toLowerCase().includes(query)))})}
+      job.skills?.some(skill => skill.toLowerCase().includes(query)))
+  })}
+
+

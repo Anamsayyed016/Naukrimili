@@ -1,6 +1,5 @@
-import React from "react";
-﻿'use client';
-import { useEffect, useState, useCallback } from "react";
+'use client';
+import React, { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -46,14 +45,16 @@ export default function AuthGuard({
       return {
         hasAccess: false,
         reason: "Authentication required",
-        targetPath: redirectTo}}
+        targetPath: redirectTo
+}}
 
     // Loading state
     if (status === "loading") {
       return {
         hasAccess: false,
         reason: "Loading",
-        targetPath: ""}}
+        targetPath: ""
+}}
 
     // Role-based access
     if (allowedRoles.length > 0 && session?.user) {
@@ -67,7 +68,8 @@ export default function AuthGuard({
         return {
           hasAccess: false,
           reason: "Insufficient permissions",
-          targetPath: roleRedirects[userRole] || "/dashboard"}}
+          targetPath: roleRedirects[userRole] || "/dashboard"
+}}
     }
 
     // Profile completion requirement
@@ -77,7 +79,8 @@ export default function AuthGuard({
         return {
           hasAccess: false,
           reason: "Profile completion required",
-          targetPath: "/profile-setup"}}
+          targetPath: "/profile-setup"
+}}
     }
 
     return { hasAccess: true, reason: "", targetPath: "" }}, [status, session?.user?.role, allowedRoles, requireProfileCompletion, useBiometric, redirectTo]);
@@ -127,7 +130,8 @@ export default function AuthGuard({
           <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" />
           <p className="text-lg font-medium">{redirectState.reason || "Loading..."}</p>
         </motion.div>
-      </div>)}
+      </div>
+)}
 
   // Access denied state
   if (accessDenied) {
@@ -142,7 +146,8 @@ export default function AuthGuard({
           <h2 className="text-xl font-bold mb-2">Access Denied</h2>
           <p className="text-gray-300">{redirectState.reason}</p>
         </motion.div>
-      </div>)}
+      </div>
+)}
 
   // Render children if all checks pass
   return <>{children}</>} 
