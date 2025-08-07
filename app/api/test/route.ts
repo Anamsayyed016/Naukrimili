@@ -1,19 +1,23 @@
-import { handleApiError } from '@/lib/error-handler';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
-  try {
-    return Response.json({
-      success: true,
-      message: 'Test API endpoint is working correctly',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development',
-      version: '1.0.0';
-  // TODO: Complete function implementation
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ 
+    success: true, 
+    message: 'API endpoint working' 
+  });
 }
-    })} catch (error) {
-    console.error("Error:", error);
-    throw error}
-    return handleApiError(error, {
-      endpoint: 'GET /api/test',
-      context: { timestamp: new Date().toISOString() }})}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    return NextResponse.json({ 
+      success: true, 
+      data: body 
+    });
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Invalid request' 
+    }, { status: 400 });
+  }
 }

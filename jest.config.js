@@ -1,1 +1,34 @@
-const nextJest = require('next/jest');\n\nconst createJestConfig = nextJest({\n  // Provide the path to your Next.js app to load next.config.js and .env files\n  dir: './',\n});\n\n// Add any custom config to be passed to Jest\nconst customJestConfig = {\n  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],\n  testEnvironment: 'jest-environment-jsdom',\n  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],\n  moduleNameMapping: {\n    '^@/(.*)$': '<rootDir>/$1',\n  },\n  collectCoverageFrom: [\n    'app/**/*.{js,jsx,ts,tsx}',\n    'components/**/*.{js,jsx,ts,tsx}',\n    'lib/**/*.{js,jsx,ts,tsx}',\n    'hooks/**/*.{js,jsx,ts,tsx}',\n    '!**/*.d.ts',\n    '!**/node_modules/**',\n    '!**/.next/**',\n  ],\n  coverageThreshold: {\n    global: {\n      branches: 70,\n      functions: 70,\n      lines: 70,\n      statements: 70,\n    },\n  },\n  testMatch: [\n    '<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}',\n    '<rootDir>/**/*.{test,spec}.{js,jsx,ts,tsx}',\n  ],\n  transform: {\n    '^.+\\\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],\n  },\n  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],\n  testTimeout: 10000,\n};\n\n// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async\nmodule.exports = createJestConfig(customJestConfig);
+const nextJest = require('next/jest');\n\nconst createJestConfig = nextJest({
+  \n  // Provide the path to your Next.js app to load next.config.js and .env files\n  dir: './',\n
+}
+  });\n\n// Add any custom config to be passed to Jest\nconst customJestConfig = {
+  \n  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],\n  testEnvironment: 'jest-environment-jsdom',\n  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],\n  moduleNameMapping: {\n    '^@/(.*)$': '<rootDir>/$1',\n  
+}
+  },\n  collectCoverageFrom: [\n    'app/**/*.{
+  js,jsx,ts,tsx
+}
+  }',\n    'components/**/*.{
+  js,jsx,ts,tsx
+}
+  }',\n    'lib/**/*.{
+  js,jsx,ts,tsx
+}
+  }',\n    'hooks/**/*.{
+  js,jsx,ts,tsx
+}
+  }',\n    '!**/*.d.ts',\n    '!**/node_modules/**',\n    '!**/.next/**',\n  ],\n  coverageThreshold: {
+  \n    global: {\n      branches: 70,\n      functions: 70,\n      lines: 70,\n      statements: 70,\n    
+}
+  },\n  },\n  testMatch: [\n    '<rootDir>/**/__tests__/**/*.{
+  js,jsx,ts,tsx
+}
+  }',\n    '<rootDir>/**/*.{
+  test,spec
+}
+  }.{
+  js,jsx,ts,tsx
+}
+  }',\n  ],\n  transform: {
+  \n    '^.+\\\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] 
+}
+  }],\n  },\n  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],\n  testTimeout: 10000,\n};\n\n// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async\nmodule.exports = createJestConfig(customJestConfig);

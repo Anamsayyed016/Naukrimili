@@ -1,34 +1,23 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// Simple mock response for deployment
-export async function GET() {
-  return new Response(JSON.stringify({ 
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    skills: ['JavaScript', 'React', 'Node.js'],
-    experience: 5,
-    education: "Bachelor's in Computer Science"
-  // TODO: Complete function implementation
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ 
+    success: true, 
+    message: 'API endpoint working' 
+  });
 }
-  }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }})}
 
-// Temporarily disabled for deployment
-export async function PUT() {
-  // TODO: Complete function implementation
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    return NextResponse.json({ 
+      success: true, 
+      data: body 
+    });
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Invalid request' 
+    }, { status: 400 });
+  }
 }
-  return new Response(JSON.stringify({ message: 'Update functionality temporarily disabled' }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }})}
-
-// Temporarily disabled for deployment
-export async function DELETE() {
-  // TODO: Complete function implementation
-}
-  return new Response(JSON.stringify({ message: 'Delete functionality temporarily disabled' }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }})}
-
-

@@ -1,77 +1,56 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-// Enhanced user interface for session
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      role: 'jobseeker' | 'employer' | 'recruiter' | 'admin';
-      profileCompletion: number;
-      createdAt?: Date;
-      updatedAt?: Date}}
+      email: string;
+      name: string;
+      role: string;
+    };
+  }
 
   interface User {
     id: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-    role: 'jobseeker' | 'employer' | 'recruiter' | 'admin';
-    profileCompletion: number;
-    createdAt?: Date;
-    updatedAt?: Date}
+    email: string;
+    name: string;
+    role: string;
+  }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    id: string;
-    role: 'jobseeker' | 'employer' | 'recruiter' | 'admin';
-    profileCompletion: number;
-    createdAt?: Date;
-    updatedAt?: Date}
+    role: string;
+  }
 }
 
 // Mock user database - replace with actual database
-const mockUsers = [
+const users = [
   {
     id: '1',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    password: 'password123', // In real app, this would be hashed
-    role: 'jobseeker' as const,
-    profileCompletion: 85,
-    image: null,
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2025-08-01')
+    email: 'admin@jobportal.com',
+    password: 'admin123',
+    name: 'Admin User',
+    role: 'admin'
   },
   {
     id: '2',
-    name: 'Sarah Johnson',
-    email: 'sarah.johnson@techcorp.com',
-    password: 'recruiter123',
-    role: 'recruiter' as const,
-    profileCompletion: 100,
-    image: '/avatars/recruiter1.jpg',
-    createdAt: new Date('2024-02-20'),
-    updatedAt: new Date('2025-07-30')
+    email: 'jobseeker@example.com',
+    password: 'password123',
+    name: 'John Doe',
+    role: 'jobseeker'
   },
   {
     id: '3',
-    name: 'Mike Chen',
-    email: 'mike.chen@startup.io',
-    password: 'employer123',
-    role: 'employer' as const,
-    profileCompletion: 90,
-    image: '/avatars/employer1.jpg',
-    createdAt: new Date('2024-03-10'),
-    updatedAt: new Date('2025-07-28')
+    email: 'employer@example.com',
+    password: 'password123',
+    name: 'Jane Smith',
+    role: 'employer'
   }
 ];
 
-export const authOptions: NextAuthOptions = {
+export const authConfig: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -81,55 +60,47 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null}
+          return null;
+        }
 
-        // Find user in mock database
-        const user = mockUsers.find(u => u.email === credentials.email);
-        
-        if (!user) {
-          return null}
+        const user = users.find(
+          u => u.email === credentials.email && u.password === credentials.password
+        );
 
-        // In a real app, verify hashed password
-        if (user.password !== credentials.password) {
-          return null}
+        if (user) {
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          };
+        }
 
-        // Return user object (excluding password)
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-          role: user.role,
-          profileCompletion: user.profileCompletion,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt}}
+        return null;
+      }
     })
   ],
-  pages: {
-    signIn: '/auth/login',
-    error: '/auth/error'
-  },
   callbacks: {
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.profileCompletion = token.profileCompletion;
-        session.user.createdAt = token.createdAt;
-        session.user.updatedAt = token.updatedAt}
-      return session},
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
         token.role = user.role;
-        token.profileCompletion = user.profileCompletion;
-        token.createdAt = user.createdAt;
-        token.updatedAt = user.updatedAt}
-      return token}
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.sub!;
+        session.user.role = token.role;
+      }
+      return session;
+    }
+  },
+  pages: {
+    signIn: '/auth/login',
+    signUp: '/auth/register'
   },
   session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60 // 30 days
+    strategy: 'jwt'
   },
-  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development-only'
+  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key'
 };

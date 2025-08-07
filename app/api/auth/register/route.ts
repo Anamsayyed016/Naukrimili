@@ -1,32 +1,77 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Mock user database (in a real app, this would be a proper database)
+const users = new Map();
+
 export async function POST(request: NextRequest) {
   try {
-  // TODO: Complete function implementation
-}
-    const { name, email, password, role } = await request.json();
+    const { name, email, password, confirmPassword, phone, location } = await request.json();
 
-    // Mock user registration
-    const user = {
-      id: Date.now().toString(),
+    // Validation
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { success: false, error: 'Name, email, and password are required' },
+        { status: 400 }
+      );
+    }
+
+    if (password !== confirmPassword) {
+      return NextResponse.json(
+        { success: false, error: 'Passwords do not match' },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json(
+        { success: false, error: 'Password must be at least 6 characters long' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already exists
+    for (const userData of users.values()) {
+      if (userData.email === email) {
+        return NextResponse.json(
+          { success: false, error: 'User with this email already exists' },
+          { status: 409 }
+        );
+      }
+    }
+
+    // Create new user
+    const userId = `user_${Date.now()}`;
+    const newUser = {
       name,
       email,
-      role,
-      createdAt: new Date().toISOString()
+      password, // In real app, hash this with bcrypt
+      phone: phone || '',
+      location: location || '',
+      role: 'jobseeker',
+      bio: '',
+      experience: '',
+      skills: [],
+      joinedAt: new Date().toISOString(),
+      resume: null
     };
+
+    users.set(userId, newUser);
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = newUser;
 
     return NextResponse.json({
       success: true,
-      message: 'User registered successfully',
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }})} catch (error) {
-    console.error("Error:", error);
-    throw error}
+      message: 'Registration successful',
+      user: { id: userId, ...userWithoutPassword },
+      token: `mock_token_${userId}` // In a real app, use JWT
+    });
+
+  } catch (error) {
+    console.error('Registration error:', error);
     return NextResponse.json(
-      { success: false, message: 'Registration failed' },
-      { status: 500 })}
+      { success: false, error: 'Registration failed' },
+      { status: 500 }
+    );
+  }
 }

@@ -1,6 +1,10 @@
-import { Document, Schema } from 'mongoose';
+import {
+  Document, Schema
+}
+} from 'mongoose';
 
 export interface IUser extends Document {
+  ;
   email: string;
   password: string;
   name: string;
@@ -17,9 +21,11 @@ export interface IUser extends Document {
   socialProfiles?: {
     linkedin?: string;
     github?: string;
-    twitter?: string}}
-
+}
+    twitter?: string}
+}
 export interface ICompany extends Document {
+  ;
   name: string;
   description: string;
   logo?: string;
@@ -33,11 +39,13 @@ export interface ICompany extends Document {
   socialMedia?: {
     linkedin?: string;
     twitter?: string;
-    facebook?: string};
+    facebook?: string;
+}
+}
   createdAt: Date;
   updatedAt: Date}
-
 export interface IJob extends Document {
+  ;
   title: string;
   company: Schema.Types.ObjectId;
   location: string;
@@ -49,7 +57,9 @@ export interface IJob extends Document {
     min: number;
     max: number;
     currency: string;
-    period: string};
+    period: string
+}
+}
   skills: string[];
   experience: string;
   education?: string;
@@ -62,8 +72,8 @@ export interface IJob extends Document {
   views: number;
   createdAt: Date;
   updatedAt: Date}
-
 export interface IApplication extends Document {
+  ;
   job: Schema.Types.ObjectId;
   applicant: Schema.Types.ObjectId;
   resume: string;
@@ -76,9 +86,11 @@ export interface IApplication extends Document {
   interviewDate?: Date;
   additionalDocuments?: {
     name: string;
-    url: string}[]}
-
+    url: string
+}
+}[]}
 export interface IResume extends Document {
+  ;
   userId: Schema.Types.ObjectId;
   url: string;
   filename: string;
@@ -91,13 +103,18 @@ export interface IResume extends Document {
       title: string;
       company: string;
       duration: string;
-      description: string}[];
+      description: string
+}
+}[];
     education: {
+  ;
       degree: string;
       institution: string;
-      year: string}[]}}
-
+      year: string
+}
+}[]}}
 export interface INotification extends Document {
+  ;
   recipient: Schema.Types.ObjectId;
   type: 'application' | 'interview' | 'message' | 'system';
   title: string;
@@ -105,9 +122,11 @@ export interface INotification extends Document {
   read: boolean;
   link?: string;
   createdAt: Date;
-  expiresAt?: Date}
-
+  expiresAt?: Date;
+}
+}
 export interface IMessage extends Document {
+  ;
   sender: Schema.Types.ObjectId;
   recipient: Schema.Types.ObjectId;
   subject: string;
@@ -115,11 +134,13 @@ export interface IMessage extends Document {
   read: boolean;
   attachments?: {
     name: string;
-    url: string}[];
+    url: string
+}
+}[];
   createdAt: Date;
   thread?: Schema.Types.ObjectId}
-
 export interface IJobAlert extends Document {
+  ;
   user: Schema.Types.ObjectId;
   keywords: string[];
   location?: string;
@@ -127,7 +148,9 @@ export interface IJobAlert extends Document {
   salary?: {
     min?: number;
     max?: number;
-    currency: string};
+    currency: string
+}
+}
   frequency: 'daily' | 'weekly' | 'monthly';
   status: 'active' | 'paused';
   lastSent?: Date;

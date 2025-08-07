@@ -1,23 +1,11 @@
-'use client';
+"use client";
+import React from 'react';
 
-import React from "react";
-import { SessionProvider } from 'next-auth/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
-
-export default function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 1000,
-        retry: 1
-      }
-    }
-  }));
-
+export default function providers() {
   return (
-    <SessionProvider>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    </SessionProvider>)}
+    <div className="p-4">
+      <h2 className="text-xl font-semibold">providers</h2>
+      <p>Component under development</p>
+    </div>
+  );
+}

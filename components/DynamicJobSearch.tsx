@@ -8,12 +8,13 @@ import type { JobResult, JobSearchFilters } from '@/types/jobs';
 interface DynamicJobSearchProps {
   onJobsUpdate?: (jobs: JobResult[]) => void;
   onFiltersChange?: (filters: JobSearchFilters) => void;
-  className?: string}
+  className?: string;
+}
 
-export default function DynamicJobSearch({ 
-  onJobsUpdate, 
-  onFiltersChange, 
-  className = '' 
+export default function DynamicJobSearch({
+  onJobsUpdate,
+  onFiltersChange,
+  className = ''
 }: DynamicJobSearchProps) {
   // Search state
   const [filters, setFilters] = useState<JobSearchFilters>({
@@ -45,14 +46,17 @@ export default function DynamicJobSearch({
   // Effect to notify parent components
   useEffect(() => {
     if (onJobsUpdate) {
-      onJobsUpdate(mockJobs)}
+      onJobsUpdate(mockJobs);
+    }
     if (onFiltersChange) {
-      onFiltersChange(filters)}
+      onFiltersChange(filters);
+    }
   }, [filters, onJobsUpdate, onFiltersChange]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((key: keyof JobSearchFilters, value: string | number | boolean) => {
-    setFilters(prev => ({ ...prev, [key]: value }))}, []);
+    setFilters(prev => ({ ...prev, [key]: value }));
+  }, []);
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -79,7 +83,6 @@ export default function DynamicJobSearch({
       <Card className="shadow-2xl border-2 border-gray-100 dark:border-gray-700">
         <CardContent className="p-8">
           <div className="space-y-6">
-            
             {/* Search Input Row */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* Job Search Input */}
@@ -112,9 +115,7 @@ export default function DynamicJobSearch({
 
               {/* Search Button */}
               <div className="lg:col-span-3">
-                <button 
-                  className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all transform hover:scale-105 shadow-lg"
-                >
+                <button className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all transform hover:scale-105 shadow-lg">
                   <div className="flex items-center justify-center space-x-2">
                     <MagnifyingGlassIcon className="h-5 w-5" />
                     <span>Search Jobs</span>
@@ -170,4 +171,6 @@ export default function DynamicJobSearch({
           </div>
         </CardContent>
       </Card>
-    </div>)}
+    </div>
+  );
+}

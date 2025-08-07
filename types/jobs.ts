@@ -11,8 +11,10 @@ export interface JobResult {
   job_type?: string;
   skills?: string[];
   experience_level?: string;
-  sector?: string}
-
+  sector?: string;
+}
+}
+}
 export interface JobSearchFilters {
   query: string;
   location: string;
@@ -21,8 +23,10 @@ export interface JobSearchFilters {
   job_type?: string;
   experience_level?: string;
   remote_only?: boolean;
-  sector?: string}
-
+  sector?: string;
+}
+}
+}
 export interface JobSearchResponse {
   jobs: JobResult[];
   total: number;
@@ -32,4 +36,7 @@ export interface JobSearchResponse {
   has_google_fallback?: boolean;
   google_fallback_urls?: string[];
   search_time_ms?: number;
-  message?: string}
+  message?: string;
+}
+}
+}

@@ -1,9 +1,8 @@
-"use client";
-import CompanyView from "@/components/dashboard/CompanyView";
-import AuthGuard from "@/components/auth/AuthGuard";
-
-export default function CompanyDashboardPage() {
+export default function DashboardPage() {
   return (
-    <AuthGuard allowedRoles={['employer']}>
-      <CompanyView />
-    </AuthGuard>)} 
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <p className="text-gray-600">This page is under development.</p>
+    </div>
+  );
+}

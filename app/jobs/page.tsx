@@ -1,6 +1,6 @@
 ﻿'use client';
-import UnifiedJobPortal from "@/components/UnifiedJobPortal";
+import IndianJobPortal from "@/components/IndianJobPortal";
 
 export default function JobsPage() {
-  return <UnifiedJobPortal />}
-
+  return <IndianJobPortal />
+}

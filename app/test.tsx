@@ -1,8 +1,11 @@
-export default function TestPage() {
+"use client";
+import React from 'react';
+
+export default function test() {
   return (
-    <div>
-      <h1>Test Page</h1>
-      <p>This is a test</p>
+    <div className="p-4">
+      <h2 className="text-xl font-semibold">test</h2>
+      <p>Component under development</p>
     </div>
-  )
-} ;
+  );
+}

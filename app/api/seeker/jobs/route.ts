@@ -1,38 +1,23 @@
-export async function GET() {
-  return new Response(JSON.stringify({
-    jobs: [
-      {
-        id: "1",
-        title: "Software Engineer",
-        company: "Tech Corp",
-        location: "Remote",
-        salary: "100,000 - 150,000",
-        description: "Looking for an experienced software engineer...",
-        requirements: ["JavaScript", "React", "Node.js"],
-        postedDate: "2025-07-20T00:00:00Z"
-  // TODO: Complete function implementation
-}
-      },
-      {
-        id: "2",
-        title: "Product Manager",
-        company: "Product Co",
-        location: "New York",
-        salary: "120,000 - 180,000",
-        description: "Join our product team...",
-        requirements: ["Product Management", "Agile", "MBA"],
-        postedDate: "2025-07-21T00:00:00Z"
-      }
-    ]
-  }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }})}
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST() {
-  return new Response(JSON.stringify({
-    message: "Job application functionality temporarily disabled"
-  // TODO: Complete function implementation
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ 
+    success: true, 
+    message: 'API endpoint working' 
+  });
 }
-  }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }})}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    return NextResponse.json({ 
+      success: true, 
+      data: body 
+    });
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Invalid request' 
+    }, { status: 400 });
+  }
+}

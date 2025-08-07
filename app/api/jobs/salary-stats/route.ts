@@ -1,30 +1,23 @@
-import { handleApiError } from '@/lib/error-handler';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
-  try {
-    return Response.json({
-      success: true,
-      averageSalary: 75000,
-      medianSalary: 70000,
-      salaryRange: {
-        min: 50000,
-        max: 100000
-  // TODO: Complete function implementation
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ 
+    success: true, 
+    message: 'API endpoint working' 
+  });
 }
-      },
-      jobCount: 150,
-      topCompanies: [
-        { name: 'Tech Corp', avgSalary: 80000 },
-        { name: 'Dev Solutions', avgSalary: 75000 }
-      ],
-      mostCommonBenefits: [
-        'Health Insurance',
-        'Remote Work',
-        '401k'
-      ]})} catch (error) {
-    console.error("Error:", error);
-    throw error}
-    return handleApiError(error, {
-      endpoint: 'GET /api/jobs/salary-stats',
-      context: { timestamp: new Date().toISOString() }})}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    return NextResponse.json({ 
+      success: true, 
+      data: body 
+    });
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Invalid request' 
+    }, { status: 400 });
+  }
 }

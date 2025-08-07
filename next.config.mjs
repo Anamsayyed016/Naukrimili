@@ -1,57 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'export',  // Keep disabled for server-side API routes
-  trailingSlash: true,
-  poweredByHeader: false,
-  reactStrictMode: true,
-  compress: true,
-  
-  // Ensure dynamic routes work properly
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
-  
-  images: {
-    unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'logo.clearbit.com',
-        pathname: '/**',
-      },
-    ],
-  },
-  
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  
+  reactStrictMode: false,
+  experimental: {},
   typescript: {
     ignoreBuildErrors: true,
   },
-  
-  webpack: (config, { dev, isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-        crypto: false,
-      };
-    }
-    return config;
+  eslint: {
+    ignoreDuringBuilds: true,
   },
-  
-  serverExternalPackages: ['mongoose'],
-  
-  experimental: {
-    typedRoutes: true,
+  images: {
+    unoptimized: true,
   },
-  
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
-}
+  output: 'standalone',
+};
 
 export default nextConfig;

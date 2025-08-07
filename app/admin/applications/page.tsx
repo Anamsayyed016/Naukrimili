@@ -1,9 +1,8 @@
-import ApplicationAdminPanel from '@/components/ApplicationAdminPanel';
-
-export default function AdminApplicationsPage() {
+export default function ApplicationsPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-10">
-      <ApplicationAdminPanel />
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Applications</h1>
+      <p className="text-gray-600">This page is under development.</p>
     </div>
-
-  )}
+  );
+}

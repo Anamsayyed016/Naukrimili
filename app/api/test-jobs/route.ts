@@ -1,35 +1,23 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  try {return Response.json({
-      success: true,
-      message: 'Test API endpoint working',
-      timestamp: new Date().toISOString(),
-      jobs: [
-        {
-          id: 'test-1',
-          title: 'Test Job 1',
-          company: 'Test Company',
-          location: 'Test Location',
-          description: 'This is a test job',
-          salaryFormatted: '₹10-15 LPA',
-          timeAgo: '1 day ago',
-          redirect_url: '/jobs/test-1',
-          isUrgent: false,
-          isRemote: false,
-          jobType: 'Full-time'
-  // TODO: Complete function implementation
+  return NextResponse.json({ 
+    success: true, 
+    message: 'API endpoint working' 
+  });
 }
-        }
-      ]})} catch (error) {
-    console.error("Error:", error);
-    throw error}
-    console.error('❌ TEST API Error:', error);
-    return Response.json(
-      { 
-        success: false, 
-        error: 'Test API failed',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }, 
-      { status: 500 })}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    return NextResponse.json({ 
+      success: true, 
+      data: body 
+    });
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Invalid request' 
+    }, { status: 400 });
+  }
 }

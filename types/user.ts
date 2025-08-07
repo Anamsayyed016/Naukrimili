@@ -9,37 +9,56 @@ export interface User {
     location?: {
       city: string;
       state?: string;
-      country: string};
+      country: string
+}
+}}}
+}
     title?: string;
     bio?: string;
     company?: {
+  ;
       id: string;
       name: string;
-      role: string};
+      role: string
+}
+}
     website?: string;
     social?: {
+  ;
       linkedin?: string;
       twitter?: string;
-      github?: string}};
+}
+      github?: string}
+}
   preferences: {
+  ;
     notifications: {
       email: boolean;
       push: boolean;
       sms: boolean;
-      frequency: 'immediate' | 'daily' | 'weekly'};
+      frequency: 'immediate' | 'daily' | 'weekly'
+}
+}
     privacy: {
+  ;
       profileVisibility: 'public' | 'private' | 'connections';
       resumeVisibility: 'public' | 'private' | 'recruiters';
-      contactPermissions: string[]};
+      contactPermissions: string[];
+}
+}
     jobPreferences?: {
+  ;
       roles: string[];
       locations: string[];
       salary?: {
         minimum: number;
-        currency: string};
+        currency: string
+}
+}
       remoteOnly: boolean;
-      employmentTypes: string[]}};
+      employmentTypes: string[];}}
   account: {
+  ;
     status: 'active' | 'inactive' | 'suspended' | 'deleted';
     emailVerified: boolean;
     phoneVerified: boolean;
@@ -49,15 +68,23 @@ export interface User {
     completionStatus: {
       profile: number;
       resume?: number;
-      verification: number}};
+}
+      verification: number}
+}
   security?: {
+  ;
     mfaEnabled: boolean;
     passwordLastChanged?: string;
     loginAttempts: number;
-    lastPasswordReset?: string};
+    lastPasswordReset?: string;
+}
+}
   subscription?: {
+  ;
     plan: 'free' | 'basic' | 'premium' | 'enterprise';
     status: 'active' | 'canceled' | 'expired';
     startDate: string;
     endDate?: string;
-    features: string[]}}
+}
+    features: string[];}
+}

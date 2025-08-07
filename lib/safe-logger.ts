@@ -1,65 +1,59 @@
-interface LogContext {
-  message?: string;
-  code?: string;
-  time?: string;
-  [key: string]: Record<string, unknown>}
+export interface LogContext {
+  userId?: string;
+  requestId?: string;
+  [key: string]: any
+}
+}
+}
+export class SafeLogger {
+  ;
+  private isDevelopment = process.env.NODE_ENV === 'development';
 
-function truncateString(str: string, maxLength = 1000): string {
-  if (!str || str.length <= maxLength) return str;
-  return str.substring(0, maxLength) + '...'}
-
-function sanitizeValue(value: Record<string, unknown>, depth = 0): Record<string, unknown> {
-  if (depth > 2) return '[Nested Object]';
-  
-  if (Array.isArray(value)) {
-    return value.length > 10 ? 
-      `[Array(${value.length})]` : ;
-      value.map(v => sanitizeValue(v, depth + 1))}
-  
-  if (value instanceof Error) {
-    return {
-      name: value.name,
-      message: value.message,
-      stack: truncateString(value.stack || '')}}
-  
-  if (typeof value === 'object' && value !== null) {
-    const sanitized: Record<string, any> = {};
-    for (const key in value) {
-      if (Object.prototype.hasOwnProperty.call(value, key)) {
-        sanitized[key] = sanitizeValue(value[key], depth + 1)}
-    }
-    return sanitized}
-  
-  if (typeof value === 'string') {
-    return truncateString(value)}
-  
-  return value}
-
-export const safeLogger = {
-  warn(message: string, context?: LogContext) {
+  info(message: string, context?: LogContext): void {
     try {
-      const sanitizedContext = context ? sanitizeValue(context) : undefined;
-      // console.warn(message, sanitizedContext)} catch (error) {
-    console.error("Error:", error);
-    throw error}
-      // console.warn('Logging failed:', error instanceof Error ? error.message : 'Unknown error')}
-  },
-  
-  error(message: string, context?: LogContext) {
-    try {
-      const sanitizedContext = context ? sanitizeValue(context) : undefined;
-      console.error(message, sanitizedContext)} catch (error) {
-    console.error("Error:", error);
-    throw error}
-      console.error('Logging failed:', error instanceof Error ? error.message : 'Unknown error')}
-  },
-  
-  info(message: string, context?: LogContext) {
-    try {
-      const sanitizedContext = context ? sanitizeValue(context) : undefined;
-      console.info(message, sanitizedContext)} catch (error) {
-    console.error("Error:", error);
-    throw error}
-      console.info('Logging failed:', error instanceof Error ? error.message : 'Unknown error')}
+      if (this.isDevelopment) {;
+}
+        console.log(`[INFO] ${message}`, context || {});
+  } catch (error) {
+  ;
+      console.error('Logger error:', error);
+}
   }
-};
+}
+  error(message: string, error?: Error, context?: LogContext): void {
+  ;
+    try {
+}
+      console.error(`[ERROR] ${message}`, { error, ...context });
+  } catch (logError) {
+  ;
+      console.error('Logger error:', logError);
+}
+  }
+}
+  warn(message: string, context?: LogContext): void {
+  ;
+    try {
+      if (this.isDevelopment) {
+}
+        console.warn(`[WARN] ${message}`, context || {});
+  } catch (error) {
+  ;
+      console.error('Logger error:', error);
+}
+  }
+}
+  debug(message: string, context?: LogContext): void {
+  ;
+    try {
+      if (this.isDevelopment) {
+}
+        console.debug(`[DEBUG] ${message}`, context || {});
+  } catch (error) {
+  ;
+      console.error('Logger error:', error);
+}
+  }
+}
+}
+export const safeLogger = new SafeLogger();

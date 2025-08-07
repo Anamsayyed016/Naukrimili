@@ -1,1 +1,56 @@
-import '@testing-library/jest-dom';\n\n// Mock Next.js router\njest.mock('next/router', () => ({\n  useRouter() {\n    return {\n      route: '/',\n      pathname: '/',\n      query: {},\n      asPath: '/',\n      push: jest.fn(),\n      pop: jest.fn(),\n      reload: jest.fn(),\n      back: jest.fn(),\n      prefetch: jest.fn().mockResolvedValue(undefined),\n      beforePopState: jest.fn(),\n      events: {\n        on: jest.fn(),\n        off: jest.fn(),\n        emit: jest.fn(),\n      },\n    };\n  },\n}));\n\n// Mock Next.js navigation\njest.mock('next/navigation', () => ({\n  useRouter() {\n    return {\n      push: jest.fn(),\n      replace: jest.fn(),\n      prefetch: jest.fn(),\n      back: jest.fn(),\n      forward: jest.fn(),\n      refresh: jest.fn(),\n    };\n  },\n  useSearchParams() {\n    return new URLSearchParams();\n  },\n  usePathname() {\n    return '/';\n  },\n}));\n\n// Mock NextAuth\njest.mock('next-auth/react', () => ({\n  useSession: jest.fn(() => ({\n    data: null,\n    status: 'unauthenticated',\n  })),\n  signIn: jest.fn(),\n  signOut: jest.fn(),\n  SessionProvider: ({ children }) => children,\n}));\n\n// Mock environment variables\nprocess.env.NEXTAUTH_SECRET = 'test-secret';\nprocess.env.NEXTAUTH_URL = 'http://localhost:3000';\nprocess.env.MONGODB_URI = 'mongodb://localhost:27017/test';\nprocess.env.NODE_ENV = 'test';\n\n// Global test utilities\nglobal.fetch = jest.fn();\n\n// Mock console methods in tests\nglobal.console = {\n  ...console,\n  log: jest.fn(),\n  warn: jest.fn(),\n  error: jest.fn(),\n};\n\n// Mock window.matchMedia\nObject.defineProperty(window, 'matchMedia', {\n  writable: true,\n  value: jest.fn().mockImplementation(query => ({\n    matches: false,\n    media: query,\n    onchange: null,\n    addListener: jest.fn(), // deprecated\n    removeListener: jest.fn(), // deprecated\n    addEventListener: jest.fn(),\n    removeEventListener: jest.fn(),\n    dispatchEvent: jest.fn(),\n  })),\n});\n\n// Mock IntersectionObserver\nglobal.IntersectionObserver = class IntersectionObserver {\n  constructor() {}\n  observe() {\n    return null;\n  }\n  disconnect() {\n    return null;\n  }\n  unobserve() {\n    return null;\n  }\n};\n\n// Mock ResizeObserver\nglobal.ResizeObserver = class ResizeObserver {\n  constructor() {}\n  observe() {\n    return null;\n  }\n  disconnect() {\n    return null;\n  }\n  unobserve() {\n    return null;\n  }\n};\n\n// Setup cleanup after each test\nafterEach(() => {\n  jest.clearAllMocks();\n});
+import '@testing-library/jest-dom';\n\n// Mock Next.js router\njest.mock('next/router', () => ({
+  \n  useRouter() {\n    return {\n      route: '/',\n      pathname: '/',\n      query: {
+  
+}
+  },\n      asPath: '/',\n      push: jest.fn(),\n      pop: jest.fn(),\n      reload: jest.fn(),\n      back: jest.fn(),\n      prefetch: jest.fn().mockResolvedValue(undefined),\n      beforePopState: jest.fn(),\n      events: {
+  \n        on: jest.fn(),\n        off: jest.fn(),\n        emit: jest.fn(),\n
+}
+},\n    };\n  },\n}));\n\n// Mock Next.js navigation\njest.mock('next/navigation', () => ({
+  \n  useRouter() {\n    return {\n      push: jest.fn(),\n      replace: jest.fn(),\n      prefetch: jest.fn(),\n      back: jest.fn(),\n      forward: jest.fn(),\n      refresh: jest.fn(),\n    
+}
+  };\n  },\n  useSearchParams() {
+  \n    return new URLSearchParams();\n  
+}
+  },\n  usePathname() {
+  \n    return '/';\n  
+}
+  },\n}));\n\n// Mock NextAuth\njest.mock('next-auth/react', () => ({
+  \n  useSession: jest.fn(() => ({\n    data: null,\n    status: 'unauthenticated',\n  
+}
+  })),\n  signIn: jest.fn(),\n  signOut: jest.fn(),\n  SessionProvider: ({
+  children
+}
+}) => children,\n}));\n\n// Mock environment variables\nprocess.env.NEXTAUTH_SECRET = 'test-secret';\nprocess.env.NEXTAUTH_URL = 'http://localhost:3000';\nprocess.env.MONGODB_URI = 'mongodb://localhost:27017/test';\nprocess.env.NODE_ENV = 'test';\n\n// Global test utilities\nglobal.fetch = jest.fn();\n\n// Mock console methods in tests\nglobal.console = {
+  \n  ...console,\n  log: jest.fn(),\n  warn: jest.fn(),\n  error: jest.fn(),\n
+}
+  };\n\n// Mock window.matchMedia\nObject.defineProperty(window, 'matchMedia', {
+  \n  writable: true,\n  value: jest.fn().mockImplementation(query => ({\n    matches: false,\n    media: query,\n    onchange: null,\n    addListener: jest.fn(), // deprecated\n    removeListener: jest.fn(), // deprecated\n    addEventListener: jest.fn(),\n    removeEventListener: jest.fn(),\n    dispatchEvent: jest.fn(),\n  
+}
+  })),\n});\n\n// Mock IntersectionObserver\nglobal.IntersectionObserver = class IntersectionObserver {
+  \n  constructor() {
+}
+  }\n  observe() {
+  \n    return null;\n  
+}
+  }\n  disconnect() {
+  \n    return null;\n  
+}
+  }\n  unobserve() {
+  \n    return null;\n  
+}
+  }\n};\n\n// Mock ResizeObserver\nglobal.ResizeObserver = class ResizeObserver {
+  \n  constructor() {
+}
+  }\n  observe() {
+  \n    return null;\n  
+}
+  }\n  disconnect() {
+  \n    return null;\n  
+}
+  }\n  unobserve() {
+  \n    return null;\n  
+}
+  }\n};\n\n// Setup cleanup after each test\nafterEach(() => {
+  \n  jest.clearAllMocks();\n
+}
+  });
