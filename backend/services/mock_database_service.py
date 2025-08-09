@@ -99,25 +99,28 @@ class MockDatabaseService:
 
 # Function to create appropriate database service
 def create_database_service(db_type: str = "mysql") -> Any:
-    """Factory function to create database service"""
+    """Factory function to create database service.
+    Returns a real DatabaseService only for supported types (mysql, mongodb) when
+    corresponding drivers are installed; otherwise returns MockDatabaseService.
+    """
+    normalized = (db_type or "").lower()
+    if normalized not in ("mysql", "mongodb"):
+        logger.info(f"🔧 Using mock database service (type '{db_type}' not in ['mysql','mongodb'])")
+        return MockDatabaseService("mock")
     try:
-        # Try to import required dependencies
-        if db_type == "mysql":
+        if normalized == "mysql":
             try:
-                import aiomysql
+                import aiomysql  # noqa: F401
             except ImportError:
                 raise ImportError("aiomysql not available")
-        elif db_type == "mongodb":
+        else:  # mongodb
             try:
-                import motor
-                import pymongo
+                import motor  # noqa: F401
+                import pymongo  # noqa: F401
             except ImportError:
                 raise ImportError("motor/pymongo not available")
-        
-        # If imports succeed, use real database service
         from .database_service import DatabaseService
-        return DatabaseService(db_type)
-        
+        return DatabaseService(normalized)
     except ImportError as e:
-        logger.warning(f"Database dependencies not available ({e}). Using mock service.")
-        return MockDatabaseService(db_type)
+        logger.warning(f"Database dependencies not available for {normalized} ({e}). Falling back to mock.")
+        return MockDatabaseService(normalized)

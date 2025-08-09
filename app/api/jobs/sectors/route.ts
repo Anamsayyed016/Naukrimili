@@ -1,23 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  return NextResponse.json({ 
-    success: true, 
-    message: 'API endpoint working' 
-  });
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const rootModule = require('../route.ts');
+const jobsStore = rootModule?.jobsStore || [];
+
+export async function GET() {
+  const sectors = Array.from(new Set(jobsStore.map((j: any) => j.sector).filter(Boolean)));
+  return NextResponse.json({ success: true, count: sectors.length, sectors });
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    return NextResponse.json({ 
-      success: true, 
-      data: body 
-    });
-  } catch (error) {
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Invalid request' 
-    }, { status: 400 });
-  }
-}
+export const dynamic = 'force-dynamic';

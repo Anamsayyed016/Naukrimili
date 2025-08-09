@@ -11,6 +11,8 @@ import uvicorn
 from datetime import datetime, timedelta
 import urllib.parse
 import logging
+import os
+from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 
 # Local imports
@@ -19,28 +21,52 @@ from services.job_search_service import JobSearchService
 from services.mock_database_service import create_database_service
 from utils.location_utils import get_supported_countries, validate_location
 from utils.google_fallback import generate_google_search_url
-from middleware.rate_limiter import rate_limit_middleware
+from middleware.rate_limiter import RateLimitMiddleware
 from config.settings import Settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize services
+# Explicitly load .env (ensure relative to this file)
+ENV_PATH = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(ENV_PATH):
+    load_dotenv(ENV_PATH)
+    logging.getLogger(__name__).info(f"Loaded .env from {ENV_PATH}")
+else:
+    logging.getLogger(__name__).warning(f".env not found at {ENV_PATH}")
+
+# Initialize services after env is loaded
 settings = Settings()
 db_service = create_database_service(settings.database_type)
 job_search_service = JobSearchService(db_service)
 
+# Debug environment dump (safe subset)
+logger.info(
+    "Env DEBUG -> MYSQL_USER=%s MYSQL_HOST=%s MYSQL_DATABASE=%s DATABASE_TYPE=%s", 
+    os.getenv('MYSQL_USER'), os.getenv('MYSQL_HOST'), os.getenv('MYSQL_DATABASE'), os.getenv('DATABASE_TYPE')
+)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan events"""
-    # Startup
+    """Application lifespan events with graceful DB fallback"""
+    global db_service, job_search_service
     logger.info("🚀 Starting Unified Job Portal API...")
-    await db_service.connect()
+    try:
+        await db_service.connect()
+    except Exception as e:
+        # Fallback to mock database so APIs are still testable
+        logger.warning(f"⚠️ Primary database startup failed ({e}). Falling back to mock database service.")
+        from services.mock_database_service import MockDatabaseService
+        db_service = MockDatabaseService()
+        await db_service.connect()
+        job_search_service = JobSearchService(db_service)
     yield
-    # Shutdown
     logger.info("💤 Shutting down Unified Job Portal API...")
-    await db_service.disconnect()
+    try:
+        await db_service.disconnect()
+    except Exception as e:
+        logger.warning(f"Database disconnect issue: {e}")
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -65,8 +91,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add rate limiting middleware
-app.middleware("http")(rate_limit_middleware)
+# Add rate limiting middleware (in-memory simple)
+app.add_middleware(RateLimitMiddleware, max_requests=settings.rate_limit_requests, window_seconds=settings.rate_limit_window)
 
 @app.get("/")
 async def root():

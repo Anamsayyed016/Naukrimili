@@ -65,6 +65,28 @@ class JobSearchService:
     async def _search_in_database(self, params: JobSearchParams) -> Dict[str, Any]:
         """Execute search query in database"""
         try:
+            # Mock database fallback (no real DB drivers)
+            if hasattr(self.db, 'mock_data'):
+                raw_jobs = self.db.mock_data
+                # Basic filtering
+                def matches(job):
+                    if params.title and params.title.lower() not in job['title'].lower():
+                        return False
+                    if params.location and params.location.lower() not in job['location'].lower():
+                        return False
+                    if params.country and job.get('country') != params.country.value:
+                        return False
+                    if params.job_type and job.get('job_type') != params.job_type.value:
+                        return False
+                    if params.experience_level and job.get('experience_level') != params.experience_level.value:
+                        return False
+                    return True
+                filtered = [j for j in raw_jobs if matches(j)]
+                total = len(filtered)
+                start = (params.page - 1) * params.limit
+                end = start + params.limit
+                page_slice = filtered[start:end]
+                return {"jobs": page_slice, "total": total}
             # Get search query from model
             job_model = JobModel()
             

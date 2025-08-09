@@ -6,6 +6,7 @@ import asyncio
 import logging
 from typing import List, Dict, Any, Optional
 import os
+from urllib.parse import urlparse
 from contextlib import asynccontextmanager
 
 # Import database drivers with error handling
@@ -15,6 +16,12 @@ try:
 except ImportError:
     print("Warning: aiomysql not installed. MySQL functionality will be limited.")
     AIOMYSQL_AVAILABLE = False
+
+try:
+    import pymysql
+    PYMYSQL_AVAILABLE = True
+except ImportError:
+    PYMYSQL_AVAILABLE = False
 
 try:
     import pymongo
@@ -40,8 +47,31 @@ class DatabaseService:
     def _load_config(self) -> Dict[str, Any]:
         """Load database configuration from environment variables"""
         if self.db_type == "mysql":
+            # Support full DATABASE_URL (e.g., mysql://user:pass@host:3306/dbname)
+            db_url = os.getenv("DATABASE_URL") or os.getenv("MYSQL_URL")
+            if db_url and db_url.startswith("mysql://"):
+                try:
+                    parsed = urlparse(db_url)
+                    user = parsed.username or os.getenv("MYSQL_USER", "jobportal")
+                    password = parsed.password or os.getenv("MYSQL_PASSWORD", "password")
+                    host = parsed.hostname or os.getenv("MYSQL_HOST", "localhost")
+                    port = parsed.port or int(os.getenv("MYSQL_PORT", 3306))
+                    database = (parsed.path.lstrip("/")) or os.getenv("MYSQL_DATABASE", "jobportal")
+                    return {
+                        "host": host,
+                        "port": int(port),
+                        "user": user,
+                        "password": password,
+                        "database": database,
+                        "charset": "utf8mb4",
+                        "autocommit": True
+                    }
+                except Exception as e:
+                    logger.warning(f"Failed to parse DATABASE_URL, falling back to discrete vars: {e}")
             return {
+                # Primary host plus optional failover hosts
                 "host": os.getenv("MYSQL_HOST", "localhost"),
+                "hosts": [h.strip() for h in os.getenv("MYSQL_HOSTS", "").split(",") if h.strip()],
                 "port": int(os.getenv("MYSQL_PORT", 3306)),
                 "user": os.getenv("MYSQL_USER", "jobportal"),
                 "password": os.getenv("MYSQL_PASSWORD", "password"),
@@ -86,17 +116,43 @@ class DatabaseService:
         """Connect to MySQL database"""
         try:
             # Create connection pool
-            self.pool = await aiomysql.create_pool(
-                host=self.config["host"],
-                port=self.config["port"],
-                user=self.config["user"],
-                password=self.config["password"],
-                db=self.config["database"],
-                charset=self.config["charset"],
-                autocommit=self.config["autocommit"],
-                minsize=5,
-                maxsize=20
-            )
+            if AIOMYSQL_AVAILABLE:
+                self.pool = await aiomysql.create_pool(
+                    host=self.config["host"],
+                    port=self.config["port"],
+                    user=self.config["user"],
+                    password=self.config["password"],
+                    db=self.config["database"],
+                    charset=self.config["charset"],
+                    autocommit=self.config["autocommit"],
+                    minsize=1,
+                    maxsize=10
+                )
+            elif PYMYSQL_AVAILABLE:
+                # Simple synchronous connection wrapped for minimal read queries
+                conn = pymysql.connect(
+                    host=self.config["host"],
+                    port=self.config["port"],
+                    user=self.config["user"],
+                    password=self.config["password"],
+                    database=self.config["database"],
+                    charset=self.config["charset"],
+                    autocommit=self.config["autocommit"]
+                )
+                # Create a lightweight async facade
+                class SyncPool:
+                    def __init__(self, connection):
+                        self._conn = connection
+                    async def acquire(self):
+                        return self._conn
+                    def close(self):
+                        self._conn.close()
+                    async def wait_closed(self):
+                        return
+                self.pool = SyncPool(conn)
+                logger.warning("aiomysql unavailable; using sync PyMySQL fallback (not optimal for high concurrency)")
+            else:
+                raise RuntimeError("No MySQL driver available (aiomysql or PyMySQL required)")
             
         except Exception as e:
             logger.error(f"MySQL connection failed: {e}")
@@ -162,17 +218,30 @@ class DatabaseService:
             raise ValueError("execute_query only supports MySQL")
         
         try:
-            async with self.pool.acquire() as conn:
-                async with conn.cursor(aiomysql.DictCursor) as cursor:
-                    await cursor.execute(query, params or [])
-                    
-                    # Handle different query types
-                    if query.strip().upper().startswith(('INSERT', 'UPDATE', 'DELETE')):
-                        await conn.commit()
-                        return [{"affected_rows": cursor.rowcount}]
-                    else:
-                        result = await cursor.fetchall()
-                        return list(result) if result else []
+            # aiomysql async path
+            if AIOMYSQL_AVAILABLE and hasattr(self.pool, 'acquire') and not isinstance(self.pool, type):
+                async with self.pool.acquire() as conn:
+                    async with conn.cursor(aiomysql.DictCursor) as cursor:
+                        await cursor.execute(query, params or [])
+                        if query.strip().upper().startswith(('INSERT', 'UPDATE', 'DELETE')):
+                            await conn.commit()
+                            return [{"affected_rows": cursor.rowcount}]
+                        else:
+                            result = await cursor.fetchall()
+                            return list(result) if result else []
+            else:
+                # PyMySQL sync fallback executed in thread
+                import asyncio
+                def run_sync():
+                    with self.pool._conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                        cursor.execute(query, params or [])
+                        if query.strip().upper().startswith(('INSERT', 'UPDATE', 'DELETE')):
+                            self.pool._conn.commit()
+                            return [{"affected_rows": cursor.rowcount}]
+                        else:
+                            res = cursor.fetchall()
+                            return list(res) if res else []
+                return await asyncio.to_thread(run_sync)
                         
         except Exception as e:
             logger.error(f"Query execution failed: {query[:100]}... Error: {e}")
@@ -309,43 +378,50 @@ class DatabaseService:
     async def _insert_sample_jobs(self):
         """Insert sample job data for testing"""
         try:
-            sample_jobs = [
-                {
-                    "job_id": "SAMPLE_001",
-                    "title": "Senior React Developer",
-                    "company": "TechWave Solutions",
-                    "location": "Mumbai, India",
-                    "country": "IN",
-                    "salary_min": 1200000,
-                    "salary_max": 1800000,
-                    "currency": "INR",
-                    "experience_level": "senior",
-                    "job_type": "full-time",
-                    "sector": "Software Development",
-                    "skills": '["React", "JavaScript", "Node.js", "MongoDB"]',
-                    "description": "We are looking for a Senior React Developer to join our dynamic team. You will be responsible for developing user interface components and implementing them following well-known React.js workflows.",
-                    "requirements": '["5+ years of React experience", "Strong JavaScript skills", "Experience with REST APIs", "Git proficiency"]',
-                    "benefits": '["Health Insurance", "Flexible Hours", "Remote Work", "Learning Budget"]',
-                    "posted_date": "2025-08-06 10:00:00",
-                    "is_remote": True,
-                    "is_urgent": False,
-                    "is_featured": True,
-                    "apply_url": "https://techwave.com/careers/react-developer"
-                },
-                {
-                    "job_id": "SAMPLE_002",
-                    "title": "Data Scientist",
-                    "company": "AI Innovations Ltd",
-                    "location": "Bangalore, India",
-                    "country": "IN",
-                    "salary_min": 1000000,
-                    "salary_max": 1600000,
-                    "currency": "INR",
-                    "experience_level": "mid",
-                    "job_type": "full-time",
-                    "sector": "Data Science",
-                    "skills": '["Python", "Machine Learning", "TensorFlow", "SQL"]',
-                    "description": "Join our AI team as a Data Scientist. You will work on cutting-edge machine learning projects and help derive insights from large datasets.",
+            candidate_hosts = [self.config["host"]] + [h for h in self.config.get("hosts", []) if h]
+            last_error = None
+            for host in candidate_hosts:
+                try:
+                    if AIOMYSQL_AVAILABLE:
+                        self.pool = await aiomysql.create_pool(
+                            host=host,
+                            port=self.config["port"],
+                            user=self.config["user"],
+                            password=self.config["password"],
+                            db=self.config["database"],
+                            charset=self.config["charset"],
+                            autocommit=self.config["autocommit"],
+                            minsize=1,
+                            maxsize=10
+                        )
+                        logger.info(f"MySQL connected via host '{host}' (aiomysql)")
+                        return
+                    elif PYMYSQL_AVAILABLE:
+                        conn = pymysql.connect(
+                            host=host,
+                            port=self.config["port"],
+                            user=self.config["user"],
+                            password=self.config["password"],
+                            database=self.config["database"],
+                            charset=self.config["charset"],
+                            autocommit=self.config["autocommit"]
+                        )
+                        class SyncPool:
+                            def __init__(self, connection): self._conn = connection
+                            async def acquire(self): return self._conn
+                            def close(self): self._conn.close()
+                            async def wait_closed(self): return
+                        self.pool = SyncPool(conn)
+                        logger.info(f"MySQL connected via host '{host}' (PyMySQL sync fallback)")
+                        return
+                    else:
+                        raise RuntimeError("No MySQL driver available (aiomysql or PyMySQL required)")
+                except Exception as e:
+                    last_error = e
+                    logger.warning(f"MySQL connection attempt failed for host '{host}': {e}")
+                    continue
+            # If loop completes without return
+            raise last_error or RuntimeError("All MySQL hosts unreachable")
                     "requirements": '["3+ years in Data Science", "Python expertise", "ML/AI experience", "Statistics background"]',
                     "benefits": '["Competitive Salary", "Stock Options", "Health Coverage", "Learning Opportunities"]',
                     "posted_date": "2025-08-05 14:30:00",

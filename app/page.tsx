@@ -99,17 +99,10 @@ export default function HomePage() {
         <div className="relative min-h-screen flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
             <div className="text-center text-white">
-              {/* Brand */}
-              <div className="mb-8">
-                <h1 className="text-6xl md:text-7xl font-bold mb-4">
-                  <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                    NaukriMili
-                  </span>
-                </h1>
-                <div className="flex items-center justify-center space-x-2 text-yellow-300">
-                  <Brain className="h-8 w-8" />
-                  <span className="text-2xl font-semibold">AI-Powered Job Portal</span>
-                </div>
+              {/* Removed duplicate standalone brand logo/title to keep a single logo in navbar */}
+              <div className="sr-only">
+                {/* Accessible heading (kept for SEO/a11y, visually hidden) */}
+                <h1>NaukriMili - AI Powered Job Portal</h1>
               </div>
 
               {/* Main Headline */}
