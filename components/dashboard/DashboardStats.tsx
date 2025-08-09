@@ -50,4 +50,5 @@ export default function DashboardStats({
                 {";
   stat.change && ( <p className="text-sm mt-1"> <span className="text-green-100">{stat.change
 }";
-}</span> this week </p>) </div> <stat.icon className="h-8 w-8 opacity-80" /> </div> </div> </motion.div>)) </div>);
+}</span> this week </p>) </div> <stat.icon className="h-8 w-8 opacity-80" /> </div> </div> </motion.div>)) </div>
+);

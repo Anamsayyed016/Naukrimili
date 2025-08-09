@@ -7,7 +7,8 @@ import {
 import {
   useRouter
 }";
-} from "next/navigation";";
+} from "next/navigation";
+";
 import Link from "next/link";
 import {
   Button
@@ -63,7 +64,8 @@ export default function LoginForm() {
         title: "Success";";
         description: "You have been logged in successfully."
 }
-});";
+});
+";
       router.push("/dashboard");
   } catch (error) {
   ;";
@@ -79,8 +81,10 @@ export default function LoginForm() {
   ;
       setIsLoading(false);
 }
-  }";
-";";
+  }
+";
+
+";";
   return ( <Card className="w-full max-w-md mx-auto"> <CardHeader> <CardTitle>Welcome Back</CardTitle> <CardDescription>;
           Sign in to your account to continue </CardDescription> </CardHeader> <form onSubmit={handleSubmit}";
 }> <CardContent className="space-y-4"> <div className="space-y-2"> <Label htmlFor="email">Email</Label> <Input;";
@@ -128,4 +132,5 @@ export default function LoginForm() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z;";
                   fill="#EA4335 /> </svg>;";
               Google </Button> <Button variant="outline" type="button" className="w-full"> <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24"> <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" /> </svg>;";
-              Facebook </Button> </div> </CardFooter> </form> </Card>);
+              Facebook </Button> </div> </CardFooter> </form> </Card>
+);

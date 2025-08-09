@@ -1,108 +1,98 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-export interface User {
-  id?: number;
+export interface UserSummary {
+  id?: string | number;
   name: string;
   email: string;
-  // Add other fields as needed
 }
+
+interface ApiState<T> {
+  data: T;
+  loading: boolean;
+  error: string | null;
 }
 
 export function useUsersApi() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<ApiState<UserSummary[]>>({ data: [], loading: false, error: null });
 
-  const fetchUsers = async (): Promise<void> => {
+  const setLoading = (loading: boolean) => setState((s) => ({ ...s, loading }));
+  const setError = (error: string | null) => setState((s) => ({ ...s, error }));
+  const setUsers = (users: UserSummary[]) => setState((s) => ({ ...s, data: users }));
+
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch('/api/users');
+      if (!res.ok) throw new Error('Fetch failed');
       const data = await res.json();
-      setUsers(data);
-}
-    } catch (err) {
-  setError('Failed to fetch users');
-}
+      setUsers(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setError('Failed to fetch users');
     } finally {
-  setLoading(false);
-}
+      setLoading(false);
     }
-  }
+  }, []);
 
-  const createUser = async (user: User): Promise<void> => {
-  setLoading(true);
+  const createUser = useCallback(async (user: UserSummary) => {
+    setLoading(true);
     setError(null);
     try {
       const res = await fetch('/api/users', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        
-}
-  },
-        body: JSON.stringify(user);
-  });
-      if (!res.ok) throw new Error('Failed to create');
-      await fetchUsers();
-    } catch (err) {
-  setError('Failed to create user');
-}
-    } finally {
-  setLoading(false);
-}
-    }
-  }
-
-  const updateUser = async (id: number, user: User): Promise<void> => {
-  setLoading(true);
-    setError(null);
-    try {
-}
-      const res = await fetch(`/api/users/${id}`, {
-  method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        
-}
-  },
-        body: JSON.stringify(user);
-  });
-      if (!res.ok) throw new Error('Failed to update');
-      await fetchUsers();
-    } catch (err) {
-  setError('Failed to update user');
-}
-    } finally {
-  setLoading(false);
-}
-    }
-  }
-
-  const deleteUser = async (id: number): Promise<void> => {
-  setLoading(true);
-    setError(null);
-    try {
-}
-      const res = await fetch(`/api/users/${id}`, {
-  method: 'DELETE'
-}
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user),
       });
-      if (!res.ok) throw new Error('Failed to delete');
+      if (!res.ok) throw new Error('Create failed');
       await fetchUsers();
-    } catch (err) {
-  setError('Failed to delete user');
-}
+    } catch (e) {
+      setError('Failed to create user');
     } finally {
-  setLoading(false);
-}
+      setLoading(false);
     }
-  }
+  }, [fetchUsers]);
 
-  useEffect(() => {
-  fetchUsers();
-}
-  }, []);
+  const updateUser = useCallback(async (id: string | number, user: UserSummary) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/users/${id}` , {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user),
+      });
+      if (!res.ok) throw new Error('Update failed');
+      await fetchUsers();
+    } catch (e) {
+      setError('Failed to update user');
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchUsers]);
 
-  return { users, loading, error, fetchUsers, createUser, updateUser, deleteUser }
+  const deleteUser = useCallback(async (id: string | number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/users/${id}` , { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+      await fetchUsers();
+    } catch (e) {
+      setError('Failed to delete user');
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchUsers]);
+
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
+  return {
+    users: state.data,
+    loading: state.loading,
+    error: state.error,
+    fetchUsers,
+    createUser,
+    updateUser,
+    deleteUser,
+  };
 }

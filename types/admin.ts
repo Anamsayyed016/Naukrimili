@@ -6,18 +6,16 @@ export interface AdminUser {
   created_at: string;
   last_login?: string;
 }
-}
-}
+
 export interface SystemHealth {
   status: 'healthy' | 'warning' | 'critical';
-  uptime: number;
-  memory_usage: number;
-  cpu_usage: number;
+  uptime: number; // seconds
+  memory_usage: number; // bytes or MB depending on usage
+  cpu_usage: number; // percentage
   active_users: number;
-  pending_jobs: number
+  pending_jobs: number;
 }
-}
-}
+
 export interface FraudAlert {
   id: string;
   type: 'fake_job' | 'suspicious_employer' | 'duplicate_profile' | 'payment_fraud';
@@ -27,9 +25,7 @@ export interface FraudAlert {
   entityId: string;
   entityType: 'job' | 'employer' | 'candidate' | 'payment';
   reportedBy: string;
-  reportedAt: string;
+  reportedAt: string; // ISO datetime
   status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
-  metadata: Record<string, unknown>
-}
-}
+  metadata: Record<string, unknown>;
 }

@@ -30,7 +30,8 @@ export function AuthProvider({
       {
   children
 }
-} </AuthContext.Provider>);
+} </AuthContext.Provider>
+);
 export function useAuthContext(): AuthState {
   ;
   const context = useContext(AuthContext);

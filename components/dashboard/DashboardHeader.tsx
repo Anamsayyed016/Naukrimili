@@ -43,4 +43,5 @@ export default function DashboardHeader({
             {
   action.label
 }";
-} </button>)) </div> </div>);
+} </button>)) </div> </div>
+);

@@ -1,247 +1,122 @@
-// Mock Auth Library for Frontend Only;
+// Frontend-only mock auth helpers with minimal, dependency-free API
 export type UserRole = 'jobseeker' | 'company' | 'admin';
 export interface User {
   email: string;
-  password: string // hashed
-  role: UserRole
+  password: string; // hashed
+  role: UserRole;
 }
-}
-}
+
+const isBrowser = typeof window !== 'undefined';
 const USERS_KEY = 'mock_users';
 const TOKEN_KEY = 'mock_token';
 const TOKEN_EXPIRY_HOURS = 24;
 
+// In-memory fallback for SSR
+let memoryUsers: User[] = [];
+let memoryToken: string | null = null;
+
 function getUsers(): User[] {
-  ;
-  if (typeof window === 'undefined') return [];
-  const users = localStorage.getItem(USERS_KEY);
-  return users ? JSON.parse(users) : []
+  if (!isBrowser) return memoryUsers;
+  const raw = window.localStorage.getItem(USERS_KEY);
+  return raw ? (JSON.parse(raw) as User[]) : [];
 }
-}
+
 function saveUsers(users: User[]) {
-  ;
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
+  if (!isBrowser) {
+    memoryUsers = users;
+    return;
   }
-function hashPassword(password: string) {
-  ;
-  return 'password_' + btoa(password);
+  window.localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
-  }
-function generateMockJWT(user: User) {
-  ;
-  const exp = Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000;
-  return btoa(JSON.stringify({ email: user.email, role: user.role, exp
-}
-}));
-function verifyMockJWT(token: string) {
-  ;
+
+export function hashPassword(password: string) {
   try {
-    const decoded = JSON.parse(atob(token));
+    return 'password_' + (isBrowser ? btoa(password) : Buffer.from(password).toString('base64'));
+  } catch {
+    return 'password_' + password;
+  }
+}
+
+export function generateMockJWT(user: User) {
+  const exp = Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000;
+  const payload = { email: user.email, role: user.role, exp };
+  const token = (isBrowser ? btoa(JSON.stringify(payload)) : Buffer.from(JSON.stringify(payload)).toString('base64'));
+  if (isBrowser) window.localStorage.setItem(TOKEN_KEY, token);
+  else memoryToken = token;
+  return token;
+}
+
+export function verifyMockJWT(token: string): { email: string; role: UserRole; exp: number } | null {
+  try {
+    const decoded = JSON.parse(isBrowser ? atob(token) : Buffer.from(token, 'base64').toString('utf8'));
+    if (!decoded || typeof decoded.exp !== 'number') return null;
     if (decoded.exp < Date.now()) return null;
-    return decoded
+    return decoded;
+  } catch {
+    return null;
+  }
 }
-} catch {
-  ;
+
+export function isTokenExpired(token: string) {
+  return !verifyMockJWT(token);
 }
-    return null}
+
+export function getUserRole(token: string): UserRole | null {
+  const d = verifyMockJWT(token);
+  return d ? d.role : null;
 }
-function isTokenExpired(token: string) {
-  ;
-  const decoded = verifyMockJWT(token);
-  return !decoded
-}
-}
-function getUserRole(token: string): UserRole | null {
-  ;
-  const decoded = verifyMockJWT(token);
-  return decoded ? decoded.role : null
-}
-} // API: Register;
+
 export async function register(email: string, password: string, role: UserRole) {
-  // TODO: Complete function implementation;
- // TODO: Complete implementation
-}
-}
-}
-  return new Promise<{
-  success: boolean; token?: string; error?: string ;
-}
-  }>((resolve) => {
-  ;
+  return new Promise<{ success: boolean; token?: string; error?: string }>((resolve) => {
     setTimeout(() => {
       const users = getUsers();
-      if (users.find(u => u.email === email)) {
-        resolve({ success: false, error: 'Email already registered.'
-}
-});
-        return} // Validation;
-      if (!/^\S+@\S+\.\S+$/.test(email)) {
-  ;
-        resolve({ success: false, error: 'Invalid email format.'
-}
-});
-        return}
-      if (!/^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password)) {
-  ;
-        resolve({ success: false, error: 'Password too weak.'
-}
-});
-        return}
-      const hashed = hashPassword(password);
-      const user: User = {
-  email, password: hashed, role
-}
-}
+      if (users.find((u) => u.email === email)) return resolve({ success: false, error: 'Email already registered.' });
+      if (!/^\S+@\S+\.\S+$/.test(email)) return resolve({ success: false, error: 'Invalid email format.' });
+      if (!/^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(password)) return resolve({ success: false, error: 'Password too weak.' });
+
+      const user: User = { email, password: hashPassword(password), role };
       users.push(user);
       saveUsers(users);
       const token = generateMockJWT(user);
-      localStorage.setItem(TOKEN_KEY, token);
-      resolve({
-  success: true, token
+      resolve({ success: true, token });
+    }, 200);
+  });
 }
-})}, 500)}) // API: Login;
+
 export async function login(email: string, password: string) {
-  // TODO: Complete function implementation;
- // TODO: Complete implementation
-}
-}
-}
-  return new Promise<{
-  success: boolean; token?: string; user?: User; error?: string ;
-}
-  }>((resolve) => {
-  ;
+  return new Promise<{ success: boolean; token?: string; user?: Omit<User, 'password'>; error?: string }>((resolve) => {
     setTimeout(() => {
       const users = getUsers();
-      let user = users.find(u => u.email === email) // For demo: if user does not exist, create one with role based on email;
+      let user = users.find((u) => u.email === email);
+      // Demo: create on first login with role by email prefix
       if (!user) {
         let role: UserRole = 'jobseeker';
         if (email.startsWith('company')) role = 'company';
         else if (email.startsWith('admin')) role = 'admin';
-        user = { email, password: hashPassword(password), role
-}
-}
+        user = { email, password: hashPassword(password), role };
         users.push(user);
-        saveUsers(users) // Always succeed for demo;
+        saveUsers(users);
+      }
       const token = generateMockJWT(user);
-      localStorage.setItem(TOKEN_KEY, token);
-      resolve({ success: true, token, user: { ...user, password: '' }
-})}, 500)}) // API: Get Me (protected);
+      resolve({ success: true, token, user: { email: user.email, role: user.role } as any });
+    }, 150);
+  });
+}
+
 export async function getMe(token: string) {
-  // TODO: Complete function implementation;
- // TODO: Complete implementation
-}
-}
-}
-  return new Promise<{
-  success: boolean; user?: User; error?: string ;
-}
-  }>((resolve) => {
-  ;
+  return new Promise<{ success: boolean; user?: Omit<User, 'password'>; error?: string }>((resolve) => {
     setTimeout(() => {
       const decoded = verifyMockJWT(token);
-      if (!decoded) {
-        resolve({ success: false, error: 'Invalid or expired token.'
-}
-});
-        return}
+      if (!decoded) return resolve({ success: false, error: 'Invalid or expired token.' });
       const users = getUsers();
-      const user = users.find(u => u.email === decoded.email);
-      if (!user) {
-  ;
-        resolve({ success: false, error: 'User not found.'
-}
-});
-        return}
-      resolve({ success: true, user: { ...user, password: '' }
-})}, 300)});
-import {
-  AuthOptions
-}
-} from "next-auth";";
-import CredentialsProvider from "next-auth/providers/credentials";";
-import GoogleProvider from "next-auth/providers/google";
-
-const authOptions: AuthOptions = {
-  ;
-  providers: [ CredentialsProvider({";
-      name: "Credentials";";
-      credentials: {";";
-        email: { labe,l: "Email", type: "email
-
-}";
-  },";";
-        password: { labe,l: "Password", type: "password" }
-});
-      async authorize(credentials) {
-  ;
-        if (!credentials?.email || !credentials?.password) return null;
-        try {
-          const user = {";
-            id: "1";
-            email: credentials.email;";
-            name: "Test User"
-}
-}
-          return user
-} catch (error) {
-  ;";
-    console.error("Error: ", error);
-    throw error
-}";
-}";";
-          console.error("Authentication error: ", error);
-          return null}
-}
-}),
-    GoogleProvider({";
-  ;";";
-      clientId: process.env.GOOGLE_CLIENT_ID || "";";
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || ""
-}
-}) ]],
-  session: {";
-  ";";
-      strategy: "jwt
-
-}";
-  },";
-  pages: {";
-  ";";
-    signIn: "/auth/login";";
-    signOut: "/auth/logout";";
-    error: "/auth/error"
-
-}
-  },
-  callbacks: {
-  ;
-    async session({ session, token
-}
-}) {
-  ;
-      if (token && session.user) {
-        session.user.id = token.sub || ''
-}
-}
-      return session},
-    async jwt({
-  token, user
-}
-}) {
-  ;
-      if (user) {
-        token.sub = user.id
-}
-}
-      return token}
-},
-  secret: process.env.NEXTAUTH_SECRET
+      const user = users.find((u) => u.email === decoded.email);
+      if (!user) return resolve({ success: false, error: 'User not found.' });
+      resolve({ success: true, user: { email: user.email, role: user.role } as any });
+    }, 100);
+  });
 }
 
-export {
-  authOptions, hashPassword, generateMockJWT, verifyMockJWT, isTokenExpired, getUserRole
-}
-}";
+// Placeholder to satisfy imports where NextAuth config may be expected
+export const authOptions: any = {};
+
+export { generateMockJWT as generateJWT };

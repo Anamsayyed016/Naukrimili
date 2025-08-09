@@ -67,8 +67,10 @@ export default function RegisterForm({
     email: "";";
     password: "
 }
-});";
-  const [isLoading, setIsLoading] = useState(false);";";
+});
+";
+  const [isLoading, setIsLoading] = useState(false);
+";";
   const [error, setError] = useState("");
   const router = useRouter();
   const {
@@ -85,7 +87,8 @@ export default function RegisterForm({
   const handleSubmit = async (e: React.FormEvent) => {
   ;
     e.preventDefault();
-    setIsLoading(true);";
+    setIsLoading(true);
+";
     setError("");
 
     try { // Register API call;";
@@ -226,4 +229,5 @@ export default function RegisterForm({
           {";
   isLoading ? ( <Loader2 className="h-5 w-5 animate-spin" />) : (`Create ${type === "company" ? "Company" : "";
 }";
-} Account`) </Button> </form> </motion.div>);
+} Account`) </Button> </form> </motion.div>
+);

@@ -1,270 +1,89 @@
-import {
-  useState, useEffect
-}
-} from 'react';
-export interface AdData {
-  id: string;
-  title: string;
-  description: string;
-  image_url: string;
-  click_url: string;
-  ad_type: string;
-  target_segments: string[];
-  budget: number;
-  daily_budget: number;
-  cpc: number;
-  cpm: number;
-  keywords: string[];
-  industry?: string;
-  location?: string;
-  company_id?: string;
-  relevance_score?: number;
-}
-}
-}
-export interface UserData {
-  user_id: string;
-  job_searches?: string[];
-  job_applications?: string[];
-  skills?: string[];
-  industry?: string;
-  location?: string;
-  profile_completeness?: number;
-  job_postings?: string[];
-  candidate_searches?: string[];
-  company_profile_views?: string[];
-  recruitment_tool_usage?: number;
-  is_student?: boolean;
-  career_resource_views?: string[];
-  candidate_contacts?: string[];
-  ats_usage?: number;
-  talent_pool_searches?: string[];
-  recruitment_events?: string[];
-}
-}
-}
-export interface AdsResponse {
-  success: boolean;
-  data: {
-    ads: AdData[];
-    user_segment: string;
-    total_available: number;
-    context?: string;
-}
-}}
-}
-  error?: string;
-}
-export interface AdTrackingData {
-  ad_id: string;
-  event_type: 'impression' | 'click' | 'conversion';
-  user_id?: string;
-  conversion_value?: number;
-}
-}
-}
+import { useState, useEffect, useCallback } from 'react';
+
+export interface AdData { id: string; title: string; description?: string; image_url?: string; click_url: string; ad_type?: string; relevance_score?: number }
+export interface UserData { user_id: string; industry?: string; location?: string; skills?: string[] }
+interface AdsResponse { ads: AdData[]; user_segment?: string; total_available?: number }
+interface TrackEvent { ad_id: string; event_type: 'impression' | 'click' | 'conversion'; user_id?: string; conversion_value?: number }
+
 export function useAdsApi() {
-  ;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fetchAds = async (;
-    userData: UserData;
-    numAds: number = 3;
-    context?: string): Promise<AdsResponse | null> => {
-    setLoading(true);
-    setError(null);
-    try { // Build query parameters;
-      const params = new URLSearchParams();
-      params.append('user_id', userData.user_id);
-      params.append('num_ads', numAds.toString());
-      if (context) params.append('context', context);
-      if (userData.industry) params.append('industry', userData.industry);
-      if (userData.location) params.append('location', userData.location);
-      if (userData.profile_completeness) params.append('profile_completeness', userData.profile_completeness.toString());
-      if (userData.is_student) params.append('is_student', userData.is_student.toString());
-      if (userData.job_searches?.length) params.append('job_searches', userData.job_searches.join(','));
-      if (userData.job_applications?.length) params.append('job_applications', userData.job_applications.join(','));
-      if (userData.skills?.length) params.append('skills', userData.skills.join(','));
-      const response = await fetch(`/api/ads?${params.toString();
-}
-  }`);
-      if (!response.ok) {
-  ;
-        throw new Error(`HTTP error! status: ${response.status
-}
-}`);
-  }
-      const data: AdsResponse = await response.json();
-      if (!data.success) {
-  ;
-        throw new Error(data.error || 'Failed to fetch ads');
-}
-  }
-      return data
-} catch (error) {
-  ;
-    console.error("Error: ", error);
-    return Response.json({";
-    "
-  })";
-      error: "Internal server error
 
-}
-  }, { status: 500 });
-  } finally {
-  ;
-      setLoading(false);
-}
-  }
-}
-  const trackAdEvent = async (trackingData: AdTrackingData): Promise<boolean> => {
-  ;
+  const fetchAds = useCallback(async (userData: UserData, numAds = 3, context?: string) => {
+    setLoading(true); setError(null);
     try {
-      const response = await fetch('/api/ads/track', {
-        method: 'POST';
-        headers: {
-      'Content-Type': 'application/json'
+      const p = new URLSearchParams();
+      p.append('user_id', userData.user_id);
+      p.append('num_ads', String(numAds));
+      if (context) p.append('context', context);
+      if (userData.industry) p.append('industry', userData.industry);
+      if (userData.location) p.append('location', userData.location);
+      if (userData.skills?.length) p.append('skills', userData.skills.join(','));
+      const res = await fetch(`/api/ads?${p.toString()}`);
+      if (!res.ok) throw new Error('fetch failed');
+      const data = await res.json();
+      return (data.data || data) as AdsResponse;
+    } catch (_) { setError('Failed to fetch ads'); return null; } finally { setLoading(false); }
+  }, []);
+
+  const trackAdEvent = useCallback(async (evt: TrackEvent) => {
+    try {
+      const res = await fetch('/api/ads/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evt) });
+      return res.ok;
+    } catch { return false; }
+  }, []);
+
+  const trackImpression = useCallback((adId: string, userId?: string) => trackAdEvent({ ad_id: adId, event_type: 'impression', user_id: userId }), [trackAdEvent]);
+  const trackClick = useCallback((adId: string, userId?: string) => trackAdEvent({ ad_id: adId, event_type: 'click', user_id: userId }), [trackAdEvent]);
+  const trackConversion = useCallback((adId: string, userId?: string, value?: number) => trackAdEvent({ ad_id: adId, event_type: 'conversion', user_id: userId, conversion_value: value }), [trackAdEvent]);
+
+  return { loading, error, fetchAds, trackAdEvent, trackImpression, trackClick, trackConversion };
 }
-});
-        body: JSON.stringify(trackingData);
-  });
-      if (!response.ok) {
-  ;
-        throw new Error(`HTTP error! status: ${response.status
-}
-}`);
-  }
-      const data = await response.json();
-      return data.success
-} catch (error) {";
-  ;";";
-    console.error("Error: ", error);
-    throw error
-}
-}
-}
-  const trackImpression = (adId: string, userId?: string): Promise<boolean> => {
-  ;
-    return trackAdEvent({
-      ad_id: adId;
-      event_type: 'impression';
-      user_id: userId
-}
-});
-  }
-  const trackClick = (adId: string, userId?: string): Promise<boolean> => {
-  ;
-    return trackAdEvent({
-      ad_id: adId;
-      event_type: 'click';
-      user_id: userId
-}
-});
-  }
-  const trackConversion = (adId: string, userId?: string, conversionValue?: number): Promise<boolean> => {
-  ;
-    return trackAdEvent({
-      ad_id: adId;
-      event_type: 'conversion';
-      user_id: userId;
-      conversion_value: conversionValue
-}
-});
-  }
-  return {
-  loading,
-    error,
-    fetchAds,
-    trackAdEvent,
-    trackImpression,
-    trackClick,
-}
-    trackConversion }
-}
-} // Hook for automatically loading ads based on user data;
-export function usePersonalizedAds(;
-  userData: UserData;
-  numAds: number = 3;
-  context?: string) {
-  ;
+
+export function usePersonalizedAds(userData: UserData, numAds = 3, context?: string) {
+  const { loading, error, fetchAds, trackImpression } = useAdsApi();
   const [ads, setAds] = useState<AdData[]>([]);
-  const [userSegment, setUserSegment] = useState<string>('');
-  const { loading, error, fetchAds, trackImpression
-}
-} = useAdsApi();
-  const loadAds = async () => {
-  ;
-    const response = await fetchAds(userData, numAds, context);
-    if (response) {
-      setAds(response.data.ads);
-      setUserSegment(response.data.user_segment) // Auto-track impressions;
-      response.data.ads.forEach(ad => {
-        trackImpression(ad.id, userData.user_id);
-}
-  });
-  }
-}
+  const [segment, setSegment] = useState<string>('');
   useEffect(() => {
-  if (userData.user_id) {
-      loadAds();
+    if (!userData.user_id) return;
+    let cancelled = false;
+    (async () => {
+      const res = await fetchAds(userData, numAds, context);
+      if (!cancelled && res) {
+        setAds(res.ads);
+        setSegment(res.user_segment || 'general');
+        res.ads.forEach(a => trackImpression(a.id, userData.user_id));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [userData.user_id, userData.industry, userData.location, numAds, context, fetchAds, trackImpression]);
+  return { ads, userSegment: segment, loading, error };
 }
-  }
-}, [ userData.user_id,
-    userData.industry,
-    userData.location,
-    numAds ];
-    context]);
-  return {
-  ads,
-    userSegment,
-    loading,
-}
-    error }
-    refetch: loadAds
-}
-} // Hook for ad click handling with automatic tracking;
+
 export function useAdClick() {
-  ;
-  const { trackClick
+  const { trackClick } = useAdsApi();
+  const handleAdClick = useCallback(async (ad: AdData, userId?: string) => {
+    trackClick(ad.id, userId);
+    if (ad.click_url.startsWith('http')) window.open(ad.click_url, '_blank', 'noopener,noreferrer');
+    else window.location.href = ad.click_url;
+  }, [trackClick]);
+  return { handleAdClick };
 }
-} = useAdsApi();
-  const handleAdClick = async (ad: AdData, userId?: string) => {
-  // Track the click;
-    await trackClick(ad.id, userId) // Navigate to the ad URL;
-    if (ad.click_url.startsWith('http')) { // External link;
-      window.open(ad.click_url, '_blank', 'noopener,noreferrer');
-}
-  } else {
-  // Internal link;
-      window.location.href = ad.click_url
-}
-}
-}
-  return { handleAdClick }
-} // Context-aware ads component hook;
+
 export function useContextualAds(context: string, userData: UserData) {
-  ;
-  const [contextualAds, setContextualAds] = useState<AdData[]>([]);
-  const { fetchAds, trackImpression
-}
-} = useAdsApi();
+  const { fetchAds, trackImpression } = useAdsApi();
+  const [ads, setAds] = useState<AdData[]>([]);
   useEffect(() => {
-  const loadContextualAds = async () => {
-      const response = await fetchAds(userData, 2, context) // Get 2 contextual ads;
-      if (response) {
-        setContextualAds(response.data.ads) // Track impressions;
-        response.data.ads.forEach(ad => {
-          trackImpression(ad.id, userData.user_id);
+    if (!context || !userData.user_id) return;
+    let cancelled = false;
+    (async () => {
+      const res = await fetchAds(userData, 2, context);
+      if (!cancelled && res) {
+        setAds(res.ads);
+        res.ads.forEach(a => trackImpression(a.id, userData.user_id));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [context, userData.user_id, fetchAds, trackImpression]);
+  return { contextualAds: ads };
 }
-  });
-  }
-}
-    if (userData.user_id && context) {
-  ;
-      loadContextualAds();
-}
-  }
-}, [context, userData.user_id]);
-  return { contextualAds }";
-}";";
-;

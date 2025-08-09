@@ -1,39 +1,19 @@
-// Mock Prisma client for deployment;
+// Minimal mock Prisma-like client for non-database environments
+type AnyData = Record<string, unknown>;
+
+function createTable() {
+  return {
+    findUnique: async (_args?: AnyData) => null,
+    findMany: async (_args?: AnyData) => [] as AnyData[],
+    create: async (args?: AnyData) => args?.data ?? null,
+    update: async (args?: AnyData) => args?.data ?? null,
+    delete: async (_args?: AnyData) => null,
+  };
+}
+
 export const prisma = {
-  // Mock tables;
-  user: {;
-    findUnique: async () => null;
-    findMany: async () => [];
-    create: async (dat,a: Record<string, unknown>) => data,
-}
-    update: async (dat,a: Record<string, unknown>) => data }
-    delete: async () => null
-
-  },
-  job: {
-  findUnique: async () => null;
-    findMany: async () => [];
-    create: async (dat,a: Record<string, unknown>) => data,
-}
-    update: async (dat,a: Record<string, unknown>) => data }
-    delete: async () => null
-
-  },
-  application: {
-  findUnique: async () => null;
-    findMany: async () => [];
-    create: async (dat,a: Record<string, unknown>) => data,
-}
-    update: async (dat,a: Record<string, unknown>) => data }
-    delete: async () => null
-
-  },
-  profile: {
-  findUnique: async () => null;
-    findMany: async () => [];
-    create: async (dat,a: Record<string, unknown>) => data,
-}
-    update: async (dat,a: Record<string, unknown>) => data }
-    delete: async () => null
-}
-}
+  user: createTable(),
+  job: createTable(),
+  application: createTable(),
+  profile: createTable(),
+};

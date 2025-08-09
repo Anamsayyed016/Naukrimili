@@ -3,15 +3,15 @@ export interface PageView {
   timestamp: Date;
   userId?: string;
   sessionId: string;
-  duration: number;
+  duration: number; // seconds
   referrer?: string;
   device: {
     type: 'desktop' | 'mobile' | 'tablet';
-    browser: string
+    browser: string;
+    os: string;
+  };
 }
-}}
-    os: string}
-}
+
 export interface UserEngagement {
   userId: string;
   action: 'click' | 'scroll' | 'hover' | 'search' | 'apply' | 'save';
@@ -19,10 +19,9 @@ export interface UserEngagement {
   page: string;
   timestamp: Date;
   duration?: number;
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>;
 }
-}
-}
+
 export interface SearchAnalytics {
   query: string;
   filters?: Record<string, any>;
@@ -33,84 +32,72 @@ export interface SearchAnalytics {
   refinements?: string[];
   clickedResults?: string[];
 }
-}
-}
+
 export interface ApplicationAnalytics {
   jobId: string;
   userId: string;
   timestamp: Date;
   source: string;
-  completionTime: number;
-  steps: {
+  completionTime: number; // seconds
+  steps: Array<{
     step: string;
-    duration: number;
-    completed: boolean
+    duration: number; // seconds
+    completed: boolean;
+  }>;
+  successful: boolean;
 }
-}}
-}[];
-  successful: boolean}
+
 export interface UserJourney {
   userId: string;
   sessionId: string;
   startTime: Date;
   endTime: Date;
-  touchpoints: {
+  touchpoints: Array<{
     page: string;
     action: string;
-    timestamp: Date
-}
-}}
-}[];
+    timestamp: Date;
+  }>;
   conversion?: {
-  ;
     type: 'application' | 'registration' | 'subscription';
+    value?: number;
+  };
 }
-    value?: number}
-}
+
 export interface PerformanceMetrics {
   timestamp: Date;
-  pageLoadTime: number;
-  apiResponseTime: number;
+  pageLoadTime: number; // ms
+  apiResponseTime: number; // ms
   serverErrors: number;
   clientErrors: number;
-  successfulRequests: number
+  successfulRequests: number;
 }
-}
-}
+
 export interface AnalyticsTimeRange {
   start: Date;
   end: Date;
-  interval: 'hour' | 'day' | 'week' | 'month'
+  interval: 'hour' | 'day' | 'week' | 'month';
 }
-}
-}
+
 export interface AnalyticsReport {
   timeRange: AnalyticsTimeRange;
   pageViews: {
     total: number;
     unique: number;
-    byPage: Record<string, number>
-}
-}}
-}
+    byPage: Record<string, number>;
+  };
   engagement: {
-  ;
-    averageSessionDuration: number;
-    bounceRate: number;
+    averageSessionDuration: number; // seconds
+    bounceRate: number; // 0..1
     mostEngagedPages: string[];
-}
-}
+  };
   conversions: {
-  ;
     applications: number;
     registrations: number;
-    conversionRate: number
-}
-}
+    conversionRate: number; // 0..1
+  };
   performance: {
-  ;
-    averageLoadTime: number;
-    errorRate: number;
-}
-    availability: number}
+    averageLoadTime: number; // ms
+    errorRate: number; // 0..1
+    availability: number; // 0..1
+  };
 }

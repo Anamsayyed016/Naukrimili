@@ -252,9 +252,6 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.7
         version: 9.0.10
-      '@types/node':
-        specifier: ^22.17.0
-        version: 22.17.0
       '@types/qrcode':
         specifier: ^1.5.5
         version: 1.5.5

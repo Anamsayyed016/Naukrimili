@@ -7,35 +7,27 @@ export interface JobApplication {
     resume: {
       url: string;
       filename: string;
-      uploadDate: string
-}
-}}}
-}
+      uploadDate: string;
+    };
     coverLetter?: {
-  ;
       url: string;
       filename: string;
-      uploadDate: string
-}
-}
-    additional?: {
-  ;
+      uploadDate: string;
+    };
+    additional?: Array<{
       url: string;
       filename: string;
       type: string;
-      uploadDate: string
-}
-}[]}
+      uploadDate: string;
+    }>;
+  };
   assessment?: {
-  ;
     score?: number;
     feedback?: string;
     completedDate?: string;
-    status: 'pending' | 'completed' | 'expired'
-}
-}
-  interviews?: {
-  ;
+    status: 'pending' | 'completed' | 'expired';
+  };
+  interviews?: Array<{
     id: string;
     type: 'phone' | 'video' | 'onsite';
     scheduledFor: string;
@@ -46,23 +38,21 @@ export interface JobApplication {
       comments: string;
       strengths: string[];
       weaknesses: string[];
-}
-}
+    };
     location?: string;
-    interviewers?: string[];}[];
+    interviewers?: string[];
+  }>;
   communication: {
-  ;
     lastContactDate?: string;
     nextFollowUp?: string;
-    history: {
+    history: Array<{
       date: string;
       type: 'email' | 'phone' | 'message';
       direction: 'incoming' | 'outgoing';
-      content: string
-}
-}[]}
+      content: string;
+    }>;
+  };
   timeline: {
-  ;
     submitted: string;
     reviewed?: string;
     shortlisted?: string;
@@ -70,31 +60,26 @@ export interface JobApplication {
     offered?: string;
     accepted?: string;
     rejected?: string;
-}
-}
+  };
   feedback?: {
-  ;
     internal?: {
       rating: number;
       comments: string;
       reviewerId: string;
-      date: string
-}
-}
+      date: string;
+    };
     candidate?: {
-  ;
       rating: number;
       comments: string;
-}
-      date: string}
-}
+      date: string;
+    };
+  };
   metadata: {
-  ;
     source: string;
     ipAddress?: string;
     userAgent?: string;
     createdAt: string;
     updatedAt: string;
-}
-    completeness: number}
+    completeness: number;
+  };
 }

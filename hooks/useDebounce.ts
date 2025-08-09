@@ -1,219 +1,109 @@
-import {
-  useState, useEffect, useRef, useCallback
-}
-} from 'react' // Debounce hook for search inputs and API calls;
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+// Simple value debounce
 export function useDebounce<T>(value: T, delay: number): T {
-  ;
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
+  const [debounced, setDebounced] = useState(value);
   useEffect(() => {
-    const handler = setTimeout(() => {;
-      setDebouncedValue(value);
-}
-  }, delay);
-
-    return () => {
-  ;
-      clearTimeout(handler);
-}
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);
   }, [value, delay]);
+  return debounced;
+}
 
-  return debouncedValue} // Debounced callback hook;
-export function useDebouncedCallback<T extends (...args: Record<string, unknown>[]) => any>(;
-  callback: T;
-  delay: number): T {
-  ;
-  const callbackRef = useRef(callback);
-  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined) // Update callback ref when callback changes;
-  useEffect(() => {
-    callbackRef.current = callback
+// Debounced callback
+export function useDebouncedCallback<T extends (...args: any[]) => any>(callback: T, delay: number): T {
+  const cbRef = useRef(callback);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => { cbRef.current = callback; }, [callback]);
+  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+  const fn = useCallback((...args: Parameters<T>) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => cbRef.current(...args), delay);
+  }, [delay]);
+  return fn as T;
+}
 
-}
-  }, [callback]) // Cleanup timeout on unmount;
-  useEffect(() => {
-  return () => {;
-      if (timeoutRef.current) {;
-        clearTimeout(timeoutRef.current);
-}
-  }}, []);
-
-  return useCallback(;
-    ((...args: Parameters<T>) => {
-  ;
-      if (timeoutRef.current) {;
-        clearTimeout(timeoutRef.current);
-}
-  }
-      timeoutRef.current = setTimeout(() => {
-  ;
-        callbackRef.current(...args);
-}
-  }, delay)}) as T,
-    [delay]) // Throttle hook for scroll events and frequent updates;
+// Throttle value
 export function useThrottle<T>(value: T, limit: number): T {
-  ;
-  const [throttledValue, setThrottledValue] = useState<T>(value);
+  const [throttled, setThrottled] = useState(value);
   const lastRan = useRef(Date.now());
-
   useEffect(() => {
-    const handler = setTimeout(() => {;
-      if (Date.now() - lastRan.current >= limit) {;
-        setThrottledValue(value);
+    const handler = setTimeout(() => {
+      if (Date.now() - lastRan.current >= limit) {
+        setThrottled(value);
         lastRan.current = Date.now();
-}
-  }, limit - (Date.now() - lastRan.current));
-
-    return () => {
-  ;
-      clearTimeout(handler);
-}
+      }
+    }, Math.max(0, limit - (Date.now() - lastRan.current)));
+    return () => clearTimeout(handler);
   }, [value, limit]);
-
-  return throttledValue} // Throttled callback hook;
-export function useThrottledCallback<T extends (...args: Record<string, unknown>[]) => any>(;
-  callback: T;
-  limit: number): T {
-  ;
-  const callbackRef = useRef(callback);
-  const lastRan = useRef(Date.now());
-
-  useEffect(() => {
-    callbackRef.current = callback
-
+  return throttled;
 }
-  }, [callback]);
 
-  return useCallback(;
-    ((...args: Parameters<T>) => {
-  ;
-      if (Date.now() - lastRan.current >= limit) {;
-        callbackRef.current(...args);
+// Throttled callback
+export function useThrottledCallback<T extends (...args: any[]) => any>(callback: T, limit: number): T {
+  const cbRef = useRef(callback);
+  const lastRan = useRef(0);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => { cbRef.current = callback; }, [callback]);
+  const fn = useCallback((...args: Parameters<T>) => {
+    const now = Date.now();
+    const remaining = limit - (now - lastRan.current);
+    if (remaining <= 0) {
+      if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+      lastRan.current = now;
+      cbRef.current(...args);
+    } else if (!timeoutRef.current) {
+      timeoutRef.current = setTimeout(() => {
         lastRan.current = Date.now();
+        timeoutRef.current = null;
+        cbRef.current(...args);
+      }, remaining);
+    }
+  }, [limit]);
+  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+  return fn as T;
 }
-  }) as T,
-    [limit]) // Advanced debounce with immediate execution option;
-export function useAdvancedDebounce<T>(;
-  value: T;
-  delay: number;
-  options: {
-  ;
-    leading?: boolean;
-    trailing?: boolean;
-    maxWait?: number;
-}
-} = {}): T {
-  ;
-  const { leading = false, trailing = true, maxWait
-}
-} = options;
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const maxTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const lastCallTime = useRef<number | undefined>(undefined);
-  const lastInvokeTime = useRef(0);
 
-  const invokeFunc = useCallback(() => {
-  ;
-    setDebouncedValue(value);
-    lastInvokeTime.current = Date.now();
-}
-  }, [value]);
+// Advanced debounce (leading/trailing + maxWait)
+interface AdvancedOptions { leading?: boolean; trailing?: boolean; maxWait?: number }
+export function useAdvancedDebounce<T>(value: T, delay: number, options: AdvancedOptions = {}): T {
+  const { leading = false, trailing = true, maxWait } = options;
+  const [debounced, setDebounced] = useState(value);
+  const lastInvokeRef = useRef<number>(Date.now());
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const maxTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const valueRef = useRef(value);
+  valueRef.current = value;
 
-  const leadingEdge = useCallback(() => {
-  ;
-    lastInvokeTime.current = Date.now();
-    if (leading) {;
-      invokeFunc();
-}
-  }, [leading, invokeFunc]);
-
-  const remainingWait = useCallback((time: number) => {
-  ;
-      const timeSinceLastCall = time - (lastCallTime.current || 0);
-    const timeSinceLastInvoke = time - lastInvokeTime.current;
-    const timeWaiting = delay - timeSinceLastCall;
-
-    return maxWait !== undefined;
-      ? Math.min(timeWaiting, maxWait - timeSinceLastInvoke) : timeWaiting
-}
-}, [delay, maxWait]);
-
-  const shouldInvoke = useCallback((time: number) => {
-  ;
-    const timeSinceLastCall = time - (lastCallTime.current || 0);
-    const timeSinceLastInvoke = time - lastInvokeTime.current;
-
-    return (;
-      lastCallTime.current === undefined ||;
-      timeSinceLastCall >= delay ||;
-      timeSinceLastCall < 0 ||;
-      (maxWait !== undefined && timeSinceLastInvoke >= maxWait));
-}
-  }, [delay, maxWait]);
-
-  const trailingEdge = useCallback(() => {
-  ;
-    if (trailing && lastCallTime.current !== undefined) {;
-      invokeFunc();
-}
-  }
-    if (timeoutRef.current) {
-  ;
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = undefined
-}
-}
-    if (maxTimeoutRef.current) {
-  ;
-      clearTimeout(maxTimeoutRef.current);
-      maxTimeoutRef.current = undefined
-}
-}
-    lastCallTime.current = undefined}, [trailing, invokeFunc]);
-
-  const timerExpired = useCallback(() => {
-  ;
-    const time = Date.now();
-    if (shouldInvoke(time)) {;
-      trailingEdge();
-}
-  } else {
-  ;
-      const remaining = remainingWait(time);
-      timeoutRef.current = setTimeout(timerExpired, remaining);
-}
-  }, [shouldInvoke, trailingEdge, remainingWait]);
+  const invoke = useCallback(() => {
+    setDebounced(valueRef.current);
+    lastInvokeRef.current = Date.now();
+  }, []);
 
   useEffect(() => {
-  const time = Date.now();
-    const isInvoking = shouldInvoke(time);
-    lastCallTime.current = time;
-
-    if (isInvoking) {;
-      if (timeoutRef.current === undefined) {;
-        leadingEdge();
-}
-  }
-      if (maxWait !== undefined) {
-  ;
-        maxTimeoutRef.current = setTimeout(trailingEdge, maxWait);
-}
-  }
-    if (timeoutRef.current === undefined && lastCallTime.current !== undefined) {
-  ;
-      timeoutRef.current = setTimeout(timerExpired, delay);
-}
-  }
+    const now = Date.now();
+    const timeSince = now - lastInvokeRef.current;
+    const shouldLead = leading && !timeoutRef.current;
+    if (shouldLead) invoke();
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      if (trailing && (!leading || timeSince >= delay)) invoke();
+      timeoutRef.current = null;
+    }, delay);
+    if (maxWait && !maxTimeoutRef.current) {
+      maxTimeoutRef.current = setTimeout(() => {
+        if (!leading || timeSince >= maxWait) invoke();
+        if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+        if (maxTimeoutRef.current) { clearTimeout(maxTimeoutRef.current); maxTimeoutRef.current = null; }
+      }, maxWait);
+    }
     return () => {
-  ;
-      if (timeoutRef.current) {;
-        clearTimeout(timeoutRef.current);
-}
-  }
-      if (maxTimeoutRef.current) {
-  ;
-        clearTimeout(maxTimeoutRef.current);
-}
-  }}, [value, delay, shouldInvoke, leadingEdge, trailingEdge, timerExpired, maxWait]);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (maxTimeoutRef.current) clearTimeout(maxTimeoutRef.current);
+      timeoutRef.current = null;
+      maxTimeoutRef.current = null;
+    };
+  }, [value, delay, leading, trailing, maxWait, invoke]);
 
-  return debouncedValue}
+  return debounced;
+}

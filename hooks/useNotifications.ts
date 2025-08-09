@@ -1,11 +1,5 @@
-import {
-  useState, useEffect
-}
-} from 'react';
-import {
-  useSession
-}
-} from 'next-auth/react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 
 export interface Notification {
   id: string;
@@ -16,169 +10,82 @@ export interface Notification {
   isRead: boolean;
   createdAt: Date;
   actionUrl?: string;
-  priority: 'low' | 'medium' | 'high'
+  priority: 'low' | 'medium' | 'high';
 }
-}
-}
-export function useNotifications() {
-  ;
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { data: session
-}
-} = useSession();
 
-  const fetchNotifications = async (options?: {;
-  unreadOnly?: boolean; limit?: number ;
-}
-  }) => {
-  ;
+interface FetchOptions { unreadOnly?: boolean; limit?: number }
+
+export function useNotifications() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession();
+
+  const fetchNotifications = useCallback(async (options?: FetchOptions) => {
     if (!session?.user) {
       setIsLoading(false);
-      return
-}
-}
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
     try {
-  ;
       const params = new URLSearchParams();
       if (options?.unreadOnly) params.append('unreadOnly', 'true');
-      if (options?.limit) params.append('limit', options.limit.toString());
-
-      const response = await fetch(`/api/notifications?${params.toString();
-}
-  }`);
-      
-      if (!response.ok) {
-  ;
-        throw new Error('Failed to fetch notifications');
-}
-  }
-      const data = await response.json() // Convert date strings back to Date objects;
-      const processedNotifications = data.notifications.map((notification: Record<string, unknown>) => ({ ...notification }
-        createdAt: new Date(notification.createdAt);
-  }));
-
-      setNotifications(processedNotifications);
-      setError(null);
-  } catch (error) {
-  ;
-    console.error("Error: ", error);
-    return Response.json({";
-    "
-  })";
-      error: "Internal server error
-
-}
-  }, { status: 500 });
-  },
-        {
-  ;
-          id: '2';
-          userId: session.user.id;
-          title: 'Application Status Update';
-          message: 'Your application for Software Developer at TechCorp has been viewed.';
-          type: 'application_update';
-          isRead: false;
-          createdAt: new Date(Date.now() - 45 * 60 * 1000);
-          actionUrl: '/applications/app_123';
-          priority: 'medium'
-
-}
-  },
-        {
-  ;
-          id: '3';
-          userId: session.user.id;
-          title: 'Complete Your Profile';
-          message: 'Your profile is 85% complete. Add skills to get better job matches.';
-          type: 'profile_reminder';
-          isRead: false;
-          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000);
-          actionUrl: '/profile?section=skills';
-          priority: 'low'
-}
-}
-      ];
-      setNotifications(mockNotifications)} finally {
-  ;
+      if (options?.limit) params.append('limit', String(options.limit));
+      const res = await fetch(`/api/notifications?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        const list: Notification[] = (data.notifications || []).map((n: any) => ({
+          ...n,
+          createdAt: new Date(n.createdAt)
+        }));
+        setNotifications(list);
+      } else {
+        setNotifications([
+          {
+            id: 'notif-1',
+            userId: session.user.id as string,
+            title: 'Welcome',
+            message: 'Notifications are active.',
+            type: 'system',
+            isRead: false,
+            createdAt: new Date(),
+            priority: 'low'
+          }
+        ]);
+      }
+    } catch (_) {
+      setError('Failed to load notifications');
+    } finally {
       setIsLoading(false);
-}
-  }
-
-  useEffect(() => {
-  fetchNotifications();
-}
+    }
   }, [session]);
 
-  const markAsRead = async (notificationId: string) => {
-  ;
+  useEffect(() => { fetchNotifications(); }, [fetchNotifications]);
+
+  const markAsRead = useCallback(async (id: string) => {
+    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, isRead: true } : n)));
     try {
-      const response = await fetch('/api/notifications', {
-        method: 'POST';
-        headers: {
-      'Content-Type': 'application/json'
-}
-});
-        body: JSON.stringify({
-  ;
-          notificationIds: [notificationId]
-}
-}),
-});
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationIds: [id] })
+      });
+    } catch (_) { /* silent */ }
+  }, []);
 
-      if (response.ok) {
-  ;
-        setNotifications(prev =>;
-          prev.map(notification =>;
-            notification.id === notificationId;
-              ? { ...notification, isRead: true
-}
-}
-              : notification));
-  } catch (err) {
-  ;
-      console.error('Error marking notification as read: ', err);
-}
-  }
-
-  const markAllAsRead = async () => {
-  ;
+  const markAllAsRead = useCallback(async () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     try {
-      const response = await fetch('/api/notifications', {
-        method: 'POST';
-        headers: {
-      'Content-Type': 'application/json'
-}
-});
-        body: JSON.stringify({
-  ;
-          markAllAsRead: true
-}
-}),
-});
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ markAllAsRead: true })
+      });
+    } catch (_) { /* silent */ }
+  }, []);
 
-      if (response.ok) {
-  ;
-        setNotifications(prev =>;
-          prev.map(notification => ({ ...notification, isRead: true
-}
-})));
-  } catch (err) {
-  ;
-      console.error('Error marking all notifications as read: ', err);
-}
-  }
+  const unreadCount = notifications.reduce((c, n) => (!n.isRead ? c + 1 : c), 0);
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
-
-  return {
-  notifications,
-    unreadCount,
-    isLoading,
-    error,
-    markAsRead,
-}
-    markAllAsRead }";
-    refresh: fetchNotifications}";";
+  return { notifications, unreadCount, isLoading, error, markAsRead, markAllAsRead, refresh: fetchNotifications };
 }

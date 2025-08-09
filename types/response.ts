@@ -1,75 +1,72 @@
-export interface APIResponse<T = any> {
-  ;
-  success: boolean;
-  data?: T;
+export interface APIResponse<T = unknown> {
+  success: boolean
+  data?: T
   error?: {
-    code: string;
-    message: string;
+    code: string
+    message: string
     details?: Record<string, unknown>
-}
-}
+  }
   metadata?: {
-  ;
-    timestamp: string;
-    requestId: string;
+    timestamp: string
+    requestId: string
+    processingTime?: number
+  }
 }
-    processingTime?: number}
-}
+
 export interface PaginatedResponse<T> extends APIResponse<T[]> {
-  ;
   pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    itemsPerPage: number;
-    hasNextPage: boolean;
+    currentPage: number
+    totalPages: number
+    totalItems: number
+    itemsPerPage: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
 }
-    hasPreviousPage: boolean}
-}
+
 export interface ErrorResponse {
-  success: false;
+  success: false
   error: {
-    code: string;
-    message: string;
-    details?: Record<string, unknown>;
-    stack?: string;
+    code: string
+    message: string
+    details?: Record<string, unknown>
+    stack?: string
+  }
+  metadata?: {
+    timestamp: string
+    requestId?: string
+  }
 }
-}}
-}
-  metadata: {
-  ;
-    timestamp: string;
-}
-    requestId: string}
-}
-export interface ValidationError extends ErrorResponse {
-  ;
+
+export interface ValidationError extends Omit<ErrorResponse, 'error'> {
   error: {
-    code: 'VALIDATION_ERROR';
-    message: string;
-    details: {
-      field: string;
-      message: string;
-      value?: Record<string, unknown>
+    code: 'VALIDATION_ERROR'
+    message: string
+    details: Array<{
+      field: string
+      message: string
+      value?: unknown
+    }>
+  }
 }
-}[]}}
+
 export interface AuthenticationError extends ErrorResponse {
-  ;
   error: {
-    code: 'AUTHENTICATION_ERROR';
-    message: string;
+    code: 'AUTHENTICATION_ERROR'
+    message: string
     details?: {
-      reason: string;
+      reason: string
+      requiredPermissions?: string[]
+    }
+  }
 }
-      requiredPermissions?: string[];}
-}}
+
 export interface SuccessResponse<T> {
-  ;
-  success: true;
-  data: T;
-  metadata: {
-    timestamp: string;
-    requestId: string;
-}
-    processingTime?: number}
+  success: true
+  data: T
+  metadata?: {
+    timestamp: string
+    requestId?: string
+    processingTime?: number
+  }
 }

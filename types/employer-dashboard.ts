@@ -3,9 +3,7 @@ export interface EmployerDashboardStats {
   activeJobPostings: number;
   totalApplications: number;
   newApplications: number;
-  totalHires: number
-}
-}
+  totalHires: number;
 }
 export interface JobPosting {
   id: string;
@@ -16,9 +14,7 @@ export interface JobPosting {
   status: 'draft' | 'published' | 'closed';
   publishDate?: string;
   closingDate?: string;
-  applicationsCount: number
-}
-}
+  applicationsCount: number;
 }
 export interface Candidate {
   id: string;
@@ -32,8 +28,6 @@ export interface Candidate {
   rating?: number;
   notes?: string;
 }
-}
-}
 export interface InterviewSchedule {
   id: string;
   candidateId: string;
@@ -45,15 +39,11 @@ export interface InterviewSchedule {
   status: 'scheduled' | 'completed' | 'cancelled';
   feedback?: string;
 }
-}
-}
 export interface EmployerDashboardData {
   stats: EmployerDashboardStats;
   recentJobPostings: JobPosting[];
   recentApplications: Candidate[];
-  upcomingInterviews: InterviewSchedule[]
-}
-}
+  upcomingInterviews: InterviewSchedule[];
 }
 export interface CompanyProfile {
   id: string;
@@ -67,7 +57,6 @@ export interface CompanyProfile {
   socialLinks?: {
     linkedin?: string;
     twitter?: string;
-}
-}}
-    facebook?: string}
+    facebook?: string;
+  };
 }

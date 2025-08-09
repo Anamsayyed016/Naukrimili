@@ -9,14 +9,11 @@ export interface Job {
   postedAt: string;
   redirect_url?: string;
 }
-}
-}
+
 export interface DisplayJob extends Job {
-  ;
   salaryFormatted: string;
   timeAgo: string;
   isUrgent: boolean;
   isRemote: boolean;
-  jobType: string
-}
+  jobType: string;
 }

@@ -18,20 +18,17 @@ export interface ICandidate {
   avatar?: string;
   rating?: number;
   metadata?: Record<string, any>;
-  interviews?: {
+  interviews?: Array<{
     id: string;
     date: Date;
     type: 'phone' | 'video' | 'onsite';
     status: 'scheduled' | 'completed' | 'cancelled';
     feedback?: string;
     interviewer?: string;
-}
-}}
-}[];
-  education?: {
-  ;
+  }>;
+  education?: Array<{
     degree: string;
     institution: string;
-    year: number
+    year: number;
+  }>;
 }
-}[]}

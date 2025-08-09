@@ -1,53 +1,40 @@
 export class S3Service {
-  ;
-  private s3Client: any;
+  private bucket = 'mock-bucket';
 
-  constructor() { // S3 client would be initialized here;
-    this.s3Client = null
-}
-}
-  async uploadFile(file: any, key: string): Promise<string> {
-  ;
-    try { // Mock implementation;
-}
-      return `https://mock-bucket.s3.amazonaws.com/${key}`
-} catch (error) {
-  ;
+  async uploadFile(_file: Blob | Buffer | ArrayBuffer, key: string): Promise<string> {
+    try {
+      // Mock upload: just return URL
+      return `https://${this.bucket}.s3.amazonaws.com/${encodeURIComponent(key)}`;
+    } catch (error) {
       console.error('S3 upload error:', error);
       throw new Error('Failed to upload file to S3');
-}
+    }
   }
-}
+
   async getPresignedUrl(key: string): Promise<string> {
-  ;
-    try { // Mock implementation;
-}
-      return `https://mock-bucket.s3.amazonaws.com/${key}?signed=true`
-} catch (error) {
-  ;
+    try {
+      return `https://${this.bucket}.s3.amazonaws.com/${encodeURIComponent(key)}?signed=true`;
+    } catch (error) {
       console.error('S3 presigned URL error:', error);
       throw new Error('Failed to generate presigned URL');
-}
+    }
   }
-}
+
   async deleteFile(key: string): Promise<void> {
-  ;
-    try { // Mock implementation;
-}
+    try {
       console.log(`File ${key} deleted from S3`);
-  } catch (error) {
-  ;
+    } catch (error) {
       console.error('S3 delete error:', error);
       throw new Error('Failed to delete file from S3');
-}
+    }
+  }
+
+  generateFileKey(userId: string, originalName: string): string {
+    const timestamp = Date.now();
+    const parts = originalName.split('.');
+    const extension = parts.length > 1 ? parts.pop() : 'bin';
+    return `uploads/${userId}/${timestamp}.${extension}`;
   }
 }
-  generateFileKey(userId: string, originalName: string): string {
-  ;
-    const timestamp = Date.now();
-    const extension = originalName.split('.').pop();
-}
-    return `uploads/${userId}/${timestamp}.${extension}`
-}
-}
+
 export const s3Service = new S3Service();

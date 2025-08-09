@@ -1,264 +1,141 @@
-import axios, {
-  AxiosInstance, AxiosRequestConfig, AxiosResponse
-}
-} from 'axios';
-import {
-  toast
-}
-} from '@/components/ui/use-toast' // Environment-based API configuration;
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ||;
-                    process.env.NODE_ENV === 'production';
-                      ? 'https://api.naukrimili.com';
-                      : 'http://localhos,t:3000' // API Response types;
-export interface ApiResponse<T = any> {
-  ;
-  data: T;
-  message?: string;
-  success: boolean;
-  error?: string;
-}
-}
-export interface PaginatedResponse<T> extends ApiResponse<T[]> {
-  ;
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-}
-    totalPages: number}
-} // Import ApiError from types;
-import {
-  ApiError
-}
-} from '@/types/api' // API Client configuration;
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { ApiResponse, PaginatedResponse } from '@/types/api';
+import { ApiError } from '@/types/api';
+
+// Prefer same-origin relative calls unless explicitly configured via env
+const API_BASE_URL = (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_API_URL) || '';
+
 class ApiClient {
-  ;
   private client: AxiosInstance;
 
   constructor() {
     this.client = axios.create({
-      baseURL: API_BASE_URL;
-      timeout: 30000, // 30 seconds;
-      headers: {
-      'Content-Type': 'application/json'
-}
-});
-  });
-
+      baseURL: API_BASE_URL || undefined,
+      timeout: 30000,
+      headers: { 'Content-Type': 'application/json' },
+    });
     this.setupInterceptors();
+  }
+
   private setupInterceptors() {
-  // Request interceptor;
-    this.client.interceptors.request.use(;
-      (config) => { // Add auth token if available;
+    // Request interceptor: attach auth token and request id
+    this.client.interceptors.request.use(
+      (config) => {
         const token = this.getAuthToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token
-}
-}`} // Add request ID for tracking;
-        config.headers['X-Request-ID'] = this.generateRequestId();
-
-        return config},
-      (error) => {
-  ;
-        console.error('Request interceptor error: ', error);
-        return Promise.reject(error);
-}
-  }
-    ) // Response interceptor;
-    this.client.interceptors.response.use(;
-      (response: AxiosResponse) => {
-  ;
-        return response
-
-}
-  },
-      (error) => {
-  ;
-        return this.handleResponseError(error);
-}
-  }
+  const headers = (config.headers ?? {}) as Record<string, any>;
+  if (token) headers.Authorization = `Bearer ${token}`;
+  headers['X-Request-ID'] = this.generateRequestId();
+  config.headers = headers as any;
+  return config;
+      },
+      (error) => Promise.reject(error)
     );
-  private getAuthToken(): string | null {
-  ;
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('auth_token') ||;;
-             sessionStorage.getItem('auth_token');
-}
+
+    // Response interceptor: unwrap data and normalize errors
+    this.client.interceptors.response.use(
+      (response: AxiosResponse) => response,
+      (error) => this.handleResponseError(error)
+    );
   }
-    return null}
-  private generateRequestId(): string {
-  ;
-    return `req_${Date.now();
-}
-  }_${
-  Math.random().toString(36).substr(2, 9);
-}
-  }`}
-  private handleResponseError(error: Record<string, unknown>): never {
-  let apiError: ApiError;
 
-    if (axios.isAxiosError(error)) {
-      const status = error.response?.status || 500;
-      const message = error.response?.data?.message ||;
-                     error.response?.data?.error ||;
-                     error.message ||;
-                     'An unexpected error occurred';
-      
-      apiError = new ApiError(message;
-        status);
-}
-        error.response?.data?.code }
-        error.response?.data) // Handle specific error cases;
-      switch (status) {
-  ;
-        case 401:;
-          this.handleUnauthorized();
-          break;
-        case 403:;
-          this.handleForbidden();
-          break;
-        case 404:;
-          this.handleNotFound();
-          break;
-        case 429:;
-          this.handleRateLimit();
-          break;
-        case 500:;
-          this.handleServerError();
-}
-          break}
-} else {
-  apiError = new ApiError(error.message || 'Network error');
-}
-        0 }
-        'NETWORK_ERROR');
-  } // Log error for debugging);
-
-    throw apiError}
-  private handleUnauthorized() {
-  // Clear auth tokens;
+  private getAuthToken(): string | null {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('auth_token');
-      sessionStorage.removeItem('auth_token');
-}
-  } // Redirect to login;
-    if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
-  ;
-}
-      window.location.href = '/auth/login'}
-}
-  private handleForbidden() {
-  ;
-    toast({
-      title: "Access Denied";";
-      description: "You don't have permission to perform this action.";";
-      variant: "destructive"
-}
-});
-  private handleNotFound() {
-  ;
-    toast({";
-      title: "Not Found";";
-      description: "The requested resource was not found.";";
-      variant: "destructive"
-}
-});
-  private handleRateLimit() {
-  ;
-    toast({";
-      title: "Rate Limited";";
-      description: "Too many requests. Please try again later.";";
-      variant: "destructive"
-}
-});
-  private handleServerError() {
-  ;
-    toast({";
-      title: "Server Error";";
-      description: "Something went wrong on our end. Please try again later.";";
-      variant: "destructive"
-}
-}) // Generic request methods;
-  async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-  ;
+      return (
+        window.localStorage.getItem('auth_token') || window.sessionStorage.getItem('auth_token')
+      );
+    }
+    return null;
+  }
+
+  private generateRequestId(): string {
+    const rand = Math.random().toString(36).slice(2, 10);
+    return `req_${Date.now()}_${rand}`;
+  }
+
+  private handleResponseError(error: any): never {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status ?? 0;
+      const body: any = error.response?.data || {};
+      const message = body.message || body.error || error.message || 'Request failed';
+      const code = body.code || (status === 0 ? 'NETWORK_ERROR' : undefined);
+
+      // Basic side-effects for some statuses
+      if (status === 401 && typeof window !== 'undefined') {
+        try {
+          window.localStorage.removeItem('auth_token');
+          window.sessionStorage.removeItem('auth_token');
+        } catch {}
+      }
+
+      throw new ApiError(message, status || 500, code, body);
+    }
+    throw new ApiError(error?.message || 'Unknown error', 500, 'UNKNOWN_ERROR');
+  }
+
+  // Generic request helpers
+  async get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.get<ApiResponse<T>>(url, config);
-    return response.data.data
-}
-}
-  async post<T = any>(url: string, data?: Record<string, unknown>, config?: AxiosRequestConfig): Promise<T> {
-  ;
+    return (response.data?.data as T) ?? (response.data as unknown as T);
+  }
+
+  async post<T = unknown>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
     const response = await this.client.post<ApiResponse<T>>(url, data, config);
-    return response.data.data
-}
-}
-  async put<T = any>(url: string, data?: Record<string, unknown>, config?: AxiosRequestConfig): Promise<T> {
-  ;
+    return (response.data?.data as T) ?? (response.data as unknown as T);
+  }
+
+  async put<T = unknown>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.put<ApiResponse<T>>(url, data, config);
-    return response.data.data
-}
-}
-  async patch<T = any>(url: string, data?: Record<string, unknown>, config?: AxiosRequestConfig): Promise<T> {
-  ;
+    return (response.data?.data as T) ?? (response.data as unknown as T);
+  }
+
+  async patch<T = unknown>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.patch<ApiResponse<T>>(url, data, config);
-    return response.data.data
-}
-}
-  async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-  ;
+    return (response.data?.data as T) ?? (response.data as unknown as T);
+  }
+
+  async delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.delete<ApiResponse<T>>(url, config);
-    return response.data.data
-}
-} // File upload method;
-  async upload<T = any>(url: string, file: File, onProgress?: (progress: number) => void): Promise<T> {
-  ;
-      const formData = new FormData();
+    return (response.data?.data as T) ?? (response.data as unknown as T);
+  }
+
+  // File upload
+  async upload<T = unknown>(
+    url: string,
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<T> {
+    const formData = new FormData();
     formData.append('file', file);
 
     const response = await this.client.post<ApiResponse<T>>(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (evt) => {
+        if (onProgress && evt.total) {
+          const pct = Math.round((evt.loaded * 100) / evt.total);
+          onProgress(pct);
+        }
+      },
+    });
+    return (response.data?.data as T) ?? (response.data as unknown as T);
+  }
 
+  // Paginated helper (assumes endpoint supports page & limit query params)
+  async getPaginated<T = unknown>(
+    url: string,
+    page: number = 1,
+    limit: number = 10,
+    config?: AxiosRequestConfig
+  ): Promise<PaginatedResponse<T>> {
+    const qs = new URLSearchParams({ page: String(page), limit: String(limit) });
+    const sep = url.includes('?') ? '&' : '?';
+    const response = await this.client.get<PaginatedResponse<T>>(`${url}${sep}${qs.toString()}` as string, config);
+    return response.data;
+  }
 }
-  },
-      onUploadProgress: (progressEvent) => {
-  ;
-        if (onProgress && progressEvent.total) {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          onProgress(progress);
-}
-  },
-});
 
-    return response.data.data} // Paginated request method;
-  async getPaginated<T = any>(;
-    url: string;
-    page: number = 1;
-    limit: number = 10;
-    config?: AxiosRequestConfig): Promise<PaginatedResponse<T>> {
-  ;
-    const params = new URLSearchParams({
-      page: page.toString();
-      limit: limit.toString();
-}
-  });
-
-    const response = await this.client.get<PaginatedResponse<T>>(`${
-  url
-}
-}?${
-  params.toString();
-}
-  }`,
-      config);
-
-    return response.data}
-} // Create singleton instance;
-export const apiClient = new ApiClient() // Export types for use in other files;
-export type {
-  AxiosRequestConfig, AxiosResponse
-}
-}
-export {
-  ApiError
-}";
-}
+export const apiClient = new ApiClient();
+export type { AxiosRequestConfig, AxiosResponse };

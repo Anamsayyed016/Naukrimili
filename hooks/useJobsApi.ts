@@ -1,117 +1,61 @@
-import {
-  useState, useEffect
-}
-} from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface Job {
-  id?: number;
+  id?: number | string;
   title: string;
   description: string;
-  location: string // Add other fields as needed
+  location: string;
 }
-}
-}
+
 export function useJobsApi() {
-  ;
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchJobs = async (): Promise<void> => {
+  const fetchJobs = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch('/api/jobs');
-      const data = await res.json();
-      setJobs(data);
-}
-  } catch (err) {
-  ;
+      if (res.ok) {
+        const data = await res.json();
+        setJobs(Array.isArray(data) ? data : data.jobs || []);
+      } else {
+        setJobs([]);
+      }
+    } catch (_) {
       setError('Failed to fetch jobs');
-}
-  } finally {
-  ;
-      setLoading(false);
-}
-  }
-
-  const createJob = async (job: Job): Promise<void> => {
-  ;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/jobs', {
-        method: 'POST';
-        headers: {
-      'Content-Type': 'application/json'
-}
-});
-        body: JSON.stringify(job);
-  });
-      if (!res.ok) throw new Error('Failed to create');
-      await fetchJobs()} catch (err) {
-  ;
-      setError('Failed to create job');
-}
-  } finally {
-  ;
-      setLoading(false);
-}
-  }
-
-  const updateJob = async (id: number, job: Job): Promise<void> => {
-  ;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/jobs/${id
-}
-}`, {
-  ;
-        method: 'PUT';
-        headers: {
-      'Content-Type': 'application/json'
-}
-});
-        body: JSON.stringify(job);
-  });
-      if (!res.ok) throw new Error('Failed to update');
-      await fetchJobs()} catch (err) {
-  ;
-      setError('Failed to update job');
-}
-  } finally {
-  ;
-      setLoading(false);
-}
-  }
-
-  const deleteJob = async (id: number): Promise<void> => {
-  ;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/jobs/${id
-}
-}`, {
-  method: 'DELETE'
-}
-});
-      if (!res.ok) throw new Error('Failed to delete');
-      await fetchJobs()} catch (err) {
-  ;
-      setError('Failed to delete job');
-}
-  } finally {
-  ;
-      setLoading(false);
-}
-  }
-
-  useEffect(() => {
-  fetchJobs();
-}
+    } finally { setLoading(false); }
   }, []);
 
-  return { jobs, loading, error, fetchJobs, createJob, updateJob, deleteJob }
+  const createJob = useCallback(async (job: Job) => {
+    setLoading(true); setError(null);
+    try {
+      const res = await fetch('/api/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(job) });
+      if (!res.ok) throw new Error('create failed');
+      await fetchJobs();
+    } catch (_) { setError('Failed to create job'); } finally { setLoading(false); }
+  }, [fetchJobs]);
+
+  const updateJob = useCallback(async (id: number | string, job: Job) => {
+    setLoading(true); setError(null);
+    try {
+      const res = await fetch(`/api/jobs/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(job) });
+      if (!res.ok) throw new Error('update failed');
+      await fetchJobs();
+    } catch (_) { setError('Failed to update job'); } finally { setLoading(false); }
+  }, [fetchJobs]);
+
+  const deleteJob = useCallback(async (id: number | string) => {
+    setLoading(true); setError(null);
+    try {
+      const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('delete failed');
+      await fetchJobs();
+    } catch (_) { setError('Failed to delete job'); } finally { setLoading(false); }
+  }, [fetchJobs]);
+
+  useEffect(() => { fetchJobs(); }, [fetchJobs]);
+
+  return { jobs, loading, error, fetchJobs, createJob, updateJob, deleteJob };
 }

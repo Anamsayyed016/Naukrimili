@@ -1,110 +1,79 @@
-// SIMPLIFIED UTILITIES - Easy to understand // Simple date formatting;
-export function formatDate(dateString: string) {
-  ;
-  const date = new Date(dateString);
-  return date.toLocaleDateString();
-}
-  } // Simple currency formatting;
-export function formatCurrency(amount: number, currency = '₹') {
-  ;
-  return currency + amount.toLocaleString();
-}
-  } // Simple text truncation;
-export function truncateText(text: string, maxLength: number) {
-  ;
-  if (text.length <= maxLength) {;
-    return text
-}
-}
-  return text.substring(0, maxLength) + '...'
-} // Simple email validation;
-export function isValidEmail(email: string) {
-  ;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-  } // Simple password validation;
-export function isValidPassword(password: string) {
-  // At least 6 characters;
-  return password.length >= 6
-}
-} // Simple delay function for loading states;
-export function delay(ms: number) {
-  ;
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-  } // Simple URL builder;
-export function buildUrl(baseUrl: string, params: Record<string, string>) {
-  ;
-  const url = new URL(baseUrl, window.location.origin);
-  
-  Object.keys(params).forEach(key => {;
-    if (params[key]) {;
-      url.searchParams.append(key, params[key]);
-}
-  }
-});
-  
-  return url.toString();
-  } // Simple local storage helpers;
-export const storage = {
-  ;
-  set: (key: string, value: any) => {;
-    try {;
-      localStorage.setItem(key, JSON.stringify(value));
-}
-  } catch (error) {
-  ;
-      console.log('Storage error:', error);
-}
-  }
-},
-  get: (key: string) => {
-  ;
-    try {;
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : null
-}
-} catch (error) {
-  ;
-      console.log('Storage error:', error);
-      return null
-}
-}
-},
-  remove: (key: string) => {
-  ;
-    try {;
-      localStorage.removeItem(key);
-}
-  } catch (error) {
-  ;
-      console.log('Storage error:', error);
-}
-  }
-}
-} // Simple API call helper;
-export async function apiCall(url: string, options: RequestInit = {}) {
-  try {;
-    const response = await fetch(url, {;
-      headers: {;
-        'Content-Type': 'application/json';
-}
-        ...options.headers }
-},
-      ...options);
-  });
+// Simple utilities: dates, currency, text, validation, storage, and HTTP.
 
-    if (!response.ok) {
-  ;
+export function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? '' : date.toLocaleDateString();
 }
-      throw new Error(`API error: ${response.status}`);
+
+export function formatCurrency(amount: number, currency = '₹') {
+  return `${currency}${Number(amount || 0).toLocaleString()}`;
+}
+
+export function truncateText(text: string, maxLength: number) {
+  if (typeof text !== 'string') return '';
+  if (text.length <= maxLength) return text;
+  return `${text.substring(0, Math.max(0, maxLength))}...`;
+}
+
+export function isValidEmail(email: string) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(String(email || ''));
+}
+
+export function isValidPassword(password: string) {
+  return String(password || '').length >= 6;
+}
+
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function buildUrl(baseUrl: string, params: Record<string, string | number | undefined>) {
+  const url = new URL(baseUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.append(key, String(value));
+    }
+  });
+  return url.toString();
+}
+
+export const storage = {
+  set(key: string, value: unknown) {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.log('Storage error:', error);
+    }
+  },
+  get<T = unknown>(key: string): T | null {
+    try {
+      if (typeof localStorage === 'undefined') return null;
+      const item = localStorage.getItem(key);
+      return item ? (JSON.parse(item) as T) : null;
+    } catch (error) {
+      console.log('Storage error:', error);
+      return null;
+    }
+  },
+  remove(key: string) {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.log('Storage error:', error);
+    }
+  },
+};
+
+export async function apiCall<T = unknown>(url: string, options: RequestInit = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+  });
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
   }
-    return await response.json();
-  } catch (error) {
-  ;
-    console.log('API call error:', error);
-    throw error
-}
-}
+  return (await response.json()) as T;
 }

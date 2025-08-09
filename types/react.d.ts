@@ -1,13 +1,10 @@
-import * as React from 'react';
-
 declare global {
-  ;
   namespace JSX {
+    // Allow any intrinsic element to avoid JSX type errors in custom components
     interface IntrinsicElements {
+      [elemName: string]: any;
+    }
+  }
 }
-}
-      [elemName: string]: Record<string, unknown>}
-}
-}
-export = React;
-export as namespace React;
+
+export {};

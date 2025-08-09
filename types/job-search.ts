@@ -1,23 +1,17 @@
-import type {
-  UnifiedJob
-}
-} from '@/types/jobs';
+import type { JobResult as UnifiedJob } from '@/types/jobs'
 
 export interface JobSearchResult {
-  jobs: UnifiedJob[];
-  total: number;
-  page: number;
-  totalPages: number;
+  jobs: UnifiedJob[]
+  total: number
+  page: number
+  totalPages: number
   hasMore: boolean
 }
-}
-}
 export interface JobSearchResponse {
-  success: boolean;
-  data?: JobSearchResult;
+  success: boolean
+  data?: JobSearchResult
   error?: {
-    message: string;
-}
-}}
-    details?: unknown}
+    message: string
+    details?: unknown
+  }
 }
