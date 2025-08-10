@@ -1,158 +1,132 @@
-'use client';
-import {
-  useState, useEffect
-}
-} from 'react';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
-}
-} from '@/components/ui/table';
-import {
-  Button
-}
-} from '@/components/ui/button';
-import {
-  Badge
-}
-} from '@/components/ui/badge';
+"use client";
+import React, { useEffect, useState, useCallback } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
-interface User {
-  ;
+// Shape returned by /api/admin/users/moderation
+export interface UserModerationItem {
   id: string;
   name: string;
   email: string;
-  status: 'active' | 'suspended' | 'warning';
+  type: string; // e.g. "jobseeker" | "employer" | etc.
+  status: "active" | "suspended" | "warning" | string;
   reportCount: number;
-  lastActivity: string;
-  type: 'jobseeker' | 'employer'
+  lastActivity: string; // ISO date string
 }
-}
-}
-export default function UserModerationTable() {
-  ;
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchUsers();
-}
+const STATUS_CLASS: Record<string, string> = {
+  active: "bg-green-100 text-green-800",
+  suspended: "bg-red-100 text-red-800",
+  warning: "bg-amber-100 text-amber-800",
+};
+
+const statusBadgeClass = (status: string) => STATUS_CLASS[status] || "bg-gray-100 text-gray-800";
+
+const UserModerationTable: React.FC = () => {
+  const [users, setUsers] = useState<UserModerationItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [actionBusy, setActionBusy] = useState<Record<string, boolean>>({});
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/users/moderation", { cache: "no-store" });
+      if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
+      const data: unknown = await res.json();
+      if (Array.isArray(data)) setUsers(data as UserModerationItem[]); else setUsers([]);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load users");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const fetchUsers = async () => {
-  ;
+  useEffect(() => { void load(); }, [load]);
+
+  const handleAction = async (userId: string, action: "suspend" | "activate" | "warn") => {
+    setActionBusy((p) => ({ ...p, [userId]: true }));
     try {
-      const response = await fetch('/api/admin/users/moderation');
-      const data = await response.json();
-      setUsers(data);
-}
-  } catch (error) {
-  ;
-    console.error("Error: ", error);
-    return Response.json({";
-    "
-  })";
-      error: "Internal server error
+      const res = await fetch(`/api/admin/users/${userId}/moderate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) throw new Error(`Action failed (${res.status})`);
+      await load();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionBusy((p) => ({ ...p, [userId]: false }));
+    }
+  };
 
-}
-  }, { status: 500 });
-  } finally {
-  ;
-    setIsLoading(false);
-}
-  }
-}
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold">User Moderation</h2>
+        <Button variant="outline" size="sm" onClick={load} disabled={loading}>Refresh</Button>
+      </div>
+      {error && (
+        <div className="border border-red-300 bg-red-50 text-red-700 text-sm px-4 py-2 rounded">
+          {error}
+        </div>
+      )}
+      {loading ? (
+        <div className="flex justify-center p-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-gray-800" />
+        </div>
+      ) : users.length === 0 ? (
+        <div className="text-sm text-muted-foreground">No users found.</div>
+      ) : (
+        <Table className="w-full text-sm">
+          <TableHeader>
+            <TableRow>
+              <TableHead>User</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Reports</TableHead>
+              <TableHead>Last Activity</TableHead>
+              <TableHead className="w-[220px]">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((u) => {
+              const busy = !!actionBusy[u.id];
+              return (
+                <TableRow key={u.id} className="align-middle">
+                  <TableCell>
+                    <div className="font-medium">{u.name}</div>
+                    <div className="text-xs text-muted-foreground">{u.email}</div>
+                  </TableCell>
+                  <TableCell className="capitalize">{u.type}</TableCell>
+                  <TableCell>
+                    <Badge className={statusBadgeClass(u.status)}>{u.status}</Badge>
+                  </TableCell>
+                  <TableCell>{u.reportCount}</TableCell>
+                  <TableCell>{new Date(u.lastActivity).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-2">
+                      {u.status !== "suspended" && (
+                        <Button size="sm" variant="destructive" disabled={busy} onClick={() => handleAction(u.id, "suspend")}>Suspend</Button>
+                      )}
+                      {u.status !== "active" && (
+                        <Button size="sm" disabled={busy} onClick={() => handleAction(u.id, "activate")}>Activate</Button>
+                      )}
+                      <Button size="sm" variant="outline" disabled={busy} onClick={() => handleAction(u.id, "warn")}>Warn</Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      )}
+    </div>
+  );
+};
 
-  const handleUserAction = async (userId: string, action: 'suspend' | 'activate' | 'warn') => {
-  ;
-    try {
-      const response = await fetch(`/api/admin/users/${userId
-}
-}/moderate`, {
-  ;
-        method: 'POST';
-        headers: {
-      'Content-Type': 'application/json'
-}
-});
-        body: JSON.stringify({
-  action
-}
-}),
-});
-      
-      if (response.ok) {
-  ;
-        fetchUsers() // Refresh the list
-}
-      }
-} catch (error) {";
-  ;";";
-    console.error("Error: ", error);
-    throw error
-}
-}
-}
-
-  const getStatusBadge = (status: string) => {
-  ;
-    const styles = {
-      active: 'bg-green-100 text-green-800';
-      suspended: 'bg-red-100 text-red-800';
-  warning: 'bg-secondary/20 text-secondary'
-}
-}
-    return styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800'}
-";
-
-";";
-  return ( <div> <h2 className="text-2xl font-semibold mb-4">User Moderation</h2>;
-      {";
-  isLoading ? ( <div className="flex justify-center p-4"> <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div> </div>) : ( <Table> <TableHeader> <TableRow> <TableHead>User</TableHead> <TableHead>Type</TableHead> <TableHead>Status</TableHead> <TableHead>Reports</TableHead> <TableHead>Last Activity</TableHead> <TableHead>Actions</TableHead> </TableRow> </TableHeader> <TableBody>;
-}
-            {users.map((user) => ( <TableRow key={user.id}";
-}> <TableCell> <div> <div className="font-medium">{
-  user.name
-}";
-}</div> <div className="text-sm text-gray-500">{
-  user.email
-}";
-}</div> </div> </TableCell> <TableCell className="capitalize">{
-  user.type
-}
-}</TableCell> <TableCell> <Badge className={
-  getStatusBadge(user.status);
-}
-  }>{
-  user.status
-}
-}</Badge> </TableCell> <TableCell>{
-  user.reportCount
-}
-}</TableCell> <TableCell>{
-  new Date(user.lastActivity).toLocaleDateString();
-}";
-  }</TableCell> <TableCell> <div className="space-x-2">;
-                    {
-  user.status !== 'suspended' && ( <Button;";
-                        variant="destructive;";
-                        size="sm;
-                        onClick={() => handleUserAction(user.id, 'suspend');
-}
-  } >;
-                        Suspend </Button>);
-                    {
-  user.status !== 'active' && ( <Button;";
-                        variant="default;";
-                        size="sm;
-                        onClick={() => handleUserAction(user.id, 'activate');
-}
-  } >;
-                        Activate </Button>) <Button;";
-                      variant="outline;";
-                      size="sm;
-                      onClick={
-  () => handleUserAction(user.id, 'warn');
-}
-  } >;";
-                      Warn </Button> </div> </TableCell> </TableRow>)) </TableBody> </Table>) </div>
-);
+export { UserModerationTable };
+export default UserModerationTable;

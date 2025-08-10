@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { fetchFromAdzuna, fetchFromJSearch, NormalizedJob } from '@/lib/jobs/providers';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { upsertNormalizedJobs } from '@/lib/jobs/upsertJob';
+import { prisma } from '@/lib/prisma';
 
 type CacheEntry = { expiresAt: number; data: any };
 const CACHE_TTL_SECONDS = Number(process.env.CACHE_TTL_SECONDS || 3600);
@@ -19,6 +18,7 @@ function normalizeCountry(code?: string) {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   try {
     const { query = 'software developer', country = 'IN', page = '1' } = req.query;
     const q = String(query);
@@ -46,51 +46,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ]);
 
     const combined: NormalizedJob[] = [...adzunaJobs, ...jsearchJobs];
+    const saved = await upsertNormalizedJobs(combined);
 
-    const upsertPromises = combined.map(async (job) => {
-      if (!job || !job.sourceId) return null;
-      try {
-        const existing = await prisma.job.findFirst({ where: { source: job.source, sourceId: job.sourceId } });
-        if (existing) {
-          return prisma.job.update({
-            where: { id: existing.id },
-            data: {
-              title: job.title,
-              company: job.company,
-              location: job.location,
-              description: job.description,
-              applyUrl: job.applyUrl,
-              postedAt: job.postedAt ? new Date(job.postedAt) : existing.postedAt,
-              salary: job.salary,
-              rawJson: job.raw,
-            },
-          });
-        } else {
-          return prisma.job.create({
-            data: {
-              source: job.source,
-              sourceId: job.sourceId,
-              title: job.title,
-              company: job.company,
-              location: job.location,
-              country: job.country?.slice(0, 2) || 'US',
-              description: job.description || '',
-              applyUrl: job.applyUrl || null,
-              postedAt: job.postedAt ? new Date(job.postedAt) : null,
-              salary: job.salary || null,
-              rawJson: job.raw,
-            },
-          });
-        }
-      } catch {
-        return null;
-      }
-    });
-
-    const results = await Promise.all(upsertPromises);
-    const saved = results.filter(Boolean) as any[];
-
-    const serialized = saved.map((s) => ({
+    const serialized = saved.map((s: any) => ({
       id: s.id,
       title: s.title,
       company: s.company,

@@ -1,0 +1,59 @@
+import { prisma } from '@/lib/prisma';
+import { NormalizedJob } from './providers';
+
+/**
+ * Upsert a normalized external job into the Job table using the composite unique (source, sourceId).
+ * Returns the persisted Job record or null if required identifiers are missing.
+ */
+export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
+  if (!job?.source || !job?.sourceId) return null;
+  const postedAtDate = job.postedAt ? new Date(job.postedAt) : null;
+  try {
+    return await prisma.job.upsert({
+      where: { source_sourceId: { source: job.source, sourceId: job.sourceId } },
+      update: {
+        title: job.title || '',
+        company: job.company || null,
+        location: job.location || null,
+        description: job.description || '',
+        applyUrl: job.applyUrl || null,
+        postedAt: postedAtDate || undefined,
+        salary: (job as any).salary || null,
+        rawJson: (job as any).raw,
+      },
+      create: {
+        source: job.source,
+        sourceId: job.sourceId,
+        title: job.title || '',
+        company: job.company || null,
+        location: job.location || null,
+        country: job.country?.slice(0, 2).toUpperCase() || 'US',
+        description: job.description || '',
+        applyUrl: job.applyUrl || null,
+        postedAt: postedAtDate,
+        salary: (job as any).salary || null,
+        rawJson: (job as any).raw,
+      },
+    });
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Bulk helper: upsert an array of normalized jobs concurrently with a concurrency limit (default 10).
+ */
+export async function upsertNormalizedJobs(jobs: Partial<NormalizedJob>[], concurrency = 10) {
+  const results: any[] = [];
+  let index = 0;
+  async function worker() {
+    while (index < jobs.length) {
+      const current = jobs[index++];
+      const r = await upsertNormalizedJob(current);
+      if (r) results.push(r);
+    }
+  }
+  const workers = Array.from({ length: Math.min(concurrency, jobs.length) }, worker);
+  await Promise.all(workers);
+  return results;
+}

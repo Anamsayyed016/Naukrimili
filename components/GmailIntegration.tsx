@@ -142,71 +142,66 @@ export default function GmailIntegration() {
               onChange={(e) => setComposeData((p) => ({ ...p, body: e.target.value }))}
             />
             <div className="flex gap-2">
-              <Button onClick={sendEmail} disabled={sending}>
-                {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} Send
+              <Button
+                onClick={sendEmail}
+                disabled={
+                  sending || !composeData.to || !composeData.subject || !composeData.body
+                }
+              >
+                {sending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4 mr-2" />
+                )}
+                Send
               </Button>
-              <Button variant="outline" onClick={() => setShowCompose(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowCompose(false)}>
+                Cancel
+              </Button>
             </div>
           </CardContent>
         </Card>
       )}
-      {/* Email list basic rendering */}
-      <div className="space-y-2">
-        {emails.map((email) => (
-          <Card key={email.id} className="overflow-hidden">
-            <CardContent className="p-4">
-              <div className="font-medium text-gray-900 mb-1">{email.headers['Subject'] || 'No Subject'}</div>
-              <div className="text-xs text-gray-500 mb-2">ID: {email.id}</div>
-              <div className="text-sm text-gray-700 line-clamp-2">{email.snippet}</div>
+      {/* Email List */}
+      <div className="space-y-4">
+        {loading && (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          </div>
+        )}
+        {!loading && !emails.length && (
+          <Card>
+            <CardContent className="p-8 text-center text-gray-500">
+              No emails found
             </CardContent>
           </Card>
-        ))}
-        {!emails.length && !loading && (
-          <div className="text-sm text-gray-500 italic">No emails found.</div>
         )}
+        {!loading &&
+          emails.map((email) => (
+            <Card key={email.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-medium text-gray-900">
+                        {email.headers['From'] || 'Unknown Sender'}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {email.headers['Date']
+                          ? new Date(email.headers['Date']).toLocaleDateString()
+                          : 'No date'}
+                      </span>
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      {email.headers['Subject'] || 'No Subject'}
+                    </h3>
+                    <p className="text-gray-600 text-sm line-clamp-2">{email.snippet}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
       </div>
     </div>
   );
 }
-}
-                disabled={sending || !composeData.to || !composeData.subject || !composeData.body}
-}";
-                className="bg-blue-600 hover:bg-blue-700 >;
-                {";
-  sending ? ( <Loader2 className="w-4 h-4 animate-spin mr-2" />) : ( <Send className="w-4 h-4 mr-2" />);
-}
-  }
-                Send Email </Button> <Button;
-                onClick={
-  () => setShowCompose(false);
-}
-  }";
-                variant="outline >;
-                Cancel </Button> </div> </CardContent> </Card>);
-      {
-  /* Email List */
-}";
-} <div className="space-y-4">;
-        {";
-  loading ? ( <div className="flex items-center justify-center py-8"> <Loader2 className="w-8 h-8 animate-spin text-blue-500" /> </div>) : emails.length === 0 ? ( <Card> <CardContent className="p-8 text-center text-gray-500">;
-              No emails found </CardContent> </Card>) : (;
-}
-          emails.map((email) => ( <Card key={email.id}";
-} className="hover:shadow-md transition-shadow"> <CardContent className="p-4"> <div className="flex items-start justify-between"> <div className="flex-1"> <div className="flex items-center gap-2 mb-2"> <User className="w-4 h-4 text-gray-400" /> <span className="font-medium text-gray-900">;
-                        {
-  email.headers.From || 'Unknown Sender'
-}";
-} </span> <Badge variant="secondary" className="text-xs">;
-                        {
-  email.headers.Date ? new Date(email.headers.Date).toLocaleDateString() : 'No date'
-}";
-} </Badge> </div> <h3 className="font-semibold text-gray-900 mb-1">;
-                      {
-  email.headers.Subject || 'No Subject'
-}";
-} </h3> <p className="text-gray-600 text-sm">;
-                      {
-  email.snippet
-}";
-} </p> </div> </div> </CardContent> </Card>))) </div> </div>
-);

@@ -1,24 +1,35 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 
-const prisma = new PrismaClient();
+// Query validation schema
+const querySchema = z.object({
+  q: z.string().trim().max(200).optional().default(''),
+  country: z.string().length(2).optional(),
+  page: z.string().regex(/^\d+$/).optional().default('1'),
+  per_page: z.string().regex(/^\d+$/).optional().default('20'),
+});
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   try {
-    const { q = '', country, page = '1', per_page = '20' } = req.query;
+    const parseResult = querySchema.safeParse(req.query);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: 'Invalid query', details: parseResult.error.flatten() });
+    }
+    const { q, country, page, per_page } = parseResult.data;
     const pageNum = Math.max(1, Number(page));
-    const perPage = Math.min(100, Number(per_page) || 20);
+    const perPage = Math.min(100, Math.max(1, Number(per_page)));
 
     const where: any = {};
-    if (String(q).trim()) {
-      const s = String(q);
+    if (q) {
       where.OR = [
-        { title: { contains: s, mode: 'insensitive' } },
-        { company: { contains: s, mode: 'insensitive' } },
-        { description: { contains: s, mode: 'insensitive' } },
+        { title: { contains: q, mode: 'insensitive' } },
+        { company: { contains: q, mode: 'insensitive' } },
+        { description: { contains: q, mode: 'insensitive' } },
       ];
     }
-    if (country) where.country = String(country).toUpperCase();
+    if (country) where.country = country.toUpperCase();
 
     const [total, jobs] = await Promise.all([
       prisma.job.count({ where }),

@@ -1,70 +1,62 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
 import { fetchFromAdzuna, fetchFromJSearch } from '@/lib/jobs/providers';
+import { upsertNormalizedJobs } from '@/lib/jobs/upsertJob';
+import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 
-const prisma = new PrismaClient();
+// Simple in-memory rate limiter (per-IP). Replace with Redis for distributed environments.
+const rateMap = new Map<string, { count: number; reset: number }>();
+const WINDOW_MS = 60_000; // 1 minute window
+const MAX_REQ = 5; // max requests per window
+
+function rateLimit(key: string) {
+  const now = Date.now();
+  const entry = rateMap.get(key);
+  if (!entry || entry.reset < now) {
+    rateMap.set(key, { count: 1, reset: now + WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= MAX_REQ) return false;
+  entry.count += 1;
+  return true;
+}
+
+const importBodySchema = z.object({
+  queries: z.array(z.string().min(2)).min(1).max(5).default(['software developer']),
+  country: z.string().length(2).default('IN'),
+  page: z.number().int().positive().max(50).default(1),
+});
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const key = (req.headers['x-import-api-key'] as string) || (req.body?.importApiKey as string | undefined);
-  if (!key || key !== process.env.IMPORT_API_KEY) {
+
+  const apiKey = (req.headers['x-import-api-key'] as string) || (req.body?.importApiKey as string | undefined);
+  if (!apiKey || apiKey !== process.env.IMPORT_API_KEY) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
+  // Rate limit by IP
+  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+  if (!rateLimit(`import:${ip}`)) return res.status(429).json({ error: 'rate limit exceeded' });
+
   try {
-    const { queries = ['software developer'], country = 'IN', page = 1 } = req.body || {};
+    const parsed = importBodySchema.safeParse(req.body || {});
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid body', details: parsed.error.flatten() });
+    }
+    const { queries, country, page } = parsed.data;
 
     const allJobs: any[] = [];
     for (const q of queries) {
       const [adz, jsearch] = await Promise.all([
-        fetchFromAdzuna(q, country, page).catch(() => []),
-        fetchFromJSearch(q, country, page).catch(() => []),
+        fetchFromAdzuna(q, country.toLowerCase(), page).catch(() => []),
+        fetchFromJSearch(q, country.toUpperCase(), page).catch(() => []),
       ]);
       allJobs.push(...adz, ...jsearch);
     }
 
-    const upsertPromises = allJobs.map(async (job) => {
-      if (!job?.sourceId) return null;
-      try {
-        // Composite unique (source, sourceId)
-        const existing = await prisma.job.findFirst({ where: { source: job.source, sourceId: job.sourceId } });
-        if (existing) {
-          return prisma.job.update({
-            where: { id: existing.id },
-            data: {
-              title: job.title,
-              company: job.company,
-              location: job.location,
-              description: job.description,
-              applyUrl: job.applyUrl,
-              postedAt: job.postedAt ? new Date(job.postedAt) : existing.postedAt,
-              salary: job.salary,
-              rawJson: job.raw,
-            },
-          });
-        }
-        return prisma.job.create({
-          data: {
-            source: job.source,
-            sourceId: job.sourceId,
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            country: job.country?.slice(0, 2).toUpperCase() || 'US',
-            description: job.description || '',
-            applyUrl: job.applyUrl || null,
-            postedAt: job.postedAt ? new Date(job.postedAt) : null,
-            salary: job.salary || null,
-            rawJson: job.raw,
-          },
-        });
-      } catch {
-        return null;
-      }
-    });
-
-    const results = await Promise.all(upsertPromises);
-    res.status(200).json({ imported: results.filter(Boolean).length });
+    const saved = await upsertNormalizedJobs(allJobs);
+    res.status(200).json({ imported: saved.length });
   } catch (error: any) {
     console.error('import error', error);
     res.status(500).json({ error: error?.message || 'failed' });

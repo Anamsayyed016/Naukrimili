@@ -1,166 +1,167 @@
-'use client';
-import {
-  useState, useEffect
+"use client";
+import React, { useEffect, useState } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+interface EmployerInfo {
+  name: string;
+  email: string;
+  verificationScore: number;
 }
-} from 'react';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
-}
-} from '@/components/ui/table';
-import {
-  Button
-}
-} from '@/components/ui/button';
-import {
-  Badge
-}
-} from '@/components/ui/badge';
 
 interface JobVerification {
-  ;
   id: string;
   jobTitle: string;
   company: string;
-  submittedAt: string;
-  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: string; // ISO string
+  status: "pending" | "approved" | "rejected";
   flags: string[];
-  employerInfo: {
-    name: string;
-    email: string
+  employerInfo: EmployerInfo;
 }
-}}
-    verificationScore: number}
-}
+
 export default function JobVerificationQueue() {
-  ;
   const [jobs, setJobs] = useState<JobVerification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchJobs();
-}
+    void fetchJobs();
   }, []);
 
-  const fetchJobs = async () => {
-  ;
+  async function fetchJobs() {
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await fetch('/api/admin/jobs/verification');
-      const data = await response.json();
-      setJobs(data);
-}
-  } catch (error) {
-  ;
-    console.error("Error: ", error);
-    return Response.json({";
-    "
-  })";
-      error: "Internal server error
-
-}
-  }, { status: 500 });
-  } finally {
-  ;
-    setIsLoading(false);
-}
+      const res = await fetch("/api/admin/jobs/verification");
+      if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
+      const data: JobVerification[] = await res.json();
+      setJobs(Array.isArray(data) ? data : []);
+    } catch (e: any) {
+      setError(e?.message || "Failed to load jobs");
+    } finally {
+      setIsLoading(false);
+    }
   }
-}
 
-  const handleJobAction = async (jobId: string, action: 'approve' | 'reject') => {
-  ;
+  async function handleJobAction(jobId: string, action: "approve" | "reject") {
     try {
-      const response = await fetch(`/api/admin/jobs/${jobId
-}
-}/verify`, {
-  ;
-        method: 'POST';
-        headers: {
-      'Content-Type': 'application/json'
-}
-});
-        body: JSON.stringify({
-  action
-}
-}),
-});
-      
-      if (response.ok) {
-  ;
-        fetchJobs() // Refresh the list
-}
-      }
-} catch (error) {";
-  ;";";
-    console.error("Error: ", error);
-    throw error
-}
-}
-}
-";
+      const res = await fetch(`/api/admin/jobs/${jobId}/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) throw new Error(`Action failed (${res.status})`);
+      await fetchJobs();
+    } catch (e: any) {
+      setError(e?.message || "Action failed");
+    }
+  }
 
-";";
-  return ( <div> <h2 className="text-2xl font-semibold mb-4">Job Verification Queue</h2>;
-      {";
-  isLoading ? ( <div className="flex justify-center p-4"> <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div> </div>) : ( <Table> <TableHeader> <TableRow> <TableHead>Job Details</TableHead> <TableHead>Employer</TableHead> <TableHead>Submitted</TableHead> <TableHead>Flags</TableHead> <TableHead>Status</TableHead> <TableHead>Actions</TableHead> </TableRow> </TableHeader> <TableBody>;
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold">Job Verification Queue</h2>
+        <Button variant="outline" onClick={() => fetchJobs()} disabled={isLoading}>
+          Refresh
+        </Button>
+      </div>
+      {error && (
+        <div className="rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+      {isLoading ? (
+        <div className="flex justify-center p-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-gray-800" />
+        </div>
+      ) : jobs.length === 0 ? (
+        <div className="text-sm text-gray-600">No jobs awaiting verification.</div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Job Details</TableHead>
+              <TableHead>Employer</TableHead>
+              <TableHead>Submitted</TableHead>
+              <TableHead>Flags</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-[160px]">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {jobs.map((job) => {
+              const scoreClass =
+                job.employerInfo.verificationScore > 80
+                  ? "bg-green-100 text-green-800"
+                  : job.employerInfo.verificationScore > 50
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-red-100 text-red-800";
+              const statusClass =
+                job.status === "approved"
+                  ? "bg-green-100 text-green-800"
+                  : job.status === "rejected"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-gray-100 text-gray-700";
+              return (
+                <TableRow key={job.id}>
+                  <TableCell>
+                    <div className="font-medium">{job.jobTitle}</div>
+                    <div className="text-xs text-gray-500">{job.company}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div className="text-sm">{job.employerInfo.name}</div>
+                      <div className="text-xs text-gray-500">{job.employerInfo.email}</div>
+                      <Badge className={scoreClass} variant="secondary">
+                        Score: {job.employerInfo.verificationScore}%
+                      </Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {new Date(job.submittedAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {job.flags.map((flag, i) => (
+                        <Badge key={i} variant="outline" className="text-xs">
+                          {flag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={statusClass} variant="secondary">
+                      {job.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {job.status === "pending" ? (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleJobAction(job.id, "approve")}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleJobAction(job.id, "reject")}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-500">—</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      )}
+    </div>
+  );
 }
-            {jobs.map((job) => ( <TableRow key={job.id}";
-}> <TableCell> <div> <div className="font-medium">{
-  job.jobTitle
-}";
-}</div> <div className="text-sm text-gray-500">{
-  job.company
-}
-}</div> </div> </TableCell> <TableCell> <div> <div>{
-  job.employerInfo.name
-}";
-}</div> <div className="text-sm text-gray-500">{
-  job.employerInfo.email
-}
-}</div> <Badge;
-                      className={
-  ;
-                        job.employerInfo.verificationScore > 80 ? 'bg-green-100 text-green-800' :;
-                        job.employerInfo.verificationScore > 50 ? 'bg-secondary/20 text-secondary' :;
-                        'bg-red-100 text-red-800'
-}
-}
-} >;
-                      Score: {
-  job.employerInfo.verificationScore
-}
-}% </Badge> </div> </TableCell> <TableCell>{
-  new Date(job.submittedAt).toLocaleDateString();
-}";
-  }</TableCell> <TableCell> <div className="space-x-1">;
-                    {job.flags.map((flag, index) => ( <Badge key={index}";
-} variant="outline">{
-  flag
-}
-}</Badge>)) </div> </TableCell> <TableCell> <Badge;
-                    className={
-  ;
-                      job.status === 'approved' ? 'bg-green-100 text-green-800' :;
-                      job.status === 'rejected' ? 'bg-red-100 text-red-800' :;
-                      'bg-secondary/20 text-secondary'
-}
-}
-} >;
-                    {
-  job.status
-}
-} </Badge> </TableCell> <TableCell>;
-                  {";
-  job.status === 'pending' && ( <div className="space-x-2"> <Button;";
-                        variant="default;";
-                        size="sm;
-                        onClick={() => handleJobAction(job.id, 'approve');
-}
-  } >;
-                        Approve </Button> <Button;";
-                        variant="destructive;";
-                        size="sm;
-                        onClick={
-  () => handleJobAction(job.id, 'reject');
-}
-  } >;";
-                        Reject </Button> </div>) </TableCell> </TableRow>)) </TableBody> </Table>) </div>
-);
