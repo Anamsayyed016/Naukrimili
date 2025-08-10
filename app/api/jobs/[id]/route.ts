@@ -1,19 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(_request: NextRequest, { params }: { params: { jobId: string } }) {
+function parseId(raw: string) {
+  const n = Number(raw);
+  if (!raw || !Number.isInteger(n) || n <= 0) return null;
+  return n;
+}
+
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+  const idNum = parseId(params.id);
+  if (idNum == null) return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
   try {
-    const job = await prisma.job.findUnique({ where: { id: params.jobId } });
+    const job = await prisma.job.findUnique({ where: { id: idNum } });
     if (!job) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     return NextResponse.json({ success: true, job });
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Job GET error:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch job' }, { status: 500 });
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { jobId: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const idNum = parseId(params.id);
+  if (idNum == null) return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
   try {
     const data = await request.json();
     const updateData: any = {
@@ -33,30 +42,27 @@ export async function PUT(request: NextRequest, { params }: { params: { jobId: s
       status: data.status,
       sector: data.sector,
     };
-    const job = await prisma.job.update({
-      where: { id: params.jobId },
-      data: updateData,
-    });
+    const job = await prisma.job.update({ where: { id: idNum }, data: updateData });
     return NextResponse.json({ success: true, job });
   } catch (error: any) {
     if (error?.code === 'P2025') {
       return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     }
-    // eslint-disable-next-line no-console
     console.error('Job PUT error:', error);
     return NextResponse.json({ success: false, error: 'Failed to update job' }, { status: 500 });
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: { params: { jobId: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+  const idNum = parseId(params.id);
+  if (idNum == null) return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
   try {
-    await prisma.job.delete({ where: { id: params.jobId } });
+    await prisma.job.delete({ where: { id: idNum } });
     return NextResponse.json({ success: true });
   } catch (error: any) {
     if (error?.code === 'P2025') {
       return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
     }
-    // eslint-disable-next-line no-console
     console.error('Job DELETE error:', error);
     return NextResponse.json({ success: false, error: 'Failed to delete job' }, { status: 500 });
   }

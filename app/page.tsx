@@ -1,14 +1,97 @@
 "use client";
 
 import Link from 'next/link';
-import { Brain, Shield, Zap, Search, MapPin, TrendingUp, Users, Building2, ArrowRight, Upload, FileText, User, CheckCircle } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { Brain, Shield, Zap, Search, MapPin, TrendingUp, Users, Building2, ArrowRight, Upload, FileText, User, CheckCircle, Briefcase } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 
 export default function HomePage() {
   const [uploadedResume, setUploadedResume] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Enhanced hero search state
+  const [keyword, setKeyword] = useState('');
+  const [location, setLocation] = useState('');
+  const [suggestions, setSuggestions] = useState<{ type: 'title' | 'company' | 'skill'; value: string }[]>([]);
+  const [focusedIdx, setFocusedIdx] = useState(-1);
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Trending jobs shortcuts (could later come from API)
+  const trendingJobs: { q: string; loc?: string }[] = [
+    { q: 'Frontend Developer', loc: 'Bangalore' },
+    { q: 'Data Analyst', loc: 'Mumbai' },
+    { q: 'Product Manager', loc: 'Hyderabad' },
+    { q: 'UI/UX Designer', loc: 'Pune' },
+    { q: 'DevOps Engineer', loc: 'Chennai' },
+  ];
+
+  // Featured employers minimal list (placeholder logos)
+  const featuredEmployers: { name: string; slug: string; logo: string; open: number }[] = [
+    { name: 'Infosys', slug: 'infosys', logo: '💠', open: 120 },
+    { name: 'TCS', slug: 'tcs', logo: '🌀', open: 98 },
+    { name: 'Flipkart', slug: 'flipkart', logo: '🛒', open: 45 },
+    { name: 'Swiggy', slug: 'swiggy', logo: '🥘', open: 60 },
+    { name: 'Zoho', slug: 'zoho', logo: '🧩', open: 30 },
+    { name: 'Freshworks', slug: 'freshworks', logo: '🌱', open: 25 },
+  ];
+
+  // Location auto-detection (rough) – only attempts once if location empty
+  useEffect(() => {
+    if (location) return;
+    if (!navigator.geolocation) return;
+    setDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        let city = 'India';
+        if (latitude > 12 && latitude < 14 && longitude > 77 && longitude < 78) city = 'Bangalore';
+        else if (latitude > 18 && latitude < 20 && longitude > 72 && longitude < 73) city = 'Mumbai';
+        else if (latitude > 28 && latitude < 29 && longitude > 76 && longitude < 78) city = 'Delhi';
+        setLocation(city);
+        setDetectingLocation(false);
+      },
+      () => setDetectingLocation(false),
+      { timeout: 5000 }
+    );
+  }, [location]);
+
+  // Debounced API-backed suggestion fetching
+  useEffect(() => {
+    if (suggestionTimeoutRef.current) clearTimeout(suggestionTimeoutRef.current);
+    if (!keyword.trim()) { setSuggestions([]); return; }
+    suggestionTimeoutRef.current = setTimeout(async () => {
+      try {
+        const controller = new AbortController();
+        const sig = controller.signal;
+        const res = await fetch(`/api/search-suggestions?q=${encodeURIComponent(keyword.trim())}`, { signal: sig, cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        setSuggestions(Array.isArray(data.suggestions) ? data.suggestions : []);
+        setFocusedIdx(-1);
+      } catch {/* ignore */}
+    }, 160);
+    return () => { if (suggestionTimeoutRef.current) clearTimeout(suggestionTimeoutRef.current); };
+  }, [keyword]);
+
+  const submitSearch = useCallback((k = keyword, l = location) => {
+    if (!k.trim()) return;
+    const locParam = l.trim();
+    window.location.href = `/jobs?query=${encodeURIComponent(k.trim())}${locParam ? `&location=${encodeURIComponent(locParam)}` : ''}`;
+  }, [keyword, location]);
+
+  const handleSuggestionKeys = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!suggestions.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); setFocusedIdx(i => (i + 1) % suggestions.length); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setFocusedIdx(i => (i - 1 + suggestions.length) % suggestions.length); }
+    else if (e.key === 'Enter') {
+      if (focusedIdx >= 0) {
+        setKeyword(suggestions[focusedIdx].value);
+        setSuggestions([]);
+      } else submitSearch();
+    } else if (e.key === 'Escape') setSuggestions([]);
+  };
 
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
@@ -119,28 +202,81 @@ export default function HomePage() {
                 matching system. Your perfect career is just a search away.
               </p>
 
-              {/* Search Section */}
-              <div className="max-w-4xl mx-auto mb-12">
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+              {/* Enhanced Search Section */}
+              <div className="max-w-5xl mx-auto mb-10">
+                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-white/20">
                   <div className="flex flex-col md:flex-row gap-4">
+                    {/* Keyword input with suggestions */}
                     <div className="flex-1 relative">
-                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                       <input
+                        value={keyword}
+                        onChange={e => setKeyword(e.target.value)}
+                        onKeyDown={handleSuggestionKeys}
                         type="text"
                         placeholder="Job title, skills, or company..."
+                        aria-label="Search keyword"
                         className="w-full pl-12 pr-4 py-4 text-gray-900 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-lg"
                       />
+                      {suggestions.length > 0 && (
+                        <ul className="absolute z-20 mt-2 w-full bg-white text-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 divide-y">
+                          {suggestions.map((s, i) => (
+                            <li
+                              key={i}
+                              onMouseDown={() => { setKeyword(s.value); setSuggestions([]); }}
+                              className={`px-4 py-2 text-sm flex items-center gap-2 cursor-pointer hover:bg-gray-50 ${i === focusedIdx ? 'bg-gray-100' : ''}`}
+                            >
+                              <span className="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{s.type}</span>
+                              <span>{s.value}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
+                    {/* Location input with autodetect indicator */}
                     <div className="flex-1 relative">
-                      <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                       <input
+                        value={location}
+                        onChange={e => setLocation(e.target.value)}
                         type="text"
-                        placeholder="City, state, or remote..."
-                        className="w-full pl-12 pr-4 py-4 text-gray-900 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-lg"
+                        placeholder={detectingLocation ? 'Detecting location...' : 'City, state, or remote...'}
+                        aria-label="Location"
+                        className="w-full pl-12 pr-4 py-4 text-gray-900 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-lg disabled:opacity-70"
                       />
+                      {!detectingLocation && !location && (
+                        <button
+                          type="button"
+                          onClick={() => setLocation('Remote')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-600 hover:underline"
+                        >Use Remote</button>
+                      )}
                     </div>
-                    <Link href="/jobs" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <button
+                      onClick={() => submitSearch()}
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
                       🚀 Search Jobs
+                    </button>
+                  </div>
+                  {/* Trending shortcuts */}
+                  <div className="flex flex-wrap items-center gap-2 mt-5 text-sm">
+                    <span className="text-white/70 font-medium flex items-center gap-1"><TrendingUp className="w-4 h-4" /> Trending:</span>
+                    {trendingJobs.map(t => (
+                      <button
+                        key={t.q}
+                        onClick={() => submitSearch(t.q, t.loc || location)}
+                        className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/90 border border-white/10 backdrop-blur transition text-xs"
+                      >{t.q}{t.loc ? ` • ${t.loc}` : ''}</button>
+                    ))}
+                  </div>
+                  {/* Employer CTA */}
+                  <div className="mt-6 flex flex-wrap gap-4">
+                    <Link href="/companies/register" className="inline-flex items-center gap-2 text-sm bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium px-4 py-2 rounded-full transition">
+                      <Building2 className="w-4 h-4" /> Post a Job
+                    </Link>
+                    <Link href="/resumes/upload" className="inline-flex items-center gap-2 text-sm bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium px-4 py-2 rounded-full transition">
+                      <Upload className="w-4 h-4" /> Upload Resume
                     </Link>
                   </div>
                 </div>
@@ -408,6 +544,29 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Featured Employers (lightweight logos) */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Featured Employers</h2>
+              <p className="text-gray-600 max-w-xl">Explore India’s leading employers actively hiring talent right now.</p>
+            </div>
+            <Link href="/companies" className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700">View All <ArrowRight className="w-4 h-4" /></Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 mb-8">
+            {featuredEmployers.map(e => (
+              <Link key={e.slug} href={`/companies?company=${e.slug}`} className="group relative overflow-hidden rounded-xl bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 p-5 flex flex-col items-center gap-3 transition">
+                <div className="text-4xl" aria-hidden>{e.logo}</div>
+                <div className="text-sm font-semibold text-gray-700 group-hover:text-blue-600 text-center line-clamp-2">{e.name}</div>
+                <div className="text-[11px] font-medium text-blue-600 bg-blue-100/70 px-2 py-0.5 rounded-full">{e.open} jobs</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Companies (legacy section retained for depth / SEO) */}
       {/* Featured Companies */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
