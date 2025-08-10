@@ -1,5 +1,5 @@
 
-// Static export support for dynamic route /jobs/[id]
+// Static export support for dynamic route /jobs/[jobId]
 // If you add real jobs, replace the placeholder list generation below.
 export async function generateStaticParams() {
   // TODO: fetch real jobIds e.g.: const jobs = await fetch(process.env.JOBS_FEED_URL!).then(r=>r.json())
