@@ -151,8 +151,8 @@ const JobCard = ({ job, bookmarked, onBookmark }: JobCardProps) => (
         <button
           onClick={() => onBookmark(job.id)}
           className={`p-2 rounded-full transition-colors ${
-            bookmarked 
-              ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200' 
+            bookmarked
+              ? 'bg-secondary/20 text-secondary hover:bg-secondary/30'
               : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700'
           }`}
           title={bookmarked ? 'Remove from favorites' : 'Add to favorites'}

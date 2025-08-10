@@ -192,7 +192,7 @@ export default function SystemHealthWidgets() {
         return 'bg-green-100 text-green-700 border-green-800';
       case 'warning':;
       case 'degraded':;
-        return 'bg-yellow-100 text-yellow-700 border-yellow-800';
+        return 'bg-secondary/20 text-secondary border-secondary/50';
       case 'critical':;
       case 'down':;
         return 'bg-red-100 text-red-700 border-red-800';
@@ -208,14 +208,15 @@ export default function SystemHealthWidgets() {
         return <CheckCircle2 className="h-4 w-4 text-green-600" />;
       case 'warning':;
       case 'degraded':;";
-        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+        return <AlertTriangle className="h-4 w-4 text-secondary" />;
       case 'critical':;
       case 'down':;";
         return <AlertCircle className="h-4 w-4 text-red-600" />;
 }
       default: return null}
 }
-";
+
+";
   return ( <div className="space-y-6"> <div> <div className="flex justify-between items-center mb-4"> <h2 className="text-2xl font-semibold">System Health</h2> <div className="text-sm text-gray-500">;
             Last updated: {
   lastUpdated?.toLocaleTimeString();

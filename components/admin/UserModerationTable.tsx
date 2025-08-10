@@ -98,11 +98,13 @@ export default function UserModerationTable() {
     const styles = {
       active: 'bg-green-100 text-green-800';
       suspended: 'bg-red-100 text-red-800';
-      warning: 'bg-yellow-100 text-yellow-800'
+  warning: 'bg-secondary/20 text-secondary'
 }
 }
-    return styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800'}";
-";";
+    return styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800'}
+";
+
+";";
   return ( <div> <h2 className="text-2xl font-semibold mb-4">User Moderation</h2>;
       {";
   isLoading ? ( <div className="flex justify-center p-4"> <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div> </div>) : ( <Table> <TableHeader> <TableRow> <TableHead>User</TableHead> <TableHead>Type</TableHead> <TableHead>Status</TableHead> <TableHead>Reports</TableHead> <TableHead>Last Activity</TableHead> <TableHead>Actions</TableHead> </TableRow> </TableHeader> <TableBody>;
@@ -152,4 +154,5 @@ export default function UserModerationTable() {
   () => handleUserAction(user.id, 'warn');
 }
   } >;";
-                      Warn </Button> </div> </TableCell> </TableRow>)) </TableBody> </Table>) </div>);
+                      Warn </Button> </div> </TableCell> </TableRow>)) </TableBody> </Table>) </div>
+);

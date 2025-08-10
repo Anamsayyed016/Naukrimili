@@ -61,19 +61,40 @@ export default function HeroSection({
 }";
               className="rounded-lg shadow;";
               priority /"></div>) </section>) // Main hero section;";
-  return ( <section className="hero bg-gradient-to-r from-blue-600 to-indigo-800 text-white py-20 px-4"> <div className="container mx-auto text-center"> <h1 className="text-4xl md:text-5xl font-bold mb-4">;";
-          Find Your Dream Job with <span className="text-yellow-300">NaukriMili</span> </h1> <p className="text-xl mb-8 max-w-2xl mx-auto">;";
-          AI-powered job matching, resume analysis, and career tools for job seekers and employers. </p> <div className="space-x-4">;
-          {
-  !session ? ( <> <Link;";
-                href="/auth/register";";
-                className="inline-block bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-3 rounded-full font-medium transition-colors >;";
-                Get Started </Link"><Link;";
-                href="/jobs";";
-                className="inline-block bg-transparent hover:bg-white/10 px-6 py-3 rounded-full font-medium border-2 border-white transition-colors >;";
-                Browse Jobs </Link"></>) : ( <Link;";
-              href="/dashboard";";
-              className="inline-block bg-yellow-400 hover:bg-yellow-500 text-gray-900 px-6 py-3 rounded-full font-medium transition-colors >;
-              Go to Dashboard </Link>);
-}";
-  } </div> </div"></section>);
+  return (
+    <section className="hero bg-gradient-to-r from-blue-700 to-indigo-900 text-white py-20 px-4">
+      <div className="container mx-auto text-center">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          Find Your Dream Job with <span className="text-secondary">NaukriMili</span>
+        </h1>
+        <p className="text-xl mb-8 max-w-2xl mx-auto">
+          AI-powered job matching, resume analysis, and career tools for job seekers and employers.
+        </p>
+        <div className="space-x-4">
+          {!session ? (
+            <>
+              <Link
+                href="/auth/register"
+                className="inline-block bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-full font-medium transition-colors"
+              >
+                Get Started
+              </Link>
+              <Link
+                href="/jobs"
+                className="inline-block bg-transparent hover:bg-white/10 px-6 py-3 rounded-full font-medium border-2 border-white transition-colors"
+              >
+                Browse Jobs
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/dashboard"
+              className="inline-block bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-full font-medium transition-colors"
+            >
+              Go to Dashboard
+            </Link>
+          )}
+        </div>
+      </div>
+    </section>
+  );

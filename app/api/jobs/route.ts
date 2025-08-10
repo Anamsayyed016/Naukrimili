@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createJobSchema } from '@/lib/validation/job';
 
-// GET /api/jobs - list jobs with optional basic filtering (?q=, ?location=, ?company=)
+// GET /api/jobs - list jobs (optional filtering: ?q=&location=&company=)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const q = searchParams.get('q');
-    const location = searchParams.get('location');
-    const company = searchParams.get('company');
+    const q = searchParams.get('q') || undefined;
+    const location = searchParams.get('location') || undefined;
+    const company = searchParams.get('company') || undefined;
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const pageSize = Math.min( parseInt(searchParams.get('pageSize') || '25', 10), 100);
+  const skip = (page - 1) * pageSize;
 
     const where: any = {};
     if (q) {
-      // MongoDB-style OR using contains for title/company (Prisma with Mongo provider uses contains)
       where.OR = [
         { title: { contains: q, mode: 'insensitive' } },
         { company: { contains: q, mode: 'insensitive' } },
@@ -20,56 +23,47 @@ export async function GET(request: NextRequest) {
     if (location) where.location = { contains: location, mode: 'insensitive' };
     if (company) where.company = { contains: company, mode: 'insensitive' };
 
-    const jobs = await prisma.job.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: 50, // soft cap
-    });
-    return NextResponse.json({ success: true, count: jobs.length, jobs });
+    const [total, jobs] = await Promise.all([
+      prisma.job.count({ where }),
+      prisma.job.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take: pageSize }),
+    ]);
+    return NextResponse.json({ success: true, page, pageSize, total, jobs });
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.error('Jobs GET error:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch jobs' }, { status: 500 });
   }
 }
 
-// POST /api/jobs - create a new job
+// POST /api/jobs - create (minimal schema fields only)
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const required = ['title', 'company', 'location', 'description'];
-    const missing = required.filter(f => !body[f]);
-    if (missing.length) {
-      return NextResponse.json({ success: false, error: `Missing fields: ${missing.join(', ')}` }, { status: 400 });
+    const json = await request.json();
+    const parsed = createJobSchema.safeParse(json);
+    if (!parsed.success) {
+      return NextResponse.json({ success: false, error: 'Validation failed', issues: parsed.error.flatten() }, { status: 400 });
     }
-
-    // TODO: Replace with real authenticated user ID
-    const userId = body.userId || process.env.SEED_USER_ID || '000000000000000000000000';
-
+    const data = parsed.data;
     const job = await prisma.job.create({
       data: {
-        title: body.title,
-        company: body.company,
-        location: body.location,
-        description: body.description,
-        requirements: body.requirements ?? [],
-        benefits: body.benefits ?? [],
-        skills: body.skills ?? [],
-        salaryMin: body.salary?.min ?? null,
-        salaryMax: body.salary?.max ?? null,
-        salaryCurrency: body.salary?.currency ?? 'INR',
-        type: body.type || 'FULL_TIME',
-        level: body.level || 'ENTRY',
-        remote: Boolean(body.remote),
-        status: body.status || 'PUBLISHED',
-        sector: body.sector || null,
-        userId,
-      },
+        source: data.source,
+        sourceId: data.sourceId,
+        title: data.title,
+        company: data.company ?? null,
+        location: data.location ?? null,
+        country: data.country,
+        description: data.description,
+        applyUrl: data.applyUrl ?? null,
+        postedAt: data.postedAt ? new Date(data.postedAt as any) : null,
+        salary: data.salary ?? null,
+        rawJson: data.rawJson || {},
+      } as any, // TEMP: stale Prisma client types missing source/sourceId
     });
     return NextResponse.json({ success: true, job });
-  } catch (error) {
-    // eslint-disable-next-line no-console
+  } catch (error: any) {
     console.error('Jobs POST error:', error);
+    if (error?.code === 'P2002') {
+      return NextResponse.json({ success: false, error: 'Duplicate (source, sourceId)' }, { status: 409 });
+    }
     return NextResponse.json({ success: false, error: 'Failed to create job' }, { status: 500 });
   }
 }

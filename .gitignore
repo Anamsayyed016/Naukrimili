@@ -109,7 +109,11 @@ Thumbs.db
 .vercel
 
 # Prisma
-prisma/migrations/
+# (Previously ignored) We now version migrations. If you need to regenerate cleanly, keep them committed.
+
+# Environment production files & backups (ensure secrets not committed)
+.env.production
+.env.production.bak.*
 
 # Uploads
 uploads/

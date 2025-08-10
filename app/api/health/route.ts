@@ -1,10 +1,12 @@
 // Health + echo endpoint at /api/health
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyDatabaseConnection } from '@/lib/prisma';
 
 export const dynamic = 'force-static'; // Keep fast unless you need runtime info
 
 export async function GET() {
-  return NextResponse.json({ status: 'ok', ts: Date.now(), path: '/api/health' });
+  const db = await verifyDatabaseConnection();
+  return NextResponse.json({ status: 'ok', ts: Date.now(), path: '/api/health', db });
 }
 
 export async function POST(request: NextRequest) {

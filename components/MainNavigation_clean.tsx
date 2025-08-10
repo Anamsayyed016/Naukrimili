@@ -151,7 +151,7 @@ export default function MainNavigation({
               <Button variant="ghost" className="text-gray-700">Login</Button>
             </Link>
             <Link href="/auth/register">
-              <Button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900">Sign Up</Button>
+              <Button className="bg-secondary text-white hover:bg-secondary/90">Sign Up</Button>
             </Link>
           </div>
 
@@ -198,7 +198,7 @@ export default function MainNavigation({
                 <Button variant="ghost" className="w-full text-gray-700">Login</Button>
               </Link>
               <Link href="/auth/register" className="block">
-                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900">Sign Up</Button>
+                <Button className="w-full bg-secondary text-white hover:bg-secondary/90">Sign Up</Button>
               </Link>
             </div>
           </div>

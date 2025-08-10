@@ -391,7 +391,7 @@ export default function CompaniesPage() {
                       <span>{company.size}</span>
                     </div>
                     <div className="flex items-center text-sm">
-                      <Star className="h-4 w-4 mr-1 text-yellow-400 fill-current" />
+                      <Star className="h-4 w-4 mr-1 text-blue-400 fill-current" />
                       <span className="font-semibold text-gray-700">{company.rating}</span>
                       <span className="text-gray-500 ml-1">({company.reviews} reviews)</span>
                     </div>
@@ -472,7 +472,7 @@ export default function CompaniesPage() {
                             <span>{company.size}</span>
                           </div>
                           <div className="flex items-center">
-                            <Star className="h-4 w-4 mr-1 text-yellow-400 fill-current" />
+                            <Star className="h-4 w-4 mr-1 text-blue-400 fill-current" />
                             <span className="font-semibold text-gray-700">{company.rating}</span>
                             <span className="ml-1">({company.reviews})</span>
                           </div>

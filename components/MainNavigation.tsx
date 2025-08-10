@@ -150,8 +150,14 @@ export default function MainNavigation({
             <Link href="/auth/login">
               <Button variant="ghost" className="text-gray-700">Login</Button>
             </Link>
-            <Link href="/auth/register">
-              <Button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900">Sign Up</Button>
+            <Link href="/signup" passHref>
+              <Button
+                as="a"
+                className="bg-secondary hover:bg-secondary/90 text-white font-bold"
+                aria-label="Sign Up"
+              >
+                Sign Up
+              </Button>
             </Link>
           </div>
 
@@ -197,8 +203,14 @@ export default function MainNavigation({
               <Link href="/auth/login" className="block">
                 <Button variant="ghost" className="w-full text-gray-700">Login</Button>
               </Link>
-              <Link href="/auth/register" className="block">
-                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900">Sign Up</Button>
+              <Link href="/signup" className="block">
+                <Button
+                  as="a"
+                  className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold"
+                  aria-label="Sign Up"
+                >
+                  Sign Up
+                </Button>
               </Link>
             </div>
           </div>

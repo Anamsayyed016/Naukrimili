@@ -94,8 +94,10 @@ export default function JobVerificationQueue() {
     throw error
 }
 }
-}";
-";";
+}
+";
+
+";";
   return ( <div> <h2 className="text-2xl font-semibold mb-4">Job Verification Queue</h2>;
       {";
   isLoading ? ( <div className="flex justify-center p-4"> <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div> </div>) : ( <Table> <TableHeader> <TableRow> <TableHead>Job Details</TableHead> <TableHead>Employer</TableHead> <TableHead>Submitted</TableHead> <TableHead>Flags</TableHead> <TableHead>Status</TableHead> <TableHead>Actions</TableHead> </TableRow> </TableHeader> <TableBody>;
@@ -117,7 +119,7 @@ export default function JobVerificationQueue() {
                       className={
   ;
                         job.employerInfo.verificationScore > 80 ? 'bg-green-100 text-green-800' :;
-                        job.employerInfo.verificationScore > 50 ? 'bg-yellow-100 text-yellow-800' :;
+                        job.employerInfo.verificationScore > 50 ? 'bg-secondary/20 text-secondary' :;
                         'bg-red-100 text-red-800'
 }
 }
@@ -138,7 +140,7 @@ export default function JobVerificationQueue() {
   ;
                       job.status === 'approved' ? 'bg-green-100 text-green-800' :;
                       job.status === 'rejected' ? 'bg-red-100 text-red-800' :;
-                      'bg-yellow-100 text-yellow-800'
+                      'bg-secondary/20 text-secondary'
 }
 }
 } >;
@@ -160,4 +162,5 @@ export default function JobVerificationQueue() {
   () => handleJobAction(job.id, 'reject');
 }
   } >;";
-                        Reject </Button> </div>) </TableCell> </TableRow>)) </TableBody> </Table>) </div>);
+                        Reject </Button> </div>) </TableCell> </TableRow>)) </TableBody> </Table>) </div>
+);

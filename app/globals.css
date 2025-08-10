@@ -19,42 +19,42 @@
 @layer base {
   :root {
     /* Brand Colors */
-    --brand-primary: #2563eb;  /* NaukriMili blue */
-    --brand-secondary: #1e40af;
+    --brand-primary: #1A2A80;   /* Dark Blue */
+    --brand-secondary: #3B38A0; /* Indigo */
     
     /* System Colors */
-    --background: 250 245 255; /* #faf5ff - Vibrant Purple background */
-    --foreground: 75 85 99;    /* #4b5563 - Slate Gray */
+    --background: 240 240 248; /* #F0F0F8 - Light Blue-Gray tint */
+    --foreground: 26 42 128;   /* #1A2A80 - Dark Blue */
     --card: 255 255 255;       /* #ffffff - Pure White */
-    --card-foreground: 17 24 39; /* #111827 - Very dark gray for better contrast */
+    --card-foreground: 26 42 128; /* #1A2A80 - Dark Blue */
     --popover: 255 255 255;
-    --popover-foreground: 17 24 39; /* #111827 - Very dark gray */
-    --primary: 139 92 246;     /* #8b5cf6 - Purple-500 */
+    --popover-foreground: 26 42 128; /* #1A2A80 - Dark Blue */
+    --primary: 59 56 160;      /* #3B38A0 - Indigo */
     --primary-foreground: 255 255 255;
-    --secondary: 167 139 250;  /* #a78bfa - Purple-400 */
-    --secondary-foreground: 124 58 237; /* #7c3aed - Purple-600 */
-    --muted: 243 232 255;      /* #f3e8ff - Purple-100 */
-    --muted-foreground: 55 65 81; /* #374151 - Darker gray for better contrast */
-    --accent: 132 204 22;      /* #84cc16 - Lime-500 */
+    --secondary: 122 133 193;  /* #7A85C1 - Blue-Gray */
+    --secondary-foreground: 255 255 255;
+    --muted: 178 176 232;      /* #B2B0E8 - Light Blue-Gray */
+    --muted-foreground: 26 42 128; /* #1A2A80 - Dark Blue */
+    --accent: 122 133 193;      /* #7A85C1 - Blue-Gray */
     --accent-foreground: 255 255 255;
-    --destructive: 239 68 68;  /* #ef4444 - Red-500 */
+    --destructive: 239 68 68;  /* #ef4444 - Red-500 (Kept for errors) */
     --destructive-foreground: 255 255 255;
-    --border: 237 233 254;     /* #ede9fe - Purple-100 */
-    --input: 237 233 254;      /* #ede9fe - Purple-100 */
-    --ring: 139 92 246;        /* #8b5cf6 - Purple-500 */
+    --border: 178 176 232;     /* #B2B0E8 - Light Blue-Gray */
+    --input: 178 176 232;      /* #B2B0E8 - Light Blue-Gray */
+    --ring: 59 56 160;         /* #3B38A0 - Indigo */
     --radius: 0.75rem;
-    --sidebar-background: 250 245 255; /* #faf5ff */
-    --sidebar-foreground: 75 85 99;
-    --sidebar-primary: 139 92 246;
+    --sidebar-background: 240 240 248; /* #F0F0F8 */
+    --sidebar-foreground: 26 42 128;
+    --sidebar-primary: 59 56 160;
     --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 132 204 22;
+    --sidebar-accent: 122 133 193;
     --sidebar-accent-foreground: 255 255 255;
-    --sidebar-border: 237 233 254;
-    --sidebar-ring: 139 92 246;
+    --sidebar-border: 178 176 232;
+    --sidebar-ring: 59 56 160;
     --surface: 255 255 255;    /* #ffffff */
-    --text-primary: 17 24 39;  /* #111827 - Very dark gray */
-    --text-secondary: 55 65 81; /* #374151 - Dark gray */
-    --text-muted: 75 85 99; /* #4b5563 - Medium gray */
+    --text-primary: 26 42 128;  /* #1A2A80 - Dark Blue */
+    --text-secondary: 59 56 160; /* #3B38A0 - Indigo */
+    --text-muted: 122 133 193; /* #7A85C1 - Blue-Gray */
   }
 }
 
@@ -139,7 +139,7 @@
 
 /* Custom gradient text utilities */
 .gradient-text {
-  background: linear-gradient(to right, #fbbf24, #f59e0b);
+  background: linear-gradient(to right, #7A85C1, #3B38A0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

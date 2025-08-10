@@ -1,3 +1,4 @@
+// Minimal Prisma schema focusing on external job aggregation storage only.
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,122 +8,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                String   @id @default(uuid())
-  email             String   @unique
-  name              String?
-  image             String?
-  role              Role     @default(JOBSEEKER)
-  profileCompletion Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Relations
-  jobs         Job[]
-  applications Application[]
-  profile      Profile?
-}
-
-model Profile {
-  id       String   @id @default(uuid())
-  userId   String   @unique
-  skills   String[]
-  location String?
-  bio      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 model Job {
-  id            String          @id @default(uuid())
-  title         String
-  company       String
-  location      String
-  description   String
-  requirements  String[]
-  benefits      String[]
-  skills        String[]
-  salaryMin     Int?
-  salaryMax     Int?
-  salaryCurrency String?       @default("INR")
-  type          JobType        @default(FULL_TIME)
-  level         ExperienceLevel @default(ENTRY)
-  remote        Boolean        @default(false)
-  status        JobStatus      @default(PUBLISHED)
-  sector        String?
-  views         Int            @default(0)
-  applications  Int            @default(0)
-  expiresAt     DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  userId        String
-
-  // Relations
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  jobApplications Application[]
-
-  @@index([userId])
-  @@index([status])
-}
-
-model Application {
-  id        String            @id @default(uuid())
-  status    ApplicationStatus @default(PENDING)
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  userId    String
-  jobId     String
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
-}
-
-model FraudReport {
-  id          String   @id @default(uuid())
-  type        String
-  description String
-  status      String   @default("pending")
+  id          Int      @id @default(autoincrement())
+  source      String
+  sourceId    String
+  title       String
+  company     String?
+  location    String?
+  country     String
+  description String   @db.Text
+  applyUrl    String?
+  postedAt    DateTime?
+  salary      String?
+  rawJson     Json
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  @@unique([source, sourceId])
+  @@index([createdAt])
 }
-
-enum Role {
-  ADMIN
-  JOBSEEKER
-  COMPANY
-}
-
-enum JobType {
-  FULL_TIME
-  PART_TIME
-  CONTRACT
-  INTERNSHIP
-  REMOTE
-}
-
-enum JobStatus {
-  DRAFT
-  PUBLISHED
-  CLOSED
-  ARCHIVED
-}
-
-enum ApplicationStatus {
-  PENDING
-  REVIEWING
-  SHORTLISTED
-  INTERVIEWED
-  OFFERED
-  REJECTED
-  WITHDRAWN
-}
-
-enum ExperienceLevel {
-  ENTRY
-  MID
-  SENIOR
-  EXECUTIVE
-}
-
-// Removed MongoDB composite types; represent complex preference structures via JSON columns later if needed.

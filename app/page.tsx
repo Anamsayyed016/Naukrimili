@@ -91,7 +91,7 @@ export default function HomePage() {
         
         {/* Animated Background Elements */}
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+          <div className="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
           <div className="absolute top-0 right-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
           <div className="absolute -bottom-8 left-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
         </div>
@@ -109,7 +109,7 @@ export default function HomePage() {
               <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
                 Find Your Dream Job
                 <br />
-                <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-300 to-purple-400 bg-clip-text text-transparent">
                   with AI Power
                 </span>
               </h2>
@@ -128,7 +128,7 @@ export default function HomePage() {
                       <input
                         type="text"
                         placeholder="Job title, skills, or company..."
-                        className="w-full pl-12 pr-4 py-4 text-gray-900 border-0 rounded-xl focus:ring-2 focus:ring-yellow-400 bg-white text-lg"
+                        className="w-full pl-12 pr-4 py-4 text-gray-900 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-lg"
                       />
                     </div>
                     <div className="flex-1 relative">
@@ -136,10 +136,10 @@ export default function HomePage() {
                       <input
                         type="text"
                         placeholder="City, state, or remote..."
-                        className="w-full pl-12 pr-4 py-4 text-gray-900 border-0 rounded-xl focus:ring-2 focus:ring-yellow-400 bg-white text-lg"
+                        className="w-full pl-12 pr-4 py-4 text-gray-900 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-lg"
                       />
                     </div>
-                    <Link href="/jobs" className="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-8 py-4 rounded-xl hover:from-yellow-500 hover:to-orange-600 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                    <Link href="/jobs" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
                       🚀 Search Jobs
                     </Link>
                   </div>
@@ -149,15 +149,15 @@ export default function HomePage() {
               {/* Quick Stats */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl font-bold text-yellow-400">50,000+</div>
+                  <div className="text-3xl font-bold text-blue-300">50,000+</div>
                   <div className="text-blue-100">Active Jobs</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl font-bold text-yellow-400">15,000+</div>
+                  <div className="text-3xl font-bold text-blue-300">15,000+</div>
                   <div className="text-blue-100">Top Companies</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl font-bold text-yellow-400">1M+</div>
+                  <div className="text-3xl font-bold text-blue-300">1M+</div>
                   <div className="text-blue-100">Job Seekers</div>
                 </div>
               </div>
@@ -350,9 +350,9 @@ export default function HomePage() {
 
             {/* Fast Results */}
             <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
-              <div className="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 group-hover:border-yellow-200">
-                <div className="bg-gradient-to-r from-yellow-500 to-orange-500 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
+              <div className="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 group-hover:border-blue-200">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Zap className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">Lightning Fast</h3>
@@ -586,7 +586,7 @@ export default function HomePage() {
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700"></div>
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+          <div className="absolute top-0 left-0 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
           <div className="absolute bottom-0 right-0 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
         </div>
         
@@ -600,7 +600,7 @@ export default function HomePage() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/jobs" className="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg hover:from-yellow-500 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 inline-flex items-center">
+            <Link href="/jobs" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 inline-flex items-center">
               🔍 Start Job Search
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
