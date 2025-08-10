@@ -1,63 +1,76 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { randomUUID } from 'crypto';
+import { prisma } from '@/lib/prisma';
 
-// Temporary in-memory store (replace with real DB via prisma.job later)
-type Job = {
-  id: string;
-  title: string;
-  company: string;
-  location?: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-  sector?: string;
-  salaryMin?: number;
-  salaryMax?: number;
-  currency?: string;
-};
-
-const jobsStore: Job[] = [];
-
-function listJobs(query: URLSearchParams) {
-  let results = [...jobsStore];
-  const q = query.get('q');
-  if (q) {
-    const lc = q.toLowerCase();
-    results = results.filter(j => j.title.toLowerCase().includes(lc) || j.company.toLowerCase().includes(lc));
-  }
-  return results;
-}
-
+// GET /api/jobs - list jobs with optional basic filtering (?q=, ?location=, ?company=)
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const data = listJobs(searchParams);
-  return NextResponse.json({ success: true, count: data.length, jobs: data });
+  try {
+    const { searchParams } = new URL(request.url);
+    const q = searchParams.get('q');
+    const location = searchParams.get('location');
+    const company = searchParams.get('company');
+
+    const where: any = {};
+    if (q) {
+      // MongoDB-style OR using contains for title/company (Prisma with Mongo provider uses contains)
+      where.OR = [
+        { title: { contains: q, mode: 'insensitive' } },
+        { company: { contains: q, mode: 'insensitive' } },
+      ];
+    }
+    if (location) where.location = { contains: location, mode: 'insensitive' };
+    if (company) where.company = { contains: company, mode: 'insensitive' };
+
+    const jobs = await prisma.job.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: 50, // soft cap
+    });
+    return NextResponse.json({ success: true, count: jobs.length, jobs });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Jobs GET error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch jobs' }, { status: 500 });
+  }
 }
 
+// POST /api/jobs - create a new job
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    if (!body.title || !body.company) {
-      return NextResponse.json({ success: false, error: 'title and company required' }, { status: 400 });
+    const required = ['title', 'company', 'location', 'description'];
+    const missing = required.filter(f => !body[f]);
+    if (missing.length) {
+      return NextResponse.json({ success: false, error: `Missing fields: ${missing.join(', ')}` }, { status: 400 });
     }
-    const now = new Date().toISOString();
-    const job: Job = {
-      id: randomUUID(),
-      title: body.title,
-      company: body.company,
-      location: body.location ?? null,
-      description: body.description ?? '',
-      sector: body.sector ?? null,
-      salaryMin: body.salaryMin ?? null,
-      salaryMax: body.salaryMax ?? null,
-      currency: body.currency ?? 'USD',
-      createdAt: now,
-      updatedAt: now,
-    } as Job;
-    jobsStore.push(job);
+
+    // TODO: Replace with real authenticated user ID
+    const userId = body.userId || process.env.SEED_USER_ID || '000000000000000000000000';
+
+    const job = await prisma.job.create({
+      data: {
+        title: body.title,
+        company: body.company,
+        location: body.location,
+        description: body.description,
+        requirements: body.requirements ?? [],
+        benefits: body.benefits ?? [],
+        skills: body.skills ?? [],
+        salaryMin: body.salary?.min ?? null,
+        salaryMax: body.salary?.max ?? null,
+        salaryCurrency: body.salary?.currency ?? 'INR',
+        type: body.type || 'FULL_TIME',
+        level: body.level || 'ENTRY',
+        remote: Boolean(body.remote),
+        status: body.status || 'PUBLISHED',
+        sector: body.sector || null,
+        userId,
+      },
+    });
     return NextResponse.json({ success: true, job });
-  } catch (err) {
-    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Jobs POST error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to create job' }, { status: 500 });
   }
 }
 

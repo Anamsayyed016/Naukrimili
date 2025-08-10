@@ -1,142 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-// Mock user database (in a real app, this would be a proper database)
-const users = new Map();
-
-// Mock authenticated user ID (in a real app, this would come from JWT/session)
-const getCurrentUserId = (request: NextRequest) => {
-  // For demo purposes, we'll use a mock user ID
-  // In a real app, you'd extract this from the Authorization header or session
-  return 'user_123';
-};
+// TODO: Integrate real auth (e.g., next-auth); placeholder extracts X-User-Id or uses env.SEED_USER_ID.
+function resolveUserId(req: NextRequest): string {
+  const headerId = req.headers.get('x-user-id');
+  return headerId || process.env.SEED_USER_ID || '000000000000000000000000';
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = getCurrentUserId(request);
-    
-    // Get user profile from mock database
-    let userProfile = users.get(userId);
-    
-    if (!userProfile) {
-      // Create default profile if not exists
-      userProfile = {
+    const userId = resolveUserId(request);
+    // Upsert a minimal user if not present (email placeholder for dev)
+    const user = await prisma.user.upsert({
+      where: { id: userId },
+      update: {},
+      create: {
         id: userId,
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '+91 9876543210',
-        location: 'Mumbai, Maharashtra',
-        bio: 'Experienced software developer with 5+ years in full-stack development. Passionate about creating scalable web applications.',
-        experience: '5+ years',
-        skills: ['JavaScript', 'React', 'Node.js', 'Python', 'SQL', 'AWS'],
-        joinedAt: new Date().toISOString(),
-        resume: null
-      };
-      users.set(userId, userProfile);
-    }
-    
-    return NextResponse.json({ 
-      success: true, 
-      profile: userProfile 
+        email: `${userId}@placeholder.local`,
+        name: 'Placeholder User',
+      },
     });
+
+    let profile = await prisma.profile.findUnique({ where: { userId: user.id } });
+    if (!profile) {
+      profile = await prisma.profile.create({
+        data: { userId: user.id, skills: [], location: null, bio: null },
+      });
+    }
+
+    return NextResponse.json({ success: true, profile: { ...profile, user: { id: user.id, email: user.email, name: user.name } } });
   } catch (error) {
-    console.error('Profile fetch error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to fetch profile' 
-    }, { status: 500 });
+    // eslint-disable-next-line no-console
+    console.error('Profile GET error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch profile' }, { status: 500 });
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const userId = getCurrentUserId(request);
-    const updates = await request.json();
-    
-    // Get existing profile
-    let userProfile = users.get(userId);
-    
-    if (!userProfile) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Profile not found' 
-      }, { status: 404 });
-    }
-    
-    // Update profile with new data
-    userProfile = {
-      ...userProfile,
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-    
-    users.set(userId, userProfile);
-    
-    return NextResponse.json({ 
-      success: true, 
-      profile: userProfile,
-      message: 'Profile updated successfully' 
+    const userId = resolveUserId(request);
+    const data = await request.json();
+    const profile = await prisma.profile.update({
+      where: { userId },
+      data: {
+        skills: data.skills ?? undefined,
+        location: data.location ?? undefined,
+        bio: data.bio ?? undefined,
+      },
     });
-  } catch (error) {
-    console.error('Profile update error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to update profile' 
-    }, { status: 500 });
+    return NextResponse.json({ success: true, profile });
+  } catch (error: any) {
+    if (error?.code === 'P2025') {
+      return NextResponse.json({ success: false, error: 'Profile not found' }, { status: 404 });
+    }
+    // eslint-disable-next-line no-console
+    console.error('Profile PUT error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to update profile' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const userId = getCurrentUserId(request);
+    const userId = resolveUserId(request);
     const { action, data } = await request.json();
-    
     switch (action) {
-      case 'uploadResume':
-        // Update user profile with resume data
-        let userProfile = users.get(userId);
-        if (userProfile) {
-          userProfile.resume = data;
-          users.set(userId, userProfile);
-          
-          return NextResponse.json({ 
-            success: true, 
-            message: 'Resume linked to profile successfully',
-            profile: userProfile 
-          });
-        }
-        break;
-        
-      case 'deleteResume':
-        // Remove resume from user profile
-        let profile = users.get(userId);
-        if (profile) {
-          profile.resume = null;
-          users.set(userId, profile);
-          
-          return NextResponse.json({ 
-            success: true, 
-            message: 'Resume removed from profile',
-            profile 
-          });
-        }
-        break;
-        
+      case 'uploadResume': {
+        // For now we just echo; real implementation would associate a Resume model.
+        return NextResponse.json({ success: true, message: 'Resume upload placeholder', data });
+      }
+      case 'deleteResume': {
+        return NextResponse.json({ success: true, message: 'Resume delete placeholder' });
+      }
       default:
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Invalid action' 
-        }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
     }
-    
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Profile not found' 
-    }, { status: 404 });
   } catch (error) {
-    console.error('Profile action error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to process request' 
-    }, { status: 500 });
+    // eslint-disable-next-line no-console
+    console.error('Profile POST error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to process request' }, { status: 500 });
   }
 }

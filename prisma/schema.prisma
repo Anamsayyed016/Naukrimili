@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  id                String   @id @default(uuid())
   email             String   @unique
   name              String?
   image             String?
@@ -16,82 +16,75 @@ model User {
   profileCompletion Int      @default(0)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  
+
   // Relations
-  jobs              Job[]
-  applications      Application[]
-  profile           Profile?
-  
-  @@map("users")
+  jobs         Job[]
+  applications Application[]
+  profile      Profile?
 }
 
 model Profile {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  userId   String @unique @db.ObjectId
+  id       String   @id @default(uuid())
+  userId   String   @unique
   skills   String[]
   location String?
   bio      String?
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("profiles")
 }
 
 model Job {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  company     String
-  location    String
-  description String
-  requirements String[]
-  benefits    String[]
-  skills      String[]
-  salary      SalaryRange?
-  type        JobType     @default(FULL_TIME)
-  level       ExperienceLevel @default(ENTRY)
-  remote      Boolean     @default(false)
-  status      JobStatus   @default(PUBLISHED)
-  sector      String?
-  views       Int         @default(0)
-  applications Int        @default(0)
-  expiresAt   DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  userId      String      @db.ObjectId
-  
+  id            String          @id @default(uuid())
+  title         String
+  company       String
+  location      String
+  description   String
+  requirements  String[]
+  benefits      String[]
+  skills        String[]
+  salaryMin     Int?
+  salaryMax     Int?
+  salaryCurrency String?       @default("INR")
+  type          JobType        @default(FULL_TIME)
+  level         ExperienceLevel @default(ENTRY)
+  remote        Boolean        @default(false)
+  status        JobStatus      @default(PUBLISHED)
+  sector        String?
+  views         Int            @default(0)
+  applications  Int            @default(0)
+  expiresAt     DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  userId        String
+
   // Relations
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   jobApplications Application[]
-  
-  @@map("jobs")
+
   @@index([userId])
   @@index([status])
 }
 
 model Application {
-  id        String            @id @default(auto()) @map("_id") @db.ObjectId
+  id        String            @id @default(uuid())
   status    ApplicationStatus @default(PENDING)
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
-  userId    String            @db.ObjectId
-  jobId     String            @db.ObjectId
-  
+  userId    String
+  jobId     String
+
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
-  @@map("applications")
 }
 
 model FraudReport {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(uuid())
   type        String
   description String
-  status      String    @default("pending")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  @@map("fraud_reports")
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum Role {
@@ -132,30 +125,4 @@ enum ExperienceLevel {
   EXECUTIVE
 }
 
-type SalaryRange {
-  min         Int
-  max         Int
-  currency    String
-}
-
-// Types for job matching
-type Skill {
-  name        String
-  level       String
-  category    String
-}
-
-type JobPreferences {
-  location    String[]
-  salary_min  Int?
-  salary_max  Int?
-  job_types   JobType[]
-  sectors     String[]
-}
-
-type SeekerPreferences {
-  skills           Skill[]
-  experience_level String
-  job_preferences  JobPreferences
-  availability     String
-}
+// Removed MongoDB composite types; represent complex preference structures via JSON columns later if needed.

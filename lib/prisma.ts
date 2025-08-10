@@ -1,19 +1,29 @@
-// Minimal mock Prisma-like client for non-database environments
-type AnyData = Record<string, unknown>;
+// Real Prisma client singleton (MongoDB) – replaces previous mock implementation.
+// Ensure env var DATABASE_URL is set (schema.prisma expects "DATABASE_URL").
+import { PrismaClient } from '@prisma/client';
 
-function createTable() {
-  return {
-    findUnique: async (_args?: AnyData) => null,
-    findMany: async (_args?: AnyData) => [] as AnyData[],
-    create: async (args?: AnyData) => args?.data ?? null,
-    update: async (args?: AnyData) => args?.data ?? null,
-    delete: async (_args?: AnyData) => null,
-  };
+// In dev, reuse the client across HMR to avoid exhausting connections.
+// In prod (Hostinger), a new instance per process is fine.
+declare global {
+  // eslint-disable-next-line no-var, @typescript-eslint/naming-convention
+  var _prisma: PrismaClient | undefined;
 }
 
-export const prisma = {
-  user: createTable(),
-  job: createTable(),
-  application: createTable(),
-  profile: createTable(),
-};
+export const prisma: PrismaClient = global._prisma ?? new PrismaClient({
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+});
+
+if (process.env.NODE_ENV !== 'production') global._prisma = prisma;
+
+// Optional lightweight connectivity check (can be invoked at startup if desired)
+export async function verifyDatabaseConnection(): Promise<boolean> {
+  try {
+    // For MongoDB provider, a trivial query is findMany on a small collection.
+    await prisma.user.findMany({ take: 1 });
+    return true;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('Database connection verification failed:', e);
+    return false;
+  }
+}
