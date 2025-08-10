@@ -31,11 +31,12 @@ export function useMessages() {
   const [error, setError] = useState<string | null>(null);
   const { data: session } = useSession();
 
-  const deserialize = (raw: any): Message => ({
+  // Deserialize raw message object to Message type
+  const deserialize = (raw: Record<string, unknown>): Message => ({
     ...raw,
-    createdAt: new Date(raw.createdAt),
-    updatedAt: new Date(raw.updatedAt)
-  });
+    createdAt: new Date(String(raw.createdAt)),
+    updatedAt: new Date(String(raw.updatedAt)),
+  } as Message);
 
   const fetchMessages = useCallback(async (options?: FetchOptions) => {
     if (!session?.user) {
@@ -75,7 +76,7 @@ export function useMessages() {
         ]);
       }
     } catch (e) {
-      setError('Failed to load messages');
+      setError(e instanceof Error ? e.message : 'Failed to load messages');
     } finally {
       setIsLoading(false);
     }
@@ -86,23 +87,29 @@ export function useMessages() {
   const markAsRead = useCallback(async (id: string) => {
     setMessages(prev => prev.map(m => (m.id === id ? { ...m, isRead: true, updatedAt: new Date() } : m)));
     try {
-      await fetch('/api/messages', {
+      const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'markAsRead', messageIds: [id] })
       });
-    } catch (_) { /* silent */ }
+      if (!res.ok) throw new Error(`Mark as read failed: ${res.status} ${res.statusText}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to mark message as read');
+    }
   }, []);
 
   const markAllAsRead = useCallback(async () => {
     setMessages(prev => prev.map(m => ({ ...m, isRead: true, updatedAt: new Date() })));
     try {
-      await fetch('/api/messages', {
+      const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'markAsRead', markAllAsRead: true })
       });
-    } catch (_) { /* silent */ }
+      if (!res.ok) throw new Error(`Mark all as read failed: ${res.status} ${res.statusText}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to mark all messages as read');
+    }
   }, []);
 
   const sendMessage = useCallback(async (input: { receiverId: string; subject: string; content: string; threadId?: string }) => {
@@ -112,15 +119,14 @@ export function useMessages() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'send', newMessage: input })
       });
-      if (res.ok) {
-        await fetchMessages();
-        const data = await res.json();
-        return data.message as Message | undefined;
-      }
-    } catch (_) {
-      setError('Failed to send message');
+      if (!res.ok) throw new Error(`Send message failed: ${res.status} ${res.statusText}`);
+      await fetchMessages();
+      const data = await res.json();
+      return data.message as Message | undefined;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send message');
+      return undefined;
     }
-    return undefined;
   }, [fetchMessages]);
 
   const unreadCount = messages.reduce((c, m) => (!m.isRead ? c + 1 : c), 0);

@@ -11,8 +11,9 @@ export function useDebounce<T>(value: T, delay: number): T {
 }
 
 // Debounced callback
-export function useDebouncedCallback<T extends (...args: any[]) => any>(callback: T, delay: number): T {
-  const cbRef = useRef(callback);
+// Debounced callback with strict type safety
+export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(callback: T, delay: number): T {
+  const cbRef = useRef<T>(callback);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => { cbRef.current = callback; }, [callback]);
   useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
@@ -40,8 +41,9 @@ export function useThrottle<T>(value: T, limit: number): T {
 }
 
 // Throttled callback
-export function useThrottledCallback<T extends (...args: any[]) => any>(callback: T, limit: number): T {
-  const cbRef = useRef(callback);
+// Throttled callback with strict type safety
+export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(callback: T, limit: number): T {
+  const cbRef = useRef<T>(callback);
   const lastRan = useRef(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => { cbRef.current = callback; }, [callback]);

@@ -38,54 +38,92 @@ export function useCompaniesApi() {
   };
 
   const fetchCompanies = useCallback(async (filters: CompaniesFilters = {}) => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       const qs = buildQuery(filters);
       const res = await fetch(`/api/companies?${qs}`);
-      if (!res.ok) throw new Error('fetch failed');
+      if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
       const data = await res.json();
       const list: CompaniesListResponse = Array.isArray(data) ? { companies: data } : data;
       return list;
-    } catch (_) { setError('Failed to fetch companies'); return null; } finally { setLoading(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch companies');
+      return null;
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const fetchCompany = useCallback(async (id: string) => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/companies/${id}`);
-      if (!res.ok) throw new Error('fetch failed');
+      if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
       const data: CompanyDetailResponse = await res.json();
       return data;
-    } catch (_) { setError('Failed to fetch company'); return null; } finally { setLoading(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch company');
+      return null;
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const createCompany = useCallback(async (input: Partial<Company>) => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
-      const res = await fetch('/api/companies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
-      if (!res.ok) throw new Error('create failed');
+      const res = await fetch('/api/companies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) throw new Error(`Create failed: ${res.status} ${res.statusText}`);
       const data = await res.json();
       return (data.company || data) as Company;
-    } catch (_) { setError('Failed to create company'); return null; } finally { setLoading(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create company');
+      return null;
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const updateCompany = useCallback(async (id: string, input: Partial<Company>) => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
-      const res = await fetch(`/api/companies/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
-      if (!res.ok) throw new Error('update failed');
+      const res = await fetch(`/api/companies/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) throw new Error(`Update failed: ${res.status} ${res.statusText}`);
       const data = await res.json();
       return (data.company || data) as Company;
-    } catch (_) { setError('Failed to update company'); return null; } finally { setLoading(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update company');
+      return null;
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const deleteCompany = useCallback(async (id: string) => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/companies/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('delete failed');
+      if (!res.ok) throw new Error(`Delete failed: ${res.status} ${res.statusText}`);
       return true;
-    } catch (_) { setError('Failed to delete company'); return false; } finally { setLoading(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete company');
+      return false;
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   return { loading, error, fetchCompanies, fetchCompany, createCompany, updateCompany, deleteCompany };

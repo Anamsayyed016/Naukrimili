@@ -1,3 +1,10 @@
+
+// Fix for static export: add generateStaticParams
+export async function generateStaticParams() {
+  // Example: return at least one param for static export
+  return [{ id: 'example-job-id' }];
+}
+
 export default function JobDetailPage() {
   return (
     <div className="container mx-auto p-6">

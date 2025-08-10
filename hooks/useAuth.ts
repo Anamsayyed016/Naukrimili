@@ -58,13 +58,13 @@ export function useAuth(): AuthState {
     verify: verifyBiometric,
   };
 
-  const su: any = session?.user;
+  const su = session?.user as Partial<User> | undefined;
   const user: User | null = su ? {
-    id: su.id || '',
-    name: su.name || null,
-    email: su.email || null,
-    image: su.image || null,
-    role: su.role && typeof su.role === 'string' ? su.role : 'jobseeker',
+    id: su.id ?? '',
+    name: su.name ?? null,
+    email: su.email ?? null,
+    image: su.image ?? null,
+    role: typeof su.role === 'string' ? su.role : 'jobseeker',
     profileCompletion: typeof su.profileCompletion === 'number' ? su.profileCompletion : 0,
     createdAt: su.createdAt ? new Date(su.createdAt) : undefined,
     updatedAt: su.updatedAt ? new Date(su.updatedAt) : undefined,
