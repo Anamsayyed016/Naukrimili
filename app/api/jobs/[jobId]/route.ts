@@ -7,9 +7,9 @@ function parseId(raw: string) {
   return n;
 }
 
-export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
-  const idNum = parseId(params.id);
-  if (idNum == null) return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
+export async function GET(_request: NextRequest, { params }: { params: { jobId: string } }) {
+  const idNum = parseId(params.jobId);
+  if (idNum == null) return NextResponse.json({ success: false, error: 'Invalid jobId' }, { status: 400 });
   try {
     const job = await prisma.job.findUnique({ where: { id: idNum } });
     if (!job) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
@@ -20,9 +20,9 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const idNum = parseId(params.id);
-  if (idNum == null) return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
+export async function PUT(request: NextRequest, { params }: { params: { jobId: string } }) {
+  const idNum = parseId(params.jobId);
+  if (idNum == null) return NextResponse.json({ success: false, error: 'Invalid jobId' }, { status: 400 });
   try {
     const data = await request.json();
     const updateData: any = {
@@ -53,9 +53,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
-  const idNum = parseId(params.id);
-  if (idNum == null) return NextResponse.json({ success: false, error: 'Invalid id' }, { status: 400 });
+export async function DELETE(_request: NextRequest, { params }: { params: { jobId: string } }) {
+  const idNum = parseId(params.jobId);
+  if (idNum == null) return NextResponse.json({ success: false, error: 'Invalid jobId' }, { status: 400 });
   try {
     await prisma.job.delete({ where: { id: idNum } });
     return NextResponse.json({ success: true });

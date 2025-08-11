@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     api_reload: bool = False
     
     # Database Configuration
-    database_type: str = "mysql"  # mysql or mongodb
+    database_type: str = "mysql"  # mysql, postgresql, or mongodb
     database_url: Optional[str] = None
     
     # MySQL Configuration
@@ -25,6 +25,13 @@ class Settings(BaseSettings):
     mysql_user: str = "root"
     mysql_password: str = ""
     mysql_database: str = "jobportal"
+    
+    # PostgreSQL Configuration
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
+    postgres_user: str = "postgres"
+    postgres_password: str = ""
+    postgres_database: str = "jobportal"
     
     # MongoDB Configuration
     mongodb_url: str = "mongodb://localhost:27017"
@@ -79,6 +86,8 @@ class Settings(BaseSettings):
         
         if self.database_type == "mysql":
             return f"mysql+aiomysql://{self.mysql_user}:{self.mysql_password}@{self.mysql_host}:{self.mysql_port}/{self.mysql_database}"
+        elif self.database_type == "postgresql":
+            return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_database}"
         elif self.database_type == "mongodb":
             return self.mongodb_url
         else:

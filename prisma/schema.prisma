@@ -9,20 +9,67 @@ datasource db {
 }
 
 model Job {
-  id          Int      @id @default(autoincrement())
-  source      String
-  sourceId    String
-  title       String
-  company     String?
-  location    String?
-  country     String
-  description String   @db.Text
-  applyUrl    String?
-  postedAt    DateTime?
-  salary      String?
-  rawJson     Json
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              Int       @id @default(autoincrement())
+  source          String
+  sourceId        String
+  title           String
+  company         String?
+  companyLogo     String?   // Company logo URL
+  location        String?
+  country         String
+  description     String    @db.Text
+  applyUrl        String?
+  postedAt        DateTime?
+  salary          String?
+  salaryMin       Int?      // Minimum salary in local currency
+  salaryMax       Int?      // Maximum salary in local currency  
+  salaryCurrency  String?   // Currency code (INR, USD, etc.)
+  jobType         String?   // full-time, part-time, contract, internship
+  experienceLevel String?   // entry, mid, senior, executive
+  skills          String[]  // Array of required skills
+  isRemote        Boolean   @default(false)
+  isHybrid        Boolean   @default(false)
+  isUrgent        Boolean   @default(false)
+  isFeatured      Boolean   @default(false)
+  sector          String?   // Technology, Finance, Healthcare, etc.
+  rawJson         Json
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  bookmarks       JobBookmark[]
+  
   @@unique([source, sourceId])
   @@index([createdAt])
+  @@index([country, location])
+  @@index([salaryMin, salaryMax])
+  @@index([jobType])
+  @@index([experienceLevel])
+  @@index([isRemote])
+  @@index([sector])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations  
+  bookmarks JobBookmark[]
+}
+
+model JobBookmark {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  jobId  Int
+  
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job    Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, jobId])
 }

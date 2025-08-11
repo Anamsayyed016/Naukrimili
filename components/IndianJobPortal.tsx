@@ -8,6 +8,8 @@ import { sampleIndianJobs } from "@/lib/sample-indian-jobs";
 import SalaryRangeSelector, { SalaryRange } from "./salary/SalaryRangeSelector";
 import DynamicJobSearch from "./DynamicJobSearch";
 import JobResults from "./JobResults";
+import EnhancedJobCard from "./EnhancedJobCard";
+import EnhancedFilters from "./EnhancedFilters";
 import { 
   ChevronRightIcon, 
   MapPinIcon, 
@@ -25,6 +27,8 @@ import {
   AdjustmentsHorizontalIcon
 } from "@heroicons/react/24/outline";
 import { JobSearchFilters } from "@/hooks/useRealTimeJobSearch";
+// import { useJobSearch, useJobBookmarks } from "@/hooks/useEnhancedJobSearch";
+// import { JobResult } from "@/types/jobs";
 
 // Indian States
 const indianStates = [
@@ -306,10 +310,34 @@ interface CurrentLocationState {
 }
 
 export default function IndianJobPortal({ initialQuery = "developer", initialLocation = "London" }: IndianJobPortalProps) {
+  // Enhanced search state using PostgreSQL (temporarily disabled)
+  // const [searchFilters, setSearchFilters] = useState<JobSearchFilters>({
+  //   query: initialQuery,
+  //   location: initialLocation,
+  //   page: 1,
+  //   limit: 10,
+  // });
+
+  // Use enhanced hooks for PostgreSQL integration (temporarily disabled)
+  // const { data: jobData, isLoading, error } = useJobSearch(searchFilters, {
+  //   enabled: true,
+  //   staleTime: 5 * 60 * 1000, // 5 minutes
+  // });
+
+  // const { data: bookmarks = [] } = useJobBookmarks();
+
   // State for the new dynamic search
+  // const [currentJobs, setCurrentJobs] = useState<JobResult[]>(jobData?.jobs || []);
   const [currentJobs, setCurrentJobs] = useState<any[]>([]);
   const [currentFilters, setCurrentFilters] = useState<JobSearchFilters | null>(null);
-  const [showLegacySearch, setShowLegacySearch] = useState(false);
+  const [showLegacySearch, setShowLegacySearch] = useState(true);
+
+  // Update jobs when data changes (temporarily disabled)
+  useEffect(() => {
+    if (jobData?.jobs) {
+      setCurrentJobs(jobData.jobs);
+    }
+  }, [jobData]);
 
   // Legacy state (kept for backward compatibility)
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -338,7 +366,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
   const [showSalaryFilter, setShowSalaryFilter] = useState(false);
   const [showAdvancedLocation, setShowAdvancedLocation] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [bookmarks, setBookmarks] = useState<string[]>(() => {
+  const [legacyBookmarks, setLegacyBookmarks] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       return JSON.parse(localStorage.getItem('bookmarkedJobs') || '[]');
     }
@@ -356,11 +384,12 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
 
   const handleFiltersChange = useCallback((filters: JobSearchFilters) => {
     setCurrentFilters(filters);
+    setSearchFilters(filters);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarks));
-  }, [bookmarks]);
+    localStorage.setItem('bookmarkedJobs', JSON.stringify(legacyBookmarks));
+  }, [legacyBookmarks]);
 
   // Fetch categories
   useEffect(() => {
@@ -442,19 +471,92 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
         {/* Dynamic Search Section */}
         {!showLegacySearch ? (
           <div className="space-y-8">
-            {/* New Dynamic Search Component */}
-            <DynamicJobSearch
-              onJobsUpdate={handleJobsUpdate}
-              onFiltersChange={handleFiltersChange}
-              className="mb-8"
-            />
+            {/* Enhanced Search with PostgreSQL */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+              <EnhancedFilters
+                filters={searchFilters}
+                onFiltersChange={handleFiltersChange}
+                availableFilters={jobData?.availableFilters}
+                className="mb-6"
+              />
+            </div>
 
-            {/* Job Results */}
-            <JobResults
-              jobs={currentJobs}
-              isLoading={false}
-              className="mt-8"
-            />
+            {/* Enhanced Job Results */}
+            <div className="space-y-6">
+              {isLoading ? (
+                // Loading skeleton
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <SkeletonCard key={index} />
+                  ))}
+                </div>
+              ) : error ? (
+                // Error state
+                <div className="text-center py-12">
+                  <div className="text-red-500 text-lg mb-4">
+                    Error loading jobs: {error instanceof Error ? error.message : 'Unknown error'}
+                  </div>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : currentJobs.length === 0 ? (
+                // No results state
+                <div className="text-center py-12">
+                  <div className="text-gray-500 text-lg mb-4">
+                    No jobs found matching your criteria
+                  </div>
+                  <button
+                    onClick={() => setSearchFilters({ query: '', location: '', page: 1, limit: 10 })}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              ) : (
+                // Enhanced job cards
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {currentJobs.map((job) => (
+                    <EnhancedJobCard
+                      key={job.id}
+                      job={job}
+                      isBookmarked={bookmarks.some(b => b.jobId === job.id)}
+                      onBookmark={(jobId) => {
+                        // Handle bookmarking through API
+                        console.log('Bookmark job:', jobId);
+                      }}
+                      className="h-full"
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Pagination */}
+              {jobData && jobData.pagination.total > jobData.pagination.limit && (
+                <div className="flex justify-center items-center gap-4 mt-8">
+                  <button
+                    onClick={() => setSearchFilters(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
+                    disabled={searchFilters.page <= 1}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Page {jobData.pagination.page} of {Math.ceil(jobData.pagination.total / jobData.pagination.limit)}
+                  </span>
+                  <button
+                    onClick={() => setSearchFilters(prev => ({ ...prev, page: prev.page + 1 }))}
+                    disabled={searchFilters.page >= Math.ceil(jobData.pagination.total / jobData.pagination.limit)}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           /* Legacy Search Interface */
@@ -535,8 +637,8 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
                     ...job,
                     redirect_url: `/jobs/${job.id}`
                   }} 
-                  bookmarked={bookmarks.includes(job.id)} 
-                  onBookmark={(id) => setBookmarks(prev => 
+                  bookmarked={legacyBookmarks.includes(job.id)} 
+                  onBookmark={(id) => setLegacyBookmarks(prev => 
                     prev.includes(id) 
                       ? prev.filter(jobId => jobId !== id)
                       : [...prev, id]

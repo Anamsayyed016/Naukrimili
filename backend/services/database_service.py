@@ -24,6 +24,13 @@ except ImportError:
     PYMYSQL_AVAILABLE = False
 
 try:
+    import asyncpg
+    ASYNCPG_AVAILABLE = True
+except ImportError:
+    print("Warning: asyncpg not installed. PostgreSQL functionality will be limited.")
+    ASYNCPG_AVAILABLE = False
+
+try:
     import pymongo
     from motor.motor_asyncio import AsyncIOMotorClient
     MONGODB_AVAILABLE = True
@@ -79,6 +86,33 @@ class DatabaseService:
                 "charset": "utf8mb4",
                 "autocommit": True
             }
+        elif self.db_type == "postgresql":
+            # Support full DATABASE_URL (e.g., postgresql://user:pass@host:5432/dbname)
+            db_url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL") or os.getenv("POSTGRESQL_URL")
+            if db_url and (db_url.startswith("postgres://") or db_url.startswith("postgresql://")):
+                try:
+                    parsed = urlparse(db_url)
+                    user = parsed.username or os.getenv("POSTGRES_USER", "postgres")
+                    password = parsed.password or os.getenv("POSTGRES_PASSWORD", "password")
+                    host = parsed.hostname or os.getenv("POSTGRES_HOST", "localhost")
+                    port = parsed.port or int(os.getenv("POSTGRES_PORT", 5432))
+                    database = (parsed.path.lstrip("/")) or os.getenv("POSTGRES_DATABASE", "jobportal")
+                    return {
+                        "host": host,
+                        "port": int(port),
+                        "user": user,
+                        "password": password,
+                        "database": database
+                    }
+                except Exception as e:
+                    logger.warning(f"Failed to parse DATABASE_URL, falling back to discrete vars: {e}")
+            return {
+                "host": os.getenv("POSTGRES_HOST", "localhost"),
+                "port": int(os.getenv("POSTGRES_PORT", 5432)),
+                "user": os.getenv("POSTGRES_USER", "postgres"),
+                "password": os.getenv("POSTGRES_PASSWORD", "password"),
+                "database": os.getenv("POSTGRES_DATABASE", "jobportal")
+            }
         else:  # MongoDB
             return {
                 "host": os.getenv("MONGO_HOST", "localhost"),
@@ -97,6 +131,11 @@ class DatabaseService:
                     logger.error("aiomysql not available. Please install: pip install aiomysql")
                     return False
                 await self._connect_mysql()
+            elif self.db_type == "postgresql":
+                if not ASYNCPG_AVAILABLE:
+                    logger.error("asyncpg not available. Please install: pip install asyncpg")
+                    return False
+                await self._connect_postgresql()
             else:
                 if not MONGODB_AVAILABLE:
                     logger.error("MongoDB drivers not available. Please install: pip install motor pymongo")
@@ -158,6 +197,28 @@ class DatabaseService:
             logger.error(f"MySQL connection failed: {e}")
             raise e
     
+    async def _connect_postgresql(self):
+        """Connect to PostgreSQL database"""
+        try:
+            # Create connection pool using asyncpg
+            if ASYNCPG_AVAILABLE:
+                import asyncpg
+                self.pool = await asyncpg.create_pool(
+                    host=self.config["host"],
+                    port=self.config["port"],
+                    user=self.config["user"],
+                    password=self.config["password"],
+                    database=self.config["database"],
+                    min_size=1,
+                    max_size=10
+                )
+            else:
+                raise RuntimeError("No PostgreSQL driver available (asyncpg required)")
+            
+        except Exception as e:
+            logger.error(f"PostgreSQL connection failed: {e}")
+            raise e
+    
     async def _connect_mongodb(self):
         """Connect to MongoDB database"""
         try:
@@ -214,34 +275,50 @@ class DatabaseService:
     
     async def execute_query(self, query: str, params: Optional[List[Any]] = None) -> List[Dict[str, Any]]:
         """Execute SQL query and return results"""
-        if self.db_type != "mysql":
-            raise ValueError("execute_query only supports MySQL")
+        if self.db_type not in ["mysql", "postgresql"]:
+            raise ValueError("execute_query only supports MySQL and PostgreSQL")
         
         try:
-            # aiomysql async path
-            if AIOMYSQL_AVAILABLE and hasattr(self.pool, 'acquire') and not isinstance(self.pool, type):
-                async with self.pool.acquire() as conn:
-                    async with conn.cursor(aiomysql.DictCursor) as cursor:
-                        await cursor.execute(query, params or [])
+            if self.db_type == "mysql":
+                # aiomysql async path
+                if AIOMYSQL_AVAILABLE and hasattr(self.pool, 'acquire') and not isinstance(self.pool, type):
+                    async with self.pool.acquire() as conn:
+                        async with conn.cursor(aiomysql.DictCursor) as cursor:
+                            await cursor.execute(query, params or [])
+                            if query.strip().upper().startswith(('INSERT', 'UPDATE', 'DELETE')):
+                                await conn.commit()
+                                return [{"affected_rows": cursor.rowcount}]
+                            else:
+                                result = await cursor.fetchall()
+                                return list(result) if result else []
+                else:
+                    # PyMySQL sync fallback executed in thread
+                    import asyncio
+                    def run_sync():
+                        with self.pool._conn.cursor(pymysql.cursors.DictCursor) as cursor:
+                            cursor.execute(query, params or [])
+                            if query.strip().upper().startswith(('INSERT', 'UPDATE', 'DELETE')):
+                                self.pool._conn.commit()
+                                return [{"affected_rows": cursor.rowcount}]
+                            else:
+                                res = cursor.fetchall()
+                                return list(res) if res else []
+                    return await asyncio.to_thread(run_sync)
+            
+            elif self.db_type == "postgresql":
+                # asyncpg async path
+                if ASYNCPG_AVAILABLE and self.pool:
+                    async with self.pool.acquire() as conn:
                         if query.strip().upper().startswith(('INSERT', 'UPDATE', 'DELETE')):
-                            await conn.commit()
-                            return [{"affected_rows": cursor.rowcount}]
+                            result = await conn.execute(query, *(params or []))
+                            # Extract affected rows from result string like "UPDATE 5"
+                            affected_rows = int(result.split()[-1]) if result.split() else 0
+                            return [{"affected_rows": affected_rows}]
                         else:
-                            result = await cursor.fetchall()
-                            return list(result) if result else []
-            else:
-                # PyMySQL sync fallback executed in thread
-                import asyncio
-                def run_sync():
-                    with self.pool._conn.cursor(pymysql.cursors.DictCursor) as cursor:
-                        cursor.execute(query, params or [])
-                        if query.strip().upper().startswith(('INSERT', 'UPDATE', 'DELETE')):
-                            self.pool._conn.commit()
-                            return [{"affected_rows": cursor.rowcount}]
-                        else:
-                            res = cursor.fetchall()
-                            return list(res) if res else []
-                return await asyncio.to_thread(run_sync)
+                            result = await conn.fetch(query, *(params or []))
+                            return [dict(row) for row in result] if result else []
+                else:
+                    raise RuntimeError("PostgreSQL pool not available")
                         
         except Exception as e:
             logger.error(f"Query execution failed: {query[:100]}... Error: {e}")
@@ -303,6 +380,8 @@ class DatabaseService:
         try:
             if self.db_type == "mysql":
                 await self._initialize_mysql_schema()
+            elif self.db_type == "postgresql":
+                await self._initialize_postgresql_schema()
             else:
                 await self._initialize_mongodb_schema()
                 
@@ -351,6 +430,50 @@ class DatabaseService:
         except Exception as e:
             logger.error(f"MySQL schema initialization failed: {e}")
     
+    async def _initialize_postgresql_schema(self):
+        """Create PostgreSQL tables and indexes"""
+        try:
+            # Create jobs table
+            from models.job_models import JobModel
+            job_model = JobModel()
+            
+            # Convert MySQL schema to PostgreSQL
+            mysql_sql = job_model.get_create_table_sql()
+            postgresql_sql = mysql_sql.replace("AUTO_INCREMENT", "SERIAL").replace("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", "")
+            
+            await self.execute_query(postgresql_sql)
+            
+            # Create search analytics table
+            analytics_table_sql = """
+            CREATE TABLE IF NOT EXISTS search_analytics (
+                id SERIAL PRIMARY KEY,
+                search_query VARCHAR(255),
+                location VARCHAR(255),
+                country CHAR(2),
+                user_agent TEXT,
+                ip_address VARCHAR(45),
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                results_count INT DEFAULT 0,
+                session_id VARCHAR(100)
+            );
+            
+            CREATE INDEX IF NOT EXISTS idx_timestamp ON search_analytics (timestamp);
+            CREATE INDEX IF NOT EXISTS idx_country ON search_analytics (country);
+            CREATE INDEX IF NOT EXISTS idx_session ON search_analytics (session_id);
+            """
+            
+            await self.execute_query(analytics_table_sql)
+            
+            # Insert sample data if table is empty
+            count_result = await self.execute_query("SELECT COUNT(*) as count FROM jobs")
+            if count_result[0]["count"] == 0:
+                await self._insert_sample_jobs()
+            
+            logger.info("✅ PostgreSQL schema initialized")
+            
+        except Exception as e:
+            logger.error(f"PostgreSQL schema initialization failed: {e}")
+    
     async def _initialize_mongodb_schema(self):
         """Create MongoDB collections and indexes"""
         try:
@@ -376,93 +499,64 @@ class DatabaseService:
             logger.error(f"MongoDB schema initialization failed: {e}")
     
     async def _insert_sample_jobs(self):
-        """Insert sample job data for testing"""
+        """Insert sample job data for testing (MySQL and PostgreSQL)."""
+        if self.db_type not in ["mysql", "postgresql"]:
+            return
+        sample_jobs = [
+            {
+                "job_id": "SAMPLE_001",
+                "title": "Senior React Developer",
+                "company": "TechWave Solutions",
+                "location": "Mumbai, India",
+                "country": "IN",
+                "salary_min": 1200000,
+                "salary_max": 1800000,
+                "currency": "INR",
+                "experience_level": "senior",
+                "job_type": "full-time",
+                "sector": "Software Development",
+                "skills": '["React", "JavaScript", "Node.js", "MongoDB"]',
+                "description": "We are looking for a Senior React Developer to join our dynamic team.",
+                "requirements": '["5+ years React", "Strong JavaScript", "Leadership"]',
+                "benefits": '["Health Insurance", "Flexible Hours", "Remote Work"]',
+                "posted_date": "2025-08-06 10:00:00",
+                "is_remote": True,
+                "is_urgent": False,
+                "is_featured": True,
+                "apply_url": "https://techwave.com/careers/react-developer"
+            },
+            {
+                "job_id": "SAMPLE_002",
+                "title": "Data Scientist",
+                "company": "AI Innovations",
+                "location": "Bangalore, India",
+                "country": "IN",
+                "salary_min": 1000000,
+                "salary_max": 2000000,
+                "currency": "INR",
+                "experience_level": "mid",
+                "job_type": "full-time",
+                "sector": "Data Science",
+                "skills": '["Python", "Machine Learning", "AI", "Statistics"]',
+                "description": "Join our AI team to build innovative data-driven solutions.",
+                "requirements": '["3+ years Data Science", "Python", "ML/AI"]',
+                "benefits": '["Competitive Salary", "Stock Options"]',
+                "posted_date": "2025-08-05 14:30:00",
+                "is_remote": False,
+                "is_urgent": True,
+                "is_featured": False,
+                "apply_url": "https://aiinnovations.com/jobs/data-scientist"
+            }
+        ]
         try:
-            candidate_hosts = [self.config["host"]] + [h for h in self.config.get("hosts", []) if h]
-            last_error = None
-            for host in candidate_hosts:
-                try:
-                    if AIOMYSQL_AVAILABLE:
-                        self.pool = await aiomysql.create_pool(
-                            host=host,
-                            port=self.config["port"],
-                            user=self.config["user"],
-                            password=self.config["password"],
-                            db=self.config["database"],
-                            charset=self.config["charset"],
-                            autocommit=self.config["autocommit"],
-                            minsize=1,
-                            maxsize=10
-                        )
-                        logger.info(f"MySQL connected via host '{host}' (aiomysql)")
-                        return
-                    elif PYMYSQL_AVAILABLE:
-                        conn = pymysql.connect(
-                            host=host,
-                            port=self.config["port"],
-                            user=self.config["user"],
-                            password=self.config["password"],
-                            database=self.config["database"],
-                            charset=self.config["charset"],
-                            autocommit=self.config["autocommit"]
-                        )
-                        class SyncPool:
-                            def __init__(self, connection): self._conn = connection
-                            async def acquire(self): return self._conn
-                            def close(self): self._conn.close()
-                            async def wait_closed(self): return
-                        self.pool = SyncPool(conn)
-                        logger.info(f"MySQL connected via host '{host}' (PyMySQL sync fallback)")
-                        return
-                    else:
-                        raise RuntimeError("No MySQL driver available (aiomysql or PyMySQL required)")
-                except Exception as e:
-                    last_error = e
-                    logger.warning(f"MySQL connection attempt failed for host '{host}': {e}")
-                    continue
-            # If loop completes without return
-            raise last_error or RuntimeError("All MySQL hosts unreachable")
-                    "requirements": '["3+ years in Data Science", "Python expertise", "ML/AI experience", "Statistics background"]',
-                    "benefits": '["Competitive Salary", "Stock Options", "Health Coverage", "Learning Opportunities"]',
-                    "posted_date": "2025-08-05 14:30:00",
-                    "is_remote": False,
-                    "is_urgent": True,
-                    "is_featured": False,
-                    "apply_url": "https://aiinnovations.com/jobs/data-scientist"
-                },
-                {
-                    "job_id": "SAMPLE_003",
-                    "title": "Product Manager",
-                    "company": "Digital Dynamics",
-                    "location": "Delhi, India",
-                    "country": "IN",
-                    "salary_min": 1500000,
-                    "salary_max": 2500000,
-                    "currency": "INR",
-                    "experience_level": "senior",
-                    "job_type": "full-time",
-                    "sector": "Product Management",
-                    "skills": '["Product Strategy", "Agile", "Analytics", "Leadership"]',
-                    "description": "We are seeking an experienced Product Manager to lead our product development initiatives and drive growth.",
-                    "requirements": '["5+ years Product Management", "Technical background", "Leadership experience", "Analytical skills"]',
-                    "benefits": '["High Salary", "Equity", "Flexible Work", "Team Leadership"]',
-                    "posted_date": "2025-08-04 09:15:00",
-                    "is_remote": True,
-                    "is_urgent": False,
-                    "is_featured": True,
-                    "apply_url": "https://digitaldynamics.com/careers/product-manager"
-                }
-            ]
-            
+            insert_sql = (
+                "INSERT IGNORE INTO jobs "
+                "(job_id, title, company, location, country, salary_min, salary_max, currency, "
+                "experience_level, job_type, sector, skills, description, requirements, benefits, "
+                "posted_date, is_remote, is_urgent, is_featured, apply_url) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            )
             for job in sample_jobs:
-                insert_query = """
-                INSERT IGNORE INTO jobs 
-                (job_id, title, company, location, country, salary_min, salary_max, currency,
-                 experience_level, job_type, sector, skills, description, requirements, benefits,
-                 posted_date, is_remote, is_urgent, is_featured, apply_url)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """
-                
                 values = [
                     job["job_id"], job["title"], job["company"], job["location"], job["country"],
                     job["salary_min"], job["salary_max"], job["currency"], job["experience_level"],
@@ -470,16 +564,15 @@ class DatabaseService:
                     job["requirements"], job["benefits"], job["posted_date"], job["is_remote"],
                     job["is_urgent"], job["is_featured"], job["apply_url"]
                 ]
-                
-                await self.execute_query(insert_query, values)
-            
+                await self.execute_query(insert_sql, values)
             logger.info(f"✅ Inserted {len(sample_jobs)} sample jobs")
-            
         except Exception as e:
             logger.error(f"Failed to insert sample jobs: {e}")
-    
+
     async def _insert_sample_jobs_mongodb(self):
-        """Insert sample job data for MongoDB"""
+        """Insert sample job data for MongoDB."""
+        if self.db_type != "mongodb":
+            return
         try:
             sample_jobs = [
                 {
@@ -496,7 +589,7 @@ class DatabaseService:
                     "sector": "Software Development",
                     "skills": ["React", "JavaScript", "Node.js", "MongoDB"],
                     "description": "We are looking for a Senior React Developer to join our dynamic team.",
-                    "requirements": ["5+ years of React experience", "Strong JavaScript skills"],
+                    "requirements": ["5+ years React", "Strong JavaScript"],
                     "benefits": ["Health Insurance", "Flexible Hours", "Remote Work"],
                     "posted_date": "2025-08-06T10:00:00Z",
                     "is_remote": True,
@@ -504,11 +597,9 @@ class DatabaseService:
                     "is_featured": True,
                     "apply_url": "https://techwave.com/careers/react-developer"
                 }
-                # Add more sample jobs as needed
             ]
-            
             await self.execute_mongodb_query("jobs", "insert_many", documents=sample_jobs)
             logger.info(f"✅ Inserted {len(sample_jobs)} sample jobs to MongoDB")
-            
         except Exception as e:
             logger.error(f"Failed to insert sample jobs to MongoDB: {e}")
+
