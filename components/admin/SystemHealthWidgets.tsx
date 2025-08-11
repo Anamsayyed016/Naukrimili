@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import React, { useCallback, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +41,21 @@ export default function SystemHealthWidgets() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const load = useCallback(async () => { setLoading(true); try { const r = await fetch("/api/admin/system/health", { cache: "no-store" }); if (!r.ok) throw new Error(`Request failed (${r.status})`); const d: SystemHealth = await r.json(); setHealth(d); setError(null); setLastUpdated(new Date()); } catch (e: any) { setError(e?.message || "Failed to load system health"); } finally { setLoading(false); } }, []);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await fetch("/api/admin/system/health", { cache: "no-store" });
+      if (!r.ok) throw new Error(`Request failed (${r.status})`);
+      const d: SystemHealth = await r.json();
+      setHealth(d);
+      setError(null);
+      setLastUpdated(new Date());
+    } catch (e: any) {
+      setError(e?.message || "Failed to load system health");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   useEffect(() => { void load(); const id = setInterval(load, 60000); return () => clearInterval(id); }, [load]);
   if (loading) return (<div className="space-y-6"><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">{Array.from({ length: 4 }).map((_, i) => (<Card key={i} className="p-4"><Skeleton className="h-4 w-24 mb-2" /><Skeleton className="h-8 w-20" /></Card>))}</div><Card className="p-4"><Skeleton className="h-[300px]" /></Card></div>);
   if (error) return (<Alert className="border border-red-300 bg-red-50 text-red-700 flex gap-2 p-3"><AlertCircle className="h-4 w-4" /><AlertDescription className="text-sm">{error}</AlertDescription></Alert>);

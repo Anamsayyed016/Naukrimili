@@ -1,67 +1,35 @@
 'use client';
-import {
-  useEffect, useState
-}
-} from 'react';
-import {
-  motion
-}
-} from 'framer-motion';
-import {
-  Card
-}
-} from '@/components/ui/card';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-}
-  Tooltip }
-  ResponsiveContainer
-} from 'recharts';
-import {
-  Eye,
-  Users,
-  TrendingUp,
-}
-  Code }
-  Loader2
-} from 'lucide-react';
-import {
-  Alert, AlertDescription
-}
-} from '@/components/ui/alert';
+
+import React, { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 
 interface AnalyticsData {
-  ;
-  stats: {
+  overview: {
+    totalJobs: number;
+    activeJobs: number;
     totalViews: number;
     applications: number;
     hireRate: string;
     topSkills: string[];
-}
-}}
-}}
-}
+  };
   trending: {
-  ;
     date: string;
-    views: number
-}
-}[];
+    views: number;
+  }[];
   jobsBreakdown: {
-  ;
     id: string;
     title: string;
     views: number;
     applications: number;
-    status: string
+    status: string;
+  }[];
 }
-}[]}
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
 export function EmployerAnalytics() {
-  ;
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,161 +37,146 @@ export function EmployerAnalytics() {
   useEffect(() => {
     async function fetchAnalytics() {
       try {
+        setIsLoading(true);
         const response = await fetch('/api/employer/analytics');
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch analytics') // TODO: Complete implementation
-}
-}
-}
+          throw new Error('Failed to fetch analytics data');
+        }
+        
         const analyticsData = await response.json();
         setData(analyticsData);
-  } catch (error) {
-  ;
-    console.error("Error: ", error);
-    return Response.json({";
-    "
-  })";
-      error: "Internal server error
-
-}
-  }, { status: 500 });
-  } finally {
-  ;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
         setIsLoading(false);
-}
-  }
-}
+      }
+    }
 
-    fetchAnalytics() // Refresh every 5 minutes;
+    fetchAnalytics();
+    // Refresh every 5 minutes
     const interval = setInterval(fetchAnalytics, 300000);
     return () => clearInterval(interval);
   }, []);
 
-  if (isLoading) {";
-  ;";";
-    return (<div className="flex justify-center items-center min-h-[400px]"> <Loader2 className="h-8 w-8 animate-spin text-blue-500" /> </div>);
-}
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-6">
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
   }
+
   if (error) {
-  ;";
-    return (<Alert variant="destructive"> <AlertDescription>{error
-}
-}</AlertDescription> </Alert>);
+    return (
+      <Card className="p-6">
+        <div className="text-center">
+          <h3 className="text-lg font-medium text-red-600 mb-2">Error Loading Analytics</h3>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </Card>
+    );
+  }
+
   if (!data) return null;
 
-  const stats = [{
-  ;
-      title: 'Total Views';
-      value: data.stats.totalViews.toLocaleString();
-      icon: Eye
-}
-  }
-      color: 'from-blue-500 to-blue-600'
+  return (
+    <div className="space-y-6">
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Jobs</p>
+              <p className="text-2xl font-bold">{data.overview.totalJobs}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Active Jobs</p>
+              <p className="text-2xl font-bold">{data.overview.activeJobs}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Views</p>
+              <p className="text-2xl font-bold">{data.overview.totalViews}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Applications</p>
+              <p className="text-2xl font-bold">{data.overview.applications}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
 
-  },
-    {
-  ;
-      title: 'Applications';
-      value: data.stats.applications.toLocaleString();
-      icon: Users;
-      color: 'from-green-500 to-green-600'
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Views Trend */}
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-4">Views Trend</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.trending}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="views" stroke="#8884d8" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
 
+        {/* Jobs Performance */}
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-4">Job Performance</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data.jobsBreakdown.slice(0, 5)}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="title" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="views" fill="#8884d8" />
+                <Bar dataKey="applications" fill="#82ca9d" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      </div>
+
+      {/* Top Skills */}
+      <Card className="p-6">
+        <h3 className="text-lg font-medium mb-4">Top Skills in Demand</h3>
+        <div className="flex flex-wrap gap-2">
+          {data.overview.topSkills.map((skill, index) => (
+            <Badge key={index} variant="secondary" className="px-3 py-1">
+              {skill}
+            </Badge>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
 }
-  },
-    {
-  ;
-      title: 'Hire Rate';
-      value: data.stats.hireRate;
-      icon: TrendingUp;
-      color: 'from-purple-500 to-purple-600'
-}
-} ];
-    {
-  ;
-      title: 'Top Skills';
-      value: data.stats.topSkills[0];
-      subtext: `+${data.stats.topSkills.length - 1
-}
-} more`,
-      icon: Code;
-      color: 'from-orange-500 to-orange-600'
-}
-  ];
-";
-  return (<div className="space-y-8">;
-      {
-  /* Stats Grid */
-}";
-} <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">;
-        {
-  stats.map((stat, index) => ( <motion.div;
-}
-            key={stat.title}
-}
-            initial={{ opacity: 0, y: 20 }
-}
-            animate={{ opacity: 1, y: 0 }
-}
-            transition={{ delay: index * 0.1 }";
-} > <Card className="p-6"> <div className="flex items-center justify-between"> <div> <p className="text-sm text-gray-500">{
-  stat.title
-}";
-}</p> <p className="text-2xl font-bold mt-1">{
-  stat.value
-}
-}</p>;
-                  {";
-  stat.subtext && ( <p className="text-sm text-gray-500 mt-1">{stat.subtext
-}
-}</p>) </div> <div className={`p-3 rounded-lg bg-gradient-to-br ${stat.color}";
-}`}> <stat.icon className="h-6 w-6 text-white" /> </div> </div> </Card> </motion.div>)) </div>;
-      {
-  /* Views Trend Chart */
-}
-} <motion.div;
-        initial={{ opacity: 0, y: 20 }
-}
-        animate={{ opacity: 1, y: 0 }
-}
-        transition={{ delay: 0.4 }";
-} > <Card className="p-6"> <h3 className="text-lg font-medium mb-6">Views Trend</h3> <div className="h-[300px]"> <ResponsiveContainer width="100%" height="100%"> <BarChart data={data.trending}";
-}> <CartesianGrid strokeDasharray="3 3" /> <XAxis;";
-                  dataKey="date;
-                  tickFormatter={
-  (value) => new Date(value).toLocaleDateString();
-}
-  } /> <YAxis /> <Tooltip;
-                  labelFormatter={
-  (value) => new Date(value).toLocaleDateString();
-}";
-  } /> <Bar dataKey="views" fill="#3b82f6" radius={[4, 4, 0, 0]}
-} /> </BarChart> </ResponsiveContainer> </div> </Card> </motion.div>;
-      {
-  /* Jobs Breakdown */
-}
-} <motion.div;
-        initial={{ opacity: 0, y: 20 }
-}
-        animate={{ opacity: 1, y: 0 }
-}
-        transition={{ delay: 0.6 }";
-} > <Card className="p-6"> <h3 className="text-lg font-medium mb-4">Jobs Performance</h3> <div className="space-y-4">;
-            {
-  data.jobsBreakdown.map((job) => ( <div;
-}
-                key={job.id}
-}";
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg > <div"><p className="font-medium">{
-  job.title
-}";
-}</p> <p className="text-sm text-gray-500">;
-                    {
-  job.status.charAt(0) + job.status.slice(1).toLowerCase();
-}";
-  } </p> </div> <div className="flex items-center gap-6"> <div className="text-center"> <p className="text-sm text-gray-500">Views</p> <p className="font-medium">{
-  job.views
-}";
-}</p> </div> <div className="text-center"> <p className="text-sm text-gray-500">Applications</p> <p className="font-medium">{
-  job.applications
-}";
-}</p> </div> </div> </div>)) </div> </Card> </motion.div> </div>);

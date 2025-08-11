@@ -364,23 +364,23 @@ export default function EnhancedJobCard({
           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
         >
           Apply Now
-          <ChevronRightIcon className=\"w-4 h-4\" />
+          <ChevronRightIcon className="w-4 h-4" />
         </button>
         
         <button 
           onClick={handleQuickView}
-          className=\"px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2\"
-          title=\"Quick view\"
+          className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+          title="Quick view"
         >
-          <EyeIcon className=\"w-4 h-4\" />
+          <EyeIcon className="w-4 h-4" />
         </button>
         
         <button 
           onClick={handleShare}
-          className=\"px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2\"
-          title=\"Share job\"
+          className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+          title="Share job"
         >
-          <ShareIcon className=\"w-4 h-4\" />
+          <ShareIcon className="w-4 h-4" />
         </button>
       </div>
     </motion.div>

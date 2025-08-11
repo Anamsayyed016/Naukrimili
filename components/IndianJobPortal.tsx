@@ -30,6 +30,26 @@ import { JobSearchFilters } from "@/hooks/useRealTimeJobSearch";
 // import { useJobSearch, useJobBookmarks } from "@/hooks/useEnhancedJobSearch";
 // import { JobResult } from "@/types/jobs";
 
+// Temporary types and placeholders
+interface JobResult {
+  id: string;
+  title: string;
+  company: string;
+  location?: string;
+  salaryFormatted?: string;
+  timeAgo?: string;
+  description?: string;
+  redirect_url: string;
+  isUrgent?: boolean;
+  isRemote?: boolean;
+  jobType?: string;
+}
+
+interface ExtendedJobSearchFilters extends JobSearchFilters {
+  page: number;
+  limit: number;
+}
+
 // Indian States
 const indianStates = [
   { code: 'MH', name: 'Maharashtra' },
@@ -310,26 +330,33 @@ interface CurrentLocationState {
 }
 
 export default function IndianJobPortal({ initialQuery = "developer", initialLocation = "London" }: IndianJobPortalProps) {
-  // Enhanced search state using PostgreSQL (temporarily disabled)
-  // const [searchFilters, setSearchFilters] = useState<JobSearchFilters>({
-  //   query: initialQuery,
-  //   location: initialLocation,
-  //   page: 1,
-  //   limit: 10,
-  // });
+  // Temporary mock data and states
+  const [searchFilters, setSearchFilters] = useState<any>({
+    query: initialQuery,
+    location: initialLocation,
+    page: 1,
+    limit: 10,
+  });
 
-  // Use enhanced hooks for PostgreSQL integration (temporarily disabled)
-  // const { data: jobData, isLoading, error } = useJobSearch(searchFilters, {
-  //   enabled: true,
-  //   staleTime: 5 * 60 * 1000, // 5 minutes
-  // });
-
-  // const { data: bookmarks = [] } = useJobBookmarks();
+  // Mock data for enhanced search
+  const jobData = {
+    jobs: sampleIndianJobs.slice(0, 6),
+    pagination: { page: 1, limit: 10, total: sampleIndianJobs.length },
+    availableFilters: {
+      jobTypes: [],
+      experienceLevels: [],
+      sectors: [],
+      locations: [],
+      companies: []
+    }
+  };
+  const isLoading = false;
+  const error = null;
+  const bookmarks: any[] = [];
 
   // State for the new dynamic search
-  // const [currentJobs, setCurrentJobs] = useState<JobResult[]>(jobData?.jobs || []);
-  const [currentJobs, setCurrentJobs] = useState<any[]>([]);
-  const [currentFilters, setCurrentFilters] = useState<JobSearchFilters | null>(null);
+  const [currentJobs, setCurrentJobs] = useState<any[]>(jobData?.jobs || []);
+  const [currentFilters, setCurrentFilters] = useState<any>(null);
   const [showLegacySearch, setShowLegacySearch] = useState(true);
 
   // Update jobs when data changes (temporarily disabled)
@@ -382,7 +409,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
     setCurrentJobs(jobs);
   }, []);
 
-  const handleFiltersChange = useCallback((filters: JobSearchFilters) => {
+  const handleFiltersChange = useCallback((filters: any) => {
     setCurrentFilters(filters);
     setSearchFilters(filters);
   }, []);
@@ -476,6 +503,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
               <EnhancedFilters
                 filters={searchFilters}
                 onFiltersChange={handleFiltersChange}
+                onReset={() => setSearchFilters({ query: '', location: '', page: 1, limit: 10 })}
                 availableFilters={jobData?.availableFilters}
                 className="mb-6"
               />
@@ -528,7 +556,6 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
                         // Handle bookmarking through API
                         console.log('Bookmark job:', jobId);
                       }}
-                      className="h-full"
                     />
                   ))}
                 </div>
