@@ -50,7 +50,7 @@ function SimpleLoginForm(props: LoginFormProps) {
   }
 } catch (err) {
   ;
-      console.log('Login error:', err);
+              // console.log('Login error:', err);
       setError('Error occurred. Please try again.');
 }
   } finally {
@@ -110,4 +110,5 @@ function SimpleLoginForm(props: LoginFormProps) {
           Don't have an account?{' '} <a href="/register" className="text-blue-600 hover:underline">;
             Register here </a> </p> </div> </div>);
   }
-export default SimpleLoginForm;";
+export default SimpleLoginForm;
+";

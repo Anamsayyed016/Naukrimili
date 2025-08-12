@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // TODO: Integrate real auth (e.g., next-auth); placeholder extracts X-User-Id or uses env.SEED_USER_ID.
+// This is a temporary implementation for development
 function resolveUserId(req: NextRequest): string {
   const headerId = req.headers.get('x-user-id');
   return headerId || process.env.SEED_USER_ID || '000000000000000000000000';

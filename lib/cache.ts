@@ -140,7 +140,7 @@ export const cache = {
     tags.forEach((tag) => {
       const tagKey = `tag:${tag}`;
       const taggedKeys = globalCache.get<string[]>(tagKey) || [];
-      if (!taggedKeys.includes(key)) {
+      if (taggedKeys.indexOf(key) === -1) {
         taggedKeys.push(key);
         globalCache.set(tagKey, taggedKeys, ttlMs);
       }

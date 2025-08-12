@@ -1,0 +1,833 @@
+/**
+ * OPTIMIZED JOB SEARCH API
+ * 
+ * Unified, high-performance search endpoint with:
+ * - Standardized parameter handling
+ * - Optimized database queries
+ * - Consistent response format
+ * - Advanced filtering capabilities
+ * - Full-text search support
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/database-service';
+
+// ===== VALIDATION SCHEMAS =====
+
+const searchParamsSchema = z.object({
+  // Core search parameters
+  query: z.string().optional().transform(val => val?.trim() || undefined),
+  q: z.string().optional().transform(val => val?.trim() || undefined), // Alias for query
+  location: z.string().optional().transform(val => val?.trim() || undefined),
+  
+  // Filter parameters - standardized naming
+  company: z.string().optional(),
+  job_type: z.enum(['full-time', 'part-time', 'contract', 'internship', 'freelance']).optional(),
+  experience_level: z.enum(['entry', 'mid', 'senior', 'executive', 'internship']).optional(),
+  sector: z.string().optional(),
+  country: z.string().default('IN'),
+  
+  // Boolean filters
+  remote_only: z.string().optional().transform(val => val === 'true'),
+  is_hybrid: z.string().optional().transform(val => val === 'true'),
+  is_featured: z.string().optional().transform(val => val === 'true'),
+  is_urgent: z.string().optional().transform(val => val === 'true'),
+  is_active: z.string().optional().transform(val => val !== 'false'), // Default true
+  
+  // Salary range
+  salary_min: z.string().optional().transform(val => val ? parseInt(val) : undefined),
+  salary_max: z.string().optional().transform(val => val ? parseInt(val) : undefined),
+  salary_currency: z.string().optional(),
+  
+  // Date filters
+  posted_since: z.enum(['today', 'week', 'month', 'quarter', 'year']).optional(),
+  posted_after: z.string().optional().transform(val => val ? new Date(val) : undefined),
+  posted_before: z.string().optional().transform(val => val ? new Date(val) : undefined),
+  
+  // Skills - comma-separated or array
+  skills: z.string().optional().transform(val => 
+    val ? val.split(',').map(s => s.trim()).filter(Boolean) : undefined
+  ),
+  
+  // Sorting
+  sort_by: z.enum(['relevance', 'date', 'salary_asc', 'salary_desc', 'title', 'company']).default('relevance'),
+  sort_order: z.enum(['asc', 'desc']).optional(),
+  
+  // Pagination
+  page: z.string().optional().transform(val => Math.max(1, parseInt(val || '1'))),
+  limit: z.string().optional().transform(val => Math.min(100, Math.max(1, parseInt(val || '20')))),
+  offset: z.string().optional().transform(val => val ? parseInt(val) : undefined),
+  
+  // Advanced options
+  include_inactive: z.string().optional().transform(val => val === 'true'),
+  include_expired: z.string().optional().transform(val => val === 'true'),
+  fuzzy_search: z.string().optional().transform(val => val !== 'false'), // Default true
+  
+  // Output format options
+  include_similar: z.string().optional().transform(val => val === 'true'),
+  include_stats: z.string().optional().transform(val => val === 'true'),
+  include_suggestions: z.string().optional().transform(val => val === 'true'),
+}).refine(data => {
+  // Use 'query' if provided, otherwise use 'q'
+  if (data.q && !data.query) {
+    data.query = data.q;
+  }
+  return true;
+});
+
+// ===== RESPONSE INTERFACES =====
+
+interface OptimizedJobResult {
+  id: string;
+  title: string;
+  company: string | null;
+  company_logo: string | null;
+  location: string | null;
+  country: string;
+  description_preview: string; // First 200 chars
+  salary_formatted: string | null;
+  salary_min: number | null;
+  salary_max: number | null;
+  salary_currency: string | null;
+  job_type: string | null;
+  experience_level: string | null;
+  skills: string[];
+  sector: string | null;
+  is_remote: boolean;
+  is_hybrid: boolean;
+  is_featured: boolean;
+  is_urgent: boolean;
+  posted_at: string | null;
+  created_at: string;
+  apply_url: string | null;
+  relevance_score?: number;
+  match_reasons?: string[];
+}
+
+interface SearchResponse {
+  success: boolean;
+  data: {
+    jobs: OptimizedJobResult[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  };
+  filters: {
+    applied: Record<string, any>;
+    available?: {
+      job_types: Array<{ value: string; count: number; label: string }>;
+      experience_levels: Array<{ value: string; count: number; label: string }>;
+      sectors: Array<{ value: string; count: number; label: string }>;
+      locations: Array<{ value: string; count: number }>;
+      companies: Array<{ value: string; count: number }>;
+      salary_ranges: Array<{ min: number; max: number; count: number }>;
+    };
+  };
+  meta: {
+    search_time_ms: number;
+    query_type: 'exact' | 'fuzzy' | 'full_text';
+    suggestions?: string[];
+    related_searches?: string[];
+    total_in_db: number;
+  };
+  timestamp: string;
+}
+
+// ===== SEARCH SERVICE CLASS =====
+
+class OptimizedJobSearchService {
+  
+  /**
+   * Build optimized WHERE clause for Prisma query
+   */
+  private buildWhereClause(params: any): Prisma.JobWhereInput {
+    const where: Prisma.JobWhereInput = {
+      AND: []
+    };
+
+    // Always filter by active status unless explicitly requested
+    if (!params.include_inactive) {
+      where.isActive = true;
+    }
+
+    // Text search with full-text capability
+    if (params.query) {
+      const searchTerms = params.query.split(/\\s+/).filter(Boolean);
+      
+      if (params.fuzzy_search) {
+        // Full-text search using PostgreSQL
+        where.OR = [
+          {
+            title: {
+              search: params.query,
+              mode: 'insensitive'
+            }
+          },
+          {
+            description: {
+              search: params.query,
+              mode: 'insensitive'
+            }
+          },
+          {
+            company: {
+              contains: params.query,
+              mode: 'insensitive'
+            }
+          },
+          // Skills array search
+          {
+            skills: {
+              hasSome: searchTerms
+            }
+          }
+        ];
+      } else {
+        // Exact matching
+        where.OR = [
+          {
+            title: {
+              contains: params.query,
+              mode: 'insensitive'
+            }
+          },
+          {
+            description: {
+              contains: params.query,
+              mode: 'insensitive'
+            }
+          }
+        ];
+      }
+    }
+
+    // Location filter
+    if (params.location) {
+      where.AND!.push({
+        OR: [
+          {
+            location: {
+              contains: params.location,
+              mode: 'insensitive'
+            }
+          },
+          {
+            country: {
+              equals: params.location.toUpperCase()
+            }
+          }
+        ]
+      });
+    }
+
+    // Company filter
+    if (params.company) {
+      where.company = {
+        contains: params.company,
+        mode: 'insensitive'
+      };
+    }
+
+    // Country filter
+    if (params.country) {
+      where.country = params.country.toUpperCase();
+    }
+
+    // Categorical filters
+    if (params.job_type) {
+      where.jobType = params.job_type;
+    }
+
+    if (params.experience_level) {
+      where.experienceLevel = params.experience_level;
+    }
+
+    if (params.sector) {
+      where.sector = {
+        contains: params.sector,
+        mode: 'insensitive'
+      };
+    }
+
+    // Boolean filters
+    if (params.remote_only) {
+      where.isRemote = true;
+    }
+
+    if (params.is_hybrid !== undefined) {
+      where.isHybrid = params.is_hybrid;
+    }
+
+    if (params.is_featured !== undefined) {
+      where.isFeatured = params.is_featured;
+    }
+
+    if (params.is_urgent !== undefined) {
+      where.isUrgent = params.is_urgent;
+    }
+
+    // Salary range filter
+    if (params.salary_min || params.salary_max) {
+      const salaryFilter: any = {};
+      
+      if (params.salary_min) {
+        salaryFilter.gte = params.salary_min;
+      }
+      
+      if (params.salary_max) {
+        salaryFilter.lte = params.salary_max;
+      }
+
+      where.AND!.push({
+        OR: [
+          { salaryMin: salaryFilter },
+          { salaryMax: salaryFilter },
+          // Handle cases where salary is in text format
+          {
+            AND: [
+              { salaryMin: { gte: params.salary_min || 0 } },
+              { salaryMax: { lte: params.salary_max || 999999999 } }
+            ]
+          }
+        ]
+      });
+    }
+
+    // Skills filter
+    if (params.skills && params.skills.length > 0) {
+      where.skills = {
+        hasSome: params.skills
+      };
+    }
+
+    // Date filters
+    if (params.posted_since) {
+      const now = new Date();
+      let dateThreshold: Date;
+
+      switch (params.posted_since) {
+        case 'today':
+          dateThreshold = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case 'week':
+          dateThreshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          dateThreshold = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+          break;
+        case 'quarter':
+          dateThreshold = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+          break;
+        case 'year':
+          dateThreshold = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+          break;
+        default:
+          dateThreshold = new Date(0);
+      }
+
+      where.AND!.push({
+        OR: [
+          { postedAt: { gte: dateThreshold } },
+          { 
+            AND: [
+              { postedAt: null },
+              { createdAt: { gte: dateThreshold } }
+            ]
+          }
+        ]
+      });
+    }
+
+    if (params.posted_after) {
+      where.AND!.push({
+        OR: [
+          { postedAt: { gte: params.posted_after } },
+          { 
+            AND: [
+              { postedAt: null },
+              { createdAt: { gte: params.posted_after } }
+            ]
+          }
+        ]
+      });
+    }
+
+    if (params.posted_before) {
+      where.AND!.push({
+        OR: [
+          { postedAt: { lte: params.posted_before } },
+          { 
+            AND: [
+              { postedAt: null },
+              { createdAt: { lte: params.posted_before } }
+            ]
+          }
+        ]
+      });
+    }
+
+    return where;
+  }
+
+  /**
+   * Build optimized ORDER BY clause
+   */
+  private buildOrderBy(params: any): Prisma.JobOrderByWithRelationInput[] {
+    const orderBy: Prisma.JobOrderByWithRelationInput[] = [];
+
+    switch (params.sort_by) {
+      case 'date':
+        orderBy.push(
+          { postedAt: params.sort_order || 'desc' },
+          { createdAt: 'desc' } // Fallback for null postedAt
+        );
+        break;
+      
+      case 'salary_asc':
+        orderBy.push(
+          { salaryMin: 'asc' },
+          { salaryMax: 'asc' },
+          { createdAt: 'desc' }
+        );
+        break;
+      
+      case 'salary_desc':
+        orderBy.push(
+          { salaryMax: 'desc' },
+          { salaryMin: 'desc' },
+          { createdAt: 'desc' }
+        );
+        break;
+      
+      case 'title':
+        orderBy.push(
+          { title: params.sort_order || 'asc' },
+          { createdAt: 'desc' }
+        );
+        break;
+      
+      case 'company':
+        orderBy.push(
+          { company: params.sort_order || 'asc' },
+          { createdAt: 'desc' }
+        );
+        break;
+      
+      case 'relevance':
+      default:
+        // Relevance-based sorting
+        orderBy.push(
+          { isFeatured: 'desc' },
+          { isUrgent: 'desc' },
+          { postedAt: 'desc' },
+          { createdAt: 'desc' }
+        );
+        break;
+    }
+
+    return orderBy;
+  }
+
+  /**
+   * Execute optimized search query
+   */
+  async search(params: any): Promise<SearchResponse> {
+    const startTime = Date.now();
+
+    try {
+      const where = this.buildWhereClause(params);
+      const orderBy = this.buildOrderBy(params);
+      
+      // Calculate pagination
+      const page = params.page || 1;
+      const limit = params.limit || 20;
+      const skip = (page - 1) * limit;
+
+      // Execute parallel queries for data and count
+      const [jobs, totalCount] = await Promise.all([
+        prisma.job.findMany({
+          where,
+          orderBy,
+          skip,
+          take: limit,
+          select: {
+            id: true,
+            title: true,
+            company: true,
+            companyLogo: true,
+            location: true,
+            country: true,
+            description: true,
+            salary: true,
+            salaryMin: true,
+            salaryMax: true,
+            salaryCurrency: true,
+            jobType: true,
+            experienceLevel: true,
+            skills: true,
+            sector: true,
+            isRemote: true,
+            isHybrid: true,
+            isFeatured: true,
+            isUrgent: true,
+            postedAt: true,
+            createdAt: true,
+            applyUrl: true,
+          }
+        }),
+        prisma.job.count({ where })
+      ]);
+
+      // Transform results
+      const transformedJobs: OptimizedJobResult[] = jobs.map(job => ({
+        id: job.id.toString(),
+        title: job.title,
+        company: job.company,
+        company_logo: job.companyLogo,
+        location: job.location,
+        country: job.country,
+        description_preview: job.description.substring(0, 200) + (job.description.length > 200 ? '...' : ''),
+        salary_formatted: this.formatSalary(job.salary, job.salaryMin, job.salaryMax, job.salaryCurrency),
+        salary_min: job.salaryMin,
+        salary_max: job.salaryMax,
+        salary_currency: job.salaryCurrency,
+        job_type: job.jobType,
+        experience_level: job.experienceLevel,
+        skills: job.skills,
+        sector: job.sector,
+        is_remote: job.isRemote,
+        is_hybrid: job.isHybrid,
+        is_featured: job.isFeatured,
+        is_urgent: job.isUrgent,
+        posted_at: job.postedAt?.toISOString() || null,
+        created_at: job.createdAt.toISOString(),
+        apply_url: job.applyUrl || `/jobs/${job.id}`,
+      }));
+
+      // Calculate pagination metadata
+      const totalPages = Math.ceil(totalCount / limit);
+      const hasNext = page < totalPages;
+      const hasPrev = page > 1;
+
+      // Get total jobs in database for context
+      const totalInDb = await prisma.job.count({
+        where: { isActive: true }
+      });
+
+      const searchTime = Date.now() - startTime;
+
+      return {
+        success: true,
+        data: {
+          jobs: transformedJobs,
+          total: totalCount,
+          page,
+          limit,
+          total_pages: totalPages,
+          has_next: hasNext,
+          has_prev: hasPrev,
+        },
+        filters: {
+          applied: this.extractAppliedFilters(params),
+          ...(params.include_stats && {
+            available: await this.getFilterOptions(where)
+          })
+        },
+        meta: {
+          search_time_ms: searchTime,
+          query_type: params.query ? (params.fuzzy_search ? 'fuzzy' : 'exact') : 'filter',
+          total_in_db: totalInDb,
+          ...(params.include_suggestions && {
+            suggestions: await this.getSearchSuggestions(params.query)
+          })
+        },
+        timestamp: new Date().toISOString()
+      };
+
+    } catch (error) {
+      console.error('Optimized search error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Format salary display
+   */
+  private formatSalary(salary: string | null, min: number | null, max: number | null, currency: string | null): string | null {
+    if (salary) return salary;
+    
+    if (min || max) {
+      const curr = currency || 'INR';
+      const symbol = curr === 'INR' ? '₹' : curr === 'USD' ? '$' : curr;
+      
+      if (min && max) {
+        return `${symbol}${min.toLocaleString()} - ${symbol}${max.toLocaleString()}`;
+      } else if (min) {
+        return `${symbol}${min.toLocaleString()}+`;
+      } else if (max) {
+        return `Up to ${symbol}${max.toLocaleString()}`;
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Extract applied filters for response
+   */
+  private extractAppliedFilters(params: any): Record<string, any> {
+    const applied: Record<string, any> = {};
+    
+    if (params.query) applied.query = params.query;
+    if (params.location) applied.location = params.location;
+    if (params.company) applied.company = params.company;
+    if (params.job_type) applied.job_type = params.job_type;
+    if (params.experience_level) applied.experience_level = params.experience_level;
+    if (params.sector) applied.sector = params.sector;
+    if (params.remote_only) applied.remote_only = params.remote_only;
+    if (params.is_hybrid !== undefined) applied.is_hybrid = params.is_hybrid;
+    if (params.is_featured !== undefined) applied.is_featured = params.is_featured;
+    if (params.is_urgent !== undefined) applied.is_urgent = params.is_urgent;
+    if (params.salary_min) applied.salary_min = params.salary_min;
+    if (params.salary_max) applied.salary_max = params.salary_max;
+    if (params.skills) applied.skills = params.skills;
+    if (params.posted_since) applied.posted_since = params.posted_since;
+    if (params.sort_by !== 'relevance') applied.sort_by = params.sort_by;
+    
+    return applied;
+  }
+
+  /**
+   * Get available filter options based on current search context
+   */
+  private async getFilterOptions(baseWhere: Prisma.JobWhereInput) {
+    try {
+      // Get aggregated filter data
+      const [jobTypes, experienceLevels, sectors, locations, companies] = await Promise.all([
+        prisma.job.groupBy({
+          by: ['jobType'],
+          where: { ...baseWhere, jobType: { not: null } },
+          _count: { jobType: true },
+          orderBy: { _count: { jobType: 'desc' } },
+          take: 20
+        }),
+        prisma.job.groupBy({
+          by: ['experienceLevel'],
+          where: { ...baseWhere, experienceLevel: { not: null } },
+          _count: { experienceLevel: true },
+          orderBy: { _count: { experienceLevel: 'desc' } },
+          take: 10
+        }),
+        prisma.job.groupBy({
+          by: ['sector'],
+          where: { ...baseWhere, sector: { not: null } },
+          _count: { sector: true },
+          orderBy: { _count: { sector: 'desc' } },
+          take: 20
+        }),
+        prisma.job.groupBy({
+          by: ['location'],
+          where: { ...baseWhere, location: { not: null } },
+          _count: { location: true },
+          orderBy: { _count: { location: 'desc' } },
+          take: 30
+        }),
+        prisma.job.groupBy({
+          by: ['company'],
+          where: { ...baseWhere, company: { not: null } },
+          _count: { company: true },
+          orderBy: { _count: { company: 'desc' } },
+          take: 50
+        })
+      ]);
+
+      return {
+        job_types: jobTypes.map(item => ({
+          value: item.jobType!,
+          count: item._count.jobType,
+          label: this.formatJobTypeLabel(item.jobType!)
+        })),
+        experience_levels: experienceLevels.map(item => ({
+          value: item.experienceLevel!,
+          count: item._count.experienceLevel,
+          label: this.formatExperienceLevelLabel(item.experienceLevel!)
+        })),
+        sectors: sectors.map(item => ({
+          value: item.sector!,
+          count: item._count.sector,
+          label: item.sector!
+        })),
+        locations: locations.map(item => ({
+          value: item.location!,
+          count: item._count.location
+        })),
+        companies: companies.map(item => ({
+          value: item.company!,
+          count: item._count.company
+        }))
+      };
+    } catch (error) {
+      console.error('Error getting filter options:', error);
+      return {};
+    }
+  }
+
+  /**
+   * Get search suggestions based on query
+   */
+  private async getSearchSuggestions(query?: string): Promise<string[]> {
+    if (!query || query.length < 2) return [];
+
+    try {
+      // Get popular job titles that match the query
+      const suggestions = await prisma.job.findMany({
+        where: {
+          OR: [
+            {
+              title: {
+                contains: query,
+                mode: 'insensitive'
+              }
+            },
+            {
+              skills: {
+                hasSome: [query]
+              }
+            }
+          ],
+          isActive: true
+        },
+        select: {
+          title: true
+        },
+        distinct: ['title'],
+        take: 5,
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      return suggestions.map(job => job.title);
+    } catch (error) {
+      console.error('Error getting search suggestions:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Format job type labels for display
+   */
+  private formatJobTypeLabel(jobType: string): string {
+    const labels: Record<string, string> = {
+      'full-time': 'Full Time',
+      'part-time': 'Part Time',
+      'contract': 'Contract',
+      'internship': 'Internship',
+      'freelance': 'Freelance'
+    };
+    return labels[jobType] || jobType;
+  }
+
+  /**
+   * Format experience level labels for display
+   */
+  private formatExperienceLevelLabel(level: string): string {
+    const labels: Record<string, string> = {
+      'entry': 'Entry Level',
+      'mid': 'Mid Level',
+      'senior': 'Senior Level',
+      'executive': 'Executive',
+      'internship': 'Internship'
+    };
+    return labels[level] || level;
+  }
+}
+
+// ===== API ENDPOINT =====
+
+const searchService = new OptimizedJobSearchService();
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  try {
+    const { searchParams } = new URL(request.url);
+    
+    // Parse and validate parameters
+    const params = searchParamsSchema.parse(
+      Object.fromEntries(searchParams.entries())
+    );
+
+    // Execute optimized search
+    const result = await searchService.search(params);
+
+    return NextResponse.json(result, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        'Content-Type': 'application/json'
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Search API error:', error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid search parameters',
+        details: error.errors,
+        data: {
+          jobs: [],
+          total: 0,
+          page: 1,
+          limit: 20,
+          total_pages: 0,
+          has_next: false,
+          has_prev: false
+        },
+        filters: { applied: {} },
+        meta: { search_time_ms: 0, query_type: 'error' as const, total_in_db: 0 },
+        timestamp: new Date().toISOString()
+      }, { status: 400 });
+    }
+
+    return NextResponse.json({
+      success: false,
+      error: 'Search failed',
+      message: error.message,
+      data: {
+        jobs: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        total_pages: 0,
+        has_next: false,
+        has_prev: false
+      },
+      filters: { applied: {} },
+      meta: { search_time_ms: 0, query_type: 'error' as const, total_in_db: 0 },
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
+  }
+}
+
+// Health check endpoint
+export async function HEAD(request: NextRequest): Promise<NextResponse> {
+  return new NextResponse(null, { status: 200 });
+}
+
+// CORS preflight
+export async function OPTIONS(request: NextRequest): Promise<NextResponse> {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400'
+    }
+  });
+}

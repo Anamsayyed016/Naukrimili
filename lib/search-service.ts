@@ -4,11 +4,41 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/a
 const SERPAPI_BASE_URL = process.env.SERPAPI_BASE_URL || 'https://serpapi.com/search';
 const SERPAPI_KEY = process.env.SERPAPI_KEY || '';
 
+export interface JobSearchParams {
+  q?: string;
+  location?: string;
+  company?: string;
+  country?: string;
+  job_type?: string;
+  experience_level?: string;
+  sector?: string;
+  remote?: boolean;
+  hybrid?: boolean;
+  featured?: boolean;
+  urgent?: boolean;
+  salary_min?: number;
+  salary_max?: number;
+  skills?: string[];
+  date_posted?: 'today' | 'week' | 'month' | 'all';
+  page?: number;
+  limit?: number;
+  sort_by?: string; // relevance | date | postedAt | salary_min | salary_max | company | title | featured | urgent
+  sort_order?: 'asc' | 'desc';
+}
+
 export class SearchService {
-  async searchJobs(query: string, filters?: Record<string, unknown>) {
+  async searchJobs(params: JobSearchParams) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/jobs/search`, {
-        params: { query, ...(filters || {}) },
+      const response = await axios.get(`${API_BASE_URL}/jobs`, {
+        params: {
+          ...params,
+          // Normalise booleans to string for URL compatibility
+          remote: params.remote?.toString(),
+          hybrid: params.hybrid?.toString(),
+          featured: params.featured?.toString(),
+          urgent: params.urgent?.toString(),
+          skills: params.skills?.join(','),
+        },
       });
       return response.data;
     } catch (error) {

@@ -1,105 +1,97 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+/**
+ * Enhanced Job Bookmarks API - Real Database Integration
+ * GET /api/jobs/bookmarks - Get user's bookmarked jobs
+ * POST /api/jobs/bookmarks - Add job to bookmarks
+ * DELETE /api/jobs/bookmarks/[jobId] - Remove job from bookmarks
+ */
 
-// GET /api/jobs/bookmarks - Get user's bookmarked jobs
+import { NextRequest, NextResponse } from 'next/server';
+import { enhancedJobService } from '@/lib/enhanced-job-service';
+import { extractUserFromRequest, extractPaginationFromRequest } from '@/lib/database-service';
+import { z } from 'zod';
+
+// Bookmark creation schema
+const createBookmarkSchema = z.object({
+  jobId: z.number().positive(),
+  notes: z.string().optional(),
+});
+
+// GET /api/jobs/bookmarks - Get user's bookmarked jobs with pagination
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    
-    if (!userId) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'User ID is required' 
-      }, { status: 400 });
+    // Extract user authentication
+    const user = extractUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required',
+      }, { status: 401 });
     }
 
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
-    const skip = (page - 1) * limit;
+    // Extract pagination parameters
+    const pagination = extractPaginationFromRequest(request);
 
-    const [total, bookmarks] = await Promise.all([
-      prisma.jobBookmark.count({ 
-        where: { userId: parseInt(userId) } 
-      }),
-      prisma.jobBookmark.findMany({
-        where: { userId: parseInt(userId) },
-        include: {
-          job: {
-            select: {
-              id: true,
-              title: true,
-              company: true,
-              companyLogo: true,
-              location: true,
-              description: true,
-              salary: true,
-              salaryMin: true,
-              salaryMax: true,
-              salaryCurrency: true,
-              jobType: true,
-              experienceLevel: true,
-              skills: true,
-              isRemote: true,
-              isHybrid: true,
-              isUrgent: true,
-              isFeatured: true,
-              sector: true,
-              applyUrl: true,
-              postedAt: true,
-              createdAt: true
-            }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit
-      })
-    ]);
+    // Get user's bookmarked jobs
+    const result = await enhancedJobService.getUserBookmarks(user.id, pagination);
 
-    const jobs = bookmarks.map(bookmark => ({
-      id: bookmark.job.id.toString(),
-      title: bookmark.job.title,
-      company: bookmark.job.company || 'Unknown Company',
-      companyLogo: bookmark.job.companyLogo,
-      location: bookmark.job.location || 'Remote',
-      description: bookmark.job.description,
-      salary_formatted: formatSalary(bookmark.job.salaryMin, bookmark.job.salaryMax, bookmark.job.salaryCurrency || 'INR'),
-      time_ago: getTimeAgo(bookmark.job.createdAt),
-      redirect_url: bookmark.job.applyUrl || `/jobs/${bookmark.job.id}`,
-      is_remote: bookmark.job.isRemote,
-      is_hybrid: bookmark.job.isHybrid,
-      is_urgent: bookmark.job.isUrgent,
-      is_featured: bookmark.job.isFeatured,
-      job_type: bookmark.job.jobType,
-      experience_level: bookmark.job.experienceLevel,
-      skills: bookmark.job.skills,
-      sector: bookmark.job.sector,
-      posted_at: bookmark.job.postedAt?.toISOString(),
-      created_at: bookmark.job.createdAt.toISOString(),
-      bookmarked_at: bookmark.createdAt.toISOString()
+    // Transform bookmarks for frontend
+    const transformedBookmarks = result.data.map(bookmark => ({
+      id: bookmark.id.toString(),
+      job_id: bookmark.jobId.toString(),
+      job: {
+        id: bookmark.job.id.toString(),
+        title: bookmark.job.title,
+        company: bookmark.job.company,
+        company_logo: bookmark.job.companyLogo,
+        location: bookmark.job.location,
+        country: bookmark.job.country,
+        salary: bookmark.job.salary,
+        job_type: bookmark.job.jobType,
+        remote: bookmark.job.isRemote,
+        featured: bookmark.job.isFeatured,
+        urgent: bookmark.job.isUrgent,
+        posted_at: bookmark.job.postedAt?.toISOString() || bookmark.job.createdAt.toISOString(),
+        redirect_url: bookmark.job.applyUrl || `/jobs/${bookmark.job.id}`,
+        is_active: bookmark.job.isActive,
+      },
+      notes: bookmark.notes,
+      bookmarked_at: bookmark.createdAt.toISOString(),
     }));
-
-    const totalPages = Math.ceil(total / limit);
 
     return NextResponse.json({
       success: true,
-      jobs,
+      message: `Found ${result.pagination.total} bookmarked jobs`,
+      bookmarks: transformedBookmarks,
       pagination: {
-        page,
-        limit,
-        total,
-        total_pages: totalPages,
-        has_next: page < totalPages,
-        has_prev: page > 1
-      }
+        current_page: result.pagination.page,
+        total_pages: result.pagination.totalPages,
+        total_results: result.pagination.total,
+        per_page: result.pagination.limit,
+        has_next: result.pagination.hasNext,
+        has_prev: result.pagination.hasPrev,
+      },
+      timestamp: new Date().toISOString(),
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Bookmarks GET error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to fetch bookmarks' 
+
+    // Handle database errors
+    if (error.name === 'DatabaseError') {
+      return NextResponse.json({
+        success: false,
+        error: 'Database error occurred',
+        message: error.message,
+        bookmarks: [],
+        pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
+      }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to fetch bookmarks',
+      bookmarks: [],
+      pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
     }, { status: 500 });
   }
 }
@@ -107,144 +99,96 @@ export async function GET(request: NextRequest) {
 // POST /api/jobs/bookmarks - Add job to bookmarks
 export async function POST(request: NextRequest) {
   try {
-    const { userId, jobId } = await request.json();
-
-    if (!userId || !jobId) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'User ID and Job ID are required' 
-      }, { status: 400 });
+    // Extract user authentication
+    const user = extractUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required',
+      }, { status: 401 });
     }
 
-    // Check if job exists
-    const job = await prisma.job.findUnique({
-      where: { id: parseInt(jobId) }
-    });
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = createBookmarkSchema.parse(body);
 
+    // Check if job exists
+    const job = await enhancedJobService.getJobById(validatedData.jobId);
     if (!job) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Job not found' 
+      return NextResponse.json({
+        success: false,
+        error: 'Job not found',
       }, { status: 404 });
     }
 
-    // Create bookmark (upsert to handle duplicates)
-    const bookmark = await prisma.jobBookmark.upsert({
-      where: {
-        userId_jobId: {
-          userId: parseInt(userId),
-          jobId: parseInt(jobId)
-        }
-      },
-      update: {},
-      create: {
-        userId: parseInt(userId),
-        jobId: parseInt(jobId)
-      }
-    });
+    // Add bookmark
+    const bookmark = await enhancedJobService.addJobBookmark(
+      user.id,
+      validatedData.jobId,
+      validatedData.notes
+    );
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
+      message: 'Job bookmarked successfully',
       bookmark: {
-        id: bookmark.id,
-        userId: bookmark.userId,
-        jobId: bookmark.jobId,
-        createdAt: bookmark.createdAt
-      }
-    });
+        id: bookmark.id.toString(),
+        job_id: bookmark.jobId.toString(),
+        notes: bookmark.notes,
+        bookmarked_at: bookmark.createdAt.toISOString(),
+      },
+      timestamp: new Date().toISOString(),
+    }, { status: 201 });
 
-  } catch (error) {
-    console.error('Bookmark POST error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to add bookmark' 
-    }, { status: 500 });
-  }
-}
+  } catch (error: any) {
+    console.error('Bookmarks POST error:', error);
 
-// DELETE /api/jobs/bookmarks - Remove job from bookmarks
-export async function DELETE(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const jobId = searchParams.get('jobId');
-
-    if (!userId || !jobId) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'User ID and Job ID are required' 
+    // Handle validation errors
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid bookmark data',
+        details: error.errors,
       }, { status: 400 });
     }
 
-    await prisma.jobBookmark.deleteMany({
-      where: {
-        userId: parseInt(userId),
-        jobId: parseInt(jobId)
+    // Handle database errors
+    if (error.name === 'DatabaseError') {
+      let statusCode = 500;
+      
+      // Handle duplicate bookmark (user already bookmarked this job)
+      if (error.code === 'DUPLICATE_ENTRY' || error.message.includes('unique constraint')) {
+        statusCode = 409;
+        return NextResponse.json({
+          success: false,
+          error: 'Job already bookmarked',
+          message: 'You have already bookmarked this job',
+        }, { status: statusCode });
       }
-    });
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Bookmark removed successfully' 
-    });
+      return NextResponse.json({
+        success: false,
+        error: 'Database error',
+        message: error.message,
+      }, { status: statusCode });
+    }
 
-  } catch (error) {
-    console.error('Bookmark DELETE error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to remove bookmark' 
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to bookmark job',
+      message: error.message,
     }, { status: 500 });
   }
 }
 
-// Helper functions (same as main jobs route)
-function formatSalary(min?: number | null, max?: number | null, currency = 'INR'): string {
-  const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : currency === 'GBP' ? '£' : currency;
-  
-  if (!min && !max) return 'Salary not disclosed';
-  
-  const formatAmount = (amount: number) => {
-    if (currency === 'INR') {
-      if (amount >= 100000) {
-        return `${(amount / 100000).toFixed(1)}L`;
-      }
-      return `${(amount / 1000).toFixed(0)}K`;
-    }
-    return amount.toLocaleString();
-  };
-  
-  if (min && max) {
-    return `${symbol}${formatAmount(min)} - ${formatAmount(max)}`;
-  } else if (min) {
-    return `${symbol}${formatAmount(min)}+`;
-  } else if (max) {
-    return `Up to ${symbol}${formatAmount(max)}`;
-  }
-  
-  return 'Salary not disclosed';
+// OPTIONS handler for CORS
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-user-id',
+    },
+  });
 }
-
-function getTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  const intervals = {
-    year: 31536000,
-    month: 2592000,
-    week: 604800,
-    day: 86400,
-    hour: 3600,
-    minute: 60
-  };
-  
-  for (const [unit, seconds] of Object.entries(intervals)) {
-    const interval = Math.floor(diffInSeconds / seconds);
-    if (interval >= 1) {
-      return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
-    }
-  }
-  
-  return 'Just now';
-}
-
-export const dynamic = 'force-dynamic';

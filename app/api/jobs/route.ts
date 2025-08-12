@@ -1,375 +1,281 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { createJobSchema } from '@/lib/validation/job';
+/**
+ * Enhanced Jobs API - Real Database Integration
+ * GET /api/jobs - Advanced job search with real data
+ * POST /api/jobs - Create new job posting
+ */
 
-// GET /api/jobs - Enhanced job search with advanced filtering
+import { NextRequest, NextResponse } from 'next/server';
+import { enhancedJobService, JobFilters } from '@/lib/enhanced-job-service';
+import { extractPaginationFromRequest, extractUserFromRequest, handleDatabaseError } from '@/lib/database-service';
+import { z } from 'zod';
+
+// Validation schemas
+const jobSearchParamsSchema = z.object({
+  q: z.string().optional(),
+  location: z.string().optional(),
+  company: z.string().optional(),
+  country: z.string().default('IN'),
+  job_type: z.string().optional(),
+  experience_level: z.string().optional(),
+  sector: z.string().optional(),
+  remote: z.string().optional().transform(val => val === 'true'),
+  hybrid: z.string().optional().transform(val => val === 'true'),
+  featured: z.string().optional().transform(val => val === 'true'),
+  urgent: z.string().optional().transform(val => val === 'true'),
+  salary_min: z.string().optional().transform(val => val ? parseInt(val) : undefined),
+  salary_max: z.string().optional().transform(val => val ? parseInt(val) : undefined),
+  skills: z.string().optional().transform(val => val ? val.split(',').filter(Boolean) : undefined),
+  date_posted: z.enum(['today', 'week', 'month', 'all']).optional(),
+  sort_by: z.string().optional(),
+  sort_order: z.enum(['asc', 'desc']).optional(),
+  page: z.string().optional(),
+  limit: z.string().optional(),
+});
+
+const createJobSchema = z.object({
+  title: z.string().min(1, 'Job title is required'),
+  company: z.string().min(1, 'Company name is required'),
+  companyLogo: z.string().url().optional(),
+  location: z.string().optional(),
+  country: z.string().min(2, 'Country code is required'),
+  description: z.string().min(10, 'Job description must be at least 10 characters'),
+  applyUrl: z.string().url().optional(),
+  salary: z.string().optional(),
+  salaryMin: z.number().positive().optional(),
+  salaryMax: z.number().positive().optional(),
+  salaryCurrency: z.string().optional(),
+  jobType: z.enum(['full-time', 'part-time', 'contract', 'internship', 'freelance']).optional(),
+  experienceLevel: z.enum(['entry', 'mid', 'senior', 'executive', 'internship']).optional(),
+  skills: z.array(z.string()).default([]),
+  isRemote: z.boolean().default(false),
+  isHybrid: z.boolean().default(false),
+  isUrgent: z.boolean().default(false),
+  isFeatured: z.boolean().default(false),
+  sector: z.string().optional(),
+  source: z.string().default('manual'),
+  sourceId: z.string(),
+  postedAt: z.string().datetime().optional().transform(val => val ? new Date(val) : undefined),
+  rawJson: z.any().default({}),
+});
+
+// GET /api/jobs - Enhanced job search with real database data
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     
-    // Basic search parameters
-    const q = searchParams.get('q') || undefined;
-    const location = searchParams.get('location') || undefined;
-    const company = searchParams.get('company') || undefined;
-    
-    // Pagination
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
-    const skip = (page - 1) * limit;
-    
-    // Advanced filters
-    const jobType = searchParams.get('job_type') || undefined;
-    const experienceLevel = searchParams.get('experience_level') || undefined;
-    const sector = searchParams.get('sector') || undefined;
-    const isRemote = searchParams.get('remote') === 'true';
-    const salaryMin = searchParams.get('salary_min') ? parseInt(searchParams.get('salary_min')!) : undefined;
-    const salaryMax = searchParams.get('salary_max') ? parseInt(searchParams.get('salary_max')!) : undefined;
-    const country = searchParams.get('country') || 'IN';
-    
-    // Date filters
-    const datePosted = searchParams.get('date_posted') || undefined;
-    
-    // Sorting
-    const sortBy = searchParams.get('sort_by') || 'newest';
-    
-    // Skills filter
-    const skills = searchParams.get('skills')?.split(',').filter(Boolean) || [];
+    // Validate and parse search parameters
+    const validatedParams = jobSearchParamsSchema.parse(
+      Object.fromEntries(searchParams.entries())
+    );
 
-    // Build where clause
-    const where: any = {
-      country: country
+    // Extract pagination parameters
+    const pagination = extractPaginationFromRequest(request);
+
+    // Build filters
+    const filters: JobFilters = {
+      q: validatedParams.q,
+      location: validatedParams.location,
+      company: validatedParams.company,
+      country: validatedParams.country,
+      jobType: validatedParams.job_type,
+      experienceLevel: validatedParams.experience_level,
+      sector: validatedParams.sector,
+      isRemote: validatedParams.remote,
+      isHybrid: validatedParams.hybrid,
+      isFeatured: validatedParams.featured,
+      isUrgent: validatedParams.urgent,
+      salaryMin: validatedParams.salary_min,
+      salaryMax: validatedParams.salary_max,
+      skills: validatedParams.skills,
+      datePosted: validatedParams.date_posted,
     };
-    
-    // Text search across title, company, and description
-    if (q) {
-      where.OR = [
-        { title: { contains: q, mode: 'insensitive' } },
-        { company: { contains: q, mode: 'insensitive' } },
-        { description: { contains: q, mode: 'insensitive' } },
-      ];
-    }
-    
-    // Location filter
-    if (location) {
-      where.location = { contains: location, mode: 'insensitive' };
-    }
-    
-    // Company filter
-    if (company) {
-      where.company = { contains: company, mode: 'insensitive' };
-    }
-    
-    // Job type filter
-    if (jobType) {
-      where.jobType = jobType;
-    }
-    
-    // Experience level filter
-    if (experienceLevel) {
-      where.experienceLevel = experienceLevel;
-    }
-    
-    // Sector filter
-    if (sector) {
-      where.sector = sector;
-    }
-    
-    // Remote filter
-    if (isRemote) {
-      where.isRemote = true;
-    }
-    
-    // Salary range filter
-    if (salaryMin || salaryMax) {
-      where.AND = where.AND || [];
-      if (salaryMin) {
-        where.AND.push({
-          OR: [
-            { salaryMin: { gte: salaryMin } },
-            { salaryMax: { gte: salaryMin } }
-          ]
-        });
-      }
-      if (salaryMax) {
-        where.AND.push({
-          OR: [
-            { salaryMin: { lte: salaryMax } },
-            { salaryMax: { lte: salaryMax } }
-          ]
-        });
-      }
-    }
-    
-    // Date posted filter
-    if (datePosted && datePosted !== 'any') {
-      const now = new Date();
-      const daysAgo = datePosted === '1' ? 1 : 
-                     datePosted === '7' ? 7 : 
-                     datePosted === '30' ? 30 : 0;
-      if (daysAgo > 0) {
-        const dateThreshold = new Date(now.getTime() - (daysAgo * 24 * 60 * 60 * 1000));
-        where.createdAt = { gte: dateThreshold };
-      }
-    }
-    
-    // Skills filter
-    if (skills.length > 0) {
-      where.skills = {
-        hasSome: skills
-      };
-    }
 
-    // Build orderBy clause
-    let orderBy: any = {};
-    switch (sortBy) {
-      case 'newest':
-        orderBy = { createdAt: 'desc' };
-        break;
-      case 'oldest':
-        orderBy = { createdAt: 'asc' };
-        break;
-      case 'salary_high':
-        orderBy = [{ salaryMax: 'desc' }, { salaryMin: 'desc' }];
-        break;
-      case 'salary_low':
-        orderBy = [{ salaryMin: 'asc' }, { salaryMax: 'asc' }];
-        break;
-      case 'relevance':
-      default:
-        orderBy = [{ isFeatured: 'desc' }, { createdAt: 'desc' }];
-        break;
-    }
+    // Search jobs using enhanced service
+    const result = await enhancedJobService.searchJobs(filters, pagination);
 
-    // Execute queries
-    const [total, jobs] = await Promise.all([
-      prisma.job.count({ where }),
-      prisma.job.findMany({ 
-        where, 
-        orderBy,
-        skip, 
-        take: limit,
-        select: {
-          id: true,
-          title: true,
-          company: true,
-          companyLogo: true,
-          location: true,
-          description: true,
-          salary: true,
-          salaryMin: true,
-          salaryMax: true,
-          salaryCurrency: true,
-          jobType: true,
-          experienceLevel: true,
-          skills: true,
-          isRemote: true,
-          isHybrid: true,
-          isUrgent: true,
-          isFeatured: true,
-          sector: true,
-          applyUrl: true,
-          postedAt: true,
-          createdAt: true
-        }
-      }),
-    ]);
-
-    // Transform jobs to match frontend expectations
-    const transformedJobs = jobs.map(job => ({
+    // Transform response for frontend compatibility
+    const transformedJobs = result.data.map(job => ({
       id: job.id.toString(),
       title: job.title,
       company: job.company || 'Unknown Company',
-      companyLogo: job.companyLogo,
+      company_logo: job.companyLogo,
       location: job.location || 'Remote',
-      description: job.description,
-      salary_formatted: formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency || 'INR'),
-      time_ago: getTimeAgo(job.createdAt),
-      redirect_url: job.applyUrl || `/jobs/${job.id}`,
-      is_remote: job.isRemote,
-      is_hybrid: job.isHybrid,
-      is_urgent: job.isUrgent,
-      is_featured: job.isFeatured,
+      country: job.country,
+      salary: job.salary || `${job.salaryMin ? `${job.salaryMin}` : ''}${job.salaryMax ? ` - ${job.salaryMax}` : ''} ${job.salaryCurrency || ''}`.trim(),
+      salary_min: job.salaryMin,
+      salary_max: job.salaryMax,
+      salary_currency: job.salaryCurrency,
       job_type: job.jobType,
       experience_level: job.experienceLevel,
-      skills: job.skills,
+      remote: job.isRemote,
+      hybrid: job.isHybrid,
+      featured: job.isFeatured,
+      urgent: job.isUrgent,
       sector: job.sector,
-      posted_at: job.postedAt?.toISOString(),
-      created_at: job.createdAt.toISOString()
+      skills: job.skills,
+      posted_at: job.postedAt?.toISOString() || job.createdAt.toISOString(),
+      redirect_url: job.applyUrl || `/jobs/${job.id}`,
+      created_at: job.createdAt.toISOString(),
     }));
 
-    const totalPages = Math.ceil(total / limit);
-
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
+      message: `Found ${result.pagination.total} jobs`,
       jobs: transformedJobs,
       pagination: {
-        page, 
-        limit, 
-        total, 
-        total_pages: totalPages,
-        has_next: page < totalPages,
-        has_prev: page > 1
+        current_page: result.pagination.page,
+        total_pages: result.pagination.totalPages,
+        total_results: result.pagination.total,
+        per_page: result.pagination.limit,
+        has_next: result.pagination.hasNext,
+        has_prev: result.pagination.hasPrev,
       },
-      filters: {
-        applied: {
-          q, location, company, jobType, experienceLevel, 
-          sector, isRemote, salaryMin, salaryMax, datePosted, skills
-        },
-        available: await getAvailableFilters(where)
-      }
+      filters: filters,
+      timestamp: new Date().toISOString(),
     });
-    
-  } catch (error) {
+
+  } catch (error: any) {
     console.error('Jobs GET error:', error);
-    return NextResponse.json({ 
-      success: false, 
+
+    // Handle validation errors
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid search parameters',
+        details: error.errors,
+        jobs: [],
+        pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
+      }, { status: 400 });
+    }
+
+    // Handle database errors
+    if (error.name === 'DatabaseError') {
+      return NextResponse.json({
+        success: false,
+        error: 'Database error occurred',
+        message: error.message,
+        jobs: [],
+        pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
+      }, { status: 500 });
+    }
+
+    // Fallback error response
+    return NextResponse.json({
+      success: false,
       error: 'Failed to fetch jobs',
       jobs: [],
-      pagination: { page: 1, limit: 20, total: 0, total_pages: 0, has_next: false, has_prev: false }
+      pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
+      timestamp: new Date().toISOString(),
     }, { status: 500 });
   }
 }
 
-// Helper function to format salary
-function formatSalary(min?: number | null, max?: number | null, currency = 'INR'): string {
-  const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : currency === 'GBP' ? '£' : currency;
-  
-  if (!min && !max) return 'Salary not disclosed';
-  
-  const formatAmount = (amount: number) => {
-    if (currency === 'INR') {
-      if (amount >= 100000) {
-        return `${(amount / 100000).toFixed(1)}L`;
-      }
-      return `${(amount / 1000).toFixed(0)}K`;
-    }
-    return amount.toLocaleString();
-  };
-  
-  if (min && max) {
-    return `${symbol}${formatAmount(min)} - ${formatAmount(max)}`;
-  } else if (min) {
-    return `${symbol}${formatAmount(min)}+`;
-  } else if (max) {
-    return `Up to ${symbol}${formatAmount(max)}`;
-  }
-  
-  return 'Salary not disclosed';
-}
-
-// Helper function to calculate time ago
-function getTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  const intervals = {
-    year: 31536000,
-    month: 2592000,
-    week: 604800,
-    day: 86400,
-    hour: 3600,
-    minute: 60
-  };
-  
-  for (const [unit, seconds] of Object.entries(intervals)) {
-    const interval = Math.floor(diffInSeconds / seconds);
-    if (interval >= 1) {
-      return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
-    }
-  }
-  
-  return 'Just now';
-}
-
-// Helper function to get available filter options based on current results
-async function getAvailableFilters(baseWhere: any) {
-  try {
-    const [jobTypes, experienceLevels, sectors, locations, companies] = await Promise.all([
-      prisma.job.groupBy({
-        by: ['jobType'],
-        where: { ...baseWhere, jobType: { not: null } },
-        _count: true,
-        orderBy: { _count: { jobType: 'desc' } }
-      }),
-      prisma.job.groupBy({
-        by: ['experienceLevel'],
-        where: { ...baseWhere, experienceLevel: { not: null } },
-        _count: true,
-        orderBy: { _count: { experienceLevel: 'desc' } }
-      }),
-      prisma.job.groupBy({
-        by: ['sector'],
-        where: { ...baseWhere, sector: { not: null } },
-        _count: true,
-        orderBy: { _count: { sector: 'desc' } }
-      }),
-      prisma.job.groupBy({
-        by: ['location'],
-        where: { ...baseWhere, location: { not: null } },
-        _count: true,
-        orderBy: { _count: { location: 'desc' } },
-        take: 20
-      }),
-      prisma.job.groupBy({
-        by: ['company'],
-        where: { ...baseWhere, company: { not: null } },
-        _count: true,
-        orderBy: { _count: { company: 'desc' } },
-        take: 20
-      })
-    ]);
-
-    return {
-      jobTypes: jobTypes.map(item => ({ value: item.jobType, count: item._count })),
-      experienceLevels: experienceLevels.map(item => ({ value: item.experienceLevel, count: item._count })),
-      sectors: sectors.map(item => ({ value: item.sector, count: item._count })),
-      locations: locations.map(item => ({ value: item.location, count: item._count })),
-      companies: companies.map(item => ({ value: item.company, count: item._count }))
-    };
-  } catch (error) {
-    console.error('Error getting available filters:', error);
-    return {
-      jobTypes: [],
-      experienceLevels: [],
-      sectors: [],
-      locations: [],
-      companies: []
-    };
-  }
-}
-
-// POST /api/jobs - create (enhanced schema fields)
+// POST /api/jobs - Create new job posting with validation
 export async function POST(request: NextRequest) {
   try {
-    const json = await request.json();
-    const parsed = createJobSchema.safeParse(json);
-    if (!parsed.success) {
-      return NextResponse.json({ success: false, error: 'Validation failed', issues: parsed.error.flatten() }, { status: 400 });
+    // Extract user authentication (implement based on your auth system)
+    const user = extractUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required',
+      }, { status: 401 });
     }
-    const data = parsed.data;
-    const job = await prisma.job.create({
-      data: {
-        source: data.source,
-        sourceId: data.sourceId,
-        title: data.title,
-        company: data.company ?? null,
-        location: data.location ?? null,
-        country: data.country,
-        description: data.description,
-        applyUrl: data.applyUrl ?? null,
-        postedAt: data.postedAt ? new Date(data.postedAt as any) : null,
-        salary: data.salary ?? null,
-        rawJson: data.rawJson || {},
-      } as any, // TEMP: stale Prisma client types missing source/sourceId
+
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = createJobSchema.parse(body);
+
+    // Create job in database
+    const job = await enhancedJobService.createJob({
+      title: validatedData.title,
+      company: validatedData.company,
+      companyLogo: validatedData.companyLogo,
+      location: validatedData.location,
+      country: validatedData.country,
+      description: validatedData.description,
+      applyUrl: validatedData.applyUrl,
+      salary: validatedData.salary,
+      salaryMin: validatedData.salaryMin,
+      salaryMax: validatedData.salaryMax,
+      salaryCurrency: validatedData.salaryCurrency,
+      jobType: validatedData.jobType,
+      experienceLevel: validatedData.experienceLevel,
+      skills: validatedData.skills,
+      isRemote: validatedData.isRemote,
+      isHybrid: validatedData.isHybrid,
+      isUrgent: validatedData.isUrgent,
+      isFeatured: validatedData.isFeatured,
+      sector: validatedData.sector,
+      source: validatedData.source,
+      sourceId: validatedData.sourceId,
+      postedAt: validatedData.postedAt,
+      rawJson: validatedData.rawJson,
     });
-    return NextResponse.json({ success: true, job });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Job created successfully',
+      job: {
+        id: job.id.toString(),
+        title: job.title,
+        company: job.company,
+        location: job.location,
+        country: job.country,
+        created_at: job.createdAt.toISOString(),
+      },
+      timestamp: new Date().toISOString(),
+    }, { status: 201 });
+
   } catch (error: any) {
     console.error('Jobs POST error:', error);
-    if (error?.code === 'P2002') {
-      return NextResponse.json({ success: false, error: 'Duplicate (source, sourceId)' }, { status: 409 });
+
+    // Handle validation errors
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid job data',
+        details: error.errors,
+      }, { status: 400 });
     }
-    return NextResponse.json({ success: false, error: 'Failed to create job' }, { status: 500 });
+
+    // Handle database errors
+    if (error.name === 'DatabaseError') {
+      let statusCode = 500;
+      
+      switch (error.code) {
+        case 'DUPLICATE_ENTRY':
+          statusCode = 409;
+          break;
+        case 'FOREIGN_KEY_ERROR':
+          statusCode = 400;
+          break;
+      }
+
+      return NextResponse.json({
+        success: false,
+        error: 'Database error',
+        message: error.message,
+      }, { status: statusCode });
+    }
+
+    // Fallback error response
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to create job',
+      message: error.message,
+    }, { status: 500 });
   }
 }
 
-export const dynamic = 'force-dynamic';
+// OPTIONS handler for CORS
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-user-id',
+    },
+  });
+}

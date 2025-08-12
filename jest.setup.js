@@ -1,56 +1,88 @@
-import '@testing-library/jest-dom';\n\n// Mock Next.js router\njest.mock('next/router', () => ({
-  \n  useRouter() {\n    return {\n      route: '/',\n      pathname: '/',\n      query: {
-  
-}
-  },\n      asPath: '/',\n      push: jest.fn(),\n      pop: jest.fn(),\n      reload: jest.fn(),\n      back: jest.fn(),\n      prefetch: jest.fn().mockResolvedValue(undefined),\n      beforePopState: jest.fn(),\n      events: {
-  \n        on: jest.fn(),\n        off: jest.fn(),\n        emit: jest.fn(),\n
-}
-},\n    };\n  },\n}));\n\n// Mock Next.js navigation\njest.mock('next/navigation', () => ({
-  \n  useRouter() {\n    return {\n      push: jest.fn(),\n      replace: jest.fn(),\n      prefetch: jest.fn(),\n      back: jest.fn(),\n      forward: jest.fn(),\n      refresh: jest.fn(),\n    
-}
-  };\n  },\n  useSearchParams() {
-  \n    return new URLSearchParams();\n  
-}
-  },\n  usePathname() {
-  \n    return '/';\n  
-}
-  },\n}));\n\n// Mock NextAuth\njest.mock('next-auth/react', () => ({
-  \n  useSession: jest.fn(() => ({\n    data: null,\n    status: 'unauthenticated',\n  
-}
-  })),\n  signIn: jest.fn(),\n  signOut: jest.fn(),\n  SessionProvider: ({
-  children
-}
-}) => children,\n}));\n\n// Mock environment variables\nprocess.env.NEXTAUTH_SECRET = 'test-secret';\nprocess.env.NEXTAUTH_URL = 'http://localhost:3000';\nprocess.env.MONGODB_URI = 'mongodb://localhost:27017/test';\nprocess.env.NODE_ENV = 'test';\n\n// Global test utilities\nglobal.fetch = jest.fn();\n\n// Mock console methods in tests\nglobal.console = {
-  \n  ...console,\n  log: jest.fn(),\n  warn: jest.fn(),\n  error: jest.fn(),\n
-}
-  };\n\n// Mock window.matchMedia\nObject.defineProperty(window, 'matchMedia', {
-  \n  writable: true,\n  value: jest.fn().mockImplementation(query => ({\n    matches: false,\n    media: query,\n    onchange: null,\n    addListener: jest.fn(), // deprecated\n    removeListener: jest.fn(), // deprecated\n    addEventListener: jest.fn(),\n    removeEventListener: jest.fn(),\n    dispatchEvent: jest.fn(),\n  
-}
-  })),\n});\n\n// Mock IntersectionObserver\nglobal.IntersectionObserver = class IntersectionObserver {
-  \n  constructor() {
-}
-  }\n  observe() {
-  \n    return null;\n  
-}
-  }\n  disconnect() {
-  \n    return null;\n  
-}
-  }\n  unobserve() {
-  \n    return null;\n  
-}
-  }\n};\n\n// Mock ResizeObserver\nglobal.ResizeObserver = class ResizeObserver {
-  \n  constructor() {
-}
-  }\n  observe() {
-  \n    return null;\n  
-}
-  }\n  disconnect() {
-  \n    return null;\n  
-}
-  }\n  unobserve() {
-  \n    return null;\n  
-}
-  }\n};\n\n// Setup cleanup after each test\nafterEach(() => {
-  \n  jest.clearAllMocks();\n
-}
-  });
+import "@testing-library/jest-dom";
+import { TextEncoder, TextDecoder } from "util";
+import { MongoClient } from "mongodb";
+import { configureToMatchImageSnapshot } from "jest-image-snapshot";
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
+expect.extend({ toMatchImageSnapshot: configureToMatchImageSnapshot() });
+
+// Mock NextJS router
+jest.mock("next/router", () => ({
+  useRouter() {
+    return {
+      pathname: "/",
+      route: "/",
+      query: {},
+      asPath: "/",
+      push: jest.fn(),
+      replace: jest.fn(),
+      reload: jest.fn(),
+      back: jest.fn(),
+      prefetch: jest.fn(),
+      beforePopState: jest.fn(),
+      events: {
+        on: jest.fn(),
+        off: jest.fn(),
+        emit: jest.fn(),
+      },
+      isFallback: false,
+    };
+  },
+}));
+
+// Mock NextAuth session hook
+jest.mock("next-auth/react", () => ({
+  useSession() {
+    return {
+      data: null,
+      status: "unauthenticated",
+    };
+  },
+}));
+
+// Setup MongoDB Memory Server for testing
+let mongoClient;
+let mockDb;
+
+beforeAll(async () => {
+  const uri = process.env.MONGO_URI || "mongodb+srv://naukrimili123:naukrimili123@naukrimili.lb6ad5e.mongodb.net/";
+  mongoClient = await MongoClient.connect(uri);
+  mockDb = mongoClient.db("test_job_portal");
+});
+
+afterAll(async () => {
+  if (mongoClient) {
+    await mongoClient.close();
+  }
+});
+
+// Make the mock database available globally for tests
+global.__MONGO_CLIENT__ = mongoClient;
+global.__MONGO_DB__ = mockDb;
+
+// Suppress console errors and warnings in tests
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+
+beforeAll(() => {
+  console.error = (...args) => {
+    if (typeof args[0] === "string" && args[0].includes("Error: connect ECONNREFUSED")) {
+      return;
+    }
+    originalConsoleError.call(console, ...args);
+  };
+
+  console.warn = (...args) => {
+    if (typeof args[0] === "string" && args[0].includes("Warning:")) {
+      return;
+    }
+    originalConsoleWarn.call(console, ...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+  console.warn = originalConsoleWarn;
+});

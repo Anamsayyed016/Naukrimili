@@ -59,7 +59,7 @@ export default function ProfileCompletionForm({
 
   useEffect(() => {
   // Debug logging;
-    console.log('ProfileCompletionForm - Received resumeData: ', resumeData);
+    // console.log('ProfileCompletionForm - Received resumeData: ', resumeData);
     
     if (resumeData && resumeData.aiData) {
       setData(resumeData.aiData);

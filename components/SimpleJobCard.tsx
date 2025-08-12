@@ -21,7 +21,7 @@ function SimpleJobCard(props: JobCardProps) {
   ;
   const job = props.job // Simple click handler;
   function handleClick() {
-    console.log('Job clicked:', job.title) // For demo, just show an alert instead of navigation;
+    // console.log('Job clicked:', job.title) // For demo, just show an alert instead of navigation;
 }
     alert(`View job: ${job.title} at ${job.company}`);
   } // Simple date formatting;
@@ -83,4 +83,5 @@ function SimpleJobCard(props: JobCardProps) {
   formatDate(job.datePosted) </p> </div> </div>);
 }
   }
-export default SimpleJobCard;";
+export default SimpleJobCard;
+";

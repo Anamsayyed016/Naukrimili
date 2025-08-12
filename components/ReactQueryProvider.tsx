@@ -1,26 +1,257 @@
-import React from "react";";
-"use client";
-import {
-  QueryClient, QueryClientProvider
-}";
-} from "@tanstack/react-query";
-import {
-  useState
-}";
-} from "react";
+/**
+ * Enhanced React Query Provider
+ * Provides global query client configuration with error handling, retry logic, and offline support
+ */
 
+"use client";
+
+import React, { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ErrorBoundary } from "./ErrorBoundary";
+
+// Global query client configuration
+const createQueryClient = () => {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        // Retry failed queries with exponential backoff
+        retry: (failureCount, error: any) => {
+          // Don't retry on 4xx errors (client errors)
+          if (error?.status >= 400 && error?.status < 500) {
+            return false;
+          }
+          
+          // Retry up to 3 times for other errors
+          return failureCount < 3;
+        },
+        
+        // Retry delay with exponential backoff
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        
+        // Stale time for different types of data
+        staleTime: (query) => {
+          // User profile data stays fresh longer
+          if (query.queryKey.includes('user') && query.queryKey.includes('profile')) {
+            return 10 * 60 * 1000; // 10 minutes
+          }
+          
+          // Job data refreshes more frequently
+          if (query.queryKey.includes('jobs')) {
+            return 2 * 60 * 1000; // 2 minutes
+          }
+          
+          // Default stale time
+          return 5 * 60 * 1000; // 5 minutes
+        },
+        
+        // Garbage collection time
+        gcTime: (query) => {
+          // Keep user data longer in memory
+          if (query.queryKey.includes('user')) {
+            return 30 * 60 * 1000; // 30 minutes
+          }
+          
+          // Default GC time
+          return 10 * 60 * 1000; // 10 minutes
+        },
+        
+        // Refetch on window focus (but not too aggressively)
+        refetchOnWindowFocus: (query) => {
+          // Don't refetch user profile on focus
+          if (query.queryKey.includes('user') && query.queryKey.includes('profile')) {
+            return false;
+          }
+          
+          // Refetch job data on focus
+          if (query.queryKey.includes('jobs')) {
+            return true;
+          }
+          
+          // Default behavior
+          return true;
+        },
+        
+        // Refetch on reconnect
+        refetchOnReconnect: true,
+        
+        // Refetch on mount
+        refetchOnMount: true,
+        
+        // Network mode for better offline support
+        networkMode: 'online',
+        
+        // Optimistic updates for better UX
+        placeholderData: (previousData) => previousData,
+      },
+      
+      mutations: {
+        // Retry failed mutations
+        retry: (failureCount, error: any) => {
+          // Don't retry on 4xx errors
+          if (error?.status >= 400 && error?.status < 500) {
+            return false;
+          }
+          
+          // Retry up to 2 times for other errors
+          return failureCount < 2;
+        },
+        
+        // Retry delay for mutations
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+        
+        // Network mode for mutations
+        networkMode: 'online',
+      },
+    },
+    
+    // Global error handling
+    queryCache: {
+      // Handle query errors globally
+      onError: (error, query) => {
+        console.error(`Query error for ${query.queryHash}:`, error);
+        
+        // Log to error tracking service in production
+        if (process.env.NODE_ENV === 'production') {
+          // Example: Sentry.captureException(error, {
+          //   tags: { query: query.queryHash },
+          //   extra: { queryKey: query.queryKey }
+          // });
+        }
+      },
+    },
+    
+    // Global mutation error handling
+    mutationCache: {
+      onError: (error, mutation) => {
+        console.error(`Mutation error for ${mutation.options.mutationKey}:`, error);
+        
+        // Log to error tracking service in production
+        if (process.env.NODE_ENV === 'production') {
+          // Example: Sentry.captureException(error, {
+          //   tags: { mutation: mutation.options.mutationKey },
+          //   extra: { variables: mutation.options.variables }
+          // });
+        }
+      },
+    },
+  });
+};
+
+// Custom hook for managing query client
+function useQueryClientManager() {
+  const [queryClient] = useState(() => createQueryClient());
+  
+  // Reset query client (useful for logout)
+  const resetQueryClient = React.useCallback(() => {
+    queryClient.clear();
+  }, [queryClient]);
+  
+  // Prefetch queries for better performance
+  const prefetchQueries = React.useCallback(async (queries: Array<{ queryKey: any[]; queryFn: () => Promise<any> }>) => {
+    await Promise.all(
+      queries.map(({ queryKey, queryFn }) =>
+        queryClient.prefetchQuery({
+          queryKey,
+          queryFn,
+        })
+      )
+    );
+  }, [queryClient]);
+  
+  // Invalidate and refetch specific queries
+  const invalidateAndRefetch = React.useCallback(async (queryKeys: any[]) => {
+    await Promise.all(
+      queryKeys.map(queryKey =>
+        queryClient.invalidateQueries({ queryKey, refetchType: 'all' })
+      )
+    );
+  }, [queryClient]);
+  
+  return {
+    queryClient,
+    resetQueryClient,
+    prefetchQueries,
+    invalidateAndRefetch,
+  };
+}
+
+// Main provider component
 export default function ReactQueryProvider({
-  children
-}
+  children,
 }: {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
 }) {
-  ;
-  const [queryClient] = useState(() => new QueryClient());
+  const { queryClient } = useQueryClientManager();
+  
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        
+        {/* Development tools */}
+        {process.env.NODE_ENV === 'development' && (
+          <ReactQueryDevtools
+            initialIsOpen={false}
+            position="bottom-right"
+            buttonPosition="bottom-right"
+          />
+        )}
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
 }
-  return <QueryClientProvider client={queryClient}
-}>{
-  children
-}";
-}</QueryClientProvider>}
+
+// Export the hook for use in other components
+export { useQueryClientManager };
+
+// Export query client utilities
+export const queryClientUtils = {
+  // Prefetch common queries
+  prefetchCommonQueries: async (queryClient: QueryClient) => {
+    // Prefetch job categories
+    await queryClient.prefetchQuery({
+      queryKey: ['jobs', 'categories'],
+      queryFn: () => fetch('/api/jobs/categories').then(res => res.json()),
+      staleTime: 30 * 60 * 1000, // 30 minutes
+    });
+    
+    // Prefetch user profile if authenticated
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      await queryClient.prefetchQuery({
+        queryKey: ['user', 'profile'],
+        queryFn: () => fetch('/api/auth/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        }).then(res => res.json()),
+        staleTime: 5 * 60 * 1000, // 5 minutes
+      });
+    }
+  },
+  
+  // Clear sensitive data on logout
+  clearSensitiveData: (queryClient: QueryClient) => {
+    queryClient.removeQueries({ queryKey: ['user'] });
+    queryClient.removeQueries({ queryKey: ['applications'] });
+    queryClient.removeQueries({ queryKey: ['resumes'] });
+    queryClient.removeQueries({ queryKey: ['companies', 'current'] });
+  },
+  
+  // Optimistic update helpers
+  optimisticUpdate: <T>(
+    queryClient: QueryClient,
+    queryKey: any[],
+    updater: (oldData: T | undefined) => T
+  ) => {
+    queryClient.setQueryData(queryKey, updater);
+  },
+  
+  // Rollback optimistic updates
+  rollbackOptimisticUpdate: <T>(
+    queryClient: QueryClient,
+    queryKey: any[],
+    previousData: T | undefined
+  ) => {
+    queryClient.setQueryData(queryKey, previousData);
+  },
+};
