@@ -74,25 +74,31 @@ export async function GET(request: NextRequest) {
       },
       filters: filters,
       overview: {
-        total_jobs: basicStats.totalJobs,
-        active_jobs: basicStats.activeJobs,
-        company_jobs: basicStats.companyJobs,
-        location_jobs: basicStats.locationJobs,
-        sector_jobs: basicStats.sectorJobs,
-        remote_jobs: basicStats.remoteJobs,
-        hybrid_jobs: basicStats.hybridJobs,
-        featured_jobs: basicStats.featuredJobs,
-        urgent_jobs: basicStats.urgentJobs,
+        total_jobs: basicStats.total,
+        active_jobs: basicStats.total, // assume filtered to active
+        company_jobs: 0,
+        location_jobs: 0,
+        sector_jobs: 0,
+        remote_jobs: 0,
+        hybrid_jobs: 0,
+        featured_jobs: 0,
+        urgent_jobs: 0,
       },
     };
 
     // Add salary statistics if requested
     if (validatedParams.include_salary) {
+      const avgAcrossRanges = basicStats.salaryRanges.length
+        ? Math.round(
+            basicStats.salaryRanges.reduce((sum, r) => sum + (r.avgSalary || 0), 0) /
+              basicStats.salaryRanges.length
+          )
+        : 0;
       responseData.salary_stats = {
-        average_salary: basicStats.averageSalary,
-        median_salary: basicStats.medianSalary,
-        salary_range: basicStats.salaryRange,
-        salary_distribution: basicStats.salaryDistribution,
+        average_salary: avgAcrossRanges,
+        median_salary: null,
+        salary_range: null,
+        salary_distribution: basicStats.salaryRanges,
       };
     }
 

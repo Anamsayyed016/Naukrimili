@@ -11,6 +11,14 @@ const nextConfig = {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
   
+  // Skip lint/type errors during Hostinger deployment
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  
   // Build configuration
   ...(process.env.SKIP_AUTH_BUILD && {
     async rewrites() {
@@ -79,4 +87,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

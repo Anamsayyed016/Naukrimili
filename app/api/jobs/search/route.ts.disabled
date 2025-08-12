@@ -164,13 +164,13 @@ class OptimizedJobSearchService {
         where.OR = [
           {
             title: {
-              search: params.query,
+              contains: params.query,
               mode: 'insensitive'
             }
           },
           {
             description: {
-              search: params.query,
+              contains: params.query,
               mode: 'insensitive'
             }
           },

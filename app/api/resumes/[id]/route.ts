@@ -10,16 +10,22 @@ import {
 
 const resumeService = new ResumeService();
 
+interface RouteParams {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 /**
  * GET /api/resumes/[id]
  * Retrieve a specific resume by ID
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ): Promise<NextResponse<ResumeRetrievalResponse | APIError>> {
   try {
-    const { id } = params;
+    const { id } = await params;
     const userId = request.headers.get('x-user-id') || request.nextUrl.searchParams.get('userId');
     
     if (!userId) {
@@ -92,10 +98,10 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ): Promise<NextResponse<ResumeUpdateResponse | APIError>> {
   try {
-    const { id } = params;
+    const { id } = await params;
     const userId = request.headers.get('x-user-id');
     const body = await request.json();
     
@@ -149,8 +155,7 @@ export async function PUT(
       id, 
       userId, 
       data, 
-      changeNotes, 
-      reanalyze
+      changeNotes
     );
 
     // Prepare analysis if requested
@@ -213,10 +218,10 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ): Promise<NextResponse<{ success: boolean } | APIError>> {
   try {
-    const { id } = params;
+    const { id } = await params;
     const userId = request.headers.get('x-user-id');
     
     if (!userId) {

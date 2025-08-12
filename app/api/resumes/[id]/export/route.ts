@@ -8,16 +8,22 @@ import {
 
 const resumeService = new ResumeService();
 
+interface RouteParams {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
 /**
  * POST /api/resumes/[id]/export
  * Export resume in various formats (PDF, JSON, DOCX, TXT)
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ): Promise<NextResponse<ResumeExportResponse | APIError>> {
   try {
-    const { id } = params;
+    const { id } = await params;
     const userId = request.headers.get('x-user-id');
     const body = await request.json();
     
@@ -50,10 +56,7 @@ export async function POST(
     const { format, template, customizations } = validationResult.data;
 
     // Export resume
-    const exportResult = await resumeService.exportResume(id, userId, format, {
-      template,
-      customizations,
-    });
+    const exportResult = await resumeService.exportResumeWithTracking(id, userId, format, template);
 
     // Set expiration time (24 hours from now)
     const expiresAt = new Date();
@@ -62,7 +65,7 @@ export async function POST(
     const response: ResumeExportResponse = {
       success: true,
       downloadUrl: exportResult.downloadUrl,
-      fileName: exportResult.fileName,
+      fileName: exportResult.filename,
       fileSize: exportResult.fileSize,
       expiresAt: expiresAt.toISOString(),
     };
@@ -70,7 +73,7 @@ export async function POST(
     // Log export
     console.log(`Resume exported: ${id} for user: ${userId}`, {
       format,
-      fileName: exportResult.fileName,
+      fileName: exportResult.filename,
       fileSize: exportResult.fileSize,
     });
 
@@ -97,9 +100,9 @@ export async function POST(
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ): Promise<NextResponse> {
-  const { id } = params;
+  const { id } = await params;
   
   const documentation = {
     endpoint: `/api/resumes/${id}/export`,

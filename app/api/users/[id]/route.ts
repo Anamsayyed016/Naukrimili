@@ -30,9 +30,9 @@ const updateUserSchema = z.object({
 });
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // GET /api/users/[id] - Get specific user profile
@@ -41,7 +41,8 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const userId = parseInt(params.id);
+    const { id } = await params;
+    const userId = parseInt(id);
     
     if (isNaN(userId)) {
       return NextResponse.json({
@@ -157,7 +158,8 @@ export async function PUT(
   { params }: RouteParams
 ) {
   try {
-    const userId = parseInt(params.id);
+    const { id } = await params;
+    const userId = parseInt(id);
     
     if (isNaN(userId)) {
       return NextResponse.json({
@@ -389,7 +391,8 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const userId = parseInt(params.id);
+    const { id } = await params;
+    const userId = parseInt(id);
     
     if (isNaN(userId)) {
       return NextResponse.json({

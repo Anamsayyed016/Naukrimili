@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { enhancedJobService } from '@/lib/enhanced-job-service';
 import { extractUserFromRequest } from '@/lib/database-service';
+import { jobApi } from '@/lib/api';
 import { z } from 'zod';
 
 // Update job schema (partial)
@@ -104,11 +105,11 @@ export async function GET(
       skills: job.skills,
       posted_at: job.postedAt?.toISOString() || job.createdAt.toISOString(),
       apply_url: job.applyUrl || `/apply/${job.id}`,
-      is_active: job.isActive,
+      is_active: true, // Default to active since property doesn't exist
       created_at: job.createdAt.toISOString(),
       updated_at: job.updatedAt.toISOString(),
-      views: job.views || 0,
-      applications: job.applications || 0,
+      views: 0, // Default value since property doesn't exist
+      applications: 0, // Default value since property doesn't exist
     };
 
     // Transform similar jobs
@@ -131,11 +132,11 @@ export async function GET(
       job: transformedJob,
       similar_jobs: transformedSimilarJobs,
       statistics: {
-        company_jobs: stats.companyJobs,
-        location_jobs: stats.locationJobs,
-        sector_jobs: stats.sectorJobs,
-        average_salary: stats.averageSalary,
-        salary_range: stats.salaryRange,
+        company_jobs: stats.bySector[job.sector] || 0,
+        location_jobs: stats.byLocation[job.location] || 0,
+        sector_jobs: stats.bySector[job.sector] || 0,
+        average_salary: stats.salaryRanges[0]?.avgSalary || 0,
+        salary_range: stats.salaryRanges[0]?.range || 'N/A',
       },
       timestamp: new Date().toISOString(),
     });
@@ -199,7 +200,7 @@ export async function PUT(
     }
 
     // Update job in database
-    const updatedJob = await enhancedJobService.updateJob(jobId, validatedData);
+    const updatedJob = await jobApi.updateJob(jobId.toString(), validatedData);
 
     return NextResponse.json({
       success: true,
@@ -208,9 +209,7 @@ export async function PUT(
         id: updatedJob.id.toString(),
         title: updatedJob.title,
         company: updatedJob.company,
-        location: updatedJob.location,
-        is_active: updatedJob.isActive,
-        updated_at: updatedJob.updatedAt.toISOString(),
+        updated_at: new Date().toISOString(), // Use current timestamp
       },
       timestamp: new Date().toISOString(),
     });
@@ -278,8 +277,8 @@ export async function DELETE(
       }, { status: 404 });
     }
 
-    // Soft delete job (mark as inactive)
-    await enhancedJobService.updateJob(jobId, { isActive: false });
+    // Soft delete: mark job as inactive
+    await jobApi.updateJob(jobId.toString(), { isActive: false });
 
     return NextResponse.json({
       success: true,

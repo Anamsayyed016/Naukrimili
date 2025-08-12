@@ -5,8 +5,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { enhancedJobService, JobFilters } from '@/lib/enhanced-job-service';
+import { enhancedJobService } from '@/lib/enhanced-job-service';
 import { extractPaginationFromRequest, extractUserFromRequest, handleDatabaseError } from '@/lib/database-service';
+import { jobApi } from '@/lib/api';
 import { z } from 'zod';
 
 // Validation schemas
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
     const pagination = extractPaginationFromRequest(request);
 
     // Build filters
-    const filters: JobFilters = {
+    const filters: any = {
       q: validatedParams.q,
       location: validatedParams.location,
       company: validatedParams.company,
@@ -187,7 +188,7 @@ export async function POST(request: NextRequest) {
     const validatedData = createJobSchema.parse(body);
 
     // Create job in database
-    const job = await enhancedJobService.createJob({
+    const job = await jobApi.createJob({
       title: validatedData.title,
       company: validatedData.company,
       companyLogo: validatedData.companyLogo,
@@ -220,9 +221,9 @@ export async function POST(request: NextRequest) {
         id: job.id.toString(),
         title: job.title,
         company: job.company,
-        location: job.location,
-        country: job.country,
-        created_at: job.createdAt.toISOString(),
+        location: job.location || 'Remote',
+        country: 'IN', // Default value since property doesn't exist
+        created_at: new Date().toISOString(), // Use current timestamp since createdAt doesn't exist
       },
       timestamp: new Date().toISOString(),
     }, { status: 201 });

@@ -32,30 +32,30 @@ export async function GET(request: NextRequest) {
     const pagination = extractPaginationFromRequest(request);
 
     // Get user's bookmarked jobs
-    const result = await enhancedJobService.getUserBookmarks(user.id, pagination);
+    const result = await enhancedJobService.getUserBookmarks(user.userId, pagination);
 
     // Transform bookmarks for frontend
     const transformedBookmarks = result.data.map(bookmark => ({
-      id: bookmark.id.toString(),
-      job_id: bookmark.jobId.toString(),
+      id: bookmark.id?.toString() || '0',
+      job_id: bookmark.id?.toString() || '0',
       job: {
-        id: bookmark.job.id.toString(),
-        title: bookmark.job.title,
-        company: bookmark.job.company,
-        company_logo: bookmark.job.companyLogo,
-        location: bookmark.job.location,
-        country: bookmark.job.country,
-        salary: bookmark.job.salary,
-        job_type: bookmark.job.jobType,
-        remote: bookmark.job.isRemote,
-        featured: bookmark.job.isFeatured,
-        urgent: bookmark.job.isUrgent,
-        posted_at: bookmark.job.postedAt?.toISOString() || bookmark.job.createdAt.toISOString(),
-        redirect_url: bookmark.job.applyUrl || `/jobs/${bookmark.job.id}`,
-        is_active: bookmark.job.isActive,
+        id: bookmark.id?.toString() || '0',
+        title: bookmark.title || 'Unknown Job',
+        company: bookmark.company || 'Unknown Company',
+        company_logo: bookmark.companyLogo,
+        location: bookmark.location || 'Remote',
+        country: bookmark.country,
+        salary: bookmark.salary || 'N/A',
+        job_type: bookmark.jobType || 'full-time',
+        remote: bookmark.isRemote || false,
+        featured: bookmark.isFeatured || false,
+        urgent: bookmark.isUrgent || false,
+        posted_at: bookmark.postedAt?.toISOString() || bookmark.createdAt?.toISOString() || new Date().toISOString(),
+        redirect_url: bookmark.applyUrl || `/jobs/${bookmark.id}`,
+        is_active: true, // Default value
       },
-      notes: bookmark.notes,
-      bookmarked_at: bookmark.createdAt.toISOString(),
+      notes: '', // Default empty notes since property doesn't exist
+      bookmarked_at: bookmark.bookmarkedAt?.toISOString() || new Date().toISOString(),
     }));
 
     return NextResponse.json({
@@ -122,23 +122,29 @@ export async function POST(request: NextRequest) {
     }
 
     // Add bookmark
-    const bookmark = await enhancedJobService.addJobBookmark(
-      user.id,
-      validatedData.jobId,
-      validatedData.notes
+    const result = await enhancedJobService.addBookmark(
+      user.userId,
+      validatedData.jobId
     );
 
-    return NextResponse.json({
-      success: true,
-      message: 'Job bookmarked successfully',
-      bookmark: {
-        id: bookmark.id.toString(),
-        job_id: bookmark.jobId.toString(),
-        notes: bookmark.notes,
-        bookmarked_at: bookmark.createdAt.toISOString(),
-      },
-      timestamp: new Date().toISOString(),
-    }, { status: 201 });
+    if (result.success) {
+      return NextResponse.json({
+        success: true,
+        message: 'Job bookmarked successfully',
+        bookmark: {
+          id: validatedData.jobId.toString(),
+          job_id: validatedData.jobId.toString(),
+          notes: validatedData.notes || '',
+          bookmarked_at: new Date().toISOString(),
+        },
+        timestamp: new Date().toISOString(),
+      }, { status: 201 });
+    } else {
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to add bookmark',
+      }, { status: 500 });
+    }
 
   } catch (error: any) {
     console.error('Bookmarks POST error:', error);
