@@ -74,6 +74,7 @@ export async function GET(request: NextRequest) {
       },
       filters: filters,
       overview: {
+
         total_jobs: basicStats.total,
         active_jobs: basicStats.total, // assume filtered to active
         company_jobs: 0,
