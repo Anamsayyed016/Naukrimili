@@ -34,8 +34,9 @@ model Job {
   isActive        Boolean   @default(true)
   sector          String?   // Technology, Finance, Healthcare, etc.
   views           Int       @default(0)
-  applications    Int       @default(0)
+  applicationsCount Int     @default(0)
   createdBy       String?   // User who created this job
+  companyId       String?   // Company this job belongs to
   rawJson         Json
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -43,6 +44,7 @@ model Job {
   // Relations
   bookmarks       JobBookmark[]
   applications    Application[]
+  companyRelation Company?  @relation(fields: [companyId], references: [id])
   creator         User?     @relation(fields: [createdBy], references: [id])
   
   @@unique([source, sourceId])
