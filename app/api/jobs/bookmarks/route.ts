@@ -99,15 +99,15 @@ export async function POST(request: NextRequest) {
 
     bookmarksByUser[userId].add(jobId);
 
-    return NextResponse.json({
-      success: true,
-      message: 'Job bookmarked successfully',
-      bookmark: {
+      return NextResponse.json({
+        success: true,
+        message: 'Job bookmarked successfully',
+        bookmark: {
         id: String(jobId),
         job_id: String(jobId),
-        bookmarked_at: new Date().toISOString(),
+          bookmarked_at: new Date().toISOString(),
       }
-    }, { status: 201 });
+      }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: 'Failed to bookmark job' }, { status: 500 });
   }

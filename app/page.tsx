@@ -1,667 +1,380 @@
 "use client";
 
 import Link from 'next/link';
-import { Brain, Shield, Zap, Search, MapPin, TrendingUp, Users, Building2, ArrowRight, Upload, FileText, User, CheckCircle, Briefcase } from 'lucide-react';
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { useStats, useFeaturedJobs } from '@/hooks/useLandingData';
+import { useState, useEffect } from 'react';
+import { Search, MapPin, Building, Briefcase, Users, TrendingUp, ArrowRight, Brain, Shield, Zap } from 'lucide-react';
+
+interface Job {
+  id: number;
+  title: string;
+  company: string | null;
+  location: string | null;
+  salary: string | null;
+  jobType: string | null;
+  isRemote: boolean;
+  isFeatured: boolean;
+}
+
+interface Company {
+  id: string;
+  name: string;
+  logo?: string | null;
+  location?: string | null;
+  industry?: string | null;
+  jobCount: number;
+}
 
 export default function HomePage() {
-  const [uploadedResume, setUploadedResume] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Fetch real data from APIs
-  const { stats } = useStats();
-  const { jobs: featuredJobs } = useFeaturedJobs(6);
+  const [featuredJobs, setFeaturedJobs] = useState<Job[]>([]);
+  const [topCompanies, setTopCompanies] = useState<Company[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  // Enhanced hero search state
-  const [keyword, setKeyword] = useState('');
-  const [location, setLocation] = useState('');
-  const [suggestions, setSuggestions] = useState<{ type: 'title' | 'company' | 'skill'; value: string }[]>([]);
-  const [focusedIdx, setFocusedIdx] = useState(-1);
-  const [detectingLocation, setDetectingLocation] = useState(false);
-  const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Trending jobs shortcuts (could later come from API)
-  const trendingJobs: { q: string; loc?: string }[] = [
-    { q: 'Frontend Developer', loc: 'Bangalore' },
-    { q: 'Data Analyst', loc: 'Mumbai' },
-    { q: 'Product Manager', loc: 'Hyderabad' },
-    { q: 'UI/UX Designer', loc: 'Pune' },
-    { q: 'DevOps Engineer', loc: 'Chennai' },
-  ];
-
-  // Real companies with direct career page links
-  const featuredEmployers: { name: string; careerUrl: string; logo: string; open: number }[] = [
-    { name: 'Infosys', careerUrl: 'https://www.infosys.com/careers/', logo: '💠', open: 120 },
-    { name: 'TCS', careerUrl: 'https://www.tcs.com/careers', logo: '🌀', open: 98 },
-    { name: 'Flipkart', careerUrl: 'https://www.flipkartcareers.com/', logo: '🛒', open: 45 },
-    { name: 'Swiggy', careerUrl: 'https://careers.swiggy.com/', logo: '🥘', open: 60 },
-    { name: 'Zoho', careerUrl: 'https://www.zoho.com/careers/', logo: '🧩', open: 30 },
-    { name: 'Freshworks', careerUrl: 'https://www.freshworks.com/company/careers/', logo: '🌱', open: 25 },
-  ];
-
-  // Location auto-detection (rough) – only attempts once if location empty
   useEffect(() => {
-    if (location) return;
-    if (!navigator.geolocation) return;
-    setDetectingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        let city = 'India';
-        if (latitude > 12 && latitude < 14 && longitude > 77 && longitude < 78) city = 'Bangalore';
-        else if (latitude > 18 && latitude < 20 && longitude > 72 && longitude < 73) city = 'Mumbai';
-        else if (latitude > 28 && latitude < 29 && longitude > 76 && longitude < 78) city = 'Delhi';
-        setLocation(city);
-        setDetectingLocation(false);
-      },
-      () => setDetectingLocation(false),
-      { timeout: 5000 }
-    );
-  }, [location]);
+    fetchHomeData();
+  }, []);
 
-  // Debounced API-backed suggestion fetching
-  useEffect(() => {
-    if (suggestionTimeoutRef.current) clearTimeout(suggestionTimeoutRef.current);
-    if (!keyword.trim()) { setSuggestions([]); return; }
-    suggestionTimeoutRef.current = setTimeout(async () => {
-      try {
-        const controller = new AbortController();
-        const sig = controller.signal;
-        const res = await fetch(`/api/search-suggestions?q=${encodeURIComponent(keyword.trim())}`, { signal: sig, cache: 'no-store' });
-        if (!res.ok) return;
-        const data = await res.json();
-        setSuggestions(Array.isArray(data.suggestions) ? data.suggestions : []);
-        setFocusedIdx(-1);
-      } catch {/* ignore */}
-    }, 160);
-    return () => { if (suggestionTimeoutRef.current) clearTimeout(suggestionTimeoutRef.current); };
-  }, [keyword]);
-
-  const submitSearch = useCallback((k = keyword, l = location) => {
-    if (!k.trim()) return;
-    const locParam = l.trim();
-    window.location.href = `/jobs?query=${encodeURIComponent(k.trim())}${locParam ? `&location=${encodeURIComponent(locParam)}` : ''}`;
-  }, [keyword, location]);
-
-  const handleSuggestionKeys = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!suggestions.length) return;
-    if (e.key === 'ArrowDown') { e.preventDefault(); setFocusedIdx(i => (i + 1) % suggestions.length); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); setFocusedIdx(i => (i - 1 + suggestions.length) % suggestions.length); }
-    else if (e.key === 'Enter') {
-      if (focusedIdx >= 0) {
-        setKeyword(suggestions[focusedIdx].value);
-        setSuggestions([]);
-      } else submitSearch();
-    } else if (e.key === 'Escape') setSuggestions([]);
-  };
-
-  const handleFileUpload = async (file: File) => {
-    setIsUploading(true);
-    setUploadProgress(0);
-
+  const fetchHomeData = async () => {
     try {
-      const formData = new FormData();
-      formData.append('resume', file);
+      setLoading(true);
+      
+      // Fetch featured jobs
+      const jobsResponse = await fetch('/api/jobs?limit=6');
+      const jobsData = await jobsResponse.json();
+      
+      // Fetch top companies
+      const companiesResponse = await fetch('/api/companies?limit=6');
+      const companiesData = await companiesResponse.json();
 
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 200);
-
-      const response = await fetch('/api/upload/resume', {
-        method: 'POST',
-        body: formData
-      });
-
-      clearInterval(progressInterval);
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setUploadProgress(100);
-          setUploadedResume(file);
-          setTimeout(() => {
-            setIsUploading(false);
-          }, 500);
-        } else {
-          throw new Error(data.error || 'Upload failed');
-        }
-      } else {
-        throw new Error('Upload failed');
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      setIsUploading(false);
-      setUploadProgress(0);
-      alert('Failed to upload resume. Please try again.');
-    }
-  };
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      if (!allowedTypes.includes(file.type)) {
-        alert('Please upload a PDF or Word document');
-        return;
+      if (jobsData.success) {
+        setFeaturedJobs(jobsData.jobs);
       }
       
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB');
-        return;
+      if (companiesData.success) {
+        setTopCompanies(companiesData.companies);
       }
-
-      handleFileUpload(file);
+    } catch (error) {
+      console.error('Error fetching home data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const triggerFileSelect = () => {
-    fileInputRef.current?.click();
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      const params = new URLSearchParams();
+      params.append('query', searchQuery.trim());
+      if (searchLocation.trim()) {
+        params.append('location', searchLocation.trim());
+      }
+      window.location.href = `/jobs?${params.toString()}`;
+    }
   };
 
+  const trendingSearches = [
+    'Software Engineer',
+    'Data Analyst',
+    'Product Manager',
+    'UI/UX Designer',
+    'DevOps Engineer',
+    'Marketing Manager'
+  ];
+
+  const popularLocations = [
+    'Bangalore',
+    'Mumbai',
+    'Delhi',
+    'Hyderabad',
+    'Chennai',
+    'Pune'
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700"></div>
-        
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute top-0 right-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
-        </div>
-        
-        <div className="relative min-h-screen flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-            <div className="text-center text-white">
-              {/* Removed duplicate standalone brand logo/title to keep a single logo in navbar */}
-              <div className="sr-only">
-                {/* Accessible heading (kept for SEO/a11y, visually hidden) */}
-                <h1>NaukriMili - AI Powered Job Portal</h1>
-              </div>
+      <section className="relative py-20 px-4">
+        <div className="max-w-6xl mx-auto text-center">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+            Find Your Dream Job
+            <span className="block text-blue-600">in India</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Discover thousands of opportunities across top companies. AI-powered matching, 
+            real-time updates, and seamless application process.
+          </p>
 
-              {/* Main Headline */}
-              <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                Find Your Dream Job
-                <br />
-                <span className="bg-gradient-to-r from-blue-300 to-purple-400 bg-clip-text text-transparent">
-                  with AI Power
-                </span>
-              </h2>
-              
-              <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-                Discover thousands of job opportunities across India with our intelligent 
-                matching system. Your perfect career is just a search away.
-              </p>
-
-              {/* Enhanced Search Section */}
-              <div className="max-w-5xl mx-auto mb-10">
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 sm:p-6 md:p-8 border border-white/20">
-                  <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
-                    {/* Keyword input with suggestions */}
-                    <div className="flex-1 relative">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                      <input
-                        value={keyword}
-                        onChange={e => setKeyword(e.target.value)}
-                        onKeyDown={handleSuggestionKeys}
-                        type="text"
-                        placeholder="Job title, skills, or company..."
-                        aria-label="Search keyword"
-                        className="w-full pl-12 pr-4 py-4 text-gray-900 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-lg"
-                      />
-                      {suggestions.length > 0 && (
-                        <ul className="absolute z-20 mt-2 w-full bg-white text-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 divide-y">
-                          {suggestions.map((s, i) => (
-                            <li
-                              key={i}
-                              onMouseDown={() => { setKeyword(s.value); setSuggestions([]); }}
-                              className={`px-4 py-2 text-sm flex items-center gap-2 cursor-pointer hover:bg-gray-50 ${i === focusedIdx ? 'bg-gray-100' : ''}`}
-                            >
-                              <span className="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{s.type}</span>
-                              <span>{s.value}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                    {/* Location input with autodetect indicator */}
-                    <div className="flex-1 relative">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                      <input
-                        value={location}
-                        onChange={e => setLocation(e.target.value)}
-                        type="text"
-                        placeholder={detectingLocation ? 'Detecting location...' : 'City, state, or remote...'}
-                        aria-label="Location"
-                        className="w-full pl-12 pr-4 py-4 text-gray-900 border-0 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white text-lg disabled:opacity-70"
-                      />
-                      {!detectingLocation && !location && (
-                        <button
-                          type="button"
-                          onClick={() => setLocation('Remote')}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-600 hover:underline"
-                        >Use Remote</button>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => submitSearch()}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 w-full lg:w-auto"
-                    >
-                      🚀 Search Jobs
-                    </button>
-                  </div>
-                  {/* Trending shortcuts */}
-                  <div className="flex flex-wrap items-center gap-2 mt-5 text-sm">
-                    <span className="text-white/70 font-medium flex items-center gap-1"><TrendingUp className="w-4 h-4" /> Trending:</span>
-                    {trendingJobs.map(t => (
-                      <button
-                        key={t.q}
-                        onClick={() => submitSearch(t.q, t.loc || location)}
-                        className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/90 border border-white/10 backdrop-blur transition text-xs"
-                      >{t.q}{t.loc ? ` • ${t.loc}` : ''}</button>
-                    ))}
-                  </div>
-                  {/* Employer CTA */}
-                  <div className="mt-6 flex flex-wrap gap-4">
-                    <Link href="/companies/register" className="inline-flex items-center gap-2 text-sm bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium px-4 py-2 rounded-full transition">
-                      <Building2 className="w-4 h-4" /> Post a Job
-                    </Link>
-                    <Link href="/resumes/upload" className="inline-flex items-center gap-2 text-sm bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium px-4 py-2 rounded-full transition">
-                      <Upload className="w-4 h-4" /> Upload Resume
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Stats - Real Data */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl font-bold text-blue-300">{stats.activeJobs.toLocaleString()}+</div>
-                  <div className="text-blue-100">Active Jobs</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl font-bold text-blue-300">{stats.companies.toLocaleString()}+</div>
-                  <div className="text-blue-100">Top Companies</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl font-bold text-blue-300">{(stats.jobSeekers / 1000000).toFixed(1)}M+</div>
-                  <div className="text-blue-100">Job Seekers</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Resume Upload Section */}
-      <section className="py-16 relative">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Upload Your Resume & Get Discovered
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Upload your resume to unlock personalized job recommendations and get discovered by top employers
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-            {!uploadedResume && !isUploading ? (
-              <div className="text-center">
-                <div 
-                  onClick={triggerFileSelect}
-                  className="border-2 border-dashed border-blue-300 rounded-xl p-12 hover:border-blue-400 transition-colors cursor-pointer group"
-                >
-                  <Upload className="h-16 w-16 text-blue-400 mx-auto mb-4 group-hover:text-blue-500 transition-colors" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Drop your resume here</h3>
-                  <p className="text-gray-600 mb-4">or click to browse files</p>
-                  <div className="text-sm text-gray-500">
-                    Supported formats: PDF, DOC, DOCX (Max 10MB)
-                  </div>
-                </div>
+          {/* Search Form */}
+          <form onSubmit={handleSearch} className="max-w-4xl mx-auto mb-8">
+            <div className="flex flex-col md:flex-row gap-4 bg-white rounded-2xl shadow-xl p-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileSelect}
-                  className="hidden"
+                  type="text"
+                  placeholder="Job title, company, or skills..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 text-lg border-0 focus:ring-0 focus:outline-none"
                 />
               </div>
-            ) : isUploading ? (
-              <div className="text-center">
-                <div className="mb-6">
-                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Uploading Resume...</h3>
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
-                </div>
-                <p className="text-gray-600">{uploadProgress}% complete</p>
+              <div className="relative">
+                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  type="text"
+                  placeholder="Location"
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 text-lg border-0 focus:ring-0 focus:outline-none"
+                />
               </div>
-            ) : (
-              <div className="text-center">
-                <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Resume Uploaded Successfully!</h3>
-                <div className="flex items-center justify-center text-gray-600 mb-6">
-                  <FileText className="h-5 w-5 mr-2" />
-                  <span>{uploadedResume?.name}</span>
-                </div>
-                <div className="flex gap-4 justify-center">
-                  <button
-                    onClick={triggerFileSelect}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Upload New Resume
-                  </button>
-                  <Link
-                    href="/profile"
-                    className="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors"
-                  >
-                    View Profile
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Login/Register Quick Access */}
-      <section className="py-16 bg-gradient-to-r from-blue-50 to-purple-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Get Started Today
-            </h2>
-            <p className="text-lg text-gray-600">
-              Join thousands of professionals who found their dream jobs through NaukriMili
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Login Card */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-              <div className="text-center mb-6">
-                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <User className="h-8 w-8 text-blue-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h3>
-                <p className="text-gray-600">Sign in to access your personalized job dashboard</p>
-              </div>
-              <div className="space-y-4">
-                <Link
-                  href="/auth/login"
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors text-center block"
-                >
-                  Sign In
-                </Link>
-                <div className="text-center text-sm text-gray-500">
-                  Access your saved jobs, applications, and more
-                </div>
-              </div>
-            </div>
-
-            {/* Register Card */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-              <div className="text-center mb-6">
-                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-8 w-8 text-purple-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Join NaukriMili</h3>
-                <p className="text-gray-600">Create your account and start your career journey</p>
-              </div>
-              <div className="space-y-4">
-                <Link
-                  href="/auth/register"
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all text-center block"
-                >
-                  Create Account
-                </Link>
-                <div className="text-center text-sm text-gray-500">
-                  Get AI-powered job recommendations
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* AI Features Section */}
-      <section className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Why Choose 
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> AI-Powered </span>
-              Job Search?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Experience the future of job hunting with our advanced AI technology 
-              that understands your career goals and matches you with perfect opportunities.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* AI Matching */}
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
-              <div className="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 group-hover:border-blue-200">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Brain className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Smart AI Matching</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Our advanced AI analyzes your skills, experience, and preferences to find 
-                  jobs that perfectly match your career aspirations and growth potential.
-                </p>
-              </div>
-            </div>
-
-            {/* Security */}
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
-              <div className="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 group-hover:border-green-200">
-                <div className="bg-gradient-to-r from-green-600 to-blue-600 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Shield className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Secure & Private</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Your personal information and job search activity are protected with 
-                  enterprise-grade security. Search confidently and maintain your privacy.
-                </p>
-              </div>
-            </div>
-
-            {/* Fast Results */}
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"></div>
-              <div className="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 group-hover:border-blue-200">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Zap className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Lightning Fast</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Get instant job recommendations and real-time notifications for new 
-                  opportunities. Never miss out on your dream job again.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Categories */}
-      <section className="py-20 bg-gradient-to-r from-gray-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Trending Job Categories
-            </h2>
-            <p className="text-xl text-gray-600">
-              Explore high-demand career opportunities across India's top industries
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              { name: 'IT & Software', count: '25,000+', icon: '💻', color: 'from-blue-500 to-purple-600' },
-              { name: 'Banking & Finance', count: '15,000+', icon: '💰', color: 'from-green-500 to-blue-600' },
-              { name: 'Healthcare', count: '12,000+', icon: '🏥', color: 'from-red-500 to-pink-600' },
-              { name: 'Sales & Marketing', count: '18,000+', icon: '📈', color: 'from-orange-500 to-red-600' },
-              { name: 'Engineering', count: '20,000+', icon: '⚙️', color: 'from-gray-600 to-blue-600' },
-              { name: 'Education', count: '8,000+', icon: '📚', color: 'from-purple-500 to-pink-600' },
-              { name: 'Design & Creative', count: '6,000+', icon: '🎨', color: 'from-pink-500 to-purple-600' },
-              { name: 'Human Resources', count: '7,000+', icon: '👥', color: 'from-indigo-500 to-blue-600' },
-            ].map((category) => (
-              <Link
-                key={category.name}
-                href={`/jobs?category=${category.name.toLowerCase()}`}
-                className="group relative overflow-hidden bg-white rounded-xl shadow-md hover:shadow-xl transition-all transform hover:scale-105"
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
               >
-                <div className={`absolute inset-0 bg-gradient-to-r ${category.color} opacity-0 group-hover:opacity-10 transition-opacity`}></div>
-                <div className="relative p-6 text-center">
-                  <div className="text-4xl mb-4">{category.icon}</div>
-                  <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-2">
-                    {category.name}
-                  </h3>
-                  <p className="text-gray-500 text-sm">{category.count} jobs available</p>
+                Search Jobs
+              </button>
+            </div>
+          </form>
+
+          {/* Trending Searches */}
+          <div className="flex flex-wrap justify-center gap-3">
+            <span className="text-gray-600">Trending:</span>
+            {trendingSearches.map((search, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setSearchQuery(search);
+                  window.location.href = `/jobs?query=${encodeURIComponent(search)}`;
+                }}
+                className="bg-white px-4 py-2 rounded-full text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 border border-gray-200"
+              >
+                {search}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            Why Choose NaukriMili?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Brain className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">AI-Powered Matching</h3>
+              <p className="text-gray-600">
+                Our advanced AI algorithm matches you with the perfect job opportunities based on your skills and preferences.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Verified Companies</h3>
+              <p className="text-gray-600">
+                All companies are verified and legitimate, ensuring you apply to real opportunities.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Instant Applications</h3>
+              <p className="text-gray-600">
+                Apply to multiple jobs with just a few clicks. No more complex application processes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Jobs Section */}
+      <section className="py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Featured Jobs</h2>
+            <Link 
+              href="/jobs"
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
+            >
+              View All Jobs
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredJobs.map((job) => (
+                <Link 
+                  key={job.id}
+                  href={`/jobs/${job.id}`}
+                  className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6 border border-gray-100"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">{job.title}</h3>
+                    {job.isFeatured && (
+                      <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
+                        Featured
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-2 text-sm text-gray-600 mb-4">
+                    <div className="flex items-center gap-1">
+                      <Building className="w-4 h-4" />
+                      <span>{job.company || 'Unknown Company'}</span>
+                    </div>
+                    {job.location && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4" />
+                        <span>{job.location}</span>
+                      </div>
+                    )}
+                    {job.jobType && (
+                      <div className="flex items-center gap-1">
+                        <Briefcase className="w-4 h-4" />
+                        <span>{job.jobType.replace('-', ' ')}</span>
+                      </div>
+                    )}
+                  </div>
+                  {job.salary && (
+                    <div className="text-green-700 font-semibold">{job.salary}</div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Top Companies Section */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Top Companies</h2>
+            <Link 
+              href="/companies"
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
+            >
+              View All Companies
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {topCompanies.map((company) => (
+                <Link 
+                  key={company.id}
+                  href={`/companies/${company.id}`}
+                  className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6 border border-gray-100"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    {company.logo ? (
+                      <img 
+                        src={company.logo} 
+                        alt={company.name} 
+                        className="w-12 h-12 object-contain rounded-lg border border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <Building className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="font-semibold text-lg text-gray-900">{company.name}</h3>
+                      {company.industry && (
+                        <p className="text-sm text-gray-600">{company.industry}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    {company.location && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4" />
+                        {company.location}
+                      </span>
+                    )}
+                    <span className="text-blue-600 font-medium">{company.jobCount} open positions</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Popular Locations */}
+      <section className="py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            Popular Job Locations
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {popularLocations.map((location) => (
+              <Link
+                key={location}
+                href={`/jobs?location=${encodeURIComponent(location)}`}
+                className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow duration-200 border border-gray-100"
+              >
+                <MapPin className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <h3 className="font-semibold text-gray-900">{location}</h3>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Employers (lightweight logos) */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Featured Employers</h2>
-              <p className="text-gray-600 max-w-xl">Explore India’s leading employers actively hiring talent right now.</p>
-            </div>
-            <Link href="/companies" className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700">View All <ArrowRight className="w-4 h-4" /></Link>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 mb-8">
-            {featuredEmployers.map(e => (
-              <a key={e.name} href={e.careerUrl} target="_blank" rel="noopener noreferrer" className="group relative overflow-hidden rounded-xl bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 p-5 flex flex-col items-center gap-3 transition">
-                <div className="text-4xl" aria-hidden>{e.logo}</div>
-                <div className="text-sm font-semibold text-gray-700 group-hover:text-blue-600 text-center line-clamp-2">{e.name}</div>
-                <div className="text-[11px] font-medium text-blue-600 bg-blue-100/70 px-2 py-0.5 rounded-full">{e.open} jobs</div>
-                <div className="text-[10px] text-gray-500 mt-1">View Jobs ↗</div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* Featured Jobs */}
-      <section className="py-20 bg-gradient-to-r from-blue-50 to-purple-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Featured Job Opportunities
-            </h2>
-            <p className="text-xl text-gray-600">
-              Discover exciting career opportunities from top companies
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-12">
-            {featuredJobs.map((job) => (
-              <div key={job.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border border-gray-100">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{job.title}</h3>
-                    <p className="text-blue-600 font-semibold mb-1">{job.company}</p>
-                    <div className="flex items-center text-gray-600 text-sm mb-2">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span>{job.location}</span>
-                      {job.isRemote && <span className="ml-2 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Remote</span>}
-                    </div>
-                  </div>
-                  {job.isUrgent && (
-                    <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
-                      Urgent
-                    </span>
-                  )}
-                </div>
-                
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-green-600 font-bold">{job.salary}</span>
-                  <span className="text-gray-500 text-sm">{job.posted}</span>
-                </div>
-                
-                <Link
-                  href={`/jobs/${job.id}`}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center block"
-                >
-                  Apply Now
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-blue-600">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Ready to Find Your Next Career Move?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Join thousands of professionals who have found their dream jobs through NaukriMili
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/auth/register"
+              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200"
+            >
+              Get Started
+            </Link>
             <Link
               href="/jobs"
-              className="inline-flex items-center bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all"
+              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors duration-200"
             >
-              View All Jobs
-              <ArrowRight className="ml-2 h-5 w-5" />
+              Browse Jobs
             </Link>
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700"></div>
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-          <div className="absolute bottom-0 right-0 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Transform Your Career?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Join millions of job seekers who have discovered their dream careers through 
-            NaukriMili's AI-powered platform. Your next opportunity is waiting.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/jobs" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 inline-flex items-center">
-              🔍 Start Job Search
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-            <Link href="/auth/register" className="bg-white/10 backdrop-blur-lg text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 transition-all border border-white/20 hover:border-white/40">
-              Create Free Account
-            </Link>
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 }

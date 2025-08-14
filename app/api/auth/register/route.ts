@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Mock user storage (in real app, this would be a database)
-let users: any[] = [];
-let userId = 1;
+import { prisma } from '@/lib/database-service';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, password, role = 'jobseeker' } = body;
+    const { name, email, password, role = 'jobseeker', phone, location } = body;
 
     // Basic validation
     if (!name || !email || !password) {
@@ -25,7 +23,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = users.find(user => user.email === email);
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    });
+    
     if (existingUser) {
       return NextResponse.json({
         success: false,
@@ -33,20 +34,21 @@ export async function POST(request: NextRequest) {
       }, { status: 409 });
     }
 
-    // Create new user
-    const newUser = {
-      id: userId++,
-      name,
-      email,
-      password: `hashed_${password}`, // In real app, hash the password
-      role,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      profileCompletion: 0,
-      isActive: true
-    };
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    users.push(newUser);
+    // Create new user
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role,
+        phone,
+        location,
+        isActive: true
+      }
+    });
 
     // Return user data (without password)
     const { password: _, ...userData } = newUser;
@@ -54,8 +56,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'User registered successfully',
-      user: userData,
-      token: `mock_token_${Date.now()}` // In real app, generate JWT token
+      user: userData
     }, { status: 201 });
 
   } catch (error: any) {

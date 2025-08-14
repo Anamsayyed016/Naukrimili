@@ -1,8 +1,8 @@
 'use client';
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Search,
   Bell,
@@ -44,21 +44,40 @@ export default function MainNavigation({
   const [searchValue, setSearchValue] = useState("");
   const [currentLocation, setCurrentLocation] = useState("Bangalore");
   const pathname = usePathname();
+  const router = useRouter();
 
-  const closeMenu = () => setIsMenuOpen(false);
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
-  const navLinks = [
+  const navLinks = useMemo(() => [
     { title: "Home", href: "/", icon: Home },
     { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
     { title: "Companies", href: "/companies", icon: BuildingIcon }
-  ];
+  ], []);
+
+  const handleSearch = useCallback(() => {
+    if (searchValue.trim()) {
+      const searchUrl = `/jobs?query=${encodeURIComponent(searchValue.trim())}&location=${encodeURIComponent(currentLocation)}`;
+      router.push(searchUrl);
+    }
+  }, [searchValue, currentLocation, router]);
+
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && searchValue.trim()) {
+      handleSearch();
+    }
+  }, [searchValue, handleSearch]);
+
+  const handleLocationChange = useCallback((city: string) => {
+    setCurrentLocation(city);
+    closeMenu();
+  }, [closeMenu]);
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-200">
+    <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Brand */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
             <div className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16">
               <Image
                 src="/naukrimili-logo.png"
@@ -78,11 +97,10 @@ export default function MainNavigation({
               <Link
                 key={link.title}
                 href={link.href}
-                passHref
-                prefetch={false}
+                prefetch={true}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900",
-                  pathname === link.href && "text-gray-900 font-medium"
+                  "flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors duration-200",
+                  pathname === link.href && "text-blue-600 font-medium border-b-2 border-blue-600"
                 )}
               >
                 <link.icon className="w-5 h-5" />
@@ -100,21 +118,13 @@ export default function MainNavigation({
                 placeholder="Search jobs..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && searchValue.trim()) {
-                    window.location.href = `/jobs?query=${encodeURIComponent(searchValue.trim())}&location=${encodeURIComponent(currentLocation)}`;
-                  }
-                }}
-                className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onKeyPress={handleKeyPress}
+                className="w-full pl-10 pr-20 py-2 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
               {searchValue && (
                 <button
-                  onClick={() => {
-                    if (searchValue.trim()) {
-                      window.location.href = `/jobs?query=${encodeURIComponent(searchValue.trim())}&location=${encodeURIComponent(currentLocation)}`;
-                    }
-                  }}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                  onClick={handleSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors duration-200"
                 >
                   Search
                 </button>
@@ -125,7 +135,7 @@ export default function MainNavigation({
           {/* Location Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="hidden md:flex items-center gap-2 px-4 py-2 text-gray-700 bg-white rounded-full border border-gray-200 hover:border-gray-300 cursor-pointer">
+              <div className="hidden md:flex items-center gap-2 px-4 py-2 text-gray-700 bg-white rounded-full border border-gray-200 hover:border-gray-300 cursor-pointer transition-colors duration-200">
                 <MapPin className="w-4 h-4" />
                 <span>{currentLocation}</span>
                 <ChevronDown className="w-4 h-4" />
@@ -137,8 +147,11 @@ export default function MainNavigation({
               {['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata'].map((city) => (
                 <DropdownMenuItem
                   key={city}
-                  onClick={() => setCurrentLocation(city)}
-                  className={currentLocation === city ? 'bg-blue-50' : ''}
+                  onClick={() => handleLocationChange(city)}
+                  className={cn(
+                    'cursor-pointer transition-colors duration-200',
+                    currentLocation === city ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'
+                  )}
                 >
                   <MapPin className="mr-2 h-4 w-4" />
                   {city}
@@ -150,11 +163,13 @@ export default function MainNavigation({
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <Link href="/auth/login">
-              <Button variant="ghost" className="text-gray-700">Login</Button>
+              <Button variant="ghost" className="text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                Login
+              </Button>
             </Link>
             <Link href="/auth/register">
               <Button
-                className="bg-secondary hover:bg-secondary/90 text-white font-bold"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors duration-200"
                 aria-label="Sign Up"
               >
                 Sign Up
@@ -168,6 +183,7 @@ export default function MainNavigation({
             size="icon"
             className="md:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
           >
             {isMenuOpen ? (
               <X className="h-6 w-6" />
@@ -179,16 +195,15 @@ export default function MainNavigation({
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-4">
+          <div className="md:hidden py-4 space-y-4 border-t border-gray-200 bg-gray-50">
             {/* Navigation Links */}
             <div className="flex flex-col space-y-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.title}
                   href={link.href}
-                  passHref
-                  prefetch={false}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900"
+                  prefetch={true}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200"
                   onClick={closeMenu}
                 >
                   <link.icon className="w-5 h-5" />
@@ -197,18 +212,20 @@ export default function MainNavigation({
               ))}
             </div>
             <div className="px-4 py-2">
-              <div className="flex items-center gap-2 text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
+              <div className="flex items-center gap-2 text-gray-700 bg-white px-3 py-2 rounded-lg border border-gray-200">
                 <MapPin className="w-4 h-4" />
                 <span>{currentLocation}</span>
               </div>
             </div>
             <div className="border-t pt-4 px-4 space-y-2">
               <Link href="/auth/login" className="block">
-                <Button variant="ghost" className="w-full text-gray-700">Login</Button>
+                <Button variant="ghost" className="w-full text-gray-700 hover:text-gray-900 transition-colors duration-200">
+                  Login
+                </Button>
               </Link>
               <Link href="/auth/register" className="block">
                 <Button
-                  className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors duration-200"
                   aria-label="Sign Up"
                 >
                   Sign Up

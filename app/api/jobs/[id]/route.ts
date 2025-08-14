@@ -3,101 +3,161 @@
  * GET /api/jobs/[id] - Get specific job with enhanced features
  * PUT /api/jobs/[id] - Update job posting
  * DELETE /api/jobs/[id] - Delete job posting
+ * 
+ * This file uses the standard Next.js 15+ API route pattern
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/database-service';
 
-// In-memory mock jobs for demo
-let mockJobs = [
-  { id: 1, title: 'Senior Software Engineer', company: 'TechCorp', companyLogo: '', location: 'Bangalore', country: 'IN', description: 'Build and scale web apps', salary: '15-25 LPA', salaryMin: 1500000, salaryMax: 2500000, salaryCurrency: 'INR', jobType: 'full-time', experienceLevel: 'senior', isRemote: true, isHybrid: false, isUrgent: false, isFeatured: true, sector: 'IT', skills: ['React', 'Node'], createdAt: new Date(), updatedAt: new Date() },
-  { id: 2, title: 'Product Manager', company: 'InnovateSoft', companyLogo: '', location: 'Mumbai', country: 'IN', description: 'Lead product roadmap', salary: '20-35 LPA', salaryMin: 2000000, salaryMax: 3500000, salaryCurrency: 'INR', jobType: 'full-time', experienceLevel: 'mid', isRemote: false, isHybrid: true, isUrgent: true, isFeatured: true, sector: 'Product', skills: ['Agile', 'Analytics'], createdAt: new Date(), updatedAt: new Date() },
-  { id: 3, title: 'Data Scientist', company: 'Digital Solutions', companyLogo: '', location: 'Delhi', country: 'IN', description: 'ML/AI models', salary: '18-30 LPA', salaryMin: 1800000, salaryMax: 3000000, salaryCurrency: 'INR', jobType: 'full-time', experienceLevel: 'mid', isRemote: false, isHybrid: false, isUrgent: false, isFeatured: false, sector: 'Data', skills: ['Python', 'ML'], createdAt: new Date(), updatedAt: new Date() },
-];
-
-function toFrontend(job: any) {
-  return {
-    id: String(job.id),
-    title: job.title,
-    company: job.company,
-    company_logo: job.companyLogo || null,
-    location: job.location,
-    country: job.country,
-    description: job.description,
-    salary: job.salary,
-    salary_min: job.salaryMin,
-    salary_max: job.salaryMax,
-    salary_currency: job.salaryCurrency,
-    job_type: job.jobType,
-    experience_level: job.experienceLevel,
-    remote: job.isRemote,
-    hybrid: job.isHybrid,
-    featured: job.isFeatured,
-    urgent: job.isUrgent,
-    sector: job.sector,
-    skills: job.skills,
-    posted_at: job.createdAt.toISOString(),
-    apply_url: `/jobs/${job.id}`,
-    is_active: true,
-    created_at: job.createdAt.toISOString(),
-    updated_at: job.updatedAt.toISOString(),
-  };
-}
-
-export async function GET(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = await ctx.params;
-    const jobId = Number(id);
-    if (!jobId || Number.isNaN(jobId)) {
-      return NextResponse.json({ success: false, error: 'Invalid job ID' }, { status: 400 });
+    const id = parseInt(params.id);
+    
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: 'Invalid job ID' },
+        { status: 400 }
+      );
     }
 
-    const job = mockJobs.find(j => j.id === jobId);
-    if (!job) return NextResponse.json({ success: false, error: 'Job not found' }, { status: 404 });
+    const job = await prisma.job.findUnique({
+      where: { id },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            name: true,
+            company: true,
+          }
+        }
+      }
+    });
 
-    const similar = mockJobs.filter(j => j.id !== jobId).slice(0, 6).map(toFrontend);
+    if (!job) {
+      return NextResponse.json(
+        { error: 'Job not found' },
+        { status: 404 }
+      );
+    }
+
+    // Increment view count
+    await prisma.job.update({
+      where: { id },
+      data: { views: { increment: 1 } }
+    });
 
     return NextResponse.json({
       success: true,
-      job: toFrontend(job),
-      similar_jobs: similar,
-      statistics: {
-        company_jobs: mockJobs.filter(j => j.company === job.company).length,
-        location_jobs: mockJobs.filter(j => j.location === job.location).length,
-        sector_jobs: mockJobs.filter(j => j.sector === job.sector).length,
-        average_salary: Math.round(((job.salaryMin || 0) + (job.salaryMax || 0)) / 2),
-        salary_range: job.salary || 'N/A',
-      },
-      timestamp: new Date().toISOString(),
+      job: {
+        id: job.id,
+        title: job.title,
+        company: job.company,
+        companyLogo: job.companyLogo,
+        location: job.location,
+        country: job.country,
+        description: job.description,
+        applyUrl: job.applyUrl,
+        postedAt: job.postedAt,
+        salary: job.salary,
+        salaryMin: job.salaryMin,
+        salaryMax: job.salaryMax,
+        salaryCurrency: job.salaryCurrency,
+        jobType: job.jobType,
+        experienceLevel: job.experienceLevel,
+        skills: job.skills,
+        isRemote: job.isRemote,
+        isHybrid: job.isHybrid,
+        isUrgent: job.isUrgent,
+        isFeatured: job.isFeatured,
+        sector: job.sector,
+        views: job.views,
+        applications: job.applications,
+        createdAt: job.createdAt,
+        updatedAt: job.updatedAt,
+        creator: job.creator
+      }
     });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch job', message: error.message }, { status: 500 });
+
+  } catch (error) {
+    console.error('Error fetching job:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
-export async function PUT(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = await ctx.params;
-    const jobId = Number(id);
+    const id = parseInt(params.id);
     const body = await request.json();
-    const index = mockJobs.findIndex(j => j.id === jobId);
-    if (index === -1) return NextResponse.json({ success: false, error: 'Job not found' }, { status: 404 });
-    mockJobs[index] = { ...mockJobs[index], ...body, updatedAt: new Date() };
-    return NextResponse.json({ success: true, message: 'Job updated', job: toFrontend(mockJobs[index]) });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: 'Failed to update job', message: error.message }, { status: 500 });
+    
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: 'Invalid job ID' },
+        { status: 400 }
+      );
+    }
+
+    const updatedJob = await prisma.job.update({
+      where: { id },
+      data: {
+        ...body,
+        updatedAt: new Date()
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Job updated successfully',
+      job: updatedJob
+    });
+
+  } catch (error) {
+    console.error('Error updating job:', error);
+    return NextResponse.json(
+      { error: 'Failed to update job' },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = await ctx.params;
-    const jobId = Number(id);
-    const index = mockJobs.findIndex(j => j.id === jobId);
-    if (index === -1) return NextResponse.json({ success: false, error: 'Job not found' }, { status: 404 });
-    mockJobs.splice(index, 1);
-    return NextResponse.json({ success: true, message: 'Job deleted' });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: 'Failed to delete job', message: error.message }, { status: 500 });
+    const id = parseInt(params.id);
+    
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: 'Invalid job ID' },
+        { status: 400 }
+      );
+    }
+
+    await prisma.job.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Job deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting job:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete job' },
+      { status: 500 }
+    );
   }
 }
 

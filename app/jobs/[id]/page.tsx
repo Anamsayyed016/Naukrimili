@@ -1,19 +1,107 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { enhancedJobService } from '@/lib/enhanced-job-service';
+import { useParams } from 'next/navigation';
 
-export default async function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const jobId = parseInt(id);
+interface Job {
+  id: number;
+  title: string;
+  company: string | null;
+  companyLogo: string | null;
+  location: string | null;
+  country: string;
+  description: string;
+  applyUrl: string | null;
+  postedAt: string | null;
+  salary: string | null;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  salaryCurrency: string | null;
+  jobType: string | null;
+  experienceLevel: string | null;
+  skills: string[];
+  isRemote: boolean;
+  isHybrid: boolean;
+  isUrgent: boolean;
+  isFeatured: boolean;
+  sector: string | null;
+  views: number;
+  applications: number;
+  createdAt: string;
+  updatedAt: string;
+  creator: any;
+}
 
-  const job = await enhancedJobService.getJobById(jobId);
+export default function JobDetailsPage() {
+  const params = useParams();
+  const [job, setJob] = useState<Job | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!job) {
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        const id = params?.id as string;
+        if (!id) {
+          setError('Job ID is required');
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`/api/jobs/${id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch job');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setJob(data.job);
+        } else {
+          setError(data.error || 'Failed to load job');
+        }
+      } catch (err) {
+        setError('Failed to load job details');
+        console.error('Error fetching job:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJob();
+  }, [params?.id]);
+
+  if (loading) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <h1 className="text-2xl font-bold mb-2">Job not found</h1>
-        <p className="text-gray-600">The job you are looking for does not exist or may have been removed.</p>
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-6"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
+            <div className="space-y-3">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !job) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-2xl font-bold mb-2 text-red-600">Job not found</h1>
+          <p className="text-gray-600 mb-6">The job you are looking for does not exist or may have been removed.</p>
+          <Link 
+            href="/jobs" 
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            Back to Jobs
+          </Link>
+        </div>
       </div>
     );
   }
@@ -21,22 +109,80 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">{job.title}</h1>
-        <div className="text-gray-600 mb-6">{job.company || 'Unknown Company'} • {job.location || 'Remote'}</div>
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold mb-2 text-gray-900">{job.title}</h1>
+              <div className="text-gray-600 flex items-center gap-4">
+                <span>{job.company || 'Unknown Company'}</span>
+                <span>•</span>
+                <span>{job.location || 'Remote'}</span>
+              </div>
+            </div>
+            {job.isFeatured && (
+              <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                Featured
+              </span>
+            )}
+          </div>
 
-        {job.salary && (
-          <div className="mb-6 text-green-700 font-semibold">{job.salary}</div>
-        )}
+          {job.salary && (
+            <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <span className="text-green-700 font-semibold">💰 {job.salary}</span>
+            </div>
+          )}
 
-        <div className="prose max-w-none mb-10" dangerouslySetInnerHTML={{ __html: job.description }} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">Job Type:</span>
+              <span className="font-medium">{job.jobType || 'Not specified'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">Experience:</span>
+              <span className="font-medium">{job.experienceLevel || 'Not specified'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">Remote:</span>
+              <span className="font-medium">{job.isRemote ? 'Yes' : 'No'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">Views:</span>
+              <span className="font-medium">{job.views}</span>
+            </div>
+          </div>
 
-        <div className="flex gap-3">
-          <Link href={`/jobs/${job.id}/apply`} passHref>
-            <a className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Apply Now</a>
-          </Link>
-          <Link href="/jobs" passHref>
-            <a className="px-6 py-3 border rounded-lg hover:bg-gray-50">Back to Jobs</a>
-          </Link>
+          {job.skills && job.skills.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3">Required Skills</h3>
+              <div className="flex flex-wrap gap-2">
+                {job.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="prose max-w-none mb-10" dangerouslySetInnerHTML={{ __html: job.description }} />
+
+          <div className="flex gap-3 pt-6 border-t border-gray-200">
+            <Link 
+              href={`/jobs/${job.id}/apply`}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+            >
+              Apply Now
+            </Link>
+            <Link 
+              href="/jobs"
+              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700"
+            >
+              Back to Jobs
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -1,9 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Production optimizations
+  output: 'standalone',
+  poweredByHeader: false,
+  compress: true,
+  
   // Image optimization
   images: {
     domains: ['localhost', 'your-domain.com'],
     formats: ['image/webp', 'image/avif'],
+    unoptimized: false,
   },
   
   // Environment variables
@@ -31,17 +37,8 @@ const nextConfig = {
     },
   }),
   
-  // Output configuration for static export (if needed)
-  ...(process.env.EXPORT_STATIC && {
-    output: 'export',
-    trailingSlash: true,
-    images: {
-      unoptimized: true,
-    },
-  }),
-  
-  // Webpack configuration
-  webpack: (config, { isServer }) => {
+  // Webpack configuration for production
+  webpack: (config, { isServer, dev }) => {
     if (isServer) {
       config.externals.push({
         'utf-8-validate': 'commonjs utf-8-validate',
@@ -49,10 +46,27 @@ const nextConfig = {
       });
     }
     
+    // Production optimizations
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+          },
+        },
+      };
+    }
+    
     return config;
   },
   
-  // Headers for security
+  // Headers for security and performance
   async headers() {
     return [
       {
@@ -70,12 +84,29 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
+        ],
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, s-maxage=600',
+          },
         ],
       },
     ];
   },
   
-  // Redirects
+  // Redirects for SEO
   async redirects() {
     return [
       {
@@ -83,8 +114,19 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      {
+        source: '/jobs/search',
+        destination: '/jobs',
+        permanent: true,
+      },
     ];
+  },
+  
+  // Experimental features for performance
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

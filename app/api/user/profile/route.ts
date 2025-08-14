@@ -155,7 +155,7 @@ export async function PUT(request: NextRequest) {
           updated_at = now()
         RETURNING *
       `,[
-        userId,
+            userId,
         data.fullName || null,
         data.email || null,
         data.phone || null,

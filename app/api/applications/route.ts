@@ -99,7 +99,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       resumeId: payload.resumeId,
       coverLetter: payload.coverLetter,
       notes: payload.notes,
-      status: 'submitted',
+        status: 'submitted',
       appliedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       name: payload.name,
@@ -122,8 +122,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   } catch (error: any) {
     console.error('Applications POST error:', error);
-    return NextResponse.json({
-      success: false,
+      return NextResponse.json({
+        success: false,
       error: 'Failed to create application',
       message: error.message,
     }, { status: 500 });

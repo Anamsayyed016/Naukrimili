@@ -2,6 +2,8 @@ import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import LinkedInProvider from 'next-auth/providers/linkedin'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { prisma } from './database-service'
+import bcrypt from 'bcryptjs'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -35,24 +37,28 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // Mock user validation - replace with real database lookup
-          const mockUsers = [
-            { id: '1', email: 'admin@jobportal.com', password: 'admin123', name: 'Admin User', role: 'admin' },
-            { id: '2', email: 'user@example.com', password: 'password123', name: 'Test User', role: 'jobseeker' }
-          ]
+          // Find user in database
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email }
+          })
           
-          const user = mockUsers.find(u => u.email === credentials.email && u.password === credentials.password)
-          
-          if (user) {
-            return {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              role: user.role
-            }
+          if (!user || !user.password) {
+            return null
           }
+
+          // Verify password
+          const isValidPassword = await bcrypt.compare(credentials.password, user.password)
           
-          return null
+          if (!isValidPassword) {
+            return null
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          }
         } catch (error) {
           console.error('Auth error:', error)
           return null
@@ -60,10 +66,34 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
-  session: {
-    strategy: 'jwt'
-  },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google' && profile) {
+        try {
+          // Check if user exists
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! }
+          })
+
+          if (!existingUser) {
+            // Create new user from Google OAuth
+            await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: user.name!,
+                image: user.image,
+                emailVerified: new Date(),
+                role: 'jobseeker'
+              }
+            })
+          }
+        } catch (error) {
+          console.error('Error creating user from OAuth:', error)
+          return false
+        }
+      }
+      return true
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
@@ -82,6 +112,9 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error'
+  },
+  session: {
+    strategy: 'jwt'
   },
   debug: process.env.NODE_ENV === 'development'
 }
