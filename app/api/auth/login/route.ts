@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
     const user = mockUsers.find(u => u.email === email && u.password === password);
     
     if (!user) {
+      console.error(`Login failed for email: ${email}. Reason: Invalid credentials.`);
       return NextResponse.json({
         success: false,
         error: 'Invalid email or password'

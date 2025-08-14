@@ -78,7 +78,16 @@ const config: Config = {
       }
     }
   },
-  plugins: [require("tailwindcss-animate")]
+  plugins: [
+    // Guard animate plugin to avoid runtime crash if tailwind is missing
+    (() => {
+      try {
+        return require("tailwindcss-animate");
+      } catch {
+        return undefined as any;
+      }
+    })()
+  ].filter(Boolean) as any
 } satisfies Config;
 
 export default config;

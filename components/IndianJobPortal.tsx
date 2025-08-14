@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import axios from "axios";
+import Link from "next/link";
 import { sampleIndianJobs } from "@/lib/sample-indian-jobs";
 import SalaryRangeSelector, { SalaryRange } from "./salary/SalaryRangeSelector";
 import DynamicJobSearch from "./DynamicJobSearch";
@@ -210,13 +211,12 @@ const JobCard = ({ job, bookmarked, onBookmark }: JobCardProps) => (
 
     {/* Job Card Footer */}
     <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 flex gap-3">
-      <button 
-        onClick={() => window.open(job.redirect_url, '_blank')}
-        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
-      >
-        Apply Now
-        <ChevronRightIcon className="w-4 h-4" />
-      </button>
+      <Link href={job.redirect_url} passHref>
+        <a target="_blank" rel="noopener noreferrer" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+          Apply Now
+          <ChevronRightIcon className="w-4 h-4" />
+        </a>
+      </Link>
       <button 
         className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         onClick={() => {
@@ -252,6 +252,10 @@ const TrendingJobsSection = () => (
       {indianJobCategories.map((category) => (
         <div
           key={category.id}
+          onClick={() => {
+            setSearchFilters(prev => ({ ...prev, query: category.name, page: 1 }));
+            setShowLegacySearch(false);
+          }}
           className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer hover:scale-105 ${
             category.trending 
               ? 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200 dark:from-orange-900/20 dark:to-red-900/20' 
@@ -380,7 +384,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
     };
     fetchRealJobs();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchFilters.query, searchFilters.location, searchFilters.page, searchFilters.limit]);
 
   // Legacy state (kept for backward compatibility)
   const [searchQuery, setSearchQuery] = useState(initialQuery);
