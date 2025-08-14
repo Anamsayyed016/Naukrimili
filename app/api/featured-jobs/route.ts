@@ -4,185 +4,103 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// Mock featured jobs data
+const mockFeaturedJobs = [
+  {
+    id: 1,
+    title: "Senior Software Engineer",
+    company: "TechCorp",
+    location: "Bangalore, Karnataka",
+    salary: "15-25 LPA",
+    jobType: "Full-time",
+    isRemote: false,
+    isFeatured: true,
+    description: "We are looking for a Senior Software Engineer to join our team...",
+    requirements: ["5+ years experience", "React", "Node.js", "AWS"],
+    postedAt: "2024-01-15T10:00:00Z"
+  },
+  {
+    id: 2,
+    title: "Product Manager",
+    company: "InnovateSoft",
+    location: "Mumbai, Maharashtra",
+    salary: "20-35 LPA",
+    jobType: "Full-time",
+    isRemote: true,
+    isFeatured: true,
+    description: "Lead product strategy and development for our SaaS platform...",
+    requirements: ["3+ years PM experience", "Agile", "User Research", "Analytics"],
+    postedAt: "2024-01-14T14:30:00Z"
+  },
+  {
+    id: 3,
+    title: "Data Scientist",
+    company: "Digital Solutions",
+    location: "Delhi, NCR",
+    salary: "18-30 LPA",
+    jobType: "Full-time",
+    isRemote: false,
+    isFeatured: true,
+    description: "Join our AI/ML team to build cutting-edge data solutions...",
+    requirements: ["Python", "Machine Learning", "Statistics", "SQL"],
+    postedAt: "2024-01-13T09:15:00Z"
+  },
+  {
+    id: 4,
+    title: "UX Designer",
+    company: "Future Systems",
+    location: "Hyderabad, Telangana",
+    salary: "12-20 LPA",
+    jobType: "Full-time",
+    isRemote: true,
+    isFeatured: true,
+    description: "Create amazing user experiences for our mobile apps...",
+    requirements: ["Figma", "User Research", "Prototyping", "Design Systems"],
+    postedAt: "2024-01-12T16:45:00Z"
+  }
+];
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '6');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const location = searchParams.get('location');
+    const category = searchParams.get('category');
 
-    // Get featured jobs from real database
-    const featuredJobs = await prisma.job.findMany({
-      where: {
-        isActive: true,
-        // You can add criteria for featured jobs like:
-        // isFeatured: true,
-        // OR priority: 'HIGH',
-        // OR createdAt within last 7 days
-      },
-      select: {
-        id: true,
-        title: true,
-        company: true,
-        location: true,
-        salaryMin: true,
-        salaryMax: true,
-        jobType: true,
-        isRemote: true,
-        skills: true,
-        createdAt: true,
-        description: true
-      },
-      orderBy: [
-        { createdAt: 'desc' }
-      ],
-      take: limit
-    });
+    let filteredJobs = mockFeaturedJobs;
 
-    // Format the jobs for the frontend
-    const formattedJobs = featuredJobs.map(job => ({
-      id: job.id,
-      title: job.title,
-      company: job.company || 'Company Name',
-      location: job.location || 'Location',
-      salary: formatSalary(job.salaryMin, job.salaryMax),
-      type: job.jobType || 'Full-time',
-      isRemote: job.isRemote || false,
-      isUrgent: isUrgentJob(job.createdAt),
-      posted: getTimeAgo(job.createdAt),
-      skills: job.skills || [],
-      description: truncateDescription(job.description)
-    }));
+    // Filter by location if specified
+    if (location) {
+      filteredJobs = filteredJobs.filter(job => 
+        job.location.toLowerCase().includes(location.toLowerCase())
+      );
+    }
+
+    // Filter by category if specified
+    if (category) {
+      filteredJobs = filteredJobs.filter(job => 
+        job.title.toLowerCase().includes(category.toLowerCase()) ||
+        job.description.toLowerCase().includes(category.toLowerCase())
+      );
+    }
+
+    // Limit results
+    const limitedJobs = filteredJobs.slice(0, limit);
 
     return NextResponse.json({
       success: true,
-      jobs: formattedJobs,
-      total: featuredJobs.length,
-      timestamp: new Date().toISOString()
+      jobs: limitedJobs,
+      total: limitedJobs.length,
+      message: `Found ${limitedJobs.length} featured jobs`
     });
 
   } catch (error: any) {
-    console.error('Featured jobs API error:', error);
-    
-    // Return fallback jobs if database fails
-    const fallbackJobs = getFallbackJobs(6);
-    
+    console.error('Featured jobs error:', error);
     return NextResponse.json({
-      success: true,
-      jobs: fallbackJobs,
-      fallback: true,
-      message: 'Using fallback job listings'
-    });
+      success: false,
+      error: 'Failed to fetch featured jobs',
+      jobs: mockFeaturedJobs.slice(0, 4) // Fallback to first 4 jobs
+    }, { status: 500 });
   }
-}
-
-function formatSalary(min?: number | null, max?: number | null): string {
-  if (!min && !max) return 'Salary not disclosed';
-  
-  if (min && max) {
-    return `₹${(min / 100000).toFixed(0)}-${(max / 100000).toFixed(0)} LPA`;
-  }
-  
-  if (min) {
-    return `₹${(min / 100000).toFixed(0)}+ LPA`;
-  }
-  
-  return `Up to ₹${(max! / 100000).toFixed(0)} LPA`;
-}
-
-function isUrgentJob(createdAt: Date): boolean {
-  const daysSincePosted = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
-  return daysSincePosted <= 2; // Jobs posted within 2 days are marked urgent
-}
-
-function getTimeAgo(date: Date): string {
-  const now = Date.now();
-  const diffInHours = (now - date.getTime()) / (1000 * 60 * 60);
-  
-  if (diffInHours < 24) {
-    return `${Math.floor(diffInHours)} hours ago`;
-  }
-  
-  const diffInDays = Math.floor(diffInHours / 24);
-  return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
-}
-
-function truncateDescription(description?: string | null): string {
-  if (!description) return '';
-  return description.length > 100 ? description.substring(0, 100) + '...' : description;
-}
-
-function getFallbackJobs(count: number) {
-  const fallbackJobs = [
-    {
-      id: '1',
-      title: 'Senior Software Engineer',
-      company: 'TechCorp India',
-      location: 'Bangalore',
-      salary: '₹15-25 LPA',
-      type: 'Full-time',
-      isRemote: true,
-      isUrgent: false,
-      posted: '2 days ago'
-    },
-    {
-      id: '2',
-      title: 'Product Manager',
-      company: 'StartupXYZ',
-      location: 'Mumbai',
-      salary: '₹20-35 LPA',
-      type: 'Full-time',
-      isRemote: false,
-      isUrgent: true,
-      posted: '1 day ago'
-    },
-    {
-      id: '3',
-      title: 'UI/UX Designer',
-      company: 'Design Studio',
-      location: 'Delhi',
-      salary: '₹8-15 LPA',
-      type: 'Full-time',
-      isRemote: true,
-      isUrgent: false,
-      posted: '3 days ago'
-    },
-    {
-      id: '4',
-      title: 'Data Scientist',
-      company: 'Analytics Hub',
-      location: 'Hyderabad',
-      salary: '₹12-22 LPA',
-      type: 'Full-time',
-      isRemote: true,
-      isUrgent: false,
-      posted: '1 day ago'
-    },
-    {
-      id: '5',
-      title: 'Digital Marketing Manager',
-      company: 'MarketPro Solutions',
-      location: 'Pune',
-      salary: '₹10-18 LPA',
-      type: 'Full-time',
-      isRemote: false,
-      isUrgent: true,
-      posted: '2 days ago'
-    },
-    {
-      id: '6',
-      title: 'DevOps Engineer',
-      company: 'CloudTech',
-      location: 'Chennai',
-      salary: '₹14-25 LPA',
-      type: 'Full-time',
-      isRemote: true,
-      isUrgent: false,
-      posted: '1 day ago'
-    }
-  ];
-  
-  return fallbackJobs.slice(0, count);
 }

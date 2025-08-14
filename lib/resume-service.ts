@@ -128,11 +128,17 @@ export class ResumeService {
           throw new Error(`Unsupported file type: ${fileType}`);
       }
 
-      // Parse extracted text into structured data - simplified for now
+      // Parse extracted text into structured data (basic heuristics)
+      const emailMatch = extractedText.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+      const phoneMatch = extractedText.match(/\+?\d[\d\s().-]{7,}\d/);
+      const lines = extractedText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const headerLine = lines[0] || '';
+      const nameGuess = headerLine && !headerLine.toLowerCase().includes('resume') && headerLine.length <= 60 ? headerLine : '';
+
       const parsedData: ResumeData = {
-        fullName: '',
-        contact: { email: '', phone: '' },
-        summary: extractedText.substring(0, 200),
+        fullName: nameGuess,
+        contact: { email: emailMatch?.[0] || '', phone: phoneMatch?.[0] || '' },
+        summary: extractedText.substring(0, 600),
         skills: [],
         education: [],
         workExperience: [],
@@ -512,22 +518,46 @@ export class ResumeService {
   }
 
   private async extractPDFText(file: File): Promise<string> {
-    // Mock implementation - in real app would use PDF parsing library
-    return 'PDF content extraction not implemented yet';
+    try {
+      const pdfjs: any = await import('pdf.js-extract');
+      const { PDFExtract } = pdfjs;
+      const pdfExtract = new PDFExtract();
+      const arrayBuffer = await file.arrayBuffer();
+      const data = await pdfExtract.extractBuffer(Buffer.from(arrayBuffer), {});
+      const text = (data.pages || [])
+        .map((p: any) => (p.content || []).map((c: any) => c.str).join(' '))
+        .join('\n');
+      return text || '';
+    } catch {
+      return '';
+    }
   }
 
   private async extractDocxText(file: File): Promise<string> {
-    // Mock implementation - in real app would use DOCX parsing library
-    return 'DOCX content extraction not implemented yet';
+    try {
+      const mammoth = await import('mammoth');
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await (mammoth as any).extractRawText({ buffer: Buffer.from(arrayBuffer) });
+      return result?.value || '';
+    } catch {
+      return '';
+    }
   }
 
   private async extractTextContent(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string || '');
-      reader.onerror = reject;
-      reader.readAsText(file);
-    });
+    try {
+      // Web File in Next.js routes supports .text()
+      // Fallback to arrayBuffer if needed
+      // @ts-ignore
+      if (typeof file.text === 'function') {
+        // @ts-ignore
+        return await file.text();
+      }
+      const buf = Buffer.from(await file.arrayBuffer());
+      return buf.toString('utf-8');
+    } catch {
+      return '';
+    }
   }
 
   private calculateParsingConfidence(text: string, data: ResumeData): number {

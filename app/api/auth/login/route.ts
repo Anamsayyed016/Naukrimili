@@ -1,121 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { z } from 'zod';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 
-const prisma = new PrismaClient();
-
-// Login schema
-const loginSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
-});
-
-// JWT secret (in production, use a secure secret from environment)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// Mock user storage (in real app, this would be a database)
+const mockUsers = [
+  {
+    id: 1,
+    email: 'admin@jobportal.com',
+    password: 'admin123',
+    name: 'Admin User',
+    role: 'admin'
+  },
+  {
+    id: 2,
+    email: 'jobseeker@example.com',
+    password: 'password123',
+    name: 'John Doe',
+    role: 'jobseeker'
+  },
+  {
+    id: 3,
+    email: 'employer@example.com',
+    password: 'password123',
+    name: 'Jane Smith',
+    role: 'employer'
+  }
+];
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validatedData = loginSchema.parse(body);
+    const { email, password } = body;
 
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: validatedData.email },
-      select: {
-        id: true,
-        email: true,
-        password: true,
-        name: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        isActive: true,
-        isVerified: true,
-      }
-    });
+    // Basic validation
+    if (!email || !password) {
+      return NextResponse.json({
+        success: false,
+        error: 'Email and password are required'
+      }, { status: 400 });
+    }
 
+    // Find user
+    const user = mockUsers.find(u => u.email === email && u.password === password);
+    
     if (!user) {
       return NextResponse.json({
         success: false,
-        error: 'Invalid credentials',
-        message: 'Email or password is incorrect',
+        error: 'Invalid email or password'
       }, { status: 401 });
     }
 
-    // Check if user is active
-    if (!user.isActive) {
-      return NextResponse.json({
-        success: false,
-        error: 'Account disabled',
-        message: 'Your account has been disabled. Please contact support.',
-      }, { status: 403 });
-    }
-
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(validatedData.password, user.password);
-    
-    if (!isPasswordValid) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid credentials',
-        message: 'Email or password is incorrect',
-      }, { status: 401 });
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-      },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    // Update last login time
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { updatedAt: new Date() }
-    });
+    // Return user data (without password)
+    const { password: _, ...userData } = user;
 
     return NextResponse.json({
       success: true,
       message: 'Login successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        isVerified: user.isVerified,
-      },
-      token,
-      timestamp: new Date().toISOString(),
-    }, { status: 200 });
+      user: userData,
+      token: `mock_token_${Date.now()}_${user.id}` // In real app, generate JWT token
+    });
 
   } catch (error: any) {
     console.error('Login error:', error);
-
-    // Handle validation errors
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid login data',
-        details: error.errors,
-      }, { status: 400 });
-    }
-
     return NextResponse.json({
       success: false,
-      error: 'Failed to login',
-      message: error.message,
+      error: 'Login failed',
+      message: error.message
     }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }
 

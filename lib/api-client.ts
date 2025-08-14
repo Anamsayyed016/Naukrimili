@@ -45,6 +45,7 @@ export class ApiClient {
     
     if (session?.user) {
       headers['Authorization'] = `Bearer ${session.user.id}`;
+      headers['x-user-id'] = String((session.user as any).id || session.user.email || 'anonymous');
     }
     
     return headers;

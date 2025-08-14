@@ -4,211 +4,66 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma, extractPaginationFromRequest } from '@/lib/database-service';
-import { z } from 'zod';
 
-// Location search schema
-const locationSearchSchema = z.object({
-  q: z.string().optional(),
-  country: z.string().optional(),
-  min_jobs: z.string().optional().transform(val => val ? parseInt(val) : undefined),
-  remote_only: z.string().optional().transform(val => val === 'true'),
-  sort_by: z.enum(['name', 'job_count', 'latest_job']).optional(),
-  sort_order: z.enum(['asc', 'desc']).default('desc'),
-});
+const mockLocations = [
+  { name: 'Bangalore', country: 'IN', job_count: 124, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 60, remote: 50, hybrid: 14 }, salary_stats: { average_min: 900000, average_max: 2400000, lowest: 300000, highest: 3500000, currency: 'INR' } },
+  { name: 'Mumbai', country: 'IN', job_count: 98, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 70, remote: 20, hybrid: 8 }, salary_stats: { average_min: 800000, average_max: 2000000, lowest: 250000, highest: 3200000, currency: 'INR' } },
+  { name: 'Delhi', country: 'IN', job_count: 76, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 40, remote: 25, hybrid: 11 }, salary_stats: { average_min: 700000, average_max: 1800000, lowest: 200000, highest: 3000000, currency: 'INR' } },
+  { name: 'Hyderabad', country: 'IN', job_count: 65, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 30, remote: 28, hybrid: 7 }, salary_stats: { average_min: 650000, average_max: 1700000, lowest: 180000, highest: 2800000, currency: 'INR' } },
+  { name: 'Chennai', country: 'IN', job_count: 52, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 26, remote: 20, hybrid: 6 }, salary_stats: { average_min: 600000, average_max: 1500000, lowest: 150000, highest: 2500000, currency: 'INR' } },
+];
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
-    // Validate search parameters
-    const validatedParams = locationSearchSchema.parse(
-      Object.fromEntries(searchParams.entries())
-    );
-    
-    const pagination = extractPaginationFromRequest(request);
-    
-    // Build where conditions
-    const jobWhereConditions: any = {
-      isActive: true
-    };
-    
-    if (validatedParams.country) {
-      jobWhereConditions.country = validatedParams.country;
+    const q = (searchParams.get('q') || '').toLowerCase();
+    const country = (searchParams.get('country') || '').toUpperCase();
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const offset = (page - 1) * limit;
+
+    let results = mockLocations;
+    if (q) {
+      results = results.filter(loc =>
+        loc.name.toLowerCase().includes(q) || loc.country.toLowerCase().includes(q)
+      );
     }
-    
-    if (validatedParams.remote_only) {
-      jobWhereConditions.isRemote = true;
+    if (country) {
+      results = results.filter(loc => loc.country === country);
     }
-    
-    if (validatedParams.q) {
-      jobWhereConditions.OR = [
-        { location: { contains: validatedParams.q, mode: 'insensitive' } },
-        { country: { contains: validatedParams.q, mode: 'insensitive' } }
-      ];
-    }
-    
-    // Get locations with job counts (excluding null locations unless remote_only)
-    const locationWhereConditions = validatedParams.remote_only ? 
-      jobWhereConditions : 
-      { ...jobWhereConditions, location: { not: null } };
-    
-    const locations = await prisma.job.groupBy({
-      by: ['location', 'country'],
-      where: locationWhereConditions,
-      _count: {
-        id: true
-      },
-      _max: {
-        createdAt: true,
-        salary: true,
-        salaryMax: true
-      },
-      having: validatedParams.min_jobs ? {
-        id: { _count: { gte: validatedParams.min_jobs } }
-      } : undefined,
-      orderBy: validatedParams.sort_by === 'name' ? { location: validatedParams.sort_order } :
-               validatedParams.sort_by === 'job_count' ? { _count: { id: validatedParams.sort_order } } :
-               { _max: { createdAt: validatedParams.sort_order } },
-      take: pagination.limit,
-      skip: (pagination.page - 1) * pagination.limit,
-    });
-    
-    // Get total count for pagination
-    const totalLocations = await prisma.job.findMany({
-      where: locationWhereConditions,
-      select: { location: true, country: true },
-      distinct: ['location', 'country']
-    });
-    
-    // Format location data with additional statistics
-    const formattedLocations = await Promise.all(
-      locations.map(async (locationGroup) => {
-        const locationName = locationGroup.location || 'Remote';
-        const countryName = locationGroup.country;
-        
-        // Get job type breakdown for this location
-        const jobTypeStats = await prisma.job.groupBy({
-          by: ['jobType'],
-          where: {
-            location: locationGroup.location,
-            country: countryName,
-            isActive: true,
-            jobType: { not: null }
-          },
-          _count: { jobType: true }
-        });
-        
-        // Get remote/hybrid stats
-        const remoteStats = await prisma.job.aggregate({
-          where: {
-            location: locationGroup.location,
-            country: countryName,
-            isActive: true
-          },
-          _count: {
-            _all: true
-          },
-          _sum: {
-            isRemote: true,
-            isHybrid: true
-          }
-        });
-        
-        // Get salary statistics
-        const salaryStats = await prisma.job.aggregate({
-          where: {
-            location: locationGroup.location,
-            country: countryName,
-            isActive: true,
-            salaryMin: { not: null }
-          },
-          _avg: {
-            salaryMin: true,
-            salaryMax: true
-          },
-          _min: {
-            salaryMin: true
-          },
-          _max: {
-            salaryMax: true
-          }
-        });
-        
-        return {
-          id: `${locationName}-${countryName}`.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-          name: locationName,
-          country: countryName,
-          display_name: locationName === 'Remote' ? 'Remote' : `${locationName}, ${countryName}`,
-          job_count: locationGroup._count.id,
-          latest_job_date: locationGroup._max.createdAt?.toISOString(),
-          job_types: Object.fromEntries(
-            jobTypeStats.map(stat => [stat.jobType!, stat._count.jobType])
-          ),
-          work_arrangements: {
-            on_site: remoteStats._count._all - (remoteStats._sum.isRemote || 0) - (remoteStats._sum.isHybrid || 0),
-            remote: remoteStats._sum.isRemote || 0,
-            hybrid: remoteStats._sum.isHybrid || 0
-          },
-          salary_stats: {
-            average_min: salaryStats._avg.salaryMin ? Math.round(salaryStats._avg.salaryMin) : null,
-            average_max: salaryStats._avg.salaryMax ? Math.round(salaryStats._avg.salaryMax) : null,
-            lowest: salaryStats._min.salaryMin,
-            highest: salaryStats._max.salaryMax,
-            currency: 'INR' // Default to INR, could be made dynamic
-          }
-        };
-      })
-    );
-    
-    const totalPages = Math.ceil(totalLocations.length / pagination.limit);
-    
+
+    const total = results.length;
+    const data = results.slice(offset, offset + limit).map(loc => ({
+      id: `${loc.name}-${loc.country}`.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+      name: loc.name,
+      country: loc.country,
+      display_name: `${loc.name}, ${loc.country}`,
+      job_count: loc.job_count,
+      latest_job_date: loc.latest_job_date,
+      job_types: { 'full-time': Math.round(loc.job_count * 0.7), 'contract': Math.round(loc.job_count * 0.2), internship: Math.round(loc.job_count * 0.1) },
+      work_arrangements: loc.work_arrangements,
+      salary_stats: loc.salary_stats,
+    }));
+
     return NextResponse.json({
       success: true,
-      message: `Found ${totalLocations.length} locations`,
-      locations: formattedLocations,
+      message: `Found ${total} locations`,
+      locations: data,
       pagination: {
-        current_page: pagination.page,
-        total_pages: totalPages,
-        total_results: totalLocations.length,
-        per_page: pagination.limit,
-        has_next: pagination.page < totalPages,
-        has_prev: pagination.page > 1,
-      },
-      filters: validatedParams,
-      summary: {
-        total_jobs: formattedLocations.reduce((sum, loc) => sum + loc.job_count, 0),
-        unique_locations: formattedLocations.length,
-        countries_covered: [...new Set(formattedLocations.map(loc => loc.country))].length
+        current_page: page,
+        total_pages: Math.ceil(total / limit),
+        total_results: total,
+        per_page: limit,
+        has_next: page * limit < total,
+        has_prev: page > 1,
       },
       timestamp: new Date().toISOString(),
     });
-    
   } catch (error: any) {
-    console.error('Locations GET error:', error);
-    
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid search parameters',
-        details: error.errors,
-        locations: []
-      }, { status: 400 });
-    }
-    
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch locations',
-      message: error.message,
-      locations: []
-    }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to fetch locations' }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
-  return NextResponse.json({
-    success: false,
-    error: 'Location creation not supported',
-    message: 'Locations are automatically extracted from job postings'
-  }, { status: 405 });
+export async function POST() {
+  return NextResponse.json({ success: false, error: 'Location creation not supported' }, { status: 405 });
 }
