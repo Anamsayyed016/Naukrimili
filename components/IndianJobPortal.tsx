@@ -339,19 +339,9 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
   });
 
   // Mock data for enhanced search
-  const jobData = {
-    jobs: sampleIndianJobs.slice(0, 6),
-    pagination: { page: 1, limit: 10, total: sampleIndianJobs.length },
-    availableFilters: {
-      jobTypes: [],
-      experienceLevels: [],
-      sectors: [],
-      locations: [],
-      companies: []
-    }
-  };
-  const isLoading = false;
-  const error = null;
+  const [jobData, setJobData] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const bookmarks: any[] = [];
 
   // State for the new dynamic search
@@ -361,10 +351,36 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
 
   // Update jobs when data changes (temporarily disabled)
   useEffect(() => {
-    if (jobData?.jobs) {
-      setCurrentJobs(jobData.jobs);
-    }
-  }, [jobData]);
+    const fetchRealJobs = async () => {
+      try {
+        setIsLoading(true);
+        const params = new URLSearchParams({
+          q: searchFilters.query || '',
+          location: searchFilters.location || '',
+          country: 'IN',
+          limit: String(searchFilters.limit || 10),
+          page: String(searchFilters.page || 1),
+          sort_by: 'relevance',
+        });
+        const { data } = await axios.get(`/api/jobs?${params.toString()}`);
+        setJobData(data);
+        setCurrentJobs(data?.jobs || []);
+      } catch (e: any) {
+        setError(e?.message || 'Failed to load jobs');
+        // Fallback to sample data
+        setJobData({
+          jobs: sampleIndianJobs.slice(0, 6).map(j => ({ ...j, redirect_url: `/jobs/${j.id}` })),
+          pagination: { page: 1, limit: 10, total: sampleIndianJobs.length },
+          availableFilters: { jobTypes: [], experienceLevels: [], sectors: [], locations: [], companies: [] },
+        });
+        setCurrentJobs(sampleIndianJobs.slice(0, 6).map(j => ({ ...j, redirect_url: `/jobs/${j.id}` })));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchRealJobs();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Legacy state (kept for backward compatibility)
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -522,7 +538,7 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
                 // Error state
                 <div className="text-center py-12">
                   <div className="text-red-500 text-lg mb-4">
-                    Error loading jobs: {error instanceof Error ? error.message : 'Unknown error'}
+                    Error loading jobs: {typeof error === 'string' ? error : 'Unknown error'}
                   </div>
                   <button
                     onClick={() => window.location.reload()}
@@ -532,17 +548,141 @@ export default function IndianJobPortal({ initialQuery = "developer", initialLoc
                   </button>
                 </div>
               ) : currentJobs.length === 0 ? (
-                // No results state
+                // No results state with Google fallback
                 <div className="text-center py-12">
-                  <div className="text-gray-500 text-lg mb-4">
-                    No jobs found matching your criteria
+                  <div className="mb-8">
+                    <div className="text-6xl mb-4">🔍</div>
+                    <div className="text-gray-500 text-xl mb-2">
+                      No jobs found matching your criteria
+                    </div>
+                    <div className="text-gray-400 text-sm mb-6">
+                      We searched our database but couldn't find any matching positions
+                    </div>
                   </div>
-                  <button
-                    onClick={() => setSearchFilters({ query: '', location: '', page: 1, limit: 10 })}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Clear Filters
-                  </button>
+                  
+                  {/* Google Search Fallback */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 mb-6 border border-blue-200 dark:border-gray-600">
+                    <div className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">
+                      🌐 Search on Google Instead?
+                    </div>
+                    <div className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                      We'll search Google Jobs with your exact criteria for broader results
+                    </div>
+                    <button
+                      onClick={() => {
+                        // Use API-provided Google URL if available, otherwise build manually
+                        let googleUrl;
+                        if (jobData?.googleFallback?.google_url) {
+                          googleUrl = jobData.googleFallback.google_url;
+                        } else {
+                          const query = searchFilters.query || 'jobs';
+                          const location = searchFilters.location || 'India';
+                          googleUrl = `https://www.google.com/search?q=${encodeURIComponent(query + ' jobs in ' + location)}&ibp=htl;jobs`;
+                        }
+                        window.open(googleUrl, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      </svg>
+                      Search on Google Jobs
+                    </button>
+                  </div>
+
+                  {/* Alternative Actions */}
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button
+                      onClick={() => setSearchFilters({ query: '', location: '', page: 1, limit: 10 })}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Clear All Filters
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Suggest popular searches
+                        setSearchFilters({ 
+                          query: 'developer', 
+                          location: 'Mumbai', 
+                          page: 1, 
+                          limit: 10 
+                        });
+                      }}
+                      className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Try Popular Search
+                    </button>
+                  </div>
+
+                  {/* Additional Search Platforms */}
+                  <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      Or search on other platforms:
+                    </div>
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      <button
+                        onClick={() => {
+                          let linkedinUrl;
+                          if (jobData?.googleFallback?.alternative_platforms?.linkedin) {
+                            linkedinUrl = jobData.googleFallback.alternative_platforms.linkedin;
+                          } else {
+                            const query = searchFilters.query || 'jobs';
+                            const location = searchFilters.location || 'India';
+                            linkedinUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}`;
+                          }
+                          window.open(linkedinUrl, '_blank', 'noopener,noreferrer');
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors text-sm"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        </svg>
+                        LinkedIn
+                      </button>
+                      <button
+                        onClick={() => {
+                          let indeedUrl;
+                          if (jobData?.googleFallback?.alternative_platforms?.indeed) {
+                            indeedUrl = jobData.googleFallback.alternative_platforms.indeed;
+                          } else {
+                            const query = searchFilters.query || 'jobs';
+                            const location = searchFilters.location || 'India';
+                            indeedUrl = `https://indeed.co.in/jobs?q=${encodeURIComponent(query)}&l=${encodeURIComponent(location)}`;
+                          }
+                          window.open(indeedUrl, '_blank', 'noopener,noreferrer');
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm0 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/>
+                          <path d="M11 6h2v12h-2z"/>
+                        </svg>
+                        Indeed
+                      </button>
+                      <button
+                        onClick={() => {
+                          let naukriUrl;
+                          if (jobData?.googleFallback?.alternative_platforms?.naukri) {
+                            naukriUrl = jobData.googleFallback.alternative_platforms.naukri;
+                          } else {
+                            const query = searchFilters.query || 'jobs';
+                            const location = searchFilters.location || 'India';
+                            naukriUrl = `https://www.naukri.com/jobs-in-${encodeURIComponent(location.toLowerCase())}-for-${encodeURIComponent(query)}`;
+                          }
+                          window.open(naukriUrl, '_blank', 'noopener,noreferrer');
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                      >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        Naukri
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 // Enhanced job cards

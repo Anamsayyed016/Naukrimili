@@ -25,7 +25,7 @@ export default function AuthGuard({
   requireProfileCompletion = false,
   redirectTo = "/auth/login"
 }: AuthGuardProps) {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession() || {};
   const router = useRouter();
   const pathname = usePathname();
 

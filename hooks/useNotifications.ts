@@ -19,7 +19,7 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { data: session } = useSession();
+  const { data: session } = useSession() || {};
 
   const fetchNotifications = useCallback(async (options?: FetchOptions) => {
     if (!session?.user) {

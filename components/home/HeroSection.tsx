@@ -22,7 +22,7 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ isDemoMode = false }: HeroSectionProps) {
-  const { data: session } = useSession();
+  const { data: session } = useSession() || {};
   const { data: demoData, isError, isLoading } = useQuery({
     queryKey: ["demo-hero"],
     queryFn: () => getDemoHero!(),

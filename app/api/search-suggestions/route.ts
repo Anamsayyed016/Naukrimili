@@ -4,25 +4,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/database-service';
+import { PrismaClient } from '@prisma/client';
 
-<<<<<<< Current (Your changes)
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const q = (searchParams.get('q') || '').trim();
-  if (!q) return NextResponse.json({ suggestions: [] });
-  const lower = q.toLowerCase();
+const prisma = new PrismaClient();
 
-  const match = (arr: string[]) => arr.filter(v => v.toLowerCase().includes(lower)).slice(0, 5);
-
-  const titleMatches = match(TITLES).map(v => ({ type: 'title', value: v }));
-  const companyMatches = match(COMPANIES).map(v => ({ type: 'company', value: v }));
-  const skillMatches = match(SKILLS).map(v => ({ type: 'skill', value: v }));
-
-  // Merge with simple weighting: titles > companies > skills
-  const suggestions = [...titleMatches, ...companyMatches, ...skillMatches].slice(0, 10);
-  return NextResponse.json({ suggestions });
-=======
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -38,7 +23,7 @@ export async function GET(request: NextRequest) {
     const searchTerm = q.toLowerCase();
     
     // Get dynamic suggestions from real database
-    const [titleSuggestions, companySuggestions, skillSuggestions, locationSuggestions] = await Promise.all([
+    const [titleSuggestions, companySuggestions, locationSuggestions] = await Promise.all([
       // Get unique job titles that match the search
       prisma.job.findMany({
         where: {
@@ -70,15 +55,6 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: 'desc' }
       }),
       
-      // Get skills that match the search
-      prisma.$queryRaw<{skill: string}[]>`
-        SELECT DISTINCT unnest(skills) as skill
-        FROM "Job"
-        WHERE array_to_string(skills, ' ') ILIKE ${'%' + searchTerm + '%'}
-        AND "isActive" = true
-        LIMIT 5
-      `,
-      
       // Get unique locations that match the search
       prisma.job.findMany({
         where: {
@@ -100,23 +76,15 @@ export async function GET(request: NextRequest) {
     const suggestions = [
       ...titleSuggestions.map(job => ({ 
         type: 'title', 
-        value: job.title,
-        category: 'Job Titles'
+        value: job.title
       })),
       ...companySuggestions.map(job => ({ 
         type: 'company', 
-        value: job.company!,
-        category: 'Companies'
-      })),
-      ...skillSuggestions.map(skill => ({ 
-        type: 'skill', 
-        value: skill.skill,
-        category: 'Skills'
+        value: job.company!
       })),
       ...locationSuggestions.map(job => ({ 
         type: 'location', 
-        value: job.location!,
-        category: 'Locations'
+        value: job.location!
       }))
     ].slice(0, 10); // Limit to 10 total suggestions
     
@@ -130,12 +98,29 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('Search suggestions error:', error);
     
+    // Fallback suggestions if database is not available
+    const fallbackSuggestions = getFallbackSuggestions(q);
+    
     return NextResponse.json({ 
-      success: false,
-      error: 'Failed to fetch search suggestions',
-      suggestions: [],
-      message: error.message
-    }, { status: 500 });
+      success: true,
+      suggestions: fallbackSuggestions,
+      fallback: true,
+      message: 'Using fallback suggestions'
+    });
   }
->>>>>>> Incoming (Background Agent changes)
+}
+
+function getFallbackSuggestions(query: string) {
+  const q = query.toLowerCase();
+  const titles = ['Software Engineer', 'Data Scientist', 'Product Manager', 'Designer', 'Developer'];
+  const companies = ['TCS', 'Infosys', 'Wipro', 'Accenture', 'IBM'];
+  const locations = ['Bangalore', 'Mumbai', 'Delhi', 'Hyderabad', 'Chennai'];
+  
+  const suggestions = [
+    ...titles.filter(t => t.toLowerCase().includes(q)).map(v => ({ type: 'title', value: v })),
+    ...companies.filter(c => c.toLowerCase().includes(q)).map(v => ({ type: 'company', value: v })),
+    ...locations.filter(l => l.toLowerCase().includes(q)).map(v => ({ type: 'location', value: v }))
+  ];
+  
+  return suggestions.slice(0, 8);
 }

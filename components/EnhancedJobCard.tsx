@@ -55,13 +55,10 @@ export default function EnhancedJobCard({
   };
 
   const handleApply = () => {
-    // Track click analytics
     if (typeof window !== 'undefined') {
-      // Analytics tracking code here
-      console.log('Job application clicked:', job.id);
+      console.log('Job view clicked:', job.id);
+      window.location.href = `/jobs/${job.id}`;
     }
-    
-    window.open(job.redirect_url, '_blank');
   };
 
   // Get job type badge color

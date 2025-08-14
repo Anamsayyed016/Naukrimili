@@ -16,10 +16,10 @@ const linkGroups = [
     { name: "Contact", href: "/contact", icon: <FiMail /> },
   ]},
   { title: "For Job Seekers", links: [
-    { name: "Create Profile", href: "/profile/create", icon: <FiUser /> },
-    { name: "Upload Resume", href: "/resume/upload", icon: <FiUpload /> },
-    { name: "Job Alerts", href: "/alerts", icon: <FiBell /> },
-    { name: "Career Tips", href: "/career-tips", icon: <FiBook /> },
+    { name: "Create Profile", href: "/profile-setup", icon: <FiUser /> },
+    { name: "Upload Resume", href: "/resumes/upload", icon: <FiUpload /> },
+    { name: "Job Alerts", href: "/settings", icon: <FiBell /> },
+    { name: "Dashboard", href: "/dashboard", icon: <FiBook /> },
   ]},
 ];
 

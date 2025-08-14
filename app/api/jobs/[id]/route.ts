@@ -104,7 +104,7 @@ export async function GET(
       sector: job.sector,
       skills: job.skills,
       posted_at: job.postedAt?.toISOString() || job.createdAt.toISOString(),
-      apply_url: job.applyUrl || `/apply/${job.id}`,
+      apply_url: `/jobs/${job.id}`,
       is_active: true, // Default to active since property doesn't exist
       created_at: job.createdAt.toISOString(),
       updated_at: job.updatedAt.toISOString(),
@@ -124,7 +124,7 @@ export async function GET(
       job_type: similarJob.jobType,
       remote: similarJob.isRemote,
       posted_at: similarJob.postedAt?.toISOString() || similarJob.createdAt.toISOString(),
-      redirect_url: similarJob.applyUrl || `/jobs/${similarJob.id}`,
+      redirect_url: `/jobs/${similarJob.id}`,
     }));
 
     return NextResponse.json({

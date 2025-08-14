@@ -18,7 +18,7 @@ interface Email {
 }
 
 export default function GmailIntegration() {
-  const { data: session } = useSession();
+  const { data: session } = useSession() || {};
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);

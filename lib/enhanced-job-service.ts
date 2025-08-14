@@ -18,7 +18,8 @@ export interface JobFilters {
   q?: string;           // Search query
   location?: string;    // Location filter
   company?: string;     // Company filter
-  country?: string;     // Country filter
+  country?: string;     // Single country filter (for backward compatibility)
+  countries?: string[]; // Multiple countries filter (NEW)
   jobType?: string;     // Job type filter
   experienceLevel?: string;
   sector?: string;
@@ -462,8 +463,10 @@ export class EnhancedJobService {
       where.company = { contains: filters.company, mode: 'insensitive' };
     }
 
-    // Country filtering
-    if (filters.country) {
+    // Country filtering (support both single and multiple countries)
+    if (filters.countries && filters.countries.length > 0) {
+      where.country = { in: filters.countries };
+    } else if (filters.country) {
       where.country = filters.country;
     }
 

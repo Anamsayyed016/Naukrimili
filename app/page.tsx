@@ -3,12 +3,17 @@
 import Link from 'next/link';
 import { Brain, Shield, Zap, Search, MapPin, TrendingUp, Users, Building2, ArrowRight, Upload, FileText, User, CheckCircle, Briefcase } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useStats, useFeaturedJobs } from '@/hooks/useLandingData';
 
 export default function HomePage() {
   const [uploadedResume, setUploadedResume] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Fetch real data from APIs
+  const { stats } = useStats();
+  const { jobs: featuredJobs } = useFeaturedJobs(6);
 
   // Enhanced hero search state
   const [keyword, setKeyword] = useState('');
@@ -27,14 +32,14 @@ export default function HomePage() {
     { q: 'DevOps Engineer', loc: 'Chennai' },
   ];
 
-  // Featured employers minimal list (placeholder logos)
-  const featuredEmployers: { name: string; slug: string; logo: string; open: number }[] = [
-    { name: 'Infosys', slug: 'infosys', logo: '💠', open: 120 },
-    { name: 'TCS', slug: 'tcs', logo: '🌀', open: 98 },
-    { name: 'Flipkart', slug: 'flipkart', logo: '🛒', open: 45 },
-    { name: 'Swiggy', slug: 'swiggy', logo: '🥘', open: 60 },
-    { name: 'Zoho', slug: 'zoho', logo: '🧩', open: 30 },
-    { name: 'Freshworks', slug: 'freshworks', logo: '🌱', open: 25 },
+  // Real companies with direct career page links
+  const featuredEmployers: { name: string; careerUrl: string; logo: string; open: number }[] = [
+    { name: 'Infosys', careerUrl: 'https://www.infosys.com/careers/', logo: '💠', open: 120 },
+    { name: 'TCS', careerUrl: 'https://www.tcs.com/careers', logo: '🌀', open: 98 },
+    { name: 'Flipkart', careerUrl: 'https://www.flipkartcareers.com/', logo: '🛒', open: 45 },
+    { name: 'Swiggy', careerUrl: 'https://careers.swiggy.com/', logo: '🥘', open: 60 },
+    { name: 'Zoho', careerUrl: 'https://www.zoho.com/careers/', logo: '🧩', open: 30 },
+    { name: 'Freshworks', careerUrl: 'https://www.freshworks.com/company/careers/', logo: '🌱', open: 25 },
   ];
 
   // Location auto-detection (rough) – only attempts once if location empty
@@ -204,8 +209,8 @@ export default function HomePage() {
 
               {/* Enhanced Search Section */}
               <div className="max-w-5xl mx-auto mb-10">
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-white/20">
-                  <div className="flex flex-col md:flex-row gap-4">
+                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 sm:p-6 md:p-8 border border-white/20">
+                  <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
                     {/* Keyword input with suggestions */}
                     <div className="flex-1 relative">
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -254,7 +259,7 @@ export default function HomePage() {
                     </div>
                     <button
                       onClick={() => submitSearch()}
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 w-full lg:w-auto"
                     >
                       🚀 Search Jobs
                     </button>
@@ -282,18 +287,18 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Quick Stats */}
+              {/* Quick Stats - Real Data */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl font-bold text-blue-300">50,000+</div>
+                  <div className="text-3xl font-bold text-blue-300">{stats.activeJobs.toLocaleString()}+</div>
                   <div className="text-blue-100">Active Jobs</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl font-bold text-blue-300">15,000+</div>
+                  <div className="text-3xl font-bold text-blue-300">{stats.companies.toLocaleString()}+</div>
                   <div className="text-blue-100">Top Companies</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                  <div className="text-3xl font-bold text-blue-300">1M+</div>
+                  <div className="text-3xl font-bold text-blue-300">{(stats.jobSeekers / 1000000).toFixed(1)}M+</div>
                   <div className="text-blue-100">Job Seekers</div>
                 </div>
               </div>
@@ -514,7 +519,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {[
               { name: 'IT & Software', count: '25,000+', icon: '💻', color: 'from-blue-500 to-purple-600' },
               { name: 'Banking & Finance', count: '15,000+', icon: '💰', color: 'from-green-500 to-blue-600' },
@@ -556,70 +561,18 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 mb-8">
             {featuredEmployers.map(e => (
-              <Link key={e.slug} href={`/companies?company=${e.slug}`} className="group relative overflow-hidden rounded-xl bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 p-5 flex flex-col items-center gap-3 transition">
+              <a key={e.name} href={e.careerUrl} target="_blank" rel="noopener noreferrer" className="group relative overflow-hidden rounded-xl bg-gray-50 hover:bg-blue-50 border border-gray-100 hover:border-blue-200 p-5 flex flex-col items-center gap-3 transition">
                 <div className="text-4xl" aria-hidden>{e.logo}</div>
                 <div className="text-sm font-semibold text-gray-700 group-hover:text-blue-600 text-center line-clamp-2">{e.name}</div>
                 <div className="text-[11px] font-medium text-blue-600 bg-blue-100/70 px-2 py-0.5 rounded-full">{e.open} jobs</div>
-              </Link>
+                <div className="text-[10px] text-gray-500 mt-1">View Jobs ↗</div>
+              </a>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Companies (legacy section retained for depth / SEO) */}
-      {/* Featured Companies */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Top Companies Hiring
-            </h2>
-            <p className="text-xl text-gray-600">
-              Join industry leaders and grow your career with top employers
-            </p>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12">
-            {[
-              { name: 'TechCorp India', logo: '🚀', openJobs: 25, industry: 'Technology' },
-              { name: 'MarketPro Solutions', logo: '📈', openJobs: 15, industry: 'Marketing' },
-              { name: 'Design Studio', logo: '🎨', openJobs: 8, industry: 'Design' },
-              { name: 'FinTech Solutions', logo: '💰', openJobs: 20, industry: 'Finance' },
-              { name: 'HealthTech', logo: '🏥', openJobs: 12, industry: 'Healthcare' },
-              { name: 'EduTech', logo: '📚', openJobs: 16, industry: 'Education' },
-              { name: 'Analytics Hub', logo: '📊', openJobs: 10, industry: 'Data Science' },
-              { name: 'CloudTech', logo: '☁️', openJobs: 18, industry: 'Cloud Computing' },
-              { name: 'StartupXYZ', logo: '💡', openJobs: 14, industry: 'Startup' },
-              { name: 'GlobalTech', logo: '🌍', openJobs: 22, industry: 'Remote Work' },
-              { name: 'AI Innovations', logo: '🤖', openJobs: 19, industry: 'Artificial Intelligence' },
-              { name: 'GreenTech', logo: '🌱', openJobs: 11, industry: 'Sustainability' },
-            ].map((company) => (
-              <Link
-                key={company.name}
-                href={`/companies?company=${company.name.toLowerCase()}`}
-                className="group bg-gray-50 hover:bg-blue-50 rounded-xl p-6 text-center transition-all hover:shadow-lg transform hover:scale-105"
-              >
-                <div className="text-4xl mb-3">{company.logo}</div>
-                <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-2 text-sm">
-                  {company.name}
-                </h3>
-                <p className="text-xs text-gray-500 mb-1">{company.industry}</p>
-                <p className="text-xs text-blue-600 font-medium">{company.openJobs} open positions</p>
-              </Link>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <Link
-              href="/companies"
-              className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
-            >
-              View All Companies
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* Featured Jobs */}
       <section className="py-20 bg-gradient-to-r from-blue-50 to-purple-50">
@@ -633,70 +586,9 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {[
-              {
-                title: 'Senior Software Engineer',
-                company: 'TechCorp India',
-                location: 'Bangalore',
-                salary: '₹15-25 LPA',
-                type: 'Full-time',
-                isRemote: true,
-                isUrgent: false,
-                posted: '2 days ago'
-              },
-              {
-                title: 'Product Manager',
-                company: 'StartupXYZ',
-                location: 'Mumbai',
-                salary: '₹20-35 LPA',
-                type: 'Full-time',
-                isRemote: false,
-                isUrgent: true,
-                posted: '1 day ago'
-              },
-              {
-                title: 'UI/UX Designer',
-                company: 'Design Studio',
-                location: 'Delhi',
-                salary: '₹8-15 LPA',
-                type: 'Full-time',
-                isRemote: true,
-                isUrgent: false,
-                posted: '3 days ago'
-              },
-              {
-                title: 'Data Scientist',
-                company: 'Analytics Hub',
-                location: 'Hyderabad',
-                salary: '₹12-22 LPA',
-                type: 'Full-time',
-                isRemote: true,
-                isUrgent: false,
-                posted: '1 day ago'
-              },
-              {
-                title: 'Digital Marketing Manager',
-                company: 'MarketPro Solutions',
-                location: 'Pune',
-                salary: '₹10-18 LPA',
-                type: 'Full-time',
-                isRemote: false,
-                isUrgent: true,
-                posted: '2 days ago'
-              },
-              {
-                title: 'DevOps Engineer',
-                company: 'CloudTech',
-                location: 'Chennai',
-                salary: '₹14-25 LPA',
-                type: 'Full-time',
-                isRemote: true,
-                isUrgent: false,
-                posted: '1 day ago'
-              }
-            ].map((job, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border border-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-12">
+            {featuredJobs.map((job) => (
+              <div key={job.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border border-gray-100">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <h3 className="text-lg font-bold text-gray-900 mb-2">{job.title}</h3>
@@ -720,7 +612,7 @@ export default function HomePage() {
                 </div>
                 
                 <Link
-                  href={`/jobs/${index + 1}`}
+                  href={`/jobs/${job.id}`}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center block"
                 >
                   Apply Now

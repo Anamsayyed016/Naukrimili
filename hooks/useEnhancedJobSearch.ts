@@ -1,244 +1,203 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { JobSearchFilters, JobSearchResponse, JobBookmark } from '@/types/jobs';
+/**
+ * Enhanced Job Search Hook - Frontend Integration
+ * Implements the new country priority job search with location detection
+ */
 
-// Enhanced job search hook with PostgreSQL integration
-export function useJobSearch(filters: JobSearchFilters, options?: {
-  enabled?: boolean;
-  staleTime?: number;
-  cacheTime?: number;
-}) {
-  const queryKey = ['jobs', 'search', filters];
-  
-  return useQuery<JobSearchResponse>({
-    queryKey,
-    queryFn: async () => {
-      const searchParams = new URLSearchParams();
+'use client';
+
+import { useState, useCallback, useEffect } from 'react';
+import { JobSearchParams, UserLocationData, JobSearchResponse } from '@/types/job-search-params';
+import { detectUserLocationFromBrowser } from '@/lib/location-service';
+
+export interface UseEnhancedJobSearchOptions {
+  enableCountryPriority?: boolean;
+  detectLocation?: boolean;
+  autoSearch?: boolean;
+  cacheResults?: boolean;
+}
+
+export function useEnhancedJobSearch(options: UseEnhancedJobSearchOptions = {}) {
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<UserLocationData | null>(null);
+  const [searchStrategy, setSearchStrategy] = useState<any>(null);
+  const [pagination, setPagination] = useState<any>({
+    current_page: 1,
+    total_pages: 0,
+    total_results: 0,
+    per_page: 20,
+    has_next: false,
+    has_prev: false,
+  });
+
+  const {
+    enableCountryPriority = true,
+    detectLocation = true,
+    autoSearch = false,
+    cacheResults = true,
+  } = options;
+
+  /**
+   * Detect user location using browser API
+   */
+  const detectUserLocation = useCallback(async () => {
+    try {
+      const location = await detectUserLocationFromBrowser();
+      setUserLocation(location);
+      return location;
+    } catch (err) {
+      console.error('Location detection failed:', err);
+      return null;
+    }
+  }, []);
+
+  /**
+   * Enhanced job search with country priority
+   */
+  const searchJobs = useCallback(async (searchParams: JobSearchParams) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Build query parameters
+      const queryParams = new URLSearchParams();
       
-      // Add all filter parameters
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          if (Array.isArray(value)) {
-            searchParams.append(key, value.join(','));
-          } else {
-            searchParams.append(key, String(value));
-          }
-        }
-      });
+      // Core search parameters
+      if (searchParams.filters?.query) queryParams.set('q', searchParams.filters.query);
+      if (searchParams.location) queryParams.set('location', searchParams.location);
+      if (searchParams.countries?.length) queryParams.set('countries', searchParams.countries.join(','));
+      
+      // Filter parameters
+      if (searchParams.filters?.jobType) queryParams.set('job_type', searchParams.filters.jobType);
+      if (searchParams.filters?.experienceLevel) queryParams.set('experience_level', searchParams.filters.experienceLevel);
+      if (searchParams.filters?.sector) queryParams.set('sector', searchParams.filters.sector);
+      if (searchParams.filters?.company) queryParams.set('company', searchParams.filters.company);
+      if (searchParams.filters?.minSalary) queryParams.set('salary_min', searchParams.filters.minSalary.toString());
+      if (searchParams.filters?.maxSalary) queryParams.set('salary_max', searchParams.filters.maxSalary.toString());
+      if (searchParams.filters?.skills?.length) queryParams.set('skills', searchParams.filters.skills.join(','));
+      if (searchParams.filters?.isRemote !== undefined) queryParams.set('remote', searchParams.filters.isRemote.toString());
+      if (searchParams.filters?.isHybrid !== undefined) queryParams.set('hybrid', searchParams.filters.isHybrid.toString());
+      
+      // Pagination and sorting
+      queryParams.set('limit', (searchParams.limit || 20).toString());
+      if (searchParams.offset) queryParams.set('page', (Math.floor(searchParams.offset / (searchParams.limit || 20)) + 1).toString());
+      if (searchParams.sortBy) queryParams.set('sort_by', searchParams.sortBy);
+      if (searchParams.sortOrder) queryParams.set('sort_order', searchParams.sortOrder);
+      
+      // Enhanced features
+      if (enableCountryPriority) queryParams.set('enable_country_priority', 'true');
+      if (detectLocation) queryParams.set('detect_location', 'true');
 
-      const response = await fetch(`/api/jobs?${searchParams.toString()}`);
+      // Make API request
+      const response = await fetch(`/api/jobs?${queryParams.toString()}`);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch jobs');
-      }
-      
-      return response.json();
-    },
-    staleTime: options?.staleTime || 5 * 60 * 1000, // 5 minutes
-    cacheTime: options?.cacheTime || 10 * 60 * 1000, // 10 minutes
-    enabled: options?.enabled ?? true,
-    // Refetch when filters change
-    refetchOnWindowFocus: false,
-    refetchOnMount: 'always'
-  });
-}
-
-// Hook for managing job bookmarks
-export function useJobBookmarks(userId: number) {
-  const queryClient = useQueryClient();
-  
-  // Get user's bookmarks
-  const bookmarksQuery = useQuery({
-    queryKey: ['jobs', 'bookmarks', userId],
-    queryFn: async () => {
-      const response = await fetch(`/api/jobs/bookmarks?userId=${userId}`);
-      if (!response.ok) throw new Error('Failed to fetch bookmarks');
-      return response.json();
-    },
-    enabled: !!userId,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-  });
-
-  // Add bookmark mutation
-  const addBookmarkMutation = useMutation({
-    mutationFn: async ({ jobId }: { jobId: string }) => {
-      const response = await fetch('/api/jobs/bookmarks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, jobId })
-      });
-      
-      if (!response.ok) throw new Error('Failed to add bookmark');
-      return response.json();
-    },
-    onSuccess: () => {
-      // Invalidate bookmarks query to refetch
-      queryClient.invalidateQueries({ queryKey: ['jobs', 'bookmarks', userId] });
-      // Also invalidate job search queries to update bookmark status
-      queryClient.invalidateQueries({ queryKey: ['jobs', 'search'] });
-    }
-  });
-
-  // Remove bookmark mutation
-  const removeBookmarkMutation = useMutation({
-    mutationFn: async ({ jobId }: { jobId: string }) => {
-      const response = await fetch(`/api/jobs/bookmarks?userId=${userId}&jobId=${jobId}`, {
-        method: 'DELETE'
-      });
-      
-      if (!response.ok) throw new Error('Failed to remove bookmark');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['jobs', 'bookmarks', userId] });
-      queryClient.invalidateQueries({ queryKey: ['jobs', 'search'] });
-    }
-  });
-
-  // Toggle bookmark function
-  const toggleBookmark = async (jobId: string, isBookmarked: boolean) => {
-    if (isBookmarked) {
-      await removeBookmarkMutation.mutateAsync({ jobId });
-    } else {
-      await addBookmarkMutation.mutateAsync({ jobId });
-    }
-  };
-
-  return {
-    bookmarks: bookmarksQuery.data?.jobs || [],
-    isLoading: bookmarksQuery.isLoading,
-    error: bookmarksQuery.error,
-    addBookmark: addBookmarkMutation.mutate,
-    removeBookmark: removeBookmarkMutation.mutate,
-    toggleBookmark,
-    isAddingBookmark: addBookmarkMutation.isPending,
-    isRemovingBookmark: removeBookmarkMutation.isPending
-  };
-}
-
-// Hook for getting filter options dynamically
-export function useFilterOptions(baseFilters?: Partial<JobSearchFilters>) {
-  return useQuery({
-    queryKey: ['jobs', 'filters', baseFilters],
-    queryFn: async () => {
-      const searchParams = new URLSearchParams();
-      
-      if (baseFilters) {
-        Object.entries(baseFilters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
-            searchParams.append(key, String(value));
-          }
-        });
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const response = await fetch(`/api/jobs?${searchParams.toString()}&limit=1`);
-      if (!response.ok) throw new Error('Failed to fetch filter options');
+      const data: JobSearchResponse = await response.json();
       
-      const data = await response.json();
-      return data.filters?.available || {};
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    cacheTime: 15 * 60 * 1000, // 15 minutes
-  });
-}
-
-// Hook for job analytics and insights
-export function useJobInsights(filters?: Partial<JobSearchFilters>) {
-  return useQuery({
-    queryKey: ['jobs', 'insights', filters],
-    queryFn: async () => {
-      const searchParams = new URLSearchParams();
-      
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
-            searchParams.append(key, String(value));
-          }
-        });
+      if (!data.success) {
+        throw new Error(data.message || 'Search failed');
       }
 
-      // Get aggregated data for insights
-      const response = await fetch(`/api/jobs/insights?${searchParams.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch job insights');
+      // Update state
+      setJobs(data.jobs);
+      setPagination(data.pagination);
+      setSearchStrategy(data.search_strategy);
       
-      return response.json();
-    },
-    staleTime: 15 * 60 * 1000, // 15 minutes
-    enabled: !!filters && Object.keys(filters).length > 0
-  });
-}
+      if (data.location_info) {
+        setUserLocation(data.location_info);
+      }
 
-// Enhanced debounced search hook
-export function useDebouncedJobSearch(
-  initialFilters: JobSearchFilters, 
-  debounceMs = 500
-) {
-  const [filters, setFilters] = useState(initialFilters);
-  const [debouncedFilters, setDebouncedFilters] = useState(initialFilters);
+      return data;
 
-  // Debounce filter updates
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Search failed';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [enableCountryPriority, detectLocation]);
+
+  /**
+   * Quick search with smart defaults
+   */
+  const quickSearch = useCallback(async (query: string, location?: string) => {
+    const searchParams: JobSearchParams = {
+      countries: [], // Will use defaults
+      location: location || userLocation?.city,
+      filters: {
+        query,
+      },
+      limit: 20,
+      sortBy: 'relevance',
+    };
+
+    return await searchJobs(searchParams);
+  }, [searchJobs, userLocation]);
+
+  /**
+   * Search jobs in specific countries
+   */
+  const searchByCountries = useCallback(async (countries: string[], filters?: any) => {
+    const searchParams: JobSearchParams = {
+      countries,
+      location: userLocation?.city,
+      filters,
+      limit: 20,
+      sortBy: 'relevance',
+    };
+
+    return await searchJobs(searchParams);
+  }, [searchJobs, userLocation]);
+
+  /**
+   * Load more results (pagination)
+   */
+  const loadMore = useCallback(async (currentSearchParams: JobSearchParams) => {
+    if (!pagination.has_next) return;
+
+    const nextPageParams = {
+      ...currentSearchParams,
+      offset: (currentSearchParams.offset || 0) + (currentSearchParams.limit || 20),
+    };
+
+    const result = await searchJobs(nextPageParams);
+    
+    // Append new jobs to existing ones
+    setJobs(prevJobs => [...prevJobs, ...result.jobs]);
+    
+    return result;
+  }, [searchJobs, pagination]);
+
+  // Auto-detect location on mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedFilters(filters);
-    }, debounceMs);
-
-    return () => clearTimeout(timer);
-  }, [filters, debounceMs]);
-
-  // Use the main job search hook with debounced filters
-  const searchResults = useJobSearch(debouncedFilters);
-
-  const updateFilter = useCallback((key: keyof JobSearchFilters, value: any) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  }, []);
-
-  const updateFilters = useCallback((newFilters: Partial<JobSearchFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
-  }, []);
-
-  const resetFilters = useCallback(() => {
-    setFilters(initialFilters);
-  }, [initialFilters]);
+    if (detectLocation && !userLocation) {
+      detectUserLocation();
+    }
+  }, [detectLocation, userLocation, detectUserLocation]);
 
   return {
-    filters,
-    debouncedFilters,
-    jobs: searchResults.data?.jobs || [],
-    pagination: searchResults.data?.pagination,
-    availableFilters: searchResults.data?.filters?.available,
-    isLoading: searchResults.isLoading,
-    error: searchResults.error,
-    updateFilter,
-    updateFilters,
-    resetFilters,
-    refetch: searchResults.refetch
+    // State
+    jobs,
+    loading,
+    error,
+    userLocation,
+    searchStrategy,
+    pagination,
+    
+    // Actions
+    searchJobs,
+    quickSearch,
+    searchByCountries,
+    loadMore,
+    detectUserLocation,
+    
+    // Helpers
+    clearError: () => setError(null),
+    clearJobs: () => setJobs([]),
   };
 }
-
-// Hook for infinite scroll/load more functionality
-export function useInfiniteJobSearch(filters: JobSearchFilters) {
-  return useInfiniteQuery({
-    queryKey: ['jobs', 'infinite', filters],
-    queryFn: async ({ pageParam = 1 }) => {
-      const searchParams = new URLSearchParams();
-      
-      Object.entries({ ...filters, page: pageParam }).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          searchParams.append(key, String(value));
-        }
-      });
-
-      const response = await fetch(`/api/jobs?${searchParams.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch jobs');
-      
-      return response.json();
-    },
-    getNextPageParam: (lastPage) => {
-      const { pagination } = lastPage;
-      return pagination.has_next ? pagination.page + 1 : undefined;
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-}
-
-import { useState, useEffect, useCallback } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';

@@ -6,8 +6,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { enhancedJobService } from '@/lib/enhanced-job-service';
+import { enhancedJobSearchService } from '@/lib/enhanced-job-search-service';
+import { LocationService } from '@/lib/location-service';
 import { extractPaginationFromRequest, extractUserFromRequest, handleDatabaseError } from '@/lib/database-service';
 import { jobApi } from '@/lib/api';
+import { JobSearchParams } from '@/types/job-search-params';
 import { z } from 'zod';
 
 // Validation schemas
@@ -16,6 +19,7 @@ const jobSearchParamsSchema = z.object({
   location: z.string().optional(),
   company: z.string().optional(),
   country: z.string().default('IN'),
+  countries: z.string().optional().transform(val => val ? val.split(',').filter(Boolean) : undefined),
   job_type: z.string().optional(),
   experience_level: z.string().optional(),
   sector: z.string().optional(),
@@ -31,6 +35,9 @@ const jobSearchParamsSchema = z.object({
   sort_order: z.enum(['asc', 'desc']).optional(),
   page: z.string().optional(),
   limit: z.string().optional(),
+  // New enhanced search parameters
+  enable_country_priority: z.string().optional().transform(val => val === 'true'),
+  detect_location: z.string().optional().transform(val => val === 'true'),
 });
 
 const createJobSchema = z.object({
@@ -69,6 +76,68 @@ export async function GET(request: NextRequest) {
       Object.fromEntries(searchParams.entries())
     );
 
+    // Check if enhanced country priority search is enabled
+    if (validatedParams.enable_country_priority) {
+      return await handleEnhancedSearch(request, validatedParams);
+    }
+
+    // Fallback to legacy search for backward compatibility
+    return await handleLegacySearch(request, validatedParams);
+  } catch (error: any) {
+    console.error('Jobs GET error:', error);
+    return handleJobSearchError(error);
+  }
+}
+
+// Enhanced search with country priority algorithm
+async function handleEnhancedSearch(request: NextRequest, validatedParams: any) {
+  try {
+    // Build JobSearchParams
+    const searchParams: JobSearchParams = {
+      countries: validatedParams.countries || (validatedParams.country ? [validatedParams.country] : []),
+      location: validatedParams.location,
+      status: 'active',
+      filters: {
+        query: validatedParams.q,
+        jobType: validatedParams.job_type,
+        experienceLevel: validatedParams.experience_level,
+        sector: validatedParams.sector,
+        isRemote: validatedParams.remote,
+        isHybrid: validatedParams.hybrid,
+        company: validatedParams.company,
+        minSalary: validatedParams.salary_min,
+        maxSalary: validatedParams.salary_max,
+        skills: validatedParams.skills,
+      },
+      limit: validatedParams.limit ? parseInt(validatedParams.limit) : 20,
+      offset: validatedParams.page ? (parseInt(validatedParams.page) - 1) * (parseInt(validatedParams.limit) || 20) : 0,
+      sortBy: validatedParams.sort_by || 'relevance',
+      sortOrder: validatedParams.sort_order || 'desc',
+    };
+
+    // Get user location if requested
+    let userLocation = null;
+    if (validatedParams.detect_location) {
+      userLocation = await LocationService.getLocationFromIP(request);
+    }
+
+    // Execute enhanced search
+    const result = await enhancedJobSearchService.searchJobsWithPriority(
+      searchParams,
+      userLocation || undefined,
+      request
+    );
+
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('Enhanced search error:', error);
+    throw error;
+  }
+}
+
+// Legacy search for backward compatibility
+async function handleLegacySearch(request: NextRequest, validatedParams: any) {
+  try {
     // Extract pagination parameters
     const pagination = extractPaginationFromRequest(request);
 
@@ -115,13 +184,40 @@ export async function GET(request: NextRequest) {
       sector: job.sector,
       skills: job.skills,
       posted_at: job.postedAt?.toISOString() || job.createdAt.toISOString(),
-      redirect_url: job.applyUrl || `/jobs/${job.id}`,
+      redirect_url: `/jobs/${job.id}`,
       created_at: job.createdAt.toISOString(),
     }));
 
-    return NextResponse.json({
+    // Generate Google search fallback when no results found
+    let googleFallback = null;
+    if (result.pagination.total === 0 && (filters.q || filters.location)) {
+      const query = filters.q || 'jobs';
+      const location = filters.location || filters.country || 'India';
+      const jobType = filters.jobType ? ` ${filters.jobType}` : '';
+      const experienceLevel = filters.experienceLevel === 'entry' ? ' entry level' : 
+                             filters.experienceLevel === 'senior' ? ' senior' : '';
+      
+      const searchQuery = `${query}${experienceLevel}${jobType} jobs in ${location}`;
+      const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&ibp=htl;jobs`;
+      
+      googleFallback = {
+        message: "No jobs found in our database. Try searching on Google for broader results.",
+        google_url: googleUrl,
+        redirect_to_google: true,
+        search_query: searchQuery,
+        alternative_platforms: {
+          linkedin: `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}`,
+          indeed: `https://indeed.co.in/jobs?q=${encodeURIComponent(query)}&l=${encodeURIComponent(location)}`,
+          naukri: `https://www.naukri.com/jobs-in-${encodeURIComponent(location.toLowerCase())}-for-${encodeURIComponent(query)}`
+        }
+      };
+    }
+
+    const response = {
       success: true,
-      message: `Found ${result.pagination.total} jobs`,
+      message: result.pagination.total > 0 
+        ? `Found ${result.pagination.total} jobs` 
+        : 'No jobs found matching your criteria',
       jobs: transformedJobs,
       pagination: {
         current_page: result.pagination.page,
@@ -133,42 +229,47 @@ export async function GET(request: NextRequest) {
       },
       filters: filters,
       timestamp: new Date().toISOString(),
-    });
+      ...(googleFallback && { googleFallback })
+    };
 
-  } catch (error: any) {
-    console.error('Jobs GET error:', error);
+    return NextResponse.json(response);
+  } catch (error) {
+    throw error;
+  }
+}
 
-    // Handle validation errors
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid search parameters',
-        details: error.errors,
-        jobs: [],
-        pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
-      }, { status: 400 });
-    }
-
-    // Handle database errors
-    if (error.name === 'DatabaseError') {
-      return NextResponse.json({
-        success: false,
-        error: 'Database error occurred',
-        message: error.message,
-        jobs: [],
-        pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
-      }, { status: 500 });
-    }
-
-    // Fallback error response
+// Centralized error handling
+function handleJobSearchError(error: any) {
+  // Handle validation errors
+  if (error instanceof z.ZodError) {
     return NextResponse.json({
       success: false,
-      error: 'Failed to fetch jobs',
+      error: 'Invalid search parameters',
+      details: error.errors,
       jobs: [],
       pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
-      timestamp: new Date().toISOString(),
+    }, { status: 400 });
+  }
+
+  // Handle database errors
+  if (error.name === 'DatabaseError') {
+    return NextResponse.json({
+      success: false,
+      error: 'Database error occurred',
+      message: error.message,
+      jobs: [],
+      pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
     }, { status: 500 });
   }
+
+  // Fallback error response
+  return NextResponse.json({
+    success: false,
+    error: 'Failed to fetch jobs',
+    jobs: [],
+    pagination: { current_page: 1, total_pages: 0, total_results: 0, per_page: 20 },
+    timestamp: new Date().toISOString(),
+  }, { status: 500 });
 }
 
 // POST /api/jobs - Create new job posting with validation

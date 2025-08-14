@@ -29,7 +29,7 @@ export function useMessages() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { data: session } = useSession();
+  const { data: session } = useSession() || {};
 
   // Deserialize raw message object to Message type
   const deserialize = (raw: Record<string, unknown>): Message => ({
