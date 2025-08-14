@@ -14,6 +14,7 @@ model Job {
   sourceId        String    @default(cuid())
   title           String
   company         String?
+  companyId       String?   // Foreign key to Company model
   companyLogo     String?   // Company logo URL
   location        String?
   country         String    @default("IN")
@@ -34,7 +35,7 @@ model Job {
   isActive        Boolean   @default(true)
   sector          String?   // Technology, Finance, Healthcare, etc.
   views           Int       @default(0)
-  applications    Int       @default(0)
+  applicationCount Int      @default(0)
   createdBy       String?   // User who created this job
   rawJson         Json
   createdAt       DateTime  @default(now())
@@ -44,6 +45,7 @@ model Job {
   bookmarks       JobBookmark[]
   applications    Application[]
   creator         User?     @relation(fields: [createdBy], references: [id])
+  companyProfile  Company?  @relation(fields: [companyId], references: [id])
   
   @@unique([source, sourceId])
   @@index([createdAt])
