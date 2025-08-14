@@ -78,6 +78,8 @@ export default function MainNavigation({
               <Link
                 key={link.title}
                 href={link.href}
+                passHref
+                prefetch={false}
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900",
                   pathname === link.href && "text-gray-900 font-medium"
@@ -184,6 +186,8 @@ export default function MainNavigation({
                 <Link
                   key={link.title}
                   href={link.href}
+                  passHref
+                  prefetch={false}
                   className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900"
                   onClick={closeMenu}
                 >

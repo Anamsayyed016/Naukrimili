@@ -1,4 +1,6 @@
+'use client';
 import React from 'react';
+import Link from 'next/link';
 import { enhancedJobService } from '@/lib/enhanced-job-service';
 
 export default async function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -29,8 +31,12 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
         <div className="prose max-w-none mb-10" dangerouslySetInnerHTML={{ __html: job.description }} />
 
         <div className="flex gap-3">
-          <a href={`/jobs/${job.id}/apply`} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Apply Now</a>
-          <a href="/jobs" className="px-6 py-3 border rounded-lg hover:bg-gray-50">Back to Jobs</a>
+          <Link href={`/jobs/${job.id}/apply`} passHref>
+            <a className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Apply Now</a>
+          </Link>
+          <Link href="/jobs" passHref>
+            <a className="px-6 py-3 border rounded-lg hover:bg-gray-50">Back to Jobs</a>
+          </Link>
         </div>
       </div>
     </div>
