@@ -20,7 +20,8 @@ export default [
       'node_modules/*',
       'lib/generated/prisma/*',
       '**/*.generated.*',
-      '**/*.d.ts'
+      '**/*.d.ts',
+      'prisma/*'
     ] 
   },
   js.configs.recommended,
@@ -34,8 +35,6 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.json',
-        tsconfigRootDir: __dirname,
       },
     },
     plugins: {
