@@ -1,71 +1,83 @@
-name: Deploy to Hostinger
+name: Auto-Deploy with PostgreSQL Setup
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Generate Prisma Client
-        run: npx prisma generate
-        continue-on-error: true
-
-      - name: Build application
-        run: npm run build
-
-      - name: Create deployment package
-        run: |
-          tar -czf deployment.tar.gz .next package.json package-lock.json public components lib types
-
-      - name: Upload deployment package
-        uses: actions/upload-artifact@v4
-        with:
-          name: deployment-package
-          path: deployment.tar.gz
-
-      # SSH deployment (if firewall allows)
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Deploy to Hostinger with PostgreSQL Setup
+        uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            echo "Attempting SSH deployment..."
-            if [ -d "/var/www/jobportal" ]; then
-              echo "SSH deployment successful!"
-              bash /var/www/jobportal/deploy.sh
+            echo "🚀 Starting automated deployment with PostgreSQL setup..."
+            cd /var/www/jobportal
+            
+            # Pull latest code
+            git fetch --all
+            git reset --hard origin/main
+            
+            # 🔴 AUTOMATIC: Setup PostgreSQL if not exists
+            if ! systemctl is-active --quiet postgresql; then
+              echo "🔴 Setting up PostgreSQL..."
+              sudo apt update
+              sudo apt install -y postgresql postgresql-contrib
+              sudo systemctl start postgresql
+              sudo systemctl enable postgresql
+              
+              # Create database and user
+              sudo -u postgres createdb jobportal || true
+              sudo -u postgres createuser jobportal_user || true
+              sudo -u postgres psql -c "ALTER USER jobportal_user WITH PASSWORD 'secure_password_123';"
+              sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE jobportal TO jobportal_user;"
+              
+              echo "✅ PostgreSQL setup complete!"
             else
-              echo "SSH deployment failed - server not accessible"
+              echo "✅ PostgreSQL already running"
+            fi
+            
+            # 🔴 AUTOMATIC: Create production environment
+            echo "🔴 Creating production environment..."
+            cat > .env.local << 'EOF'
+            NODE_ENV=production
+            DATABASE_URL="postgresql://jobportal_user:secure_password_123@localhost:5432/jobportal"
+            NEXT_PUBLIC_BASE_URL=https://aftionix.in
+            NEXTAUTH_SECRET="your-secret-key-here"
+            EOF
+            
+            echo "✅ Production environment configured!"
+            echo "🔴 Mock data will be automatically disabled!"
+            echo "🚀 PostgreSQL will be automatically used!"
+            
+            # Install dependencies
+            npm install --legacy-peer-deps
+            
+            # Build application
+            echo "🔨 Building application..."
+            npm run build
+            
+            if [ $? -eq 0 ]; then
+              echo "✅ Build successful!"
+              
+              # Restart service
+              systemctl restart jobportal
+              echo "✅ Service restarted!"
+              
+              # Check service status
+              systemctl status jobportal --no-pager
+              
+              echo "🎉 Deployment complete!"
+              echo "🔴 Mock data: DISABLED"
+              echo "🚀 PostgreSQL: ACTIVE"
+              echo "🌐 Website: https://aftionix.in"
+            else
+              echo "❌ Build failed!"
               exit 1
             fi
-        continue-on-error: true
-
-      # Alternative deployment method
-      - name: Deploy via alternative method
-        if: failure()
-        run: |
-          echo "SSH deployment failed. Please use one of these alternatives:"
-          echo "1. Check Hostinger firewall settings"
-          echo "2. Use Hostinger Git integration"
-          echo "3. Upload files manually via File Manager"
-          echo "4. Contact Hostinger support to enable SSH access"
-          echo ""
-          echo "Build completed successfully! The application is ready for deployment."
-          echo "You can manually upload the files to your server or use Hostinger's built-in deployment tools."

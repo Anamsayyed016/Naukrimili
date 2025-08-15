@@ -1,43 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { databaseService } from '@/lib/database';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const startTime = Date.now();
+    const health = await databaseService.checkHealth();
+    const currentMode = databaseService.getCurrentMode();
     
-    // Basic health checks
-    const healthChecks = {
-      status: 'healthy',
+    return NextResponse.json({
+      status: 'ok',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.npm_package_version || '1.0.0',
-      checks: {
-        api: 'operational',
-        database: 'mock_data', // Using mock data instead of real database
-        memory: {
-          used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-          total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024)
-        }
-      }
-    };
-
-    const responseTime = Date.now() - startTime;
-    
-    return NextResponse.json({
-      success: true,
-      data: healthChecks,
-      responseTime: `${responseTime}ms`,
-      message: 'System is healthy'
+      environment: process.env.NODE_ENV || 'unknown',
+      database: {
+        mode: currentMode,
+        health: health,
+        url: process.env.DATABASE_URL ? 'configured' : 'not configured'
+      },
+      features: {
+        mockData: currentMode === 'development-mock',
+        postgresql: currentMode === 'production-postgresql',
+        automatic: true
+      },
+      message: `Database service running in ${currentMode} mode`
     });
-
-  } catch (error: any) {
-    console.error('Health check error:', error);
+  } catch (error) {
     return NextResponse.json({
-      success: false,
-      status: 'unhealthy',
-      error: 'Health check failed',
-      message: error.message,
-      timestamp: new Date().toISOString()
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+      database: {
+        mode: 'error',
+        health: { isHealthy: false, error: 'Health check failed' }
+      }
     }, { status: 500 });
   }
 }
