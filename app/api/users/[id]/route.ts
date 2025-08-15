@@ -217,7 +217,7 @@ export async function PUT(
 
     // Check if user can update this profile
     const canUpdate = (
-      currentUser.id === userId || // Own profile
+      currentUser.id === userId.toString() || // Own profile
       currentUser.role === 'admin' // Admin can update any profile
     );
 
