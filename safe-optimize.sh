@@ -1,22 +1,24 @@
 #!/bin/bash
 
-echo "🛡️ SAFE RESOURCE OPTIMIZATION"
-echo "============================="
+echo "🛡️ SAFE RESOURCE OPTIMIZATION - FIXED VERSION"
+echo "=============================================="
 echo ""
 
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+RED='\033[0;31m'
 NC='\033[0m'
 
 print_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 print_status() { echo -e "${BLUE}[INFO]${NC} $1"; }
+print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then
-    echo "❌ Please run as root (use sudo)"
+    print_error "Please run as root (use sudo)"
     exit 1
 fi
 
@@ -33,13 +35,24 @@ systemctl status jobportal --no-pager | head -20
 echo ""
 echo "🛡️ Starting SAFE optimization (no downtime)..."
 
-# Step 2: Safe cleanup of duplicate processes
+# Step 2: Safe cleanup of duplicate processes - FIXED VERSION
 print_status "Safely stopping duplicate processes..."
 
-# Only stop processes that are clearly duplicates
-DUPLICATE_PIDS=$(ps aux | grep "npm start" | grep -v grep | awk '{print $2}' | tail -n +2)
-if [ ! -z "$DUPLICATE_PIDS" ]; then
-    echo "Found duplicate npm start processes: $DUPLICATE_PIDS"
+# Find and stop duplicate npm start processes (keep only the main one)
+NPM_PROCESSES=$(ps aux | grep "npm start" | grep -v grep | wc -l)
+if [ $NPM_PROCESSES -gt 1 ]; then
+    echo "Found $NPM_PROCESSES npm start processes (duplicates detected)"
+    
+    # Get all npm start PIDs
+    NPM_PIDS=$(ps aux | grep "npm start" | grep -v grep | awk '{print $2}')
+    
+    # Keep the first one (main process), stop the rest
+    FIRST_PID=$(echo "$NPM_PIDS" | head -1)
+    DUPLICATE_PIDS=$(echo "$NPM_PIDS" | tail -n +2)
+    
+    echo "Keeping main process PID: $FIRST_PID"
+    echo "Stopping duplicate processes: $DUPLICATE_PIDS"
+    
     for pid in $DUPLICATE_PIDS; do
         echo "Safely stopping duplicate process $pid..."
         kill -TERM $pid 2>/dev/null
@@ -53,27 +66,60 @@ else
     echo "No duplicate npm start processes found"
 fi
 
-# Step 3: Safe PM2 cleanup (if running)
+# Step 3: Safe PM2 cleanup (if running) - FIXED VERSION
 print_status "Safely cleaning up PM2 processes..."
 if command -v pm2 &> /dev/null; then
     PM2_PROCESSES=$(pm2 list | grep -c "online")
-    if [ $PM2_PROCESSES -gt 1 ]; then
-        echo "Found multiple PM2 processes, cleaning up safely..."
+    if [ $PM2_PROCESSES -gt 0 ]; then
+        echo "Found PM2 processes, cleaning up safely..."
         pm2 stop all 2>/dev/null
         pm2 delete all 2>/dev/null
         echo "PM2 processes cleaned up"
     else
-        echo "PM2 processes are minimal, leaving as is"
+        echo "No PM2 processes found"
     fi
+else
+    echo "PM2 not installed"
 fi
 
-# Step 4: Navigate to project directory
+# Step 4: Stop duplicate Next.js processes - FIXED VERSION
+print_status "Safely stopping duplicate Next.js processes..."
+
+# Find and stop duplicate next start processes
+NEXT_PROCESSES=$(ps aux | grep "next start" | grep -v grep | wc -l)
+if [ $NEXT_PROCESSES -gt 1 ]; then
+    echo "Found $NEXT_PROCESSES next start processes (duplicates detected)"
+    
+    # Get all next start PIDs
+    NEXT_PIDS=$(ps aux | grep "next start" | grep -v grep | awk '{print $2}')
+    
+    # Keep the first one (main process), stop the rest
+    FIRST_NEXT_PID=$(echo "$NEXT_PIDS" | head -1)
+    DUPLICATE_NEXT_PIDS=$(echo "$NEXT_PIDS" | tail -n +2)
+    
+    echo "Keeping main Next.js process PID: $FIRST_NEXT_PID"
+    echo "Stopping duplicate Next.js processes: $DUPLICATE_NEXT_PIDS"
+    
+    for pid in $DUPLICATE_NEXT_PIDS; do
+        echo "Safely stopping duplicate Next.js process $pid..."
+        kill -TERM $pid 2>/dev/null
+        sleep 2
+        if kill -0 $pid 2>/dev/null; then
+            echo "Next.js process $pid still running, force stopping..."
+            kill -KILL $pid 2>/dev/null
+        fi
+    done
+else
+    echo "No duplicate Next.js processes found"
+fi
+
+# Step 5: Navigate to project directory
 cd /var/www/jobportal || {
-    echo "❌ Directory /var/www/jobportal not found"
+    print_error "Directory /var/www/jobportal not found"
     exit 1
 }
 
-# Step 5: Safe environment optimization (without stopping service)
+# Step 6: Safe environment optimization (without stopping service)
 print_status "Safely optimizing environment variables..."
 
 # Create optimized environment if it doesn't exist
@@ -90,7 +136,7 @@ else
     echo "Environment already optimized"
 fi
 
-# Step 6: Safe systemd service optimization
+# Step 7: Safe systemd service optimization
 print_status "Safely optimizing systemd service..."
 
 # Create optimized service file
@@ -115,7 +161,7 @@ Environment=NODE_OPTIONS=--max-old-space-size=512
 WantedBy=multi-user.target
 EOF
 
-# Step 7: Safe service switch (zero downtime)
+# Step 8: Safe service switch (zero downtime)
 print_status "Safely switching to optimized service..."
 
 # Enable new service
@@ -166,7 +212,17 @@ else
     systemctl disable jobportal-optimized
 fi
 
-# Step 8: Final status check
+# Step 9: Final cleanup and verification
+print_status "Performing final cleanup..."
+
+# Kill any remaining duplicate processes
+pkill -f "npm start" 2>/dev/null || echo "No npm start processes to clean"
+pkill -f "next start" 2>/dev/null || echo "No next start processes to clean"
+
+# Wait a moment for processes to settle
+sleep 3
+
+# Step 10: Final status check
 echo ""
 echo "📊 Final Service Status:"
 systemctl status jobportal --no-pager | head -20
@@ -179,7 +235,8 @@ echo ""
 print_success "🎉 Safe optimization complete!"
 echo ""
 echo "📋 What was optimized safely:"
-echo "✅ Removed duplicate processes"
+echo "✅ Removed duplicate npm start processes"
+echo "✅ Removed duplicate Next.js processes"
 echo "✅ Cleaned up PM2 processes"
 echo "✅ Optimized environment variables"
 echo "✅ Limited memory to 512MB"
@@ -189,5 +246,10 @@ echo ""
 echo "🚀 Your website should now use fewer resources!"
 echo "🌐 Check your website: https://aftionix.in"
 echo ""
-echo "💡 Resource limitations should be removed within 1-3 hours"
+echo "💡 Resource limitations should be removed immediately"
 echo "🛡️ Your website was never disturbed during optimization"
+echo ""
+echo "🔍 To verify optimization worked:"
+echo "   - Check Hostinger dashboard for resource usage"
+echo "   - Monitor your website performance"
+echo "   - Resource limitations should be gone"
