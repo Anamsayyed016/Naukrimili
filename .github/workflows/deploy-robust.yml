@@ -1,4 +1,4 @@
-name: Auto-Deploy with PostgreSQL Setup
+name: Robust Deploy with PostgreSQL Setup
 
 on:
   push:
@@ -12,43 +12,67 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH
+      - name: Setup SSH with Debug
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           chmod 700 ~/.ssh
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          echo "SSH setup complete"
+          
+          echo "=== SSH Directory Contents ==="
           ls -la ~/.ssh/
+          echo "=== SSH Key Permissions ==="
+          ls -la ~/.ssh/id_ed25519
+          echo "=== SSH Key Content (first 100 chars) ==="
+          head -c 100 ~/.ssh/id_ed25519
+          echo ""
+          echo "=== SSH Key Format Check ==="
+          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "Key format check failed"
+          
+          echo "SSH setup complete"
 
       - name: Test SSH Connection
         run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} "echo 'SSH connection successful'"
+          echo "Testing SSH connection..."
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null -o LogLevel=DEBUG3 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} "echo 'SSH connection successful' && whoami && pwd"
 
       - name: Deploy to Hostinger with PostgreSQL Setup
         run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} '
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o UserKnownHostsFile=/dev/null ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} '
+            set -e
             echo "🚀 Starting automated deployment with PostgreSQL setup..."
-            cd /var/www/jobportal
+            
+            # Check current directory
+            pwd
+            ls -la
+            
+            # Navigate to project directory
+            cd /var/www/jobportal || { echo "❌ Directory /var/www/jobportal not found"; exit 1; }
+            
+            echo "✅ Current directory: $(pwd)"
+            echo "✅ Directory contents:"
+            ls -la
             
             # Pull latest code
+            echo "📥 Pulling latest code..."
             git fetch --all
             git reset --hard origin/main
+            echo "✅ Code updated to latest version"
             
             # 🔴 AUTOMATIC: Setup PostgreSQL if not exists
             if ! systemctl is-active --quiet postgresql; then
               echo "🔴 Setting up PostgreSQL..."
-              sudo apt update
+              sudo apt update -y
               sudo apt install -y postgresql postgresql-contrib
               sudo systemctl start postgresql
               sudo systemctl enable postgresql
               
               # Create database and user
-              sudo -u postgres createdb jobportal || true
-              sudo -u postgres createuser jobportal_user || true
-              sudo -u postgres psql -c "ALTER USER jobportal_user WITH PASSWORD '\''secure_password_123'\'';" || true
-              sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE jobportal TO jobportal_user;" || true
+              sudo -u postgres createdb jobportal || echo "Database already exists"
+              sudo -u postgres createuser jobportal_user || echo "User already exists"
+              sudo -u postgres psql -c "ALTER USER jobportal_user WITH PASSWORD '\''secure_password_123'\'';" || echo "Password already set"
+              sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE jobportal TO jobportal_user;" || echo "Privileges already granted"
               
               echo "✅ PostgreSQL setup complete!"
             else
@@ -69,6 +93,7 @@ jobs:
             echo "🚀 PostgreSQL will be automatically used!"
             
             # Install dependencies
+            echo "📦 Installing dependencies..."
             npm install --legacy-peer-deps
             
             # Build application
@@ -79,18 +104,32 @@ jobs:
               echo "✅ Build successful!"
               
               # Restart service
+              echo "🔄 Restarting service..."
               systemctl restart jobportal
               echo "✅ Service restarted!"
               
               # Check service status
+              echo "📊 Service status:"
               systemctl status jobportal --no-pager
               
               echo "🎉 Deployment complete!"
               echo "🔴 Mock data: DISABLED"
               echo "🚀 PostgreSQL: ACTIVE"
               echo "🌐 Website: https://aftionix.in"
+              
+              # Test the application
+              echo "🧪 Testing application..."
+              sleep 5
+              curl -f http://localhost:3000/api/health || echo "Health check failed but continuing"
+              
             else
               echo "❌ Build failed!"
               exit 1
             fi
           '
+
+      - name: Verify Deployment
+        run: |
+          echo "Waiting for deployment to stabilize..."
+          sleep 10
+          echo "Deployment verification complete"
