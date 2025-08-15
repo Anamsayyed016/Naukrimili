@@ -77,7 +77,7 @@ export async function GET(
 
     // Get user from database using Prisma
     const user = await db.user.findUnique({
-      where: { id: userId },
+      where: { id: userId.toString() },
       select: {
         id: true,
         email: true,
