@@ -12,43 +12,69 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH
+      - name: Setup SSH with Validation
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           chmod 700 ~/.ssh
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          echo "SSH setup complete"
+          
+          echo "=== SSH Setup Debug ==="
           ls -la ~/.ssh/
+          echo "=== Key Format Check ==="
+          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "❌ SSH key is corrupted - will use fallback"
+          
+          # Validate key format
+          if ! ssh-keygen -l -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
+            echo "🚨 SSH key validation failed - key is corrupted"
+            echo "🔧 Please regenerate SSH key and update GitHub secrets"
+            exit 1
+          fi
+          
+          echo "✅ SSH key validation successful"
 
       - name: Test SSH Connection
         run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} "echo 'SSH connection successful'"
+          echo "Testing SSH connection..."
+          if ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} "echo 'SSH connection successful'"; then
+            echo "✅ SSH connection successful"
+          else
+            echo "❌ SSH connection failed - key may be corrupted"
+            echo "🔧 Please check your SSH_PRIVATE_KEY secret in GitHub"
+            exit 1
+          fi
 
       - name: Deploy to Hostinger with PostgreSQL Setup
         run: |
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} '
+            set -e
             echo "🚀 Starting automated deployment with PostgreSQL setup..."
-            cd /var/www/jobportal
+            
+            # Navigate to project directory
+            cd /var/www/jobportal || { echo "❌ Directory /var/www/jobportal not found"; exit 1; }
+            
+            echo "✅ Current directory: $(pwd)"
             
             # Pull latest code
+            echo "📥 Pulling latest code..."
             git fetch --all
             git reset --hard origin/main
+            echo "✅ Code updated to latest version"
             
             # 🔴 AUTOMATIC: Setup PostgreSQL if not exists
             if ! systemctl is-active --quiet postgresql; then
               echo "🔴 Setting up PostgreSQL..."
-              sudo apt update
+              sudo apt update -y
               sudo apt install -y postgresql postgresql-contrib
               sudo systemctl start postgresql
               sudo systemctl enable postgresql
               
               # Create database and user
-              sudo -u postgres createdb jobportal || true
-              sudo -u postgres createuser jobportal_user || true
-              sudo -u postgres psql -c "ALTER USER jobportal_user WITH PASSWORD '\''secure_password_123'\'';" || true
-              sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE jobportal TO jobportal_user;" || true
+              sudo -u postgres createdb jobportal || echo "Database already exists"
+              sudo -u postgres createuser jobportal_user || echo "User already exists"
+              sudo -u postgres psql -c "ALTER USER jobportal_user WITH PASSWORD '\''secure_password_123'\'';" || echo "Password already set"
+              sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE jobportal TO jobportal_user;" || echo "Privileges already granted"
               
               echo "✅ PostgreSQL setup complete!"
             else
@@ -69,6 +95,7 @@ jobs:
             echo "🚀 PostgreSQL will be automatically used!"
             
             # Install dependencies
+            echo "📦 Installing dependencies..."
             npm install --legacy-peer-deps
             
             # Build application
@@ -79,16 +106,19 @@ jobs:
               echo "✅ Build successful!"
               
               # Restart service
+              echo "🔄 Restarting service..."
               systemctl restart jobportal
               echo "✅ Service restarted!"
               
               # Check service status
+              echo "📊 Service status:"
               systemctl status jobportal --no-pager
               
               echo "🎉 Deployment complete!"
               echo "🔴 Mock data: DISABLED"
               echo "🚀 PostgreSQL: ACTIVE"
               echo "🌐 Website: https://aftionix.in"
+              
             else
               echo "❌ Build failed!"
               exit 1
