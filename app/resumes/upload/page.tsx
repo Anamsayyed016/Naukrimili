@@ -67,7 +67,7 @@ export default function ResumeUploadPage() {
       )}
 
       {step === 2 && (
-        <ProfileCompletionForm resumeId={resumeId} initialAI={aiData} onClose={()=>{ /* return to dashboard/profile */ }} />
+        <ProfileCompletionForm resumeId={resumeId} initialData={aiData} onClose={()=>{ /* return to dashboard/profile */ }} />
       )}
     </div>
   );

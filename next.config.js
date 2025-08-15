@@ -18,7 +18,7 @@ const nextConfig = {
   
   // Experimental features
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client'],
+    serverExternalPackages: ['@prisma/client'],
   },
   
   // Webpack configuration
