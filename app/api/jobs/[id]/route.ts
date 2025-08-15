@@ -2,7 +2,7 @@
  * Enhanced Job Details API - Real Database Integration
  * GET /api/jobs/[id] - Get specific job with enhanced features
  * 
- * This file uses the standard Next.js 15+ API route pattern
+ * This file uses the standard Next.js 13+ API route pattern
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,19 +10,19 @@ import { databaseService } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(context.params.id);
+    const jobId = parseInt(params.id);
     
-    if (isNaN(id)) {
+    if (isNaN(jobId)) {
       return NextResponse.json(
         { error: 'Invalid job ID' },
         { status: 400 }
       );
     }
 
-    const job = await databaseService.getJobById(id);
+    const job = await databaseService.getJobById(jobId);
 
     if (!job) {
       return NextResponse.json(
