@@ -107,7 +107,7 @@ export async function GET(
 
     // Check if current user can view this profile
     const canViewProfile = (
-      currentUser.id === userId || // Own profile
+      currentUser.id === userId.toString() || // Own profile
       currentUser.role === 'admin' || // Admin can view any profile
       user.isActive // Public profiles only if active
     );
@@ -155,7 +155,7 @@ export async function GET(
     };
 
     // Remove sensitive information for non-admin users viewing others
-    if (currentUser.id !== userId && currentUser.role !== 'admin') {
+    if (currentUser.id !== userId.toString() && currentUser.role !== 'admin') {
       delete transformedUser.email;
       delete transformedUser.phone;
     }
