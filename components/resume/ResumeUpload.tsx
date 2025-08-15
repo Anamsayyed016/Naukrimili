@@ -52,7 +52,7 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 			}
 
 			// Upload resume
-			const response = await fetch('/api/resumes/upload', {
+			const response = await fetch('/api/upload/resume', {
 				method: 'POST',
 				body: formData,
 			});
@@ -67,13 +67,13 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 			const result = await response.json();
 			
 			if (result.success) {
-				setResumeId(result.resumeId);
-				setResumeData(result.extractedData);
+				setResumeId(result.resume.id);
+				setResumeData(result.resume);
 				
 				// Show success message briefly, then show the form
 				toast({
 					title: 'Resume Uploaded Successfully!',
-					description: `AI is analyzing your resume: ${file.name}`,
+					description: `Resume uploaded: ${file.name}`,
 				});
 
 				// Wait 1.2 seconds then show the form

@@ -113,7 +113,7 @@ export const applicationApi = {
 export const resumeApi = {
   // Upload resume
   async uploadResume(file: File, onProgress?: (progress: number) => void): Promise<Resume> {
-    return apiClient.upload<Resume>('/api/resumes/upload', file, onProgress);
+    	return apiClient.upload<Resume>('/api/upload/resume', file, onProgress);
   },
 
   // Get user's resumes

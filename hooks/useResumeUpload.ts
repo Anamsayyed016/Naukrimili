@@ -18,7 +18,7 @@ export function useResumeUpload() {
     try {
       const form = new FormData();
       form.append('resume', file);
-      const res = await fetch('/api/resumes/upload', { method: 'POST', body: form });
+      	const res = await fetch('/api/upload/resume', { method: 'POST', body: form });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.resume) {
