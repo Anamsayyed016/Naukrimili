@@ -13,7 +13,16 @@ const compat = new FlatCompat({
 });
 
 export default [
-  { ignores: ['dist/*', '.next/*', 'node_modules/*'] },
+  { 
+    ignores: [
+      'dist/*', 
+      '.next/*', 
+      'node_modules/*',
+      'lib/generated/prisma/*',
+      '**/*.generated.*',
+      '**/*.d.ts'
+    ] 
+  },
   js.configs.recommended,
   ...compat.extends('next/core-web-vitals'),
   {
@@ -26,6 +35,7 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
         project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
       },
     },
     plugins: {

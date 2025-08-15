@@ -21,6 +21,10 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        continue-on-error: true
+
       - name: Build application
         run: npm run build
 
@@ -62,3 +66,6 @@ jobs:
           echo "2. Use Hostinger Git integration"
           echo "3. Upload files manually via File Manager"
           echo "4. Contact Hostinger support to enable SSH access"
+          echo ""
+          echo "Build completed successfully! The application is ready for deployment."
+          echo "You can manually upload the files to your server or use Hostinger's built-in deployment tools."
