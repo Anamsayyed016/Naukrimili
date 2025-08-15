@@ -10,6 +10,13 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   // NOTE: Removed output: 'export' because the project uses Next.js Route Handlers under /app/api
   // Static HTML export does NOT support API routes or server features. Keeping it caused build failures:
