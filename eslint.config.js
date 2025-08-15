@@ -1,15 +1,18 @@
 export default [
   {
     ignores: [
-      'dist/*', 
-      '.next/*', 
+      'dist/*',
+      '.next/*',
       'node_modules/*',
       'lib/generated/*',
       '**/*.generated.*',
       '**/*.d.ts',
       'prisma/*',
       'out/*',
-      'build/*'
+      'build/*',
+      'coverage/*',
+      '*.config.js',
+      '*.config.ts'
     ]
   },
   {
