@@ -236,7 +236,7 @@ export async function PUT(
 
     // Get current user data
     const currentUserResult = await db.user.findUnique({
-      where: { id: userId },
+      where: { id: userId.toString() },
       select: { password: true, role: true }
     });
 
