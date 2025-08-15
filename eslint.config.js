@@ -20,8 +20,8 @@ export default [
   {
     extends: ['next/core-web-vitals'],
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-explicit-any': 'warn',
       'no-empty': 'warn',
     },
   },
