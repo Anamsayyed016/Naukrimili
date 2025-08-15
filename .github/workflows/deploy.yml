@@ -22,13 +22,22 @@ jobs:
           
           echo "=== SSH Setup Debug ==="
           ls -la ~/.ssh/
+          echo "=== Key Content Check ==="
+          wc -c ~/.ssh/id_ed25519
           echo "=== Key Format Check ==="
-          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "❌ SSH key is corrupted - will use fallback"
+          ssh-keygen -l -f ~/.ssh/id_ed25519 || echo "❌ SSH key validation failed"
           
-          # Validate key format
+          # Validate key format and content
+          if [ ! -s ~/.ssh/id_ed25519 ]; then
+            echo "🚨 SSH key is empty or missing"
+            echo "🔧 Please add SSH_PRIVATE_KEY secret to GitHub"
+            exit 1
+          fi
+          
           if ! ssh-keygen -l -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
-            echo "🚨 SSH key validation failed - key is corrupted"
+            echo "🚨 SSH key format is invalid or corrupted"
             echo "🔧 Please regenerate SSH key and update GitHub secrets"
+            echo "📖 Follow the guide: SSH_KEY_FIX.md"
             exit 1
           fi
           
@@ -40,8 +49,12 @@ jobs:
           if ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} "echo 'SSH connection successful'"; then
             echo "✅ SSH connection successful"
           else
-            echo "❌ SSH connection failed - key may be corrupted"
-            echo "🔧 Please check your SSH_PRIVATE_KEY secret in GitHub"
+            echo "❌ SSH connection failed"
+            echo "🔧 Please check your SSH configuration:"
+            echo "   1. SSH_PRIVATE_KEY secret in GitHub"
+            echo "   2. SSH_HOST, SSH_USER, SSH_PORT secrets"
+            echo "   3. Server authorized_keys file"
+            echo "📖 Follow the guide: SSH_KEY_FIX.md"
             exit 1
           fi
 
