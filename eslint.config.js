@@ -1,4 +1,4 @@
-export default [
+module.exports = [
   {
     ignores: [
       'dist/*',
@@ -17,6 +17,7 @@ export default [
   },
   {
     extends: ['next/core-web-vitals'],
+    plugins: ['@next/next'],
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',

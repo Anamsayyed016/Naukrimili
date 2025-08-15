@@ -10,10 +10,10 @@ import { databaseService } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(context.params.id);
     
     if (isNaN(id)) {
       return NextResponse.json(
