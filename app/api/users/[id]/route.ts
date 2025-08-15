@@ -62,7 +62,7 @@ export async function GET(
 
     // Get current user's full data for authorization
     const currentUser = await databaseService.getClient().user.findUnique({
-      where: { id: currentUserAuth.userId },
+      where: { id: currentUserAuth.userId.toString() },
       select: { id: true, role: true }
     });
 
@@ -204,7 +204,7 @@ export async function PUT(
 
     // Get current user's full data for authorization
     const currentUser = await databaseService.getClient().user.findUnique({
-      where: { id: currentUserAuth.userId },
+      where: { id: currentUserAuth.userId.toString() },
       select: { id: true, role: true }
     });
 
@@ -475,7 +475,7 @@ export async function DELETE(
 
     // Get current user's full data for authorization
     const currentUser = await databaseService.getClient().user.findUnique({
-      where: { id: currentUserAuth.userId },
+      where: { id: currentUserAuth.userId.toString() },
       select: { id: true, role: true }
     });
 
