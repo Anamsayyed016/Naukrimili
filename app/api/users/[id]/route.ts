@@ -52,34 +52,58 @@ export async function GET(
     }
 
     // Extract current user for authorization
-    const currentUser = extractUserFromRequest(request);
-    if (!currentUser) {
+    const currentUserAuth = extractUserFromRequest(request);
+    if (!currentUserAuth) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required',
       }, { status: 401 });
     }
 
+    // Get current user's full data for authorization
+    const currentUser = await databaseService.getClient().user.findUnique({
+      where: { id: currentUserAuth.userId },
+      select: { id: true, role: true }
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({
+        success: false,
+        error: 'Current user not found',
+      }, { status: 401 });
+    }
+
     const db = databaseService.getClient();
 
-    // Get user from database
-    const userResult = await db.query(`
-      SELECT 
-        id, email, "firstName", "lastName", role, phone, location, bio,
-        skills, experience, education, "profilePicture", "isVerified", 
-        "isActive", "createdAt", "updatedAt"
-      FROM "User"
-      WHERE id = $1
-    `, [userId]);
+    // Get user from database using Prisma
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        phone: true,
+        location: true,
+        bio: true,
+        skills: true,
+        experience: true,
+        education: true,
+        profilePicture: true,
+        isVerified: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      }
+    });
 
-    if (userResult.rows.length === 0) {
+    if (!user) {
       return NextResponse.json({
         success: false,
         error: 'User not found',
       }, { status: 404 });
     }
-
-    const user = userResult.rows[0];
 
     // Check if current user can view this profile
     const canViewProfile = (
@@ -95,14 +119,15 @@ export async function GET(
       }, { status: 403 });
     }
 
-    // Get additional user statistics
-    const statsResult = await db.query(`
-      SELECT 
-        (SELECT COUNT(*) FROM "JobBookmark" WHERE "userId" = $1) as bookmarked_jobs,
-        (SELECT COUNT(*) FROM "Job" WHERE "createdBy" = $1) as posted_jobs
-    `, [userId]);
-
-    const stats = statsResult.rows[0] || { bookmarked_jobs: 0, posted_jobs: 0 };
+    // Get additional user statistics using Prisma
+    const [bookmarkedJobs, postedJobs] = await Promise.all([
+      db.jobBookmark.count({
+        where: { userId: userId }
+      }),
+      db.job.count({
+        where: { createdBy: userId }
+      })
+    ]);
 
     // Transform user data for response
     const transformedUser = {
@@ -124,8 +149,8 @@ export async function GET(
       created_at: user.createdAt.toISOString(),
       updated_at: user.updatedAt.toISOString(),
       statistics: {
-        bookmarked_jobs: parseInt(stats.bookmarked_jobs),
-        posted_jobs: parseInt(stats.posted_jobs),
+        bookmarked_jobs: parseInt(bookmarkedJobs.toString()),
+        posted_jobs: parseInt(postedJobs.toString()),
       },
     };
 
@@ -169,11 +194,24 @@ export async function PUT(
     }
 
     // Extract current user for authorization
-    const currentUser = extractUserFromRequest(request);
-    if (!currentUser) {
+    const currentUserAuth = extractUserFromRequest(request);
+    if (!currentUserAuth) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required',
+      }, { status: 401 });
+    }
+
+    // Get current user's full data for authorization
+    const currentUser = await databaseService.getClient().user.findUnique({
+      where: { id: currentUserAuth.userId },
+      select: { id: true, role: true }
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({
+        success: false,
+        error: 'Current user not found',
       }, { status: 401 });
     }
 
@@ -197,19 +235,19 @@ export async function PUT(
     const db = databaseService.getClient();
 
     // Get current user data
-    const currentUserResult = await db.query(
-      'SELECT password, role FROM "User" WHERE id = $1',
-      [userId]
-    );
+    const currentUserResult = await db.user.findUnique({
+      where: { id: userId },
+      select: { password: true, role: true }
+    });
 
-    if (currentUserResult.rows.length === 0) {
+    if (!currentUserResult) {
       return NextResponse.json({
         success: false,
         error: 'User not found',
       }, { status: 404 });
     }
 
-    const existingUser = currentUserResult.rows[0];
+    const existingUser = currentUserResult;
 
     // Handle password update
     let hashedNewPassword = null;
@@ -348,19 +386,44 @@ export async function PUT(
       RETURNING id, email, "firstName", "lastName", role, "updatedAt"
     `;
 
-    const updateResult = await db.query(updateQuery, updateParams);
-    const updatedUser = updateResult.rows[0];
+    const updateResult = await db.user.update({
+      where: { id: userId },
+      data: {
+        ...(validatedData.firstName !== undefined ? { firstName: validatedData.firstName } : {}),
+        ...(validatedData.lastName !== undefined ? { lastName: validatedData.lastName } : {}),
+        ...(validatedData.phone !== undefined ? { phone: validatedData.phone } : {}),
+        ...(validatedData.location !== undefined ? { location: validatedData.location } : {}),
+        ...(validatedData.bio !== undefined ? { bio: validatedData.bio } : {}),
+        ...(validatedData.skills !== undefined ? { skills: validatedData.skills } : {}),
+        ...(validatedData.experience !== undefined ? { experience: validatedData.experience } : {}),
+        ...(validatedData.education !== undefined ? { education: validatedData.education } : {}),
+        ...(validatedData.profilePicture !== undefined ? { profilePicture: validatedData.profilePicture } : {}),
+        ...(hashedNewPassword ? { password: hashedNewPassword } : {}),
+        ...(currentUser.role === 'admin' && validatedData.role !== undefined ? { role: validatedData.role } : {}),
+        ...(currentUser.role === 'admin' && validatedData.isVerified !== undefined ? { isVerified: validatedData.isVerified } : {}),
+        ...(currentUser.role === 'admin' && validatedData.isActive !== undefined ? { isActive: validatedData.isActive } : {}),
+        updatedAt: new Date(),
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        updatedAt: true,
+      }
+    });
 
     return NextResponse.json({
       success: true,
       message: 'User profile updated successfully',
       user: {
-        id: updatedUser.id.toString(),
-        email: updatedUser.email,
-        first_name: updatedUser.firstName,
-        last_name: updatedUser.lastName,
-        role: updatedUser.role,
-        updated_at: updatedUser.updatedAt.toISOString(),
+        id: updateResult.id.toString(),
+        email: updateResult.email,
+        first_name: updateResult.firstName,
+        last_name: updateResult.lastName,
+        role: updateResult.role,
+        updated_at: updateResult.updatedAt.toISOString(),
       },
       timestamp: new Date().toISOString(),
     });
@@ -402,11 +465,24 @@ export async function DELETE(
     }
 
     // Extract current user for authorization
-    const currentUser = extractUserFromRequest(request);
-    if (!currentUser) {
+    const currentUserAuth = extractUserFromRequest(request);
+    if (!currentUserAuth) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required',
+      }, { status: 401 });
+    }
+
+    // Get current user's full data for authorization
+    const currentUser = await databaseService.getClient().user.findUnique({
+      where: { id: currentUserAuth.userId },
+      select: { id: true, role: true }
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({
+        success: false,
+        error: 'Current user not found',
       }, { status: 401 });
     }
 
@@ -426,12 +502,12 @@ export async function DELETE(
     const db = databaseService.getClient();
 
     // Check if user exists
-    const userResult = await db.query(
-      'SELECT id, email FROM "User" WHERE id = $1',
-      [userId]
-    );
+    const userResult = await db.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true }
+    });
 
-    if (userResult.rows.length === 0) {
+    if (!userResult) {
       return NextResponse.json({
         success: false,
         error: 'User not found',
@@ -439,11 +515,13 @@ export async function DELETE(
     }
 
     // Soft delete: mark user as inactive
-    await db.query(`
-      UPDATE "User" 
-      SET "isActive" = false, "updatedAt" = $1
-      WHERE id = $2
-    `, [new Date(), userId]);
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        isActive: false,
+        updatedAt: new Date(),
+      }
+    });
 
     return NextResponse.json({
       success: true,
