@@ -39,6 +39,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResumeGen
     const generation = await resumeService.generateResume({
       ...requestData,
       userId: authUserId,
+      preferences: {
+        tone: requestData.preferences?.tone || 'professional',
+        length: requestData.preferences?.length || 'detailed',
+        focus: requestData.preferences?.focus || 'experience',
+        ...requestData.preferences
+      }
     });
     
     // Log generation for monitoring
