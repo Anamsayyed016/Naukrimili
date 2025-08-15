@@ -20,7 +20,7 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 	const [uploadedFile, setUploadedFile] = useState(null as File | null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
-	const [resumeData, setResumeData] = useState(null as any);
+	const [resumeData, setResumeData] = useState(null as unknown);
 	const [showForm, setShowForm] = useState(false);
 	const [resumeId, setResumeId] = useState(null as string | null);
 

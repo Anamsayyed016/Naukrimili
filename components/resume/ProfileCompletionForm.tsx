@@ -61,22 +61,22 @@ function ProfileCompletionForm({
 		portfolio: '',
 		expectedSalary: '',
 		preferredJobType: '',
-		...(initialData as any)
+		...initialData
 	});
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [aiAccuracy, setAiAccuracy] = useState(85 as number);
+	const [aiAccuracy, setAiAccuracy] = useState(85);
 	const [error, setError] = useState('');
 
 	useEffect(() => {
 		if (initialData) {
-			setProfileData(prev => ({ ...(prev as any), ...(initialData as any) }));
+			setProfileData(prev => ({ ...prev, ...initialData }));
 		}
 	}, [initialData]);
 
 	const resolveUserId = (): string => {
-		const uid = (session as any)?.user?.id;
+		const uid = session?.user?.id;
 		if (uid) return String(uid);
 		if (typeof window !== 'undefined') {
 			const existing = window.localStorage.getItem('anonUserId');
@@ -116,35 +116,35 @@ function ProfileCompletionForm({
 	};
 
 	const handleSkillAdd = (skill: string) => {
-		if (skill.trim() && !(profileData.skills as string[]).includes(skill.trim())) {
-			setProfileData((prev: any) => ({
+		if (skill.trim() && !profileData.skills.includes(skill.trim())) {
+			setProfileData((prev: ProfileData) => ({
 				...prev,
-				skills: [...(prev.skills as string[]), skill.trim()]
+				skills: [...prev.skills, skill.trim()]
 			}));
 		}
 	};
 
 	const handleSkillRemove = (skillToRemove: string) => {
-		setProfileData((prev: any) => ({
+		setProfileData((prev: ProfileData) => ({
 			...prev,
-			skills: (prev.skills as string[]).filter((skill: string) => skill !== skillToRemove)
+			skills: prev.skills.filter((skill: string) => skill !== skillToRemove)
 		}));
 	};
 
 	const handleEducationAdd = (education: string) => {
-		if (education.trim() && !(profileData.education as string[]).includes(education.trim())) {
-			setProfileData((prev: any) => ({
+		if (education.trim() && !profileData.education.includes(education.trim())) {
+			setProfileData((prev: ProfileData) => ({
 				...prev,
-				education: [...(prev.education as string[]), education.trim()]
+				education: [...prev.education, education.trim()]
 			}));
 		}
 	};
 
 	const handleExperienceAdd = (experience: string) => {
-		if (experience.trim() && !(profileData.experience as string[]).includes(experience.trim())) {
-			setProfileData((prev: any) => ({
+		if (experience.trim() && !profileData.experience.includes(experience.trim())) {
+			setProfileData((prev: ProfileData) => ({
 				...prev,
-				experience: [...(prev.experience as string[]), experience.trim()]
+				experience: [...prev.experience, experience.trim()]
 			}));
 		}
 	};
@@ -341,7 +341,7 @@ function ProfileCompletionForm({
 						<h3 className="text-lg font-semibold mb-4">Skills</h3>
 						<div className="space-y-3">
 							<div className="flex flex-wrap gap-2">
-								{(profileData.skills as string[]).map((skill, index) => (
+								{profileData.skills.map((skill, index) => (
 									<span key={index} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold text-foreground bg-secondary">
 										{skill}
 										{isEditing && (
