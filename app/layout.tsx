@@ -5,12 +5,16 @@ import MainNavigation from '@/components/MainNavigation';
 import Footer from '@/components/Footer';
 import SessionProvider from '@/components/providers/SessionProvider';
 
+// Buffer polyfill for experimental feature warning
+if (typeof window !== 'undefined') {
+  window.Buffer = window.Buffer || require('buffer').Buffer;
+}
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'NaukriMili - AI-Powered Job Portal',
-  description: 'Find your dream job with AI-powered matching. Discover thousands of opportunities across India.',
-  keywords: 'jobs, career, employment, AI, India, naukri, recruitment',
+  title: 'Job Portal - Find Your Dream Job',
+  description: 'Discover thousands of job opportunities and connect with top employers',
 };
 
 export default function RootLayout({

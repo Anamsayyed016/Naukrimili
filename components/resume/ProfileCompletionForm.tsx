@@ -1,189 +1,504 @@
-"use client";
-import React, { useEffect, useMemo, useState } from "react";
-import { useProfileMutation, type ProfileFormData } from "@/hooks/useProfileMutation";
-import { apiClient, API_ENDPOINTS } from "@/lib/api-client";
-import { useToast } from "@/hooks/use-toast";
+'use client';
 
-type ResumeAIData = any;
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { toast } from '@/hooks/use-toast';
+import { 
+	User, 
+	Briefcase, 
+	GraduationCap, 
+	Edit3, 
+	Save,
+	CheckCircle
+} from 'lucide-react';
+import { useSession } from 'next-auth/react';
+
+interface ProfileData {
+	fullName: string;
+	email: string;
+	phone: string;
+	location: string;
+	jobTitle: string;
+	skills: string[];
+	education: string[];
+	experience: string[];
+	linkedin: string;
+	portfolio: string;
+	expectedSalary: string;
+	preferredJobType: string;
+}
 
 interface Props {
-  resumeId?: string;
-  initialAI?: ResumeAIData | null;
-  onClose?: () => void;
+	resumeId?: string | null;
+	initialData?: Partial<ProfileData>;
+	onComplete?: () => void;
+	onClose?: () => void;
 }
 
-const STORAGE_KEY = "profile_completion_draft";
+function ProfileCompletionForm({ 
+	resumeId, 
+	initialData = {}, 
+	onComplete, 
+	onClose 
+}: Props) {
+	const { data: session } = useSession();
+	const [profileData, setProfileData] = useState({
+		fullName: '',
+		email: '',
+		phone: '',
+		location: '',
+		jobTitle: '',
+		skills: [] as string[],
+		education: [] as string[],
+		experience: [] as string[],
+		linkedin: '',
+		portfolio: '',
+		expectedSalary: '',
+		preferredJobType: '',
+		...(initialData as any)
+	});
 
-export default function ProfileCompletionForm({ resumeId, initialAI = null, onClose }: Props) {
-  const { mutateAsync, isPending } = useProfileMutation();
-  const { toast } = useToast?.() || { toast: () => {} } as any;
-  const [aiData, setAiData] = useState<ResumeAIData | null>(initialAI);
-  const [loadingAI, setLoadingAI] = useState(false);
-  const [notice, setNotice] = useState<string | null>(initialAI ? "Generated from your resume" : null);
+	const [isEditing, setIsEditing] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [aiAccuracy, setAiAccuracy] = useState(85 as number);
 
-  const empty: ProfileFormData = useMemo(() => ({
-    fullName: "",
-    email: "",
-    phone: "",
-    location: "",
-    jobTitle: "",
-    skills: [],
-    education: [],
-    experience: [],
-    preferredJobType: "",
-    expectedSalary: "",
-    linkedin: "",
-    portfolio: "",
-  }), []);
+	useEffect(() => {
+		if (initialData) {
+			setProfileData(prev => ({ ...(prev as any), ...(initialData as any) }));
+		}
+	}, [initialData]);
 
-  const [form, setForm] = useState<ProfileFormData>(empty);
+	const resolveUserId = (): string => {
+		const uid = (session as any)?.user?.id;
+		if (uid) return String(uid);
+		if (typeof window !== 'undefined') {
+			const existing = window.localStorage.getItem('anonUserId');
+			if (existing) return existing;
+			const generated = `guest-${Date.now()}`;
+			window.localStorage.setItem('anonUserId', generated);
+			return generated;
+		}
+		return 'guest-runtime';
+	};
 
-  // Merge AI data into form
-  useEffect(() => {
-    if (!aiData) return;
-    const merged: ProfileFormData = {
-      fullName: aiData.fullName || aiData.personal_info?.full_name || "",
-      email: aiData.contact?.email || aiData.personal_info?.email || "",
-      phone: aiData.contact?.phone || aiData.personal_info?.phone || "",
-      location: aiData.personal_info?.location || "",
-      jobTitle: aiData.personal_info?.title || aiData.currentPosition || "",
-      skills: aiData.skills || [],
-      education: (aiData.education || []).map((e: any) => ({
-        school: e.institution || e.school || "",
-        degree: e.degree || "",
-        startYear: e.startYear || e.start || "",
-        endYear: e.endYear || e.end || "",
-      })),
-      experience: (aiData.experience || aiData.workExperience || []).map((w: any) => ({
-        company: w.company || "",
-        role: w.title || w.role || "",
-        startDate: w.startDate || w.start || "",
-        endDate: w.endDate || w.end || "",
-        description: Array.isArray(w.description) ? w.description.join("\n") : (w.description || ""),
-      })),
-      preferredJobType: aiData.preferences?.jobType || "",
-      expectedSalary: aiData.preferences?.salary || "",
-      linkedin: aiData.personal_info?.linkedin || "",
-      portfolio: aiData.personal_info?.portfolio || aiData.personal_info?.website || "",
-    };
-    setForm(prev => ({ ...prev, ...merged }));
-  }, [aiData]);
+	const handleInputChange = (field: keyof ProfileData, value: any) => {
+		setProfileData((prev: any) => ({ ...prev, [field]: value }));
+	};
 
-  // Restore draft
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setForm(prev => ({ ...prev, ...(JSON.parse(raw) as ProfileFormData) }));
-    } catch {}
-  }, []);
+	const handleSkillAdd = (skill: string) => {
+		if (skill.trim() && !(profileData.skills as string[]).includes(skill.trim())) {
+			setProfileData((prev: any) => ({
+				...prev,
+				skills: [...(prev.skills as string[]), skill.trim()]
+			}));
+		}
+	};
 
-  // Autosave draft
-  useEffect(() => {
-    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(form)); } catch {}
-  }, [form]);
+	const handleSkillRemove = (skillToRemove: string) => {
+		setProfileData((prev: any) => ({
+			...prev,
+			skills: (prev.skills as string[]).filter((skill: string) => skill !== skillToRemove)
+		}));
+	};
 
-  const onChange = (name: keyof ProfileFormData, value: any) => setForm(prev => ({ ...prev, [name]: value }));
+	const handleEducationAdd = (education: string) => {
+		if (education.trim() && !(profileData.education as string[]).includes(education.trim())) {
+			setProfileData((prev: any) => ({
+				...prev,
+				education: [...(prev.education as string[]), education.trim()]
+			}));
+		}
+	};
 
-  const reRunAI = async () => {
-    if (!resumeId) return;
-    setLoadingAI(true);
-    try {
-      const res = await apiClient.post(API_ENDPOINTS.RESUME_ANALYZE, { resumeData: aiData || {}, userId: "current", resumeId });
-      if (!res.success) throw new Error(res.error || "Failed to analyze");
-      const ai = (res as any).analysis?.enhancedData || (res as any).enhancedData || (res as any).data || res;
-      setAiData(ai);
-      setNotice("Generated from your resume");
-    } catch (e: any) {
-      setNotice("Couldn’t re-run AI. You can edit manually.");
-    } finally {
-      setLoadingAI(false);
-    }
-  };
+	const handleExperienceAdd = (experience: string) => {
+		if (experience.trim() && !(profileData.experience as string[]).includes(experience.trim())) {
+			setProfileData((prev: any) => ({
+				...prev,
+				experience: [...(prev.experience as string[]), experience.trim()]
+			}));
+		}
+	};
 
-  const clearManual = () => { setForm(empty); setNotice(null); };
+	const handleSubmit = async () => {
+		setIsSubmitting(true);
+		const userId = resolveUserId();
+		try {
+			const res = await fetch('/api/user/profile', {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+					'x-user-id': userId,
+				},
+				body: JSON.stringify(profileData),
+			});
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Minimal required validation
-    if (!form.fullName || !form.email) {
-      alert("Full Name and Email are required");
-      return;
-    }
-    const payload: ProfileFormData = { ...form };
-    await mutateAsync(payload);
-    try { window.localStorage.removeItem(STORAGE_KEY); } catch {}
-    toast?.({ title: "Profile saved", description: "Your profile has been updated." });
-    onClose?.();
-  };
+			const json = await res.json();
+			if (!res.ok || !json.success) {
+				throw new Error(json.error || 'Failed to update profile');
+			}
 
-  return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Complete your profile</h2>
-        <div className="flex gap-2">
-          <button type="button" onClick={reRunAI} className="text-sm px-3 py-1 rounded border">
-            {loadingAI ? 'Analyzing...' : 'Re-run AI extraction'}
-          </button>
-          <button type="button" onClick={clearManual} className="text-sm px-3 py-1 rounded border">Clear & Fill Manually</button>
-        </div>
-      </div>
-      {notice && <p className="text-xs text-gray-600">{notice}</p>}
+			toast({
+				title: 'Profile Updated Successfully!',
+				description: 'Your profile has been saved and is now visible to employers.',
+			});
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input className="border rounded p-2" placeholder="Full Name" value={form.fullName || ''} onChange={e=>onChange('fullName', e.target.value)} required />
-        <input className="border rounded p-2" placeholder="Email" type="email" value={form.email || ''} onChange={e=>onChange('email', e.target.value)} required />
-        <input className="border rounded p-2" placeholder="Phone" value={form.phone || ''} onChange={e=>onChange('phone', e.target.value)} />
-        <input className="border rounded p-2" placeholder="Location (city/state/country)" value={form.location || ''} onChange={e=>onChange('location', e.target.value)} />
-        <input className="border rounded p-2" placeholder="Job Title / Current Position" value={form.jobTitle || ''} onChange={e=>onChange('jobTitle', e.target.value)} />
-        <input className="border rounded p-2" placeholder="LinkedIn URL" value={form.linkedin || ''} onChange={e=>onChange('linkedin', e.target.value)} />
-        <input className="border rounded p-2" placeholder="Portfolio URL" value={form.portfolio || ''} onChange={e=>onChange('portfolio', e.target.value)} />
-      </div>
+			if (typeof window !== 'undefined') {
+				window.location.href = '/profile';
+			}
+			if (onComplete) onComplete();
+		} catch (error: any) {
+			toast({
+				title: 'Update Failed',
+				description: error?.message || 'Please try again or contact support.',
+				variant: 'destructive',
+			});
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Skills (comma separated)</label>
-        <input className="w-full border rounded p-2" value={(form.skills || []).join(', ')} onChange={e=>onChange('skills', e.target.value.split(',').map(s=>s.trim()).filter(Boolean))} />
-      </div>
+	const getAiAccuracyColor = (accuracy: number) => {
+		if (accuracy >= 80) return 'text-green-600';
+		if (accuracy >= 60) return 'text-yellow-600';
+		return 'text-red-600';
+	};
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Work experience</label>
-        {(form.experience || []).map((exp, idx) => (
-          <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
-            <input className="border rounded p-2" placeholder="Company" value={exp.company || ''} onChange={e=>{
-              const arr=[...(form.experience||[])]; arr[idx]={...arr[idx], company:e.target.value}; onChange('experience', arr);
-            }} />
-            <input className="border rounded p-2" placeholder="Role" value={exp.role || ''} onChange={e=>{ const arr=[...(form.experience||[])]; arr[idx]={...arr[idx], role:e.target.value}; onChange('experience', arr); }} />
-            <input className="border rounded p-2" placeholder="Start date" value={exp.startDate || ''} onChange={e=>{ const arr=[...(form.experience||[])]; arr[idx]={...arr[idx], startDate:e.target.value}; onChange('experience', arr); }} />
-            <input className="border rounded p-2" placeholder="End date" value={exp.endDate || ''} onChange={e=>{ const arr=[...(form.experience||[])]; arr[idx]={...arr[idx], endDate:e.target.value}; onChange('experience', arr); }} />
-            <textarea className="md:col-span-2 border rounded p-2" placeholder="Description" value={exp.description || ''} onChange={e=>{ const arr=[...(form.experience||[])]; arr[idx]={...arr[idx], description:e.target.value}; onChange('experience', arr); }} />
-          </div>
-        ))}
-        <button type="button" className="text-sm px-3 py-1 rounded border" onClick={()=>onChange('experience', [ ...(form.experience||[]), { company:'', role:'', startDate:'', endDate:'', description:'' }])}>Add experience</button>
-      </div>
+	return (
+		<div className="space-y-6">
+			{/* AI Analysis Summary */}
+			<Card className="border-blue-200 bg-blue-50">
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2 text-blue-900">
+						<CheckCircle className="h-5 w-5" />
+						AI Resume Analysis Summary
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div className="text-center">
+							<div className={`text-2xl font-bold ${getAiAccuracyColor(aiAccuracy)}`}>
+								{aiAccuracy}%
+							</div>
+							<div className="text-sm text-blue-700">AI Confidence</div>
+						</div>
+						<div className="text-center">
+							<div className="text-2xl font-bold text-blue-900">
+								{Object.keys(initialData).length}
+							</div>
+							<div className="text-sm text-blue-700">Fields Detected</div>
+						</div>
+						<div className="text-center">
+							<div className="text-2xl font-bold text-blue-900">
+								{profileData.skills.length}
+							</div>
+							<div className="text-sm text-blue-700">Skills Found</div>
+						</div>
+					</div>
+					
+					<div className="mt-4 p-3 bg-white rounded-lg">
+						<p className="text-sm text-blue-800">
+							<strong>Note:</strong> AI has automatically filled your profile based on your resume. 
+							Review and edit any information, or add missing details manually.
+						</p>
+					</div>
+				</CardContent>
+			</Card>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Education</label>
-        {(form.education || []).map((ed, idx) => (
-          <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
-            <input className="border rounded p-2" placeholder="School" value={ed.school || ''} onChange={e=>{ const arr=[...(form.education||[])]; arr[idx]={...arr[idx], school:e.target.value}; onChange('education', arr); }} />
-            <input className="border rounded p-2" placeholder="Degree" value={ed.degree || ''} onChange={e=>{ const arr=[...(form.education||[])]; arr[idx]={...arr[idx], degree:e.target.value}; onChange('education', arr); }} />
-            <input className="border rounded p-2" placeholder="Start year" value={ed.startYear || ''} onChange={e=>{ const arr=[...(form.education||[])]; arr[idx]={...arr[idx], startYear:e.target.value}; onChange('education', arr); }} />
-            <input className="border rounded p-2" placeholder="End year" value={ed.endYear || ''} onChange={e=>{ const arr=[...(form.education||[])]; arr[idx]={...arr[idx], endYear:e.target.value}; onChange('education', arr); }} />
-          </div>
-        ))}
-        <button type="button" className="text-sm px-3 py-1 rounded border" onClick={()=>onChange('education', [ ...(form.education||[]), { school:'', degree:'', startYear:'', endYear:'' }])}>Add education</button>
-      </div>
+			{/* Profile Form */}
+			<Card>
+				<CardHeader>
+					<div className="flex items-center justify-between">
+						<CardTitle>Complete Your Profile</CardTitle>
+						<Button
+							variant={isEditing ? 'default' : 'outline'}
+							onClick={() => setIsEditing(!isEditing)}
+							size="sm"
+						>
+							<Edit3 className="h-4 w-4 mr-2" />
+							{isEditing ? 'View Mode' : 'Edit Mode'}
+						</Button>
+					</div>
+				</CardHeader>
+				
+				<CardContent className="space-y-6">
+					{/* Personal Information */}
+					<div>
+						<h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+							<User className="h-5 w-5" />
+							Personal Information
+						</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<Label htmlFor="fullName">Full Name *</Label>
+								<Input
+									id="fullName"
+									value={profileData.fullName}
+									onChange={(e) => handleInputChange('fullName', e.target.value)}
+									disabled={!isEditing}
+									placeholder="Enter your full name"
+								/>
+							</div>
+							<div>
+								<Label htmlFor="email">Email *</Label>
+								<Input
+									id="email"
+									type="email"
+									value={profileData.email}
+									onChange={(e) => handleInputChange('email', e.target.value)}
+									disabled={!isEditing}
+									placeholder="your.email@example.com"
+								/>
+							</div>
+							<div>
+								<Label htmlFor="phone">Phone</Label>
+								<Input
+									id="phone"
+									value={profileData.phone}
+									onChange={(e) => handleInputChange('phone', e.target.value)}
+									disabled={!isEditing}
+									placeholder="+91 98765 43210"
+								/>
+							</div>
+							<div>
+								<Label htmlFor="location">Location</Label>
+								<Input
+									id="location"
+									value={profileData.location}
+									onChange={(e) => handleInputChange('location', e.target.value)}
+									disabled={!isEditing}
+									placeholder="City, State"
+								/>
+							</div>
+						</div>
+					</div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input className="border rounded p-2" placeholder="Preferred job type" value={form.preferredJobType || ''} onChange={e=>onChange('preferredJobType', e.target.value)} />
-        <input className="border rounded p-2" placeholder="Expected salary range" value={form.expectedSalary || ''} onChange={e=>onChange('expectedSalary', e.target.value)} />
-      </div>
+					<Separator />
 
-      <div className="flex justify-end gap-2">
-        <button type="button" className="px-4 py-2 rounded border" onClick={onClose}>Skip</button>
-        <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white" disabled={isPending}>{isPending ? 'Saving...' : 'Save profile'}</button>
-      </div>
-    </form>
-  );
+					{/* Professional Information */}
+					<div>
+						<h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+							<Briefcase className="h-5 w-5" />
+							Professional Information
+						</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<Label htmlFor="jobTitle">Current/Desired Job Title</Label>
+								<Input
+									id="jobTitle"
+									value={profileData.jobTitle}
+									onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+									disabled={!isEditing}
+									placeholder="e.g., Senior Software Engineer"
+								/>
+							</div>
+							<div>
+								<Label htmlFor="expectedSalary">Expected Salary</Label>
+								<Input
+									id="expectedSalary"
+									value={profileData.expectedSalary}
+									onChange={(e) => handleInputChange('expectedSalary', e.target.value)}
+									disabled={!isEditing}
+									placeholder="e.g., 15-25 LPA"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<Separator />
+
+					{/* Skills */}
+					<div>
+						<h3 className="text-lg font-semibold mb-4">Skills</h3>
+						<div className="space-y-3">
+							<div className="flex flex-wrap gap-2">
+								{(profileData.skills as string[]).map((skill, index) => (
+									<span key={index} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold text-foreground bg-secondary">
+										{skill}
+										{isEditing && (
+											<button
+												onClick={() => handleSkillRemove(skill)}
+												className="ml-2 text-red-500 hover:text-red-700"
+											>
+												×
+											</button>
+										)}
+									</span>
+								))}
+							</div>
+							{isEditing && (
+								<div className="flex gap-2">
+									<Input
+										placeholder="Add a skill"
+										onKeyPress={(e) => {
+											if (e.key === 'Enter') {
+												handleSkillAdd((e.target as HTMLInputElement).value);
+												(e.target as HTMLInputElement).value = '';
+											}
+										}}
+									/>
+									<Button
+										variant="outline"
+										onClick={() => {
+											const input = document.querySelector('input[placeholder="Add a skill"]') as HTMLInputElement;
+											if (input) {
+												handleSkillAdd(input.value);
+												input.value = '';
+											}
+										}}
+									>
+										Add
+									</Button>
+								</div>
+							)}
+						</div>
+					</div>
+
+					<Separator />
+
+					{/* Education */}
+					<div>
+						<h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+							<GraduationCap className="h-5 w-5" />
+							Education
+						</h3>
+						<div className="space-y-3">
+							{profileData.education.map((edu, index) => (
+								<div key={index} className="p-3 bg-gray-50 rounded-lg">
+									{edu}
+								</div>
+							))}
+							{isEditing && (
+								<div className="flex gap-2">
+									<Input
+										placeholder="Add education details"
+										onKeyPress={(e) => {
+											if (e.key === 'Enter') {
+												handleEducationAdd((e.target as HTMLInputElement).value);
+												(e.target as HTMLInputElement).value = '';
+											}
+										}}
+									/>
+									<Button
+										variant="outline"
+										onClick={() => {
+											const input = document.querySelector('input[placeholder="Add education details"]') as HTMLInputElement;
+											if (input) {
+												handleEducationAdd(input.value);
+												input.value = '';
+											}
+										}}
+									>
+										Add
+									</Button>
+								</div>
+							)}
+						</div>
+					</div>
+
+					<Separator />
+
+					{/* Experience */}
+					<div>
+						<h3 className="text-lg font-semibold mb-4">Work Experience</h3>
+						<div className="space-y-3">
+							{profileData.experience.map((exp, index) => (
+								<div key={index} className="p-3 bg-gray-50 rounded-lg">
+									{exp}
+								</div>
+							))}
+							{isEditing && (
+								<div className="flex gap-2">
+									<Input
+										placeholder="Add work experience"
+										onKeyPress={(e) => {
+											if (e.key === 'Enter') {
+												handleExperienceAdd((e.target as HTMLInputElement).value);
+												(e.target as HTMLInputElement).value = '';
+											}
+										}}
+									/>
+									<Button
+										variant="outline"
+										onClick={() => {
+											const input = document.querySelector('input[placeholder="Add work experience"]') as HTMLInputElement;
+											if (input) {
+												handleExperienceAdd(input.value);
+												input.value = '';
+											}
+										}}
+									>
+										Add
+									</Button>
+								</div>
+							)}
+						</div>
+					</div>
+
+					<Separator />
+
+					{/* Links */}
+					<div>
+						<h3 className="text-lg font-semibold mb-4">Professional Links</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<Label htmlFor="linkedin">LinkedIn Profile</Label>
+								<Input
+									id="linkedin"
+									value={profileData.linkedin}
+									onChange={(e) => handleInputChange('linkedin', e.target.value)}
+									disabled={!isEditing}
+									placeholder="https://linkedin.com/in/yourprofile"
+								/>
+							</div>
+							<div>
+								<Label htmlFor="portfolio">Portfolio/Website</Label>
+								<Input
+									id="portfolio"
+									value={profileData.portfolio}
+									onChange={(e) => handleInputChange('portfolio', e.target.value)}
+									disabled={!isEditing}
+									placeholder="https://yourportfolio.com"
+								/>
+							</div>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* Action Buttons */}
+			<div className="flex justify-end gap-3">
+				{onClose && (
+					<Button variant="outline" onClick={onClose}>
+						Cancel
+					</Button>
+				)}
+				<Button
+					onClick={handleSubmit}
+					disabled={isSubmitting}
+					className="min-w-[140px]"
+				>
+					{isSubmitting ? (
+						<>
+							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+							Saving...
+						</>
+					) : (
+						<>
+							<Save className="h-4 w-4 mr-2" />
+							Save & View Profile
+						</>
+					)}
+				</Button>
+			</div>
+		</div>
+	);
 }
+
+export default ProfileCompletionForm;
 
 

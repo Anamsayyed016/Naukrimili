@@ -1,15 +1,37 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Production optimizations
-  output: 'standalone',
-  poweredByHeader: false,
-  compress: true,
-  
   // Image optimization
   images: {
-    domains: ['localhost', 'your-domain.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ],
     formats: ['image/webp', 'image/avif'],
     unoptimized: false,
+  },
+  
+  // Experimental features
+  experimental: {
+    serverComponentsExternalPackages: ['@prisma/client'],
+  },
+  
+  // Webpack configuration
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
   },
   
   // Environment variables
@@ -17,56 +39,21 @@ const nextConfig = {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
   
-  // Skip lint/type errors during Hostinger deployment
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // Output configuration
+  output: 'standalone',
   
-  // Build configuration
-  ...(process.env.SKIP_AUTH_BUILD && {
-    async rewrites() {
-      return [
-        {
-          source: '/api/auth/:path*',
-          destination: '/api/health',
-        },
-      ];
-    },
-  }),
+  // Trailing slash
+  trailingSlash: false,
   
-  // Webpack configuration for production
-  webpack: (config, { isServer, dev }) => {
-    if (isServer) {
-      config.externals.push({
-        'utf-8-validate': 'commonjs utf-8-validate',
-        'bufferutil': 'commonjs bufferutil',
-      });
-    }
-    
-    // Production optimizations
-    if (!dev) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-            },
-          },
-        },
-      };
-    }
-    
-    return config;
+  // Powered by header
+  poweredByHeader: false,
+  
+  // Compiler options
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // Headers for security and performance
+  // Headers
   async headers() {
     return [
       {
@@ -84,48 +71,30 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
-          },
-        ],
-      },
-      {
-        source: '/api/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=300, s-maxage=600',
-          },
         ],
       },
     ];
   },
   
-  // Redirects for SEO
+  // Redirects
   async redirects() {
     return [
       {
-        source: '/home',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/jobs/search',
-        destination: '/jobs',
+        source: '/old-page',
+        destination: '/new-page',
         permanent: true,
       },
     ];
   },
   
-  // Experimental features for performance
-  experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+  // Rewrites
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: '/api/:path*',
+      },
+    ];
   },
 };
 
