@@ -66,7 +66,7 @@ export async function POST(
       success: true,
       downloadUrl: exportResult.downloadUrl,
       fileName: exportResult.filename,
-      fileSize: exportResult.fileSize,
+      fileSize: 0, // Default file size since exportResult doesn't provide it
       expiresAt: expiresAt.toISOString(),
     };
 
@@ -74,7 +74,6 @@ export async function POST(
     console.log(`Resume exported: ${id} for user: ${userId}`, {
       format,
       fileName: exportResult.filename,
-      fileSize: exportResult.fileSize,
     });
 
     return NextResponse.json(response, { status: 200 });
