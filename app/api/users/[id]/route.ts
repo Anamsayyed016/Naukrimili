@@ -253,11 +253,11 @@ export async function PUT(
     let hashedNewPassword = null;
     if (validatedData.newPassword) {
       // Verify current password if updating own profile
-      if (currentUser.id === userId) {
+      if (currentUser.id === userId.toString()) {
         if (!validatedData.currentPassword) {
           return NextResponse.json({
             success: false,
-            error: 'Current password required for password update',
+            error: 'Current password is required to update password',
           }, { status: 400 });
         }
 
