@@ -122,10 +122,10 @@ export async function GET(
     // Get additional user statistics using Prisma
     const [bookmarkedJobs, postedJobs] = await Promise.all([
       db.jobBookmark.count({
-        where: { userId: userId }
+        where: { userId: userId.toString() }
       }),
       db.job.count({
-        where: { createdBy: userId }
+        where: { createdBy: userId.toString() }
       })
     ]);
 
