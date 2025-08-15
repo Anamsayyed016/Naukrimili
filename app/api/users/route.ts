@@ -52,11 +52,24 @@ const userSearchSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     // Extract user authentication
-    const currentUser = extractUserFromRequest(request);
-    if (!currentUser) {
+    const currentUserAuth = extractUserFromRequest(request);
+    if (!currentUserAuth) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required',
+      }, { status: 401 });
+    }
+
+    // Get current user's full data for authorization
+    const currentUser = await databaseService.getClient().user.findUnique({
+      where: { id: currentUserAuth.userId.toString() },
+      select: { id: true, role: true }
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({
+        success: false,
+        error: 'Current user not found',
       }, { status: 401 });
     }
 
