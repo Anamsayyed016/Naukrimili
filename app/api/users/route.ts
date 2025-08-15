@@ -94,88 +94,78 @@ export async function GET(request: NextRequest) {
     // Build database query
     const db = databaseService.getClient();
     
-    // Build where conditions
-    const whereConditions: string[] = [];
-    const params: any[] = [];
-    let paramIndex = 1;
+    // Build where conditions for Prisma
+    const whereConditions: any = {};
 
     if (validatedParams.q) {
-      whereConditions.push(`(
-        "firstName" ILIKE $${paramIndex} OR 
-        "lastName" ILIKE $${paramIndex} OR 
-        email ILIKE $${paramIndex}
-      )`);
-      params.push(`%${validatedParams.q}%`);
-      paramIndex++;
+      whereConditions.OR = [
+        { firstName: { contains: validatedParams.q, mode: 'insensitive' } },
+        { lastName: { contains: validatedParams.q, mode: 'insensitive' } },
+        { email: { contains: validatedParams.q, mode: 'insensitive' } }
+      ];
     }
 
     if (validatedParams.role) {
-      whereConditions.push(`role = $${paramIndex}`);
-      params.push(validatedParams.role);
-      paramIndex++;
+      whereConditions.role = validatedParams.role;
     }
 
     if (validatedParams.location) {
-      whereConditions.push(`location ILIKE $${paramIndex}`);
-      params.push(`%${validatedParams.location}%`);
-      paramIndex++;
+      whereConditions.location = { contains: validatedParams.location, mode: 'insensitive' };
     }
 
     if (validatedParams.skills && validatedParams.skills.length > 0) {
-      whereConditions.push(`skills && $${paramIndex}`);
-      params.push(validatedParams.skills);
-      paramIndex++;
+      whereConditions.skills = { hasSome: validatedParams.skills };
     }
 
     if (validatedParams.isVerified !== undefined) {
-      whereConditions.push(`"isVerified" = $${paramIndex}`);
-      params.push(validatedParams.isVerified);
-      paramIndex++;
+      whereConditions.isVerified = validatedParams.isVerified;
     }
 
     if (validatedParams.isActive !== undefined) {
-      whereConditions.push(`"isActive" = $${paramIndex}`);
-      params.push(validatedParams.isActive);
-      paramIndex++;
+      whereConditions.isActive = validatedParams.isActive;
     }
 
-    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
-    
     // Build order clause
     const orderBy = validatedParams.sort_by || 'createdAt';
     const orderDirection = validatedParams.sort_order;
-    const orderClause = `ORDER BY "${orderBy}" ${orderDirection}`;
 
     // Get total count
-    const countQuery = `
-      SELECT COUNT(*) as total
-      FROM "User"
-      ${whereClause}
-    `;
-    const countResult = await db.query(countQuery, params);
-    const total = parseInt(countResult.rows[0].total);
+    const total = await db.user.count({ where: whereConditions });
 
     // Calculate pagination
     const totalPages = Math.ceil(total / pagination.limit);
     const offset = (pagination.page - 1) * pagination.limit;
 
-    // Get users
-    const usersQuery = `
-      SELECT 
-        id, email, "firstName", "lastName", role, phone, location, bio,
-        skills, experience, education, "profilePicture", "isVerified", 
-        "isActive", "createdAt", "updatedAt"
-      FROM "User"
-      ${whereClause}
-      ${orderClause}
-      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-    `;
-    params.push(pagination.limit, offset);
-    
-    const usersResult = await db.query(usersQuery, params);
+    // Get users with Prisma
+    const users = await db.user.findMany({
+      where: whereConditions,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        phone: true,
+        location: true,
+        bio: true,
+        skills: true,
+        experience: true,
+        education: true,
+        profilePicture: true,
+        isVerified: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        [orderBy]: orderDirection === 'desc' ? 'desc' : 'asc'
+      },
+      skip: offset,
+      take: pagination.limit,
+    });
 
     // Transform users for response
-    const transformedUsers = usersResult.rows.map(user => ({
+    const transformedUsers = users.map(user => ({
       id: user.id.toString(),
       email: user.email,
       first_name: user.firstName,
@@ -245,12 +235,12 @@ export async function POST(request: NextRequest) {
     const db = databaseService.getClient();
 
     // Check if user already exists
-    const existingUserResult = await db.query(
-      'SELECT id FROM "User" WHERE email = $1',
-      [validatedData.email]
-    );
+    const existingUser = await db.user.findUnique({
+      where: { email: validatedData.email },
+      select: { id: true }
+    });
 
-    if (existingUserResult.rows.length > 0) {
+    if (existingUser) {
       return NextResponse.json({
         success: false,
         error: 'User already exists',
@@ -261,31 +251,33 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
-    // Create user in database
-    const createUserResult = await db.query(`
-      INSERT INTO "User" (
-        email, password, "firstName", "lastName", role, phone, location, bio,
-        skills, experience, education, "profilePicture", "isVerified", "isActive"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-      RETURNING id, email, "firstName", "lastName", role, "createdAt"
-    `, [
-      validatedData.email,
-      hashedPassword,
-      validatedData.firstName,
-      validatedData.lastName,
-      validatedData.role,
-      validatedData.phone,
-      validatedData.location,
-      validatedData.bio,
-      validatedData.skills,
-      validatedData.experience,
-      validatedData.education,
-      validatedData.profilePicture,
-      validatedData.isVerified,
-      validatedData.isActive,
-    ]);
-
-    const user = createUserResult.rows[0];
+    // Create user in database using Prisma
+    const user = await db.user.create({
+      data: {
+        email: validatedData.email,
+        password: hashedPassword,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        role: validatedData.role,
+        phone: validatedData.phone,
+        location: validatedData.location,
+        bio: validatedData.bio,
+        skills: validatedData.skills,
+        experience: validatedData.experience,
+        education: validatedData.education,
+        profilePicture: validatedData.profilePicture,
+        isVerified: validatedData.isVerified,
+        isActive: validatedData.isActive,
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+      }
+    });
 
     return NextResponse.json({
       success: true,
