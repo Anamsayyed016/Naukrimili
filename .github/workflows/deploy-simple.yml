@@ -1,4 +1,4 @@
-name: Auto-Deploy with PostgreSQL Setup
+name: Simple Deploy with PostgreSQL Setup
 
 on:
   push:
@@ -9,20 +9,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          echo "SSH setup complete"
-
       - name: Deploy to Hostinger with PostgreSQL Setup
-        run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} << 'EOF'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
             echo "🚀 Starting automated deployment with PostgreSQL setup..."
             cd /var/www/jobportal
             
@@ -87,4 +81,3 @@ jobs:
               echo "❌ Build failed!"
               exit 1
             fi
-          EOF
