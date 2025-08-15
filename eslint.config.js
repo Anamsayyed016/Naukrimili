@@ -12,7 +12,9 @@ module.exports = [
       'build/*',
       'coverage/*',
       '*.config.js',
-      '*.config.ts'
+      '*.config.ts',
+      '.eslintignore',
+      '.eslintrc*'
     ]
   },
   {
