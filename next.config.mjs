@@ -4,12 +4,14 @@ const nextConfig = {
   experimental: {},
   typescript: {
     ignoreBuildErrors: true,
+    tsconfigPath: false,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
   experimental: {
     typedRoutes: false,
+    serverComponentsExternalPackages: [],
   },
   images: {
     unoptimized: true,

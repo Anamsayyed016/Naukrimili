@@ -8,13 +8,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { databaseService } from '@/lib/database';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest) {
   try {
-    // Extract the job ID from params
-    const { id } = await params;
+    // Extract the job ID from the URL path
+    const url = new URL(request.url);
+    const pathParts = url.pathname.split('/');
+    const id = pathParts[pathParts.length - 1];
+    
     const jobId = parseInt(id);
     
     if (isNaN(jobId)) {
