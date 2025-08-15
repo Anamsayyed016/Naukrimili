@@ -387,7 +387,7 @@ export async function PUT(
     `;
 
     const updateResult = await db.user.update({
-      where: { id: userId },
+      where: { id: userId.toString() },
       data: {
         ...(validatedData.firstName !== undefined ? { firstName: validatedData.firstName } : {}),
         ...(validatedData.lastName !== undefined ? { lastName: validatedData.lastName } : {}),
@@ -488,7 +488,7 @@ export async function DELETE(
 
     // Check if user can delete this account
     const canDelete = (
-      currentUser.id === userId || // Own account
+      currentUser.id === userId.toString() || // Own account
       currentUser.role === 'admin' // Admin can delete any account
     );
 
@@ -503,7 +503,7 @@ export async function DELETE(
 
     // Check if user exists
     const userResult = await db.user.findUnique({
-      where: { id: userId },
+      where: { id: userId.toString() },
       select: { id: true, email: true }
     });
 
@@ -516,7 +516,7 @@ export async function DELETE(
 
     // Soft delete: mark user as inactive
     await db.user.update({
-      where: { id: userId },
+      where: { id: userId.toString() },
       data: {
         isActive: false,
         updatedAt: new Date(),
