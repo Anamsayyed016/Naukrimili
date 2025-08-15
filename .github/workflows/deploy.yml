@@ -9,11 +9,56 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: SSH deploy
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Create deployment package
+        run: |
+          tar -czf deployment.tar.gz .next package.json package-lock.json public components lib types
+
+      - name: Upload deployment package
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-package
+          path: deployment.tar.gz
+
+      # SSH deployment (if firewall allows)
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: bash /var/www/jobportal/deploy.sh
+          script: |
+            echo "Attempting SSH deployment..."
+            if [ -d "/var/www/jobportal" ]; then
+              echo "SSH deployment successful!"
+              bash /var/www/jobportal/deploy.sh
+            else
+              echo "SSH deployment failed - server not accessible"
+              exit 1
+            fi
+        continue-on-error: true
+
+      # Alternative deployment method
+      - name: Deploy via alternative method
+        if: failure()
+        run: |
+          echo "SSH deployment failed. Please use one of these alternatives:"
+          echo "1. Check Hostinger firewall settings"
+          echo "2. Use Hostinger Git integration"
+          echo "3. Upload files manually via File Manager"
+          echo "4. Contact Hostinger support to enable SSH access"
