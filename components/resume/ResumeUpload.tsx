@@ -85,7 +85,7 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 				throw new Error(result.error || 'Upload failed');
 			}
 
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Upload error:', error);
 			toast({
 				title: 'Upload Failed',
@@ -98,8 +98,17 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 		}
 	}, [userId]);
 
+	const onDropRejected = useCallback((rejectedFiles: { file: File; errors: { code: string; message: string }[] }[]) => {
+		toast({
+			title: 'File Rejected',
+			description: `File rejected: ${rejectedFiles[0]?.errors[0]?.message || 'Invalid file'}`,
+			variant: 'destructive',
+		});
+	}, []);
+
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		onDrop,
+		onDropRejected,
 		accept: {
 			'application/pdf': ['.pdf'],
 			'application/msword': ['.doc'],

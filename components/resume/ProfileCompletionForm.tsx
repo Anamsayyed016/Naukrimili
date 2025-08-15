@@ -17,6 +17,7 @@ import {
 	CheckCircle
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 
 interface ProfileData {
 	fullName: string;
@@ -66,6 +67,7 @@ function ProfileCompletionForm({
 	const [isEditing, setIsEditing] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [aiAccuracy, setAiAccuracy] = useState(85 as number);
+	const [error, setError] = useState('');
 
 	useEffect(() => {
 		if (initialData) {
@@ -86,8 +88,31 @@ function ProfileCompletionForm({
 		return 'guest-runtime';
 	};
 
-	const handleInputChange = (field: keyof ProfileData, value: any) => {
-		setProfileData((prev: any) => ({ ...prev, [field]: value }));
+	const handleInputChange = (field: keyof ProfileData, value: string | string[]) => {
+		setProfileData((prev: ProfileData) => ({ ...prev, [field]: value }));
+	};
+
+	const handleArrayInputChange = (field: keyof ProfileData, index: number, value: string) => {
+		setProfileData((prev: ProfileData) => ({
+			...prev,
+			[field]: prev[field] as string[] ? 
+				(prev[field] as string[]).map((item, i) => i === index ? value : item) : 
+				[value]
+		}));
+	};
+
+	const addArrayItem = (field: keyof ProfileData) => {
+		setProfileData((prev: ProfileData) => ({
+			...prev,
+			[field]: prev[field] as string[] ? [...(prev[field] as string[]), ''] : ['']
+		}));
+	};
+
+	const removeArrayItem = (field: keyof ProfileData, index: number) => {
+		setProfileData((prev: ProfileData) => ({
+			...prev,
+			[field]: (prev[field] as string[]).filter((_, i) => i !== index)
+		}));
 	};
 
 	const handleSkillAdd = (skill: string) => {
@@ -124,38 +149,38 @@ function ProfileCompletionForm({
 		}
 	};
 
-	const handleSubmit = async () => {
+	const handleSubmit = async (e: { preventDefault: () => void }) => {
+		e.preventDefault();
 		setIsSubmitting(true);
-		const userId = resolveUserId();
+		setError('');
+
 		try {
-			const res = await fetch('/api/user/profile', {
+			const response = await fetch('/api/user/profile', {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
-					'x-user-id': userId,
 				},
 				body: JSON.stringify(profileData),
 			});
 
-			const json = await res.json();
-			if (!res.ok || !json.success) {
-				throw new Error(json.error || 'Failed to update profile');
+			if (!response.ok) {
+				throw new Error('Failed to update profile');
 			}
 
 			toast({
-				title: 'Profile Updated Successfully!',
-				description: 'Your profile has been saved and is now visible to employers.',
+				title: "Profile Updated!",
+				description: "Your profile has been successfully updated.",
 			});
 
-			if (typeof window !== 'undefined') {
-				window.location.href = '/profile';
-			}
-			if (onComplete) onComplete();
-		} catch (error: any) {
+			// Refresh session to get updated user data
+			await signOut({ callbackUrl: '/auth/login' });
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : 'Failed to update profile';
+			setError(errorMessage);
 			toast({
-				title: 'Update Failed',
-				description: error?.message || 'Please try again or contact support.',
-				variant: 'destructive',
+				title: "Error",
+				description: errorMessage,
+				variant: "destructive",
 			});
 		} finally {
 			setIsSubmitting(false);
