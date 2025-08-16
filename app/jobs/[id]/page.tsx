@@ -1,7 +1,12 @@
-'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
+
+// Generate static params for build
+export async function generateStaticParams() {
+  // Return empty array for now - will be populated at build time
+  return [];
+}
 
 interface Job {
   id: number;
@@ -32,45 +37,39 @@ interface Job {
   creator: any;
 }
 
-export default function JobDetailsPage() {
-  const params = useParams();
-  const [job, setJob] = useState<Job | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default async function JobDetailsPage({ params }: { params: { id: string } }) {
+  const { id } = params;
+  
+  if (!id) {
+    notFound();
+  }
 
-  useEffect(() => {
-    const fetchJob = async () => {
-      try {
-        const id = params?.id as string;
-        if (!id) {
-          setError('Job ID is required');
-          setLoading(false);
-          return;
-        }
+  // Fetch job data server-side
+  let job: Job | null = null;
+  let error: string | null = null;
 
-        const response = await fetch(`/api/jobs/${id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch job');
-        }
+  try {
+    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/jobs/${id}`, {
+      cache: 'no-store'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch job');
+    }
 
-        const data = await response.json();
-        if (data.success) {
-          setJob(data.job);
-        } else {
-          setError(data.error || 'Failed to load job');
-        }
-      } catch (err) {
-        setError('Failed to load job details');
-        console.error('Error fetching job:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const data = await response.json();
+    if (data.success) {
+      job = data.job;
+    } else {
+      error = data.error || 'Failed to load job';
+    }
+  } catch (err) {
+    error = 'Failed to load job details';
+    console.error('Error fetching job:', err);
+  }
 
-    fetchJob();
-  }, [params?.id]);
-
-  if (loading) {
+  // Show loading state while fetching
+  if (!job && !error) {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
