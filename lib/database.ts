@@ -366,69 +366,111 @@ export async function checkDatabaseHealth() {
   }
 }
 
+import { prisma } from '@/lib/prisma';
+
 // Database service with mock data and PostgreSQL preparation
 export const databaseService = {
   // Jobs
   async getJobs(query = '', location = '', company = '', jobType = '', experienceLevel = '', isRemote = false, sector = '', page = 1, limit = 20) {
     try {
-      // For now, use mock data while Prisma client is being set up
-      console.log('🟡 Using Mock Data (Prisma client setup in progress)');
-      
       const skip = (page - 1) * limit;
+
+      // Prefer real database via Prisma when configured
+      if (process.env.DATABASE_URL) {
+        const where: any = { isActive: true };
+
+        if (query) {
+          where.OR = [
+            { title: { contains: query, mode: 'insensitive' } },
+            { company: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } },
+          ];
+        }
+        if (location) {
+          where.location = { contains: location, mode: 'insensitive' };
+        }
+        if (company) {
+          where.company = { contains: company, mode: 'insensitive' };
+        }
+        if (jobType) {
+          where.jobType = { equals: jobType };
+        }
+        if (experienceLevel) {
+          where.experienceLevel = { contains: experienceLevel, mode: 'insensitive' };
+        }
+        if (isRemote) {
+          where.isRemote = true;
+        }
+        if (sector) {
+          where.sector = { contains: sector, mode: 'insensitive' };
+        }
+
+        const [total, jobs] = await Promise.all([
+          (prisma as any).job.count({ where }),
+          (prisma as any).job.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+          }),
+        ]);
+
+        return {
+          jobs,
+          total,
+          page,
+          limit,
+          source: 'db',
+        };
+      }
+
+      // Fallback: mock data
       let filteredJobs = [...mockJobs];
-      
-      // Apply filters
+
       if (query) {
-        filteredJobs = filteredJobs.filter(job => 
+        filteredJobs = filteredJobs.filter(job =>
           job.title.toLowerCase().includes(query.toLowerCase()) ||
           job.company?.toLowerCase().includes(query.toLowerCase()) ||
           job.description.toLowerCase().includes(query.toLowerCase())
         );
       }
-      
       if (location) {
-        filteredJobs = filteredJobs.filter(job => 
+        filteredJobs = filteredJobs.filter(job =>
           job.location?.toLowerCase().includes(location.toLowerCase())
         );
       }
-      
       if (company) {
-        filteredJobs = filteredJobs.filter(job => 
+        filteredJobs = filteredJobs.filter(job =>
           job.company?.toLowerCase().includes(company.toLowerCase())
         );
       }
-      
       if (jobType) {
-        filteredJobs = filteredJobs.filter(job => 
+        filteredJobs = filteredJobs.filter(job =>
           job.jobType?.toLowerCase() === jobType.toLowerCase()
         );
       }
-      
       if (experienceLevel) {
-        filteredJobs = filteredJobs.filter(job => 
+        filteredJobs = filteredJobs.filter(job =>
           job.experience?.toLowerCase().includes(experienceLevel.toLowerCase())
         );
       }
-      
       if (isRemote) {
-        filteredJobs = filteredJobs.filter(job => job.isActive); // Use isActive instead of isRemote
+        filteredJobs = filteredJobs.filter(job => job.isActive);
       }
-      
       if (sector) {
-        filteredJobs = filteredJobs.filter(job => 
+        filteredJobs = filteredJobs.filter(job =>
           job.category?.toLowerCase().includes(sector.toLowerCase())
         );
       }
-      
+
       const paginatedJobs = filteredJobs.slice(skip, skip + limit);
-      
-      return { 
-        jobs: paginatedJobs, 
-        total: filteredJobs.length, 
-        page, 
-        limit, 
+      return {
+        jobs: paginatedJobs,
+        total: filteredJobs.length,
+        page,
+        limit,
         source: 'mock',
-        message: 'Mock data with filtering'
+        message: 'Mock data with filtering',
       };
     } catch (error) {
       console.warn('Database query failed, using fallback mock data:', error);
@@ -440,7 +482,10 @@ export const databaseService = {
 
   async getJobById(id: number) {
     try {
-      console.log('🟡 Using Mock Data (Prisma client setup in progress)');
+      if (process.env.DATABASE_URL) {
+        const job = await (prisma as any).job.findUnique({ where: { id } });
+        return job || null;
+      }
       return mockJobs.find(job => job.id === id) || null;
     } catch (error) {
       console.warn('Database query failed, using fallback mock data:', error);
