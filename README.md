@@ -56,6 +56,20 @@ A modern job portal built with Next.js, featuring job listings, company profiles
 
 ## Deployment
 
+### GitHub → Hostinger Auto-Deploy
+
+1. Create GitHub secrets (repository Settings → Secrets → Actions):
+   - `HOSTINGER_HOST`, `HOSTINGER_USER`, `HOSTINGER_SSH_KEY`, `HOSTINGER_PORT` (optional)
+   - Optional: `HOSTINGER_APP_DIR`, `HOSTINGER_BRANCH`, `HOSTINGER_REPO_URL`
+
+2. Ensure server has Node 18+ and PM2:
+   ```bash
+   ssh user@host 'curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt install -y nodejs && sudo npm i -g pm2'
+   ```
+
+3. Push to `main`. Workflow `.github/workflows/hostinger-deploy.yml` will deploy and start the app with PM2.
+
+
 This project uses automated deployment via GitHub Actions to a Hostinger VPS server.
 
 ### Deployment Features

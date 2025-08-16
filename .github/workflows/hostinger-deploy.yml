@@ -1,0 +1,86 @@
+name: Deploy to Hostinger (KVM)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare repository info
+        id: prep
+        run: |
+          echo "repo_url=https://github.com/${{ github.repository }}.git" >> $GITHUB_OUTPUT
+
+      - name: SSH to Hostinger and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USER }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_PORT || '22' }}
+          script_stop: true
+          envs: GITHUB_REPOSITORY, GITHUB_SHA
+          script: |
+            set -euo pipefail
+            APP_DIR="${HOSTINGER_APP_DIR:-/var/www/jobportal}"
+            REPO_URL="${HOSTINGER_REPO_URL:-${{ steps.prep.outputs.repo_url }}}"
+            BRANCH="${HOSTINGER_BRANCH:-main}"
+
+            echo "🚀 Deploying $REPO_URL@$BRANCH to $APP_DIR"
+
+            mkdir -p "$APP_DIR"
+            cd "$APP_DIR"
+
+            if [ -d .git ]; then
+              echo "📥 Updating existing repository..."
+              git fetch origin "$BRANCH"
+              git reset --hard "origin/$BRANCH"
+              git clean -fdx
+            else
+              echo "📦 Cloning repository..."
+              git clone --depth 1 -b "$BRANCH" "$REPO_URL" .
+            fi
+
+            echo "🧰 Checking Node & npm..."
+            if ! command -v node >/dev/null 2>&1; then
+              echo "❌ Node.js not found on server. Please install Node 18+ and re-run."
+              exit 1
+            fi
+            if ! command -v npm >/dev/null 2>&1; then
+              echo "❌ npm not found on server. Please install npm and re-run."
+              exit 1
+            fi
+
+            echo "📦 Installing dependencies..."
+            npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+            echo "🗃️ Prisma generate & migrate (if configured)..."
+            if [ -f prisma/schema.prisma ]; then
+              npx prisma generate || true
+              npx prisma migrate deploy || true
+            fi
+
+            echo "🔨 Building..."
+            npm run build
+
+            echo "🔁 Starting with PM2..."
+            if ! command -v pm2 >/dev/null 2>&1; then
+              npm i -g pm2
+            fi
+            if [ -f ecosystem.config.js ]; then
+              pm2 startOrReload ecosystem.config.js || pm2 start ecosystem.config.js
+            else
+              pm2 start npm --name jobportal -- start || pm2 restart jobportal
+            fi
+            pm2 save
+
+            echo "🩺 Health check..."
+            sleep 3
+            curl -fsS http://127.0.0.1:3000/health || true
+
+            echo "✅ Deployment finished."
+
+

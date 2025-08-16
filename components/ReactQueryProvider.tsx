@@ -238,20 +238,20 @@ export const queryClientUtils = {
   },
   
   // Optimistic update helpers
-  optimisticUpdate: <T>(
+  optimisticUpdate: function<T>(
     queryClient: QueryClient,
     queryKey: any[],
     updater: (oldData: T | undefined) => T
-  ) => {
+  ) {
     queryClient.setQueryData(queryKey, updater);
   },
   
   // Rollback optimistic updates
-  rollbackOptimisticUpdate: <T>(
+  rollbackOptimisticUpdate: function<T>(
     queryClient: QueryClient,
     queryKey: any[],
     previousData: T | undefined
-  ) => {
+  ) {
     queryClient.setQueryData(queryKey, previousData);
   },
 };

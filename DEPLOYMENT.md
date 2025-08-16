@@ -34,10 +34,14 @@ Go to your GitHub repository → Settings → Secrets and variables → Actions
 
 Add these secrets:
 
-- `SSH_HOST`: `69.62.73.84`
-- `SSH_USER`: `root`
-- `SSH_KEY`: Your **private** SSH key content (the file without .pub extension)
-- `SSH_PORT`: `22`
+- `HOSTINGER_HOST`: your server IP or hostname
+- `HOSTINGER_USER`: ssh user, e.g. `root` or your panel user
+- `HOSTINGER_SSH_KEY`: your private SSH key (no passphrase) or use a deploy key
+- `HOSTINGER_PORT`: `22` (optional)
+- Optionally customize:
+  - `HOSTINGER_APP_DIR` (default `/var/www/jobportal`)
+  - `HOSTINGER_REPO_URL` (auto-detected)
+  - `HOSTINGER_BRANCH` (default `main`)
 
 ## Step 4: Test Deployment
 
@@ -48,13 +52,9 @@ Add these secrets:
 
 ## How It Works
 
-1. Every push to `main` branch triggers deployment
-2. GitHub Actions SSH into your server
-3. Runs `deploy.sh` script which:
-   - Pulls latest code
-   - Installs dependencies
-   - Builds the application
-   - Restarts the service
+1. Every push to `main` triggers `.github/workflows/hostinger-deploy.yml`
+2. Action SSHes to your server using saved secrets
+3. It clones/pulls your repo into `$HOSTINGER_APP_DIR`, installs deps, runs Prisma generate/migrate, builds, and starts via PM2
 
 ## Manual Deployment
 
