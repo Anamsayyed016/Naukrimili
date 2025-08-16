@@ -2,9 +2,13 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-// Generate static params for build
+// Disable static generation for this dynamic route
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Generate static params for build (empty for dynamic routes)
 export async function generateStaticParams() {
-  // Return empty array for now - will be populated at build time
+  // This route is dynamic and should not be statically generated
   return [];
 }
 

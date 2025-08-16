@@ -10,9 +10,14 @@ const nextConfig = {
   experimental: {
     typedRoutes: false,
   },
-  // Explicitly disable static export
-  output: undefined,
+  // Completely disable static generation
+  output: 'standalone',
   trailingSlash: false,
+  // Force all pages to be dynamic
+  staticPageGenerationTimeout: 0,
+  // Disable static optimization
+  optimizeFonts: false,
+  compress: false,
   images: {
     unoptimized: true,
     remotePatterns: [
