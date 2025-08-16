@@ -10,6 +10,9 @@ const nextConfig = {
   experimental: {
     typedRoutes: false,
   },
+  // Explicitly disable static export
+  output: undefined,
+  trailingSlash: false,
   images: {
     unoptimized: true,
     remotePatterns: [
