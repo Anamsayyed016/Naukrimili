@@ -4,66 +4,140 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-
-const mockLocations = [
-  { name: 'Bangalore', country: 'IN', job_count: 124, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 60, remote: 50, hybrid: 14 }, salary_stats: { average_min: 900000, average_max: 2400000, lowest: 300000, highest: 3500000, currency: 'INR' } },
-  { name: 'Mumbai', country: 'IN', job_count: 98, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 70, remote: 20, hybrid: 8 }, salary_stats: { average_min: 800000, average_max: 2000000, lowest: 250000, highest: 3200000, currency: 'INR' } },
-  { name: 'Delhi', country: 'IN', job_count: 76, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 40, remote: 25, hybrid: 11 }, salary_stats: { average_min: 700000, average_max: 1800000, lowest: 200000, highest: 3000000, currency: 'INR' } },
-  { name: 'Hyderabad', country: 'IN', job_count: 65, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 30, remote: 28, hybrid: 7 }, salary_stats: { average_min: 650000, average_max: 1700000, lowest: 180000, highest: 2800000, currency: 'INR' } },
-  { name: 'Chennai', country: 'IN', job_count: 52, latest_job_date: new Date().toISOString(), work_arrangements: { on_site: 26, remote: 20, hybrid: 6 }, salary_stats: { average_min: 600000, average_max: 1500000, lowest: 150000, highest: 2500000, currency: 'INR' } },
-];
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const q = (searchParams.get('q') || '').toLowerCase();
-    const country = (searchParams.get('country') || '').toUpperCase();
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const q = (searchParams.get('q') || '').trim();
+    const country = (searchParams.get('country') || '').trim();
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20', 10), 1), 100);
+    const sortBy = (searchParams.get('sort_by') || 'job_count').toLowerCase(); // job_count | latest
     const offset = (page - 1) * limit;
 
-    let results = mockLocations;
-    if (q) {
-      results = results.filter(loc =>
-        loc.name.toLowerCase().includes(q) || loc.country.toLowerCase().includes(q)
-      );
-    }
-    if (country) {
-      results = results.filter(loc => loc.country === country);
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ success: false, error: 'Database not configured' }, { status: 500 });
     }
 
-    const total = results.length;
-    const data = results.slice(offset, offset + limit).map(loc => ({
-      id: `${loc.name}-${loc.country}`.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-      name: loc.name,
-      country: loc.country,
-      display_name: `${loc.name}, ${loc.country}`,
-      job_count: loc.job_count,
-      latest_job_date: loc.latest_job_date,
-      job_types: { 'full-time': Math.round(loc.job_count * 0.7), 'contract': Math.round(loc.job_count * 0.2), internship: Math.round(loc.job_count * 0.1) },
-      work_arrangements: loc.work_arrangements,
-      salary_stats: loc.salary_stats,
-    }));
+    const whereBase: any = { isActive: true };
+    if (country) {
+      whereBase.country = { equals: country, mode: 'insensitive' };
+    }
+    if (q) {
+      whereBase.OR = [
+        { location: { contains: q, mode: 'insensitive' } },
+        { country: { contains: q, mode: 'insensitive' } },
+      ];
+    }
+
+    const grouped = await (prisma as any).job.groupBy({
+      by: ['country', 'location'],
+      where: whereBase,
+      _count: { _all: true },
+      _max: { createdAt: true, salaryMax: true },
+      _min: { salaryMin: true },
+      _avg: { salaryMin: true, salaryMax: true },
+    });
+
+    const sorted = [...grouped].sort((a: any, b: any) => {
+      if (sortBy === 'latest') {
+        const ad = new Date(a._max?.createdAt || 0).getTime();
+        const bd = new Date(b._max?.createdAt || 0).getTime();
+        return bd - ad;
+      }
+      return (b._count?._all || 0) - (a._count?._all || 0);
+    });
+
+    const totalDistinct = sorted.length;
+    const paged = sorted.slice(offset, offset + limit);
+
+    const filtersForPage = paged.map((g: any) => ({ country: g.country, location: g.location }));
+
+    const keyFor = (c: string, l: string) => `${(l || '').trim()}::${(c || '').trim()}`;
+    const arrangementByKey = new Map<string, { on_site: number; remote: number; hybrid: number }>();
+    const jobTypesByKey = new Map<string, Record<string, number>>();
+
+    if (filtersForPage.length > 0) {
+      const arrangementRows = await (prisma as any).job.groupBy({
+        by: ['country', 'location', 'isRemote', 'isHybrid'],
+        where: { ...whereBase, OR: filtersForPage },
+        _count: { _all: true },
+      });
+      for (const row of arrangementRows) {
+        const k = keyFor(row.country, row.location);
+        const prev = arrangementByKey.get(k) || { on_site: 0, remote: 0, hybrid: 0 };
+        if (row.isHybrid) prev.hybrid += row._count._all || 0;
+        else if (row.isRemote) prev.remote += row._count._all || 0;
+        else prev.on_site += row._count._all || 0;
+        arrangementByKey.set(k, prev);
+      }
+
+      const jobTypeRows = await (prisma as any).job.groupBy({
+        by: ['country', 'location', 'jobType'],
+        where: { ...whereBase, OR: filtersForPage },
+        _count: { _all: true },
+      });
+      for (const row of jobTypeRows) {
+        const k = keyFor(row.country, row.location);
+        const prev = jobTypesByKey.get(k) || {};
+        const jt = (row.jobType || 'unknown').toLowerCase();
+        prev[jt] = (prev[jt] || 0) + (row._count._all || 0);
+        jobTypesByKey.set(k, prev);
+      }
+    }
+
+    const data = paged
+      .filter((g: any) => g.location)
+      .map((g: any) => {
+        const k = keyFor(g.country, g.location);
+        const work = arrangementByKey.get(k) || { on_site: 0, remote: 0, hybrid: 0 };
+        const types = jobTypesByKey.get(k) || {};
+        const lowest = g._min?.salaryMin ?? null;
+        const highest = g._max?.salaryMax ?? null;
+        const average_min = Math.round(g._avg?.salaryMin || 0) || null;
+        const average_max = Math.round(g._avg?.salaryMax || 0) || null;
+        const name = (g.location || 'Unknown').trim();
+        const cc = (g.country || '').toUpperCase();
+        const id = `${name}-${cc}`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        return {
+          id,
+          name,
+          country: cc,
+          display_name: cc ? `${name}, ${cc}` : name,
+          job_count: g._count?._all || 0,
+          latest_job_date: g._max?.createdAt || null,
+          job_types: types,
+          work_arrangements: work,
+          salary_stats: {
+            average_min,
+            average_max,
+            lowest,
+            highest,
+            currency: cc === 'IN' ? 'INR' : cc === 'US' ? 'USD' : undefined,
+          },
+        };
+      });
 
     return NextResponse.json({
       success: true,
-      message: `Found ${total} locations`,
+      message: `Found ${totalDistinct} locations`,
       locations: data,
       pagination: {
         current_page: page,
-        total_pages: Math.ceil(total / limit),
-        total_results: total,
+        total_pages: Math.ceil(totalDistinct / limit),
+        total_results: totalDistinct,
         per_page: limit,
-        has_next: page * limit < total,
+        has_next: page * limit < totalDistinct,
         has_prev: page > 1,
       },
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch locations' }, { status: 500 });
+    return NextResponse.json({ success: false, error: error?.message || 'Failed to fetch locations' }, { status: 500 });
   }
 }
 
 export async function POST() {
-  return NextResponse.json({ success: false, error: 'Location creation not supported' }, { status: 405 });
+  return NextResponse.json({ success: false, error: 'Method not allowed' }, { status: 405 });
 }

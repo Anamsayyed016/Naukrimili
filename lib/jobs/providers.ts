@@ -22,7 +22,12 @@ function safeUpper(a?: string) {
  * Adzuna fetcher
  * countryCode like 'gb','in','us','ae'
  */
-export async function fetchFromAdzuna(query: string, countryCode = 'gb', page = 1) {
+export async function fetchFromAdzuna(
+  query: string,
+  countryCode = 'gb',
+  page = 1,
+  options?: { location?: string; distanceKm?: number }
+) {
   const app_id = process.env.ADZUNA_APP_ID;
   const app_key = process.env.ADZUNA_APP_KEY;
   if (!app_id || !app_key) return [] as NormalizedJob[];
@@ -34,6 +39,8 @@ export async function fetchFromAdzuna(query: string, countryCode = 'gb', page = 
       app_key,
       what: query,
       results_per_page: 20,
+      ...(options?.location ? { where: options.location } : {}),
+      ...(options?.distanceKm ? { distance: options.distanceKm } : {}),
     },
     timeout: 10000,
   });

@@ -1,46 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    // Extract the job ID from the URL path
     const url = new URL(request.url);
-    const pathParts = url.pathname.split('/');
-    const id = pathParts[pathParts.length - 1];
-    
-    const jobId = parseInt(id);
-    
+    const idStr = url.pathname.split('/').pop() || '';
+    const jobId = parseInt(idStr, 10);
     if (isNaN(jobId)) {
-      return NextResponse.json(
-        { error: 'Invalid job ID' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Invalid job ID' }, { status: 400 });
     }
 
-    // Mock job data for now
-    const mockJob = {
-      id: jobId,
-      title: 'Software Engineer',
-      company: 'Tech Company',
-      location: 'Bangalore',
-      description: 'Job description here',
-      salary: '15-25 LPA',
-      type: 'Full-time',
-      experience: '3-5 years'
-    };
+    const job = await (prisma as any).job.findUnique({ where: { id: jobId } });
+    if (!job) {
+      return NextResponse.json({ success: false, error: 'Job not found' }, { status: 404 });
+    }
 
-    const res = NextResponse.json({
-      success: true,
-      job: mockJob
-    });
+    const res = NextResponse.json({ success: true, job });
     res.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=600');
     return res;
-
-  } catch (error) {
-    console.error('Error fetching job:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error?.message || 'Internal server error' }, { status: 500 });
   }
 }
 

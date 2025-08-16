@@ -9,7 +9,7 @@ export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
   if (!job?.source || !job?.sourceId) return null;
   const postedAtDate = job.postedAt ? new Date(job.postedAt) : null;
   try {
-    return await prisma.job.upsert({
+    return await (prisma as any).job.upsert({
       where: { source_sourceId: { source: job.source, sourceId: job.sourceId } },
       update: {
         title: job.title || '',
@@ -38,6 +38,25 @@ export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
   } catch (e) {
     return null;
   }
+}
+
+// Compatibility wrapper for simple job inputs using `url` instead of `applyUrl`
+export async function upsertJob(job: any) {
+  if (!job?.source || !job?.sourceId) return null;
+  const mapped: Partial<NormalizedJob> = {
+    source: job.source,
+    sourceId: job.sourceId,
+    title: job.title || '',
+    company: job.company || null,
+    location: job.location || null,
+    country: (job.country || 'US').toString().slice(0, 2).toUpperCase(),
+    description: job.description || '',
+    applyUrl: job.applyUrl || job.url || null,
+    postedAt: job.postedAt || undefined,
+    salary: job.salary || undefined,
+    raw: job.raw || job,
+  };
+  return upsertNormalizedJob(mapped);
 }
 
 /**

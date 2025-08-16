@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { databaseService } from '@/lib/database';
 import GoogleSearchService from '@/lib/google-search-service';
+import fetchJobsAndUpsert from '@/lib/jobs/fetchJobs';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get('query') || '';
+    const query = searchParams.get('query') || searchParams.get('q') || '';
     const location = searchParams.get('location') || '';
+    const radiusParam = searchParams.get('radius') || '';
     const company = searchParams.get('company') || '';
     const jobType = searchParams.get('jobType') || '';
     const experienceLevel = searchParams.get('experienceLevel') || '';
@@ -23,7 +25,21 @@ export async function GET(request: NextRequest) {
     const currentLimit = (result as any).limit ?? limit;
     const totalPages = Math.ceil(total / currentLimit) || 0;
 
-    // Prepare optional Google fallback when no results
+    // If DB returned no jobs and we have a live query, try fetching from providers, then read again
+    if ((!result.jobs || result.jobs.length === 0) && (query || location)) {
+      try {
+        const radiusKm = radiusParam ? parseInt(radiusParam.replace(/[^0-9]/g, ''), 10) : 25;
+        await fetchJobsAndUpsert({ query, location, radiusKm, countryCode: country || 'IN', page });
+        // re-query DB
+        const retried = await databaseService.getJobs(query, location, company, jobType, experienceLevel, isRemote, sector, page, limit);
+        (result as any).jobs = retried.jobs;
+        (result as any).total = retried.total;
+      } catch (e) {
+        // ignore live fetch errors here
+      }
+    }
+
+    // Prepare optional Google fallback when no results (post-fetch)
     let fallback: any = undefined;
     if (!result.jobs || result.jobs.length === 0) {
       try {

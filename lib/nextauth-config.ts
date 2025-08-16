@@ -6,11 +6,14 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { prisma } from '@/lib/prisma';
 
 // Mock authentication for now
 // TODO: Implement real authentication when database is ready
 
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -46,24 +49,25 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role || 'user';
+        const anyUser = user as unknown as { id?: string; role?: string };
+        (token as any).id = anyUser.id || token.sub;
+        (token as any).role = anyUser.role || (token as any).role || 'user';
       }
-      if (account?.provider === 'google') {
-        token.provider = 'google';
+      if (account?.provider) {
+        (token as any).provider = account.provider;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        (session.user as any).id = (token as any).id || token.sub || '';
+        (session.user as any).role = (token as any).role || 'user';
       }
       return session;
     },
     async signIn({ user, account, profile }) {
-      // Allow all sign-ins for now
-      // TODO: Add proper validation when database is ready
+      // With PrismaAdapter, NextAuth will link provider account to existing user by email,
+      // or create one if none exists. We allow sign-in; add extra checks here if needed.
       return true;
     },
     async redirect({ url, baseUrl }) {
