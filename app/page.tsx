@@ -27,8 +27,6 @@ interface Company {
 export default function HomePage() {
   const [featuredJobs, setFeaturedJobs] = useState<Job[]>([]);
   const [topCompanies, setTopCompanies] = useState<Company[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchLocation, setSearchLocation] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,18 +56,6 @@ export default function HomePage() {
       console.error('Error fetching home data:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      const params = new URLSearchParams();
-      params.append('query', searchQuery.trim());
-      if (searchLocation.trim()) {
-        params.append('location', searchLocation.trim());
-      }
-      window.location.href = `/jobs?${params.toString()}`;
     }
   };
 
@@ -105,52 +91,35 @@ export default function HomePage() {
             real-time updates, and seamless application process.
           </p>
 
-          {/* Search Form */}
-          <form onSubmit={handleSearch} className="max-w-4xl mx-auto mb-8">
-            <div className="flex flex-col md:flex-row gap-4 bg-white rounded-2xl shadow-xl p-2">
-              <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="Job title, company, or skills..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 text-lg border-0 focus:ring-0 focus:outline-none"
-                />
-              </div>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="Location"
-                  value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 text-lg border-0 focus:ring-0 focus:outline-none"
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
-              >
-                Search Jobs
-              </button>
-            </div>
-          </form>
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <Link
+              href="/jobs"
+              className="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-colors duration-200 inline-flex items-center justify-center"
+            >
+              <Search className="w-5 h-5 mr-2" />
+              Search Jobs
+            </Link>
+            <Link
+              href="/auth/register"
+              className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-50 transition-colors duration-200 inline-flex items-center justify-center"
+            >
+              <Users className="w-5 h-5 mr-2" />
+              Get Started
+            </Link>
+          </div>
 
           {/* Trending Searches */}
           <div className="flex flex-wrap justify-center gap-3">
             <span className="text-gray-600">Trending:</span>
             {trendingSearches.map((search, index) => (
-              <button
+              <Link
                 key={index}
-                onClick={() => {
-                  setSearchQuery(search);
-                  window.location.href = `/jobs?query=${encodeURIComponent(search)}`;
-                }}
+                href={`/jobs?query=${encodeURIComponent(search)}`}
                 className="bg-white px-4 py-2 rounded-full text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 border border-gray-200"
               >
                 {search}
-              </button>
+              </Link>
             ))}
           </div>
         </div>

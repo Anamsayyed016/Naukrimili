@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { RealResumeService } from '@/lib/real-resume-service';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = [
@@ -8,6 +9,16 @@ const ALLOWED_TYPES = [
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 ];
+
+// Timeout wrapper for async operations
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => 
+      setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
+    )
+  ]);
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,8 +67,56 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     await writeFile(filepath, buffer);
 
-    // In a real application, you would save this to a database
-    // For now, we'll return the file information and update user profile
+    // Extract text from the uploaded file with timeout
+    let extractedText = '';
+    let parsedData = null;
+    
+    try {
+      const resumeService = new RealResumeService();
+      
+      // Determine file type for text extraction
+      let fileType = 'application/pdf';
+      if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        fileType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      } else if (file.type === 'application/msword') {
+        fileType = 'application/msword';
+      }
+      
+      // Extract text from file with 30 second timeout
+      extractedText = await withTimeout(
+        resumeService.extractTextFromFile(filepath, fileType),
+        30000
+      );
+      
+      // Analyze the extracted text with 15 second timeout
+      parsedData = await withTimeout(
+        resumeService.analyzeResume(extractedText),
+        15000
+      );
+      
+    } catch (analysisError) {
+      console.warn('Resume analysis failed or timed out, continuing with basic upload:', analysisError);
+      // Continue with basic upload even if analysis fails
+      extractedText = 'Resume content could not be extracted. Please fill in the form manually.';
+      parsedData = {
+        fullName: '',
+        email: '',
+        phone: '',
+        location: '',
+        jobTitle: '',
+        skills: [],
+        education: [],
+        experience: [],
+        linkedin: '',
+        portfolio: '',
+        expectedSalary: '',
+        preferredJobType: '',
+        confidence: 0,
+        rawText: extractedText
+      };
+    }
+
+    // Create resume data object
     const resumeData = {
       id: timestamp.toString(),
       filename: originalName,
@@ -65,32 +124,39 @@ export async function POST(request: NextRequest) {
       size: file.size,
       type: file.type,
       uploadedAt: new Date().toISOString(),
+      extractedText,
+      parsedData
     };
 
-    // Update user profile with resume data
+    // Update user profile with resume data (if available) - don't block on this
     try {
-      const profileResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/user/profile`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'uploadResume',
-          data: resumeData
-        })
-      });
+      const profileResponse = await withTimeout(
+        fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/user/profile`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'uploadResume',
+            data: resumeData
+          })
+        }),
+        5000 // 5 second timeout for profile update
+      );
       
       if (!profileResponse.ok) {
         console.warn('Failed to update user profile with resume data');
       }
     } catch (profileError) {
       console.warn('Failed to update user profile:', profileError);
+      // Don't fail the upload if profile update fails
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Resume uploaded successfully',
-      resume: resumeData
+      message: 'Resume uploaded and analyzed successfully',
+      resume: resumeData,
+      parsedData: parsedData
     });
 
   } catch (error) {

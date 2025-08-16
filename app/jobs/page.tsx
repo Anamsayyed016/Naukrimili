@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Search, MapPin, Building, Briefcase, Clock, Star } from 'lucide-react';
+import EnhancedGoogleFallback from '@/components/EnhancedGoogleFallback';
+import { useGoogleFallback } from '@/hooks/useGoogleFallback';
 
 interface Job {
   id: number;
@@ -36,6 +38,13 @@ export default function JobsPage() {
   const [selectedJobType, setSelectedJobType] = useState(searchParams.get('jobType') || '');
   const [selectedExperience, setSelectedExperience] = useState(searchParams.get('experienceLevel') || '');
   const [isRemote, setIsRemote] = useState(searchParams.get('isRemote') === 'true');
+
+  // Google fallback hook
+  const googleFallback = useGoogleFallback(searchQuery, selectedLocation, jobs.length, {
+    enabled: true,
+    autoTrigger: true,
+    minJobCount: 3
+  });
 
   const locations = ['All Locations', 'Bangalore', 'Mumbai', 'Delhi', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata'];
   const jobTypes = ['All Types', 'full-time', 'part-time', 'contract', 'internship'];
@@ -298,21 +307,19 @@ export default function JobsPage() {
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Empty State - Replace with Enhanced Google Fallback */}
         {!loading && !error && jobs.length === 0 && (
-          <div className="text-center py-12">
-            <div className="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
-              <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
-              <p className="text-gray-600 mb-4">Try adjusting your search criteria or check back later.</p>
-              <button
-                onClick={clearFilters}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Clear Filters
-              </button>
-            </div>
-          </div>
+          <EnhancedGoogleFallback
+            searchQuery={searchQuery}
+            location={selectedLocation}
+            jobCount={jobs.length}
+            onTryNewSearch={(newQuery, newLocation) => {
+              setSearchQuery(newQuery);
+              setSelectedLocation(newLocation);
+              // Trigger new search
+              setTimeout(() => fetchJobs(), 100);
+            }}
+          />
         )}
       </div>
     </div>
