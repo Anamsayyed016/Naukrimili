@@ -34,10 +34,12 @@ export async function GET(request: NextRequest) {
       experience: '3-5 years'
     };
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       job: mockJob
     });
+    res.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=600');
+    return res;
 
   } catch (error) {
     console.error('Error fetching job:', error);

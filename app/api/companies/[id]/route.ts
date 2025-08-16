@@ -3,10 +3,11 @@ import { databaseService } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const companyId = parseInt(params.id);
+    const { id } = await params;
+    const companyId = parseInt(id);
     
     if (isNaN(companyId)) {
       return NextResponse.json(
@@ -47,10 +48,13 @@ export async function GET(
       headquarters: company.location
     };
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       company: enhancedCompany
     });
+    // Cache individual company details for 10 minutes
+    res.headers.set('Cache-Control', 'public, max-age=600, s-maxage=600, stale-while-revalidate=1200');
+    return res;
 
   } catch (error) {
     console.error('Error fetching company details:', error);

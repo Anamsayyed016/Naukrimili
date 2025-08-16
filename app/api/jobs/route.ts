@@ -16,11 +16,26 @@ export async function GET(request: NextRequest) {
     
     const result = await databaseService.getJobs(query, location, company, jobType, experienceLevel, isRemote, sector, page, limit);
     
-    return NextResponse.json({
+    const total = (result as any).total ?? 0;
+    const currentPage = (result as any).page ?? page;
+    const currentLimit = (result as any).limit ?? limit;
+    const totalPages = Math.ceil(total / currentLimit) || 0;
+
+    const res = NextResponse.json({
       success: true,
       jobs: result.jobs,
-      pagination: result.pagination
+      pagination: {
+        page: currentPage,
+        limit: currentLimit,
+        total,
+        total_pages: totalPages,
+        has_next: currentPage < totalPages,
+        has_prev: currentPage > 1
+      }
     });
+    // Cache list for 1 minute to improve responsiveness
+    res.headers.set('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=300');
+    return res;
 
   } catch (error) {
     console.error('Error fetching jobs:', error);

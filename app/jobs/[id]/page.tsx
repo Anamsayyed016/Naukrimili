@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 // Disable static generation for this dynamic route
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Cache job pages briefly for speed while staying fresh
+export const revalidate = 60; // seconds
 
 // Generate static params for build (empty for dynamic routes)
 export async function generateStaticParams() {
@@ -41,8 +41,8 @@ interface Job {
   creator: any;
 }
 
-export default async function JobDetailsPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   
   if (!id) {
     notFound();
@@ -54,7 +54,7 @@ export default async function JobDetailsPage({ params }: { params: { id: string 
 
   try {
     const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/jobs/${id}`, {
-      cache: 'no-store'
+      next: { revalidate: 60 }
     });
     
     if (!response.ok) {

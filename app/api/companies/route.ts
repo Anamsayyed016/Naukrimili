@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       featured: company.featured !== undefined ? company.featured : Math.random() > 0.7
     }));
     
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       companies: enhancedCompanies,
       total: result.total,
@@ -43,6 +43,10 @@ export async function GET(request: NextRequest) {
       limit: result.limit,
       source: result.source
     });
+
+    // Cache for 5 minutes and allow stale-while-revalidate
+    res.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=600');
+    return res;
 
   } catch (error) {
     console.error('Error fetching companies:', error);

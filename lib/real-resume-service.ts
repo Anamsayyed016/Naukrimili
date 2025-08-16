@@ -1,7 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import pdf from 'pdf-parse';
-import mammoth from 'mammoth';
 
 export interface ExtractedResumeData {
   fullName: string;
@@ -185,7 +183,8 @@ export class RealResumeService {
       if (fileType === 'application/pdf') {
         try {
           const dataBuffer = fs.readFileSync(filePath);
-          const data = await pdf(dataBuffer);
+          const pdfModule = await import('pdf-parse');
+          const data = await (pdfModule.default || (pdfModule as any))(dataBuffer);
           return data.text;
         } catch (pdfError) {
           console.warn('PDF parsing failed, using fallback:', pdfError);
@@ -193,7 +192,8 @@ export class RealResumeService {
         }
       } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || fileType === 'application/msword') {
         try {
-          const result = await mammoth.extractRawText({ path: filePath });
+          const mammothModule = await import('mammoth');
+          const result = await (mammothModule as any).default.extractRawText({ path: filePath });
           return result.value;
         } catch (docError) {
           console.warn('DOC parsing failed, using fallback:', docError);

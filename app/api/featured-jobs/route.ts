@@ -88,12 +88,15 @@ export async function GET(request: NextRequest) {
     // Limit results
     const limitedJobs = filteredJobs.slice(0, limit);
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       jobs: limitedJobs,
       total: limitedJobs.length,
       message: `Found ${limitedJobs.length} featured jobs`
     });
+    // Short cache for homepage sections
+    res.headers.set('Cache-Control', 'public, max-age=120, s-maxage=120, stale-while-revalidate=600');
+    return res;
 
   } catch (error: any) {
     console.error('Featured jobs error:', error);
