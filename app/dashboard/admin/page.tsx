@@ -14,7 +14,8 @@ import {
   Eye,
   Calendar,
   DollarSign,
-  Activity
+  Activity,
+  Database
 } from "lucide-react";
 import Link from "next/link";
 
@@ -243,6 +244,12 @@ export default function AdminDashboard() {
               <Button variant="outline">
                 <FileText className="h-4 w-4 mr-2" />
                 Manage Content
+              </Button>
+            </Link>
+            <Link href="/admin/seed-jobs">
+              <Button variant="outline" className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100">
+                <Database className="h-4 w-4 mr-2" />
+                Seed Jobs
               </Button>
             </Link>
           </div>
