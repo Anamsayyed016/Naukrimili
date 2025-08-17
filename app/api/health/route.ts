@@ -1,36 +1,38 @@
 import { NextResponse } from 'next/server';
-import { databaseService } from '@/lib/database';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const health = await databaseService.checkHealth();
-    const currentMode = databaseService.getCurrentMode();
+    // Check database connection
+    await prisma.$queryRaw`SELECT 1`;
+    
+    // Get basic stats
+    const [jobCount, companyCount, categoryCount] = await Promise.all([
+      prisma.job.count(),
+      prisma.company.count(),
+      prisma.category.count()
+    ]);
     
     return NextResponse.json({
-      status: 'ok',
+      status: 'healthy',
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'unknown',
-      database: {
-        mode: currentMode,
-        health: health,
-        url: process.env.DATABASE_URL ? 'configured' : 'not configured'
-      },
-      features: {
-        mockData: currentMode === 'development-mock',
-        postgresql: currentMode === 'production-postgresql',
-        automatic: true
-      },
-      message: `Database service running in ${currentMode} mode`
-    });
-  } catch (error) {
-    return NextResponse.json({
-      status: 'error',
-      timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error',
-      database: {
-        mode: 'error',
-        health: { isHealthy: false, error: 'Health check failed' }
+      database: 'connected',
+      stats: {
+        jobs: jobCount,
+        companies: companyCount,
+        categories: categoryCount
       }
-    }, { status: 500 });
+    });
+    
+  } catch (error) {
+    console.error('Health check failed:', error);
+    return NextResponse.json(
+      { 
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: 'Database connection failed'
+      },
+      { status: 500 }
+    );
   }
 }

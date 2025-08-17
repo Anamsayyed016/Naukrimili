@@ -63,4 +63,50 @@ export interface Job {
     source?: string
   }
   tags?: string[]
+  applications?: number // Add this for compatibility
+}
+
+export interface JobFilters {
+  query?: string;
+  location?: string;
+  company?: string;
+  jobType?: 'full-time' | 'part-time' | 'contract' | 'internship';
+  experience?: string;
+  salary?: {
+    min?: number;
+    max?: number;
+    currency?: string;
+  };
+  skills?: string[];
+  remote?: boolean;
+  industry?: string;
+  datePosted?: 'today' | 'week' | 'month' | '3months';
+  isVerified?: boolean;
+  isFeatured?: boolean;
+  sortBy?: 'relevance' | 'date' | 'salary' | 'company';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface JobSummary {
+  id: string;
+  title: string;
+  company: {
+    name: string;
+    logo?: string;
+  };
+  location: string;
+  salary?: {
+    min?: number;
+    max?: number;
+    currency: string;
+  };
+  jobType: string;
+  experience: string;
+  postedDate: string;
+  isRemote: boolean;
+  isVerified: boolean;
+  isFeatured: boolean;
+  applications: number;
+  views: number;
+  tags: string[];
 }

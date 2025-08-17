@@ -1,5 +1,5 @@
 import { getServerSession } from 'next-auth';
-import { authOptions } from './auth-config';
+import { authOptions } from './nextauth-config';
 
 /**
  * Return the NextAuth session or null on failure.
@@ -18,5 +18,8 @@ export async function getSession() {
  */
 export async function getCurrentUser() {
   const session = await getSession();
-  return session?.user ?? null;
+  if (session && typeof session === 'object' && 'user' in session) {
+    return (session as any).user ?? null;
+  }
+  return null;
 }

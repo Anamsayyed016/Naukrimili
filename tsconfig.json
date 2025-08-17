@@ -14,6 +14,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "tsBuildInfoFile": "./node_modules/.cache/.tsbuildinfo",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": false,

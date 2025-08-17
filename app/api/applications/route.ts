@@ -1,113 +1,252 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/nextauth-config';
+import { z } from 'zod';
 
-// Mock storage for applications
-let applications: any[] = [];
-let applicationId = 1;
+const applicationSchema = z.object({
+  jobId: z.number().int().positive(),
+  coverLetter: z.string().optional(),
+  resumeId: z.string().optional(),
+  notes: z.string().optional()
+});
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+interface AuthenticatedUser {
+  id: string;
+  email: string;
+  name?: string;
+  role?: string;
+}
+
+async function requireAuth(request: NextRequest): Promise<{ user: AuthenticatedUser | null; response: NextResponse | null }> {
+  const session = await getServerSession(authOptions as any);
+  if (!session || typeof session !== 'object' || !session.user || typeof session.user !== 'object') {
+    return { user: null, response: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }) };
+  }
+  
+  const user = session.user as any;
+  if (!user.email) {
+    return { user: null, response: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }) };
+  }
+  
+  return { 
+    user: {
+      id: user.id || user.email,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    }, 
+    response: null 
+  };
+}
+
+export async function GET(request: NextRequest) {
+  const { user, response } = await requireAuth(request);
+  if (!user) return response!;
+
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '10');
     const page = parseInt(searchParams.get('page') || '1');
-    const offset = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
-    let filteredApplications = applications;
+    // Build where clause
+    const where: any = { userId: user.id };
     if (status) {
-      filteredApplications = applications.filter(app => app.status === status);
+      where.status = status;
     }
 
-    const paginatedApplications = filteredApplications.slice(offset, offset + limit);
-    const total = filteredApplications.length;
+    // Get applications with pagination and related data
+    const [applications, total] = await Promise.all([
+      prisma.application.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { appliedAt: 'desc' },
+        include: {
+          job: {
+            select: {
+              id: true,
+              title: true,
+              company: true,
+              location: true,
+              salary: true,
+              jobType: true,
+              experienceLevel: true,
+              isRemote: true,
+              companyRelation: {
+                select: {
+                  name: true,
+                  logo: true,
+                  industry: true
+                }
+              }
+            }
+          },
+          company: {
+            select: {
+              name: true,
+              logo: true,
+              industry: true
+            }
+          },
+          resume: {
+            select: {
+              fileName: true,
+              fileUrl: true
+            }
+          }
+        }
+      }),
+      prisma.application.count({ where })
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    // Transform applications for frontend
+    const transformedApplications = applications.map(app => ({
+      id: app.id,
+      jobId: app.jobId,
+      jobTitle: app.job.title,
+      company: app.job.company || app.job.companyRelation?.name || app.company?.name,
+      companyLogo: app.job.companyRelation?.logo || app.company?.logo,
+      location: app.job.location,
+      salary: app.job.salary,
+      jobType: app.job.jobType,
+      experienceLevel: app.job.experienceLevel,
+      isRemote: app.job.isRemote,
+      status: app.status,
+      appliedAt: app.appliedAt,
+      updatedAt: app.updatedAt,
+      coverLetter: app.coverLetter,
+      notes: app.notes,
+      resume: app.resume ? {
+        fileName: app.resume.fileName,
+        fileUrl: app.resume.fileUrl
+      } : null
+    }));
 
     return NextResponse.json({
       success: true,
-      applications: paginatedApplications,
+      applications: transformedApplications,
       pagination: {
-        current_page: page,
-        total_pages: Math.ceil(total / limit),
-        total_results: total,
-        per_page: limit,
-        has_next: page < Math.ceil(total / limit),
-        has_prev: page > 1,
-      },
-      timestamp: new Date().toISOString(),
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Applications GET error:', error);
     return NextResponse.json({
       success: false,
-      error: 'Failed to fetch applications',
-      applications: [],
+      error: 'Failed to fetch applications'
     }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest) {
+  const { user, response } = await requireAuth(request);
+  if (!user) return response!;
+
   try {
     const contentType = request.headers.get('content-type') || '';
-    let payload: Record<string, unknown> = {};
+    let payload: any = {};
 
     if (contentType.includes('multipart/form-data')) {
       const form = await request.formData();
-      const name = form.get('name')?.toString() || '';
-      const email = form.get('email')?.toString() || '';
-      const jobId = parseInt(form.get('jobId')?.toString() || '0');
-      const coverLetter = form.get('coverLetter')?.toString() || '';
-      const file = form.get('file');
-      
-      payload = { 
-        userId: email, // Use email as userId for now
-        jobId, 
-        coverLetter: coverLetter || `Application from ${name} (${email})`,
-        notes: `Applied via form with file: ${file ? (file as File).name : 'No file'}`,
-        name,
-        email,
-        fileName: file ? (file as File).name : undefined
+      payload = {
+        jobId: parseInt(form.get('jobId')?.toString() || '0'),
+        coverLetter: form.get('coverLetter')?.toString() || '',
+        resumeId: form.get('resumeId')?.toString(),
+        notes: form.get('notes')?.toString() || ''
       };
     } else {
       payload = await request.json();
     }
 
-    // Basic validation
-    if (!payload.jobId || !payload.userId) {
+    // Validate payload
+    const validatedData = applicationSchema.parse(payload);
+
+    // Check if job exists
+    const job = await prisma.job.findUnique({
+      where: { id: validatedData.jobId }
+    });
+
+    if (!job) {
       return NextResponse.json({
         success: false,
-        error: 'Missing required fields: jobId and userId',
-      }, { status: 400 });
+        error: 'Job not found'
+      }, { status: 404 });
     }
 
     // Check if already applied
-    const existingApplication = applications.find(
-      app => app.userId === payload.userId && app.jobId === payload.jobId
-    );
+    const existingApplication = await prisma.application.findFirst({
+      where: {
+        userId: user.id,
+        jobId: validatedData.jobId
+      }
+    });
 
     if (existingApplication) {
       return NextResponse.json({
         success: false,
-        error: 'Already applied',
-        message: 'You have already applied for this job',
+        error: 'You have already applied for this job'
       }, { status: 409 });
     }
 
     // Create application
-    const application = {
-      id: applicationId++,
-      userId: payload.userId,
-      jobId: payload.jobId,
-      resumeId: payload.resumeId,
-      coverLetter: payload.coverLetter,
-      notes: payload.notes,
-        status: 'submitted',
-      appliedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      name: payload.name,
-      email: payload.email,
-      fileName: payload.fileName
-    };
+    const application = await prisma.application.create({
+      data: {
+        userId: user.id,
+        jobId: validatedData.jobId,
+        resumeId: validatedData.resumeId,
+        coverLetter: validatedData.coverLetter,
+        notes: validatedData.notes,
+        status: 'submitted'
+      },
+      include: {
+        job: {
+          select: {
+            title: true,
+            company: true,
+            companyRelation: {
+              select: {
+                name: true
+              }
+            }
+          }
+        }
+      }
+    });
 
-    applications.push(application);
+    // Update job application count
+    await prisma.job.update({
+      where: { id: validatedData.jobId },
+      data: {
+        applicationsCount: {
+          increment: 1
+        }
+      }
+    });
+
+    // Create notification for employer (if company exists)
+    if (job.companyId) {
+      await prisma.message.create({
+        data: {
+          conversationId: `job_${job.id}_applications`,
+          senderId: user.id,
+          receiverId: job.companyId,
+          content: `New application received for ${job.title}`,
+          messageType: 'notification',
+          isRead: false
+        }
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -115,19 +254,40 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       application: {
         id: application.id,
         jobId: application.jobId,
+        jobTitle: application.job.title,
+        company: application.job.company || application.job.companyRelation?.name,
         status: application.status,
-        appliedAt: application.appliedAt,
-      },
+        appliedAt: application.appliedAt
+      }
     }, { status: 201 });
 
-  } catch (error: any) {
-    console.error('Applications POST error:', error);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,
-      error: 'Failed to create application',
-      message: error.message,
+        error: 'Invalid input data',
+        details: error.errors
+      }, { status: 400 });
+    }
+
+    console.error('Applications POST error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to create application'
     }, { status: 500 });
   }
+}
+
+// OPTIONS handler for CORS
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 }
 
 

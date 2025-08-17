@@ -17,7 +17,10 @@ import {
   Mail,
   Phone,
   Linkedin,
-  Twitter
+  Twitter,
+  Clock,
+  DollarSign,
+  Zap
 } from 'lucide-react';
 
 interface Company {
@@ -39,10 +42,24 @@ interface Company {
   featured: boolean;
 }
 
+interface Job {
+  id: number;
+  title: string;
+  location: string;
+  salary: string;
+  jobType: string;
+  experienceLevel: string;
+  isRemote: boolean;
+  isUrgent: boolean;
+  isFeatured: boolean;
+  createdAt: string;
+}
+
 export default function CompanyDetailPage() {
   const params = useParams();
   const companyId = params.id;
   const [company, setCompany] = useState<Company | null>(null);
+  const [openJobs, setOpenJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,39 +82,21 @@ export default function CompanyDetailPage() {
       const data = await response.json();
       if (data.success) {
         setCompany(data.company);
+        setOpenJobs(data.openJobs || []);
       } else {
         throw new Error(data.error || 'Failed to load company details');
       }
     } catch (err: any) {
       console.error('Error fetching company details:', err);
       setError(err?.message || 'Failed to load company details');
-      // Fallback to mock data
-      loadMockCompanyData();
     } finally {
       setLoading(false);
     }
   };
 
-  const loadMockCompanyData = () => {
-    const mockCompany: Company = {
-      id: companyId as string,
-      name: 'TechCorp India',
-      industry: 'Technology',
-      location: 'Bangalore, Karnataka',
-      size: '1000-5000 employees',
-      rating: 4.5,
-      reviews: 2847,
-      logo: 'https://images.unsplash.com/photo-1549923746-c502d488b3ea?w=200&h=200&fit=crop&crop=center',
-      description: 'Leading technology company providing innovative AI and cloud solutions to global enterprises. We specialize in artificial intelligence, cloud computing, and enterprise software development, helping businesses transform their digital operations.',
-      openJobs: 45,
-      founded: '2010',
-      headquarters: 'Bangalore, India',
-      website: 'https://techcorp.in',
-      specialties: ['Artificial Intelligence', 'Cloud Computing', 'Enterprise Software', 'Data Analytics', 'Machine Learning'],
-      benefits: ['Health Insurance', 'Flexible Hours', 'Remote Work', 'Learning Budget', 'Stock Options', 'Gym Membership'],
-      featured: true
-    };
-    setCompany(mockCompany);
+  const handleApplyNow = (jobId: number) => {
+    // Navigate to job application page
+    window.open(`/jobs/${jobId}/apply`, '_blank');
   };
 
   if (loading) {
@@ -157,7 +156,7 @@ export default function CompanyDetailPage() {
             {/* Company Logo and Basic Info */}
             <div className="flex-shrink-0">
               <img
-                src={company.logo}
+                src={company.logo || `https://via.placeholder.com/128x128/3B82F6/FFFFFF?text=${company.name.charAt(0)}`}
                 alt={`${company.name} logo`}
                 className="w-32 h-32 rounded-2xl object-cover border border-gray-200"
               />
@@ -279,20 +278,92 @@ export default function CompanyDetailPage() {
               </div>
             </div>
 
-            {/* Open Jobs */}
+            {/* Open Jobs with Apply Buttons */}
             <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Open Positions</h2>
-              <div className="text-center py-8">
-                <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{company.openJobs} open positions</h3>
-                <p className="text-gray-600 mb-6">Explore exciting career opportunities at {company.name}</p>
-                <Link
-                  href={`/jobs?company=${company.name}`}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  View All Jobs
-                </Link>
-              </div>
+              
+              {openJobs.length > 0 ? (
+                <div className="space-y-4">
+                  {openJobs.map((job) => (
+                    <div key={job.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
+                            {job.isUrgent && (
+                              <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">
+                                URGENT
+                              </span>
+                            )}
+                            {job.isFeatured && (
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                FEATURED
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              <span>{job.location}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              <span>{job.jobType}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Zap className="h-4 w-4" />
+                              <span>{job.experienceLevel}</span>
+                            </div>
+                            {job.isRemote && (
+                              <div className="flex items-center gap-1">
+                                <Globe className="h-4 w-4" />
+                                <span>Remote</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {job.salary && (
+                            <div className="flex items-center gap-1 text-sm text-gray-600 mb-3">
+                              <DollarSign className="h-4 w-4" />
+                              <span>{job.salary}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <button
+                          onClick={() => handleApplyNow(job.id)}
+                          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                        >
+                          <Briefcase className="h-4 w-4" />
+                          Apply Now
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <div className="text-center pt-6">
+                    <Link
+                      href={`/jobs?company=${company.name}`}
+                      className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                    >
+                      View All Jobs at {company.name}
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">No open positions currently</h3>
+                  <p className="text-gray-600 mb-6">Check back later for new opportunities at {company.name}</p>
+                  <Link
+                    href="/jobs"
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    Browse All Jobs
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 

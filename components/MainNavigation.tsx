@@ -16,7 +16,8 @@ import {
   FileTextIcon,
   BarChartIcon,
   Brain,
-  Home
+  Home,
+  Upload
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,23 @@ export default function MainNavigation({
                 {link.title}
               </Link>
             ))}
+          </div>
+
+          {/* Resume Upload Button - PROMINENT PLACEMENT */}
+          <div className="hidden md:flex items-center">
+            <button
+              onClick={() => {
+                if (pathname === '/') {
+                  document.getElementById('resume-upload-section')?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  router.push('/#resume-upload-section');
+                }
+              }}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              Upload Resume
+            </button>
           </div>
 
           {/* Right Side - User Menu & Actions */}
@@ -155,6 +173,22 @@ export default function MainNavigation({
                   </div>
                 </Link>
               ))}
+              
+              {/* Mobile Resume Upload Button */}
+              <button
+                onClick={() => {
+                  closeMenu();
+                  if (pathname === '/') {
+                    document.getElementById('resume-upload-section')?.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    router.push('/#resume-upload-section');
+                  }
+                }}
+                className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+              >
+                <Upload className="w-5 h-5" />
+                Upload Resume
+              </button>
             </div>
           </div>
         )}

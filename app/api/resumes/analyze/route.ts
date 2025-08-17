@@ -49,12 +49,33 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResumeAna
       }, { status: 400 });
     }
 
-    const analysis = await resumeService.analyzeResume(analysisData, authUserId);
+    // Analyze the resume
+    const analysis = await resumeService.analyzeResume(resumeData);
     
-    // Log analysis for monitoring
-    console.log(`Resume analysis completed for user: ${authUserId}`);
+    const response: ResumeAnalysisResponse = {
+      success: true,
+      analysis: {
+        completeness: analysis.analysis.completeness,
+        atsScore: analysis.analysis.atsScore,
+        issues: analysis.analysis.issues,
+        suggestions: analysis.analysis.suggestions,
+        missingFields: analysis.analysis.missingFields,
+        strengthAreas: analysis.analysis.strengthAreas,
+        weaknessAreas: analysis.analysis.weaknessAreas,
+        duplicateContent: analysis.analysis.duplicateContent,
+        conflicts: analysis.analysis.conflicts
+      },
+      // score: analysis.score, // Removed - property doesn't exist in type
+      // strengths: analysis.strengths, // Removed - not in type
+      // weaknesses: analysis.weaknesses, // Removed - not in type
+      // recommendations: analysis.suggestions, // Removed - not in type
+      // keywordMatch: analysis.keywordMatch, // Removed - not in type
+      // completeness: analysis.completeness, // Removed - not in type
+      // aiInsights: analysis.aiInsights, // Removed - not in type
+      // timestamp: new Date().toISOString() // Removed - not in type
+    };
     
-    return NextResponse.json(analysis, { status: 200 });
+    return NextResponse.json(response);
 
   } catch (error) {
     console.error('Resume analysis error:', error);

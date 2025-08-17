@@ -18,6 +18,27 @@ export interface ApiResponse<T = any> {
   };
 }
 
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  success: boolean;
+  error?: string;
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+    timestamp: string;
+  };
+}
+
 export interface ApiError {
   status: number;
   message: string;
@@ -54,14 +75,14 @@ export class ApiClient {
   /**
    * Handle API errors consistently
    */
-  private handleError(response: Response): ApiError {
+  private async handleError(response: Response): Promise<ApiError> {
     const error: ApiError = {
       status: response.status,
       message: response.statusText,
     };
 
     try {
-      const errorData = response.json();
+      const errorData = await response.json();
       if (errorData.error) {
         error.message = errorData.error;
         error.code = errorData.code;
@@ -101,7 +122,7 @@ export class ApiClient {
       });
 
       if (!response.ok) {
-        throw this.handleError(response);
+        throw await this.handleError(response);
       }
 
       const data = await response.json();
@@ -134,7 +155,7 @@ export class ApiClient {
       });
 
       if (!response.ok) {
-        throw this.handleError(response);
+        throw await this.handleError(response);
       }
 
       const responseData = await response.json();
@@ -167,7 +188,7 @@ export class ApiClient {
       });
 
       if (!response.ok) {
-        throw this.handleError(response);
+        throw await this.handleError(response);
       }
 
       const responseData = await response.json();
@@ -199,7 +220,7 @@ export class ApiClient {
       });
 
       if (!response.ok) {
-        throw this.handleError(response);
+        throw await this.handleError(response);
       }
 
       const responseData = await response.json();
@@ -214,6 +235,125 @@ export class ApiClient {
       return {
         success: false,
         error: 'An unexpected error occurred',
+      };
+    }
+  }
+
+  /**
+   * Make authenticated PATCH request
+   */
+  async patch<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: 'PATCH',
+        headers,
+        credentials: 'include',
+        body: data ? JSON.stringify(data) : undefined,
+      });
+
+      if (!response.ok) {
+        throw await this.handleError(response);
+      }
+
+      const responseData = await response.json();
+      return responseData;
+    } catch (error) {
+      if (error instanceof Error) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+      return {
+        success: false,
+        error: 'An unexpected error occurred',
+      };
+    }
+  }
+
+  /**
+   * Get paginated data
+   */
+  async getPaginated<T>(endpoint: string, page: number = 1, limit: number = 10): Promise<PaginatedResponse<T>> {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+      
+      const url = `${endpoint}?${params.toString()}`;
+      const response = await this.get<T[]>(url);
+      
+      if (!response.success || !response.data) {
+        throw new Error(response.error || 'Failed to fetch paginated data');
+      }
+
+      const totalPages = Math.ceil((response.pagination?.total || 0) / limit);
+      const hasNext = page < totalPages;
+      const hasPrev = page > 1;
+
+      return {
+        data: response.data,
+        pagination: response.pagination || {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+        },
+        success: true,
+        meta: {
+          page,
+          limit,
+          total: response.pagination?.total || 0,
+          totalPages,
+          hasNext,
+          hasPrev,
+          timestamp: new Date().toISOString(),
+        },
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return {
+          success: false,
+          error: error.message,
+          data: [],
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0,
+          },
+          meta: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+            timestamp: new Date().toISOString(),
+          },
+        };
+      }
+      return {
+        success: false,
+        error: 'An unexpected error occurred',
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+        },
+        meta: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+          timestamp: new Date().toISOString(),
+        },
       };
     }
   }
@@ -251,7 +391,7 @@ export class ApiClient {
             } catch {
               resolve({
                 success: true,
-                data: xhr.responseText,
+                data: xhr.responseText as any,
               });
             }
           } else {

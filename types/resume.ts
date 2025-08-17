@@ -104,4 +104,47 @@ export interface Resume {
   interests?: ResumeInterest[]
   references?: ResumeReference[]
   metadata: ResumeMetadata
+  downloadUrl?: string // Add this for compatibility
+  filename?: string // Add this for compatibility
+}
+
+export interface ResumeAnalysis {
+  id: string;
+  resumeId: string;
+  score: number;
+  strengths: string[];
+  weaknesses: string[];
+  suggestions: string[];
+  keywordMatch: {
+    matched: string[];
+    missing: string[];
+    score: number;
+  };
+  completeness: {
+    overall: number;
+    sections: Record<string, number>;
+  };
+  aiInsights: {
+    summary: string;
+    recommendations: string[];
+    industryFit: string[];
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ResumeFilters {
+  userId?: string;
+  theme?: string;
+  visibility?: 'public' | 'private' | 'hidden';
+  completeness?: {
+    min?: number;
+    max?: number;
+  };
+  hasAnalysis?: boolean;
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+  tags?: string[];
 }

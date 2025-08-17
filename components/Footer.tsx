@@ -76,7 +76,7 @@ export default function Footer() {
               <div className="flex w-full">
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Your email" className="px-4 py-2 w-full rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900" required />
                 <button type="submit" disabled={status === "loading"} className={`px-4 py-2 rounded-r-md text-white flex items-center gap-2 min-w-[110px] transition-colors ${status === "loading" ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}>
-                  {status === "loading" && <FiLoader className="animate-spin" />}
+                  {status === "loading" && <FiLoader size={20} />}
                   {status === "success" && <FiCheck />}
                   {status === "error" && <FiAlertCircle />}
                   {status === "idle" && "Subscribe"}

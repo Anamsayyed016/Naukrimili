@@ -1,4 +1,8 @@
 import { NextRequest } from 'next/server';
+import { authOptions as nextAuthOptions } from './nextauth-config';
+
+// Export authOptions for compatibility
+export const authOptions = nextAuthOptions;
 
 // Mock authentication for now
 // TODO: Implement real authentication when database is ready

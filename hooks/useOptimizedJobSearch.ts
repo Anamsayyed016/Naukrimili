@@ -218,7 +218,7 @@ export function useOptimizedJobSearch(
     // Add error boundary
     useErrorBoundary: false,
     // Optimize for better UX
-    keepPreviousData: true,
+    placeholderData: (prev) => prev, // Keep previous data
     refetchOnMount: 'always'
   });
 
@@ -308,22 +308,12 @@ export function useInfiniteJobSearch(
 ) {
   const infiniteQuery = useInfiniteQuery<OptimizedSearchResponse>({
     queryKey: ['jobs', 'infinite', filters, pageSize],
-    queryFn: async ({ pageParam = 1 }) => {
-      const searchParams = new SearchParamsBuilder()
-        .addAll(filters, pageParam, pageSize)
-        .toString();
-
-      const response = await fetch(`/api/jobs/search?${searchParams}`);
-      if (!response.ok) throw new Error('Infinite search failed');
-      return response.json();
-    },
-    getNextPageParam: (lastPage) => {
-      const { data } = lastPage;
-      return data.has_next ? data.page + 1 : undefined;
-    },
+    queryFn: ({ pageParam = 1 }) => searchJobs(filters, pageParam, pageSize),
+    getNextPageParam: (lastPage) => lastPage.data.nextPage || undefined,
     enabled: options.enabled !== false,
+    initialPageParam: 1,
     staleTime: options.staleTime || 2 * 60 * 1000,
-    cacheTime: options.cacheTime || 5 * 60 * 1000
+    gcTime: options.gcTime || 5 * 60 * 1000
   });
 
   // Flatten all pages into single array
@@ -364,7 +354,7 @@ export function useSearchSuggestions(query: string, enabled = true) {
     },
     enabled: enabled && debouncedQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000 // 10 minutes
+    gcTime: 10 * 60 * 1000 // 10 minutes
   });
 }
 
@@ -385,7 +375,7 @@ export function useFilterOptions(baseFilters?: Partial<OptimizedSearchFilters>) 
       return data.filters?.available || {};
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
-    cacheTime: 15 * 60 * 1000  // 15 minutes
+    gcTime: 15 * 60 * 1000  // 15 minutes
   });
 }
 

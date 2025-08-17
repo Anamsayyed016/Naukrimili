@@ -41,11 +41,118 @@ export const ResumeDataSchema = z.object({
     proficiency: z.enum(['Beginner', 'Intermediate', 'Advanced', 'Native']),
   })).optional(),
   awards: z.array(z.string()).optional(),
+  interests: z.array(z.string()).optional(),
+  socialLinks: z.object({
+    linkedin: z.string().url().optional(),
+    github: z.string().url().optional(),
+    twitter: z.string().url().optional(),
+    portfolio: z.string().url().optional(),
+  }).optional(),
+  preferences: z.object({
+    workStyle: z.string().optional(),
+    location: z.string().optional(),
+    salary: z.string().optional(),
+    remote: z.boolean().optional(),
+  }).optional(),
 });
 
-export type ResumeData = z.infer<typeof ResumeDataSchema>;
+export interface ResumeData {
+  skills?: string[];
+  education?: {
+    details?: string;
+    year?: string;
+    degree?: string;
+    institution?: string;
+    gpa?: string;
+  }[];
+  fullName?: string;
+  summary?: string; // Add missing summary property
+  contact?: {
+    linkedin?: string;
+    phone?: string;
+    email?: string;
+    portfolio?: string;
+    address?: string;
+  };
+  experience?: {
+    company?: string;
+    position?: string;
+    duration?: string;
+    description?: string;
+    achievements?: string[];
+  }[];
+  workExperience?: { // Add workExperience as alias for experience
+    company?: string;
+    position?: string;
+    duration?: string;
+    description?: string;
+    achievements?: string[];
+  }[];
+  projects?: {
+    name?: string;
+    description?: string;
+    achievements?: string[];
+    technologies?: string[];
+    url?: string;
+  }[];
+  certifications?: string[];
+  languages?: string[];
+  awards?: string[];
+  interests?: string[];
+  socialLinks?: {
+    linkedin?: string;
+    github?: string;
+    twitter?: string;
+    portfolio?: string;
+  };
+  preferences?: {
+    workStyle?: string;
+    location?: string;
+    salary?: string;
+    remote?: boolean;
+    expectedSalary?: string; // Add missing property
+    preferredJobType?: string; // Add missing property
+    preferredLocation?: string; // Add missing property
+  };
+}
 
 // API Request/Response Types
+export interface ResumeAnalysis {
+  id: string;
+  resumeId: string;
+  score: number;
+  strengths: string[];
+  weaknesses: string[];
+  suggestions: string[];
+  keywordMatch: {
+    matched: string[];
+    missing: string[];
+    score: number;
+  };
+  completeness: {
+    overall: number;
+    sections: Record<string, number>;
+  };
+  aiInsights: {
+    summary: string;
+    recommendations: string[];
+    industryFit: string[];
+  };
+  analysis: {
+    completeness: number;
+    atsScore: number;
+    issues: string[];
+    suggestions: string[];
+    missingFields: string[];
+    strengthAreas: string[];
+    weaknessAreas: string[];
+    duplicateContent: string[];
+    conflicts: string[];
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface ResumeAnalysisRequest {
   resumeData?: ResumeData;
   resumeText?: string;

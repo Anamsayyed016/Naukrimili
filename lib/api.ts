@@ -1,33 +1,18 @@
 import { apiClient } from './api-client';
-import { ApiError } from '@/types/api';
-import type { Job } from '@/types/job';
-import type { User } from '@/types/user';
-import type { JobApplication as Application } from '@/types/job-application';
-import type { Resume } from '@/types/resume';
-import type { PaginatedResponse } from '@/types/api';
+import type { Job, User, Application, Resume, Company } from '@/types';
+import type { PaginatedResponse } from '@/types';
 
 // ===== JOB API METHODS =====
 export const jobApi = {
-  // Get all jobs with pagination and filters
-  async getJobs(params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    location?: string;
-    type?: string;
-    remote?: boolean;
-    salary?: { min?: number; max?: number };
-  } = {}): Promise<PaginatedResponse<Job>> {
-    const { page = 1, limit = 10, ...filters } = params;
+  // Get all jobs with pagination
+  async getJobs(params: { page?: number; limit?: number; query?: string; location?: string } = {}): Promise<PaginatedResponse<Job>> {
+    const { page = 1, limit = 10, query, location } = params;
     const queryParams = new URLSearchParams();
-
-    Object.keys(filters).forEach((key) => {
-      const value: any = (filters as any)[key];
-      if (value !== undefined && value !== null) {
-        if (typeof value === 'object') queryParams.append(key, JSON.stringify(value));
-        else queryParams.append(key, String(value));
-      }
-    });
+    
+    if (query) queryParams.append('q', query);
+    if (location) queryParams.append('location', location);
+    if (page > 1) queryParams.append('page', page.toString());
+    if (limit !== 10) queryParams.append('limit', limit.toString());
 
     const sep = queryParams.toString() ? `?${queryParams.toString()}` : '';
     return apiClient.getPaginated<Job>(`/api/jobs${sep}`, page, limit);
@@ -35,29 +20,49 @@ export const jobApi = {
 
   // Get single job by ID
   async getJob(id: string): Promise<Job> {
-    return apiClient.get<Job>(`/api/jobs/${encodeURIComponent(id)}`);
+    const response = await apiClient.get<Job>(`/api/jobs/${encodeURIComponent(id)}`);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to fetch job');
+    }
+    return response.data;
   },
 
   // Create new job
   async createJob(jobData: Record<string, unknown>): Promise<Job> {
-    return apiClient.post<Job>('/api/jobs', jobData);
+    const response = await apiClient.post<Job>('/api/jobs', jobData);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to create job');
+    }
+    return response.data;
   },
 
   // Update job
   async updateJob(id: string, jobData: Record<string, unknown>): Promise<Job> {
-    return apiClient.put<Job>(`/api/jobs/${encodeURIComponent(id)}`, jobData);
+    const response = await apiClient.put<Job>(`/api/jobs/${encodeURIComponent(id)}`, jobData);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to update job');
+    }
+    return response.data;
   },
 
   // Delete job
   async deleteJob(id: string): Promise<{ success: boolean }> {
-    return apiClient.delete<{ success: boolean }>(`/api/jobs/${encodeURIComponent(id)}`);
+    const response = await apiClient.delete<{ success: boolean }>(`/api/jobs/${encodeURIComponent(id)}`);
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to delete job');
+    }
+    return response.data || { success: true };
   },
 
   // Search jobs
   async searchJobs(query: string, location?: string): Promise<Job[]> {
     const params = new URLSearchParams({ q: query });
     if (location) params.append('location', location);
-    return apiClient.get<Job[]>(`/api/jobs/search?${params.toString()}`);
+    const response = await apiClient.get<Job[]>(`/api/jobs/search?${params.toString()}`);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to search jobs');
+    }
+    return response.data;
   },
 };
 
@@ -65,17 +70,29 @@ export const jobApi = {
 export const userApi = {
   // Get current user profile
   async getProfile(): Promise<User> {
-    return apiClient.get<User>('/api/user/profile');
+    const response = await apiClient.get<User>('/api/user/profile');
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to fetch profile');
+    }
+    return response.data;
   },
 
   // Update user profile
   async updateProfile(userData: Partial<User>): Promise<User> {
-    return apiClient.put<User>('/api/user/profile', userData as any);
+    const response = await apiClient.put<User>('/api/user/profile', userData as any);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to update profile');
+    }
+    return response.data;
   },
 
   // Get user by ID (admin only)
   async getUser(id: string): Promise<User> {
-    return apiClient.get<User>(`/api/admin/users/${encodeURIComponent(id)}`);
+    const response = await apiClient.get<User>(`/api/admin/users/${encodeURIComponent(id)}`);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to fetch user');
+    }
+    return response.data;
   },
 
   // Get all users (admin only)
@@ -89,7 +106,11 @@ export const userApi = {
 export const applicationApi = {
   // Apply for a job
   async applyForJob(jobId: string, applicationData: Partial<Application>): Promise<Application> {
-    return apiClient.post<Application>(`/api/jobs/${encodeURIComponent(jobId)}/apply`, applicationData);
+    const response = await apiClient.post<Application>(`/api/jobs/${encodeURIComponent(jobId)}/apply`, applicationData);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to apply for job');
+    }
+    return response.data;
   },
 
   // Get user's applications
@@ -100,12 +121,20 @@ export const applicationApi = {
 
   // Get application by ID
   async getApplication(id: string): Promise<Application> {
-    return apiClient.get<Application>(`/api/applications/${encodeURIComponent(id)}`);
+    const response = await apiClient.get<Application>(`/api/applications/${encodeURIComponent(id)}`);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to fetch application');
+    }
+    return response.data;
   },
 
   // Update application status
   async updateApplication(id: string, status: string): Promise<Application> {
-    return apiClient.patch<Application>(`/api/applications/${encodeURIComponent(id)}`, { status });
+    const response = await apiClient.patch<Application>(`/api/applications/${encodeURIComponent(id)}`, { status });
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to update application');
+    }
+    return response.data;
   },
 };
 
@@ -113,22 +142,38 @@ export const applicationApi = {
 export const resumeApi = {
   // Upload resume
   async uploadResume(file: File, onProgress?: (progress: number) => void): Promise<Resume> {
-    	return apiClient.upload<Resume>('/api/upload/resume', file, onProgress);
+    const response = await apiClient.upload<Resume>('/api/upload/resume', file, onProgress);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to upload resume');
+    }
+    return response.data;
   },
 
   // Get user's resumes
   async getUserResumes(): Promise<Resume[]> {
-    return apiClient.get<Resume[]>('/api/resumes');
+    const response = await apiClient.get<Resume[]>('/api/resumes');
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to fetch resumes');
+    }
+    return response.data;
   },
 
   // Get resume by ID
   async getResume(id: string): Promise<Resume> {
-    return apiClient.get<Resume>(`/api/resumes/${encodeURIComponent(id)}`);
+    const response = await apiClient.get<Resume>(`/api/resumes/${encodeURIComponent(id)}`);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to fetch resume');
+    }
+    return response.data;
   },
 
   // Delete resume
   async deleteResume(id: string): Promise<{ success: boolean }> {
-    return apiClient.delete<{ success: boolean }>(`/api/resumes/${encodeURIComponent(id)}`);
+    const response = await apiClient.delete<{ success: boolean }>(`/api/resumes/${encodeURIComponent(id)}`);
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to delete resume');
+    }
+    return response.data || { success: true };
   },
 };
 
@@ -140,12 +185,15 @@ export const authApi = {
       '/api/auth/login',
       { email, password }
     );
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to login');
+    }
     if (typeof window !== 'undefined') {
       try {
-        window.localStorage.setItem('auth_token', response.token);
+        window.localStorage.setItem('auth_token', response.data.token);
       } catch {}
     }
-    return response;
+    return response.data;
   },
 
   // Register
@@ -154,12 +202,15 @@ export const authApi = {
       '/api/auth/register',
       userData
     );
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to register');
+    }
     if (typeof window !== 'undefined') {
       try {
-        window.localStorage.setItem('auth_token', response.token);
+        window.localStorage.setItem('auth_token', response.data.token);
       } catch {}
     }
-    return response;
+    return response.data;
   },
 
   // Logout
@@ -181,12 +232,15 @@ export const authApi = {
   // Refresh token
   async refreshToken(): Promise<{ token: string }> {
     const response = await apiClient.post<{ token: string }>('/api/auth/refresh');
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to refresh token');
+    }
     if (typeof window !== 'undefined') {
       try {
-        window.localStorage.setItem('auth_token', response.token);
+        window.localStorage.setItem('auth_token', response.data.token);
       } catch {}
     }
-    return response;
+    return response.data;
   },
 };
 

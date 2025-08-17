@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { databaseService } from '@/lib/database';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
-    const companyId = parseInt(id);
+    const companyId = params.id;
     
-    if (isNaN(companyId)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid company ID' },
-        { status: 400 }
-      );
-    }
-
-    const company = await databaseService.getCompanyById(companyId);
+    // Get company details with job count
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      include: {
+        _count: {
+          select: { jobs: true }
+        }
+      }
+    });
     
     if (!company) {
       return NextResponse.json(
@@ -24,38 +24,48 @@ export async function GET(
         { status: 404 }
       );
     }
-
-    // Transform the data to include all enhanced fields
-    const enhancedCompany = {
-      id: company.id,
-      name: company.name,
-      description: company.description,
-      industry: company.industry,
-      size: company.size,
-      location: company.location,
-      website: company.website,
-      logo: company.logo,
-      founded: company.founded,
-      isVerified: company.isVerified,
-      jobCount: company.jobCount,
-      // Enhanced fields
-      specialties: company.specialties || ['Innovation', 'Technology', 'Growth'],
-      benefits: company.benefits || ['Health Insurance', 'Flexible Hours', 'Professional Development'],
-      rating: company.rating || 4.2 + Math.random() * 0.6,
-      reviews: company.reviews || Math.floor(Math.random() * 2000) + 100,
-      openJobs: company.openJobs || company.jobCount || Math.floor(Math.random() * 50) + 5,
-      featured: Math.random() > 0.7, // Generate featured status randomly
-      headquarters: company.location
-    };
-
-    const res = NextResponse.json({
-      success: true,
-      company: enhancedCompany
+    
+    // Get company's open jobs
+    const openJobs = await prisma.job.findMany({
+      where: {
+        companyId: companyId,
+        isActive: true
+      },
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        salary: true,
+        jobType: true,
+        experienceLevel: true,
+        isRemote: true,
+        isUrgent: true,
+        isFeatured: true,
+        createdAt: true
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10
     });
-    // Cache individual company details for 10 minutes
-    res.headers.set('Cache-Control', 'public, max-age=600, s-maxage=600, stale-while-revalidate=1200');
-    return res;
-
+    
+    // Format company data
+    const formattedCompany = {
+      ...company,
+      openJobs: company._count.jobs,
+      rating: 4.5, // Default rating
+      reviews: Math.floor(Math.random() * 2000) + 100, // Mock reviews for now
+      featured: company.isVerified,
+      specialties: ['Innovation', 'Technology', 'Growth'], // Default specialties
+      benefits: ['Health Insurance', 'Flexible Hours', 'Remote Work', 'Learning Budget'], // Default benefits
+      headquarters: company.location,
+      founded: company.founded?.toString() || 'N/A'
+    };
+    
+    return NextResponse.json({
+      success: true,
+      company: formattedCompany,
+      openJobs: openJobs
+    });
+    
   } catch (error) {
     console.error('Error fetching company details:', error);
     return NextResponse.json(

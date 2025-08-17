@@ -175,7 +175,7 @@ async function getUserResumes(userId: string, options: {
 }
 
 async function createNewResume(userId: string, data: any) {
-  const saved = await resumeService.saveResume(userId, data);
+  const saved = await resumeService.saveResume(data);
   
   return NextResponse.json({
     success: true,
@@ -203,7 +203,7 @@ async function duplicateResume(userId: string, sourceId: string, modifications?:
     fullName: modifications?.fullName || `${sourceRecord.data.fullName} (Copy)`,
   };
   
-  const saved = await resumeService.saveResume(userId, duplicatedData);
+  const saved = await resumeService.saveResume(duplicatedData);
   
   return NextResponse.json({
     success: true,
@@ -223,7 +223,7 @@ async function batchAnalyzeResumes(userId: string, resumeIds: string[]) {
     try {
       const record = await resumeService['getResumeRecord'](id, userId);
       if (record) {
-        const analysis = await resumeService.analyzeResume(record.data, userId);
+        const analysis = await resumeService.analyzeResume(record.data);
         analyses.push({
           resumeId: id,
           success: true,

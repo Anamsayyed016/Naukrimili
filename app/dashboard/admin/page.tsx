@@ -1,25 +1,22 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Users, 
   Briefcase, 
   Building2, 
   FileText, 
-  TrendingUp, 
-  AlertTriangle,
-  Clock,
-  BarChart3,
-  Mail,
-  Settings,
-  Shield,
+  TrendingUp,
+  UserPlus,
+  Eye,
+  Calendar,
+  DollarSign,
   Activity
 } from "lucide-react";
 import Link from "next/link";
-import AuthGuard from "@/components/auth/AuthGuard";
 
 interface AdminStats {
   totalUsers: number;
@@ -28,396 +25,317 @@ interface AdminStats {
   totalApplications: number;
   activeUsers: number;
   pendingVerifications: number;
-  recentSignups: number;
-  flaggedContent: number;
+  recentSignups: any[];
+  jobTypeDistribution: any[];
+  userRoleDistribution: any[];
+  applicationStatusDistribution: any[];
+  totalViews: number;
+  averageSalary: number;
 }
 
-interface RecentActivity {
+interface AdminActivity {
   id: string;
-  type: 'user_signup' | 'job_posted' | 'application_submitted' | 'company_registered';
+  type: string;
   description: string;
   timestamp: string;
-  status?: 'pending' | 'approved' | 'rejected';
+  user?: {
+    name: string;
+    email: string;
+  };
 }
 
-export default function AdminPage() {
-  const [stats, setStats] = useState<AdminStats>({
-    totalUsers: 0,
-    totalJobs: 0,
-    totalCompanies: 0,
-    totalApplications: 0,
-    activeUsers: 0,
-    pendingVerifications: 0,
-    recentSignups: 0,
-    flaggedContent: 0
-  });
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+export default function AdminDashboard() {
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [activities, setActivities] = useState<AdminActivity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAdminData = async () => {
-      try {
-        // Fetch various admin statistics
-        const [usersRes, jobsRes, companiesRes, applicationsRes] = await Promise.all([
-          fetch('/api/users'),
-          fetch('/api/jobs'),
-          fetch('/api/companies'),
-          fetch('/api/applications')
-        ]);
-
-        const users = usersRes.ok ? await usersRes.json() : [];
-        const jobs = jobsRes.ok ? await jobsRes.json() : {};
-        const companies = companiesRes.ok ? await companiesRes.json() : [];
-        const applications = applicationsRes.ok ? await applicationsRes.json() : [];
-
-        // Calculate stats
-        const totalUsers = Array.isArray(users) ? users.length : 0;
-        const totalJobs = jobs?.jobs?.length || 0;
-        const totalCompanies = Array.isArray(companies) ? companies.length : 0;
-        const totalApplications = Array.isArray(applications) ? applications.length : 0;
-
-        // Mock additional stats
-        const activeUsers = Math.floor(totalUsers * 0.6);
-        const pendingVerifications = Math.floor(totalUsers * 0.1);
-        const recentSignups = Math.floor(totalUsers * 0.2);
-        const flaggedContent = Math.floor(totalJobs * 0.05);
-
-        setStats({
-          totalUsers,
-          totalJobs,
-          totalCompanies,
-          totalApplications,
-          activeUsers,
-          pendingVerifications,
-          recentSignups,
-          flaggedContent
-        });
-
-        // Mock recent activity
-        const mockActivity: RecentActivity[] = [
-          {
-            id: '1',
-            type: 'user_signup',
-            description: 'New user registered: john.doe@example.com',
-            timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-            status: 'pending'
-          },
-          {
-            id: '2',
-            type: 'job_posted',
-            description: 'New job posted: Senior React Developer at TechCorp',
-            timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            status: 'approved'
-          },
-          {
-            id: '3',
-            type: 'company_registered',
-            description: 'New company registered: Innovation Labs',
-            timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-            status: 'pending'
-          },
-          {
-            id: '4',
-            type: 'application_submitted',
-            description: 'Application submitted for Frontend Developer position',
-            timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
-          }
-        ];
-
-        setRecentActivity(mockActivity);
-      } catch (error) {
-        console.error('Error fetching admin data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAdminData();
   }, []);
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'user_signup': return <Users className="h-4 w-4" />;
-      case 'job_posted': return <Briefcase className="h-4 w-4" />;
-      case 'company_registered': return <Building2 className="h-4 w-4" />;
-      case 'application_submitted': return <FileText className="h-4 w-4" />;
-      default: return <Activity className="h-4 w-4" />;
+  const fetchAdminData = async () => {
+    try {
+      setLoading(true);
+      const [statsRes, activitiesRes] = await Promise.all([
+        fetch('/api/admin/stats'),
+        fetch('/api/admin/activity')
+      ]);
+
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        if (statsData.success) {
+          setStats(statsData.data);
+        }
+      }
+
+      if (activitiesRes.ok) {
+        const activitiesData = await activitiesRes.json();
+        if (activitiesData.success) {
+          setActivities(activitiesData.data);
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffHours < 1) return "just now";
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
   };
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[...Array(8)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-              </CardContent>
-            </Card>
-          ))}
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading admin dashboard...</p>
         </div>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-destructive mb-4">{error}</p>
+          <Button onClick={fetchAdminData}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return null;
+  }
+
   return (
-    <AuthGuard allowedRoles={['admin']}>
-      <div className="container mx-auto p-6">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage users, jobs, companies and monitor system activity</p>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <Button onClick={fetchAdminData} variant="outline">
+          Refresh
+        </Button>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Users</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
-                  <p className="text-xs text-green-600">+{stats.recentSignups} this week</p>
-                </div>
-                <Users className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Active Jobs</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalJobs}</p>
-                  <p className="text-xs text-green-600">+12 this week</p>
-                </div>
-                <Briefcase className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Companies</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalCompanies}</p>
-                  <p className="text-xs text-green-600">+3 this week</p>
-                </div>
-                <Building2 className="h-8 w-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Applications</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalApplications}</p>
-                  <p className="text-xs text-green-600">+45 this week</p>
-                </div>
-                <FileText className="h-8 w-8 text-orange-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Active Users</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.activeUsers}</p>
-                  <p className="text-xs text-blue-600">Online now</p>
-                </div>
-                <Activity className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Pending Reviews</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.pendingVerifications}</p>
-                  <p className="text-xs text-yellow-600">Needs attention</p>
-                </div>
-                <Clock className="h-8 w-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Flagged Content</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.flaggedContent}</p>
-                  <p className="text-xs text-red-600">Review required</p>
-                </div>
-                <AlertTriangle className="h-8 w-8 text-red-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">System Health</p>
-                  <p className="text-2xl font-bold text-green-900">Good</p>
-                  <p className="text-xs text-green-600">All systems operational</p>
-                </div>
-                <Shield className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link href="/admin/users">
-                <Button variant="outline" className="w-full h-16 flex flex-col">
-                  <Users className="h-5 w-5 mb-1" />
-                  Manage Users
-                </Button>
-              </Link>
-              <Link href="/admin/jobs">
-                <Button variant="outline" className="w-full h-16 flex flex-col">
-                  <Briefcase className="h-5 w-5 mb-1" />
-                  Manage Jobs
-                </Button>
-              </Link>
-              <Link href="/admin/companies">
-                <Button variant="outline" className="w-full h-16 flex flex-col">
-                  <Building2 className="h-5 w-5 mb-1" />
-                  Manage Companies
-                </Button>
-              </Link>
-              <Link href="/admin/reports">
-                <Button variant="outline" className="w-full h-16 flex flex-col">
-                  <BarChart3 className="h-5 w-5 mb-1" />
-                  View Reports
-                </Button>
-              </Link>
+            <div className="text-2xl font-bold">{stats.totalUsers}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.activeUsers} active
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalJobs}</div>
+            <p className="text-xs text-muted-foreground">
+              Across all companies
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Companies</CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalCompanies}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.pendingVerifications} pending verification
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Applications</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalApplications}</div>
+            <p className="text-xs text-muted-foreground">
+              Total submissions
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Additional Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Eye className="h-4 w-4" />
+              Platform Views
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{stats.totalViews.toLocaleString()}</div>
+            <p className="text-sm text-muted-foreground">Total job views</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Average Salary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">₹{stats.averageSalary.toLocaleString()}</div>
+            <p className="text-sm text-muted-foreground">Per annum</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Growth
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{stats.recentSignups.length}</div>
+            <p className="text-sm text-muted-foreground">New users this week</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/dashboard/admin/users">
+              <Button variant="outline">
+                <Users className="h-4 w-4 mr-2" />
+                Manage Users
+              </Button>
+            </Link>
+            <Link href="/dashboard/admin/jobs">
+              <Button variant="outline">
+                <Briefcase className="h-4 w-4 mr-2" />
+                Manage Jobs
+              </Button>
+            </Link>
+            <Link href="/dashboard/admin/companies">
+              <Button variant="outline">
+                <Building2 className="h-4 w-4 mr-2" />
+                Manage Companies
+              </Button>
+            </Link>
+            <Link href="/dashboard/admin/content">
+              <Button variant="outline">
+                <FileText className="h-4 w-4 mr-2" />
+                Manage Content
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Recent Activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {activities.slice(0, 10).map((activity) => (
+              <div key={activity.id} className="flex items-center gap-4 p-3 border rounded-lg">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                    {activity.type === 'user_signup' && <UserPlus className="h-4 w-4 text-primary" />}
+                    {activity.type === 'job_posted' && <Briefcase className="h-4 w-4 text-primary" />}
+                    {activity.type === 'company_registered' && <Building2 className="h-4 w-4 text-primary" />}
+                    {activity.type === 'application_submitted' && <FileText className="h-4 w-4 text-primary" />}
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{activity.description}</p>
+                  {activity.user && (
+                    <p className="text-xs text-muted-foreground">
+                      by {activity.user.name} ({activity.user.email})
+                    </p>
+                  )}
+                </div>
+                <div className="flex-shrink-0 text-xs text-muted-foreground">
+                  {new Date(activity.timestamp).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Distribution Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>User Roles</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {stats.userRoleDistribution.map((item) => (
+                <div key={item.role} className="flex items-center justify-between">
+                  <span className="capitalize">{item.role}</span>
+                  <Badge variant="secondary">{item._count.role}</Badge>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-center gap-4 p-3 border rounded-lg">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      {getActivityIcon(activity.type)}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{activity.description}</p>
-                      <p className="text-xs text-gray-500">{formatTime(activity.timestamp)}</p>
-                    </div>
-                    {activity.status && (
-                      <Badge className={getStatusColor(activity.status)}>
-                        {activity.status}
-                      </Badge>
-                    )}
-                  </div>
-                ))}
-                <Link href="/admin/activity">
-                  <Button variant="outline" size="sm" className="w-full">
-                    View All Activity
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* System Overview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>System Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* System Status */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600">System Status</span>
-                    <Badge className="bg-green-100 text-green-800">Operational</Badge>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '95%' }}></div>
-                  </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Job Types</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {stats.jobTypeDistribution.map((item) => (
+                <div key={item.jobType} className="flex items-center justify-between">
+                  <span className="capitalize">{item.jobType || 'Not specified'}</span>
+                  <Badge variant="secondary">{item._count.jobType}</Badge>
                 </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-                {/* Database Performance */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600">Database Performance</span>
-                    <span className="text-sm text-gray-900">Good</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: '85%' }}></div>
-                  </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Application Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {stats.applicationStatusDistribution.map((item) => (
+                <div key={item.status} className="flex items-center justify-between">
+                  <span className="capitalize">{item.status}</span>
+                  <Badge variant="secondary">{item._count.status}</Badge>
                 </div>
-
-                {/* Server Load */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600">Server Load</span>
-                    <span className="text-sm text-gray-900">Normal</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '60%' }}></div>
-                  </div>
-                </div>
-
-                <Link href="/admin/system">
-                  <Button variant="outline" size="sm" className="w-full">
-                    System Details
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </AuthGuard>
+    </div>
   );
 }

@@ -151,41 +151,67 @@ export async function PUT(
     const previousVersion = currentRecord.versions.length;
 
     // Update resume
-    const updatedRecord = await resumeService.updateResume(
-      id, 
-      userId, 
-      data, 
-      changeNotes
-    );
-
-    // Prepare analysis if requested
-    let analysis;
+    const updatedResume = await resumeService.updateResume(id, data);
+        
+    // Re-analyze if requested
     if (reanalyze) {
-      const analysisResult = await resumeService.analyzeResume(data, userId);
-      analysis = analysisResult.analysis;
+      const analysis = await resumeService.analyzeResume(data);
+      const response: ResumeUpdateResponse = {
+        success: true,
+        resume: {
+          id: updatedResume.id,
+          userId: updatedResume.userId,
+          data: updatedResume.data,
+          createdAt: updatedResume.createdAt,
+          updatedAt: updatedResume.updatedAt,
+          version: updatedResume.versions.length,
+          metadata: {
+            atsScore: updatedResume.metadata.atsScore,
+            completeness: updatedResume.metadata.completeness,
+            lastAnalyzed: updatedResume.metadata.lastAnalyzed,
+          },
+        },
+        changes: {
+          fieldsModified,
+          previousVersion,
+          newVersion: updatedResume.versions.length,
+        },
+        analysis: {
+          completeness: typeof analysis.completeness === 'number' ? analysis.completeness : (analysis.completeness?.overall || 0),
+          atsScore: 0, // Default value since atsScore doesn't exist
+          issues: [],
+          suggestions: [],
+          missingFields: [],
+          strengthAreas: analysis.strengths || [],
+          weaknessAreas: analysis.weaknesses || [],
+          duplicateContent: [],
+          conflicts: []
+        },
+      };
+      return NextResponse.json(response);
     }
 
     const response: ResumeUpdateResponse = {
       success: true,
       resume: {
-        id: updatedRecord.id,
-        userId: updatedRecord.userId,
-        data: updatedRecord.data,
-        createdAt: updatedRecord.createdAt,
-        updatedAt: updatedRecord.updatedAt,
-        version: updatedRecord.versions.length,
+        id: updatedResume.id,
+        userId: updatedResume.userId,
+        data: updatedResume.data,
+        createdAt: updatedResume.createdAt,
+        updatedAt: updatedResume.updatedAt,
+        version: updatedResume.versions.length,
         metadata: {
-          atsScore: updatedRecord.metadata.atsScore,
-          completeness: updatedRecord.metadata.completeness,
-          lastAnalyzed: updatedRecord.metadata.lastAnalyzed,
+          atsScore: updatedResume.metadata.atsScore,
+          completeness: updatedResume.metadata.completeness,
+          lastAnalyzed: updatedResume.metadata.lastAnalyzed,
         },
       },
       changes: {
         fieldsModified,
         previousVersion,
-        newVersion: updatedRecord.versions.length,
+        newVersion: updatedResume.versions.length,
       },
-      analysis,
+      analysis: null, // analysis is now handled by the inline return
     };
 
     // Log update

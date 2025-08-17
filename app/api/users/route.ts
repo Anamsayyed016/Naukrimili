@@ -7,105 +7,110 @@
  * DELETE /api/users/[id] - Delete user
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { databaseService } from '@/lib/database';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-// Mock user data for now
-const mockUsers = [
-  {
-    id: 1,
-    email: 'user1@example.com',
-    name: 'John Doe',
-    role: 'user',
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01')
-  },
-  {
-    id: 2,
-    email: 'user2@example.com',
-    name: 'Jane Smith',
-    role: 'employer',
-    createdAt: new Date('2024-01-02'),
-    updatedAt: new Date('2024-01-02')
+async function requireAdminAuth(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return { error: "Unauthorized", status: 401 };
   }
-];
 
-// Helper function to extract user from request
-function extractUserFromRequest(request: NextRequest) {
-  // Mock implementation - replace with real auth when ready
-  return { userId: 1, role: 'user' };
-}
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id }
+  });
 
-// Helper function to extract pagination from request
-function extractPaginationFromRequest(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
-  return { page, limit };
+  if (!user || user.role !== "admin") {
+    return { error: "Access denied. Admin account required.", status: 403 };
+  }
+
+  return { user };
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const { page, limit } = extractPaginationFromRequest(request);
-    
-    // For now, use mock data
+    const auth = await requireAdminAuth(request);
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const role = searchParams.get("role");
+    const search = searchParams.get("search");
+    const status = searchParams.get("status");
+
     const skip = (page - 1) * limit;
-    const users = mockUsers.slice(skip, skip + limit);
-    
+
+    const where: any = {};
+
+    if (role && role !== "all") {
+      where.role = role;
+    }
+
+    if (status && status !== "all") {
+      where.isActive = status === "active";
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+        { location: { contains: search, mode: "insensitive" } }
+      ];
+    }
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          phone: true,
+          location: true,
+          isActive: true,
+          isVerified: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: {
+            select: {
+              applications: true,
+              createdJobs: true,
+              createdCompanies: true
+            }
+          }
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit
+      }),
+      prisma.user.count({ where })
+    ]);
+
     return NextResponse.json({
       success: true,
-      users: users,
-      pagination: {
-        page,
-        limit,
-        total: mockUsers.length,
-        pages: Math.ceil(mockUsers.length / limit)
+      data: {
+        users,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
       }
     });
 
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    
-    // For now, just return success
-    // TODO: Implement real user creation when database is ready
-    
-    return NextResponse.json({
-      success: true,
-      message: 'User created successfully',
-      user: {
-        id: Date.now(),
-        ...body,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    });
-
-  } catch (error) {
-    console.error('Error creating user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("Error fetching users:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
+  return new NextResponse(null, { status: 200 });
 }

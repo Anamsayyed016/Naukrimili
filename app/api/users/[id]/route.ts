@@ -5,167 +5,189 @@
  * DELETE /api/users/[id] - Delete user account
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-// Mock user data for now
-const mockUsers = [
-  {
-    id: 1,
-    email: 'user1@example.com',
-    name: 'John Doe',
-    role: 'user',
-    profile: {
-      fullName: 'John Doe',
-      phone: '+91-9876543210',
-      location: 'Bangalore, Karnataka',
-      jobTitle: 'Software Engineer',
-      skills: ['React', 'Node.js', 'TypeScript'],
-      education: ['B.Tech Computer Science'],
-      experience: ['2 years at TechCorp'],
-      linkedin: 'https://linkedin.com/in/johndoe',
-      portfolio: 'https://johndoe.dev',
-      expectedSalary: '₹15-25 LPA',
-      preferredJobType: 'Full-time'
-    }
+async function requireAdminAuth(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return { error: "Unauthorized", status: 401 };
   }
-];
 
-// Helper function to extract user from request
-function extractUserFromRequest(request: NextRequest) {
-  // Mock implementation - replace with real auth when ready
-  return { userId: 1, role: 'user' };
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id }
+  });
+
+  if (!user || user.role !== "admin") {
+    return { error: "Access denied. Admin account required.", status: 403 };
+  }
+
+  return { user };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    
-    if (!id) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
-    }
-    
-    const userId = parseInt(id);
-    
-    if (isNaN(userId)) {
-      return NextResponse.json(
-        { error: 'Invalid user ID' },
-        { status: 400 }
-      );
+    const auth = await requireAdminAuth(request);
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    // For now, use mock data
-    const user = mockUsers.find(u => u.id === userId);
-    
+    const userId = params.id;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        _count: {
+          select: {
+            applications: true,
+            createdJobs: true,
+            createdCompanies: true,
+            resumes: true
+          }
+        },
+        createdJobs: {
+          take: 5,
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            title: true,
+            location: true,
+            isActive: true,
+            createdAt: true
+          }
+        },
+        applications: {
+          take: 5,
+          orderBy: { appliedAt: "desc" },
+          select: {
+            id: true,
+            status: true,
+            appliedAt: true,
+            job: {
+              select: {
+                id: true,
+                title: true,
+                company: true
+              }
+            }
+          }
+        }
+      }
+    });
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json({
       success: true,
-      user: user
+      data: user
     });
 
   } catch (error) {
-    console.error('Error fetching user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("Error fetching user:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-export async function PUT(request: NextRequest) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    
-    if (!id) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
-    }
-    
-    const userId = parseInt(id);
-    
-    if (isNaN(userId)) {
-      return NextResponse.json(
-        { error: 'Invalid user ID' },
-        { status: 400 }
-      );
+    const auth = await requireAdminAuth(request);
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
+    const userId = params.id;
     const body = await request.json();
-    
-    // For now, just return success
-    // TODO: Implement real user update when database is ready
-    
+
+    const {
+      name,
+      email,
+      role,
+      phone,
+      location,
+      bio,
+      skills,
+      experience,
+      education,
+      isActive,
+      isVerified
+    } = body;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: name || undefined,
+        email: email || undefined,
+        role: role || undefined,
+        phone: phone || undefined,
+        location: location || undefined,
+        bio: bio || undefined,
+        skills: skills || undefined,
+        experience: experience || undefined,
+        education: education || undefined,
+        isActive: isActive !== undefined ? isActive : undefined,
+        isVerified: isVerified !== undefined ? isVerified : undefined
+      }
+    });
+
     return NextResponse.json({
       success: true,
-      message: 'User profile updated successfully'
+      data: updatedUser,
+      message: "User updated successfully"
     });
 
   } catch (error) {
-    console.error('Error updating user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("Error updating user:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    
-    if (!id) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
-    }
-    
-    const userId = parseInt(id);
-    
-    if (isNaN(userId)) {
-      return NextResponse.json(
-        { error: 'Invalid user ID' },
-        { status: 400 }
-      );
+    const auth = await requireAdminAuth(request);
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    // For now, just return success
-    // TODO: Implement real user deletion when database is ready
-    
+    const userId = params.id;
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!existingUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Delete user (this will cascade to related records)
+    await prisma.user.delete({
+      where: { id: userId }
+    });
+
     return NextResponse.json({
       success: true,
-      message: 'User account deleted successfully'
+      message: "User deleted successfully"
     });
 
   } catch (error) {
-    console.error('Error deleting user:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("Error deleting user:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
+  return new NextResponse(null, { status: 200 });
 }

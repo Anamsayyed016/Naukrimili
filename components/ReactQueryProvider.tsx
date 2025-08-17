@@ -5,142 +5,47 @@
 
 "use client";
 
-import React, { useState } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ErrorBoundary } from "./ErrorBoundary";
+import React, { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { useRouter } from 'next/navigation';
+import { toast } from '@/hooks/use-toast';
+import ErrorBoundary from './ErrorBoundary';
 
 // Global query client configuration
-const createQueryClient = () => {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        // Retry failed queries with exponential backoff
-        retry: (failureCount, error: any) => {
-          // Don't retry on 4xx errors (client errors)
-          if (error?.status >= 400 && error?.status < 500) {
-            return false;
-          }
-          
-          // Retry up to 3 times for other errors
-          return failureCount < 3;
-        },
-        
-        // Retry delay with exponential backoff
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-        
-        // Stale time for different types of data
-        staleTime: (query) => {
-          // User profile data stays fresh longer
-          if (query.queryKey.includes('user') && query.queryKey.includes('profile')) {
-            return 10 * 60 * 1000; // 10 minutes
-          }
-          
-          // Job data refreshes more frequently
-          if (query.queryKey.includes('jobs')) {
-            return 2 * 60 * 1000; // 2 minutes
-          }
-          
-          // Default stale time
-          return 5 * 60 * 1000; // 5 minutes
-        },
-        
-        // Garbage collection time
-        gcTime: (query) => {
-          // Keep user data longer in memory
-          if (query.queryKey.includes('user')) {
-            return 30 * 60 * 1000; // 30 minutes
-          }
-          
-          // Default GC time
-          return 10 * 60 * 1000; // 10 minutes
-        },
-        
-        // Refetch on window focus (but not too aggressively)
-        refetchOnWindowFocus: (query) => {
-          // Don't refetch user profile on focus
-          if (query.queryKey.includes('user') && query.queryKey.includes('profile')) {
-            return false;
-          }
-          
-          // Refetch job data on focus
-          if (query.queryKey.includes('jobs')) {
-            return true;
-          }
-          
-          // Default behavior
-          return true;
-        },
-        
-        // Refetch on reconnect
-        refetchOnReconnect: true,
-        
-        // Refetch on mount
-        refetchOnMount: true,
-        
-        // Network mode for better offline support
-        networkMode: 'online',
-        
-        // Optimistic updates for better UX
-        placeholderData: (previousData) => previousData,
-      },
-      
-      mutations: {
-        // Retry failed mutations
-        retry: (failureCount, error: any) => {
-          // Don't retry on 4xx errors
-          if (error?.status >= 400 && error?.status < 500) {
-            return false;
-          }
-          
-          // Retry up to 2 times for other errors
-          return failureCount < 2;
-        },
-        
-        // Retry delay for mutations
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
-        
-        // Network mode for mutations
-        networkMode: 'online',
-      },
-    },
-    
-    // Global error handling
-    queryCache: {
-      // Handle query errors globally
-      onError: (error, query) => {
-        console.error(`Query error for ${query.queryHash}:`, error);
-        
-        // Log to error tracking service in production
-        if (process.env.NODE_ENV === 'production') {
-          // Example: Sentry.captureException(error, {
-          //   tags: { query: query.queryHash },
-          //   extra: { queryKey: query.queryKey }
-          // });
+const createQueryClient = () => new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors
+        if (error?.status >= 400 && error?.status < 500) {
+          return false;
         }
+        return failureCount < 3;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+    },
+    mutations: {
+      retry: false,
+      onError: (error: any) => {
+        console.error('Mutation error:', error);
+        toast({
+          title: 'Error',
+          description: error?.message || 'Something went wrong',
+          variant: 'destructive',
+        });
       },
     },
-    
-    // Global mutation error handling
-    mutationCache: {
-      onError: (error, mutation) => {
-        console.error(`Mutation error for ${mutation.options.mutationKey}:`, error);
-        
-        // Log to error tracking service in production
-        if (process.env.NODE_ENV === 'production') {
-          // Example: Sentry.captureException(error, {
-          //   tags: { mutation: mutation.options.mutationKey },
-          //   extra: { variables: mutation.options.variables }
-          // });
-        }
-      },
-    },
-  });
-};
+  },
+});
 
 // Custom hook for managing query client
 function useQueryClientManager() {
-  const [queryClient] = useState(() => createQueryClient());
+  const [queryClient] = React.useState(() => createQueryClient());
   
   // Reset query client (useful for logout)
   const resetQueryClient = React.useCallback(() => {

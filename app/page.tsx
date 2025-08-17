@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Building, Briefcase, Users, TrendingUp, ArrowRight, Brain, Shield, Zap } from 'lucide-react';
+import { Search, MapPin, Building, Briefcase, Users, TrendingUp, ArrowRight, Brain, Shield, Zap, Upload, FileText, CheckCircle } from 'lucide-react';
+import ResumeUpload from '@/components/resume/ResumeUpload';
 
 interface Job {
   id: number;
@@ -107,6 +108,13 @@ export default function HomePage() {
               <Users className="w-5 h-5 mr-2" />
               Get Started
             </Link>
+            <button
+              onClick={() => document.getElementById('resume-upload-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="bg-green-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-700 transition-colors duration-200 inline-flex items-center justify-center"
+            >
+              <Upload className="w-5 h-5 mr-2" />
+              Upload Resume
+            </button>
           </div>
 
           {/* Trending Searches */}
@@ -121,6 +129,47 @@ export default function HomePage() {
                 {search}
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Resume Upload Section - PROMINENT PLACEMENT */}
+      <section id="resume-upload-section" className="py-16 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-8">
+            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Upload className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Upload Your Resume & Get Discovered
+            </h2>
+            <p className="text-xl text-blue-100 mb-6 max-w-2xl mx-auto">
+              Let AI analyze your resume and match you with the perfect job opportunities. 
+              Get instant feedback and improve your chances of getting hired.
+            </p>
+            <div className="flex items-center justify-center gap-4 text-blue-100 mb-8">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                <span>ATS Compatible</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                <span>AI Analysis</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                <span>Instant Matching</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Resume Upload Component */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+            <ResumeUpload />
+          </div>
+          
+          <div className="mt-6 text-blue-100 text-sm">
+            <p>Supported formats: PDF, DOC, DOCX • Max size: 10MB</p>
           </div>
         </div>
       </section>
@@ -196,7 +245,9 @@ export default function HomePage() {
                   className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6 border border-gray-100"
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">{job.title}</h3>
+                    <h3 className="font-semibold text-lg text-gray-900 line-clamp-2">
+                      {job.title}
+                    </h3>
                     {job.isFeatured && (
                       <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
                         Featured
@@ -238,7 +289,7 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold text-gray-900">Top Companies</h2>
             <Link 
               href="/companies"
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
+              className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
             >
               View All Companies
               <ArrowRight className="w-4 h-4" />
@@ -344,6 +395,27 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Floating Resume Upload Button */}
+      <FloatingResumeButton />
+    </div>
+  );
+}
+
+// Floating Resume Upload Button - Always Visible
+function FloatingResumeButton() {
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      <button
+        onClick={() => document.getElementById('resume-upload-section')?.scrollIntoView({ behavior: 'smooth' })}
+        className="bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 group"
+        title="Upload Resume"
+      >
+        <Upload className="w-6 h-6" />
+        <div className="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+          Upload Resume
+        </div>
+      </button>
     </div>
   );
 }

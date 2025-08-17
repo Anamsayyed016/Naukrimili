@@ -91,3 +91,39 @@ export interface User {
   security?: UserSecurity
   subscription?: UserSubscription
 }
+
+export interface UserProfile extends User {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  location?: string;
+  bio?: string;
+  skills?: string[];
+  experience?: string;
+  education?: string;
+  profilePicture?: string;
+  isVerified?: boolean;
+  isActive?: boolean;
+  resumes?: Array<{
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    fileSize: number;
+    mimeType: string;
+    createdAt: Date;
+  }>;
+}
+
+export interface UserStats {
+  totalApplications: number;
+  applicationsThisMonth: number;
+  interviewsScheduled: number;
+  offersReceived: number;
+  profileViews: number;
+  resumeDownloads: number;
+  responseRate: number;
+  averageResponseTime: number;
+  jobMatches: number;
+  savedJobs: number;
+  lastActivity: Date;
+}

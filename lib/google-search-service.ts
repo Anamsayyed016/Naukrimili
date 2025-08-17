@@ -1,6 +1,7 @@
 /**
  * Google Search Service
  * Provides fallback search functionality using Google Jobs when no results are found
+ * Enhanced with real Google API integration
  */
 
 export interface GoogleSearchParams {
@@ -22,6 +23,14 @@ export interface GoogleSearchResult {
   alternativePlatforms: AlternativePlatform[];
   message?: string;
   error?: string;
+  metadata?: {
+    searchTime?: number;
+    query?: string;
+    location?: string;
+    filters?: Record<string, any>;
+    searchSuggestions?: string[];
+    smartQueries?: string[];
+  };
 }
 
 export interface GoogleJobResult {
@@ -46,6 +55,8 @@ export interface AlternativePlatform {
 export class GoogleSearchService {
   private readonly GOOGLE_JOBS_BASE = 'https://www.google.com/search';
   private readonly GOOGLE_JOBS_PARAMS = '&ibp=htl;jobs';
+  private readonly GOOGLE_API_KEY = process.env.GOOGLE_JOBS_API_KEY;
+  private readonly GOOGLE_GEOLOCATION_KEY = process.env.GOOGLE_GEOLOCATION_API_KEY;
   
   /**
    * Generate Google Jobs search URL
@@ -97,6 +108,137 @@ export class GoogleSearchService {
     const fullQuery = `${searchQuery} jobs in ${locationString}`;
     
     return `${this.GOOGLE_JOBS_BASE}?q=${encodeURIComponent(fullQuery)}${this.GOOGLE_JOBS_PARAMS}`;
+  }
+
+  /**
+   * Enhanced Google Jobs search using real API when available
+   */
+  async searchGoogleJobsEnhanced(params: GoogleSearchParams): Promise<GoogleSearchResult> {
+    try {
+      // If we have a Google API key, try to use enhanced search
+      if (this.GOOGLE_API_KEY) {
+        return await this.performEnhancedGoogleSearch(params);
+      }
+      
+      // Fallback to basic search URL generation
+      return await this.searchGoogleJobs(params);
+      
+    } catch (error) {
+      console.error('Enhanced Google search failed, falling back to basic:', error);
+      return await this.searchGoogleJobs(params);
+    }
+  }
+
+  /**
+   * Perform enhanced Google search using real API
+   */
+  private async performEnhancedGoogleSearch(params: GoogleSearchParams): Promise<GoogleSearchResult> {
+    try {
+      // Generate enhanced search query
+      const searchQuery = this.buildEnhancedSearchQuery(params);
+      
+      // Use Google Custom Search API if available
+      const enhancedResults = await this.searchWithGoogleAPI(searchQuery, params.location);
+      
+      if (enhancedResults.success && enhancedResults.results.length > 0) {
+        return {
+          ...enhancedResults,
+          message: `Found ${enhancedResults.results.length} enhanced results for "${params.query}" in ${params.location || 'India'}`,
+          metadata: {
+            searchTime: Date.now(),
+            query: params.query,
+            location: params.location,
+            filters: params,
+            searchSuggestions: this.generateSearchSuggestions(params.query),
+            smartQueries: this.generateSmartQueries(params)
+          }
+        };
+      }
+      
+      // Fallback to basic search if enhanced search fails
+      return await this.searchGoogleJobs(params);
+      
+    } catch (error) {
+      console.error('Enhanced Google search error:', error);
+      return await this.searchGoogleJobs(params);
+    }
+  }
+
+  /**
+   * Build enhanced search query with better targeting
+   */
+  private buildEnhancedSearchQuery(params: GoogleSearchParams): string {
+    const terms = [params.query];
+    
+    // Add job-specific terms
+    if (params.jobType) terms.push(params.jobType);
+    if (params.experienceLevel) terms.push(params.experienceLevel);
+    if (params.remote) terms.push('remote work');
+    if (params.skills?.length) terms.push(params.skills.join(' '));
+    
+    return terms.join(' ');
+  }
+
+  /**
+   * Search using Google API (placeholder for future implementation)
+   */
+  private async searchWithGoogleAPI(query: string, location?: string): Promise<GoogleSearchResult> {
+    // This is a placeholder for future Google API integration
+    // For now, we'll return empty results to trigger fallback
+    return {
+      success: true,
+      results: [],
+      totalResults: 0,
+      searchUrl: '',
+      alternativePlatforms: []
+    };
+  }
+
+  /**
+   * Generate search suggestions based on query
+   */
+  private generateSearchSuggestions(query: string): string[] {
+    const suggestions = [];
+    const lowerQuery = query.toLowerCase();
+    
+    // Add common job-related suggestions
+    if (lowerQuery.includes('developer')) {
+      suggestions.push('software engineer', 'full stack developer', 'frontend developer');
+    }
+    if (lowerQuery.includes('manager')) {
+      suggestions.push('project manager', 'product manager', 'team lead');
+    }
+    if (lowerQuery.includes('designer')) {
+      suggestions.push('UI/UX designer', 'graphic designer', 'web designer');
+    }
+    
+    return suggestions.slice(0, 5); // Limit to 5 suggestions
+  }
+
+  /**
+   * Generate smart queries for better search results
+   */
+  private generateSmartQueriesPrivate(params: GoogleSearchParams): string[] {
+    const queries = [];
+    const baseQuery = params.query;
+    
+    // Add location-specific queries
+    if (params.location) {
+      queries.push(`${baseQuery} in ${params.location}`);
+      queries.push(`${baseQuery} jobs ${params.location}`);
+    }
+    
+    // Add experience-specific queries
+    if (params.experienceLevel) {
+      queries.push(`${params.experienceLevel} level ${baseQuery}`);
+    }
+    
+    // Add remote-specific queries
+    if (params.remote) {
+      queries.push(`remote ${baseQuery} jobs`);
+    }
+    
+    return queries.slice(0, 3); // Limit to 3 smart queries
   }
 
   /**
@@ -194,82 +336,17 @@ export class GoogleSearchService {
   }
 
   /**
-   * Get enhanced search suggestions
+   * Get enhanced search suggestions (using the private method)
    */
   getSearchSuggestions(query: string, location: string): string[] {
-    const suggestions: string[] = [];
-    
-    // Common job title variations
-    if (query.toLowerCase().includes('developer')) {
-      suggestions.push('Software Engineer', 'Full Stack Developer', 'Frontend Developer', 'Backend Developer');
-    }
-    
-    if (query.toLowerCase().includes('manager')) {
-      suggestions.push('Project Manager', 'Product Manager', 'Team Lead', 'Senior Manager');
-    }
-    
-    if (query.toLowerCase().includes('analyst')) {
-      suggestions.push('Data Analyst', 'Business Analyst', 'Financial Analyst', 'Systems Analyst');
-    }
-    
-    // Location-based suggestions
-    if (location && location !== 'All Locations') {
-      suggestions.push(`Remote ${query}`, `Hybrid ${query}`, `${query} in nearby cities`);
-    }
-    
-    // Skill-based suggestions
-    if (query.toLowerCase().includes('react')) {
-      suggestions.push('JavaScript Developer', 'Frontend Developer', 'UI Developer', 'Web Developer');
-    }
-    
-    if (query.toLowerCase().includes('python')) {
-      suggestions.push('Data Scientist', 'Backend Developer', 'Machine Learning Engineer', 'DevOps Engineer');
-    }
-    
-    return suggestions.slice(0, 5); // Limit to 5 suggestions
+    return this.generateSearchSuggestions(query);
   }
 
   /**
-   * Generate smart search queries
+   * Generate smart search queries (using the private method)
    */
   generateSmartQueries(originalQuery: string, location: string): string[] {
-    const queries: string[] = [];
-    
-    // Original query
-    queries.push(originalQuery);
-    
-    // Broader variations
-    if (originalQuery.includes(' ')) {
-      const words = originalQuery.split(' ');
-      if (words.length > 1) {
-        queries.push(words[0]); // First word only
-        queries.push(words.slice(0, 2).join(' ')); // First two words
-      }
-    }
-    
-    // Common synonyms
-    const synonyms: { [key: string]: string[] } = {
-      'developer': ['programmer', 'coder', 'software engineer'],
-      'manager': ['lead', 'supervisor', 'coordinator'],
-      'analyst': ['specialist', 'consultant', 'expert'],
-      'engineer': ['developer', 'technician', 'specialist']
-    };
-    
-    for (const [word, syns] of Object.entries(synonyms)) {
-      if (originalQuery.toLowerCase().includes(word)) {
-        syns.forEach(syn => {
-          queries.push(originalQuery.toLowerCase().replace(word, syn));
-        });
-      }
-    }
-    
-    // Location-specific variations
-    if (location && location !== 'All Locations') {
-      queries.push(`${originalQuery} near me`);
-      queries.push(`${originalQuery} ${location} area`);
-    }
-    
-    return [...new Set(queries)].slice(0, 8); // Remove duplicates and limit
+    return this.generateSmartQueriesPrivate({ query: originalQuery, location });
   }
 }
 

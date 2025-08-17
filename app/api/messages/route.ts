@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/nextauth-config';
 import { z } from 'zod';
 
-// In-memory stores
-const messages: any[] = [];
-// conversationId -> array of messages
-const conversations: Record<string, any[]> = {};
-
-// Message creation schema
 const createMessageSchema = z.object({
   receiverId: z.string().min(1),
   content: z.string().min(1).max(1000),
@@ -14,7 +11,6 @@ const createMessageSchema = z.object({
   messageType: z.enum(['text', 'system', 'notification']).default('text'),
 });
 
-// Conversation query schema
 const conversationQuerySchema = z.object({
   conversationId: z.string().optional(),
   userId: z.string().optional(),
@@ -22,8 +18,33 @@ const conversationQuerySchema = z.object({
   page: z.string().optional().transform(val => val ? parseInt(val) : 1),
 });
 
-function getUserFromRequest(request: NextRequest): string | null {
-  return request.headers.get('x-user-id') || 'guest';
+interface AuthenticatedUser {
+  id: string;
+  email: string;
+  name?: string;
+  role?: string;
+}
+
+async function requireAuth(request: NextRequest): Promise<{ user: AuthenticatedUser | null; response: NextResponse | null }> {
+  const session = await getServerSession(authOptions as any);
+  if (!session || typeof session !== 'object' || !session.user || typeof session.user !== 'object') {
+    return { user: null, response: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }) };
+  }
+  
+  const user = session.user as any;
+  if (!user.email) {
+    return { user: null, response: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }) };
+  }
+  
+  return { 
+    user: {
+      id: user.id || user.email,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    }, 
+    response: null 
+  };
 }
 
 function generateConversationId(userId1: string, userId2: string): string {
@@ -32,79 +53,167 @@ function generateConversationId(userId1: string, userId2: string): string {
 }
 
 export async function GET(request: NextRequest) {
-  try {
-    const userId = getUserFromRequest(request);
-    if (!userId) return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+  const { user, response } = await requireAuth(request);
+  if (!user) return response!;
 
+  try {
     const { searchParams } = new URL(request.url);
     const params = conversationQuerySchema.parse(Object.fromEntries(searchParams.entries()));
 
     if (params.conversationId) {
-      const all = conversations[params.conversationId] || [];
-      const offset = (params.page - 1) * params.limit;
-      const data = all.slice(offset, offset + params.limit).map(m => ({
-        id: m.id,
-        conversationId: m.conversationId,
-        content: m.content,
-        senderId: m.senderId,
-        receiverId: m.receiverId,
-        messageType: m.messageType,
-        isRead: m.isRead,
-        createdAt: m.createdAt,
-      }));
-      return NextResponse.json({ success: true, messages: data, conversationId: params.conversationId, timestamp: new Date().toISOString() });
+      // Get messages for specific conversation
+      const messages = await prisma.message.findMany({
+        where: { conversationId: params.conversationId },
+        skip: (params.page - 1) * params.limit,
+        take: params.limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          sender: { select: { name: true, image: true, role: true } },
+          receiver: { select: { name: true, image: true, role: true } }
+        }
+      });
+
+      return NextResponse.json({
+        success: true,
+        messages: messages.map(msg => ({
+          id: msg.id,
+          conversationId: msg.conversationId,
+          content: msg.content,
+          senderId: msg.senderId,
+          receiverId: msg.receiverId,
+          senderName: msg.sender.name,
+          receiverName: msg.receiver.name,
+          messageType: msg.messageType,
+          isRead: msg.isRead,
+          createdAt: msg.createdAt
+        })),
+        conversationId: params.conversationId
+      });
     }
 
-    // Build conversations list for the user from in-memory store
-    const convIds = Object.keys(conversations).filter(cid => cid.includes(userId));
-    const transformedConversations = convIds.map(cid => {
-      const msgs = conversations[cid] || [];
-      const last = msgs[msgs.length - 1];
-      const participantId = cid.replace(`conv_`, '').split('_').find(p => p !== userId) || 'unknown';
-      return {
-        id: cid,
-        participantId,
-        participantName: participantId,
-        participantRole: 'user',
-        lastMessage: last?.content || '',
-        lastMessageTime: last?.createdAt || new Date().toISOString(),
-        unreadCount: msgs.filter(m => m.receiverId === userId && !m.isRead).length,
-        isOnline: Math.random() > 0.5,
-      };
+    // Get user's conversations
+    const conversations = await prisma.$queryRaw`
+      SELECT DISTINCT 
+        m.conversation_id as "conversationId",
+        CASE 
+          WHEN m.sender_id = ${user.id} THEN m.receiver_id
+          ELSE m.sender_id
+        END as "participantId",
+        u.name as "participantName",
+        u.role as "participantRole",
+        last_msg.content as "lastMessage",
+        last_msg.created_at as "lastMessageTime",
+        COUNT(CASE WHEN m.receiver_id = ${user.id} AND m.is_read = false THEN 1 END) as "unreadCount"
+      FROM messages m
+      JOIN users u ON (
+        CASE 
+          WHEN m.sender_id = ${user.id} THEN m.receiver_id
+          ELSE m.sender_id
+        END = u.id
+      )
+      JOIN LATERAL (
+        SELECT content, created_at
+        FROM messages
+        WHERE conversation_id = m.conversation_id
+        ORDER BY created_at DESC
+        LIMIT 1
+      ) last_msg ON true
+      WHERE m.sender_id = ${user.id} OR m.receiver_id = ${user.id}
+      GROUP BY m.conversation_id, u.id, u.name, u.role, last_msg.content, last_msg.created_at
+      ORDER BY last_msg.created_at DESC
+    `;
+
+    return NextResponse.json({
+      success: true,
+      conversations: conversations.map((conv: any) => ({
+        id: conv.conversationId,
+        participantId: conv.participantId,
+        participantName: conv.participantName,
+        participantRole: conv.participantRole,
+        lastMessage: conv.lastMessage,
+        lastMessageTime: conv.lastMessageTime,
+        unreadCount: parseInt(conv.unreadCount)
+      }))
     });
 
-    return NextResponse.json({ success: true, conversations: transformedConversations, timestamp: new Date().toISOString() });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch messages' }, { status: 500 });
+  } catch (error) {
+    console.error('Messages GET error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to fetch messages'
+    }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
+  const { user, response } = await requireAuth(request);
+  if (!user) return response!;
+
   try {
-    const senderId = getUserFromRequest(request) || 'guest';
     const body = await request.json();
     const data = createMessageSchema.parse(body);
 
-    const conversationId = data.conversationId || generateConversationId(senderId, data.receiverId);
+    // Generate conversation ID if not provided
+    const conversationId = data.conversationId || generateConversationId(user.id, data.receiverId);
 
-    const message = {
-      id: `msg_${Date.now()}`,
-      conversationId,
-      content: data.content,
-      senderId,
-      receiverId: data.receiverId,
-      messageType: data.messageType,
-      isRead: false,
-      createdAt: new Date().toISOString(),
-    };
+    // Create message
+    const message = await prisma.message.create({
+      data: {
+        conversationId,
+        content: data.content,
+        senderId: user.id,
+        receiverId: data.receiverId,
+        messageType: data.messageType,
+        isRead: false
+      },
+      include: {
+        sender: { select: { name: true, image: true, role: true } },
+        receiver: { select: { name: true, image: true, role: true } }
+      }
+    });
 
-    messages.push(message);
-    if (!conversations[conversationId]) conversations[conversationId] = [];
-    conversations[conversationId].push(message);
+    return NextResponse.json({
+      success: true,
+      message: 'Message sent successfully',
+      data: {
+        id: message.id,
+        conversationId: message.conversationId,
+        content: message.content,
+        senderId: message.senderId,
+        receiverId: message.receiverId,
+        senderName: message.sender.name,
+        receiverName: message.receiver.name,
+        messageType: message.messageType,
+        isRead: message.isRead,
+        createdAt: message.createdAt
+      }
+    }, { status: 201 });
 
-    return NextResponse.json({ success: true, message: 'Message sent successfully', data: message, timestamp: new Date().toISOString() }, { status: 201 });
-  } catch (error: any) {
-    if (error instanceof z.ZodError) return NextResponse.json({ success: false, error: 'Invalid message data', details: error.errors }, { status: 400 });
-    return NextResponse.json({ success: false, error: 'Failed to send message', message: error.message }, { status: 500 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid message data',
+        details: error.errors
+      }, { status: 400 });
+    }
+
+    console.error('Messages POST error:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to send message'
+    }, { status: 500 });
   }
+}
+
+// OPTIONS handler for CORS
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 }

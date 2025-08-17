@@ -53,9 +53,9 @@ export function OAuthButtons({
   const getProviderIcon = (providerId: string) => {
     switch (providerId) {
       case 'google':
-        return <FaGoogle className="w-5 h-5" />;
+        return <FaGoogle size={20} />;
       case 'linkedin':
-        return <FaLinkedin className="w-5 h-5" />;
+        return <FaLinkedin size={20} />;
       default:
         return null;
     }
