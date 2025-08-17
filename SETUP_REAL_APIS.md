@@ -8,14 +8,16 @@ Your job portal is now configured with **100% REAL APIs** and ready for producti
 
 ## 🔑 **API KEYS CONFIRMED & READY**
 
-| Service | Key Type | Value | Status |
-|---------|----------|-------|---------|
-| **Adzuna** | App ID | `bdd02427` | ✅ Ready |
-| **Adzuna** | App Key | `abf03277d13e4cb39b24bf236ad29299` | ✅ Ready |
-| **RapidAPI** | API Key | `46f0f3db8dmsh4d67638d4f275a4p18233bjsnc3f3ae5a715e` | ✅ Ready |
-| **OpenAI** | API Key | `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` | ✅ Ready |
-| **Google Jobs** | API Key | `AIzaSyBWCFr9CN1MpEhPelEwGobohwX3xdFtV24` | ✅ Ready |
-| **Google Geolocation** | API Key | `AIzaSyAFYcaipIkoJloHVJBGkSFq22b71PNSpBQ` | ✅ Ready |
+| Service | Key Type | Status | Setup Required |
+|---------|----------|--------|----------------|
+| **Adzuna** | App ID | ✅ Ready | Add to .env.local |
+| **Adzuna** | App Key | ✅ Ready | Add to .env.local |
+| **RapidAPI** | API Key | ✅ Ready | Add to .env.local |
+| **OpenAI** | API Key | ✅ Ready | Add to .env.local |
+| **Google Jobs** | API Key | ✅ Ready | Add to .env.local |
+| **Google Geolocation** | API Key | ✅ Ready | Add to .env.local |
+
+**⚠️ IMPORTANT**: API keys are provided separately for security. Never commit them to Git!
 
 ---
 
@@ -32,17 +34,17 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
 
 # External Job APIs (REAL KEYS - ALL READY!)
-ADZUNA_APP_ID="bdd02427"
-ADZUNA_APP_KEY="abf03277d13e4cb39b24bf236ad29299"
-RAPIDAPI_KEY="46f0f3db8dmsh4d67638d4f275a4p18233bjsnc3f3ae5a715e"
+ADZUNA_APP_ID="your-adzuna-app-id"
+ADZUNA_APP_KEY="your-adzuna-app-key"
+RAPIDAPI_KEY="your-rapidapi-key"
 RAPIDAPI_HOST="jsearch.p.rapidapi.com"
 
 # Google Jobs API (REAL KEYS - ALL READY!)
-GOOGLE_JOBS_API_KEY="AIzaSyBWCFr9CN1MpEhPelEwGobohwX3xdFtV24"
-GOOGLE_GEOLOCATION_API_KEY="AIzaSyAFYcaipIkoJloHVJBGkSFq22b71PNSpBQ"
+GOOGLE_JOBS_API_KEY="your-google-jobs-api-key"
+GOOGLE_GEOLOCATION_API_KEY="your-google-geolocation-api-key"
 
 # AI Services (REAL KEY - ALL READY!)
-OPENAI_API_KEY="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"
+OPENAI_API_KEY="your-openai-api-key"
 
 # Feature Flags
 NEXT_PUBLIC_MOCK_DATA=false
@@ -81,16 +83,16 @@ curl -X POST "http://localhost:3000/api/jobs/import" \
 ### **Test 2: Direct API Testing**
 ```bash
 # Test Adzuna (UK jobs)
-curl "https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=bdd02427&app_key=abf03277d13e4cb39b24bf236ad29299&what=developer&results_per_page=5"
+curl "https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=YOUR_APP_ID&app_key=YOUR_APP_KEY&what=developer&results_per_page=5"
 
 # Test JSearch (Global jobs)
 curl -X GET "https://jsearch.p.rapidapi.com/search?query=software%20engineer&page=1" \
-  -H "X-RapidAPI-Key: 46f0f3db8dmsh4d67638d4f275a4p18233bjsnc3f3ae5a715e" \
+  -H "X-RapidAPI-Key: YOUR_RAPIDAPI_KEY" \
   -H "X-RapidAPI-Host: jsearch.p.rapidapi.com"
 
 # Test OpenAI
 curl -X POST "https://api.openai.com/v1/chat/completions" \
-  -H "Authorization: Bearer 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" \
+  -H "Authorization: Bearer YOUR_OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"model":"gpt-3.5-turbo","messages":[{"role":"user","content":"Hello"}]}'
 ```

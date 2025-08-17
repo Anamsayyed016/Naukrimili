@@ -24,6 +24,7 @@ export interface PaginatedResponse<T> extends APIResponse<T[]> {
   }
 }
 
+
 export interface ErrorResponse {
   success: false
   error: {

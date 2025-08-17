@@ -115,6 +115,12 @@ Thumbs.db
 .env.production
 .env.production.bak.*
 
+# API Keys and Secrets (NEVER commit these!)
+API_KEYS_SECURE.md
+*.key
+*.pem
+secrets/
+
 # Uploads
 uploads/
 public/uploads/
