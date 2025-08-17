@@ -14,12 +14,12 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-32-char-secret-key"
 
 # Real API Keys (copy from API_KEYS_SECURE.md)
-ADZUNA_APP_ID="bdd02427"
-ADZUNA_APP_KEY="abf03277d13e4cb39b24bf236ad29299"
-RAPIDAPI_KEY="46f0f3db8dmsh4d67638d4f275a4p18233bjsnc3f3ae5a715e"
-GOOGLE_JOBS_API_KEY="AIzaSyBWCFr9CN1MpEhPelEwGobohwX3xdFtV24"
-GOOGLE_GEOLOCATION_API_KEY="AIzaSyAFYcaipIkoJloHVJBGkSFq22b71PNSpBQ"
-OPENAI_API_KEY="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"
+ADZUNA_APP_ID="your-adzuna-app-id"
+ADZUNA_APP_KEY="your-adzuna-app-key"
+RAPIDAPI_KEY="your-rapidapi-key"
+GOOGLE_JOBS_API_KEY="your-google-jobs-api-key"
+GOOGLE_GEOLOCATION_API_KEY="your-google-geolocation-api-key"
+OPENAI_API_KEY="your-openai-api-key"
 
 # Feature Flags
 NEXT_PUBLIC_MOCK_DATA=false
