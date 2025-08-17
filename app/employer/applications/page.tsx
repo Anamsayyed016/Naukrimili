@@ -248,7 +248,7 @@ export default function EmployerApplicationsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Applications ({pagination.total})</CardTitle>
-        </CardContent>
+        </CardHeader>
         <CardContent>
           {error && (
             <div className="text-center py-8">
