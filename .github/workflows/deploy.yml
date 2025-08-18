@@ -30,14 +30,14 @@ jobs:
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
+        username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.PORT }}
+        port: ${{ secrets.SSH_PORT }}
         script: |
           echo "🚀 Starting deployment..."
           
           # Navigate to project directory
-          cd /home/${{ secrets.USERNAME }}/jobportal
+          cd /home/root/jobportal
           
           # Pull latest changes
           echo "📥 Pulling latest changes..."

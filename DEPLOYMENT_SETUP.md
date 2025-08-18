@@ -16,9 +16,9 @@ This guide sets up GitHub Actions to automatically deploy your job portal to you
 ssh-keygen -t rsa -b 4096 -C "your-email@example.com"
 
 # Copy public key to VPS
-ssh-copy-id yourusername@69.62.73.84
+ssh-copy-id root@69.62.73.84
 
-# Copy private key content (you'll need this for GitHub)
+# Copy the private key content (you'll need this for GitHub)
 cat ~/.ssh/id_rsa
 ```
 
@@ -44,7 +44,7 @@ git push -u origin main
 | Secret Name | Value |
 |-------------|-------|
 | `HOST` | `69.62.73.84` |
-| `USERNAME` | `your-vps-username` |
+| `USERNAME` | `root` |
 | `SSH_KEY` | Your entire private SSH key |
 | `PORT` | `22` |
 
@@ -54,7 +54,7 @@ SSH into your VPS and run:
 
 ```bash
 # SSH into VPS
-ssh yourusername@69.62.73.84
+ssh root@69.62.73.84
 
 # Run setup script
 chmod +x scripts/setup-vps.sh
@@ -65,7 +65,7 @@ sudo apt update && sudo apt upgrade -y
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
 sudo npm install -g pm2
-mkdir -p /home/$USER/jobportal/logs
+mkdir -p /home/root/jobportal/logs
 pm2 startup
 pm2 save
 ```
@@ -103,7 +103,7 @@ pm2 monit
    ```bash
    pm2 status
    pm2 logs jobportal
-   cd /home/yourusername/jobportal && git status
+   cd /home/root/jobportal && git status
    ```
 
 ### If SSH connection fails:

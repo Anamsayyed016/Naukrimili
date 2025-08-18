@@ -4,7 +4,7 @@ module.exports = {
       name: 'jobportal',
       script: 'npm',
       args: 'start',
-      cwd: '/home/yourusername/jobportal',
+      cwd: '/home/root/jobportal',
       instances: 'max',
       exec_mode: 'cluster',
       env: {

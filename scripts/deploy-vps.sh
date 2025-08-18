@@ -3,7 +3,7 @@
 echo "🚀 Starting deployment at $(date)"
 
 # Navigate to project directory
-cd /home/$USER/jobportal
+cd /home/root/jobportal
 
 # Pull latest changes
 echo "📥 Pulling latest changes..."

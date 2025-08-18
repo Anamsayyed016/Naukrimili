@@ -17,11 +17,11 @@ sudo npm install -g pm2
 
 # Create logs directory
 echo "📁 Creating logs directory..."
-mkdir -p /home/$USER/jobportal/logs
+mkdir -p /home/root/jobportal/logs
 
 # Make deployment script executable
 echo "🔐 Making deployment script executable..."
-chmod +x /home/$USER/scripts/deploy-vps.sh
+chmod +x /home/root/scripts/deploy-vps.sh
 
 # Setup PM2 startup script
 echo "🚀 Setting up PM2 startup..."
