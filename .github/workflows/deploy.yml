@@ -25,23 +25,7 @@ jobs:
       run: npm run build
       env:
         NODE_ENV: production
-
-    # Pre-flight: prepare SSH and verify connectivity
-    - name: Add SSH key and verify connection
-      env:
-        HOST: ${{ secrets.HOST }}
-        USER: ${{ secrets.SSH_USER }}
-        PORT: ${{ secrets.SSH_PORT }}
-        PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-      run: |
-        mkdir -p ~/.ssh
-        echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        # Optional: trust host key to avoid interactive prompt
-        ssh-keyscan -p "$PORT" -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
-        # Test connection (non-fatal if it fails but surfaces logs)
-        ssh -i ~/.ssh/id_rsa -p "$PORT" -o StrictHostKeyChecking=no "$USER@$HOST" "echo Connected to $(hostname)" || exit 1
-    
+        
     - name: Deploy to VPS
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -51,31 +35,11 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         script: |
           echo "🚀 Starting deployment..."
-          
-          # Navigate to project directory
-          cd /home/root/jobportal
-          
-          # Pull latest changes
-          echo "📥 Pulling latest changes..."
-          git pull origin main || (
-            echo "Repository missing, cloning..." && \
-            git clone https://github.com/${{ github.repository }}.git . && \
-            git checkout main
-          )
-          
-          # Install production dependencies
-          echo "📦 Installing dependencies..."
-          npm ci --production || npm install --production
-          
-          # Build the application
-          echo "🔨 Building application..."
+          cd /home/${{ secrets.SSH_USER }}/jobportal
+          git pull origin main
+          npm ci --production
           npm run build
-          
-          # Restart the application
-          echo "🔄 Restarting application..."
           pm2 restart jobportal || pm2 start npm --name "jobportal" -- start
-          pm2 save
-          
           echo "✅ Deployment completed successfully!"
           
     - name: Deployment status
