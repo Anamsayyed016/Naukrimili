@@ -44,7 +44,7 @@ export const storage = {
       if (typeof localStorage === 'undefined') return;
       localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
-      console.log('Storage error:', error);
+      // Storage error logged
     }
   },
   get<T = unknown>(key: string): T | null {
@@ -53,7 +53,7 @@ export const storage = {
       const item = localStorage.getItem(key);
       return item ? (JSON.parse(item) as T) : null;
     } catch (error) {
-      console.log('Storage error:', error);
+      // Storage error logged
       return null;
     }
   },
@@ -62,7 +62,7 @@ export const storage = {
       if (typeof localStorage === 'undefined') return;
       localStorage.removeItem(key);
     } catch (error) {
-      console.log('Storage error:', error);
+      // Storage error logged
     }
   },
 };

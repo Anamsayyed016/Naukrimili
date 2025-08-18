@@ -56,7 +56,7 @@ export default function EnhancedJobCard({
 
   const handleApply = () => {
     if (typeof window !== 'undefined') {
-      console.log('Job view clicked:', job.id);
+      // Job view clicked logged
       window.location.href = `/jobs/${job.id}`;
     }
   };

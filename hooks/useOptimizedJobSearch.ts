@@ -41,7 +41,7 @@ export interface OptimizedSearchOptions {
   enabled?: boolean;
   debounceMs?: number;
   staleTime?: number;
-  cacheTime?: number;
+  gcTime?: number;
   refetchOnWindowFocus?: boolean;
   retry?: number;
   retryDelay?: number;
@@ -84,6 +84,7 @@ export interface OptimizedSearchResponse {
     total_pages: number;
     has_next: boolean;
     has_prev: boolean;
+    nextPage?: number;
   };
   filters: {
     applied: Record<string, any>;
@@ -152,6 +153,18 @@ export class SearchParamsBuilder {
   }
 }
 
+// ===== SEARCH FUNCTION =====
+
+async function searchJobs(filters: OptimizedSearchFilters, page = 1, pageSize = 20): Promise<OptimizedSearchResponse> {
+  const searchParams = new SearchParamsBuilder()
+    .addAll(filters, page, pageSize)
+    .toString();
+
+  const response = await fetch(`/api/jobs/search?${searchParams}`);
+  if (!response.ok) throw new Error('Search failed');
+  return response.json();
+}
+
 // ===== MAIN SEARCH HOOK =====
 
 export function useOptimizedJobSearch(
@@ -162,7 +175,7 @@ export function useOptimizedJobSearch(
     enabled = true,
     debounceMs = 300,
     staleTime = 2 * 60 * 1000, // 2 minutes
-    cacheTime = 5 * 60 * 1000, // 5 minutes
+    gcTime = 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus = false,
     retry = 2,
     retryDelay = 1000
@@ -211,20 +224,15 @@ export function useOptimizedJobSearch(
     },
     enabled: enabled && (!!debouncedQuery || Object.keys(debouncedFilters).length > 2),
     staleTime,
-    cacheTime,
+    gcTime,
     refetchOnWindowFocus,
     retry,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    // Add error boundary
-    useErrorBoundary: false,
-    // Optimize for better UX
-    placeholderData: (prev) => prev, // Keep previous data
-    refetchOnMount: 'always'
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
   });
 
   return {
     // Data
-    jobs: query.data?.data.jobs || [],
+    jobs: query.data?.data?.jobs || [],
     pagination: query.data?.data || {
       total: 0,
       page: 1,
@@ -233,9 +241,9 @@ export function useOptimizedJobSearch(
       has_next: false,
       has_prev: false
     },
-    appliedFilters: query.data?.filters.applied || {},
-    availableFilters: query.data?.filters.available,
-    suggestions: query.data?.meta.suggestions || [],
+    appliedFilters: query.data?.filters?.applied || {},
+    availableFilters: query.data?.filters?.available,
+    suggestions: query.data?.meta?.suggestions || [],
     
     // State
     isLoading: query.isLoading,
@@ -244,13 +252,12 @@ export function useOptimizedJobSearch(
     error: query.error,
     
     // Performance metrics
-    searchTime: query.data?.meta.search_time_ms || 0,
-    queryType: query.data?.meta.query_type || 'filter',
-    totalInDb: query.data?.meta.total_in_db || 0,
+    searchTime: query.data?.meta?.search_time_ms || 0,
+    queryType: query.data?.meta?.query_type || 'filter',
+    totalInDb: query.data?.meta?.total_in_db || 0,
     
     // Actions
-    refetch: query.refetch,
-    remove: query.remove
+    refetch: query.refetch
   };
 }
 
@@ -282,8 +289,7 @@ export function usePaginatedJobSearch(
       return response.json();
     },
     enabled: options.enabled !== false && currentPage > 1,
-    staleTime: options.staleTime || 2 * 60 * 1000,
-    keepPreviousData: true
+    staleTime: options.staleTime || 2 * 60 * 1000
   });
 
   const activeQuery = currentPage === 1 ? searchResult : paginatedQuery;
@@ -309,7 +315,10 @@ export function useInfiniteJobSearch(
   const infiniteQuery = useInfiniteQuery<OptimizedSearchResponse>({
     queryKey: ['jobs', 'infinite', filters, pageSize],
     queryFn: ({ pageParam = 1 }) => searchJobs(filters, pageParam, pageSize),
-    getNextPageParam: (lastPage) => lastPage.data.nextPage || undefined,
+    getNextPageParam: (lastPage) => {
+      const nextPage = lastPage.data.nextPage;
+      return typeof nextPage === 'number' ? nextPage : undefined;
+    },
     enabled: options.enabled !== false,
     initialPageParam: 1,
     staleTime: options.staleTime || 2 * 60 * 1000,
@@ -395,7 +404,7 @@ export function useSearchAnalytics() {
     };
 
     // Send to analytics service
-    console.log('Search tracked:', searchEvent);
+    // Search tracking logged
   }, []);
 
   const invalidateSearchCache = useCallback(() => {

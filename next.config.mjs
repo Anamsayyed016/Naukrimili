@@ -26,7 +26,7 @@ const nextConfig = {
 
   // Compiler optimizations
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: true, // Remove all console logs in production
   },
 
   // Experimental features for performance

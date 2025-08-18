@@ -93,7 +93,7 @@ export default function PostJobPage() {
 
     try {
       // For now, just log the data - implement API call later
-      console.log('Job posting data:', formData);
+      // Job posting data logged
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -111,7 +111,7 @@ export default function PostJobPage() {
     setLoading(true);
     try {
       // Save as draft logic
-      console.log('Saving draft:', { ...formData, status: 'draft' });
+              // Draft saving logged
       await new Promise(resolve => setTimeout(resolve, 500));
       router.push('/employer/jobs');
     } catch (error) {

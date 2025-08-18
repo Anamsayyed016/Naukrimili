@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Skipping deployment - not main branch' });
     }
 
-    console.log(`🚀 Deploying commit ${sha} from ${ref}`);
+              // Deployment started logged
 
     // Execute deployment commands
     const commands = [
@@ -31,13 +31,13 @@ export async function POST(request: NextRequest) {
     ];
 
     for (const command of commands) {
-      console.log(`Executing: ${command}`);
-      const { stdout, stderr } = await execAsync(command);
-      if (stdout) console.log(`Output: ${stdout}`);
-      if (stderr) console.log(`Error: ${stderr}`);
+                // Command execution logged
+          const { stdout, stderr } = await execAsync(command);
+          if (stdout) console.log(`Output: ${stdout}`);
+          if (stderr) console.log(`Error: ${stderr}`);
     }
 
-    console.log('✅ Deployment completed successfully');
+          // Deployment completed logged
     
     return NextResponse.json({ 
       success: true, 

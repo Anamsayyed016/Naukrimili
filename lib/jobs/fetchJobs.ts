@@ -37,7 +37,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 2): Promise<T> {
     return await fn();
   } catch (error) {
     if (retries > 0) {
-      console.log(`🔄 Retrying... (${retries} attempts left)`);
+      // Retry attempt logged
       await new Promise(resolve => setTimeout(resolve, 1000));
       return withRetry(fn, retries - 1);
     }
@@ -53,7 +53,7 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
   const adzunaCountry = (options.countryCode || 'IN').toLowerCase();
   const jsearchCountry = (options.countryCode || 'IN').toUpperCase();
 
-  console.log(`🚀 Starting job fetch: "${query}" in ${location || 'any location'}`);
+      // Job fetch started logged
   
   const all: NormalizedJob[] = [];
 

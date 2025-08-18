@@ -112,7 +112,7 @@ export default function ApplicationDetailPage() {
       setSaving(true);
       
       // Implement status change logic
-      console.log(`Changing status of application ${application.id} to ${newStatus}`);
+      // Application status change logged
       
       // Update local state
       setApplication(prev => prev ? { ...prev, status: newStatus as any } : null);
@@ -134,7 +134,7 @@ export default function ApplicationDetailPage() {
       setSaving(true);
       
       // Implement notes saving logic
-      console.log('Saving notes:', notes);
+              // Notes saving logged
       
       // Update local state
       setApplication(prev => prev ? { ...prev, notes } : null);

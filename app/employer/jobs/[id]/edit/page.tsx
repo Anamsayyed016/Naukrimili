@@ -142,7 +142,7 @@ export default function EditJobPage() {
 
     try {
       // For now, just log the data - implement API call later
-      console.log('Updating job:', formData);
+      // Job update logged
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -163,7 +163,7 @@ export default function EditJobPage() {
 
     try {
       // Implement delete logic
-      console.log('Deleting job:', jobId);
+              // Job deletion logged
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));

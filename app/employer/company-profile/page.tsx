@@ -83,7 +83,7 @@ export default function CompanyProfilePage() {
   const handleArrayChange = (field: keyof CompanyProfile, value: string) => {
     if (value.endsWith(',')) {
       const item = value.slice(0, -1).trim();
-      if (item && !profile[field].includes(item)) {
+      if (item && Array.isArray(profile[field]) && !(profile[field] as string[]).includes(item)) {
         setProfile(prev => ({ 
           ...prev, 
           [field]: [...(prev[field] as string[]), item] 
@@ -104,7 +104,7 @@ export default function CompanyProfilePage() {
     setSaving(true);
     try {
       // For now, just log the data - implement API call later
-      console.log('Saving company profile:', profile);
+      // Company profile saving logged
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
