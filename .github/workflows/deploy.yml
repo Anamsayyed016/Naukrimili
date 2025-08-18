@@ -26,9 +26,9 @@ jobs:
       env:
         NODE_ENV: production
         
-    - name: Deploy via Webhook
+    - name: Deploy via Webhook (IP Address)
       run: |
-        curl -X POST "https://aftionix.in/api/deploy" \
+        curl -X POST "http://69.62.73.84:3000/api/deploy" \
           -H "Content-Type: application/json" \
           -d '{"secret":"${{ secrets.DEPLOY_SECRET }}","ref":"${{ github.ref }}","sha":"${{ github.sha }}"}'
           
