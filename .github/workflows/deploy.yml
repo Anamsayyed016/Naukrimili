@@ -1,0 +1,63 @@
+name: Deploy to Hostinger VPS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+      env:
+        NODE_ENV: production
+    
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          echo "🚀 Starting deployment..."
+          
+          # Navigate to project directory
+          cd /home/${{ secrets.USERNAME }}/jobportal
+          
+          # Pull latest changes
+          echo "📥 Pulling latest changes..."
+          git pull origin main
+          
+          # Install production dependencies
+          echo "📦 Installing dependencies..."
+          npm ci --production
+          
+          # Build the application
+          echo "🔨 Building application..."
+          npm run build
+          
+          # Restart the application
+          echo "🔄 Restarting application..."
+          pm2 restart jobportal || pm2 start npm --name "jobportal" -- start
+          
+          echo "✅ Deployment completed successfully!"
+          
+    - name: Deployment status
+      run: |
+        echo "🎉 Deployment workflow completed!"
+        echo "Your job portal is now live at: https://aftionix.in"
