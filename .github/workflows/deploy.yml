@@ -26,21 +26,11 @@ jobs:
       env:
         NODE_ENV: production
         
-    - name: Deploy to VPS
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        script: |
-          echo "🚀 Starting deployment..."
-          cd ~/jobportal
-          git pull origin main
-          npm ci --production
-          npm run build
-          pm2 restart jobportal || pm2 start npm --name "jobportal" -- start
-          echo "✅ Deployment completed successfully!"
+    - name: Deploy via Webhook
+      run: |
+        curl -X POST "https://aftionix.in/api/deploy" \
+          -H "Content-Type: application/json" \
+          -d '{"secret":"${{ secrets.DEPLOY_SECRET }}","ref":"${{ github.ref }}","sha":"${{ github.sha }}"}'
           
     - name: Deployment status
       run: |
