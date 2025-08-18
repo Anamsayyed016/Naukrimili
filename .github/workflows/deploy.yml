@@ -23,16 +23,12 @@ jobs:
       env:
         NODE_ENV: production
         
-    - name: Setup SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H 69.62.73.84 >> ~/.ssh/known_hosts
+    - name: Install sshpass
+      run: sudo apt-get update && sudo apt-get install -y sshpass
 
     - name: Deploy to Hostinger VPS
       run: |
-        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no root@69.62.73.84 << 'EOF'
+        sshpass -p 'Anamsayyed--16' ssh -o StrictHostKeyChecking=no root@69.62.73.84 << 'EOF'
           echo "🚀 Starting deployment to Hostinger VPS..."
           cd /home/root/jobportal
           git pull origin main
