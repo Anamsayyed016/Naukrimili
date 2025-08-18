@@ -26,14 +26,16 @@ jobs:
       env:
         NODE_ENV: production
         
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+        
     - name: Deploy to VPS
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        script: |
+      run: |
+        ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} << 'EOF'
           echo "🚀 Starting deployment..."
           cd /home/${{ secrets.SSH_USER }}/jobportal
           git pull origin main
@@ -41,6 +43,7 @@ jobs:
           npm run build
           pm2 restart jobportal || pm2 start npm --name "jobportal" -- start
           echo "✅ Deployment completed successfully!"
+        EOF
           
     - name: Deployment status
       run: |
