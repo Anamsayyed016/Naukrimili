@@ -26,42 +26,21 @@ jobs:
       env:
         NODE_ENV: production
         
-    - name: Start ssh-agent and add key
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_KEY }}
-
-    - name: Verify SSH key loaded
-      run: ssh-add -l
-
-    - name: Add host to known_hosts
-      env:
-        HOST: ${{ secrets.HOST }}
-        SSH_PORT: ${{ secrets.SSH_PORT }}
-      run: |
-        mkdir -p ~/.ssh
-        PORT="$SSH_PORT"; if [ -z "$PORT" ]; then PORT=22; fi
-        ssh-keyscan -p "$PORT" -H "$HOST" >> ~/.ssh/known_hosts
-        
     - name: Deploy to VPS
-      env:
-        HOST: ${{ secrets.HOST }}
-        SSH_USER: ${{ secrets.SSH_USER }}
-        SSH_PORT: ${{ secrets.SSH_PORT }}
-      run: |
-        PORT="$SSH_PORT"; if [ -z "$PORT" ]; then PORT=22; fi
-        ssh -p "$PORT" -o StrictHostKeyChecking=no "$SSH_USER@$HOST" << 'EOF'
-          set -e
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
           echo "🚀 Starting deployment..."
           cd ~/jobportal
-          git pull origin main || true
-          command -v pm2 >/dev/null 2>&1 || npm i -g pm2
-          npm ci --omit=dev || npm install --production
+          git pull origin main
+          npm ci --production
           npm run build
           pm2 restart jobportal || pm2 start npm --name "jobportal" -- start
-          pm2 save || true
           echo "✅ Deployment completed successfully!"
-        EOF
           
     - name: Deployment status
       run: |
