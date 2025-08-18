@@ -1,0 +1,30 @@
+Write-Host "🔐 GitHub Secrets Update Helper" -ForegroundColor Green
+Write-Host "===============================" -ForegroundColor Green
+Write-Host ""
+
+Write-Host "📋 Copy these values to your GitHub repository secrets:" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions" -ForegroundColor Cyan
+Write-Host "2. Click 'New repository secret' for each one below:" -ForegroundColor White
+Write-Host ""
+
+Write-Host "🔑 HOST:" -ForegroundColor Yellow
+Write-Host "69.62.73.84" -ForegroundColor Green
+Write-Host ""
+
+Write-Host "👤 SSH_USER:" -ForegroundColor Yellow
+Write-Host "root" -ForegroundColor Green
+Write-Host ""
+
+Write-Host "🔐 SSH_KEY (Copy the ENTIRE private key below):" -ForegroundColor Yellow
+Write-Host "-----BEGIN OPENSSH PRIVATE KEY-----" -ForegroundColor Red
+Write-Host "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" -ForegroundColor Red
+Write-Host "-----END OPENSSH PRIVATE KEY-----" -ForegroundColor Red
+Write-Host ""
+
+Write-Host "🔌 SSH_PORT:" -ForegroundColor Yellow
+Write-Host "22" -ForegroundColor Green
+Write-Host ""
+
+Write-Host "✅ After updating all secrets, push a change to trigger deployment!" -ForegroundColor Green
+Write-Host ""
