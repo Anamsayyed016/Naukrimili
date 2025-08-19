@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { useResumesApi, Resume } from "@/hooks/useResumesApi";
+import ResumeUpload from "@/components/resume/ResumeUpload";
 
 // Extended Resume interface for UI purposes
 interface ExtendedResume extends Resume {
@@ -35,6 +36,7 @@ export default function ResumesPage() {
   const { resumes, loading, error, fetchResumes, deleteResume } = useResumesApi();
   const [selectedResume, setSelectedResume] = useState<ExtendedResume | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState<string | null>(null);
+  const [showUploadForm, setShowUploadForm] = useState(false);
 
   useEffect(() => {
     fetchResumes();
@@ -43,6 +45,11 @@ export default function ResumesPage() {
   const handleDelete = async (resumeId: string) => {
     await deleteResume(resumeId);
     setShowDeleteDialog(null);
+  };
+
+  const handleUploadComplete = () => {
+    setShowUploadForm(false);
+    fetchResumes(); // Refresh the list
   };
 
   const formatFileSize = (bytes: number) => {
@@ -65,6 +72,24 @@ export default function ResumesPage() {
     if (score >= 60) return 'Good';
     return 'Needs improvement';
   };
+
+  // Show upload form if requested
+  if (showUploadForm) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Upload Resume</h1>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowUploadForm(false)}
+          >
+            Back to Resumes
+          </Button>
+        </div>
+        <ResumeUpload onComplete={handleUploadComplete} />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -93,12 +118,13 @@ export default function ResumesPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">My Resumes</h1>
             <p className="text-gray-600">Manage your resumes and track their performance</p>
           </div>
-          <Link href="/resumes/upload">
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Upload Resume
-            </Button>
-          </Link>
+          <Button 
+            onClick={() => setShowUploadForm(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Upload Resume
+          </Button>
         </div>
 
         {/* Error Message */}
@@ -308,12 +334,12 @@ export default function ResumesPage() {
               <p className="text-gray-500 mb-6">
                 Upload your first resume to get started with your job search
               </p>
-              <Link href="/resumes/upload">
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Upload Resume
-                </Button>
-              </Link>
+              <Button 
+                onClick={() => setShowUploadForm(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Upload Resume
+              </Button>
             </CardContent>
           </Card>
         )}

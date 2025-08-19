@@ -129,7 +129,9 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
 
   } catch (error: any) {
     console.error(`❌ JSearch API error:`, error.message);
-    if (error.response?.status === 429) {
+    if (error.response?.status === 403) {
+      console.warn('⚠️ JSearch API subscription required. Visit: https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch/');
+    } else if (error.response?.status === 429) {
       console.warn('⚠️ JSearch rate limit reached, consider upgrading plan');
     }
     return [] as NormalizedJob[];
@@ -187,6 +189,11 @@ export async function fetchFromGoogleJobs(
 
   } catch (error: any) {
     console.error(`❌ Google Jobs API error:`, error.message);
+    if (error.response?.status === 403) {
+      console.warn('⚠️ Google Jobs API subscription required. Visit: https://rapidapi.com/letscrape-6bRBa3QguO5/api/google-jobs-api/');
+    } else if (error.response?.status === 429) {
+      console.warn('⚠️ Google Jobs rate limit reached, consider upgrading plan');
+    }
     return [] as NormalizedJob[];
   }
 }

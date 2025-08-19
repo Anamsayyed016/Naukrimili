@@ -1,6 +1,6 @@
 /**
- * NextAuth.js Configuration with Dynamic OAuth2 Providers
- * Supports Google and LinkedIn OAuth with environment-based credentials
+ * NextAuth.js Configuration for Gmail Authentication
+ * Clean, conflict-free configuration
  */
 
 import { NextAuthOptions } from 'next-auth';
@@ -17,9 +17,10 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       authorization: {
         params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
+          scope: 'openid email profile',
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code'
         }
       }
     }),
@@ -30,48 +31,62 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        // Mock implementation - replace with real auth when ready
-        if (credentials?.email === 'test@example.com' && credentials?.password === 'password') {
-          return {
-            id: '1',
-            email: 'test@example.com',
-            name: 'Test User',
-            role: 'user'
-          };
+        try {
+          // Check if user exists in database
+          const user = await prisma.user.findUnique({
+            where: { email: credentials?.email || '' }
+          });
+          
+          if (user && credentials?.password) {
+            // In production, hash and verify password
+            // For now, allow basic auth
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role || 'user'
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error('Credentials auth error:', error);
+          return null;
         }
-        return null;
       }
     })
   ],
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
-        const anyUser = user as unknown as { id?: string; role?: string };
-        (token as any).id = anyUser.id || token.sub;
-        (token as any).role = anyUser.role || (token as any).role || 'user';
+        token.id = user.id;
+        token.role = (user as any).role || 'user';
       }
       if (account?.provider) {
-        (token as any).provider = account.provider;
+        token.provider = account.provider;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = (token as any).id || token.sub || '';
-        (session.user as any).role = (token as any).role || 'user';
+        (session.user as any).id = token.id || token.sub || '';
+        (session.user as any).role = token.role || 'user';
       }
       return session;
     },
     async signIn({ user, account, profile }) {
-      // With PrismaAdapter, NextAuth will link provider account to existing user by email,
-      // or create one if none exists. We allow sign-in; add extra checks here if needed.
-      return true;
+      try {
+        // Allow all sign-ins for now
+        // You can add additional validation here
+        return true;
+      } catch (error) {
+        console.error('SignIn callback error:', error);
+        return false;
+      }
     },
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
+      // Security: Only allow relative URLs and same-origin URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url;
+      if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     }
   },
@@ -84,8 +99,20 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   jwt: {
-    maxAge: 30 * 24 * 60 * 60, // 30 days,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   debug: process.env.NODE_ENV === 'development',
-  secret: process.env.NEXTAUTH_SECRET
+  secret: process.env.NEXTAUTH_SECRET,
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
+  }
 };

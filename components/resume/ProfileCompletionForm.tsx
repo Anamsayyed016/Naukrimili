@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Edit3, Save, CheckCircle, AlertCircle } from 'lucide-react';
+import { Edit3, Save, CheckCircle, AlertCircle, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
 	onClose?: () => void;
 }
 
-export default function ProfileCompletionForm({ initialData = {}, onComplete, onClose }: Props) {
+export default function ProfileCompletionForm({ resumeId, initialData = {}, onComplete, onClose }: Props) {
 	const [profileData, setProfileData] = useState({
 		fullName: initialData.fullName || initialData.name || '',
 		email: initialData.email || '',
@@ -25,15 +25,54 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 		skills: Array.isArray(initialData.skills) ? initialData.skills : [],
 		education: Array.isArray(initialData.education) ? initialData.education : [],
 		experience: Array.isArray(initialData.experience) ? initialData.experience : [],
-		expectedSalary: initialData.salary || '',
+		expectedSalary: initialData.expectedSalary || initialData.salary || '',
+		linkedin: initialData.linkedin || '',
+		portfolio: initialData.portfolio || '',
 	});
 
-	const [isEditing, setIsEditing] = useState(false);
+	const [isEditing, setIsEditing] = useState(true); // Start in edit mode
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+	const [newSkill, setNewSkill] = useState('');
+
+	// Auto-fill form when initialData changes
+	useEffect(() => {
+		if (initialData) {
+			setProfileData({
+				fullName: initialData.fullName || initialData.name || '',
+				email: initialData.email || '',
+				phone: initialData.phone || '',
+				location: initialData.location || '',
+				jobTitle: initialData.jobTitle || '',
+				skills: Array.isArray(initialData.skills) ? initialData.skills : [],
+				education: Array.isArray(initialData.education) ? initialData.education : [],
+				experience: Array.isArray(initialData.experience) ? initialData.experience : [],
+				expectedSalary: initialData.expectedSalary || initialData.salary || '',
+				linkedin: initialData.linkedin || '',
+				portfolio: initialData.portfolio || '',
+			});
+		}
+	}, [initialData]);
 
 	const handleInputChange = (field: string, value: string) => {
 		setProfileData(prev => ({ ...prev, [field]: value }));
+	};
+
+	const addSkill = () => {
+		if (newSkill.trim() && !profileData.skills.includes(newSkill.trim())) {
+			setProfileData(prev => ({
+				...prev,
+				skills: [...prev.skills, newSkill.trim()]
+			}));
+			setNewSkill('');
+		}
+	};
+
+	const removeSkill = (skillToRemove: string) => {
+		setProfileData(prev => ({
+			...prev,
+			skills: prev.skills.filter(skill => skill !== skillToRemove)
+		}));
 	};
 
 	const handleSubmit = async () => {
@@ -50,19 +89,31 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 		setSaveStatus('saving');
 
 		try {
-			// Save profile data to localStorage
+			// Save to API if resumeId exists
+			if (resumeId) {
+				const response = await fetch(`/api/resumes/${resumeId}`, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(profileData),
+				});
+
+				if (!response.ok) {
+					throw new Error('Failed to save to server');
+				}
+			}
+
+			// Save profile data to localStorage as backup
 			localStorage.setItem('userProfile', JSON.stringify(profileData));
 			
-			// Also save to a more specific key with timestamp
+			// Save with timestamp
 			const profileWithMeta = {
 				...profileData,
 				savedAt: new Date().toISOString(),
-				resumeId: initialData.resumeId || null,
+				resumeId: resumeId || null,
 			};
 			localStorage.setItem(`userProfile_${Date.now()}`, JSON.stringify(profileWithMeta));
-			
-			// Simulate API call delay for better UX
-			await new Promise(resolve => setTimeout(resolve, 1000));
 			
 			setSaveStatus('success');
 			
@@ -111,7 +162,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 				return (
 					<>
 						<AlertCircle className="h-4 w-4 mr-2" />
-						Retry
+						Save Failed
 					</>
 				);
 			default:
@@ -136,24 +187,24 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 	};
 
 	return (
-		<div className="space-y-6">
-			<Card className="bg-white shadow-lg">
-				<CardHeader className="bg-gray-50 border-b">
-					<div className="flex items-center justify-between">
-						<CardTitle className="text-xl font-bold text-gray-900">Complete Your Profile</CardTitle>
+		<div className="max-w-4xl mx-auto">
+			<Card>
+				<CardHeader className="flex flex-row items-center justify-between">
+					<CardTitle className="text-2xl font-bold text-gray-900">
+						Complete Your Profile
+					</CardTitle>
+					{onClose && (
 						<Button
-							variant={isEditing ? 'default' : 'outline'}
-							onClick={() => setIsEditing(!isEditing)}
+							variant="ghost"
 							size="sm"
-							className={isEditing ? 'bg-blue-600 hover:bg-blue-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}
+							onClick={onClose}
+							className="h-8 w-8 p-0"
 						>
-							<Edit3 className="h-4 w-4 mr-2" />
-							{isEditing ? 'View Mode' : 'Edit Mode'}
+							<X className="h-4 w-4" />
 						</Button>
-					</div>
+					)}
 				</CardHeader>
-				
-				<CardContent className="space-y-6 p-6">
+				<CardContent className="space-y-6">
 					{/* Personal Information */}
 					<div className="bg-gray-50 p-4 rounded-lg">
 						<h3 className="text-lg font-semibold mb-4 text-gray-800">Personal Information</h3>
@@ -164,9 +215,9 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 									id="fullName"
 									value={profileData.fullName}
 									onChange={(e) => handleInputChange('fullName', e.target.value)}
-									disabled={!isEditing}
 									placeholder="Enter your full name"
-									className={`mt-1 ${!isEditing ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'}`}
+									className="mt-1"
+									required
 								/>
 							</div>
 							<div>
@@ -176,9 +227,9 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 									type="email"
 									value={profileData.email}
 									onChange={(e) => handleInputChange('email', e.target.value)}
-									disabled={!isEditing}
 									placeholder="your.email@example.com"
-									className={`mt-1 ${!isEditing ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'}`}
+									className="mt-1"
+									required
 								/>
 							</div>
 							<div>
@@ -187,9 +238,8 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 									id="phone"
 									value={profileData.phone}
 									onChange={(e) => handleInputChange('phone', e.target.value)}
-									disabled={!isEditing}
 									placeholder="+91 98765 43210"
-									className={`mt-1 ${!isEditing ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'}`}
+									className="mt-1"
 								/>
 							</div>
 							<div>
@@ -198,9 +248,8 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 									id="location"
 									value={profileData.location}
 									onChange={(e) => handleInputChange('location', e.target.value)}
-									disabled={!isEditing}
 									placeholder="City, State"
-									className={`mt-1 ${!isEditing ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'}`}
+									className="mt-1"
 								/>
 							</div>
 						</div>
@@ -216,9 +265,8 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 									id="jobTitle"
 									value={profileData.jobTitle}
 									onChange={(e) => handleInputChange('jobTitle', e.target.value)}
-									disabled={!isEditing}
 									placeholder="e.g., Senior Software Engineer"
-									className={`mt-1 ${!isEditing ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'}`}
+									className="mt-1"
 								/>
 							</div>
 							<div>
@@ -227,9 +275,8 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 									id="expectedSalary"
 									value={profileData.expectedSalary}
 									onChange={(e) => handleInputChange('expectedSalary', e.target.value)}
-									disabled={!isEditing}
 									placeholder="e.g., 15-25 LPA"
-									className={`mt-1 ${!isEditing ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'}`}
+									className="mt-1"
 								/>
 							</div>
 						</div>
@@ -238,51 +285,52 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 					{/* Skills */}
 					<div className="bg-gray-50 p-4 rounded-lg">
 						<h3 className="text-lg font-semibold mb-4 text-gray-800">Skills</h3>
-						<div className="flex flex-wrap gap-2">
+						<div className="flex flex-wrap gap-2 mb-3">
 							{profileData.skills.map((skill: string, index: number) => (
 								<span key={index} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold text-gray-700 bg-blue-100 border-blue-200">
 									{skill}
+									<button
+										type="button"
+										onClick={() => removeSkill(skill)}
+										className="ml-1 text-blue-600 hover:text-blue-800"
+									>
+										<X className="h-3 w-3" />
+									</button>
 								</span>
 							))}
+						</div>
+						<div className="flex gap-2">
+							<Input
+								value={newSkill}
+								onChange={(e) => setNewSkill(e.target.value)}
+								placeholder="Add a skill"
+								className="flex-1"
+								onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+							/>
+							<Button type="button" onClick={addSkill} variant="outline" size="sm">
+								Add
+							</Button>
 						</div>
 					</div>
 
 					{/* Action Buttons */}
-					<div className="flex gap-3 pt-4">
-						{isEditing ? (
-							<>
-								<Button
-									onClick={handleSubmit}
-									disabled={isSubmitting || saveStatus === 'saving'}
-									variant={getSaveButtonVariant()}
-									className="flex-1"
-								>
-									{getSaveButtonContent()}
-								</Button>
-								<Button
-									variant="outline"
-									onClick={() => setIsEditing(false)}
-									className="border-gray-300 text-gray-700 hover:bg-gray-50"
-								>
-									Cancel
-								</Button>
-							</>
-						) : (
-							<Button
-								onClick={() => setIsEditing(true)}
-								variant="outline"
-								className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
-							>
-								<Edit3 className="h-4 w-4 mr-2" />
-								Edit Profile
-							</Button>
-						)}
+					<div className="flex gap-3 pt-4 border-t">
+						<Button
+							onClick={handleSubmit}
+							disabled={isSubmitting || saveStatus === 'saving'}
+							variant={getSaveButtonVariant()}
+							className="flex-1"
+							size="lg"
+						>
+							{getSaveButtonContent()}
+						</Button>
 						
 						{onClose && (
 							<Button
 								variant="outline"
 								onClick={onClose}
 								className="border-gray-300 text-gray-700 hover:bg-gray-50"
+								size="lg"
 							>
 								Close
 							</Button>

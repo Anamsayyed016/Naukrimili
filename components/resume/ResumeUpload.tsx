@@ -2,27 +2,24 @@
 
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileText, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { CheckCircle, FileText, Upload, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import ProfileCompletionForm from './ProfileCompletionForm';
-import { useSession } from 'next-auth/react';
 
 interface ResumeUploadProps {
 	userId?: string;
 	onComplete?: () => void;
 }
 
-function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
-	const { status } = useSession();
-	const [uploadedFile, setUploadedFile] = useState(null as File | null);
+export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
+	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
-	const [resumeData, setResumeData] = useState(null as unknown);
+	const [resumeData, setResumeData] = useState<any>(null);
+	const [resumeId, setResumeId] = useState<string | null>(null);
 	const [showForm, setShowForm] = useState(false);
-	const [resumeId, setResumeId] = useState(null as string | null);
 
 	const onDrop = useCallback(async (acceptedFiles: File[]) => {
 		if (acceptedFiles.length === 0) return;
@@ -31,6 +28,7 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 		setUploadedFile(file);
 		setIsUploading(true);
 		setUploadProgress(0);
+		setShowForm(false); // Reset form state
 
 		try {
 			// Simulate upload progress
@@ -68,33 +66,35 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 			
 			if (result.success) {
 				setResumeId(result.resume.id);
-				setResumeData(result.resume);
 				
-				// Show success message briefly, then show the form
+				// Extract and format the parsed data for auto-fill
+				const formattedData = formatResumeData(result.parsedData || result.resume.parsedData);
+				setResumeData(formattedData);
+				
 				toast({
 					title: 'Resume Uploaded Successfully!',
-					description: `Resume uploaded: ${file.name}`,
+					description: `AI analysis complete. Form will auto-fill with extracted information.`,
 				});
 
-				// Wait 1.2 seconds then show the form
-				setTimeout(() => {
-					setShowForm(true);
-				}, 1200);
+				// Show form immediately after successful upload
+				setShowForm(true);
 
 			} else {
 				throw new Error(result.error || 'Upload failed');
 			}
 
-		} catch (error: unknown) {
+		} catch (error: any) {
 			console.error('Upload error:', error);
 			toast({
 				title: 'Upload Failed',
-				description: error instanceof Error ? error.message : 'Please try again',
+				description: error.message || 'Failed to upload resume. Please try again.',
 				variant: 'destructive',
 			});
-		} finally {
+			setUploadedFile(null);
 			setIsUploading(false);
 			setUploadProgress(0);
+		} finally {
+			setIsUploading(false);
 		}
 	}, [userId]);
 
@@ -118,29 +118,47 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 	});
 
 	const handleFormComplete = () => {
+		toast({
+			title: 'Profile Completed!',
+			description: 'Your profile has been saved successfully.',
+		});
+		
 		if (onComplete) {
 			onComplete();
 		}
-		// Reset the component state
+		
+		// Reset component state
 		setUploadedFile(null);
 		setResumeData(null);
 		setShowForm(false);
 		setResumeId(null);
+		setUploadProgress(0);
 	};
 
-	const handleManualEdit = () => {
-		setShowForm(true);
+	const handleCloseForm = () => {
+		setShowForm(false);
 	};
 
-	const handleViewProfile = () => {
-		if (status === 'authenticated') {
-			window.location.href = '/profile';
-			return;
-		}
-		// Not signed in → open the form so user can complete manually now
-		setShowForm(true);
+	// Format resume data for better auto-fill
+	const formatResumeData = (data: any) => {
+		if (!data) return {};
+		
+		return {
+			fullName: data.fullName || data.name || '',
+			email: data.email || '',
+			phone: data.phone || '',
+			location: data.location || '',
+			jobTitle: data.jobTitle || data.title || '',
+			skills: Array.isArray(data.skills) ? data.skills : [],
+			education: Array.isArray(data.education) ? data.education : [],
+			experience: Array.isArray(data.experience) ? data.experience : [],
+			expectedSalary: data.expectedSalary || data.salary || '',
+			linkedin: data.linkedin || '',
+			portfolio: data.portfolio || '',
+		};
 	};
 
+	// Show form with auto-filled data
 	if (showForm && resumeData) {
 		return (
 			<div className="max-w-4xl mx-auto p-6">
@@ -148,8 +166,11 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
 							<CheckCircle className="h-6 w-6 text-green-600" />
-							AI Resume Analysis Complete
+							Complete Your Profile
 						</CardTitle>
+						<p className="text-sm text-gray-600 mt-2">
+							AI has extracted information from your resume. Review and edit as needed.
+						</p>
 					</CardHeader>
 					<CardContent>
 						<div className="mb-6 p-4 bg-blue-50 rounded-lg">
@@ -157,7 +178,7 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 								<strong>Resume:</strong> {uploadedFile?.name}
 							</p>
 							<p className="text-sm text-blue-700 mt-1">
-								AI has extracted your information. Review and edit as needed, or fill in missing details manually.
+								All fields below are pre-filled from your resume. Edit any information that needs correction.
 							</p>
 						</div>
 						
@@ -165,7 +186,7 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 							resumeId={resumeId}
 							initialData={resumeData}
 							onComplete={handleFormComplete}
-							onClose={() => setShowForm(false)}
+							onClose={handleCloseForm}
 						/>
 					</CardContent>
 				</Card>
@@ -173,7 +194,8 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 		);
 	}
 
-	if (uploadedFile && !showForm) {
+	// Show upload success message
+	if (uploadedFile && !showForm && !isUploading) {
 		return (
 			<div className="max-w-md mx-auto p-6">
 				<Card className="text-center">
@@ -188,7 +210,7 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 						
 						<div className="space-y-3">
 							<Button 
-								onClick={handleManualEdit}
+								onClick={() => setShowForm(true)}
 								className="w-full"
 								size="lg"
 							>
@@ -198,10 +220,16 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 							
 							<Button 
 								variant="outline"
-								onClick={handleViewProfile}
+								onClick={() => {
+									setUploadedFile(null);
+									setResumeData(null);
+									setResumeId(null);
+									setUploadProgress(0);
+								}}
 								className="w-full"
 							>
-								View Profile
+								<X className="h-4 w-4 mr-2" />
+								Upload Different File
 							</Button>
 						</div>
 					</CardContent>
@@ -210,86 +238,84 @@ function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
 		);
 	}
 
+	// Show upload progress
+	if (isUploading) {
+		return (
+			<div className="max-w-md mx-auto p-6">
+				<Card className="text-center">
+					<CardContent className="pt-6">
+						<div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+						<h2 className="text-xl font-semibold text-gray-900 mb-2">
+							{uploadProgress < 50 ? 'Uploading Resume...' : 'Analyzing Resume...'}
+						</h2>
+						<p className="text-sm text-gray-600 mb-4">
+							{uploadProgress < 50 ? 'Please wait while we upload your file' : 'AI is extracting information from your resume'}
+						</p>
+						
+						<div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+							<div 
+								className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+								style={{ width: `${uploadProgress}%` }}
+							></div>
+						</div>
+						
+						<p className="text-sm text-gray-500">
+							{uploadProgress}% Complete
+						</p>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
+
+	// Show upload interface
 	return (
 		<div className="max-w-2xl mx-auto p-6">
 			<Card>
-				<CardHeader className="text-center">
-					<CardTitle className="text-2xl font-bold text-gray-900">
+				<CardHeader>
+					<CardTitle className="text-2xl font-bold text-center text-gray-900">
 						Upload Your Resume
 					</CardTitle>
-					<p className="text-gray-600">
-						Upload your resume and let AI automatically fill your profile, or edit manually
+					<p className="text-center text-gray-600 mt-2">
+						Upload your resume and we'll automatically fill your profile
 					</p>
 				</CardHeader>
-				
 				<CardContent>
 					<div
 						{...getRootProps()}
-						className={`
-							border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-							${isDragActive 
-								? 'border-blue-500 bg-blue-50' 
-								: 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
-							}
-						`}
+						className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+							isDragActive
+								? 'border-blue-400 bg-blue-50'
+								: 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+						}`}
 					>
 						<input {...getInputProps()} />
+						<Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
 						
-						{isUploading ? (
-							<div className="space-y-4">
-								<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-								<div>
-									<p className="text-lg font-medium text-gray-900 mb-2">
-										Analyzing Resume...
-									</p>
-									<Progress value={uploadProgress} className="w-full" />
-									<p className="text-sm text-gray-500 mt-2">
-										{uploadProgress < 50 ? 'Uploading...' : 
-										 uploadProgress < 90 ? 'Processing...' : 'Finalizing...'}
-									</p>
-								</div>
-							</div>
+						{isDragActive ? (
+							<p className="text-blue-600 font-medium">Drop your resume here</p>
 						) : (
-							<div className="space-y-4">
-								<Upload className="h-12 w-12 text-gray-400 mx-auto" />
-								<div>
-									<p className="text-lg font-medium text-gray-900">
-										{isDragActive ? 'Drop your resume here' : 'Drag & drop your resume'}
-									</p>
-									<p className="text-gray-500">or click to browse</p>
-								</div>
-								<p className="text-sm text-gray-400">
-									Supports PDF, DOC, DOCX (Max 10MB)
+							<div>
+								<p className="text-gray-600 mb-2">
+									<span className="text-blue-600 hover:text-blue-700 font-medium">
+										Click to upload
+									</span>{' '}
+									or drag and drop
+								</p>
+								<p className="text-sm text-gray-500">
+									PDF, DOC, DOCX up to 10MB
 								</p>
 							</div>
 						)}
 					</div>
-
-					{!isUploading && (
-						<div className="mt-6 text-center">
-							<p className="text-sm text-gray-600 mb-4">
-								Our AI will automatically extract your information and fill your profile
-							</p>
-							<div className="flex flex-col sm:flex-row gap-3 justify-center">
-								<div className="flex items-center gap-2 text-sm text-gray-600">
-									<CheckCircle className="h-4 w-4 text-green-600" />
-									Auto-fill profile
-								</div>
-								<div className="flex items-center gap-2 text-sm text-gray-600">
-									<CheckCircle className="h-4 w-4 text-green-600" />
-									Manual editing
-								</div>
-								<div className="flex items-center gap-2 text-sm text-gray-600">
-									<CheckCircle className="h-4 w-4 text-green-600" />
-									Instant results
-								</div>
-							</div>
-						</div>
-					)}
+					
+					<div className="mt-6 text-center">
+						<p className="text-sm text-gray-500">
+							Your resume will be analyzed by AI to automatically fill your profile
+						</p>
+					</div>
 				</CardContent>
 			</Card>
 		</div>
 	);
 }
-
-export default ResumeUpload;
