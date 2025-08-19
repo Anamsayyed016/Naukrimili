@@ -89,3 +89,5 @@ echo "📋 Next steps:"
 echo "1. Add SSH_KEY secret to GitHub repository"
 echo "2. Push changes to trigger deployment"
 echo "3. Configure SSL certificate in Hostinger panel"
+
+

@@ -25,3 +25,5 @@ echo 2. Add the private key to GitHub secrets as SSH_KEY
 echo 3. Run the setup script on your VPS
 echo.
 pause
+
+
