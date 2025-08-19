@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions } from "@/lib/nextauth-config";
 import { prisma } from "@/lib/prisma";
 
 async function requireAdminAuth(request: NextRequest) {

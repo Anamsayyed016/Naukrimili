@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/nextauth-config';
 
 export interface AuthenticatedRequest extends NextRequest {
   user: {
