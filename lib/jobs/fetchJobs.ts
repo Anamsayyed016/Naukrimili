@@ -59,33 +59,33 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
 
   // 1. Fetch from Adzuna
   try {
-    console.log(`📡 Fetching from Adzuna (${adzunaCountry.toUpperCase()})...`);
+    // // console.log(`📡 Fetching from Adzuna (${adzunaCountry.toUpperCase()})...`);
     const adz = await withRetry(() => fetchFromAdzuna(query, adzunaCountry, page, {
       location: location || undefined,
       distanceKm: radiusKm,
     }));
     all.push(...adz);
-    console.log(`✅ Adzuna: Added ${adz.length} jobs`);
+    // // console.log(`✅ Adzuna: Added ${adz.length} jobs`);
   } catch (e: any) {
     console.error('❌ Adzuna fetch failed:', e?.message || e);
   }
 
   // 2. Fetch from JSearch
   try {
-    console.log(`📡 Fetching from JSearch (${jsearchCountry})...`);
+    // // console.log(`📡 Fetching from JSearch (${jsearchCountry})...`);
     const js = await withRetry(() => fetchFromJSearch(`${query}${location ? ` in ${location}` : ''}`, jsearchCountry, page));
     all.push(...js);
-    console.log(`✅ JSearch: Added ${js.length} jobs`);
+    // // console.log(`✅ JSearch: Added ${js.length} jobs`);
   } catch (e: any) {
     console.error('❌ JSearch fetch failed:', e?.message || e);
   }
 
   // 3. Fetch from Google Jobs (using RapidAPI)
   try {
-    console.log(`📡 Fetching from Google Jobs...`);
+    // // console.log(`📡 Fetching from Google Jobs...`);
     const google = await withRetry(() => fetchFromGoogleJobs(query, location || 'India', page));
     all.push(...google);
-    console.log(`✅ Google Jobs: Added ${google.length} jobs`);
+    // // console.log(`✅ Google Jobs: Added ${google.length} jobs`);
   } catch (e: any) {
     console.error('❌ Google Jobs fetch failed:', e?.message || e);
   }
@@ -93,7 +93,7 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
   // 4. Fallback: Google Jobs redirect (if no results from APIs)
   if (all.length === 0) {
     try {
-      console.log(`🔄 No jobs found from APIs, generating Google Jobs fallback...`);
+      // // console.log(`🔄 No jobs found from APIs, generating Google Jobs fallback...`);
       const googleSearch = new GoogleSearchService();
       const fallback = await googleSearch.searchGoogleJobsEnhanced({ query, location: location || 'India' });
       if (fallback.success && fallback.searchUrl) {
@@ -109,7 +109,7 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
           postedAt: new Date().toISOString(),
           raw: { fallback },
         });
-        console.log(`✅ Google Fallback: Created redirect job`);
+        // // console.log(`✅ Google Fallback: Created redirect job`);
       }
     } catch (e: any) {
       console.error('❌ Google fallback failed:', e?.message || e);
@@ -118,10 +118,10 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
 
   // Skip malformed jobs (missing title or company)
   const filtered = all.filter(j => (j.title || '').trim() && (j.company || '').trim());
-  console.log(`🔍 Filtered ${all.length} total jobs to ${filtered.length} valid jobs`);
+  // // console.log(`🔍 Filtered ${all.length} total jobs to ${filtered.length} valid jobs`);
 
   if (filtered.length === 0) {
-    console.log(`⚠️ No valid jobs found for query: "${query}"`);
+    // // console.log(`⚠️ No valid jobs found for query: "${query}"`);
     return [];
   }
 
@@ -145,13 +145,13 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
 
   // Use the more restrictive deduplication (by content)
   const finalJobs = Array.from(uniqueByContent.values());
-  console.log(`🎯 Deduplication: ${filtered.length} → ${finalJobs.length} unique jobs`);
+  // // console.log(`🎯 Deduplication: ${filtered.length} → ${finalJobs.length} unique jobs`);
 
   // Upsert jobs to database
   try {
-    console.log(`💾 Upserting ${finalJobs.length} jobs to database...`);
+    // // console.log(`💾 Upserting ${finalJobs.length} jobs to database...`);
     const upserted = await upsertNormalizedJobs(finalJobs);
-    console.log(`✅ Database: Successfully upserted ${upserted.length} jobs`);
+    // // console.log(`✅ Database: Successfully upserted ${upserted.length} jobs`);
     return upserted;
   } catch (error: any) {
     console.error('❌ Database upsert failed:', error.message);

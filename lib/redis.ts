@@ -35,7 +35,7 @@ export function getRedisClient(): Redis {
       redis = new Redis(redisConfig);
       
       redis.on('connect', () => {
-        console.log('✅ Redis connected successfully');
+        // console.log('✅ Redis connected successfully');
       });
       
       redis.on('error', (error) => {
@@ -44,7 +44,7 @@ export function getRedisClient(): Redis {
       });
       
       redis.on('close', () => {
-        console.log('🔌 Redis connection closed');
+        // console.log('🔌 Redis connection closed');
         redis = null;
       });
       

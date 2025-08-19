@@ -46,7 +46,7 @@ export class DatabaseOptimizer {
       // Try to get from cache first
       const cached = await cacheService.get(cacheKey);
       if (cached) {
-        console.log(`⚡ Cache hit for job search: ${Date.now() - startTime}ms`);
+        // // console.log(`⚡ Cache hit for job search: ${Date.now() - startTime}ms`);
         return cached;
       }
       
@@ -232,7 +232,7 @@ export class DatabaseOptimizer {
         CACHE_TTL.JOB_SEARCH
       );
       
-      console.log(`🚀 Job search completed: ${Date.now() - startTime}ms`);
+      // // console.log(`🚀 Job search completed: ${Date.now() - startTime}ms`);
       return results;
       
     } catch (error) {
@@ -388,7 +388,7 @@ export class DatabaseOptimizer {
   static async clearCache(tags: string[]) {
     try {
       await cacheService.invalidateByTags(tags);
-      console.log(`🧹 Cache cleared for tags: ${tags.join(', ')}`);
+      // // console.log(`🧹 Cache cleared for tags: ${tags.join(', ')}`);
     } catch (error) {
       console.error('❌ Cache clear failed:', error);
     }
@@ -401,7 +401,7 @@ export class DatabaseOptimizer {
     try {
       // This would typically run database maintenance commands
       // For now, we'll just clear old cache entries
-      console.log('🔧 Database optimization completed');
+      // // console.log('🔧 Database optimization completed');
     } catch (error) {
       console.error('❌ Database optimization failed:', error);
     }

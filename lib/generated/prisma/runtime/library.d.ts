@@ -2318,7 +2318,8 @@ export declare const objectEnumValues: {
 }
         AnyNull: AnyNull}
 }
-";
+
+";
 declare const officialPrismaAdapters: readonly ["@prisma/adapter-planetscale", "@prisma/adapter-neon", "@prisma/adapter-libsql", "@prisma/adapter-better-sqlite3", "@prisma/adapter-d1", "@prisma/adapter-pg", "@prisma/adapter-mssql", "@prisma/adapter-mariadb"];
 
 export declare type Omission = Record<string, boolean | Skip>;
@@ -2571,7 +2572,8 @@ declare type PrismaPromiseBatchTransaction = {
 }
 }
 
-declare type PrismaPromiseCallback = (transaction?: PrismaPromiseTransaction) => Promise<unknown> /** * Creates a [[PrismaPromise]]. It is Prisma's implementation of `Promise` which * is essentially a proxy for `Promise`. All the transaction-compatible client * methods return one, this allows for pre-preparing queries without executing * them until `.then` is called. It's the foundation of Prisma's query batching. * @param callback that will be wrapped within our promise implementation * @see [[PrismaPromise]] * @returns */;;
+declare type PrismaPromiseCallback = (transaction?: PrismaPromiseTransaction) => Promise<unknown> /** * Creates a [[PrismaPromise]]. It is Prisma's implementation of `Promise` which * is essentially a proxy for `Promise`. All the transaction-compatible client * methods return one, this allows for pre-preparing queries without executing * them until `.then` is called. It's the foundation of Prisma's query batching. * @param callback that will be wrapped within our promise implementation * @see [[PrismaPromise]] * @returns */;
+;
 declare type PrismaPromiseFactory = <T extends PrismaOperationSpec<unknown>>(callback: PrismaPromiseCallback, op?: T) => PrismaPromise_2<unknown>;
 declare type PrismaPromiseInteractiveTransaction<PayloadType = unknown> = {
   ;
@@ -2618,8 +2620,10 @@ declare type Query = ReadonlyDeep_2<{
 }>;
 
 declare interface Queryable<Query, Result> extends AdapterInfo {
-  /** * Execute a query and return its result. */;;
-    queryRaw(params: Query): Promise<Result> /** * Execute a query and return the number of affected rows. */;;
+  /** * Execute a query and return its result. */;
+;
+    queryRaw(params: Query): Promise<Result> /** * Execute a query and return the number of affected rows. */;
+;
     executeRaw(params: Query): Promise<number>
 }
 }
@@ -3114,7 +3118,8 @@ declare class Skip {
 }
 }
 export declare const skip: Skip;
-";
+
+";
 declare type SortOrder = 'asc' | 'desc' /** * An interface that represents a span. A span represents a single operation * within a trace. Examples of span might include remote procedure calls or a * in-process function calls to sub-components. A Trace has a single, top-level * "root" Span that in turn may have zero or more child Spans, which in turn * may have children. * * Spans are created by the {
   @link Tracer.startSpan
 }
@@ -3141,7 +3146,8 @@ declare interface Span {
   @link Tracer.startSpan
 }
 }. * * Upon this update, any sampling behavior based on Span name will depend on * the implementation. * * @param name the Span name. */;
-    updateName(name: string): this /** * Marks the end of Span execution. * * Call to End of a Span MUST not have any effects on child spans. Those may * still be running and can be ended later. * * Do not return `this`. The Span generally should not be used after it * is ended so chaining is not desired in this context. * * @param [endTime] the time to set as Span's end time. If not provided *     use the current time as the span's end time. */;;
+    updateName(name: string): this /** * Marks the end of Span execution. * * Call to End of a Span MUST not have any effects on child spans. Those may * still be running and can be ended later. * * Do not return `this`. The Span generally should not be used after it * is ended so chaining is not desired in this context. * * @param [endTime] the time to set as Span's end time. If not provided *     use the current time as the span's end time. */;
+;
     end(endTime?: TimeInput): void /** * Returns the flag whether this span will be recorded. * * @returns true if this Span is active and recording information like events *     with the `AddEvent` operation and attributes using `setAttributes`. */;
     isRecording(): boolean /** * Sets exception as a span event * @param exception the exception the only accepted values are string or Error * @param [time] the time to set as Span's event time. If not provided, *     use the current time. */;
     recordException(exception: Exception, time?: TimeInput): void} /** * @deprecated please use {

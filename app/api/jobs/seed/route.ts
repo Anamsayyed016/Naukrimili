@@ -8,26 +8,26 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const { jobsPerSector = 20, sectors = 'all' } = body;
 
-    console.log(`🌱 Starting job seeding: ${jobsPerSector} jobs per sector`);
+    // // console.log(`🌱 Starting job seeding: ${jobsPerSector} jobs per sector`);
 
     let jobsToSeed: any[] = [];
 
     if (sectors === 'all') {
       // Generate jobs for all sectors
       jobsToSeed = JobGenerator.generateJobsForAllSectors(jobsPerSector);
-      console.log(`📊 Generated ${jobsToSeed.length} jobs across all sectors`);
+      // // console.log(`📊 Generated ${jobsToSeed.length} jobs across all sectors`);
     } else if (Array.isArray(sectors)) {
       // Generate jobs for specific sectors
       for (const sectorId of sectors) {
         const sectorJobs = JobGenerator.generateMultipleJobsForSector(sectorId, jobsPerSector);
         jobsToSeed.push(...sectorJobs);
       }
-      console.log(`📊 Generated ${jobsToSeed.length} jobs for sectors: ${sectors.join(', ')}`);
+      // // console.log(`📊 Generated ${jobsToSeed.length} jobs for sectors: ${sectors.join(', ')}`);
     } else {
       // Generate jobs for a single sector
       const sectorJobs = JobGenerator.generateMultipleJobsForSector(sectors, jobsPerSector);
       jobsToSeed = sectorJobs;
-      console.log(`📊 Generated ${jobsToSeed.length} jobs for sector: ${sectors}`);
+      // // console.log(`📊 Generated ${jobsToSeed.length} jobs for sector: ${sectors}`);
     }
 
     // Upsert jobs into database
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const sectorStats = JobGenerator.getSectorStats();
     const totalJobs = seededJobs.length;
 
-    console.log(`✅ Successfully seeded ${totalJobs} jobs`);
+    // // console.log(`✅ Successfully seeded ${totalJobs} jobs`);
 
     return NextResponse.json({
       success: true,

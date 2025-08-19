@@ -65,7 +65,7 @@ export const logger = new Logger();
 // Replace console methods in production
 if ((Env as any).env?.NODE_ENV === 'production') {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  console.log = () => {};
+  // // console.log = () => {};
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   console.debug = () => {};
   console.info = (message?: any, ...optionalParams: any[]) => logger.info(String(message), { optionalParams });

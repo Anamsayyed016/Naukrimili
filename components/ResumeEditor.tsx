@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -267,7 +267,7 @@ export default function ResumeEditor({
           <h4 className="font-medium text-red-900 mb-2">Please fix the following errors:</h4>
           <ul className="text-sm text-red-800 space-y-1">
             {errors.map((error, index) => (
-              <li key={index}>â€¢ {error}</li>
+              <li key={index}>• {error}</li>
             ))}
           </ul>
         </div>
@@ -357,7 +357,7 @@ export default function ResumeEditor({
                     onClick={() => removeSkill(index)}
                     className="text-blue-600 hover:text-blue-800"
                   >
-                    Ã—
+                    ×
                   </button>
                 </span>
               ))}

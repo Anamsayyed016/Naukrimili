@@ -255,7 +255,7 @@ export async function POST(request: NextRequest) {
     };
 
     // You can store this in a separate admin_actions table if needed
-    console.log('Admin action:', adminAction);
+    // // console.log('Admin action:', adminAction);
 
     return NextResponse.json({
       success: true,

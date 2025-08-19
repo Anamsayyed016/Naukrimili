@@ -38,7 +38,7 @@ export async function fetchFromAdzuna(
 
   try {
     const url = `https://api.adzuna.com/v1/api/jobs/${countryCode}/search/${page}`;
-    console.log(`🔍 Fetching from Adzuna: ${countryCode.toUpperCase()} - "${query}"`);
+    // // console.log(`🔍 Fetching from Adzuna: ${countryCode.toUpperCase()} - "${query}"`);
     
     const { data } = await axios.get(url, {
       params: {
@@ -69,7 +69,7 @@ export async function fetchFromAdzuna(
       raw: r,
     }));
 
-    console.log(`✅ Adzuna: Found ${jobs.length} jobs for "${query}" in ${countryCode.toUpperCase()}`);
+    // // console.log(`✅ Adzuna: Found ${jobs.length} jobs for "${query}" in ${countryCode.toUpperCase()}`);
     return jobs;
 
   } catch (error: any) {
@@ -94,7 +94,7 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
   }
 
   try {
-    console.log(`🔍 Fetching from JSearch: ${countryCode} - "${query}"`);
+    // // console.log(`🔍 Fetching from JSearch: ${countryCode} - "${query}"`);
     
     const { data } = await axios.get('https://jsearch.p.rapidapi.com/search', {
       params: { 
@@ -124,7 +124,7 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
       raw: r,
     }));
 
-    console.log(`✅ JSearch: Found ${jobs.length} jobs for "${query}" in ${countryCode}`);
+    // // console.log(`✅ JSearch: Found ${jobs.length} jobs for "${query}" in ${countryCode}`);
     return jobs;
 
   } catch (error: any) {
@@ -152,7 +152,7 @@ export async function fetchFromGoogleJobs(
   }
 
   try {
-    console.log(`🔍 Fetching from Google Jobs: "${query}" in ${location}`);
+    // // console.log(`🔍 Fetching from Google Jobs: "${query}" in ${location}`);
     
     const { data } = await axios.get('https://google-jobs-api.p.rapidapi.com/google-jobs/job-type', {
       params: {
@@ -182,7 +182,7 @@ export async function fetchFromGoogleJobs(
       raw: r,
     }));
 
-    console.log(`✅ Google Jobs: Found ${jobs.length} jobs for "${query}" in ${location}`);
+    // // console.log(`✅ Google Jobs: Found ${jobs.length} jobs for "${query}" in ${location}`);
     return jobs;
 
   } catch (error: any) {

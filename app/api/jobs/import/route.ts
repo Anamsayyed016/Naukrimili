@@ -20,11 +20,11 @@ export async function POST(req: NextRequest) {
     }
     const { queries, country, page, location, radiusKm } = parsed.data;
 
-    console.log(`🚀 Starting job import: ${queries.join(', ')} in ${country}${location ? ` near ${location}` : ''}`);
+    // // console.log(`🚀 Starting job import: ${queries.join(', ')} in ${country}${location ? ` near ${location}` : ''}`);
 
     // Check API health first
     const health = await checkJobProvidersHealth();
-    console.log('📊 API Health Check:', health);
+    // // console.log('📊 API Health Check:', health);
 
     // Normalize country codes for providers
     const adzunaCountry = (country || 'IN').toLowerCase();
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    console.log(`📈 Import Summary: Adzuna(${adzunaCount}), JSearch(${jsearchCount}), Google(${googleCount})`);
+    // // console.log(`📈 Import Summary: Adzuna(${adzunaCount}), JSearch(${jsearchCount}), Google(${googleCount})`);
 
     // Upsert into database (composite unique [source, sourceId])
     const persisted = await upsertNormalizedJobs(fetched);
