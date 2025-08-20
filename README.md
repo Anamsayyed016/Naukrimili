@@ -134,3 +134,4 @@ This project is for educational/development purposes.
 ## Support
 
 For deployment issues or questions, check the GitHub Actions logs and server status.
+# Trigger deployment
