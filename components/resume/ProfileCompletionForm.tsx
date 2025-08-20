@@ -96,12 +96,55 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify(profileData),
+					body: JSON.stringify({
+						content: {
+							parsedData: {
+								...profileData,
+								lastUpdated: new Date().toISOString(),
+								profileCompleted: true
+							}
+						}
+					}),
 				});
 
 				if (!response.ok) {
 					throw new Error('Failed to save to server');
 				}
+
+				const result = await response.json();
+				if (result.success) {
+					toast({
+						title: 'Profile Saved to Database!',
+						description: 'Your profile has been successfully saved to our database.',
+					});
+				}
+			}
+
+			// Also update user profile in the main user table if possible
+			try {
+				const userUpdateResponse = await fetch('/api/user/profile', {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						firstName: profileData.fullName.split(' ')[0] || '',
+						lastName: profileData.fullName.split(' ').slice(1).join(' ') || '',
+						email: profileData.email,
+						phone: profileData.phone,
+						location: profileData.location,
+						bio: `Job Title: ${profileData.jobTitle || 'Not specified'}`,
+						skills: profileData.skills,
+						experience: JSON.stringify(profileData.experience),
+						education: JSON.stringify(profileData.education)
+					}),
+				});
+
+				if (userUpdateResponse.ok) {
+					console.log('User profile updated successfully');
+				}
+			} catch (userUpdateError) {
+				console.log('User profile update failed (non-critical):', userUpdateError);
 			}
 
 			// Save profile data to localStorage as backup

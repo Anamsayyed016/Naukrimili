@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
     const resume = await prisma.resume.create({
       data: {
         fileName: file.name,
+        fileUrl: `/uploads/resumes/${filename}`, // Add fileUrl field
         fileSize: file.size,
         mimeType: file.type,
         userId: user.id,
@@ -92,21 +93,37 @@ export async function POST(request: NextRequest) {
           targetRole,
           experienceLevel,
           industryType,
-          uploadedAt: new Date().toISOString()
+          uploadedAt: new Date().toISOString(),
+          originalFileName: file.name,
+          filePath: `/uploads/resumes/${filename}`
         }
       }
     });
+
+    console.log(`✅ Resume uploaded successfully: ${resume.id} for user ${user.id}`);
 
     return NextResponse.json({ 
       success: true, 
       message: 'Resume uploaded successfully',
       resumeId: resume.id,
-      filePath: `/uploads/resumes/${filename}`
+      filePath: `/uploads/resumes/${filename}`,
+      resume: {
+        id: resume.id,
+        fileName: resume.fileName,
+        fileUrl: resume.fileUrl,
+        fileSize: resume.fileSize,
+        mimeType: resume.mimeType,
+        parsedData: resume.parsedData
+      }
     });
 
   } catch (error) {
     console.error('POST resume upload error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      success: false,
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
 

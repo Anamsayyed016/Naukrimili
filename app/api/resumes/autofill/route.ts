@@ -14,12 +14,16 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get('resume') as File;
+    
     if (!file) {
       return NextResponse.json({ success: false, error: 'No file uploaded' }, { status: 400 });
     }
+    
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json({ success: false, error: 'Invalid file type' }, { status: 400 });
     }
+
+    console.log(`🔄 Processing resume: ${file.name} (${file.type})`);
 
     const uploadsDir = path.join(process.cwd(), 'uploads', 'resumes');
     await mkdir(uploadsDir, { recursive: true }).catch(() => {});
@@ -31,26 +35,51 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     await writeFile(filepath, Buffer.from(bytes));
 
+    console.log(`📁 File saved to: ${filepath}`);
+
     const resumeService = new RealResumeService();
     let fileType = 'application/pdf';
     if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') fileType = file.type;
     if (file.type === 'application/msword') fileType = file.type;
 
+    console.log(`🔍 Extracting text from file type: ${fileType}`);
     const text = await resumeService.extractTextFromFile(filepath, fileType);
+    console.log(`📝 Extracted text length: ${text.length} characters`);
+
+    if (!text || text.length < 10) {
+      console.warn(`⚠️ Extracted text is too short: ${text}`);
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Could not extract meaningful text from resume',
+        fallback: true
+      }, { status: 400 });
+    }
+
+    console.log(`🧠 Analyzing resume with AI...`);
     const extracted = await resumeService.analyzeResume(text);
+    console.log(`✅ AI analysis complete: ${extracted.fullName || 'No name'}, ${extracted.skills.length} skills found`);
+    
     const profile = standardizeCandidateProfile(extracted);
 
     // Enhanced AI Analysis
     const analysis = await performEnhancedAnalysis(profile, text);
 
+    console.log(`🎯 Profile standardized: ${profile.fullName}, ${profile.skills.length} skills`);
+
     return NextResponse.json({ 
       success: true, 
       profile,
-      analysis
+      analysis,
+      extractedText: text.substring(0, 200) + '...' // First 200 chars for debugging
     });
   } catch (e: any) {
-    console.error('Autofill error:', e?.message || e);
-    return NextResponse.json({ success: false, error: 'Failed to process resume' }, { status: 500 });
+    console.error('❌ Autofill error:', e?.message || e);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to process resume',
+      details: e?.message || 'Unknown error',
+      fallback: true
+    }, { status: 500 });
   }
 }
 

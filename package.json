@@ -30,7 +30,8 @@
     "clean": "rm -rf .next out production",
     "production:build": "npm ci --only=production --legacy-peer-deps && npm run build",
     "production:start": "NODE_ENV=production npm start",
-    "start:server": "node start-server.js"
+    "start:server": "node start-server.js",
+    "start:production": "node start-production.js"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",

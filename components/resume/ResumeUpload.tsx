@@ -42,45 +42,116 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 				});
 			}, 200);
 
-			// Create FormData for upload
-			const formData = new FormData();
-			formData.append('resume', file);
-			if (userId) {
-				formData.append('userId', userId);
+			// Step 1: Upload resume to get resumeId
+			const uploadFormData = new FormData();
+			uploadFormData.append('file', file);
+			uploadFormData.append('targetRole', 'Software Engineer'); // Default values
+			uploadFormData.append('experienceLevel', 'Mid-level');
+			uploadFormData.append('industryType', 'Technology');
+
+			const uploadResponse = await fetch('/api/resumes/upload', {
+				method: 'POST',
+				body: uploadFormData,
+			});
+
+			if (!uploadResponse.ok) {
+				throw new Error('Resume upload failed');
 			}
 
-			// Upload resume
-			const response = await fetch('/api/upload/resume', {
+			const uploadResult = await uploadResponse.json();
+			
+			if (!uploadResult.success) {
+				throw new Error(uploadResult.error || 'Upload failed');
+			}
+
+			// Step 2: Analyze resume with AI for auto-fill
+			const analysisFormData = new FormData();
+			analysisFormData.append('resume', file);
+
+			const analysisResponse = await fetch('/api/resumes/autofill', {
 				method: 'POST',
-				body: formData,
+				body: analysisFormData,
 			});
 
 			clearInterval(progressInterval);
 			setUploadProgress(100);
 
-			if (!response.ok) {
-				throw new Error('Upload failed');
-			}
-
-			const result = await response.json();
-			
-			if (result.success) {
-				setResumeId(result.resume.id);
+			if (analysisResponse.ok) {
+				const analysisResult = await analysisResponse.json();
 				
-				// Extract and format the parsed data for auto-fill
-				const formattedData = formatResumeData(result.parsedData || result.resume.parsedData);
-				setResumeData(formattedData);
+				if (analysisResult.success) {
+					setResumeId(uploadResult.resumeId);
+					
+					// Extract and format the parsed data for auto-fill
+					const formattedData = formatResumeData(analysisResult.profile || {});
+					setResumeData(formattedData);
+					
+					toast({
+						title: 'Resume Uploaded Successfully!',
+						description: `AI analysis complete. Form will auto-fill with extracted information.`,
+					});
+
+					// Show form immediately after successful upload and analysis
+					setShowForm(true);
+				} else {
+					// AI analysis failed, but upload succeeded - show form with basic data
+					console.warn('AI analysis failed, showing form with basic data:', analysisResult.error);
+					setResumeId(uploadResult.resumeId);
+					
+					// Create basic profile data from file info
+					const basicData = {
+						fullName: file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
+						email: '',
+						phone: '',
+						location: '',
+						jobTitle: '',
+						skills: [],
+						education: [],
+						experience: [],
+						expectedSalary: '',
+						linkedin: '',
+						portfolio: '',
+					};
+					
+					setResumeData(basicData);
+					
+					toast({
+						title: 'Resume Uploaded Successfully!',
+						description: 'AI analysis failed, but you can still complete your profile manually.',
+						variant: 'default',
+					});
+
+					setShowForm(true);
+				}
+			} else {
+				// Analysis API failed completely, but upload succeeded
+				console.warn('Analysis API failed, showing form with basic data');
+				setResumeId(uploadResult.resumeId);
+				
+				// Create basic profile data from file info
+				const basicData = {
+					fullName: file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
+					email: '',
+					phone: '',
+					location: '',
+					jobTitle: '',
+					skills: [],
+					education: [],
+					experience: [],
+					expectedSalary: '',
+					linkedin: '',
+					portfolio: '',
+				};
+				
+				setResumeData(basicData);
 				
 				toast({
 					title: 'Resume Uploaded Successfully!',
-					description: `AI analysis complete. Form will auto-fill with extracted information.`,
+					description: 'You can now complete your profile manually.',
+					variant: 'default',
 				});
 
-				// Show form immediately after successful upload
 				setShowForm(true);
-
-			} else {
-				throw new Error(result.error || 'Upload failed');
 			}
 
 		} catch (error: any) {
