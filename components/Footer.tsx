@@ -1,11 +1,19 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { FiFacebook, FiTwitter, FiLinkedin, FiInstagram, FiLoader, FiCheck, FiAlertCircle, FiBriefcase, FiUsers, FiBook, FiMail, FiUser, FiBell, FiUpload } from "react-icons/fi";
+import { FiFacebook, FiTwitter, FiLinkedin, FiInstagram, FiLoader, FiCheck, FiAlertCircle, FiBriefcase, FiUsers, FiBook, FiMail, FiUser, FiBell, FiUpload, FiHeart, FiArrowRight } from "react-icons/fi";
 
 interface SocialIconProps { href: string; icon: React.ReactNode; label: string; }
 const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label }) => (
-  <a href={href} className="text-gray-400 hover:text-white transition-colors duration-200" target="_blank" rel="noopener noreferrer" aria-label={label}>{icon}</a>
+  <a 
+    href={href} 
+    className="group w-12 h-12 bg-gray-800 hover:bg-blue-600 rounded-xl flex items-center justify-center text-gray-300 hover:text-white transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-xl" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    aria-label={label}
+  >
+    {icon}
+  </a>
 );
 
 const linkGroups = [
@@ -42,11 +50,35 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-gray-900 text-gray-300 pt-12 pb-6 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-300 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}></div>
+      </div>
+      
+      <div className="relative max-w-7xl mx-auto pt-16 pb-8 px-4 sm:px-6 lg:px-8">
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
+          {/* Company Info - Enhanced */}
           <div className="lg:col-span-2">
-            <p className="text-sm mb-6">India's most trusted AI-powered job matching platform connecting top talent with leading employers.</p>
+            <div className="mb-8">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                  <span className="text-white font-bold text-xl">N</span>
+                </div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  NaukriMili
+                </h3>
+              </div>
+              <p className="text-gray-300 text-base leading-relaxed max-w-md">
+                India's most trusted AI-powered job matching platform connecting top talent with leading employers. 
+                Experience the future of job searching.
+              </p>
+            </div>
+            
+            {/* Enhanced Social Icons */}
             <div className="flex space-x-4">
               <SocialIcon href="https://facebook.com" icon={<FiFacebook size={20} />} label="Facebook" />
               <SocialIcon href="https://twitter.com" icon={<FiTwitter size={20} />} label="Twitter" />
@@ -54,44 +86,110 @@ export default function Footer() {
               <SocialIcon href="https://instagram.com" icon={<FiInstagram size={20} />} label="Instagram" />
             </div>
           </div>
+          
+          {/* Link Groups - Enhanced */}
           {linkGroups.map(g => (
-            <div key={g.title} className="space-y-4">
-              <h3 className="text-white font-medium">{g.title}</h3>
-              <ul className="space-y-3">
+            <div key={g.title} className="space-y-6">
+              <h3 className="text-white font-semibold text-lg border-b border-gray-700 pb-2">
+                {g.title}
+              </h3>
+              <ul className="space-y-4">
                 {g.links.map(l => (
                   <li key={l.name}>
-                    <Link href={l.href} className="flex items-center gap-2 hover:text-indigo-400 transition-colors group">
-                      <span className="text-indigo-400 group-hover:scale-110 transition-transform">{l.icon}</span>
-                      <span>{l.name}</span>
+                    <Link 
+                      href={l.href} 
+                      className="group flex items-center gap-3 hover:text-blue-400 transition-all duration-300 hover:translate-x-1"
+                    >
+                      <span className="text-blue-400 group-hover:scale-110 transition-transform duration-300">
+                        {l.icon}
+                      </span>
+                      <span className="text-gray-300 group-hover:text-blue-400 transition-colors">
+                        {l.name}
+                      </span>
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
-          <div className="space-y-4">
-            <h3 className="text-white font-medium">Get Job Alerts</h3>
-            <p className="text-sm">Subscribe to receive the latest job openings</p>
-            <form onSubmit={handleSubscribe} className="space-y-2">
-              <div className="flex w-full">
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Your email" className="px-4 py-2 w-full rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900" required />
-                <button type="submit" disabled={status === "loading"} className={`px-4 py-2 rounded-r-md text-white flex items-center gap-2 min-w-[110px] transition-colors ${status === "loading" ? "bg-indigo-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"}`}>
-                  {status === "loading" && <FiLoader size={20} />}
-                  {status === "success" && <FiCheck />}
-                  {status === "error" && <FiAlertCircle />}
-                  {status === "idle" && "Subscribe"}
-                </button>
+          
+          {/* Newsletter - Enhanced */}
+          <div className="space-y-6">
+            <h3 className="text-white font-semibold text-lg border-b border-gray-700 pb-2">
+              Get Job Alerts
+            </h3>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              Subscribe to receive the latest job openings and career opportunities directly in your inbox.
+            </p>
+            
+            <form onSubmit={handleSubscribe} className="space-y-4">
+              <div className="relative">
+                <input 
+                  type="email" 
+                  value={email} 
+                  onChange={e => setEmail(e.target.value)} 
+                  placeholder="Your email address" 
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400 transition-all duration-300" 
+                  required 
+                />
               </div>
-              {message && (<p className={`text-sm ${status === "success" ? "text-green-400" : status === "error" ? "text-red-400" : "text-gray-400"}`}>{message}</p>)}
+              
+              <button 
+                type="submit" 
+                disabled={status === "loading"} 
+                className={`w-full px-6 py-3 rounded-xl text-white font-medium flex items-center justify-center gap-3 transition-all duration-300 ${
+                  status === "loading" 
+                    ? "bg-gray-600 cursor-not-allowed" 
+                    : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                }`}
+              >
+                {status === "loading" && <FiLoader size={20} className="animate-spin" />}
+                {status === "success" && <FiCheck size={20} />}
+                {status === "error" && <FiAlertCircle size={20} />}
+                {status === "idle" && (
+                  <>
+                    Subscribe
+                    <FiArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </button>
+              
+              {message && (
+                <p className={`text-sm px-4 py-2 rounded-lg ${
+                  status === "success" 
+                    ? "text-green-400 bg-green-900/20 border border-green-700/30" 
+                    : status === "error" 
+                    ? "text-red-400 bg-red-900/20 border border-red-700/30" 
+                    : "text-gray-400"
+                }`}>
+                  {message}
+                </p>
+              )}
             </form>
           </div>
         </div>
-        <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm">© {new Date().getFullYear()} NaukriMili. All rights reserved.</p>
-          <div className="flex space-x-6">
-            <Link href="/privacy" className="text-sm hover:text-white">Privacy Policy</Link>
-            <Link href="/terms" className="text-sm hover:text-white">Terms</Link>
-            <Link href="/cookies" className="text-sm hover:text-white">Cookies</Link>
+        
+        {/* Bottom Section - Enhanced */}
+        <div className="border-t border-gray-800 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-2 text-gray-400">
+              <p className="text-sm">
+                © {new Date().getFullYear()} NaukriMili. All rights reserved.
+              </p>
+              <FiHeart className="w-4 h-4 text-red-400 animate-pulse" />
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-6 text-sm">
+              <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors duration-300 hover:underline">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="text-gray-400 hover:text-white transition-colors duration-300 hover:underline">
+                Terms of Service
+              </Link>
+              <Link href="/cookies" className="text-gray-400 hover:text-white transition-colors duration-300 hover:underline">
+                Cookie Policy
+              </Link>
+            </div>
           </div>
         </div>
       </div>

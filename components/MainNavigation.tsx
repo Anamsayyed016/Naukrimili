@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface MainNavigationProps {
   brandName?: string;
@@ -51,37 +52,42 @@ export default function MainNavigation({
   ], []);
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Brand - Single Logo */}
-          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">N</span>
+    <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 lg:h-20">
+          {/* Brand - Enhanced Logo */}
+          <Link href="/" className="flex items-center hover:opacity-80 transition-all duration-300 group">
+            <div className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+              <span className="text-white font-bold text-lg lg:text-xl">N</span>
             </div>
-            <span className="ml-3 text-xl font-bold text-gray-900">{brandName}</span>
+            <span className="ml-3 text-lg lg:text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              {brandName}
+            </span>
           </Link>
 
-          {/* Main Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          {/* Main Navigation - Enhanced Desktop */}
+          <div className="hidden lg:flex items-center space-x-1">
             {navLinks.map((link) => (
               <Link
                 key={link.title}
                 href={link.href}
                 prefetch={true}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors duration-200",
-                  pathname === link.href && "text-blue-600 font-medium border-b-2 border-blue-600"
+                  "flex items-center gap-2 px-4 py-3 text-gray-700 hover:text-gray-900 transition-all duration-300 rounded-lg hover:bg-gray-50 relative group",
+                  pathname === link.href && "text-blue-600 font-medium bg-blue-50"
                 )}
               >
-                <link.icon className="w-5 h-5" />
+                <link.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
                 {link.title}
+                {pathname === link.href && (
+                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-blue-600 rounded-full" />
+                )}
               </Link>
             ))}
           </div>
 
-          {/* Resume Upload Button - PROMINENT PLACEMENT */}
-          <div className="hidden md:flex items-center">
+          {/* Resume Upload Button - Enhanced Design */}
+          <div className="hidden lg:flex items-center">
             <button
               onClick={() => {
                 if (pathname === '/') {
@@ -90,91 +96,98 @@ export default function MainNavigation({
                   router.push('/#resume-upload-section');
                 }
               }}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
             >
               <Upload className="w-4 h-4" />
-              Upload Resume
+              <span className="hidden xl:inline">Upload Resume</span>
+              <span className="xl:hidden">Upload</span>
             </button>
           </div>
 
-          {/* Right Side - User Menu & Actions */}
-          <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          {/* Right Side - Enhanced User Actions */}
+          <div className="flex items-center space-x-2 lg:space-x-4">
+            {/* Notifications - Enhanced */}
+            <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
               <Bell className="w-5 h-5" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
 
-            {/* Messages */}
-            <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            {/* Messages - Enhanced */}
+            <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
               <MessageSquare className="w-5 h-5" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
 
-            {/* User Menu */}
+            {/* User Menu - Enhanced */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="p-2">
+                <Button variant="ghost" className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110">
                   <User className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-64 p-2">
+                <DropdownMenuLabel className="text-base font-semibold text-gray-900">My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="w-4 h-4 mr-2" />
-                  Profile
+                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <User className="w-4 h-4 text-gray-600" />
+                  <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
+                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Settings className="w-4 h-4 text-gray-600" />
+                  <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <FileTextIcon className="w-4 h-4 mr-2" />
-                  My Resumes
+                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <FileTextIcon className="w-4 h-4 text-gray-600" />
+                  <span>My Resumes</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <BarChartIcon className="w-4 h-4 mr-2" />
-                  Dashboard
+                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <BarChartIcon className="w-4 h-4 text-gray-600" />
+                  <span>Dashboard</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors">
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Enhanced */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              className="lg:hidden p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300"
             >
               {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Enhanced Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
-            <div className="space-y-2">
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="lg:hidden border-t border-gray-200/50 py-6 bg-white/95 backdrop-blur-md"
+          >
+            <div className="space-y-3">
               {navLinks.map((link) => (
                 <Link
                   key={link.title}
                   href={link.href}
                   onClick={closeMenu}
                   className={cn(
-                    "block px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors",
-                    pathname === link.href && "text-blue-600 bg-blue-50"
+                    "flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300",
+                    pathname === link.href && "text-blue-600 bg-blue-50 font-medium"
                   )}
                 >
-                  <div className="flex items-center gap-2">
-                    <link.icon className="w-5 h-5" />
-                    {link.title}
-                  </div>
+                  <link.icon className="w-5 h-5" />
+                  {link.title}
                 </Link>
               ))}
               
-              {/* Mobile Resume Upload Button */}
+              {/* Mobile Resume Upload Button - Enhanced */}
               <button
                 onClick={() => {
                   closeMenu();
@@ -184,13 +197,13 @@ export default function MainNavigation({
                     router.push('/#resume-upload-section');
                   }
                 }}
-                className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl active:scale-95"
               >
                 <Upload className="w-5 h-5" />
                 Upload Resume
               </button>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </nav>
