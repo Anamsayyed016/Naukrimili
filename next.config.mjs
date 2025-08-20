@@ -29,6 +29,9 @@ const nextConfig = {
     removeConsole: true, // Remove all console logs in production
   },
 
+  // Typed routes (moved from experimental in Next.js 15)
+  typedRoutes: true,
+
   // Experimental features for performance
   experimental: {
     optimizeCss: true,
