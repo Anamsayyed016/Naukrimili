@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, FileText, Upload, X } from 'lucide-react';
+import { CheckCircle, FileText, Upload, X, AlertCircle, LogIn, User } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import ProfileCompletionForm from './ProfileCompletionForm';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 interface ResumeUploadProps {
 	userId?: string;
@@ -14,12 +16,77 @@ interface ResumeUploadProps {
 }
 
 export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) {
+	const { data: session, status } = useSession();
 	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
 	const [resumeData, setResumeData] = useState<any>(null);
 	const [resumeId, setResumeId] = useState<string | null>(null);
 	const [showForm, setShowForm] = useState(false);
+	const [uploadError, setUploadError] = useState<string | null>(null);
+
+	// Check if user is authenticated
+	const isAuthenticated = status === 'authenticated';
+	const isLoading = status === 'loading';
+
+	// Show login prompt if not authenticated
+	if (isLoading) {
+		return (
+			<div className="max-w-md mx-auto p-6">
+				<Card className="text-center">
+					<CardContent className="pt-6">
+						<div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+						<h2 className="text-xl font-semibold text-gray-900 mb-2">
+							Loading...
+						</h2>
+						<p className="text-sm text-gray-600">
+							Please wait while we check your authentication status.
+						</p>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
+
+	if (!isAuthenticated) {
+		return (
+			<div className="max-w-md mx-auto p-6">
+				<Card className="text-center border-blue-200">
+					<CardContent className="pt-6">
+						<User className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+						<h2 className="text-2xl font-bold text-gray-900 mb-2">
+							Login Required
+						</h2>
+						<p className="text-sm text-gray-600 mb-4">
+							You need to be logged in to upload your resume and access your profile.
+						</p>
+						
+						<div className="space-y-3">
+							<Link href="/auth/login">
+								<Button className="w-full" size="lg">
+									<LogIn className="h-4 w-4 mr-2" />
+									Login to Continue
+								</Button>
+							</Link>
+							
+							<Link href="/auth/register">
+								<Button variant="outline" className="w-full">
+									<FileText className="h-4 w-4 mr-2" />
+									Create Account
+								</Button>
+							</Link>
+						</div>
+						
+						<div className="mt-4 p-3 bg-blue-50 rounded-lg">
+							<p className="text-xs text-blue-700">
+								<strong>Why login?</strong> We need to know who you are to save your resume and show you personalized job recommendations.
+							</p>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
 
 	const onDrop = useCallback(async (acceptedFiles: File[]) => {
 		if (acceptedFiles.length === 0) return;
@@ -28,11 +95,14 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 		setUploadedFile(file);
 		setIsUploading(true);
 		setUploadProgress(0);
-		setShowForm(false); // Reset form state
+		setShowForm(false);
+		setUploadError(null); // Reset error state
 
 		let progressInterval: NodeJS.Timeout;
 
 		try {
+			console.log('🚀 Starting resume upload process for user:', session?.user?.email);
+			
 			// Simulate upload progress
 			progressInterval = setInterval(() => {
 				setUploadProgress(prev => {
@@ -51,14 +121,29 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 			uploadFormData.append('experienceLevel', 'Mid-level');
 			uploadFormData.append('industryType', 'Technology');
 
-			console.log('📤 Uploading resume...');
+			console.log('📤 Uploading resume to /api/resumes/upload...');
 			const uploadResponse = await fetch('/api/resumes/upload', {
 				method: 'POST',
 				body: uploadFormData,
 			});
 
+			console.log('📥 Upload response status:', uploadResponse.status);
+			console.log('📥 Upload response headers:', Object.fromEntries(uploadResponse.headers.entries()));
+
 			if (!uploadResponse.ok) {
-				throw new Error('Resume upload failed');
+				const errorText = await uploadResponse.text();
+				console.error('❌ Upload failed with status:', uploadResponse.status);
+				console.error('❌ Error response:', errorText);
+				
+				let errorMessage = 'Resume upload failed';
+				try {
+					const errorData = JSON.parse(errorText);
+					errorMessage = errorData.error || errorData.message || errorMessage;
+				} catch (e) {
+					console.warn('Could not parse error response as JSON');
+				}
+				
+				throw new Error(`Upload failed (${uploadResponse.status}): ${errorMessage}`);
 			}
 
 			const uploadResult = await uploadResponse.json();
@@ -72,7 +157,7 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 			const analysisFormData = new FormData();
 			analysisFormData.append('resume', file);
 
-			console.log('🧠 Analyzing resume...');
+			console.log('🧠 Analyzing resume with AI...');
 			const analysisResponse = await fetch('/api/resumes/autofill', {
 				method: 'POST',
 				body: analysisFormData,
@@ -105,10 +190,10 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 					console.warn('AI analysis failed, showing form with basic data:', analysisResult.error);
 					setResumeId(uploadResult.resumeId);
 					
-					// Create basic profile data from file info
+					// Create basic profile data from file info and user session
 					const basicData = {
-						fullName: file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
-						email: '',
+						fullName: session?.user?.name || file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
+						email: session?.user?.email || '',
 						phone: '',
 						location: 'Bangalore, Karnataka',
 						jobTitle: 'Software Engineer',
@@ -135,10 +220,10 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 				console.warn('Analysis API failed, showing form with basic data');
 				setResumeId(uploadResult.resumeId);
 				
-				// Create basic profile data from file info
+				// Create basic profile data from file info and user session
 				const basicData = {
-					fullName: file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
-					email: '',
+					fullName: session?.user?.name || file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
+					email: session?.user?.email || '',
 					phone: '',
 					location: 'Bangalore, Karnataka',
 					jobTitle: 'Software Engineer',
@@ -166,15 +251,19 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 			setUploadProgress(0);
 			setIsUploading(false);
 			
+			// Set error state for better user feedback
+			const errorMessage = error instanceof Error ? error.message : 'Failed to upload resume';
+			setUploadError(errorMessage);
+			
 			toast({
 				title: 'Upload Failed',
-				description: error instanceof Error ? error.message : 'Failed to upload resume',
+				description: errorMessage,
 				variant: 'destructive',
 			});
 		} finally {
 			setIsUploading(false);
 		}
-	}, []);
+	}, [session]);
 
 	const onDropRejected = useCallback((rejectedFiles: { file: File; errors: { code: string; message: string }[] }[]) => {
 		toast({
@@ -211,10 +300,19 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 		setShowForm(false);
 		setResumeId(null);
 		setUploadProgress(0);
+		setUploadError(null);
 	};
 
 	const handleCloseForm = () => {
 		setShowForm(false);
+	};
+
+	const handleRetryUpload = () => {
+		setUploadError(null);
+		setUploadedFile(null);
+		setResumeData(null);
+		setResumeId(null);
+		setUploadProgress(0);
 	};
 
 	// Format resume data for better auto-fill
@@ -222,8 +320,8 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 		if (!data) return {};
 		
 		return {
-			fullName: data.fullName || data.name || '',
-			email: data.email || '',
+			fullName: data.fullName || data.name || session?.user?.name || '',
+			email: data.email || session?.user?.email || '',
 			phone: data.phone || '',
 			location: data.location || '',
 			jobTitle: data.jobTitle || data.title || '',
@@ -249,6 +347,11 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 						<p className="text-sm text-gray-600 mt-2">
 							AI has extracted information from your resume. Review and edit as needed.
 						</p>
+						<div className="mt-2 p-2 bg-green-50 rounded-lg">
+							<p className="text-xs text-green-700">
+								<strong>Welcome back, {session?.user?.name}!</strong> Your resume has been uploaded and linked to your account.
+							</p>
+						</div>
 					</CardHeader>
 					<CardContent>
 						<div className="mb-6 p-4 bg-blue-50 rounded-lg">
@@ -266,6 +369,45 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 							onComplete={handleFormComplete}
 							onClose={handleCloseForm}
 						/>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
+
+	// Show upload error state
+	if (uploadError) {
+		return (
+			<div className="max-w-md mx-auto p-6">
+				<Card className="text-center border-red-200">
+					<CardContent className="pt-6">
+						<AlertCircle className="h-16 w-16 text-red-600 mx-auto mb-4" />
+						<h2 className="text-2xl font-bold text-gray-900 mb-2">
+							Upload Failed
+						</h2>
+						<p className="text-sm text-red-600 mb-4">
+							{uploadError}
+						</p>
+						
+						<div className="space-y-3">
+							<Button 
+								onClick={handleRetryUpload}
+								className="w-full"
+								size="lg"
+							>
+								<Upload className="h-4 w-4 mr-2" />
+								Try Again
+							</Button>
+							
+							<Button 
+								variant="outline"
+								onClick={handleRetryUpload}
+								className="w-full"
+							>
+								<X className="h-4 w-4 mr-2" />
+								Upload Different File
+							</Button>
+						</div>
 					</CardContent>
 				</Card>
 			</div>
@@ -298,12 +440,7 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 							
 							<Button 
 								variant="outline"
-								onClick={() => {
-									setUploadedFile(null);
-									setResumeData(null);
-									setResumeId(null);
-									setUploadProgress(0);
-								}}
+								onClick={handleRetryUpload}
 								className="w-full"
 							>
 								<X className="h-4 w-4 mr-2" />
@@ -346,7 +483,7 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 		);
 	}
 
-	// Show upload interface
+	// Show upload interface for authenticated users
 	return (
 		<div className="max-w-2xl mx-auto p-6">
 			<Card>
@@ -355,6 +492,9 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 						Upload Your Resume
 					</CardTitle>
 					<p className="text-center text-gray-600 mt-2">
+						Welcome back, <span className="font-semibold text-blue-600">{session?.user?.name}</span>!
+					</p>
+					<p className="text-center text-gray-600 mt-1">
 						Upload your resume and we'll automatically fill your profile
 					</p>
 				</CardHeader>
@@ -391,6 +531,11 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 						<p className="text-sm text-gray-500">
 							Your resume will be analyzed by AI to automatically fill your profile
 						</p>
+						<div className="mt-2 p-2 bg-blue-50 rounded-lg">
+							<p className="text-xs text-blue-700">
+								<strong>Your data is secure:</strong> This resume will be linked to your account ({session?.user?.email}) and stored privately.
+							</p>
+						</div>
 					</div>
 				</CardContent>
 			</Card>

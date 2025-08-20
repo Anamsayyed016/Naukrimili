@@ -21,6 +21,8 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "node scripts/seed-database.js",
+    "db:seed:users": "node scripts/seed-users.js",
+    "test:resume": "node test-resume-upload.js",
     "deploy:prod": "npm run build && npm start",
     "deploy:pm2": "pm2 start ecosystem.pm2.js --env production",
     "deploy:pm2:reload": "pm2 reload ecosystem.pm2.js --env production",
