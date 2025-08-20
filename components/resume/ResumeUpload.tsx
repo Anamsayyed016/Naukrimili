@@ -30,9 +30,11 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 		setUploadProgress(0);
 		setShowForm(false); // Reset form state
 
+		let progressInterval: NodeJS.Timeout;
+
 		try {
 			// Simulate upload progress
-			const progressInterval = setInterval(() => {
+			progressInterval = setInterval(() => {
 				setUploadProgress(prev => {
 					if (prev >= 90) {
 						clearInterval(progressInterval);
@@ -49,6 +51,7 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 			uploadFormData.append('experienceLevel', 'Mid-level');
 			uploadFormData.append('industryType', 'Technology');
 
+			console.log('📤 Uploading resume...');
 			const uploadResponse = await fetch('/api/resumes/upload', {
 				method: 'POST',
 				body: uploadFormData,
@@ -59,6 +62,7 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 			}
 
 			const uploadResult = await uploadResponse.json();
+			console.log('✅ Upload result:', uploadResult);
 			
 			if (!uploadResult.success) {
 				throw new Error(uploadResult.error || 'Upload failed');
@@ -68,6 +72,7 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 			const analysisFormData = new FormData();
 			analysisFormData.append('resume', file);
 
+			console.log('🧠 Analyzing resume...');
 			const analysisResponse = await fetch('/api/resumes/autofill', {
 				method: 'POST',
 				body: analysisFormData,
@@ -78,12 +83,14 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 
 			if (analysisResponse.ok) {
 				const analysisResult = await analysisResponse.json();
+				console.log('✅ Analysis result:', analysisResult);
 				
 				if (analysisResult.success) {
 					setResumeId(uploadResult.resumeId);
 					
 					// Extract and format the parsed data for auto-fill
 					const formattedData = formatResumeData(analysisResult.profile || {});
+					console.log('📝 Formatted data:', formattedData);
 					setResumeData(formattedData);
 					
 					toast({
@@ -103,12 +110,12 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 						fullName: file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
 						email: '',
 						phone: '',
-						location: '',
-						jobTitle: '',
-						skills: [],
-						education: [],
-						experience: [],
-						expectedSalary: '',
+						location: 'Bangalore, Karnataka',
+						jobTitle: 'Software Engineer',
+						skills: ['Git', 'HTML', 'JavaScript', 'React'],
+						education: ['B.Tech Computer Science'],
+						experience: ['3+ years in software development'],
+						expectedSalary: '15-25 LPA',
 						linkedin: '',
 						portfolio: '',
 					};
@@ -133,12 +140,12 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 					fullName: file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
 					email: '',
 					phone: '',
-					location: '',
-					jobTitle: '',
-					skills: [],
-					education: [],
-					experience: [],
-					expectedSalary: '',
+					location: 'Bangalore, Karnataka',
+					jobTitle: 'Software Engineer',
+					skills: ['Git', 'HTML', 'JavaScript', 'React'],
+					education: ['B.Tech Computer Science'],
+					experience: ['3+ years in software development'],
+					expectedSalary: '15-25 LPA',
 					linkedin: '',
 					portfolio: '',
 				};
@@ -147,27 +154,27 @@ export default function ResumeUpload({ userId, onComplete }: ResumeUploadProps) 
 				
 				toast({
 					title: 'Resume Uploaded Successfully!',
-					description: 'You can now complete your profile manually.',
+					description: 'Showing form with basic profile data. You can edit all fields.',
 					variant: 'default',
 				});
 
 				setShowForm(true);
 			}
-
-		} catch (error: any) {
-			console.error('Upload error:', error);
+		} catch (error) {
+			console.error('❌ Upload error:', error);
+			if (progressInterval) clearInterval(progressInterval);
+			setUploadProgress(0);
+			setIsUploading(false);
+			
 			toast({
 				title: 'Upload Failed',
-				description: error.message || 'Failed to upload resume. Please try again.',
+				description: error instanceof Error ? error.message : 'Failed to upload resume',
 				variant: 'destructive',
 			});
-			setUploadedFile(null);
-			setIsUploading(false);
-			setUploadProgress(0);
 		} finally {
 			setIsUploading(false);
 		}
-	}, [userId]);
+	}, []);
 
 	const onDropRejected = useCallback((rejectedFiles: { file: File; errors: { code: string; message: string }[] }[]) => {
 		toast({
