@@ -34,7 +34,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         script: |
           echo "Starting deployment to Hostinger VPS..."
-          cd /root/jobportal
+          cd /home/root/jobportal
           git pull origin main
           npm install
           npm run build
