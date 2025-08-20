@@ -142,7 +142,7 @@ export const applicationApi = {
 export const resumeApi = {
   // Upload resume
   async uploadResume(file: File, onProgress?: (progress: number) => void): Promise<Resume> {
-    const response = await apiClient.upload<Resume>('/api/upload/resume', file, onProgress);
+    const response = await apiClient.upload<Resume>('/api/resumes/upload', file, onProgress);
     if (!response.success || !response.data) {
       throw new Error(response.error || 'Failed to upload resume');
     }
