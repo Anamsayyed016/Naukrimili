@@ -22,14 +22,15 @@
     "db:studio": "prisma studio",
     "db:seed": "node scripts/seed-database.js",
     "deploy:prod": "npm run build && npm start",
-    "deploy:pm2": "pm2 start ecosystem.config.js --env production",
-    "deploy:pm2:reload": "pm2 reload ecosystem.config.js --env production",
-    "deploy:pm2:stop": "pm2 stop naukrimili-jobportal",
-    "deploy:pm2:logs": "pm2 logs naukrimili-jobportal",
+    "deploy:pm2": "pm2 start ecosystem.pm2.js --env production",
+    "deploy:pm2:reload": "pm2 reload ecosystem.pm2.js --env production",
+    "deploy:pm2:stop": "pm2 stop jobportal",
+    "deploy:pm2:logs": "pm2 logs jobportal",
     "deploy:pm2:monit": "pm2 monit",
     "clean": "rm -rf .next out production",
     "production:build": "npm ci --only=production --legacy-peer-deps && npm run build",
-    "production:start": "NODE_ENV=production npm start"
+    "production:start": "NODE_ENV=production npm start",
+    "start:server": "node start-server.js"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
