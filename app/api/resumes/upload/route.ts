@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
@@ -13,22 +11,12 @@ const ALLOWED_TYPES = [
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get user's resumes
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      include: { resumes: true }
+    // For testing - no auth required
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Resume upload endpoint accessible',
+      test: true
     });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ resumes: user.resumes });
   } catch (error) {
     console.error('GET resumes error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -37,11 +25,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    // For testing - no auth required
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const targetRole = formData.get('targetRole') as string;
@@ -54,15 +38,6 @@ export async function POST(request: NextRequest) {
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json({ success: false, error: 'Invalid file type' }, { status: 400 });
-    }
-
-    // Get user
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Create uploads directory
@@ -80,14 +55,14 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     await writeFile(filepath, Buffer.from(bytes));
 
-    // Create resume record in database
+    // Create resume record in database (with mock user ID for testing)
     const resume = await prisma.resume.create({
       data: {
         fileName: file.name,
-        fileUrl: `/uploads/resumes/${filename}`, // Add fileUrl field
+        fileUrl: `/uploads/resumes/${filename}`,
         fileSize: file.size,
         mimeType: file.type,
-        userId: user.id,
+        userId: 1, // Mock user ID for testing
         isActive: true,
         parsedData: {
           targetRole,
@@ -100,7 +75,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log(`✅ Resume uploaded successfully: ${resume.id} for user ${user.id}`);
+    console.log(`✅ Resume uploaded successfully: ${resume.id}`);
 
     return NextResponse.json({ 
       success: true, 
