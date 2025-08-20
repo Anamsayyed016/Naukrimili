@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Edit3, Save, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { Edit3, Save, CheckCircle, AlertCircle, X, Plus, Star } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface Props {
@@ -38,6 +38,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	// Auto-fill form when initialData changes
 	useEffect(() => {
 		if (initialData) {
+			console.log('🔄 Updating form with initial data:', initialData);
 			setProfileData({
 				fullName: initialData.fullName || initialData.name || '',
 				email: initialData.email || '',
@@ -55,6 +56,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	}, [initialData]);
 
 	const handleInputChange = (field: string, value: string) => {
+		console.log(`📝 Updating ${field}:`, value);
 		setProfileData(prev => ({ ...prev, [field]: value }));
 	};
 
@@ -65,6 +67,10 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				skills: [...prev.skills, newSkill.trim()]
 			}));
 			setNewSkill('');
+			toast({
+				title: 'Skill Added',
+				description: `Added "${newSkill.trim()}" to your skills`,
+			});
 		}
 	};
 
@@ -73,6 +79,10 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			...prev,
 			skills: prev.skills.filter(skill => skill !== skillToRemove)
 		}));
+		toast({
+			title: 'Skill Removed',
+			description: `Removed "${skillToRemove}" from your skills`,
+		});
 	};
 
 	const handleSubmit = async () => {
@@ -98,88 +108,40 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					},
 					body: JSON.stringify({
 						content: {
-							parsedData: {
-								...profileData,
-								lastUpdated: new Date().toISOString(),
-								profileCompleted: true
-							}
+							...profileData,
+							updatedAt: new Date().toISOString()
 						}
 					}),
 				});
 
 				if (!response.ok) {
-					throw new Error('Failed to save to server');
-				}
-
-				const result = await response.json();
-				if (result.success) {
-					toast({
-						title: 'Profile Saved to Database!',
-						description: 'Your profile has been successfully saved to our database.',
-					});
+					throw new Error('Failed to save profile');
 				}
 			}
 
-			// Also update user profile in the main user table if possible
-			try {
-				const userUpdateResponse = await fetch('/api/user/profile', {
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						firstName: profileData.fullName.split(' ')[0] || '',
-						lastName: profileData.fullName.split(' ').slice(1).join(' ') || '',
-						email: profileData.email,
-						phone: profileData.phone,
-						location: profileData.location,
-						bio: `Job Title: ${profileData.jobTitle || 'Not specified'}`,
-						skills: profileData.skills,
-						experience: JSON.stringify(profileData.experience),
-						education: JSON.stringify(profileData.education)
-					}),
-				});
-
-				if (userUpdateResponse.ok) {
-					console.log('User profile updated successfully');
-				}
-			} catch (userUpdateError) {
-				console.log('User profile update failed (non-critical):', userUpdateError);
-			}
-
-			// Save profile data to localStorage as backup
-			localStorage.setItem('userProfile', JSON.stringify(profileData));
-			
-			// Save with timestamp
-			const profileWithMeta = {
-				...profileData,
-				savedAt: new Date().toISOString(),
-				resumeId: resumeId || null,
-			};
-			localStorage.setItem(`userProfile_${Date.now()}`, JSON.stringify(profileWithMeta));
-			
 			setSaveStatus('success');
-			
 			toast({
-				title: 'Profile Saved Successfully!',
-				description: 'Your profile has been updated and saved.',
+				title: 'Profile Saved!',
+				description: 'Your profile has been updated successfully',
 			});
 
-			// Auto-close success message after 2 seconds
-			setTimeout(() => {
-				setSaveStatus('idle');
-				if (onComplete) onComplete();
-			}, 2000);
+			if (onComplete) {
+				onComplete();
+			}
 
-		} catch (err) {
-			console.error('Save error:', err);
+			// Reset to idle after 2 seconds
+			setTimeout(() => setSaveStatus('idle'), 2000);
+		} catch (error) {
+			console.error('Save error:', error);
 			setSaveStatus('error');
-			
 			toast({
 				title: 'Save Failed',
 				description: 'Failed to save profile. Please try again.',
 				variant: 'destructive',
 			});
+
+			// Reset to idle after 3 seconds
+			setTimeout(() => setSaveStatus('idle'), 3000);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -190,7 +152,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			case 'saving':
 				return (
 					<>
-						<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+						<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
 						Saving...
 					</>
 				);
@@ -231,9 +193,10 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 
 	return (
 		<div className="max-w-4xl mx-auto">
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between">
-					<CardTitle className="text-2xl font-bold text-gray-900">
+			<Card className="shadow-lg border-0">
+				<CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50 border-b">
+					<CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+						<Star className="h-6 w-6 text-blue-600" />
 						Complete Your Profile
 					</CardTitle>
 					{onClose && (
@@ -241,16 +204,19 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							variant="ghost"
 							size="sm"
 							onClick={onClose}
-							className="h-8 w-8 p-0"
+							className="h-8 w-8 p-0 hover:bg-white/50"
 						>
 							<X className="h-4 w-4" />
 						</Button>
 					)}
 				</CardHeader>
-				<CardContent className="space-y-6">
+				<CardContent className="space-y-6 p-6">
 					{/* Personal Information */}
-					<div className="bg-gray-50 p-4 rounded-lg">
-						<h3 className="text-lg font-semibold mb-4 text-gray-800">Personal Information</h3>
+					<div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
+						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<Edit3 className="h-5 w-5 text-blue-600" />
+							Personal Information
+						</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div>
 								<Label htmlFor="fullName" className="text-gray-700 font-medium">Full Name *</Label>
@@ -259,7 +225,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.fullName}
 									onChange={(e) => handleInputChange('fullName', e.target.value)}
 									placeholder="Enter your full name"
-									className="mt-1"
+									className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 									required
 								/>
 							</div>
@@ -271,7 +237,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.email}
 									onChange={(e) => handleInputChange('email', e.target.value)}
 									placeholder="your.email@example.com"
-									className="mt-1"
+									className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 									required
 								/>
 							</div>
@@ -282,7 +248,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.phone}
 									onChange={(e) => handleInputChange('phone', e.target.value)}
 									placeholder="+91 98765 43210"
-									className="mt-1"
+									className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 								/>
 							</div>
 							<div>
@@ -292,15 +258,18 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.location}
 									onChange={(e) => handleInputChange('location', e.target.value)}
 									placeholder="City, State"
-									className="mt-1"
+									className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
 								/>
 							</div>
 						</div>
 					</div>
 
 					{/* Professional Information */}
-					<div className="bg-gray-50 p-4 rounded-lg">
-						<h3 className="text-lg font-semibold mb-4 text-gray-800">Professional Information</h3>
+					<div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
+						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<Edit3 className="h-5 w-5 text-green-600" />
+							Professional Information
+						</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div>
 								<Label htmlFor="jobTitle" className="text-gray-700 font-medium">Job Title</Label>
@@ -309,7 +278,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.jobTitle}
 									onChange={(e) => handleInputChange('jobTitle', e.target.value)}
 									placeholder="e.g., Senior Software Engineer"
-									className="mt-1"
+									className="mt-1 border-gray-300 focus:border-green-500 focus:ring-green-500"
 								/>
 							</div>
 							<div>
@@ -319,50 +288,63 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.expectedSalary}
 									onChange={(e) => handleInputChange('expectedSalary', e.target.value)}
 									placeholder="e.g., 15-25 LPA"
-									className="mt-1"
+									className="mt-1 border-gray-300 focus:border-green-500 focus:ring-green-500"
 								/>
 							</div>
 						</div>
 					</div>
 
-					{/* Skills */}
-					<div className="bg-gray-50 p-4 rounded-lg">
-						<h3 className="text-lg font-semibold mb-4 text-gray-800">Skills</h3>
-						<div className="flex flex-wrap gap-2 mb-3">
+					{/* Skills - Enhanced UI */}
+					<div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
+						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<Star className="h-5 w-5 text-purple-600" />
+							Skills & Expertise
+						</h3>
+						<div className="flex flex-wrap gap-3 mb-4">
 							{profileData.skills.map((skill: string, index: number) => (
-								<span key={index} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold text-gray-700 bg-blue-100 border-blue-200">
+								<span key={index} className="inline-flex items-center rounded-full border-2 px-3 py-1.5 text-sm font-semibold text-purple-700 bg-purple-100 border-purple-300 hover:bg-purple-200 transition-colors">
 									{skill}
 									<button
 										type="button"
 										onClick={() => removeSkill(skill)}
-										className="ml-1 text-blue-600 hover:text-blue-800"
+										className="ml-2 text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded-full p-0.5 transition-colors"
 									>
 										<X className="h-3 w-3" />
 									</button>
 								</span>
 							))}
 						</div>
-						<div className="flex gap-2">
+						<div className="flex gap-3">
 							<Input
 								value={newSkill}
 								onChange={(e) => setNewSkill(e.target.value)}
-								placeholder="Add a skill"
-								className="flex-1"
+								placeholder="Add a skill (e.g., React, Python, Leadership)"
+								className="flex-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
 								onKeyPress={(e) => e.key === 'Enter' && addSkill()}
 							/>
-							<Button type="button" onClick={addSkill} variant="outline" size="sm">
+							<Button 
+								type="button" 
+								onClick={addSkill} 
+								variant="outline" 
+								size="sm"
+								className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400"
+							>
+								<Plus className="h-4 w-4 mr-1" />
 								Add
 							</Button>
 						</div>
+						<p className="text-sm text-gray-600 mt-2">
+							💡 Add relevant skills to improve your job matches
+						</p>
 					</div>
 
 					{/* Action Buttons */}
-					<div className="flex gap-3 pt-4 border-t">
+					<div className="flex gap-3 pt-6 border-t border-gray-200">
 						<Button
 							onClick={handleSubmit}
 							disabled={isSubmitting || saveStatus === 'saving'}
 							variant={getSaveButtonVariant()}
-							className="flex-1"
+							className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3"
 							size="lg"
 						>
 							{getSaveButtonContent()}
@@ -372,7 +354,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<Button
 								variant="outline"
 								onClick={onClose}
-								className="border-gray-300 text-gray-700 hover:bg-gray-50"
+								className="border-gray-300 text-gray-700 hover:bg-gray-50 py-3"
 								size="lg"
 							>
 								Close
