@@ -3,44 +3,40 @@ name: Deploy to Hostinger VPS
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+      
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
-    
+        
     - name: Build application
-      run: npm ci && npm run build
+      run: |
+        npm ci
+        npm run build
       env:
         NODE_ENV: production
         
-    - name: Install sshpass
-      run: sudo apt-get update && sudo apt-get install -y sshpass
-
     - name: Deploy to Hostinger VPS
-      run: |
-        sshpass -p 'Anamsayyed--16' ssh -o StrictHostKeyChecking=no root@69.62.73.84 << 'EOF'
-          echo "🚀 Starting deployment to Hostinger VPS..."
-          cd /home/root/jobportal
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          echo "Starting deployment to Hostinger VPS..."
+          cd /root/jobportal
           git pull origin main
-          npm ci --production
+          npm install
           npm run build
-          pm2 restart jobportal || pm2 start npm --name "jobportal" -- start
-          pm2 save
-          echo "✅ Deployment completed successfully!"
-          echo "🌐 Your website is now live at: https://aftionix.in"
-        EOF
-          
-    - name: Deployment status
-      run: |
-        echo "🎉 Deployment workflow completed!"
-        echo "Your job portal is now live at: https://aftionix.in"
+          pm2 restart jobportal
+          echo "Deployment completed successfully!"
