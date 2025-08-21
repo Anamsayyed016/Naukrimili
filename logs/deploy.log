@@ -1,0 +1,7 @@
+[2025-08-21 16:10:30] [INFO] Setting up deployment environment...
+[2025-08-21 16:10:31] [SUCCESS] Directories created successfully
+[2025-08-21 16:10:35] [INFO] Checking prerequisites...
+[2025-08-21 16:10:36] [INFO] Node.js version: v22.16.0
+[2025-08-21 16:10:38] [INFO] npm version: 11.4.1
+[2025-08-21 16:10:45] [INFO] PM2 version: [32m[PM2] [39mSpawning PM2 daemon with pm2_home=C:\Users\anams\.pm2 [32m[PM2] [39mPM2 Successfully daemonized 6.0.8
+[2025-08-21 16:10:45] [SUCCESS] All prerequisites are satisfied
