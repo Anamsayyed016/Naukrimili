@@ -89,6 +89,7 @@
     "google-auth-library": "^10.1.0",
     "googleapis": "^154.0.0",
     "input-otp": "^1.4.2",
+    "ioredis": "^5.7.0",
     "isomorphic-dompurify": "^2.15.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.525.0",

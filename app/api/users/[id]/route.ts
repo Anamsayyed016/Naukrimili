@@ -6,92 +6,65 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/nextauth-config";
+import { requireAdminAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-
-async function requireAdminAuth(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return { error: "Unauthorized", status: 401 };
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id }
-  });
-
-  if (!user || user.role !== "admin") {
-    return { error: "Access denied. Admin account required.", status: 403 };
-  }
-
-  return { user };
-}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const auth = await requireAdminAuth(request);
-    if ("error" in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const authResult = await requireAdminAuth();
+    if ('error' in authResult) {
+      return NextResponse.json(
+        { error: authResult.error },
+        { status: authResult.status }
+      );
     }
 
-    const userId = params.id;
+    const userId = parseInt(params.id, 10);
+    
+    if (isNaN(userId)) {
+      return NextResponse.json(
+        { error: 'Invalid user ID' },
+        { status: 400 }
+      );
+    }
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
-        _count: {
-          select: {
-            applications: true,
-            createdJobs: true,
-            createdCompanies: true,
-            resumes: true
-          }
-        },
-        createdJobs: {
-          take: 5,
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            title: true,
-            location: true,
-            isActive: true,
-            createdAt: true
-          }
-        },
-        applications: {
-          take: 5,
-          orderBy: { appliedAt: "desc" },
-          select: {
-            id: true,
-            status: true,
-            appliedAt: true,
-            job: {
-              select: {
-                id: true,
-                title: true,
-                company: true
-              }
-            }
-          }
-        }
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        location: true,
+        skills: true,
+        isActive: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+        profilePicture: true
       }
     });
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
       success: true,
       data: user
     });
-
   } catch (error) {
-    console.error("Error fetching user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error('Error fetching user:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch user' },
+      { status: 500 }
+    );
   }
 }
 
@@ -100,24 +73,20 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const auth = await requireAdminAuth(request);
-    if ("error" in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const userId = parseInt(params.id, 10);
+    
+    if (isNaN(userId)) {
+      return NextResponse.json(
+        { error: 'Invalid user ID' },
+        { status: 400 }
+      );
     }
 
-    const userId = params.id;
     const body = await request.json();
-
     const {
       name,
-      email,
-      role,
-      phone,
       location,
-      bio,
       skills,
-      experience,
-      education,
       isActive,
       isVerified
     } = body;
@@ -125,29 +94,26 @@ export async function PUT(
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        name: name || undefined,
-        email: email || undefined,
-        role: role || undefined,
-        phone: phone || undefined,
-        location: location || undefined,
-        bio: bio || undefined,
-        skills: skills || undefined,
-        experience: experience || undefined,
-        education: education || undefined,
-        isActive: isActive !== undefined ? isActive : undefined,
-        isVerified: isVerified !== undefined ? isVerified : undefined
+        name,
+        location,
+        skills,
+        isActive,
+        isVerified,
+        updatedAt: new Date()
       }
     });
 
     return NextResponse.json({
       success: true,
       data: updatedUser,
-      message: "User updated successfully"
+      message: 'User updated successfully'
     });
-
   } catch (error) {
-    console.error("Error updating user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error('Error updating user:', error);
+    return NextResponse.json(
+      { error: 'Failed to update user' },
+      { status: 500 }
+    );
   }
 }
 
@@ -156,12 +122,14 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const auth = await requireAdminAuth(request);
-    if ("error" in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const userId = parseInt(params.id, 10);
+    
+    if (isNaN(userId)) {
+      return NextResponse.json(
+        { error: 'Invalid user ID' },
+        { status: 400 }
+      );
     }
-
-    const userId = params.id;
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -169,22 +137,31 @@ export async function DELETE(
     });
 
     if (!existingUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
     }
 
-    // Delete user (this will cascade to related records)
-    await prisma.user.delete({
-      where: { id: userId }
+    // Soft delete by setting isActive to false
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        isActive: false,
+        updatedAt: new Date()
+      }
     });
 
     return NextResponse.json({
       success: true,
-      message: "User deleted successfully"
+      message: 'User deactivated successfully'
     });
-
   } catch (error) {
-    console.error("Error deleting user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error('Error deactivating user:', error);
+    return NextResponse.json(
+      { error: 'Failed to deactivate user' },
+      { status: 500 }
+    );
   }
 }
 

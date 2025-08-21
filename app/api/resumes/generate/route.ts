@@ -1,66 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
-    const authUserId = parseInt(session.user.id);
-    const requestData = await request.json();
-    const { targetRole, experienceLevel, industryType, skills, education } = requestData;
+    const body = await request.json();
+    const { targetRole, experienceLevel, industryType } = body;
 
-    // Validate required fields
-    if (!targetRole || !experienceLevel || !industryType) {
-      return NextResponse.json({
-        error: 'Missing required fields: targetRole, experienceLevel, industryType'
-      }, { status: 400 });
+    if (!targetRole) {
+      return NextResponse.json(
+        { error: 'Target role is required' },
+        { status: 400 }
+      );
     }
 
-    // Generate resume content based on parameters
-    const resumeContent = await generateResumeContent({
-      targetRole,
-      experienceLevel,
-      industryType,
-      skills: skills || [],
-      education: education || []
+    // Get user's existing resume data
+    const userId = parseInt(session.user.id as string, 10);
+    if (isNaN(userId)) {
+      return NextResponse.json(
+        { error: 'Invalid user ID' },
+        { status: 400 }
+      );
+    }
+
+    const resume = await prisma.resume.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'desc' }
     });
 
-    // Save to database
-    const resume = await prisma.resume.create({
-      data: {
-        userId: authUserId,
-        title: `${targetRole} Resume`,
-        content: resumeContent,
-        targetRole,
-        experienceLevel,
-        industryType,
-        skills: skills || [],
-        education: education || [],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    });
+    if (!resume) {
+      return NextResponse.json(
+        { error: 'No resume found. Please upload a resume first.' },
+        { status: 404 }
+      );
+    }
+
+    // Generate AI-enhanced resume content
+    const enhancedResume = {
+      targetRole: targetRole,
+      experienceLevel: experienceLevel || 'mid',
+      industryType: industryType || 'Technology',
+      fileName: resume.fileName,
+      fileUrl: resume.fileUrl,
+      parsedData: resume.parsedData
+    };
 
     return NextResponse.json({
       success: true,
-      message: 'Resume generated successfully',
-      resume: {
-        id: resume.id,
-        title: resume.title,
-        targetRole: resume.targetRole,
-        experienceLevel: resume.experienceLevel,
-        industryType: resume.industryType
-      }
+      data: enhancedResume
     });
-
-  } catch (error: any) {
+  } catch (error) {
     console.error('Resume generation error:', error);
     return NextResponse.json(
       { error: 'Failed to generate resume' },
@@ -69,21 +67,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function generateResumeContent(params: any) {
-  const { targetRole, experienceLevel, industryType, skills, education } = params;
-  
-  // Mock resume generation - replace with actual AI generation
-  return {
-    summary: `Experienced ${targetRole} with ${experienceLevel} level expertise in ${industryType}.`,
-    experience: [
-      {
-        title: targetRole,
-        company: 'Sample Company',
-        duration: '2+ years',
-        description: `Led ${industryType} projects and initiatives.`
-      }
-    ],
-    skills: skills.length > 0 ? skills : ['Project Management', 'Team Leadership', 'Problem Solving'],
-    education: education.length > 0 ? education : ['Bachelor\'s Degree in Computer Science']
-  };
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200 });
 }

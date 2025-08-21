@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/nextauth-config';
+import { requireAdminAuth } from '@/lib/auth-utils';
 import { z } from 'zod';
-
-interface AuthenticatedUser {
-  id: string;
-  email: string;
-  name?: string;
-  role?: string;
-}
 
 const jobActionSchema = z.object({
   action: z.enum(['approve', 'reject', 'feature', 'unfeature', 'activate', 'deactivate', 'delete']),
@@ -17,31 +9,13 @@ const jobActionSchema = z.object({
   reason: z.string().optional()
 });
 
-async function requireAdminAuth(request: NextRequest): Promise<{ user: AuthenticatedUser | null; response: NextResponse | null }> {
-  const session = await getServerSession(authOptions as any);
-  if (!session || typeof session !== 'object' || !session.user || typeof session.user !== 'object') {
-    return { user: null, response: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }) };
-  }
-  
-  const user = session.user as any;
-  if (!user.email || user.role !== 'admin') {
-    return { user: null, response: NextResponse.json({ success: false, error: 'Admin access required' }, { status: 403 }) };
-  }
-  
-  return { 
-    user: {
-      id: user.id || user.email,
-      email: user.email,
-      name: user.name,
-      role: user.role
-    }, 
-    response: null 
-  };
-}
-
 export async function GET(request: NextRequest) {
-  const { user, response } = await requireAdminAuth(request);
-  if (!user) return response!;
+  const auth = await requireAdminAuth();
+  if ("error" in auth) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  const { user } = auth;
 
   try {
     const { searchParams } = new URL(request.url);
@@ -98,17 +72,17 @@ export async function GET(request: NextRequest) {
         include: {
           companyRelation: {
             select: {
+              id: true,
               name: true,
               logo: true,
-              industry: true,
-              isVerified: true
+              industry: true
             }
           },
           creator: {
             select: {
+              id: true,
               name: true,
-              email: true,
-              role: true
+              email: true
             }
           },
           _count: {
@@ -126,33 +100,20 @@ export async function GET(request: NextRequest) {
     const transformedJobs = jobs.map(job => ({
       id: job.id,
       title: job.title,
-      company: job.company || job.companyRelation?.name,
-      companyLogo: job.companyLogo || job.companyRelation?.logo,
+      company: job.company,
       location: job.location,
-      country: job.country,
-      salary: job.salary,
       jobType: job.jobType,
       experienceLevel: job.experienceLevel,
-      isRemote: job.isRemote,
-      isHybrid: job.isHybrid,
-      isUrgent: job.isUrgent,
-      isFeatured: job.isFeatured,
       isActive: job.isActive,
-      sector: job.sector,
-      views: job.views,
-      applicationsCount: job.applicationsCount,
+      isFeatured: job.isFeatured,
+      isUrgent: job.isUrgent,
       createdAt: job.createdAt,
       updatedAt: job.updatedAt,
-      companyVerified: job.companyRelation?.isVerified || false,
-      companyIndustry: job.companyRelation?.industry,
-      creator: job.creator,
-      stats: {
-        applications: job._count.applications,
-        bookmarks: job._count.bookmarks
-      }
+      applicationsCount: job._count.applications,
+      bookmarksCount: job._count.bookmarks,
+      companyInfo: job.companyRelation,
+      creator: job.creator
     }));
-
-    const totalPages = Math.ceil(total / limit);
 
     return NextResponse.json({
       success: true,
@@ -162,36 +123,36 @@ export async function GET(request: NextRequest) {
           page,
           limit,
           total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1
+          totalPages: Math.ceil(total / limit)
         }
-      },
-      message: 'Jobs retrieved successfully'
+      }
     });
-
   } catch (error) {
     console.error('Admin jobs GET error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch jobs'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch jobs' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
-  const { user, response } = await requireAdminAuth(request);
-  if (!user) return response!;
+  const auth = await requireAdminAuth();
+  if ("error" in auth) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  const { user } = auth;
 
   try {
     const body = await request.json();
     const { action, jobIds, reason } = jobActionSchema.parse(body);
 
     if (!jobIds || jobIds.length === 0) {
-      return NextResponse.json({
-        success: false,
-        error: 'No job IDs provided'
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'No job IDs provided' },
+        { status: 400 }
+      );
     }
 
     let updateData: any = {};
@@ -223,75 +184,43 @@ export async function POST(request: NextRequest) {
         message = 'Jobs deactivated successfully';
         break;
       case 'delete':
-        // Delete jobs (be careful with this!)
+        // Delete jobs
         await prisma.job.deleteMany({
           where: { id: { in: jobIds } }
         });
-        message = 'Jobs deleted successfully';
-        break;
-      default:
         return NextResponse.json({
-          success: false,
-          error: 'Invalid action'
-        }, { status: 400 });
+          success: true,
+          message: 'Jobs deleted successfully'
+        });
+      default:
+        return NextResponse.json(
+          { success: false, error: 'Invalid action' },
+          { status: 400 }
+        );
     }
 
-    if (action !== 'delete') {
-      // Update jobs
-      await prisma.job.updateMany({
-        where: { id: { in: jobIds } },
-        data: updateData
-      });
-    }
-
-    // Log admin action
-    const adminAction = {
-      adminId: user.id,
-      action,
-      targetType: 'job',
-      targetIds: jobIds,
-      reason,
-      timestamp: new Date()
-    };
-
-    // You can store this in a separate admin_actions table if needed
-    // // console.log('Admin action:', adminAction);
+    // Update jobs
+    const updatedJobs = await prisma.job.updateMany({
+      where: { id: { in: jobIds } },
+      data: updateData
+    });
 
     return NextResponse.json({
       success: true,
       message,
       data: {
-        action,
-        affectedJobs: jobIds.length,
-        reason
+        updatedCount: updatedJobs.count
       }
     });
-
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid input data',
-        details: error.errors
-      }, { status: 400 });
-    }
-
     console.error('Admin jobs POST error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to process job action'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to perform job action' },
+      { status: 500 }
+    );
   }
 }
 
-// OPTIONS handler for CORS
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
+  return new NextResponse(null, { status: 200 });
 }

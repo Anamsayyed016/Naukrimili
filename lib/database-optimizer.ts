@@ -4,7 +4,7 @@
  */
 
 import { prisma } from './prisma';
-import { cacheService } from './redis';
+import { redisUtils } from './redis';
 
 // Cache TTL configurations
 const CACHE_TTL = {
@@ -44,7 +44,7 @@ export class DatabaseOptimizer {
     
     try {
       // Try to get from cache first
-      const cached = await cacheService.get(cacheKey);
+      const cached = await redisUtils.get(cacheKey);
       if (cached) {
         // // console.log(`⚡ Cache hit for job search: ${Date.now() - startTime}ms`);
         return cached;
@@ -225,10 +225,10 @@ export class DatabaseOptimizer {
       };
       
       // Cache results
-      await cacheService.setWithTags(
+      await redisUtils.setWithTags(
         cacheKey, 
-        results, 
-        ['jobs', 'search', `location:${params.location}`, `query:${params.query}`],
+        JSON.stringify(results), 
+        ['jobs', 'search', params.location || 'all'],
         CACHE_TTL.JOB_SEARCH
       );
       
@@ -249,8 +249,8 @@ export class DatabaseOptimizer {
     
     try {
       // Try cache first
-      const cached = await cacheService.get(cacheKey);
-      if (cached) return cached;
+      const cached = await redisUtils.get(cacheKey);
+      if (cached) return JSON.parse(cached);
       
       // Fetch from database
       const job = await prisma.job.findUnique({
@@ -280,7 +280,7 @@ export class DatabaseOptimizer {
       if (!job) return null;
       
       // Cache job details
-      await cacheService.set(cacheKey, job, CACHE_TTL.JOB_DETAILS);
+      await redisUtils.set(cacheKey, JSON.stringify(job), CACHE_TTL.JOB_DETAILS);
       
       return job;
       
@@ -293,60 +293,19 @@ export class DatabaseOptimizer {
   /**
    * Optimized location statistics with caching
    */
-  static async getLocationStats(location?: string, country?: string) {
-    const cacheKey = `location_stats:${location || 'all'}:${country || 'all'}`;
+  static async getLocationStats(location: string) {
+    const cacheKey = `location_stats:${location}`;
     
     try {
       // Try cache first
-      const cached = await cacheService.get(cacheKey);
-      if (cached) return cached;
+      const cached = await redisUtils.get(cacheKey);
+      if (cached) return JSON.parse(cached);
       
-      // Build where clause
-      const where: any = { isActive: true };
-      if (location) {
-        where.location = { contains: location, mode: 'insensitive' };
-      }
-      if (country) {
-        where.country = country;
-      }
-      
-      // Get statistics
-      const [totalJobs, avgSalary, jobTypes, sectors] = await Promise.all([
-        prisma.job.count({ where }),
-        prisma.job.aggregate({
-          where: { ...where, salaryMin: { not: null } },
-          _avg: { salaryMin: true, salaryMax: true }
-        }),
-        prisma.job.groupBy({
-          by: ['jobType'],
-          where,
-          _count: { _all: true }
-        }),
-        prisma.job.groupBy({
-          by: ['sector'],
-          where,
-          _count: { _all: true }
-        })
-      ]);
-      
-      const stats = {
-        totalJobs,
-        avgSalary: {
-          min: avgSalary._avg.salaryMin || 0,
-          max: avgSalary._avg.salaryMax || 0
-        },
-        jobTypes: jobTypes.map(t => ({
-          type: t.jobType,
-          count: t._count._all
-        })),
-        sectors: sectors.map(s => ({
-          sector: s.sector,
-          count: s._count._all
-        }))
-      };
+      // Fetch from database
+      const stats = await this.fetchLocationStatsFromDB(location);
       
       // Cache statistics
-      await cacheService.set(cacheKey, stats, CACHE_TTL.LOCATION_STATS);
+      await redisUtils.set(cacheKey, JSON.stringify(stats), CACHE_TTL.LOCATION_STATS);
       
       return stats;
       
@@ -357,11 +316,56 @@ export class DatabaseOptimizer {
   }
   
   /**
-   * Get database performance metrics
+   * Fetch location statistics from database
+   */
+  private static async fetchLocationStatsFromDB(location: string) {
+    const where: any = { isActive: true };
+    if (location && location !== 'all') {
+      where.location = { contains: location, mode: 'insensitive' };
+    }
+    
+    // Get statistics
+    const [totalJobs, avgSalary, jobTypes, sectors] = await Promise.all([
+      prisma.job.count({ where }),
+      prisma.job.aggregate({
+        where: { ...where, salaryMin: { not: null } },
+        _avg: { salaryMin: true, salaryMax: true }
+      }),
+      prisma.job.groupBy({
+        by: ['jobType'],
+        where,
+        _count: { _all: true }
+      }),
+      prisma.job.groupBy({
+        by: ['sector'],
+        where,
+        _count: { _all: true }
+      })
+    ]);
+    
+    return {
+      totalJobs,
+      avgSalary: {
+        min: avgSalary._avg.salaryMin || 0,
+        max: avgSalary._avg.salaryMax || 0
+      },
+      jobTypes: jobTypes.map(t => ({
+        type: t.jobType,
+        count: t._count._all
+      })),
+      sectors: sectors.map(s => ({
+        sector: s.sector,
+        count: s._count._all
+      }))
+    };
+  }
+
+  /**
+   * Get performance metrics
    */
   static async getPerformanceMetrics() {
     try {
-      const cacheStats = await cacheService.getStats();
+      const cacheStats = await redisUtils.getStats();
       
       return {
         cache: cacheStats,
@@ -387,7 +391,7 @@ export class DatabaseOptimizer {
    */
   static async clearCache(tags: string[]) {
     try {
-      await cacheService.invalidateByTags(tags);
+      await redisUtils.invalidateByTags(tags);
       // // console.log(`🧹 Cache cleared for tags: ${tags.join(', ')}`);
     } catch (error) {
       console.error('❌ Cache clear failed:', error);

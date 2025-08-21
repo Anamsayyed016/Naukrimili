@@ -1,43 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/nextauth-config";
+import { requireEmployerAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-
-async function requireEmployerAuth(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return { error: "Unauthorized", status: 401 };
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: { createdCompanies: true }
-  });
-
-  if (!user || user.role !== "employer" || !user.createdCompanies.length) {
-    return { error: "Access denied. Employer account required.", status: 403 };
-  }
-
-  return { user, company: user.createdCompanies[0] };
-}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const auth = await requireEmployerAuth(request);
+    const auth = await requireEmployerAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { company } = auth;
-    const applicationId = params.id;
+    const { user } = auth;
+    const applicationId = parseInt(params.id, 10);
+
+    if (isNaN(applicationId)) {
+      return NextResponse.json(
+        { error: "Invalid application ID" },
+        { status: 400 }
+      );
+    }
 
     const application = await prisma.application.findFirst({
       where: {
         id: applicationId,
-        companyId: company.id
+        job: { companyId: user.company.id }
       },
       include: {
         user: {
@@ -47,19 +35,23 @@ export async function GET(
             email: true,
             phone: true,
             location: true,
+            profilePicture: true,
             bio: true,
             skills: true,
             experience: true,
-            education: true,
-            profilePicture: true
+            education: true
           }
         },
         job: {
           select: {
             id: true,
             title: true,
+            company: true,
             location: true,
-            company: true
+            description: true,
+            salary: true,
+            jobType: true,
+            experienceLevel: true
           }
         },
         resume: {
@@ -67,61 +59,90 @@ export async function GET(
             id: true,
             fileName: true,
             fileUrl: true,
-            parsedData: true
+            atsScore: true
           }
         }
       }
     });
 
     if (!application) {
-      return NextResponse.json({ error: "Application not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Application not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
       success: true,
       data: application
     });
-
   } catch (error) {
     console.error("Error fetching application:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch application" },
+      { status: 500 }
+    );
   }
 }
 
-export async function PUT(
+export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const auth = await requireEmployerAuth(request);
+    const auth = await requireEmployerAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { company } = auth;
-    const applicationId = params.id;
+    const { user } = auth;
+    const applicationId = parseInt(params.id, 10);
     const body = await request.json();
-
     const { status, notes } = body;
 
-    // Check if application exists and belongs to company
+    if (isNaN(applicationId)) {
+      return NextResponse.json(
+        { error: "Invalid application ID" },
+        { status: 400 }
+      );
+    }
+
+    // Verify the application belongs to the employer's company
     const existingApplication = await prisma.application.findFirst({
       where: {
         id: applicationId,
-        companyId: company.id
+        job: { companyId: user.company.id }
       }
     });
 
     if (!existingApplication) {
-      return NextResponse.json({ error: "Application not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Application not found" },
+        { status: 404 }
+      );
     }
 
-    // Update application
     const updatedApplication = await prisma.application.update({
       where: { id: applicationId },
       data: {
-        status: status || undefined,
-        notes: notes || undefined
+        status: status || existingApplication.status,
+        notes: notes || existingApplication.notes,
+        updatedAt: new Date()
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
+        job: {
+          select: {
+            id: true,
+            title: true
+          }
+        }
       }
     });
 
@@ -130,10 +151,12 @@ export async function PUT(
       data: updatedApplication,
       message: "Application updated successfully"
     });
-
   } catch (error) {
     console.error("Error updating application:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update application" },
+      { status: 500 }
+    );
   }
 }
 

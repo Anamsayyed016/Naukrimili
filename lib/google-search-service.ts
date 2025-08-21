@@ -150,7 +150,7 @@ export class GoogleSearchService {
             location: params.location,
             filters: params,
             searchSuggestions: this.generateSearchSuggestions(params.query),
-            smartQueries: this.generateSmartQueries(params)
+            smartQueries: this.generateSmartQueries(params.query, params.location || '')
           }
         };
       }

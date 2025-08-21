@@ -116,7 +116,7 @@ export async function getJobById(id: string) {
     const isConnected = await checkDatabaseConnection();
     if (isConnected) {
       const job = await prisma.job.findUnique({
-        where: { id: parseInt(id) || 0 }
+        where: { id: parseInt(id, 10) }
       });
       if (job) return job;
     }
@@ -150,7 +150,7 @@ export async function getCompanyById(id: string) {
     const isConnected = await checkDatabaseConnection();
     if (isConnected) {
       const company = await prisma.company.findUnique({
-        where: { id }
+        where: { id: parseInt(id, 10) }
       });
       if (company) return company;
     }

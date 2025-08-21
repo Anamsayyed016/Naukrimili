@@ -18,18 +18,18 @@ export const jobSourceSchema = z.enum(['direct', 'api', 'internal']);
 
 // API Response Types with Validation
 export interface APIJobResponse {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  description: string;
-  type: z.infer<typeof jobTypeSchema>;
+  id?: string;
+  title?: string;
+  company?: string;
+  location?: string;
+  description?: string;
+  type?: z.infer<typeof jobTypeSchema>;
   salary?: {
-    formatted: string;
+    formatted?: string;
     details?: z.infer<typeof salarySchema>;
   };
-  status: z.infer<typeof jobStatusSchema>;
-  source: z.infer<typeof jobSourceSchema>;
+  status?: z.infer<typeof jobStatusSchema>;
+  source?: z.infer<typeof jobSourceSchema>;
   requirements?: string[];
   responsibilities?: string[];
   skills?: string[];
@@ -37,10 +37,10 @@ export interface APIJobResponse {
   department?: string;
   industry?: string;
   education?: string;
-  posted_date: string; // ISO date
+  posted_date?: string; // ISO date
   closing_date?: string; // ISO date
   application_count?: number;
-  is_remote: boolean;
+  is_remote?: boolean;
   is_urgent?: boolean;
   company_logo?: string;
   apply_url?: string;

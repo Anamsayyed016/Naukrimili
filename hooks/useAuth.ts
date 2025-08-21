@@ -8,14 +8,19 @@
 import { useSession, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from "next-auth/react";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import type { AuthState, BiometricState, Credentials, User } from "@/types/auth";
+import { User, UserRole, AuthState, BiometricState, Credentials } from '@/types/auth';
 
-export interface ExtendedUser extends User {
-  id: string;
-  email: string;
-  name?: string | null;
-  image?: string | null;
-  role: string;
+interface ExtendedUser extends User {
+  role: UserRole; // Use the correct UserRole type
+  isActive: boolean;
+  isVerified: boolean;
+  profilePicture?: string;
+  location?: string;
+  skills?: string[];
+  phone?: string;
+  bio?: string;
+  experience?: string;
+  education?: string;
   provider?: string;
   firstName?: string;
   lastName?: string;
@@ -195,7 +200,6 @@ export function useAuth(): AuthState & {
     isAuthenticated: status === 'authenticated',
     isLoading: status === 'loading',
     biometric: biometricState,
-    session: session as ExtendedSession | null,
     
     // OAuth-specific methods
     logout,

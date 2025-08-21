@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { join } from 'path';
 
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Create uploads directory
-    const uploadsDir = path.join(process.cwd(), 'uploads', 'resumes');
+    const uploadsDir = join(process.cwd(), 'uploads', 'resumes');
     await mkdir(uploadsDir, { recursive: true }).catch(() => {});
 
     // Generate unique filename
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     const originalName = file.name;
     const safeName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
     const filename = `${timestamp}_${safeName}`;
-    const filepath = path.join(uploadsDir, filename);
+    const filepath = join(uploadsDir, filename);
 
     console.log('💾 Saving file to:', filepath);
 

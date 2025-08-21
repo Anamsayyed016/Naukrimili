@@ -1,48 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/nextauth-config';
+import { requireAuth } from '@/lib/auth-utils';
 import { z } from 'zod';
 
 const applicationSchema = z.object({
   jobId: z.number().int().positive(),
   coverLetter: z.string().optional(),
-  resumeId: z.string().optional(),
+  resumeId: z.number().int().positive().optional(),
   notes: z.string().optional()
 });
 
-interface AuthenticatedUser {
-  id: string;
-  email: string;
-  name?: string;
-  role?: string;
-}
-
-async function requireAuth(request: NextRequest): Promise<{ user: AuthenticatedUser | null; response: NextResponse | null }> {
-  const session = await getServerSession(authOptions as any);
-  if (!session || typeof session !== 'object' || !session.user || typeof session.user !== 'object') {
-    return { user: null, response: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }) };
-  }
-  
-  const user = session.user as any;
-  if (!user.email) {
-    return { user: null, response: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }) };
-  }
-  
-  return { 
-    user: {
-      id: user.id || user.email,
-      email: user.email,
-      name: user.name,
-      role: user.role
-    }, 
-    response: null 
-  };
-}
-
 export async function GET(request: NextRequest) {
-  const { user, response } = await requireAuth(request);
-  if (!user) return response!;
+  const auth = await requireAuth();
+  if ("error" in auth) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  const { user } = auth;
 
   try {
     const { searchParams } = new URL(request.url);
@@ -84,13 +58,6 @@ export async function GET(request: NextRequest) {
               }
             }
           },
-          company: {
-            select: {
-              name: true,
-              logo: true,
-              industry: true
-            }
-          },
           resume: {
             select: {
               fileName: true,
@@ -102,131 +69,127 @@ export async function GET(request: NextRequest) {
       prisma.application.count({ where })
     ]);
 
-    const totalPages = Math.ceil(total / limit);
-
-    // Transform applications for frontend
+    // Transform data to match expected format
     const transformedApplications = applications.map(app => ({
       id: app.id,
-      jobId: app.jobId,
-      jobTitle: app.job.title,
-      company: app.job.company || app.job.companyRelation?.name || app.company?.name,
-      companyLogo: app.job.companyRelation?.logo || app.company?.logo,
-      location: app.job.location,
-      salary: app.job.salary,
-      jobType: app.job.jobType,
-      experienceLevel: app.job.experienceLevel,
-      isRemote: app.job.isRemote,
       status: app.status,
       appliedAt: app.appliedAt,
-      updatedAt: app.updatedAt,
       coverLetter: app.coverLetter,
       notes: app.notes,
-      resume: app.resume ? {
-        fileName: app.resume.fileName,
-        fileUrl: app.resume.fileUrl
-      } : null
+      job: {
+        id: app.job.id,
+        title: app.job.title,
+        company: app.job.company,
+        location: app.job.location,
+        salary: app.job.salary,
+        jobType: app.job.jobType,
+        experienceLevel: app.job.experienceLevel,
+        isRemote: app.job.isRemote,
+        companyInfo: app.job.companyRelation
+      },
+      resume: app.resume
     }));
 
     return NextResponse.json({
       success: true,
-      applications: transformedApplications,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
+      data: {
+        applications: transformedApplications,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
       }
     });
-
   } catch (error) {
     console.error('Applications GET error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch applications'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch applications' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
-  const { user, response } = await requireAuth(request);
-  if (!user) return response!;
+  const auth = await requireAuth();
+  if ("error" in auth) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  const { user } = auth;
 
   try {
-    const contentType = request.headers.get('content-type') || '';
-    let payload: any = {};
+    const body = await request.json();
+    const { jobId, coverLetter, resumeId, notes } = applicationSchema.parse(body);
 
-    if (contentType.includes('multipart/form-data')) {
-      const form = await request.formData();
-      payload = {
-        jobId: parseInt(form.get('jobId')?.toString() || '0'),
-        coverLetter: form.get('coverLetter')?.toString() || '',
-        resumeId: form.get('resumeId')?.toString(),
-        notes: form.get('notes')?.toString() || ''
-      };
-    } else {
-      payload = await request.json();
-    }
-
-    // Validate payload
-    const validatedData = applicationSchema.parse(payload);
-
-    // Check if job exists
-    const job = await prisma.job.findUnique({
-      where: { id: validatedData.jobId }
-    });
-
-    if (!job) {
-      return NextResponse.json({
-        success: false,
-        error: 'Job not found'
-      }, { status: 404 });
-    }
-
-    // Check if already applied
+    // Check if user has already applied to this job
     const existingApplication = await prisma.application.findFirst({
       where: {
         userId: user.id,
-        jobId: validatedData.jobId
+        jobId: jobId
       }
     });
 
     if (existingApplication) {
-      return NextResponse.json({
-        success: false,
-        error: 'You have already applied for this job'
-      }, { status: 409 });
+      return NextResponse.json(
+        { success: false, error: 'You have already applied to this job' },
+        { status: 400 }
+      );
+    }
+
+    // Get job details to verify it exists and is active
+    const job = await prisma.job.findUnique({
+      where: { id: jobId },
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        isActive: true,
+        companyId: true
+      }
+    });
+
+    if (!job) {
+      return NextResponse.json(
+        { success: false, error: 'Job not found' },
+        { status: 404 }
+      );
+    }
+
+    if (!job.isActive) {
+      return NextResponse.json(
+        { success: false, error: 'This job is no longer accepting applications' },
+        { status: 400 }
+      );
     }
 
     // Create application
     const application = await prisma.application.create({
       data: {
         userId: user.id,
-        jobId: validatedData.jobId,
-        resumeId: validatedData.resumeId,
-        coverLetter: validatedData.coverLetter,
-        notes: validatedData.notes,
-        status: 'submitted'
+        jobId: jobId,
+        companyId: job.companyId || 0,
+        coverLetter: coverLetter || '',
+        notes: notes || '',
+        status: 'submitted',
+        appliedAt: new Date()
       },
       include: {
         job: {
           select: {
+            id: true,
             title: true,
             company: true,
-            companyRelation: {
-              select: {
-                name: true
-              }
-            }
+            location: true
           }
         }
       }
     });
 
-    // Update job application count
+    // Update job applications count
     await prisma.job.update({
-      where: { id: validatedData.jobId },
+      where: { id: jobId },
       data: {
         applicationsCount: {
           increment: 1
@@ -234,60 +197,22 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create notification for employer (if company exists)
-    if (job.companyId) {
-      await prisma.message.create({
-        data: {
-          conversationId: `job_${job.id}_applications`,
-          senderId: user.id,
-          receiverId: job.companyId,
-          content: `New application received for ${job.title}`,
-          messageType: 'notification',
-          isRead: false
-        }
-      });
-    }
-
     return NextResponse.json({
       success: true,
-      message: 'Application submitted successfully',
-      application: {
-        id: application.id,
-        jobId: application.jobId,
-        jobTitle: application.job.title,
-        company: application.job.company || application.job.companyRelation?.name,
-        status: application.status,
-        appliedAt: application.appliedAt
-      }
+      data: application,
+      message: 'Application submitted successfully'
     }, { status: 201 });
-
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid input data',
-        details: error.errors
-      }, { status: 400 });
-    }
-
     console.error('Applications POST error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to create application'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to submit application' },
+      { status: 500 }
+    );
   }
 }
 
-// OPTIONS handler for CORS
 export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
+  return new NextResponse(null, { status: 200 });
 }
 
 

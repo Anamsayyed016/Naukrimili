@@ -1,34 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/nextauth-config";
+import { requireEmployerAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-
-async function requireEmployerAuth(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return { error: "Unauthorized", status: 401 };
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: { createdCompanies: true }
-  });
-
-  if (!user || user.role !== "employer" || !user.createdCompanies.length) {
-    return { error: "Access denied. Employer account required.", status: 403 };
-  }
-
-  return { user, company: user.createdCompanies[0] };
-}
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireEmployerAuth(request);
+    const auth = await requireEmployerAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { company } = auth;
+    const { user } = auth;
     const { searchParams } = new URL(request.url);
     
     const page = parseInt(searchParams.get("page") || "1");
@@ -40,7 +21,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     const where: any = {
-      companyId: company.id
+      job: { companyId: user.company.id }
     };
 
     if (status && status !== "all") {
@@ -48,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (jobId && jobId !== "all") {
-      where.jobId = jobId;
+      where.jobId = parseInt(jobId, 10);
     }
 
     if (search) {
@@ -100,10 +81,12 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-
   } catch (error) {
     console.error("Error fetching company applications:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch applications" },
+      { status: 500 }
+    );
   }
 }
 

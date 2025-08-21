@@ -35,8 +35,7 @@ export class LocationService {
       }
 
       const response = await fetch(
-        `http://api.ipstack.com/${clientIP}?access_key=${ipstackApiKey}&format=1`,
-        { timeout: 5000 } // 5 second timeout
+        `http://api.ipstack.com/${clientIP}?access_key=${ipstackApiKey}&format=1`
       );
 
       if (!response.ok) {
@@ -133,8 +132,7 @@ export class LocationService {
       const googleApiKey = process.env.GOOGLE_MAPS_API_KEY;
       if (googleApiKey) {
         const response = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${googleApiKey}`,
-          { timeout: 5000 }
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${googleApiKey}`
         );
         
         if (response.ok) {
@@ -157,8 +155,7 @@ export class LocationService {
       const opencageApiKey = process.env.OPENCAGE_API_KEY;
       if (opencageApiKey) {
         const response = await fetch(
-          `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${opencageApiKey}&limit=1`,
-          { timeout: 5000 }
+          `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${opencageApiKey}&no_annotations=1&language=en`
         );
         
         if (response.ok) {

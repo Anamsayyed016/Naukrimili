@@ -315,9 +315,9 @@ export function useInfiniteJobSearch(
   const infiniteQuery = useInfiniteQuery<OptimizedSearchResponse>({
     queryKey: ['jobs', 'infinite', filters, pageSize],
     queryFn: ({ pageParam = 1 }) => searchJobs(filters, pageParam, pageSize),
-    getNextPageParam: (lastPage) => {
+    getNextPageParam: (lastPage: OptimizedSearchResponse) => {
       const nextPage = lastPage.data.nextPage;
-      return typeof nextPage === 'number' ? nextPage : undefined;
+      return nextPage && typeof nextPage === 'number' ? (nextPage as number) : undefined;
     },
     enabled: options.enabled !== false,
     initialPageParam: 1,

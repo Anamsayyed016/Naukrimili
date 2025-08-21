@@ -29,6 +29,10 @@ interface SeedingStats {
     jobCount: number;
     avgSalary: number;
   }>;
+  totalCompanies: number;
+  totalCategories: number;
+  totalLocations: number;
+  jobsCreated: number;
 }
 
 export default function SeedJobsPage() {
@@ -119,54 +123,15 @@ export default function SeedJobsPage() {
 
       {/* Stats Overview */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <Database className="h-8 w-8 text-blue-600" />
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Sectors</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalSectors}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <TrendingUp className="h-8 w-8 text-green-600" />
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Jobs</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalJobs}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <Users className="h-8 w-8 text-purple-600" />
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Jobs per Sector</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.jobsPerSector}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <Building2 className="h-8 w-8 text-orange-600" />
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Companies</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalSectors * 8}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h3 className="text-lg font-semibold text-gray-800">Total Jobs</h3>
+            <p className="text-3xl font-bold text-blue-600">{stats.totalJobs}</p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h3 className="text-lg font-semibold text-gray-800">Jobs Created</h3>
+            <p className="text-3xl font-bold text-green-600">{stats.jobsCreated}</p>
+          </div>
         </div>
       )}
 

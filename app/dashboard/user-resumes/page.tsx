@@ -13,7 +13,6 @@ import {
   Upload, 
   User, 
   Calendar,
-  FileSize,
   Eye
 } from 'lucide-react';
 import Link from 'next/link';
@@ -292,7 +291,6 @@ export default function UserResumesPage() {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <FileSize className="h-4 w-4" />
                     <span>{formatFileSize(resume.fileSize)}</span>
                   </div>
                   

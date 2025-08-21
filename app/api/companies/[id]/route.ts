@@ -6,28 +6,37 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const companyId = params.id;
+    const companyId = parseInt(params.id, 10);
     
-    // Get company details with job count
+    if (isNaN(companyId)) {
+      return NextResponse.json(
+        { error: 'Invalid company ID' },
+        { status: 400 }
+      );
+    }
+
     const company = await prisma.company.findUnique({
       where: { id: companyId },
       include: {
         _count: {
-          select: { jobs: true }
+          select: {
+            jobs: true,
+            applications: true
+          }
         }
       }
     });
-    
+
     if (!company) {
       return NextResponse.json(
-        { success: false, error: 'Company not found' },
+        { error: 'Company not found' },
         { status: 404 }
       );
     }
-    
-    // Get company's open jobs
-    const openJobs = await prisma.job.findMany({
-      where: {
+
+    // Get company's active jobs
+    const activeJobs = await prisma.job.findMany({
+      where: { 
         companyId: companyId,
         isActive: true
       },
@@ -35,57 +44,36 @@ export async function GET(
         id: true,
         title: true,
         location: true,
-        salary: true,
         jobType: true,
         experienceLevel: true,
         isRemote: true,
         isUrgent: true,
-        isFeatured: true,
         createdAt: true
       },
       orderBy: { createdAt: 'desc' },
       take: 10
     });
-    
-    // Format company data
-    const formattedCompany = {
+
+    const companyData = {
       ...company,
       openJobs: company._count.jobs,
-      rating: 4.5, // Default rating
-      reviews: Math.floor(Math.random() * 2000) + 100, // Mock reviews for now
-      featured: company.isVerified,
-      specialties: ['Innovation', 'Technology', 'Growth'], // Default specialties
-      benefits: ['Health Insurance', 'Flexible Hours', 'Remote Work', 'Learning Budget'], // Default benefits
-      headquarters: company.location,
-      founded: company.founded?.toString() || 'N/A'
+      totalApplications: company._count.applications,
+      recentJobs: activeJobs
     };
-    
+
     return NextResponse.json({
       success: true,
-      company: formattedCompany,
-      openJobs: openJobs
+      data: companyData
     });
-    
   } catch (error) {
     console.error('Error fetching company details:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch company details' },
+      { error: 'Failed to fetch company details' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    return NextResponse.json({ 
-      success: true, 
-      data: body 
-    });
-  } catch (error) {
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Invalid request' 
-    }, { status: 400 });
-  }
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200 });
 }
