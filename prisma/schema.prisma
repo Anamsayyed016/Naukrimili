@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -17,7 +17,7 @@ model Job {
   companyLogo     String?   // Company logo URL
   location        String?
   country         String    @default("IN")
-  description     String    @db.Text
+  description     String
   applyUrl        String?
   postedAt        DateTime?
   salary          String?
@@ -26,7 +26,7 @@ model Job {
   salaryCurrency  String?   // Currency code (INR, USD, etc.)
   jobType         String?   // full-time, part-time, contract, internship
   experienceLevel String?   // entry, mid, senior, executive
-  skills          String[]  @default([]) // Array of required skills
+  skills          String    @default("") // Array of required skills
   isRemote        Boolean   @default(false)
   isHybrid        Boolean   @default(false)
   isUrgent        Boolean   @default(false)
@@ -37,7 +37,7 @@ model Job {
   applicationsCount Int     @default(0)
   createdBy       Int?      // User who created this job
   companyId       Int?      // Company this job belongs to
-  rawJson         Json
+  rawJson         String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   
@@ -70,10 +70,10 @@ model User {
   role            String    @default("jobseeker") // jobseeker, employer, admin
   phone           String?
   location        String?
-  bio             String?   @db.Text
-  skills          String[]  @default([])
-  experience      String?   @db.Text
-  education       String?   @db.Text
+  bio             String?
+  skills          String    @default("")
+  experience      String?
+  education       String?
   profilePicture  String?
   isVerified      Boolean   @default(false)
   isActive        Boolean   @default(true)
@@ -102,12 +102,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -146,7 +146,7 @@ model JobBookmark {
   id        Int      @id @default(autoincrement())
   userId    Int
   jobId     Int
-  notes     String?  @db.Text
+  notes     String?
   createdAt DateTime @default(now())
   
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -160,7 +160,7 @@ model JobBookmark {
 model Company {
   id              Int       @id @default(autoincrement())
   name            String
-  description     String?   @db.Text
+  description     String?
   logo            String?
   website         String?
   location        String?
@@ -189,7 +189,7 @@ model Resume {
   fileUrl     String
   fileSize    Int?
   mimeType    String?
-  parsedData  Json?    // AI-extracted resume data
+  parsedData  String?    // AI-extracted resume data
   atsScore    Int?     // ATS compatibility score
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -209,8 +209,8 @@ model Application {
   companyId Int
   resumeId    Int?
   status      String   @default("submitted") // submitted, reviewed, interview, rejected, hired
-  coverLetter String?  @db.Text
-  notes       String?  @db.Text
+  coverLetter String?
+  notes       String?
   appliedAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
@@ -230,7 +230,7 @@ model Message {
   id              Int      @id @default(autoincrement())
   senderId        Int
   receiverId      Int
-  content        String   @db.Text
+  content        String
   isRead         Boolean  @default(false)
   messageType    String   @default("text") // text, system, notification
   createdAt      DateTime @default(now())
@@ -257,7 +257,7 @@ model Settings {
   id        Int      @id @default(autoincrement())
   userId    Int
   key       String
-  value     Json
+  value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
@@ -272,7 +272,7 @@ model StaticContent {
   id        String   @id @default(cuid())
   key       String   @unique // e.g., "terms", "privacy", "about"
   title     String
-  content   String   @db.Text
+  content   String
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
