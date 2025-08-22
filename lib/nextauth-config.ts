@@ -94,8 +94,44 @@ export const authOptions: NextAuthOptions = {
           hasCredentials: !!credentials
         });
 
-        // Allow all sign-ins for now
-        // You can add additional validation here
+        // Handle OAuth account linking
+        if (account?.provider && profile?.email) {
+          // Check if user exists with this email
+          const existingUser = await prisma.user.findUnique({
+            where: { email: profile.email },
+            include: { accounts: true }
+          });
+
+          if (existingUser) {
+            // Check if OAuth account is already linked
+            const isLinked = existingUser.accounts.some(
+              acc => acc.provider === account.provider
+            );
+
+            if (!isLinked) {
+              // Link the OAuth account to existing user
+              await prisma.account.create({
+                data: {
+                  userId: existingUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  expires_at: account.expires_at,
+                  refresh_token: account.refresh_token,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                  session_state: account.session_state
+                }
+              });
+              
+              console.log('✅ OAuth account linked to existing user:', profile.email);
+            }
+          }
+        }
+
+        // Allow all sign-ins
         return true;
       } catch (error) {
         console.error('❌ SignIn callback error:', error);

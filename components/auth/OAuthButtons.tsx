@@ -75,11 +75,11 @@ export function OAuthButtons({
   const getProviderColor = (providerId: string) => {
     switch (providerId) {
       case 'google':
-        return 'bg-red-500 hover:bg-red-600 text-white';
+        return 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300 hover:border-gray-400';
       case 'linkedin':
-        return 'bg-blue-700 hover:bg-blue-800 text-white';
+        return 'bg-blue-700 hover:bg-blue-800 text-white border-blue-700';
       default:
-        return 'bg-gray-600 hover:bg-gray-700 text-white';
+        return 'bg-gray-600 hover:bg-gray-700 text-white border-gray-600';
     }
   };
 
@@ -121,7 +121,7 @@ export function OAuthButtons({
             type="button"
             variant="outline"
             size="lg"
-            className={`w-full ${getProviderColor(provider.id)}`}
+            className={`w-full border ${getProviderColor(provider.id)}`}
             disabled={disabled || loadingProvider === provider.id}
             onClick={() => handleOAuthSignIn(provider.id)}
           >
