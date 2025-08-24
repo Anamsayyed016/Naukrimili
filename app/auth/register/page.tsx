@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, AlertCircle } from 'lucide-react';
 import OAuthButtons from '@/components/auth/OAuthButtons';
+import { useCSRF } from '@/hooks/useCSRF';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -17,6 +18,10 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // CSRF protection
+  const { token: csrfToken, isLoading: csrfLoading, error: csrfError } = useCSRF();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -28,16 +33,17 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     
     // Basic validation
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match!');
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      alert('Password must be at least 6 characters long!');
+      setError('Password must be at least 6 characters long!');
       setLoading(false);
       return;
     }
@@ -47,6 +53,7 @@ export default function RegisterPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken })
         },
         body: JSON.stringify({
           name: `${formData.firstName} ${formData.lastName}`.trim(),
@@ -62,22 +69,40 @@ export default function RegisterPage() {
 
       if (data.success) {
         // Store user data and token (in real app, use proper storage)
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('token', data.token);
+        }
         
         alert('Registration successful! Redirecting to profile...');
         // Redirect to profile page
-        window.location.href = '/profile';
+        if (typeof window !== 'undefined') {
+          window.location.href = '/profile';
+        }
       } else {
-        alert(data.error || 'Registration failed');
+        setError(data.error || 'Registration failed');
       }
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
+      setError('Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  // Show CSRF error if token fetch fails
+  if (csrfError && !csrfToken) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+            <p className="text-sm text-red-700">Security error: {csrfError}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -301,6 +326,14 @@ export default function RegisterPage() {
                   </Link>
                 </label>
               </div>
+
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700">
+                  <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                  {error}
+                </div>
+              )}
 
               {/* Submit Button */}
               <div>

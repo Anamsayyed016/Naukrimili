@@ -74,8 +74,11 @@ export function useAuth(): AuthState & {
     (async () => {
       try {
         if (typeof window !== 'undefined' && 'PublicKeyCredential' in window) {
-          const available = await (window as any).PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable?.();
-          if (!cancelled) setBiometric(b => ({ ...b, isAvailable: !!available }));
+          const publicKeyCredential = window.PublicKeyCredential as any;
+          if (publicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable) {
+            const available = await publicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+            if (!cancelled) setBiometric(b => ({ ...b, isAvailable: !!available }));
+          }
         }
       } catch (e) {
         // Silent fail – availability remains false

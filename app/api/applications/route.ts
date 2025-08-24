@@ -85,7 +85,11 @@ export async function GET(request: NextRequest) {
         jobType: app.job.jobType,
         experienceLevel: app.job.experienceLevel,
         isRemote: app.job.isRemote,
-        companyInfo: app.job.companyRelation
+        companyInfo: app.job.companyRelation ? {
+          name: app.job.companyRelation.name,
+          logo: app.job.companyRelation.logo,
+          industry: app.job.companyRelation.industry
+        } : null
       },
       resume: app.resume
     }));

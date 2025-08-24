@@ -46,19 +46,19 @@ export default function EnhancedFilters({
 
   // Job type options
   const jobTypeOptions = [
-    { value: 'full-time', label: 'Full-time', count: availableFilters?.jobTypes.find(jt => jt.value === 'full-time')?.count },
-    { value: 'part-time', label: 'Part-time', count: availableFilters?.jobTypes.find(jt => jt.value === 'part-time')?.count },
-    { value: 'contract', label: 'Contract', count: availableFilters?.jobTypes.find(jt => jt.value === 'contract')?.count },
-    { value: 'internship', label: 'Internship', count: availableFilters?.jobTypes.find(jt => jt.value === 'internship')?.count },
-    { value: 'freelance', label: 'Freelance', count: availableFilters?.jobTypes.find(jt => jt.value === 'freelance')?.count }
+    { value: 'full-time', label: 'Full-time', count: availableFilters?.jobTypes?.find(jt => jt.value === 'full-time')?.count || 0 },
+    { value: 'part-time', label: 'Part-time', count: availableFilters?.jobTypes?.find(jt => jt.value === 'part-time')?.count || 0 },
+    { value: 'contract', label: 'Contract', count: availableFilters?.jobTypes?.find(jt => jt.value === 'contract')?.count || 0 },
+    { value: 'internship', label: 'Internship', count: availableFilters?.jobTypes?.find(jt => jt.value === 'internship')?.count || 0 },
+    { value: 'freelance', label: 'Freelance', count: availableFilters?.jobTypes?.find(jt => jt.value === 'freelance')?.count || 0 }
   ];
 
   // Experience level options
   const experienceOptions = [
-    { value: 'entry', label: 'Entry Level (0-2 years)', count: availableFilters?.experienceLevels.find(el => el.value === 'entry')?.count },
-    { value: 'mid', label: 'Mid Level (2-5 years)', count: availableFilters?.experienceLevels.find(el => el.value === 'mid')?.count },
-    { value: 'senior', label: 'Senior Level (5-10 years)', count: availableFilters?.experienceLevels.find(el => el.value === 'senior')?.count },
-    { value: 'lead', label: 'Lead/Executive (10+ years)', count: availableFilters?.experienceLevels.find(el => el.value === 'lead')?.count }
+    { value: 'entry', label: 'Entry Level (0-2 years)', count: availableFilters?.experienceLevels?.find(el => el.value === 'entry')?.count || 0 },
+    { value: 'mid', label: 'Mid Level (2-5 years)', count: availableFilters?.experienceLevels?.find(el => el.value === 'mid')?.count || 0 },
+    { value: 'senior', label: 'Senior Level (5-10 years)', count: availableFilters?.experienceLevels?.find(el => el.value === 'senior')?.count || 0 },
+    { value: 'lead', label: 'Lead/Executive (10+ years)', count: availableFilters?.experienceLevels?.find(el => el.value === 'lead')?.count || 0 }
   ];
 
   // Date posted options

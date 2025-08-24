@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { validateCSRF, createCSRFErrorResponse } from '@/lib/utils/csrf';
 
 const registerSchema = z.object({
   name: z.string().min(2).max(100),
@@ -20,6 +21,15 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection
+    const csrfValidation = validateCSRF(request);
+    if (!csrfValidation.isValid) {
+      return NextResponse.json(
+        createCSRFErrorResponse(csrfValidation.error || 'CSRF validation failed'),
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const validatedData = registerSchema.parse(body);
 
@@ -103,7 +113,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,
-        error: 'Validation failed',
+        error: 'Invalid input data',
         details: error.errors
       }, { status: 400 });
     }

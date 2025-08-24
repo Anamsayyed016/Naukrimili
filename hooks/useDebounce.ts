@@ -15,12 +15,22 @@ export function useDebounce<T>(value: T, delay: number): T {
 export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(callback: T, delay: number): T {
   const cbRef = useRef<T>(callback);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => { cbRef.current = callback; }, [callback]);
-  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+  
+  useEffect(() => { 
+    cbRef.current = callback; 
+  }, [callback]);
+  
+  useEffect(() => { 
+    return () => { 
+      if (timeoutRef.current) clearTimeout(timeoutRef.current); 
+    }; 
+  }, []);
+  
   const fn = useCallback((...args: Parameters<T>) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => cbRef.current(...args), delay);
   }, [delay]);
+  
   return fn as T;
 }
 
@@ -46,7 +56,11 @@ export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
   const cbRef = useRef<T>(callback);
   const lastRan = useRef(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => { cbRef.current = callback; }, [callback]);
+  
+  useEffect(() => { 
+    cbRef.current = callback; 
+  }, [callback]);
+  
   const fn = useCallback((...args: Parameters<T>) => {
     const now = Date.now();
     const remaining = limit - (now - lastRan.current);
@@ -62,7 +76,13 @@ export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
       }, remaining);
     }
   }, [limit]);
-  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+  
+  useEffect(() => { 
+    return () => { 
+      if (timeoutRef.current) clearTimeout(timeoutRef.current); 
+    }; 
+  }, []);
+  
   return fn as T;
 }
 

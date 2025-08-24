@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import OAuthButtons from '@/components/auth/OAuthButtons';
+import { useCSRF } from '@/hooks/useCSRF';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  
+  // CSRF protection
+  const { token: csrfToken, isLoading: csrfLoading, error: csrfError } = useCSRF();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +28,7 @@ export default function LoginPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken })
         },
         body: JSON.stringify({ email, password }),
       });
@@ -33,12 +38,16 @@ export default function LoginPage() {
       if (data.success) {
         setSuccess('Login successful! Redirecting to profile...');
         // Store user data and token (in real app, use proper storage)
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('token', data.token);
+        }
         
         // Redirect to profile page after a short delay
         setTimeout(() => {
-          window.location.href = '/profile';
+          if (typeof window !== 'undefined') {
+            window.location.href = '/profile';
+          }
         }, 1500);
       } else {
         setError(data.error || 'Login failed');
@@ -51,7 +60,19 @@ export default function LoginPage() {
     }
   };
 
-
+  // Show CSRF error if token fetch fails
+  if (csrfError && !csrfToken) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+            <p className="text-sm text-red-700">Security error: {csrfError}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

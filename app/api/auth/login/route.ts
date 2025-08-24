@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import { validateCSRF, createCSRFErrorResponse } from '@/lib/utils/csrf';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -11,6 +12,15 @@ const loginSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection
+    const csrfValidation = validateCSRF(request);
+    if (!csrfValidation.isValid) {
+      return NextResponse.json(
+        createCSRFErrorResponse(csrfValidation.error || 'CSRF validation failed'),
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { email, password } = loginSchema.parse(body);
 

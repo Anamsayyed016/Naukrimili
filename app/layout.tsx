@@ -4,11 +4,7 @@ import './globals.css';
 import MainNavigation from '@/components/MainNavigation';
 import Footer from '@/components/Footer';
 import SessionProvider from '@/components/providers/SessionProvider';
-
-// Buffer polyfill for experimental feature warning
-if (typeof window !== 'undefined') {
-  window.Buffer = window.Buffer || require('buffer').Buffer;
-}
+import BufferPolyfill from '@/components/BufferPolyfill';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} font-body`}>
         <SessionProvider>
+          <BufferPolyfill />
           <MainNavigation />
           {children}
           <Footer />

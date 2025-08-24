@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { User, Mail, Phone, MapPin, Calendar, FileText, Download, Edit, Save, X, Upload, CheckCircle, LogOut } from 'lucide-react';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 interface UserProfile {
   id: string;
@@ -21,7 +22,7 @@ interface UserProfile {
   joinedAt: string;
 }
 
-export default function ProfilePage() {
+function ProfilePageContent() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +30,9 @@ export default function ProfilePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check authentication
+    // Check authentication - only on client side
+    if (typeof window === 'undefined') return;
+    
     const user = localStorage.getItem('user');
     const token = localStorage.getItem('token');
     
@@ -98,6 +101,8 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => {
+    if (typeof window === 'undefined') return;
+    
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     window.location.href = '/';
@@ -392,5 +397,13 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <ErrorBoundary>
+      <ProfilePageContent />
+    </ErrorBoundary>
   );
 }
