@@ -39,9 +39,10 @@ interface MainNavigationProps {
 export default function MainNavigation({
   brandName = "NaukriMili"
 }: MainNavigationProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
   const pathname = usePathname();
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
@@ -71,37 +72,25 @@ export default function MainNavigation({
               <Link
                 key={link.title}
                 href={link.href}
-                prefetch={true}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-3 text-gray-700 hover:text-gray-900 transition-all duration-300 rounded-lg hover:bg-gray-50 relative group",
-                  pathname === link.href && "text-blue-600 font-medium bg-blue-50"
+                  "flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300",
+                  pathname === link.href && "text-blue-600 bg-blue-50 font-medium"
                 )}
               >
-                <link.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
+                <link.icon className="w-4 h-4" />
                 {link.title}
-                {pathname === link.href && (
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-blue-600 rounded-full" />
-                )}
               </Link>
             ))}
-          </div>
-
-          {/* Resume Upload Button - Enhanced Design */}
-          <div className="hidden lg:flex items-center">
-            <button
-              onClick={() => {
-                if (pathname === '/') {
-                  document.getElementById('resume-upload-section')?.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  router.push('/#resume-upload-section');
-                }
-              }}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+            
+            {/* Resume Upload Button - Enhanced */}
+            <Link
+              href="/resumes/upload"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
             >
               <Upload className="w-4 h-4" />
               <span className="hidden xl:inline">Upload Resume</span>
               <span className="xl:hidden">Upload</span>
-            </button>
+            </Link>
           </div>
 
           {/* Right Side - Enhanced User Actions */}
@@ -187,21 +176,15 @@ export default function MainNavigation({
                 </Link>
               ))}
               
-              {/* Mobile Resume Upload Button - Enhanced */}
-              <button
-                onClick={() => {
-                  closeMenu();
-                  if (pathname === '/') {
-                    document.getElementById('resume-upload-section')?.scrollIntoView({ behavior: 'smooth' });
-                  } else {
-                    router.push('/#resume-upload-section');
-                  }
-                }}
+              {/* Mobile Resume Upload Button - Fixed */}
+              <Link
+                href="/resumes/upload"
+                onClick={closeMenu}
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl active:scale-95"
               >
                 <Upload className="w-5 h-5" />
                 Upload Resume
-              </button>
+              </Link>
             </div>
           </motion.div>
         )}
