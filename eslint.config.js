@@ -1,3 +1,9 @@
+import { FlatCompat } from "@eslint/eslintrc";
+
+const compat = new FlatCompat({
+  baseDirectory: process.cwd(),
+});
+
 export default [
   {
     ignores: [
@@ -17,11 +23,10 @@ export default [
       '.eslintrc*'
     ]
   },
+  ...compat.extends("next/core-web-vitals"),
   {
-    extends: ['next/core-web-vitals'],
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-explicit-any': 'warn',
       'no-empty': 'warn',
     },
   },
