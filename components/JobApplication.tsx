@@ -5,7 +5,7 @@ import { applicationApi } from '@/lib/api';
 import { useErrorHandler } from '@/lib/error-boundary';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronRight } from 'lucide-react';
 
 interface JobApplicationProps {
   jobId: string;
@@ -66,7 +66,10 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
           Submitting...
         </>
       ) : (
-        'Apply Now'
+        <>
+          Apply Now
+          <ChevronRight className="w-4 h-4 ml-2" />
+        </>
       )}
     </Button>
   );

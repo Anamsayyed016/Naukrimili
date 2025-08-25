@@ -5,6 +5,7 @@ import MainNavigation from '@/components/MainNavigation';
 import Footer from '@/components/Footer';
 import SessionProvider from '@/components/providers/SessionProvider';
 import BufferPolyfill from '@/components/BufferPolyfill';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
           <MainNavigation />
           {children}
           <Footer />
+          <Toaster />
         </SessionProvider>
       </body>
     </html>

@@ -184,31 +184,7 @@ export interface UserProfile {
 }
 
 // Application types
-export interface JobApplication {
-  id: string;
-  jobId: string;
-  userId: string;
-  resumeId: string;
-  coverLetter?: string;
-  status:
-    | 'pending'
-    | 'reviewing'
-    | 'shortlisted'
-    | 'interviewed'
-    | 'offered'
-    | 'rejected'
-    | 'withdrawn';
-  appliedAt: string; // ISO
-  updatedAt: string; // ISO
-  notes?: string;
-  feedback?: string;
-  interviewScheduled?: {
-    date: string; // ISO
-    type: 'phone' | 'video' | 'in-person';
-    location?: string;
-    meetingLink?: string;
-  };
-}
+export type { JobApplication } from './job-application';
 
 // Search types
 export interface SearchFilters {
