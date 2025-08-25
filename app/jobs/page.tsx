@@ -2,9 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search, MapPin, Building, Briefcase, TrendingUp, Filter, ChevronDown } from 'lucide-react';
+import { Search, MapPin, Building, Briefcase, TrendingUp, Filter, ChevronDown, ExternalLink, Globe } from 'lucide-react';
 import { useGoogleFallback } from '@/hooks/useGoogleFallback';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 interface Job {
   id: string | number;
@@ -26,6 +35,15 @@ interface Job {
   createdAt: string;
 }
 
+interface PaginationData {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
 export default function JobsPage() {
   const searchParams = useSearchParams();
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -39,6 +57,12 @@ export default function JobsPage() {
   const [isRemote, setIsRemote] = useState(searchParams.get('isRemote') === 'true');
   const [includeExternal, setIncludeExternal] = useState(true);
   const [source, setSource] = useState<'all' | 'db' | 'external'>('all');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalJobs, setTotalJobs] = useState(0);
+  const [jobsPerPage] = useState(10);
 
   // Google fallback hook
   const googleFallback = useGoogleFallback(searchQuery, selectedLocation, jobs.length, {
@@ -63,7 +87,7 @@ export default function JobsPage() {
 
   useEffect(() => {
     fetchJobs();
-  }, [searchQuery, selectedLocation, selectedJobType, selectedExperience, isRemote, selectedCountry, includeExternal, source]);
+  }, [searchQuery, selectedLocation, selectedJobType, selectedExperience, isRemote, selectedCountry, includeExternal, source, currentPage]);
 
   const fetchJobs = async () => {
     try {
@@ -79,6 +103,10 @@ export default function JobsPage() {
       if (selectedCountry) params.append('country', selectedCountry);
       if (includeExternal) params.append('includeExternal', 'true');
       if (source) params.append('source', source);
+      
+      // Add pagination parameters
+      params.append('page', currentPage.toString());
+      params.append('limit', jobsPerPage.toString());
 
       // Use the new unified API
       const response = await fetch(`/api/jobs/unified?${params.toString()}`);
@@ -89,6 +117,13 @@ export default function JobsPage() {
       const data = await response.json();
       if (data.success) {
         setJobs(data.jobs);
+        
+        // Update pagination data
+        if (data.pagination) {
+          setTotalPages(data.pagination.totalPages);
+          setTotalJobs(data.pagination.total);
+        }
+        
         console.log(`✅ Fetched ${data.jobs.length} jobs from ${data.sources.database ? 'database' : ''}${data.sources.external ? ' and external APIs' : ''}`);
       } else {
         setError(data.error || 'Failed to load jobs');
@@ -102,6 +137,7 @@ export default function JobsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setCurrentPage(1); // Reset to first page on new search
     fetchJobs();
   };
 
@@ -114,6 +150,52 @@ export default function JobsPage() {
     setSelectedCountry('IN');
     setIncludeExternal(true);
     setSource('all');
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const generateGoogleJobsUrl = () => {
+    const searchTerms: string[] = [];
+    
+    // Add main query
+    if (searchQuery) searchTerms.push(searchQuery);
+    
+    // Add job type
+    if (selectedJobType && selectedJobType !== 'All Types') {
+      searchTerms.push(selectedJobType);
+    }
+    
+    // Add experience level
+    if (selectedExperience && selectedExperience !== 'All Levels') {
+      searchTerms.push(selectedExperience);
+    }
+    
+    // Add remote indicator
+    if (isRemote) {
+      searchTerms.push('remote');
+    }
+    
+    // Build location string
+    let locationString = 'India';
+    if (selectedLocation && selectedLocation !== 'All Locations') {
+      locationString = selectedLocation;
+    }
+    
+    // Combine search terms
+    const combinedQuery = searchTerms.length > 0 ? searchTerms.join(' ') : 'jobs';
+    const fullQuery = `${combinedQuery} jobs in ${locationString}`;
+    
+    return `https://www.google.com/search?q=${encodeURIComponent(fullQuery)}&ibp=htl;jobs`;
+  };
+
+  const handleGoogleJobsRedirect = () => {
+    const googleJobsUrl = generateGoogleJobsUrl();
+    window.open(googleJobsUrl, '_blank', 'noopener,noreferrer');
   };
 
   const importJobsFromCountry = async (countryCode: string) => {
@@ -145,6 +227,47 @@ export default function JobsPage() {
     }
   };
 
+  // Generate page numbers for pagination
+  const generatePageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show smart pagination for large numbers
+      if (currentPage <= 3) {
+        // Near start
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('ellipsis');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        // Near end
+        pages.push(1);
+        pages.push('ellipsis');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        // Middle
+        pages.push(1);
+        pages.push('ellipsis');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('ellipsis');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
@@ -153,7 +276,6 @@ export default function JobsPage() {
             {/* Enhanced Header */}
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-white/20 rounded-full text-sm font-medium text-gray-700 mb-6 shadow-lg">
-                {/* <Sparkles className="w-4 h-4 text-blue-600" /> */}
                 AI-Powered Job Search
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
@@ -165,19 +287,19 @@ export default function JobsPage() {
             </div>
 
             {/* Enhanced Search and Filters */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-6 lg:p-8 mb-8">
+            <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border border-white/30 p-6 lg:p-8 mb-8">
               <form onSubmit={handleSearch} className="space-y-6">
                 {/* Main Search Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-6">
                   <div className="lg:col-span-2">
                     <div className="relative group">
-                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-blue-500 transition-colors" />
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 group-focus-within:text-blue-600 transition-all duration-300" />
                       <input
                         type="text"
                         placeholder="Search jobs, companies, or skills..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-300 text-lg placeholder-gray-400"
+                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-200/60 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/80 backdrop-blur-sm transition-all duration-300 text-lg placeholder-gray-500 text-gray-800 font-medium hover:bg-gray-100/80 focus:bg-white shadow-sm hover:shadow-md"
                       />
                     </div>
                   </div>
@@ -185,7 +307,7 @@ export default function JobsPage() {
                   <select
                     value={selectedLocation}
                     onChange={(e) => setSelectedLocation(e.target.value)}
-                    className="px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-300 text-gray-700"
+                    className="px-4 py-4 border-2 border-gray-200/60 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/80 backdrop-blur-sm transition-all duration-300 text-gray-700 font-medium hover:bg-gray-100/80 focus:bg-white shadow-sm hover:shadow-md cursor-pointer"
                   >
                     {locations.map((location) => (
                       <option key={location} value={location}>{location}</option>
@@ -195,7 +317,7 @@ export default function JobsPage() {
                   <select
                     value={selectedJobType}
                     onChange={(e) => setSelectedJobType(e.target.value)}
-                    className="px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-300 text-gray-700"
+                    className="px-4 py-4 border-2 border-gray-200/60 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/80 backdrop-blur-sm transition-all duration-300 text-gray-700 font-medium hover:bg-gray-100/80 focus:bg-white shadow-sm hover:shadow-md cursor-pointer"
                   >
                     {jobTypes.map((type) => (
                       <option key={type} value={type}>
@@ -207,7 +329,7 @@ export default function JobsPage() {
                   <select
                     value={selectedExperience}
                     onChange={(e) => setSelectedExperience(e.target.value)}
-                    className="px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-300 text-gray-700"
+                    className="px-4 py-4 border-2 border-gray-200/60 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/80 backdrop-blur-sm transition-all duration-300 text-gray-700 font-medium hover:bg-gray-100/80 focus:bg-white shadow-sm hover:shadow-md cursor-pointer"
                   >
                     {experienceLevels.map((level) => (
                       <option key={level} value={level}>
@@ -219,30 +341,30 @@ export default function JobsPage() {
 
                 {/* Advanced Filters Row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-2xl hover:from-blue-100/80 hover:to-indigo-100/80 transition-all duration-300 cursor-pointer border border-blue-200/30 hover:border-blue-300/50 shadow-sm hover:shadow-md">
                     <input
                       type="checkbox"
                       checked={isRemote}
                       onChange={(e) => setIsRemote(e.target.checked)}
-                      className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                      className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 transition-all duration-200"
                     />
-                    <label className="text-gray-700 font-medium cursor-pointer">Remote Only</label>
+                    <label className="text-gray-700 font-medium cursor-pointer select-none">Remote Only</label>
                   </div>
                   
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-2xl hover:from-green-100/80 hover:to-emerald-100/80 transition-all duration-300 cursor-pointer border border-green-200/30 hover:border-green-300/50 shadow-sm hover:shadow-md">
                     <input
                       type="checkbox"
                       checked={includeExternal}
                       onChange={(e) => setIncludeExternal(e.target.checked)}
-                      className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                      className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 focus:ring-offset-0 transition-all duration-200"
                     />
-                    <label className="text-gray-700 font-medium cursor-pointer">Include External Jobs</label>
+                    <label className="text-gray-700 font-medium cursor-pointer select-none">Include External Jobs</label>
                   </div>
 
                   <select
                     value={selectedCountry}
                     onChange={(e) => setSelectedCountry(e.target.value)}
-                    className="px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-300 text-gray-700"
+                    className="px-4 py-4 border-2 border-gray-200/60 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/80 backdrop-blur-sm transition-all duration-300 text-gray-700 font-medium hover:bg-gray-100/80 focus:bg-white shadow-sm hover:shadow-md cursor-pointer"
                   >
                     {countries.map((country) => (
                       <option key={country.code} value={country.code}>
@@ -254,7 +376,7 @@ export default function JobsPage() {
                   <select
                     value={source}
                     onChange={(e) => setSource(e.target.value as 'all' | 'db' | 'external')}
-                    className="px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-300 text-gray-700"
+                    className="px-4 py-4 border-2 border-gray-200/60 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/80 backdrop-blur-sm transition-all duration-300 text-gray-700 font-medium hover:bg-gray-100/80 focus:bg-white shadow-sm hover:shadow-md cursor-pointer"
                   >
                     <option value="all">All Sources</option>
                     <option value="db">Database Only</option>
@@ -263,12 +385,12 @@ export default function JobsPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-200">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-200/60">
                   <div className="flex items-center gap-4">
                     <button
                       type="button"
                       onClick={clearFilters}
-                      className="px-6 py-3 text-gray-600 border border-gray-300 rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 font-medium"
+                      className="px-6 py-3 text-gray-600 border-2 border-gray-300/60 rounded-2xl hover:bg-gray-100 hover:border-gray-400 hover:text-gray-800 transition-all duration-300 font-medium shadow-sm hover:shadow-md active:scale-95"
                     >
                       Clear Filters
                     </button>
@@ -288,7 +410,6 @@ export default function JobsPage() {
             {/* Enhanced Quick Import Section */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-6 lg:p-8 mb-8 border border-blue-200/50">
               <h3 className="text-xl lg:text-2xl font-semibold text-blue-900 mb-6 flex items-center gap-3">
-                {/* <Globe className="h-6 w-6" /> */}
                 Quick Job Import
               </h3>
               <p className="text-blue-700 mb-6 max-w-2xl">
@@ -302,7 +423,6 @@ export default function JobsPage() {
                     disabled={loading}
                     className="group px-6 py-3 bg-white text-blue-700 rounded-2xl hover:bg-blue-50 disabled:opacity-50 transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl hover:scale-105 border border-blue-200"
                   >
-                    {/* <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : 'group-hover:rotate-180 transition-transform'}`} /> */}
                     Import from {country.name}
                   </button>
                 ))}
@@ -341,123 +461,313 @@ export default function JobsPage() {
                   <p className="text-gray-600 mb-6 max-w-md mx-auto">
                     Try adjusting your search criteria or import jobs from different countries to discover more opportunities.
                   </p>
-                  <button
-                    onClick={() => importJobsFromCountry('IN')}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-colors"
-                  >
-                    {/* <RefreshCw className="h-4 w-4" /> */}
-                    Import Sample Jobs
-                  </button>
+                  
+                  {/* Google Jobs Fallback */}
+                  <div className="space-y-4 mb-6">
+                    <button
+                      onClick={handleGoogleJobsRedirect}
+                      className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+                    >
+                      <Globe className="w-5 h-5" />
+                      Search on Google Jobs
+                      <ExternalLink className="w-4 h-4" />
+                    </button>
+                    
+                    <button
+                      onClick={() => importJobsFromCountry('IN')}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-colors"
+                    >
+                      Import Sample Jobs
+                    </button>
+                  </div>
+                  
+                  <p className="text-sm text-gray-500">
+                    Google Jobs will open with your search criteria: "{searchQuery || 'jobs'}" in {selectedLocation || 'India'}
+                  </p>
                 </div>
               )}
 
               {!loading && !error && jobs.length > 0 && (
                 <>
-                  {/* Results Header */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 p-6 bg-white/80 backdrop-blur-sm rounded-3xl border border-white/20">
-                    <div>
-                      <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                        Found {jobs.length} jobs
-                      </h2>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        {/* <Zap className="w-4 h-4 text-yellow-500" /> */}
-                        <span className="text-sm">
-                          Showing jobs from {source === 'all' ? 'all sources' : source === 'db' ? 'database' : 'external APIs'}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {googleFallback.shouldShowFallback && (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm">
-                        <TrendingUp className="w-4 h-4" />
-                        Enhanced with Google Jobs
-                      </div>
-                    )}
-                  </div>
+                                     {/* Results Header */}
+                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 p-6 bg-white/90 backdrop-blur-md rounded-3xl border border-white/30">
+                     <div>
+                       <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                         Found {totalJobs.toLocaleString()} jobs
+                       </h2>
+                       <div className="flex items-center gap-2 text-gray-600">
+                         <span className="text-sm">
+                           Showing {((currentPage - 1) * jobsPerPage) + 1} to {Math.min(currentPage * jobsPerPage, totalJobs)} of {totalJobs.toLocaleString()} jobs
+                         </span>
+                       </div>
+                     </div>
+                     
+                     {googleFallback.shouldShowFallback && (
+                       <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm">
+                         <TrendingUp className="w-4 h-4" />
+                         Enhanced with Google Jobs
+                       </div>
+                     )}
+                   </div>
+
+                   {/* Google Jobs Fallback Banner - Always Visible When Search Query Exists */}
+                   {searchQuery && (
+                     <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-6 border border-blue-200/50 shadow-sm">
+                       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                         <div className="flex items-center gap-4">
+                           <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0">
+                             <Globe className="w-6 h-6 text-white" />
+                           </div>
+                           <div>
+                             <h4 className="font-semibold text-gray-900 text-lg mb-1">Want more job opportunities?</h4>
+                             <p className="text-gray-600 text-sm">
+                               Search Google Jobs for broader results with your criteria: <span className="font-medium text-gray-800">"{searchQuery}"</span>
+                               {selectedLocation && selectedLocation !== 'All Locations' && (
+                                 <span> in <span className="font-medium text-gray-800">{selectedLocation}</span></span>
+                               )}
+                             </p>
+                           </div>
+                         </div>
+                         
+                         <div className="flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
+                           <button
+                             onClick={handleGoogleJobsRedirect}
+                             className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm"
+                           >
+                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                             </svg>
+                             Search Google Jobs
+                             <ExternalLink className="w-4 h-4" />
+                           </button>
+                           
+                           <div className="text-xs text-gray-500 text-center sm:text-left">
+                             Opens in new tab
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                   )}
 
                   {/* Enhanced Job Cards Grid */}
-                  <div className="grid gap-6 lg:gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                     {jobs.map((job) => (
-                      <div key={job.id} className="group bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-3xl p-6 lg:p-8 hover:shadow-2xl hover:border-blue-200 transition-all duration-300 hover:scale-[1.02]">
+                      <div key={job.id} className="group bg-white/90 backdrop-blur-md border border-gray-200/60 rounded-3xl p-6 lg:p-8 hover:shadow-2xl hover:border-blue-300 transition-all duration-300 hover:scale-[1.02] hover:shadow-blue-100/50">
+                        {/* Job Header */}
                         <div className="flex items-start justify-between mb-6">
-                          <div className="flex-1">
-                            {/* Job Title and Badges */}
-                            <div className="flex items-start gap-4 mb-4">
-                              <h3 className="text-xl lg:text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
-                                {job.title}
-                              </h3>
-                              <div className="flex flex-wrap gap-2 flex-shrink-0">
-                                {job.isFeatured && (
-                                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-semibold rounded-full shadow-sm">
-                                    ⭐ Featured
-                                  </span>
-                                )}
-                                {job.source !== 'database' && (
-                                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-blue-400 to-indigo-400 text-white text-xs font-semibold rounded-full shadow-sm">
-                                    {job.source}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-xl lg:text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-3">
+                              {job.title}
+                            </h3>
                             
                             {/* Company and Location Info */}
-                            <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-4">
-                              <span className="flex items-center gap-2 font-medium">
-                                <Building className="w-5 h-5 text-gray-400" />
-                                {job.company || 'Company not specified'}
-                              </span>
-                              {job.location && (
-                                <span className="flex items-center gap-2">
-                                  <MapPin className="w-5 h-5 text-gray-400" />
-                                  {job.location}
+                            <div className="space-y-3 mb-6">
+                              <div className="flex items-center gap-2 text-gray-700">
+                                <Building className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                                <span className="font-medium truncate">
+                                  {job.company || 'Company not specified'}
                                 </span>
-                              )}
-                              {job.jobType && (
-                                <span className="flex items-center gap-2">
-                                  <Briefcase className="w-5 h-5 text-gray-400" />
-                                  <span className="capitalize">{job.jobType}</span>
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Job Description */}
-                            <p className="text-gray-700 mb-6 line-clamp-3 leading-relaxed">
-                              {job.description}
-                            </p>
-
-                            {/* Bottom Row */}
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                              <div className="flex items-center gap-4">
-                                {job.salary && (
-                                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl font-semibold text-lg">
-                                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                                    {job.salary}
-                                  </span>
-                                )}
-                                {job.isRemote && (
-                                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-xl font-medium">
-                                    🏠 Remote
-                                  </span>
-                                )}
                               </div>
                               
-                              {job.applyUrl && (
-                                <a
-                                  href={job.applyUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                              <div className="flex flex-wrap items-center gap-4 text-gray-600">
+                                {job.location && (
+                                  <div className="flex items-center gap-2">
+                                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                    <span className="text-sm">{job.location}</span>
+                                  </div>
+                                )}
+                                {job.jobType && (
+                                  <div className="flex items-center gap-2">
+                                    <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                    <span className="text-sm capitalize">{job.jobType}</span>
+                                  </div>
+                                )}
+                                {job.experienceLevel && (
+                                  <div className="flex items-center gap-2">
+                                    <TrendingUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                    <span className="text-sm capitalize">{job.experienceLevel}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Featured Badge */}
+                          {job.isFeatured && (
+                            <div className="flex-shrink-0 ml-4">
+                              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-semibold rounded-full shadow-sm">
+                                ⭐ Featured
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Job Description */}
+                        <div className="mb-6">
+                          <p className="text-gray-700 line-clamp-3 leading-relaxed text-sm lg:text-base">
+                            {job.description}
+                          </p>
+                        </div>
+
+                        {/* Skills Tags */}
+                        {job.skills && job.skills.length > 0 && (
+                          <div className="mb-6">
+                            <div className="flex flex-wrap gap-2">
+                              {job.skills.slice(0, 4).map((skill, index) => (
+                                <span
+                                  key={index}
+                                  className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full border border-gray-200"
                                 >
-                                  Apply Now
-                                  <span className="group-hover:translate-x-1 transition-transform">→</span>
-                                </a>
+                                  {skill}
+                                </span>
+                              ))}
+                              {job.skills.length > 4 && (
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full border border-gray-200">
+                                  +{job.skills.length - 4} more
+                                </span>
                               )}
                             </div>
+                          </div>
+                        )}
+
+                        {/* Bottom Row */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
+                          <div className="flex flex-wrap items-center gap-3">
+                            {job.salary && (
+                              <span className="inline-flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-xl font-semibold text-sm border border-green-200">
+                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                {job.salary}
+                              </span>
+                            )}
+                            {job.isRemote && (
+                              <span className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-xl font-medium text-sm border border-blue-200">
+                                🏠 Remote
+                              </span>
+                            )}
+                          </div>
+                          
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => window.open(`/jobs/${job.id}`, '_blank')}
+                              className="inline-flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-200 rounded-xl font-medium hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-sm"
+                            >
+                              View Details
+                            </button>
+                            
+                            <button
+                              onClick={() => window.open(`/jobs/${job.id}/apply`, '_blank')}
+                              className="group inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 text-sm"
+                            >
+                              Apply Now
+                              <span className="group-hover:translate-x-1 transition-transform">→</span>
+                            </button>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
+
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-6 bg-white/80 backdrop-blur-sm rounded-3xl border border-white/20">
+                      <div className="text-sm text-gray-600">
+                        Showing {((currentPage - 1) * jobsPerPage) + 1} to {Math.min(currentPage * jobsPerPage, totalJobs)} of {totalJobs.toLocaleString()} results
+                      </div>
+                      
+                      <Pagination>
+                        <PaginationContent>
+                          {/* Previous Button */}
+                          <PaginationItem>
+                            <PaginationPrevious 
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage > 1) handlePageChange(currentPage - 1);
+                              }}
+                              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            />
+                          </PaginationItem>
+
+                          {/* Page Numbers */}
+                          {generatePageNumbers().map((page, index) => (
+                            <PaginationItem key={index}>
+                              {page === 'ellipsis' ? (
+                                <PaginationEllipsis />
+                              ) : (
+                                <PaginationLink
+                                  href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handlePageChange(page as number);
+                                  }}
+                                  isActive={currentPage === page}
+                                  className="cursor-pointer"
+                                >
+                                  {page}
+                                </PaginationLink>
+                              )}
+                            </PaginationItem>
+                          ))}
+
+                          {/* Next Button */}
+                          <PaginationItem>
+                            <PaginationNext 
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                              }}
+                              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    </div>
+                  )}
+
+                                     {/* Enhanced Google Jobs Fallback for Low Results */}
+                   {jobs.length > 0 && jobs.length < 5 && searchQuery && (
+                     <div className="mt-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-3xl p-6 border border-orange-200/50 shadow-sm">
+                       <div className="flex items-center gap-4 mb-4">
+                         <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                           <Globe className="w-6 h-6 text-white" />
+                         </div>
+                         <div>
+                           <h4 className="font-semibold text-gray-900 text-lg mb-1">Need more opportunities?</h4>
+                           <p className="text-sm text-gray-600">
+                             You found {jobs.length} jobs, but Google Jobs might have more with your criteria: <span className="font-medium text-gray-800">"{searchQuery}"</span>
+                             {selectedLocation && selectedLocation !== 'All Locations' && (
+                               <span> in <span className="font-medium text-gray-800">{selectedLocation}</span></span>
+                             )}
+                           </p>
+                         </div>
+                       </div>
+                       
+                       <div className="flex flex-col sm:flex-row items-center gap-3">
+                         <button
+                           onClick={handleGoogleJobsRedirect}
+                           className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+                         >
+                           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                           </svg>
+                           Search Google Jobs
+                           <ExternalLink className="w-4 h-4" />
+                         </button>
+                         
+                         <div className="text-xs text-gray-500 text-center sm:text-left">
+                           Opens in new tab
+                         </div>
+                       </div>
+                     </div>
+                   )}
                 </>
               )}
             </div>
