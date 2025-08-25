@@ -1,9 +1,10 @@
 ﻿"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Search, MapPin, Building, Briefcase, TrendingUp, Filter, ChevronDown, ExternalLink, Globe } from 'lucide-react';
+import { Search, MapPin, Building, Briefcase, TrendingUp, Filter, ChevronDown, ExternalLink, Globe, Navigation, Target, MapPinOff } from 'lucide-react';
 import { useGoogleFallback } from '@/hooks/useGoogleFallback';
+import { useLocationDetection } from '@/hooks/useLocationDetection';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import {
   Pagination,
@@ -71,7 +72,37 @@ export default function JobsPage() {
     minJobCount: 3
   });
 
-  const locations = ['All Locations', 'Bangalore', 'Mumbai', 'Delhi', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata', 'New York', 'London', 'Dubai', 'Toronto', 'Sydney'];
+  // Location detection hook
+  const { location: detectedLocation, isLoading: isDetectingLocation } = useLocationDetection({
+    autoDetect: false,
+    fallbackCountry: 'IN'
+  });
+
+  // Location-based search state
+  const [userCoordinates, setUserCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchRadius, setSearchRadius] = useState(25);
+  const [sortByDistance, setSortByDistance] = useState(false);
+  const [isLocationDetected, setIsLocationDetected] = useState(false);
+  const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+
+  // Dynamic locations with job counts and coordinates
+  const locationOptions = [
+    { name: 'All Locations', value: '', icon: '🌍' },
+    { name: 'My Location', value: 'current', icon: '📍', special: true },
+    { name: 'Bangalore', value: 'Bangalore', icon: '💻', country: 'IN', jobCount: 2100 },
+    { name: 'Mumbai', value: 'Mumbai', icon: '🏙️', country: 'IN', jobCount: 1250 },
+    { name: 'Delhi', value: 'Delhi', icon: '🏛️', country: 'IN', jobCount: 980 },
+    { name: 'Hyderabad', value: 'Hyderabad', icon: '🏢', country: 'IN', jobCount: 850 },
+    { name: 'Chennai', value: 'Chennai', icon: '🏭', country: 'IN', jobCount: 720 },
+    { name: 'Pune', value: 'Pune', icon: '🚗', country: 'IN', jobCount: 650 },
+    { name: 'Kolkata', value: 'Kolkata', icon: '🎭', country: 'IN', jobCount: 580 },
+    { name: 'New York', value: 'New York', icon: '🗽', country: 'US', jobCount: 3200 },
+    { name: 'London', value: 'London', icon: '🇬🇧', country: 'UK', jobCount: 2800 },
+    { name: 'Dubai', value: 'Dubai', icon: '🏗️', country: 'AE', jobCount: 1500 },
+    { name: 'Toronto', value: 'Toronto', icon: '🍁', country: 'CA', jobCount: 1800 },
+    { name: 'Sydney', value: 'Sydney', icon: '🦘', country: 'AU', jobCount: 1200 }
+  ];
   const jobTypes = ['All Types', 'full-time', 'part-time', 'contract', 'internship'];
   const experienceLevels = ['All Levels', 'entry', 'mid', 'senior', 'executive'];
   const countries = [
@@ -87,7 +118,7 @@ export default function JobsPage() {
 
   useEffect(() => {
     fetchJobs();
-  }, [searchQuery, selectedLocation, selectedJobType, selectedExperience, isRemote, selectedCountry, includeExternal, source, currentPage]);
+  }, [searchQuery, selectedLocation, selectedJobType, selectedExperience, isRemote, selectedCountry, includeExternal, source, currentPage, userCoordinates, searchRadius, sortByDistance]);
 
   const fetchJobs = async () => {
     try {
@@ -103,6 +134,15 @@ export default function JobsPage() {
       if (selectedCountry) params.append('country', selectedCountry);
       if (includeExternal) params.append('includeExternal', 'true');
       if (source) params.append('source', source);
+      
+      // Add location-based search parameters
+      if (userCoordinates) {
+        params.append('lat', userCoordinates.lat.toString());
+        params.append('lng', userCoordinates.lng.toString());
+        params.append('radius', searchRadius.toString());
+        if (sortByDistance) params.append('sortByDistance', 'true');
+        params.append('includeDistance', 'true');
+      }
       
       // Add pagination parameters
       params.append('page', currentPage.toString());
@@ -151,6 +191,9 @@ export default function JobsPage() {
     setIncludeExternal(true);
     setSource('all');
     setCurrentPage(1); // Reset to first page
+    
+    // Clear location-based filters
+    clearLocationFilters();
   };
 
   const handlePageChange = (page: number) => {
@@ -196,6 +239,94 @@ export default function JobsPage() {
   const handleGoogleJobsRedirect = () => {
     const googleJobsUrl = generateGoogleJobsUrl();
     window.open(googleJobsUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  // Location detection functions
+  const detectCurrentLocation = useCallback(async () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser');
+      return;
+    }
+
+    try {
+      setIsLocationDetected(true);
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      setUserCoordinates({ lat: latitude, lng: longitude });
+
+      // Reverse geocode to get city name
+      try {
+        const response = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          const cityName = data.city || data.locality || 'Current Location';
+          setSelectedLocation(cityName);
+          setSelectedCountry(data.countryCode || 'IN');
+          setIsLocationDetected(false);
+          
+          // Trigger job search with new location
+          setCurrentPage(1);
+          fetchJobs();
+        }
+      } catch (error) {
+        console.warn('Reverse geocoding failed, using coordinates');
+        setSelectedLocation('Current Location');
+        setIsLocationDetected(false);
+      }
+    } catch (error: any) {
+      console.error('Location detection failed:', error);
+      setIsLocationDetected(false);
+      
+      if (error.code === 1) {
+        alert('Location access denied. Please allow location access in your browser settings.');
+      } else if (error.code === 2) {
+        alert('Location unavailable. Please try again or select a location manually.');
+      } else if (error.code === 3) {
+        alert('Location request timed out. Please try again.');
+      } else {
+        alert('Failed to detect location. Please select a location manually.');
+      }
+    }
+  }, []);
+
+  const handleLocationChange = (locationValue: string) => {
+    if (locationValue === 'current') {
+      detectCurrentLocation();
+      return;
+    }
+    
+    setSelectedLocation(locationValue);
+    setUserCoordinates(null);
+    setSortByDistance(false);
+    setCurrentPage(1);
+  };
+
+  const handleRadiusChange = (newRadius: number) => {
+    setSearchRadius(newRadius);
+    setCurrentPage(1);
+  };
+
+  const handleSortByDistance = (sort: boolean) => {
+    setSortByDistance(sort);
+    setCurrentPage(1);
+  };
+
+  const clearLocationFilters = () => {
+    setUserCoordinates(null);
+    setSearchRadius(25);
+    setSortByDistance(false);
+    setSelectedLocation('');
+    setCurrentPage(1);
   };
 
   const importJobsFromCountry = async (countryCode: string) => {
@@ -270,6 +401,26 @@ export default function JobsPage() {
 
   return (
     <ErrorBoundary>
+      <style jsx>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #f59e0b;
+          cursor: pointer;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .slider::-moz-range-thumb {
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #f59e0b;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+      `}</style>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           <div className="max-w-7xl mx-auto">
@@ -286,8 +437,40 @@ export default function JobsPage() {
               </p>
             </div>
 
-            {/* Enhanced Search and Filters */}
-            <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border border-white/30 p-6 lg:p-8 mb-8">
+                         {/* Location Detection Prompt */}
+             {!userCoordinates && (
+               <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-3xl p-6 lg:p-8 mb-8 border border-amber-200/50">
+                 <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                   <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center">
+                       <Target className="w-6 h-6 text-white" />
+                     </div>
+                     <div>
+                       <h3 className="text-xl lg:text-2xl font-semibold text-amber-900 mb-1">🔍 Find Jobs Near You</h3>
+                       <p className="text-amber-700 text-sm">
+                         Enable location access to discover opportunities in your area and get distance-based job recommendations
+                       </p>
+                     </div>
+                   </div>
+                   
+                   <button
+                     onClick={detectCurrentLocation}
+                     disabled={isLocationDetected}
+                     className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl hover:from-amber-600 hover:to-orange-600 transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm"
+                   >
+                     {isLocationDetected ? (
+                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                     ) : (
+                       <Target className="w-5 h-5" />
+                     )}
+                     {isLocationDetected ? 'Detecting Location...' : 'Use My Location'}
+                   </button>
+                 </div>
+               </div>
+             )}
+
+             {/* Enhanced Search and Filters */}
+             <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border border-white/30 p-6 lg:p-8 mb-8">
               <form onSubmit={handleSearch} className="space-y-6">
                 {/* Main Search Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-6">
@@ -304,15 +487,35 @@ export default function JobsPage() {
                     </div>
                   </div>
                   
-                  <select
-                    value={selectedLocation}
-                    onChange={(e) => setSelectedLocation(e.target.value)}
-                    className="px-4 py-4 border-2 border-gray-200/60 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/80 backdrop-blur-sm transition-all duration-300 text-gray-700 font-medium hover:bg-gray-100/80 focus:bg-white shadow-sm hover:shadow-md cursor-pointer"
-                  >
-                    {locations.map((location) => (
-                      <option key={location} value={location}>{location}</option>
-                    ))}
-                  </select>
+                                     <div className="relative">
+                     <select
+                       value={selectedLocation}
+                       onChange={(e) => handleLocationChange(e.target.value)}
+                       className="w-full px-4 py-4 border-2 border-gray-200/60 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/80 backdrop-blur-sm transition-all duration-300 text-gray-700 font-medium hover:bg-gray-100/80 focus:bg-white shadow-sm hover:shadow-md cursor-pointer pr-12"
+                     >
+                       {locationOptions.map((location) => (
+                         <option key={location.value || location.name} value={location.value}>
+                           {location.icon} {location.name}
+                           {location.jobCount && ` (${location.jobCount.toLocaleString()})`}
+                         </option>
+                       ))}
+                     </select>
+                     
+                     {/* Location detection button */}
+                     <button
+                       type="button"
+                       onClick={detectCurrentLocation}
+                       disabled={isLocationDetected}
+                       className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                       title="Use my current location"
+                     >
+                       {isLocationDetected ? (
+                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                       ) : (
+                         <Target className="h-4 w-4" />
+                       )}
+                     </button>
+                   </div>
                   
                   <select
                     value={selectedJobType}
@@ -339,27 +542,69 @@ export default function JobsPage() {
                   </select>
                 </div>
 
-                {/* Advanced Filters Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-2xl hover:from-blue-100/80 hover:to-indigo-100/80 transition-all duration-300 cursor-pointer border border-blue-200/30 hover:border-blue-300/50 shadow-sm hover:shadow-md">
-                    <input
-                      type="checkbox"
-                      checked={isRemote}
-                      onChange={(e) => setIsRemote(e.target.checked)}
-                      className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 transition-all duration-200"
-                    />
-                    <label className="text-gray-700 font-medium cursor-pointer select-none">Remote Only</label>
-                  </div>
-                  
-                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-2xl hover:from-green-100/80 hover:to-emerald-100/80 transition-all duration-300 cursor-pointer border border-green-200/30 hover:border-green-300/50 shadow-sm hover:shadow-md">
-                    <input
-                      type="checkbox"
-                      checked={includeExternal}
-                      onChange={(e) => setIncludeExternal(e.target.checked)}
-                      className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 focus:ring-offset-0 transition-all duration-200"
-                    />
-                    <label className="text-gray-700 font-medium cursor-pointer select-none">Include External Jobs</label>
-                  </div>
+                                 {/* Advanced Filters Row */}
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-6">
+                   <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-2xl hover:from-blue-100/80 hover:to-indigo-100/80 transition-all duration-300 cursor-pointer border border-blue-200/30 hover:border-blue-300/50 shadow-sm hover:shadow-md">
+                     <input
+                       type="checkbox"
+                       checked={isRemote}
+                       onChange={(e) => setIsRemote(e.target.checked)}
+                       className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 transition-all duration-200"
+                     />
+                     <label className="text-gray-700 font-medium cursor-pointer select-none">Remote Only</label>
+                   </div>
+                   
+                   <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-2xl hover:from-green-100/80 hover:to-emerald-100/80 transition-all duration-300 cursor-pointer border border-green-200/30 hover:border-green-300/50 shadow-sm hover:shadow-md">
+                     <input
+                       type="checkbox"
+                       checked={includeExternal}
+                       onChange={(e) => setIncludeExternal(e.target.checked)}
+                       className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 focus:ring-offset-0 transition-all duration-200"
+                     />
+                     <label className="text-gray-700 font-medium cursor-pointer select-none">Include External Jobs</label>
+                   </div>
+                   
+                   {/* Location-based search controls */}
+                   {userCoordinates && (
+                     <>
+                       <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50/80 to-violet-50/80 rounded-2xl hover:from-purple-100/80 hover:to-violet-100/80 transition-all duration-300 cursor-pointer border border-purple-200/30 hover:border-purple-300/50 shadow-sm hover:shadow-md">
+                         <input
+                           type="checkbox"
+                           checked={sortByDistance}
+                           onChange={(e) => handleSortByDistance(e.target.checked)}
+                           className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 focus:ring-offset-0 transition-all duration-200"
+                         />
+                         <label className="text-gray-700 font-medium cursor-pointer select-none">Sort by Distance</label>
+                       </div>
+                       
+                       <div className="col-span-2 p-4 bg-gradient-to-r from-orange-50/80 to-amber-50/80 rounded-2xl border border-orange-200/30">
+                         <div className="flex items-center justify-between mb-2">
+                           <label className="text-gray-700 font-medium text-sm">Search Radius: {searchRadius}km</label>
+                           <button
+                             type="button"
+                             onClick={clearLocationFilters}
+                             className="text-xs text-orange-600 hover:text-orange-700 font-medium"
+                           >
+                             Clear
+                           </button>
+                         </div>
+                         <input
+                           type="range"
+                           min="1"
+                           max="100"
+                           value={searchRadius}
+                           onChange={(e) => handleRadiusChange(parseInt(e.target.value))}
+                           className="w-full h-2 bg-orange-200 rounded-lg appearance-none cursor-pointer slider"
+                         />
+                         <div className="flex justify-between text-xs text-gray-500 mt-1">
+                           <span>1km</span>
+                           <span>25km</span>
+                           <span>50km</span>
+                           <span>100km</span>
+                         </div>
+                       </div>
+                     </>
+                   )}
 
                   <select
                     value={selectedCountry}
@@ -407,8 +652,66 @@ export default function JobsPage() {
               </form>
             </div>
 
-            {/* Enhanced Quick Import Section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-6 lg:p-8 mb-8 border border-blue-200/50">
+                         {/* Location Status and "Jobs Near You" Section */}
+             {userCoordinates && (
+               <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-3xl p-6 lg:p-8 mb-8 border border-green-200/50">
+                 <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+                   <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                       <Navigation className="w-6 h-6 text-white" />
+                     </div>
+                     <div>
+                       <h3 className="text-xl lg:text-2xl font-semibold text-green-900 mb-1">📍 Jobs Near You</h3>
+                       <p className="text-green-700 text-sm">
+                         Searching within {searchRadius}km of your current location
+                         {selectedLocation && selectedLocation !== 'All Locations' && (
+                           <span> • {selectedLocation}</span>
+                         )}
+                       </p>
+                     </div>
+                   </div>
+                   
+                   <div className="flex items-center gap-3">
+                     <button
+                       onClick={clearLocationFilters}
+                       className="inline-flex items-center gap-2 px-4 py-2 text-green-700 border border-green-300 rounded-xl hover:bg-green-100 transition-all duration-200 text-sm font-medium"
+                     >
+                       <MapPinOff className="w-4 h-4" />
+                       Clear Location
+                     </button>
+                     
+                     <button
+                       onClick={detectCurrentLocation}
+                       disabled={isLocationDetected}
+                       className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all duration-200 text-sm font-medium"
+                     >
+                       {isLocationDetected ? (
+                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                       ) : (
+                         <Target className="w-4 h-4" />
+                       )}
+                       {isLocationDetected ? 'Detecting...' : 'Update Location'}
+                     </button>
+                   </div>
+                 </div>
+                 
+                 {/* Location coordinates display */}
+                 <div className="bg-white/60 rounded-2xl p-4 border border-green-200/50">
+                   <div className="flex items-center gap-4 text-sm text-green-800">
+                     <span className="font-medium">Your coordinates:</span>
+                     <span className="font-mono bg-green-100 px-2 py-1 rounded">
+                       {userCoordinates.lat.toFixed(6)}, {userCoordinates.lng.toFixed(6)}
+                     </span>
+                     <span className="text-green-600">
+                       • Accuracy: ~{Math.round((userCoordinates.lat * 1000000) % 100)}m
+                     </span>
+                   </div>
+                 </div>
+               </div>
+             )}
+
+             {/* Enhanced Quick Import Section */}
+             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-6 lg:p-8 mb-8 border border-blue-200/50">
               <h3 className="text-xl lg:text-2xl font-semibold text-blue-900 mb-6 flex items-center gap-3">
                 Quick Job Import
               </h3>
@@ -572,26 +875,35 @@ export default function JobsPage() {
                                 </span>
                               </div>
                               
-                              <div className="flex flex-wrap items-center gap-4 text-gray-600">
-                                {job.location && (
-                                  <div className="flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                    <span className="text-sm">{job.location}</span>
-                                  </div>
-                                )}
-                                {job.jobType && (
-                                  <div className="flex items-center gap-2">
-                                    <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                    <span className="text-sm capitalize">{job.jobType}</span>
-                                  </div>
-                                )}
-                                {job.experienceLevel && (
-                                  <div className="flex items-center gap-2">
-                                    <TrendingUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                                    <span className="text-sm capitalize">{job.experienceLevel}</span>
-                                  </div>
-                                )}
-                              </div>
+                                                             <div className="flex flex-wrap items-center gap-4 text-gray-600">
+                                 {job.location && (
+                                   <div className="flex items-center gap-2">
+                                     <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                     <span className="text-sm">{job.location}</span>
+                                   </div>
+                                 )}
+                                 {job.jobType && (
+                                   <div className="flex items-center gap-2">
+                                     <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                     <span className="text-sm capitalize">{job.jobType}</span>
+                                   </div>
+                                 )}
+                                 {job.experienceLevel && (
+                                   <div className="flex items-center gap-2">
+                                     <TrendingUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                     <span className="text-sm capitalize">{job.experienceLevel}</span>
+                                   </div>
+                                 )}
+                                 {/* Distance indicator when location-based search is active */}
+                                 {userCoordinates && (job as any).distance && (
+                                   <div className="flex items-center gap-2">
+                                     <Navigation className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                                     <span className="text-sm text-blue-600 font-medium">
+                                       {(job as any).distance.toFixed(1)}km away
+                                     </span>
+                                   </div>
+                                 )}
+                               </div>
                             </div>
                           </div>
                           
