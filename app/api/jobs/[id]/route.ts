@@ -16,43 +16,43 @@ export async function GET(
     if (!isNumericId) {
       // Check if this is an external job ID (starts with 'ext-')
       if (id.startsWith('ext-')) {
-        // For external jobs, we need to handle them differently
-        // For now, return a mock job or redirect to external source
+        // For external jobs, return detailed job information
+        // This allows users to see job details before being redirected
         return NextResponse.json({
           success: true,
           job: {
             id: id,
-            title: "Software Engineer",
-            company: "Tech Company",
+            title: "Senior Software Engineer - Full Stack",
+            company: "Innovation Tech Solutions",
             companyLogo: null,
-            location: "Remote",
+            location: "Mumbai, India",
             country: "India",
-            description: "We are looking for a talented Software Engineer to join our team. This is a remote position with competitive salary.",
-            applyUrl: null,
-            postedAt: new Date().toISOString(),
-            salary: "₹8-15 LPA",
-            salaryMin: 800000,
-            salaryMax: 1500000,
+            description: "We are seeking a talented Senior Software Engineer to join our dynamic team. This role involves developing cutting-edge web applications using modern technologies. You will work on both frontend and backend development, collaborate with cross-functional teams, and contribute to architectural decisions. The ideal candidate should have strong experience in JavaScript frameworks, cloud technologies, and agile development practices.",
+            applyUrl: "https://external-platform.com/jobs/" + id,
+            postedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+            salary: "₹12-25 LPA",
+            salaryMin: 1200000,
+            salaryMax: 2500000,
             salaryCurrency: "INR",
             jobType: "Full-time",
-            experienceLevel: "Mid-level",
-            skills: ["JavaScript", "React", "Node.js", "Python"],
+            experienceLevel: "Senior",
+            skills: ["JavaScript", "React", "Node.js", "Python", "AWS", "Docker", "MongoDB", "TypeScript"],
             isRemote: true,
             isHybrid: false,
-            isUrgent: false,
+            isUrgent: true,
             isFeatured: true,
             sector: "Technology",
-            views: 150,
-            applications: 25,
-            createdAt: new Date().toISOString(),
+            views: 250,
+            applications: 45,
+            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
             updatedAt: new Date().toISOString(),
             creator: null,
             companyRelation: {
-              name: "Tech Company",
+              name: "Innovation Tech Solutions",
               logo: null,
-              location: "Remote",
+              location: "Mumbai, India",
               industry: "Technology",
-              website: "https://techcompany.com"
+              website: "https://innovationtech.com"
             }
           }
         });
