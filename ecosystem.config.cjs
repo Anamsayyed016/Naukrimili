@@ -3,7 +3,6 @@ module.exports = {
     {
       name: 'jobportal',
       script: '.next/standalone/server.js',
-      cwd: '/root/jobportal',
       instances: 1,
       exec_mode: 'fork',
       env: {
