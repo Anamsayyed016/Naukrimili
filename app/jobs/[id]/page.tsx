@@ -173,13 +173,16 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
           <div className="prose max-w-none mb-10" dangerouslySetInnerHTML={{ __html: job.description }} />
 
           <div className="flex gap-3 pt-6 border-t border-gray-200">
-            {job.applyUrl ? (
+            {job.id.toString().startsWith('ext-') ? (
               <a 
-                href={job.applyUrl}
+                href={job.applyUrl || `https://external-platform.com/jobs/${job.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium flex items-center gap-2"
               >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
                 Apply on External Site
               </a>
             ) : (

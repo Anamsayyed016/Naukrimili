@@ -109,14 +109,28 @@ export default function JobApplicationPage() {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-2xl font-bold mb-2 text-red-600">External Job Application</h1>
-          <p className="text-gray-600 mb-6">This job is posted on an external platform. Please apply directly through the original source.</p>
-          <Link 
-            href="/jobs" 
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-          >
-            Back to Jobs
-          </Link>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 mb-6">
+            <svg className="w-16 h-16 text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h1 className="text-3xl font-bold mb-4 text-blue-900">External Job Application</h1>
+            <p className="text-lg text-blue-700 mb-4">This job is posted on an external platform.</p>
+            <p className="text-blue-600 mb-6">To apply, please visit the original source or use the "Apply on External Site" button on the job details page.</p>
+          </div>
+          <div className="flex gap-4 justify-center">
+            <Link 
+              href={`/jobs/${jobId}`}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            >
+              View Job Details
+            </Link>
+            <Link 
+              href="/jobs" 
+              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700"
+            >
+              Back to Jobs
+            </Link>
+          </div>
         </div>
       </div>
     );
