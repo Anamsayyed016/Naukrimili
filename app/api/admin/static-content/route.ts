@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdminAuth } from '@/lib/auth-utils';
-import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   const auth = await requireAdminAuth();

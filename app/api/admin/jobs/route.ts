@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import { requireAdminAuth } from '@/lib/auth-utils';
 import { z } from 'zod';
+
+// Create Prisma client instance only when needed
+const getPrisma = () => new PrismaClient();
 
 const jobActionSchema = z.object({
   action: z.enum(['approve', 'reject', 'feature', 'unfeature', 'activate', 'deactivate', 'delete']),
@@ -64,7 +67,7 @@ export async function GET(request: NextRequest) {
 
     // Get jobs with pagination and related data
     const [jobs, total] = await Promise.all([
-      prisma.job.findMany({
+      getPrisma().job.findMany({
         where,
         skip,
         take: limit,
@@ -93,7 +96,7 @@ export async function GET(request: NextRequest) {
           }
         }
       }),
-      prisma.job.count({ where })
+      getPrisma().job.count({ where })
     ]);
 
     // Transform jobs for admin view
@@ -185,7 +188,7 @@ export async function POST(request: NextRequest) {
         break;
       case 'delete':
         // Delete jobs
-        await prisma.job.deleteMany({
+        await getPrisma().job.deleteMany({
           where: { id: { in: jobIds } }
         });
         return NextResponse.json({
@@ -200,7 +203,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update jobs
-    const updatedJobs = await prisma.job.updateMany({
+    const updatedJobs = await getPrisma().job.updateMany({
       where: { id: { in: jobIds } },
       data: updateData
     });
