@@ -55,7 +55,21 @@ export function useJobsApi() {
     } catch (_) { setError('Failed to delete job'); } finally { setLoading(false); }
   }, [fetchJobs]);
 
-  useEffect(() => { fetchJobs(); }, [fetchJobs]);
+  useEffect(() => { 
+    let isMounted = true;
+    
+    const loadJobs = async () => {
+      if (isMounted) {
+        await fetchJobs();
+      }
+    };
+    
+    loadJobs();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchJobs]);
 
   return { jobs, loading, error, fetchJobs, createJob, updateJob, deleteJob };
 }

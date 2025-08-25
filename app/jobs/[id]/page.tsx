@@ -173,12 +173,23 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
           <div className="prose max-w-none mb-10" dangerouslySetInnerHTML={{ __html: job.description }} />
 
           <div className="flex gap-3 pt-6 border-t border-gray-200">
-            <Link 
-              href={`/jobs/${job.id}/apply`}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
-            >
-              Apply Now
-            </Link>
+            {job.applyUrl ? (
+              <a 
+                href={job.applyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+              >
+                Apply on External Site
+              </a>
+            ) : (
+              <Link 
+                href={`/jobs/${job.id}/apply`}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+              >
+                Apply Now
+              </Link>
+            )}
             <Link 
               href="/jobs"
               className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700"

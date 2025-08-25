@@ -27,7 +27,11 @@ export function CandidateProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'An error occurred';
       setError(msg);
-      toast.error('Failed to fetch candidates');
+      try {
+        toast.error('Failed to fetch candidates');
+      } catch (toastError) {
+        console.error('Toast error:', toastError);
+      }
     } finally { setLoading(false); }
   }, []);
 
@@ -41,11 +45,19 @@ export function CandidateProvider({ children }: { children: React.ReactNode }) {
       });
       if (!response.ok) throw new Error('Failed to update candidate status');
       await refreshCandidates();
-      toast.success('Candidate status updated successfully');
+      try {
+        toast.success('Candidate status updated successfully');
+      } catch (toastError) {
+        console.error('Toast error:', toastError);
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'An error occurred';
       setError(msg);
-      toast.error('Failed to update candidate status');
+      try {
+        toast.error('Failed to update candidate status');
+      } catch (toastError) {
+        console.error('Toast error:', toastError);
+      }
     } finally { setLoading(false); }
   }, [refreshCandidates]);
 

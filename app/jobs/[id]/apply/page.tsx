@@ -60,7 +60,11 @@ export default function JobApplicationPage() {
         const data = await response.json();
         if (data.success) {
           setJob(data.job);
+        } else {
+          console.error('Failed to fetch job:', data.error);
         }
+      } else {
+        console.error('Failed to fetch job:', response.statusText);
       }
     } catch (error) {
       console.error('Error fetching job details:', error);
@@ -99,6 +103,24 @@ export default function JobApplicationPage() {
       setSubmitting(false);
     }
   };
+
+  // Check if this is an external job
+  if (jobId && jobId.toString().startsWith('ext-')) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-2xl font-bold mb-2 text-red-600">External Job Application</h1>
+          <p className="text-gray-600 mb-6">This job is posted on an external platform. Please apply directly through the original source.</p>
+          <Link 
+            href="/jobs" 
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            Back to Jobs
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

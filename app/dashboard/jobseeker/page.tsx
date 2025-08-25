@@ -59,6 +59,8 @@ export default function JobseekerPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchDashboardData = async () => {
       try {
         // Fetch applications
@@ -82,24 +84,32 @@ export default function JobseekerPage() {
         const completedFields = completionFields.filter(field => profile[field]);
         const completion = Math.round((completedFields.length / completionFields.length) * 100);
 
-        setStats({
-          applicationsCount: Array.isArray(applications) ? applications.length : 0,
-          profileViews: Math.floor(Math.random() * 50) + 10, // Mock data
-          resumeUploads: profile.resumes?.length || 0,
-          savedJobs: Array.isArray(bookmarks) ? bookmarks.length : 0,
-          profileCompletion: completion
-        });
+        if (isMounted) {
+          setStats({
+            applicationsCount: Array.isArray(applications) ? applications.length : 0,
+            profileViews: Math.floor(Math.random() * 50) + 10, // Mock data
+            resumeUploads: profile.resumes?.length || 0,
+            savedJobs: Array.isArray(bookmarks) ? bookmarks.length : 0,
+            profileCompletion: completion
+          });
 
-        setRecentApplications(Array.isArray(applications) ? applications.slice(0, 5) : []);
-        setRecommendedJobs(Array.isArray(jobsData.jobs) ? jobsData.jobs : []);
+          setRecentApplications(Array.isArray(applications) ? applications.slice(0, 5) : []);
+          setRecommendedJobs(Array.isArray(jobsData.jobs) ? jobsData.jobs : []);
+          setLoading(false);
+        }
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          console.error('Error fetching dashboard data:', error);
+          setLoading(false);
+        }
       }
     };
 
     fetchDashboardData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getStatusColor = (status: string) => {

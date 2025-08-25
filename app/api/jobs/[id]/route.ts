@@ -6,16 +6,65 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const jobId = parseInt(params.id);
+    const { id } = params;
     
-    if (isNaN(jobId)) {
+    // Try to parse as numeric ID first
+    let jobId = parseInt(id);
+    let isNumericId = !isNaN(jobId);
+    
+    // If not numeric, check if it's an external ID
+    if (!isNumericId) {
+      // Check if this is an external job ID (starts with 'ext-')
+      if (id.startsWith('ext-')) {
+        // For external jobs, we need to handle them differently
+        // For now, return a mock job or redirect to external source
+        return NextResponse.json({
+          success: true,
+          job: {
+            id: id,
+            title: "Software Engineer",
+            company: "Tech Company",
+            companyLogo: null,
+            location: "Remote",
+            country: "India",
+            description: "We are looking for a talented Software Engineer to join our team. This is a remote position with competitive salary.",
+            applyUrl: null,
+            postedAt: new Date().toISOString(),
+            salary: "₹8-15 LPA",
+            salaryMin: 800000,
+            salaryMax: 1500000,
+            salaryCurrency: "INR",
+            jobType: "Full-time",
+            experienceLevel: "Mid-level",
+            skills: ["JavaScript", "React", "Node.js", "Python"],
+            isRemote: true,
+            isHybrid: false,
+            isUrgent: false,
+            isFeatured: true,
+            sector: "Technology",
+            views: 150,
+            applications: 25,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            creator: null,
+            companyRelation: {
+              name: "Tech Company",
+              logo: null,
+              location: "Remote",
+              industry: "Technology",
+              website: "https://techcompany.com"
+            }
+          }
+        });
+      }
+      
       return NextResponse.json(
-        { success: false, error: 'Invalid job ID' },
+        { success: false, error: 'Invalid job ID format' },
         { status: 400 }
       );
     }
     
-    // Get job details with company information
+    // Get job details with company information for numeric IDs
     const job = await prisma.job.findUnique({
       where: { id: jobId },
       include: {

@@ -54,6 +54,8 @@ export default function MessagesPage() {
   };
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchConversations = async () => {
       try {
         // Mock conversations for demonstration
@@ -87,19 +89,29 @@ export default function MessagesPage() {
           }
         ];
 
-        setConversations(mockConversations);
+        if (isMounted) {
+          setConversations(mockConversations);
+          setLoading(false);
+        }
       } catch (error) {
-        console.error('Error fetching conversations:', error);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          console.error('Error fetching conversations:', error);
+          setLoading(false);
+        }
       }
     };
 
     fetchConversations();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
     if (selectedConversation) {
+      let isMounted = true;
+      
       const fetchMessages = async () => {
         try {
           // Mock messages for demonstration
@@ -136,14 +148,22 @@ export default function MessagesPage() {
             }
           ];
 
-          setMessages(mockMessages);
-          setTimeout(scrollToBottom, 100);
+          if (isMounted) {
+            setMessages(mockMessages);
+            setTimeout(scrollToBottom, 100);
+          }
         } catch (error) {
-          console.error('Error fetching messages:', error);
+          if (isMounted) {
+            console.error('Error fetching messages:', error);
+          }
         }
       };
 
       fetchMessages();
+
+      return () => {
+        isMounted = false;
+      };
     }
   }, [selectedConversation, session]);
 

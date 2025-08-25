@@ -28,16 +28,25 @@ const createQueryClient = () => new QueryClient({
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
+      // Add error boundary handling
+      onError: (error: any) => {
+        console.error('Query error:', error);
+      },
     },
     mutations: {
       retry: false,
       onError: (error: any) => {
         console.error('Mutation error:', error);
-        toast({
-          title: 'Error',
-          description: error?.message || 'Something went wrong',
-          variant: 'destructive',
-        });
+        // Only show toast if component is still mounted
+        try {
+          toast({
+            title: 'Error',
+            description: error?.message || 'Something went wrong',
+            variant: 'destructive',
+          });
+        } catch (toastError) {
+          console.error('Toast error:', toastError);
+        }
       },
     },
   },
