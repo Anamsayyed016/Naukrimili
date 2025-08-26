@@ -17,17 +17,35 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return getAPIDocumentation();
   }
   
-  // If no user ID, return authentication error
-  if (!userId) {
+  // If no user ID, return authentication error with helpful message
+  if (!userId || userId === 'temp') {
     return NextResponse.json({
       success: false,
       error: {
         code: 'AUTHENTICATION_REQUIRED',
         message: 'User ID is required to list resumes',
-        details: ['Provide x-user-id header or userId query parameter'],
+        details: [
+          'Provide x-user-id header or userId query parameter',
+          'User must be authenticated to access resumes',
+          'Check if user session is valid'
+        ],
       },
       timestamp: new Date().toISOString(),
     } as APIError, { status: 401 });
+  }
+
+  // Convert string userId to integer for database operations
+  const numericUserId = parseInt(userId.toString());
+  if (isNaN(numericUserId)) {
+    return NextResponse.json({
+      success: false,
+      error: {
+        code: 'INVALID_USER_ID',
+        message: 'Invalid user ID format',
+        details: ['User ID must be a valid number'],
+      },
+      timestamp: new Date().toISOString(),
+    } as APIError, { status: 400 });
   }
 
   try {
@@ -38,7 +56,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const sortOrder = request.nextUrl.searchParams.get('sortOrder') || 'desc';
     
     // Get user's resumes (implement with your database)
-    const resumes = await getUserResumes(userId, { page, limit, sortBy, sortOrder });
+    const resumes = await getUserResumes(numericUserId, { page, limit, sortBy, sortOrder });
     
     return NextResponse.json({
       success: true,
@@ -76,18 +94,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const userId = request.headers.get('x-user-id');
     const body = await request.json();
     
-    if (!userId) {
+    // Extract userId from request body for POST operations
+    const userId = body.data?.userId || body.userId;
+    
+    if (!userId || userId === 'temp') {
       return NextResponse.json({
         success: false,
         error: {
           code: 'AUTHENTICATION_REQUIRED',
-          message: 'User ID is required to create resume',
+          message: 'Valid user ID is required to create resume',
         },
         timestamp: new Date().toISOString(),
       } as APIError, { status: 401 });
+    }
+
+    // Convert string userId to integer for database operations
+    const numericUserId = parseInt(userId.toString());
+    if (isNaN(numericUserId)) {
+      return NextResponse.json({
+        success: false,
+        error: {
+          code: 'INVALID_USER_ID',
+          message: 'Invalid user ID format',
+          details: ['User ID must be a valid number'],
+        },
+        timestamp: new Date().toISOString(),
+      } as APIError, { status: 400 });
     }
 
     // Handle different POST operations based on action
@@ -95,11 +129,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     
     switch (action) {
       case 'create':
-        return await createNewResume(userId, body.data);
+        return await createNewResume(numericUserId, body.data);
       case 'duplicate':
-        return await duplicateResume(userId, body.sourceId, body.modifications);
+        return await duplicateResume(numericUserId, body.sourceId, body.modifications);
       case 'batch-analyze':
-        return await batchAnalyzeResumes(userId, body.resumeIds);
+        return await batchAnalyzeResumes(numericUserId, body.resumeIds);
       default:
         return NextResponse.json({
           success: false,
@@ -128,7 +162,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 // Helper functions
-async function getUserResumes(userId: string, options: {
+async function getUserResumes(userId: number, options: {
   page: number;
   limit: number;
   sortBy: string;
@@ -174,7 +208,7 @@ async function getUserResumes(userId: string, options: {
   return { data: [], total: 0 };
 }
 
-async function createNewResume(userId: string, data: any) {
+async function createNewResume(userId: number, data: any) {
   const saved = await resumeService.saveResume(data);
   
   return NextResponse.json({
@@ -191,8 +225,8 @@ async function createNewResume(userId: string, data: any) {
   }, { status: 201 });
 }
 
-async function duplicateResume(userId: string, sourceId: string, modifications?: any) {
-  const sourceRecord = await resumeService['getResumeRecord'](sourceId, userId);
+async function duplicateResume(userId: number, sourceId: string, modifications?: any) {
+  const sourceRecord = await resumeService['getResumeRecord'](sourceId, userId.toString());
   if (!sourceRecord) {
     throw new Error('Source resume not found');
   }
@@ -216,12 +250,12 @@ async function duplicateResume(userId: string, sourceId: string, modifications?:
   }, { status: 201 });
 }
 
-async function batchAnalyzeResumes(userId: string, resumeIds: string[]) {
+async function batchAnalyzeResumes(userId: number, resumeIds: string[]) {
   const analyses = [];
   
   for (const id of resumeIds) {
     try {
-      const record = await resumeService['getResumeRecord'](id, userId);
+      const record = await resumeService['getResumeRecord'](id, userId.toString());
       if (record) {
         const analysis = await resumeService.analyzeResume(record.data);
         analyses.push({
