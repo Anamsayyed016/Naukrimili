@@ -11,7 +11,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { FaGoogle, FaLinkedin } from 'react-icons/fa';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Smartphone, Monitor } from 'lucide-react';
+import { 
+  isMobileDevice, 
+  getPreferredAuthMethod, 
+  getMobileOAuthErrorMessage 
+} from '@/lib/mobile-auth';
 
 interface OAuthButtonsProps {
   callbackUrl?: string;
@@ -40,12 +45,26 @@ export function OAuthButtons({
     try {
       setLoadingProvider(providerId);
       
-      await signIn(providerId, {
+      const isMobile = isMobileDevice();
+      const authMethod = getPreferredAuthMethod();
+      
+      console.log(`🔐 OAuth sign-in: ${providerId} on ${isMobile ? 'mobile' : 'desktop'} using ${authMethod}`);
+      
+      const result = await signIn(providerId, {
         callbackUrl,
-        redirect: true,
+        redirect: authMethod === 'redirect',
       });
-    } catch (error) {
-      console.error(`OAuth sign-in error for ${providerId}:`, error);
+      
+      if (result?.error) {
+        const mobileError = getMobileOAuthErrorMessage(result.error);
+        console.error(`❌ OAuth error for ${providerId}:`, result.error);
+        console.error(`📱 Mobile-friendly error:`, mobileError);
+      }
+    } catch (error: any) {
+      const mobileError = getMobileOAuthErrorMessage(error);
+      console.error(`❌ OAuth exception for ${providerId}:`, error);
+      console.error(`📱 Mobile-friendly error:`, mobileError);
+    } finally {
       setLoadingProvider(null);
     }
   };
@@ -103,6 +122,19 @@ export function OAuthButtons({
 
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* Mobile Device Information */}
+      {isMobileDevice() && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div className="flex items-center space-x-2">
+            <Smartphone className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-800">Mobile Device</span>
+          </div>
+          <p className="text-xs text-blue-700 mt-1">
+            Using mobile-optimized authentication for better compatibility.
+          </p>
+        </div>
+      )}
+
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <Separator className="w-full" />

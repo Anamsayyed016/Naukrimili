@@ -189,6 +189,48 @@
   }
 }
 
+/* Mobile-specific authentication styles */
+@media (max-width: 768px) {
+  .auth-container {
+    @apply p-2;
+  }
+  
+  .auth-card {
+    @apply w-full max-w-sm mx-auto;
+  }
+  
+  .auth-title {
+    @apply text-xl;
+  }
+  
+  .oauth-button {
+    @apply py-4 text-base;
+  }
+  
+  .auth-input {
+    @apply py-3 text-base;
+  }
+  
+  .btn-primary {
+    @apply py-4 text-base;
+  }
+}
+
+/* Touch-friendly mobile buttons */
+@media (hover: none) and (pointer: coarse) {
+  .oauth-button {
+    @apply min-h-[48px] touch-manipulation;
+  }
+  
+  .btn-primary {
+    @apply min-h-[48px] touch-manipulation;
+  }
+  
+  .auth-input {
+    @apply min-h-[48px];
+  }
+}
+
 /* Modern card hover effects */
 .modern-card {
   @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-1;

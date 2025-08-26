@@ -45,12 +45,17 @@ export interface UserLocationData {
   // Geographic coordinates for proximity calculations
   latitude?: number;
   longitude?: number;
+  coordinates?: { lat: number; lng: number }; // New coordinates structure
   
   // Location detection method
-  source: 'ip' | 'browser' | 'manual';
+  source: 'ip' | 'browser' | 'manual' | 'gps'; // Added 'gps' source
   
   // Location confidence
   accuracy?: number;
+  
+  // Additional metadata
+  state?: string; // Added state field
+  timestamp?: string; // Added timestamp for caching
 }
 
 export interface JobSearchResponse {

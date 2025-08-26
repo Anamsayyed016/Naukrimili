@@ -15,6 +15,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import { 
+  getSmartLocation, 
+  getGeolocationErrorMessage, 
+  getMobileGeolocationOptions 
+} from '@/lib/mobile-geolocation';
 
 interface Job {
   id: string | number;
@@ -243,61 +248,43 @@ export default function JobsPage() {
 
   // Location detection functions
   const detectCurrentLocation = useCallback(async () => {
-    if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser');
-      return;
-    }
-
     try {
       setIsLocationDetected(true);
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000 // 5 minutes
-        });
-      });
-
-      const { latitude, longitude } = position.coords;
-      setUserCoordinates({ lat: latitude, lng: longitude });
-
-      // Reverse geocode to get city name
-      try {
-        const response = await fetch(
-          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-        );
-        
-        if (response.ok) {
-          const data = await response.json();
-          const cityName = data.city || data.locality || 'Current Location';
-          setSelectedLocation(cityName);
-          setSelectedCountry(data.countryCode || 'IN');
-          setIsLocationDetected(false);
-          
-          // Trigger job search with new location
-          setCurrentPage(1);
-          fetchJobs();
+      
+      // Use mobile-optimized geolocation
+      const options = getMobileGeolocationOptions();
+      const result = await getSmartLocation(options);
+      
+      if (result.success) {
+        if (result.coordinates) {
+          setUserCoordinates(result.coordinates);
         }
-      } catch (error) {
-        console.warn('Reverse geocoding failed, using coordinates');
-        setSelectedLocation('Current Location');
+        
+        const cityName = result.city || 'Current Location';
+        const countryCode = result.country || 'IN';
+        
+        setSelectedLocation(cityName);
+        setSelectedCountry(countryCode);
+        setIsLocationDetected(false);
+        
+        // Trigger job search with new location
+        setCurrentPage(1);
+        fetchJobs();
+        
+        console.log(`✅ Location detected: ${cityName} (${result.source})`);
+      } else {
+        // Handle error with user-friendly message
+        const errorMessage = getGeolocationErrorMessage(result.errorCode);
+        alert(errorMessage);
         setIsLocationDetected(false);
       }
+      
     } catch (error: any) {
       console.error('Location detection failed:', error);
       setIsLocationDetected(false);
-      
-      if (error.code === 1) {
-        alert('Location access denied. Please allow location access in your browser settings.');
-      } else if (error.code === 2) {
-        alert('Location unavailable. Please try again or select a location manually.');
-      } else if (error.code === 3) {
-        alert('Location request timed out. Please try again.');
-      } else {
-        alert('Failed to detect location. Please select a location manually.');
-      }
+      alert('An unexpected error occurred while detecting location. Please try again.');
     }
-  }, []);
+  }, [fetchJobs]);
 
   const handleLocationChange = (locationValue: string) => {
     if (locationValue === 'current') {

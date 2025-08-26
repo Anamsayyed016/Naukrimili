@@ -1,7 +1,14 @@
 /**
- * Location Service - User Location Detection
+ * Enhanced Location Service
  * Implements IP geolocation (backend) + browser geolocation (frontend fallback)
+ * Now includes mobile-optimized geolocation
  */
+
+import { 
+  getSmartLocation, 
+  getMobileGeolocationOptions,
+  isMobileDevice 
+} from './mobile-geolocation';
 
 import { UserLocationData } from '@/types/job-search-params';
 
@@ -236,31 +243,41 @@ export class LocationService {
  * Frontend utility for browser location detection
  * Returns complete location data including reverse geocoding
  */
-export async function detectUserLocationFromBrowser(): Promise<UserLocationData | null> {
+export async function detectBrowserLocation(): Promise<UserLocationData | null> {
+  if (typeof window === 'undefined') return null;
+  
   try {
-    // Step 1: Get browser location
-    const browserLocation = await LocationService.getBrowserLocation();
+    // Use mobile-optimized geolocation
+    const isMobile = isMobileDevice();
+    const options = getMobileGeolocationOptions();
     
-    if (browserLocation?.latitude && browserLocation?.longitude) {
-      // Step 2: Reverse geocode to get city/country
-      const geocodedData = await LocationService.reverseGeocode(
-        browserLocation.latitude, 
-        browserLocation.longitude
-      );
+    if (isMobile) {
+      console.log('🔄 Using mobile-optimized geolocation...');
+    }
+    
+    const result = await getSmartLocation(options);
+    
+    if (result.success) {
+      const locationData: UserLocationData = {
+        city: result.city || 'Unknown City',
+        state: result.state || 'Unknown State',
+        country: result.country || 'IN',
+        coordinates: result.coordinates,
+        source: result.source === 'gps' ? 'browser' : result.source, // Map 'gps' to 'browser' for compatibility
+        timestamp: new Date().toISOString()
+      };
       
-      if (geocodedData) {
-        return {
-          ...browserLocation,
-          ...geocodedData,
-        };
-      } else {
-        return browserLocation;
+      if (isMobile) {
+        console.log(`✅ Mobile geolocation successful: ${locationData.city} (${result.source})`);
       }
+      
+      return locationData;
     } else {
+      console.error('Browser geolocation failed:', result.error);
       return null;
     }
-  } catch (err) {
-    console.error('Browser location detection failed:', err);
+  } catch (error) {
+    console.error('Browser location detection failed:', error);
     return null;
   }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,8 +8,14 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Eye, EyeOff, Loader2, Mail, Lock, User, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Mail, Lock, User, AlertCircle, Smartphone, Monitor } from 'lucide-react'
 import Link from 'next/link'
+import { 
+  isMobileDevice, 
+  getPreferredAuthMethod, 
+  validateMobileAuthEnvironment,
+  getMobileOAuthErrorMessage 
+} from '@/lib/mobile-auth'
 
 interface ModernAuthCardProps {
   mode: 'signin' | 'signup'
@@ -26,6 +32,21 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState('')
   const [error, setError] = useState('')
+  const [mobileInfo, setMobileInfo] = useState<{
+    isMobile: boolean;
+    warnings: string[];
+    errors: string[];
+  }>({ isMobile: false, warnings: [], errors: [] })
+
+  // Check mobile environment on component mount
+  useEffect(() => {
+    const env = validateMobileAuthEnvironment()
+    setMobileInfo({
+      isMobile: isMobileDevice(),
+      warnings: env.warnings,
+      errors: env.errors
+    })
+  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -58,13 +79,29 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
 
   const handleOAuthSignIn = async (provider: string) => {
     setIsLoading(provider)
+    setError('')
+    
     try {
-      await signIn(provider, { 
+      const isMobile = isMobileDevice()
+      const authMethod = getPreferredAuthMethod()
+      
+      console.log(`🔐 OAuth sign-in: ${provider} on ${isMobile ? 'mobile' : 'desktop'} using ${authMethod}`)
+      
+      const result = await signIn(provider, { 
         callbackUrl: '/dashboard',
-        redirect: true 
+        redirect: authMethod === 'redirect'
       })
-    } catch (error) {
-      setError(`${provider} authentication failed`)
+      
+      if (result?.error) {
+        const mobileError = getMobileOAuthErrorMessage(result.error)
+        setError(mobileError)
+        console.error(`❌ OAuth error for ${provider}:`, result.error)
+      }
+    } catch (error: any) {
+      const mobileError = getMobileOAuthErrorMessage(error)
+      setError(mobileError)
+      console.error(`❌ OAuth exception for ${provider}:`, error)
+    } finally {
       setIsLoading('')
     }
   }
@@ -93,6 +130,32 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
+            )}
+
+            {/* Mobile Device Information */}
+            {mobileInfo.isMobile && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Smartphone className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">Mobile Device Detected</span>
+                </div>
+                <p className="text-xs text-blue-700">
+                  Using mobile-optimized authentication flow for better compatibility.
+                </p>
+              </div>
+            )}
+
+            {/* HTTPS Warning for Mobile */}
+            {mobileInfo.isMobile && mobileInfo.warnings.some(w => w.includes('HTTPS')) && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <AlertCircle className="h-4 w-4 text-yellow-600" />
+                  <span className="text-sm font-medium text-yellow-800">HTTPS Recommended</span>
+                </div>
+                <p className="text-xs text-yellow-700">
+                  For best mobile authentication experience, use HTTPS.
+                </p>
+              </div>
             )}
 
             {/* OAuth Buttons */}

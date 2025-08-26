@@ -10,6 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { useLocationDetection } from '@/hooks/useLocationDetection';
+import { 
+  getSmartLocation, 
+  getGeolocationErrorMessage, 
+  isMobileDevice, 
+  getMobileGeolocationOptions 
+} from '@/lib/mobile-geolocation';
 
 interface LocationSearchProps {
   onLocationChange: (location: string, coordinates?: { lat: number; lng: number }) => void;
@@ -43,7 +49,7 @@ export default function EnhancedLocationSearch({
   const [userCoordinates, setUserCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   
   // Use existing location detection hook
-  const { location: detectedLocation, isLoading: isDetectingLocation } = useLocationDetection({
+  const { location: detectedLocation, isLoading: isDetectingLocation, permissionState, requestPermission } = useLocationDetection({
     autoDetect: true,
     fallbackCountry: 'IN'
   });
@@ -60,45 +66,46 @@ export default function EnhancedLocationSearch({
     { name: 'Ahmedabad', country: 'IN', jobCount: 420, icon: '🏺' }
   ];
 
-  // Detect user's current location
+  // Detect user's current location with enhanced mobile support
   const detectCurrentLocation = useCallback(async () => {
-    if (!navigator.geolocation) {
-      console.warn('Geolocation not supported');
-      return;
-    }
-
     try {
       setIsLoading(true);
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000 // 5 minutes
-        });
-      });
-
-      const { latitude, longitude } = position.coords;
-      setUserCoordinates({ lat: latitude, lng: longitude });
-
-      // Reverse geocode to get city name
-      try {
-        const response = await fetch(
-          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-        );
-        
-        if (response.ok) {
-          const data = await response.json();
-          const cityName = data.city || data.locality || 'Current Location';
-          setSelectedLocation(cityName);
-          onLocationChange(cityName, { lat: latitude, lng: longitude });
-        }
-      } catch (error) {
-        console.warn('Reverse geocoding failed, using coordinates');
-        setSelectedLocation('Current Location');
-        onLocationChange('Current Location', { lat: latitude, lng: longitude });
+      
+      // Use mobile-optimized geolocation
+      const isMobile = isMobileDevice();
+      const options = getMobileGeolocationOptions();
+      
+      if (isMobile) {
+        console.log('🔄 Using mobile-optimized geolocation...');
       }
+      
+      const result = await getSmartLocation(options);
+      
+      if (result.success) {
+        if (result.coordinates) {
+          setUserCoordinates(result.coordinates);
+        }
+        
+        const cityName = result.city || 'Current Location';
+        setSelectedLocation(cityName);
+        onLocationChange(cityName, result.coordinates);
+        
+        if (isMobile) {
+          console.log(`✅ Mobile geolocation successful: ${cityName} (${result.source})`);
+        }
+      } else {
+        // Handle error with user-friendly message
+        const errorMessage = getGeolocationErrorMessage(result.errorCode);
+        alert(errorMessage);
+        
+        if (isMobile) {
+          console.warn(`❌ Mobile geolocation failed: ${result.error}`);
+        }
+      }
+      
     } catch (error) {
       console.error('Location detection failed:', error);
+      alert('An unexpected error occurred while detecting location. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -208,6 +215,33 @@ export default function EnhancedLocationSearch({
               {isLoading ? 'Detecting...' : 'My Location'}
             </Button>
           </div>
+
+          {/* Mobile-Specific Information */}
+          {isMobileDevice() && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 text-blue-700">
+                <div className="text-sm">
+                  <strong>📱 Mobile Device Detected</strong>
+                  <ul className="mt-1 ml-4 list-disc text-xs">
+                    <li>GPS location will be used if available</li>
+                    <li>IP-based fallback if GPS fails</li>
+                    <li>HTTPS required for GPS on mobile</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* HTTPS Warning for Non-HTTPS */}
+          {typeof window !== 'undefined' && location.protocol !== 'https:' && location.hostname !== 'localhost' && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center gap-2 text-yellow-700">
+                <div className="text-sm">
+                  <strong>⚠️ HTTPS Required</strong> Geolocation requires HTTPS on mobile devices. Use HTTPS or localhost for full functionality.
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Location Suggestions */}
           {showSuggestions && suggestions.length > 0 && (
