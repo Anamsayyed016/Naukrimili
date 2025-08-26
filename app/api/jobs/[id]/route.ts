@@ -94,7 +94,11 @@ export async function GET(
       companyLogo: job.companyLogo || job.companyRelation?.logo,
       companyLocation: job.companyRelation?.location,
       companyIndustry: job.companyRelation?.industry,
-      companyWebsite: job.companyRelation?.website
+      companyWebsite: job.companyRelation?.website,
+      // Add new fields for internal/external handling
+      apply_url: job.apply_url || null,
+      source_url: job.source_url || null,
+      isExternal: job.source !== 'manual'
     };
     
     return NextResponse.json({

@@ -169,7 +169,11 @@ export default function EnhancedJobCard({
               </button>
               
               <button
-                onClick={() => setIsApplicationModalOpen(true)}
+                onClick={() => {
+                  const isExternal = job.source && job.source !== 'manual';
+                  const route = isExternal ? `/jobs/${job.id}/external` : `/jobs/${job.id}/apply`;
+                  window.open(route, '_blank');
+                }}
                 className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
               >
                 Apply

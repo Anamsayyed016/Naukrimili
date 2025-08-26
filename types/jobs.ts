@@ -19,6 +19,7 @@ export interface JobResult {
   posted_at?: string
   created_at?: string
   bookmarked_at?: string // For bookmarked jobs
+  source?: string // Job source: 'manual' for internal, 'adzuna', 'jsearch', etc. for external
 }
 
 export interface JobSearchFilters {

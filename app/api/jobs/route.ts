@@ -245,7 +245,12 @@ export async function GET(request: NextRequest) {
           createdAt: job.createdAt,
           updatedAt: job.updatedAt,
           companyLocation: job.companyRelation?.location,
-          companyIndustry: job.companyRelation?.industry
+          companyIndustry: job.companyRelation?.industry,
+          // Add new fields for internal/external handling
+          apply_url: job.apply_url || null,
+          source_url: job.source_url || null,
+          isExternal: job.source !== 'manual',
+          source: job.source
         };
         
         // Add distance if available

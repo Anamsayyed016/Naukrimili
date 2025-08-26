@@ -64,6 +64,11 @@ export interface Job {
   }
   tags?: string[]
   applications?: number // Add this for compatibility
+  
+  // New fields for internal/external job handling
+  apply_url?: string    // Internal application URL
+  source_url?: string   // External source URL (replaces redirect_url)
+  isExternal?: boolean  // Whether this job comes from external provider
 }
 
 export interface JobFilters {

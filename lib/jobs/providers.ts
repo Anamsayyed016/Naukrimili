@@ -8,7 +8,9 @@ export type NormalizedJob = {
   location?: string;
   country: string;
   description: string;
-  applyUrl?: string;
+  applyUrl?: string;      // @deprecated - use apply_url instead
+  apply_url?: string;     // Internal application URL (null for external jobs)
+  source_url?: string;    // External source URL (for external jobs)
   postedAt?: string;
   salary?: string;
   raw: any;
@@ -63,7 +65,9 @@ export async function fetchFromAdzuna(
       ].filter(Boolean).join(', '),
       country: safeUpper(countryCode),
       description: r.description || r.redirect_url || '',
-      applyUrl: r.redirect_url || r.url,
+      applyUrl: r.redirect_url || r.url,  // @deprecated - keep for backward compatibility
+      apply_url: null,                    // External jobs don't have internal apply URL
+      source_url: r.redirect_url || r.url, // External source URL
       postedAt: r.created ? new Date(r.created).toISOString() : undefined,
       salary: r.salary_min || r.salary_max ? `${r.salary_min || ''}-${r.salary_max || ''}` : undefined,
       raw: r,
@@ -118,7 +122,9 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
       location: [r.job_city, r.job_country].filter(Boolean).join(', '),
       country: safeUpper(r.job_country || countryCode),
       description: r.job_description || (Array.isArray(r.job_highlights) ? r.job_highlights.join('\n') : r.snippet) || '',
-      applyUrl: r.job_apply_link || r.job_link || r.url,
+      applyUrl: r.job_apply_link || r.job_link || r.url,  // @deprecated - keep for backward compatibility
+      apply_url: null,                                     // External jobs don't have internal apply URL
+      source_url: r.job_apply_link || r.job_link || r.url, // External source URL
       postedAt: r.job_posted_at || undefined,
       salary: r.salary || undefined,
       raw: r,
@@ -178,7 +184,9 @@ export async function fetchFromGoogleJobs(
       location: r.location || location,
       country: 'IN', // Default to India for Google Jobs
       description: r.job_description || r.snippet || '',
-      applyUrl: r.apply_link || r.job_url || '',
+      applyUrl: r.apply_link || r.job_url || '',  // @deprecated - keep for backward compatibility
+      apply_url: null,                             // External jobs don't have internal apply URL
+      source_url: r.apply_link || r.job_url || '', // External source URL
       postedAt: r.posted_date || undefined,
       salary: r.salary || undefined,
       raw: r,

@@ -971,7 +971,11 @@ export default function JobsPage() {
                             </button>
                             
                             <button
-                              onClick={() => window.open(`/jobs/${job.id}/apply`, '_blank')}
+                              onClick={() => {
+                                const isExternal = job.source && job.source !== 'manual';
+                                const route = isExternal ? `/jobs/${job.id}/external` : `/jobs/${job.id}/apply`;
+                                window.open(route, '_blank');
+                              }}
                               className="group inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 text-sm"
                             >
                               Apply Now

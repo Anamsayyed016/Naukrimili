@@ -94,7 +94,11 @@ export async function GET(request: NextRequest) {
           isRemote: job.isRemote,
           isFeatured: job.isFeatured,
           source: 'database',
-          createdAt: job.createdAt
+          createdAt: job.createdAt,
+          // Add new fields for internal/external handling
+          apply_url: job.apply_url || null,
+          source_url: job.source_url || null,
+          isExternal: job.source !== 'manual'
         }));
 
         allJobs.push(...dbFormattedJobs);
@@ -107,38 +111,19 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 2. Fetch from External APIs (if requested)
-    if (includeExternal && (source === 'external' || source === 'all')) {
-      try {
-        const externalJobs = await fetchExternalJobs(query, location, country, page);
-        const externalFormattedJobs = externalJobs.map((job, index) => ({
-          id: `ext-${Date.now()}-${index}`,
-          title: job.title,
-          company: job.company,
-          companyLogo: null,
-          location: job.location,
-          country: job.country,
-          description: job.description,
-          applyUrl: job.applyUrl,
-          postedAt: job.postedAt,
-          salary: job.salary,
-          jobType: 'Full-time',
-          experienceLevel: 'Not specified',
-          skills: [],
-          isRemote: false,
-          isFeatured: false,
-          source: job.source,
-          createdAt: new Date()
-        }));
-
-        allJobs.push(...externalFormattedJobs);
-        totalJobs += externalJobs.length;
-        
-        console.log(`✅ External APIs: Found ${externalJobs.length} jobs`);
-      } catch (error) {
-        console.error('❌ External job fetch failed:', error);
-        // Continue with database jobs only
-      }
+    // Format external jobs with new structure
+    if (includeExternal && source !== 'db') {
+      const externalJobs = await fetchExternalJobs(query, location, country, page);
+      externalJobs.forEach(job => {
+        allJobs.push({
+          ...job,
+          id: `ext-${job.source}-${job.sourceId}`,
+          apply_url: null, // External jobs don't have internal apply URL
+          source_url: job.applyUrl, // Use the old applyUrl as source_url
+          isExternal: true,
+          source: job.source
+        });
+      });
     }
 
     // 3. Sort and paginate combined results

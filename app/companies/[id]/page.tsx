@@ -53,6 +53,7 @@ interface Job {
   isUrgent: boolean;
   isFeatured: boolean;
   createdAt: string;
+  source?: string; // Added source field
 }
 
 export default function CompanyDetailPage() {
@@ -95,8 +96,15 @@ export default function CompanyDetailPage() {
   };
 
   const handleApplyNow = (jobId: number) => {
-    // Navigate to job application page
-    window.open(`/jobs/${jobId}/apply`, '_blank');
+    // Check if this is an external job by looking at the job source
+    const job = openJobs.find(j => j.id === jobId);
+    if (job && job.source && job.source !== 'manual') {
+      // External job - route to external application page
+      window.open(`/jobs/${jobId}/external`, '_blank');
+    } else {
+      // Internal job - route to internal application page
+      window.open(`/jobs/${jobId}/apply`, '_blank');
+    }
   };
 
   if (loading) {

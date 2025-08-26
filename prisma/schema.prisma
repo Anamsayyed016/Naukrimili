@@ -18,7 +18,9 @@ model Job {
   location        String?
   country         String    @default("IN")
   description     String    @db.Text
-  applyUrl        String?
+  applyUrl        String?   // @deprecated - use apply_url instead
+  apply_url       String?   // New field for internal application URL
+  source_url      String?   // New field for external source URL
   postedAt        DateTime?
   salary          String?
   salaryMin       Int?      // Minimum salary in local currency
