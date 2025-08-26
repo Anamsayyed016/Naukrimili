@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
 
     let allJobs: any[] = [];
     let totalJobs = 0;
+    let externalJobsCount = 0;
 
     console.log(`🔍 Unified Jobs API: Searching with filters:`, { query, location, country, source, page, limit, includeExternal });
 
@@ -111,29 +112,56 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Format external jobs with new structure
+    // 2. Fetch External Jobs
     if (includeExternal && source !== 'db') {
-      const externalJobs = await fetchExternalJobs(query, location, country, page);
-      externalJobs.forEach(job => {
-        allJobs.push({
+      try {
+        const externalJobs = await fetchExternalJobs(query, location, country, page);
+        
+        // Process external jobs and add required fields
+        const processedExternalJobs = externalJobs.map(job => ({
           ...job,
           id: `ext-${job.source}-${job.sourceId}`,
           apply_url: null, // External jobs don't have internal apply URL
           source_url: job.applyUrl, // Use the old applyUrl as source_url
           isExternal: true,
-          source: job.source
-        });
-      });
+          source: job.source,
+          // Add missing required fields for sorting
+          createdAt: job.postedAt ? new Date(job.postedAt) : new Date(),
+          // Ensure all required fields exist
+          company: job.company || 'Company not specified',
+          location: job.location || 'Location not specified',
+          country: job.country || country,
+          description: job.description || 'No description available',
+          skills: job.skills || [],
+          isRemote: false,
+          isFeatured: false
+        }));
+        
+        allJobs.push(...processedExternalJobs);
+        externalJobsCount = externalJobs.length;
+        totalJobs += externalJobs.length; // ✅ FIXED: Now counting external jobs
+        
+        console.log(`✅ External APIs: Found ${externalJobs.length} jobs`);
+      } catch (externalError: any) {
+        console.error('❌ External job fetch failed:', externalError);
+        // Continue with database jobs only
+      }
     }
 
     // 3. Sort and paginate combined results
     try {
-      allJobs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      // Safe sorting with fallback for missing dates
+      allJobs.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
       
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
       const paginatedJobs = allJobs.slice(startIndex, endIndex);
 
+      // ✅ FIXED: Calculate total pages based on all jobs (database + external)
       const totalPages = Math.ceil(totalJobs / limit);
 
       const response = {
@@ -149,7 +177,9 @@ export async function GET(request: NextRequest) {
         },
         sources: {
           database: source === 'db' || source === 'all',
-          external: includeExternal && (source === 'external' || source === 'all')
+          external: includeExternal && (source === 'external' || source === 'all'),
+          databaseCount: totalJobs - externalJobsCount,
+          externalCount: externalJobsCount
         },
         search: {
           query,
@@ -161,11 +191,15 @@ export async function GET(request: NextRequest) {
           timestamp: new Date().toISOString(),
           endpoint: '/api/jobs/unified',
           version: '1.0',
-          totalJobsFound: totalJobs
+          totalJobsFound: totalJobs,
+          breakdown: {
+            database: totalJobs - externalJobsCount,
+            external: externalJobsCount
+          }
         }
       };
 
-      console.log(`✅ Unified Jobs API: Successfully returned ${paginatedJobs.length} jobs (${totalJobs} total)`);
+      console.log(`✅ Unified Jobs API: Successfully returned ${paginatedJobs.length} jobs (${totalJobs} total: ${totalJobs - externalJobsCount} DB + ${externalJobsCount} external)`);
       return NextResponse.json(response);
       
     } catch (processingError: any) {
