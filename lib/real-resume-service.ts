@@ -1,5 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export interface ExtractedResumeData {
   fullName: string;
@@ -20,6 +23,85 @@ export interface ExtractedResumeData {
 
 export class RealResumeService {
   
+  /**
+   * Save resume to PostgreSQL database
+   */
+  async saveResume(resumeData: any): Promise<any> {
+    try {
+      console.log('💾 Saving resume to database:', resumeData);
+      
+      // Extract user ID from the data
+      const userId = resumeData.userId || 1; // Default to user 1 if not provided
+      
+      // Save to database using Prisma
+      const savedResume = await prisma.resume.create({
+        data: {
+          userId: parseInt(userId.toString()),
+          fileName: resumeData.fileName || 'resume',
+          fileUrl: resumeData.fileUrl || '',
+          fileSize: resumeData.fileSize || 0,
+          mimeType: resumeData.mimeType || 'application/json',
+          parsedData: resumeData.parsedData || resumeData,
+          atsScore: resumeData.atsScore || 0,
+        },
+      });
+
+      console.log('✅ Resume saved to database:', savedResume);
+      
+      return {
+        id: savedResume.id,
+        userId: savedResume.userId,
+        data: savedResume.parsedData,
+        createdAt: savedResume.createdAt,
+        updatedAt: savedResume.updatedAt,
+        versions: [savedResume.parsedData],
+        metadata: {
+          atsScore: savedResume.atsScore,
+          completeness: 85, // Default completeness score
+          lastAnalyzed: new Date().toISOString(),
+        },
+      };
+    } catch (error) {
+      console.error('❌ Database save error:', error);
+      throw new Error(`Failed to save resume to database: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Get resume record by ID
+   */
+  async getResumeRecord(resumeId: string, userId: string): Promise<any> {
+    try {
+      const resume = await prisma.resume.findFirst({
+        where: {
+          id: parseInt(resumeId),
+          userId: parseInt(userId),
+        },
+      });
+      
+      if (!resume) {
+        return null;
+      }
+      
+      return {
+        id: resume.id,
+        userId: resume.userId,
+        data: resume.parsedData,
+        createdAt: resume.createdAt,
+        updatedAt: resume.updatedAt,
+        versions: [resume.parsedData],
+        metadata: {
+          atsScore: resume.atsScore,
+          completeness: 85,
+          lastAnalyzed: resume.updatedAt.toISOString(),
+        },
+      };
+    } catch (error) {
+      console.error('❌ Database fetch error:', error);
+      throw new Error(`Failed to fetch resume from database: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   private extractName(lines: string[]): string {
     // Look for name patterns in first few lines
     for (let i = 0; i < Math.min(5, lines.length); i++) {

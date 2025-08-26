@@ -64,21 +64,15 @@ export class ResumeService {
   }
 
   /**
-   * Get resume by ID
+   * Get resume record by ID
    */
-  async getResumeById(resumeId: string): Promise<any> {
+  async getResumeRecord(resumeId: string, userId: string): Promise<any> {
     try {
-      // Implementation for getting resume by ID
-      // This would typically fetch from database
-      return {
-        id: resumeId,
-        userId: 'user_123',
-        data: {},
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      // Use the real database service to fetch from PostgreSQL
+      const record = await this.realService.getResumeRecord(resumeId, userId);
+      return record;
     } catch (error) {
-      console.error('Get resume by ID error:', error);
+      console.error('Get resume record error:', error);
       throw error;
     }
   }
@@ -156,15 +150,9 @@ export class ResumeService {
    */
   async saveResume(resumeData: any): Promise<any> {
     try {
-      // Implementation for saving resume
-      return {
-        success: true,
-        data: {
-          ...resumeData,
-          id: `resume_${Date.now()}`,
-          savedAt: new Date().toISOString()
-        }
-      };
+      // Use the real database service to save to PostgreSQL
+      const saved = await this.realService.saveResume(resumeData);
+      return saved;
     } catch (error) {
       console.error('Save resume error:', error);
       throw error;

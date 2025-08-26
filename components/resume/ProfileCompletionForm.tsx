@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Edit3, Save, CheckCircle, AlertCircle, X, Plus, Star } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useSession } from 'next-auth/react';
 
 interface Props {
 	resumeId?: string | null;
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function ProfileCompletionForm({ resumeId, initialData = {}, onComplete, onClose }: Props) {
+	const { data: session } = useSession();
 	const [profileData, setProfileData] = useState({
 		fullName: initialData.fullName || initialData.name || '',
 		email: initialData.email || '',
@@ -99,44 +101,54 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		setSaveStatus('saving');
 
 		try {
-			// Save to API if resumeId exists
-			if (resumeId) {
-				const response = await fetch(`/api/resumes/${resumeId}`, {
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						content: {
-							...profileData,
-							updatedAt: new Date().toISOString()
-						}
-					}),
-				});
-
-				if (!response.ok) {
-					throw new Error('Failed to save profile');
-				}
-			}
-
-			setSaveStatus('success');
-			toast({
-				title: 'Profile Saved!',
-				description: 'Your profile has been updated successfully',
+			// Save to database via API
+			const response = await fetch('/api/resumes', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					action: 'create',
+					data: {
+						userId: session?.user?.id || 'temp', // Will be replaced with actual user ID from session
+						fileName: 'profile',
+						fileUrl: '',
+						fileSize: 0,
+						mimeType: 'application/json',
+						parsedData: profileData,
+						atsScore: 85, // Default ATS score
+					}
+				}),
 			});
 
-			if (onComplete) {
-				onComplete();
+			if (!response.ok) {
+				throw new Error('Failed to save profile to database');
 			}
 
-			// Reset to idle after 2 seconds
-			setTimeout(() => setSaveStatus('idle'), 2000);
+			const result = await response.json();
+			
+			if (result.success) {
+				setSaveStatus('success');
+				toast({
+					title: 'Profile Saved!',
+					description: 'Your profile has been saved to the database successfully',
+				});
+
+				if (onComplete) {
+					onComplete();
+				}
+
+				// Reset to idle after 2 seconds
+				setTimeout(() => setSaveStatus('idle'), 2000);
+			} else {
+				throw new Error(result.error?.message || 'Failed to save profile');
+			}
 		} catch (error) {
 			console.error('Save error:', error);
 			setSaveStatus('error');
 			toast({
 				title: 'Save Failed',
-				description: 'Failed to save profile. Please try again.',
+				description: 'Failed to save profile to database. Please try again.',
 				variant: 'destructive',
 			});
 
@@ -225,7 +237,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.fullName}
 									onChange={(e) => handleInputChange('fullName', e.target.value)}
 									placeholder="Enter your full name"
-									className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
 									required
 								/>
 							</div>
@@ -237,7 +249,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.email}
 									onChange={(e) => handleInputChange('email', e.target.value)}
 									placeholder="your.email@example.com"
-									className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
 									required
 								/>
 							</div>
@@ -248,7 +260,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.phone}
 									onChange={(e) => handleInputChange('phone', e.target.value)}
 									placeholder="+91 98765 43210"
-									className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
 								/>
 							</div>
 							<div>
@@ -258,7 +270,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.location}
 									onChange={(e) => handleInputChange('location', e.target.value)}
 									placeholder="City, State"
-									className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
 								/>
 							</div>
 						</div>
@@ -278,7 +290,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.jobTitle}
 									onChange={(e) => handleInputChange('jobTitle', e.target.value)}
 									placeholder="e.g., Senior Software Engineer"
-									className="mt-1 border-gray-300 focus:border-green-500 focus:ring-green-500"
+									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-green-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
 								/>
 							</div>
 							<div>
@@ -288,7 +300,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									value={profileData.expectedSalary}
 									onChange={(e) => handleInputChange('expectedSalary', e.target.value)}
 									placeholder="e.g., 15-25 LPA"
-									className="mt-1 border-gray-300 focus:border-green-500 focus:ring-green-500"
+									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-green-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
 								/>
 							</div>
 						</div>
@@ -319,7 +331,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 								value={newSkill}
 								onChange={(e) => setNewSkill(e.target.value)}
 								placeholder="Add a skill (e.g., React, Python, Leadership)"
-								className="flex-1 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+								className="flex-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
 								onKeyPress={(e) => e.key === 'Enter' && addSkill()}
 							/>
 							<Button 
