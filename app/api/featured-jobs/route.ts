@@ -4,106 +4,184 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-
-// Mock featured jobs data
-const mockFeaturedJobs = [
-  {
-    id: 1,
-    title: "Senior Software Engineer",
-    company: "TechCorp",
-    location: "Bangalore, Karnataka",
-    salary: "15-25 LPA",
-    jobType: "Full-time",
-    isRemote: false,
-    isFeatured: true,
-    description: "We are looking for a Senior Software Engineer to join our team...",
-    requirements: ["5+ years experience", "React", "Node.js", "AWS"],
-    postedAt: "2024-01-15T10:00:00Z"
-  },
-  {
-    id: 2,
-    title: "Product Manager",
-    company: "InnovateSoft",
-    location: "Mumbai, Maharashtra",
-    salary: "20-35 LPA",
-    jobType: "Full-time",
-    isRemote: true,
-    isFeatured: true,
-    description: "Lead product strategy and development for our SaaS platform...",
-    requirements: ["3+ years PM experience", "Agile", "User Research", "Analytics"],
-    postedAt: "2024-01-14T14:30:00Z"
-  },
-  {
-    id: 3,
-    title: "Data Scientist",
-    company: "Digital Solutions",
-    location: "Delhi, NCR",
-    salary: "18-30 LPA",
-    jobType: "Full-time",
-    isRemote: false,
-    isFeatured: true,
-    description: "Join our AI/ML team to build cutting-edge data solutions...",
-    requirements: ["Python", "Machine Learning", "Statistics", "SQL"],
-    postedAt: "2024-01-13T09:15:00Z"
-  },
-  {
-    id: 4,
-    title: "UX Designer",
-    company: "Future Systems",
-    location: "Hyderabad, Telangana",
-    salary: "12-20 LPA",
-    jobType: "Full-time",
-    isRemote: true,
-    isFeatured: true,
-    description: "Create amazing user experiences for our mobile apps...",
-    requirements: ["Figma", "User Research", "Prototyping", "Design Systems"],
-    postedAt: "2024-01-12T16:45:00Z"
-  }
-];
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = parseInt(searchParams.get('limit') || '8');
+    const page = parseInt(searchParams.get('page') || '1');
     const location = searchParams.get('location');
     const category = searchParams.get('category');
+    const skip = (page - 1) * limit;
 
-    let filteredJobs = mockFeaturedJobs;
+    // Build where clause for filtering
+    const where: any = { 
+      isActive: true,
+      isFeatured: true 
+    };
 
-    // Filter by location if specified
-    if (location) {
-      filteredJobs = filteredJobs.filter(job => 
-        job.location.toLowerCase().includes(location.toLowerCase())
-      );
+    // Add location filter if specified
+    if (location && location.trim().length > 0) {
+      where.location = { contains: location.trim(), mode: 'insensitive' };
     }
 
-    // Filter by category if specified
-    if (category) {
-      filteredJobs = filteredJobs.filter(job => 
-        job.title.toLowerCase().includes(category.toLowerCase()) ||
-        job.description.toLowerCase().includes(category.toLowerCase())
-      );
+    // Add category/sector filter if specified
+    if (category && category.trim().length > 0) {
+      where.sector = { contains: category.trim(), mode: 'insensitive' };
     }
 
-    // Limit results
-    const limitedJobs = filteredJobs.slice(0, limit);
+    // Get featured jobs with pagination and related data
+    const [jobs, total] = await Promise.all([
+      prisma.job.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [
+          { isUrgent: 'desc' },    // Urgent jobs first
+          { views: 'desc' },       // Then by popularity
+          { createdAt: 'desc' }    // Then by newest
+        ],
+        include: {
+          companyRelation: {
+            select: {
+              name: true,
+              logo: true,
+              location: true,
+              industry: true,
+              isVerified: true
+            }
+          }
+        }
+      }),
+      prisma.job.count({ where })
+    ]);
 
-    const res = NextResponse.json({
+    // Transform jobs to match expected format
+    const transformedJobs = jobs.map(job => ({
+      id: job.id,
+      title: job.title,
+      company: job.company || job.companyRelation?.name || 'Unknown Company',
+      companyLogo: job.companyLogo || job.companyRelation?.logo,
+      location: job.location,
+      country: job.country,
+      description: job.description,
+      salary: job.salary,
+      salaryMin: job.salaryMin,
+      salaryMax: job.salaryMax,
+      salaryCurrency: job.salaryCurrency,
+      jobType: job.jobType,
+      experienceLevel: job.experienceLevel,
+      skills: job.skills,
+      isRemote: job.isRemote,
+      isHybrid: job.isHybrid,
+      isUrgent: job.isUrgent,
+      isFeatured: job.isFeatured,
+      isActive: job.isActive,
+      sector: job.sector,
+      views: job.views,
+      applicationsCount: job.applicationsCount,
+      postedAt: job.postedAt,
+      createdAt: job.createdAt,
+      // Company information
+      companyInfo: job.companyRelation ? {
+        name: job.companyRelation.name,
+        logo: job.companyRelation.logo,
+        location: job.companyRelation.location,
+        industry: job.companyRelation.industry,
+        isVerified: job.companyRelation.isVerified
+      } : null,
+      // Application URLs
+      applyUrl: job.applyUrl,
+      apply_url: job.apply_url,
+      source_url: job.source_url,
+      isExternal: job.source !== 'manual'
+    }));
+
+    const totalPages = Math.ceil(total / limit);
+
+    return NextResponse.json({
       success: true,
-      jobs: limitedJobs,
-      total: limitedJobs.length,
-      message: `Found ${limitedJobs.length} featured jobs`
+      data: {
+        jobs: transformedJobs,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1
+        },
+        filters: {
+          location: location || null,
+          category: category || null
+        }
+      },
+      meta: {
+        timestamp: new Date().toISOString(),
+        endpoint: '/api/featured-jobs'
+      }
     });
-    // Short cache for homepage sections
-    res.headers.set('Cache-Control', 'public, max-age=120, s-maxage=120, stale-while-revalidate=600');
-    return res;
 
   } catch (error: any) {
-    console.error('Featured jobs error:', error);
+    console.error('❌ Featured jobs API error:', error);
+    
+    // Fallback: Return sample data if database fails
+    const fallbackJobs = [
+      {
+        id: 1,
+        title: 'Senior Software Engineer',
+        company: 'TechCorp Solutions',
+        location: 'Bangalore, Karnataka',
+        country: 'IN',
+        salary: '25-40 LPA',
+        jobType: 'full-time',
+        experienceLevel: 'senior',
+        isRemote: false,
+        isFeatured: true,
+        isUrgent: false,
+        sector: 'Technology',
+        skills: ['React', 'Node.js', 'PostgreSQL'],
+        createdAt: new Date(),
+        views: 150,
+        applicationsCount: 12
+      },
+      {
+        id: 2,
+        title: 'Data Scientist',
+        company: 'Analytics Pro',
+        location: 'Mumbai, Maharashtra', 
+        country: 'IN',
+        salary: '18-30 LPA',
+        jobType: 'full-time',
+        experienceLevel: 'mid',
+        isRemote: true,
+        isFeatured: true,
+        isUrgent: true,
+        sector: 'Technology',
+        skills: ['Python', 'Machine Learning'],
+        createdAt: new Date(),
+        views: 89,
+        applicationsCount: 8
+      }
+    ];
+
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch featured jobs',
-      jobs: mockFeaturedJobs.slice(0, 4) // Fallback to first 4 jobs
+      data: {
+        jobs: fallbackJobs,
+        pagination: {
+          page: 1,
+          limit: 8,
+          total: 2,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false
+        }
+      },
+      fallback: true,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }, { status: 500 });
   }
 }
