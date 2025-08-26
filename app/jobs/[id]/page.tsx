@@ -175,7 +175,7 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
           <div className="flex gap-3 pt-6 border-t border-gray-200">
             {job.id.toString().startsWith('ext-') ? (
               <a 
-                href={job.applyUrl || `https://external-platform.com/jobs/${job.id}`}
+                href={job.applyUrl || `/jobs/external/${job.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium flex items-center gap-2"

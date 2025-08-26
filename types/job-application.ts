@@ -1,9 +1,36 @@
+// Consolidated JobApplication interface - Single source of truth
 export interface JobApplication {
   id: string;
   jobId: string;
   applicantId: string;
-  status: 'submitted' | 'under_review' | 'shortlisted' | 'interviewed' | 'offered' | 'accepted' | 'rejected';
-  documents: {
+  userId: string;
+  status: ApplicationStatus;
+  appliedAt: Date;
+  updatedAt: Date;
+  
+  // Basic application details
+  coverLetter?: string;
+  resumeUrl?: string;
+  resumeId?: string;
+  notes?: string;
+  employerNotes?: string;
+  
+  // Interview details
+  interviewScheduled?: Date;
+  interviewLocation?: string;
+  interviewType?: 'phone' | 'video' | 'in-person' | 'onsite';
+  
+  // Job details
+  salary?: number;
+  expectedStartDate?: Date;
+  
+  // Application state
+  isWithdrawn: boolean;
+  withdrawnAt?: Date;
+  withdrawnReason?: string;
+  
+  // Enhanced features
+  documents?: {
     resume: {
       url: string;
       filename: string;
@@ -21,12 +48,14 @@ export interface JobApplication {
       uploadDate: string;
     }>;
   };
+  
   assessment?: {
     score?: number;
     feedback?: string;
     completedDate?: string;
     status: 'pending' | 'completed' | 'expired';
   };
+  
   interviews?: Array<{
     id: string;
     type: 'phone' | 'video' | 'onsite';
@@ -42,6 +71,7 @@ export interface JobApplication {
     location?: string;
     interviewers?: string[];
   }>;
+  
   communication: {
     lastContactDate?: string;
     nextFollowUp?: string;
@@ -52,6 +82,7 @@ export interface JobApplication {
       content: string;
     }>;
   };
+  
   timeline: {
     submitted: string;
     reviewed?: string;
@@ -61,6 +92,7 @@ export interface JobApplication {
     accepted?: string;
     rejected?: string;
   };
+  
   feedback?: {
     internal?: {
       rating: number;
@@ -74,6 +106,7 @@ export interface JobApplication {
       date: string;
     };
   };
+  
   metadata: {
     source: string;
     ipAddress?: string;
@@ -82,4 +115,64 @@ export interface JobApplication {
     updatedAt: string;
     completeness: number;
   };
+}
+
+export type ApplicationStatus = 
+  | 'draft'
+  | 'submitted'
+  | 'under-review'
+  | 'under_review'
+  | 'shortlisted'
+  | 'interview-scheduled'
+  | 'interviewed'
+  | 'offer-extended'
+  | 'offered'
+  | 'accepted'
+  | 'rejected'
+  | 'withdrawn'
+  | 'expired';
+
+export interface ApplicationFilters {
+  status?: ApplicationStatus | ApplicationStatus[];
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+  hasCoverLetter?: boolean;
+  hasResume?: boolean;
+  isWithdrawn?: boolean;
+  interviewScheduled?: boolean;
+  salaryRange?: {
+    min: number;
+    max: number;
+  };
+}
+
+export interface ApplicationStats {
+  total: number;
+  byStatus: Record<ApplicationStatus, number>;
+  recentApplications: number;
+  averageResponseTime: number;
+  interviewRate: number;
+  offerRate: number;
+}
+
+export interface ApplicationNote {
+  id: string;
+  applicationId: string;
+  authorId: string;
+  authorType: 'applicant' | 'employer' | 'admin';
+  content: string;
+  createdAt: Date;
+  isPrivate: boolean;
+}
+
+export interface ApplicationTimeline {
+  applicationId: string;
+  events: Array<{
+    type: string;
+    timestamp: Date;
+    description: string;
+    metadata?: Record<string, any>;
+  }>;
 }

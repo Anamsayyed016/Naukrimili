@@ -28,7 +28,7 @@ export async function GET(
             location: "Mumbai, India",
             country: "India",
             description: "We are seeking a talented Senior Software Engineer to join our dynamic team. This role involves developing cutting-edge web applications using modern technologies. You will work on both frontend and backend development, collaborate with cross-functional teams, and contribute to architectural decisions. The ideal candidate should have strong experience in JavaScript frameworks, cloud technologies, and agile development practices.",
-            applyUrl: "https://external-platform.com/jobs/" + id,
+            applyUrl: "/jobs/external/" + id,
             postedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
             salary: "₹12-25 LPA",
             salaryMin: 1200000,

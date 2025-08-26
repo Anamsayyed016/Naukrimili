@@ -4,15 +4,7 @@ export interface DashboardStats {
   savedJobs: number
   interviewInvites: number
 }
-export interface JobApplication {
-  id: string
-  jobId: string
-  jobTitle: string
-  company: string
-  appliedDate: string
-  status: 'pending' | 'reviewing' | 'shortlisted' | 'rejected' | 'accepted'
-  response?: string
-}
+export type { JobApplication } from './job-application';
 export interface SavedJob {
   id: string
   title: string
