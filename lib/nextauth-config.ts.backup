@@ -41,7 +41,7 @@ export const authOptions: NextAuthOptions = {
             // In production, hash and verify password
             // For now, allow basic auth
             return {
-              id: user.id, // Keep as Int for Prisma compatibility
+              id: user.id.toString(), // Convert Int to string for NextAuth compatibility
               email: user.email,
               name: user.name,
               role: user.role || 'user'
