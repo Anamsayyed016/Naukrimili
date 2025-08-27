@@ -247,10 +247,7 @@ export async function GET(request: NextRequest) {
           companyLocation: job.companyRelation?.location,
           companyIndustry: job.companyRelation?.industry,
           // Add new fields for internal/external handling
-          apply_url: job.apply_url || null,
-          source_url: job.source_url || null,
-          isExternal: job.source !== 'manual',
-          source: job.source
+          isExternal: job.applyUrl ? true : false
         };
         
         // Add distance if available

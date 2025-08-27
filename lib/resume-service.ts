@@ -83,7 +83,7 @@ export class ResumeService {
   async exportResumeWithTracking(resumeId: string, userId: string, format: string, template: string): Promise<any> {
     try {
       // Implementation for export with tracking
-      const resume = await this.getResumeById(resumeId);
+      const resume = await this.getResumeRecord(resumeId, userId);
       if (!resume) {
         throw new Error('Resume not found');
       }
@@ -105,10 +105,10 @@ export class ResumeService {
   /**
    * Update resume
    */
-  async updateResume(resumeId: string, updateData: any): Promise<any> {
+  async updateResume(resumeId: string, userId: string, updateData: any): Promise<any> {
     try {
       // Implementation for updating resume
-      const resume = await this.getResumeById(resumeId);
+      const resume = await this.getResumeRecord(resumeId, userId);
       if (!resume) {
         throw new Error('Resume not found');
       }

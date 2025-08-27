@@ -28,10 +28,6 @@ const createQueryClient = () => new QueryClient({
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
-      // Add error boundary handling
-      onError: (error: any) => {
-        console.error('Query error:', error);
-      },
     },
     mutations: {
       retry: false,

@@ -14,7 +14,8 @@ import {
   getMobileAuthMethodWithFallback,
   getMobileErrorMessageWithSolution,
   getMobileStatusMessage,
-  checkMobileFeatureCompatibility
+  checkMobileFeatureCompatibility,
+  detectMobileWithFallback
 } from '@/lib/mobile-auth-fixes';
 import { Badge } from '@/components/ui/badge';
 
@@ -31,7 +32,7 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
     confirmPassword: ''
   })
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState('')
+  const [isLoading, setIsLoading] = useState<string | boolean>('')
   const [error, setError] = useState('')
   const [mobileInfo, setMobileInfo] = useState<{
     isMobile: boolean;
@@ -43,11 +44,11 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
 
   // Check mobile environment on component mount
   useEffect(() => {
-    const env = validateMobileAuthEnvironment()
+    const mobileInfo = detectMobileWithFallback();
     setMobileInfo({
-      isMobile: isMobileDevice(),
-      warnings: env.warnings,
-      errors: env.errors
+      isMobile: mobileInfo.isMobile,
+      warnings: mobileInfo.fallbacks.map(f => f.message),
+      errors: mobileInfo.fallbacks.filter(f => f.type === 'https_required').map(f => f.message)
     })
   }, [])
 

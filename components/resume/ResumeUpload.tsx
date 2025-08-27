@@ -120,7 +120,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     setResumeId(null);
   };
 
-  const handleProfileComplete = async (profileData: any) => {
+  const handleProfileComplete = async () => {
     try {
       // Save profile to database
       const response = await fetch('/api/resumes', {
@@ -136,7 +136,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
             fileUrl: '', // Will be set by the API
             fileSize: file?.size || 0,
             mimeType: file?.type || 'application/pdf',
-            parsedData: profileData,
+            parsedData: extractedProfile,
             atsScore: extractedProfile?.confidence || 0,
           }
         }),

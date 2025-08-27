@@ -17,7 +17,14 @@ export async function POST(
       );
     }
 
-    const jobId = params.id;
+    const jobId = parseInt(params.id);
+    if (isNaN(jobId)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid job ID' },
+        { status: 400 }
+      );
+    }
+    
     const body = await request.json();
 
     // Check if job exists

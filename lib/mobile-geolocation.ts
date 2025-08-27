@@ -107,9 +107,9 @@ export async function getCurrentLocationGPS(options: MobileGeolocationOptions = 
   return new Promise((resolve) => {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
+        const { latitude, longitude } = position.coords;
+        
         try {
-          const { latitude, longitude } = position.coords;
-          
           // Try to get city name from coordinates
           const locationData = await reverseGeocode(latitude, longitude);
           
