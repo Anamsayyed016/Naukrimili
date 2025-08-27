@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import SessionProvider from '@/components/providers/SessionProvider';
 import BufferPolyfill from '@/components/BufferPolyfill';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/context/AuthContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,11 +29,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} font-body`}>
         <SessionProvider>
-          <BufferPolyfill />
-          <MainNavigation />
-          {children}
-          <Footer />
-          <Toaster />
+          <AuthProvider>
+            <BufferPolyfill />
+            <MainNavigation />
+            {children}
+            <Footer />
+            <Toaster />
+          </AuthProvider>
         </SessionProvider>
       </body>
     </html>

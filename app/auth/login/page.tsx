@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import OAuthButtons from '@/components/auth/OAuthButtons';
 import { useCSRF } from '@/hooks/useCSRF';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,6 +15,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  
+  const router = useRouter();
+  const { login } = useAuth();
   
   // CSRF protection
   const { token: csrfToken, isLoading: csrfLoading, error: csrfError } = useCSRF();
@@ -36,17 +41,21 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (data.success) {
-        setSuccess('Login successful! Redirecting to profile...');
-        // Store user data and token (in real app, use proper storage)
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('user', JSON.stringify(data.user));
-          localStorage.setItem('token', data.token);
-        }
+        setSuccess('Login successful! Redirecting...');
         
-        // Redirect to profile page after a short delay
+        // Use the AuthContext login function
+        login(data.user, data.token);
+        
+        // Redirect to appropriate dashboard based on user role
         setTimeout(() => {
-          if (typeof window !== 'undefined') {
-            window.location.href = '/profile';
+          if (data.user.role === 'employer') {
+            router.push('/dashboard/company');
+          } else if (data.user.role === 'jobseeker') {
+            router.push('/dashboard/jobseeker');
+          } else if (data.user.role === 'admin') {
+            router.push('/dashboard/admin');
+          } else {
+            router.push('/profile');
           }
         }, 1500);
       } else {
@@ -78,7 +87,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-  <div className="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
         <div className="absolute top-0 right-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>

@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Building2, User, Phone, AlertCircle, Globe, Briefcase, MapPin, DollarSign, Users } from 'lucide-react';
 import OAuthButtons from '@/components/auth/OAuthButtons';
+import { useAuth } from '@/context/AuthContext';
 
 export default function EmployerRegisterPage() {
   const [formData, setFormData] = useState({
@@ -34,6 +36,9 @@ export default function EmployerRegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const router = useRouter();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -102,18 +107,11 @@ export default function EmployerRegisterPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Store user data and token
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('user', JSON.stringify(data.user));
-          if (data.token) {
-            localStorage.setItem('token', data.token);
-          }
-        }
+        // Use the AuthContext login function
+        login(data.user, data.token);
         
         // Redirect to employer dashboard
-        if (typeof window !== 'undefined') {
-          window.location.href = '/dashboard/company';
-        }
+        router.push('/dashboard/company');
       } else {
         if (data.details && Array.isArray(data.details)) {
           setError(`Validation failed: ${data.details.join(', ')}`);

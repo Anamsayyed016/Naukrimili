@@ -9,7 +9,28 @@ interface User {
   phone?: string;
   location?: string;
   role: string;
-  joinedAt: string;
+  firstName?: string;
+  lastName?: string;
+  bio?: string;
+  skills?: string[];
+  experience?: string;
+  education?: string;
+  profilePicture?: string;
+  isVerified?: boolean;
+  isActive?: boolean;
+  companyName?: string;
+  recruiterName?: string;
+  companyWebsite?: string;
+  companyIndustry?: string;
+  companySize?: string;
+  companyFounded?: number;
+  locationPreference?: string;
+  salaryExpectation?: number;
+  jobTypePreference?: string[];
+  remotePreference?: boolean;
+  joinedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {

@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 interface MainNavigationProps {
   brandName?: string;
@@ -43,8 +44,14 @@ export default function MainNavigation({
   const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    router.push('/');
+  }, [logout, router]);
 
   const navLinks = useMemo(() => [
     { title: "Home", href: "/", icon: Home },
@@ -107,55 +114,87 @@ export default function MainNavigation({
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
 
-            {/* Authentication Links - New */}
-            <div className="hidden lg:flex items-center space-x-2">
-              <Link
-                href="/auth/login"
-                className="px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/auth/register"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95"
-              >
-                Sign Up
-              </Link>
-            </div>
-
-            {/* User Menu - Enhanced */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110">
-                  <User className="w-5 h-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 p-2">
-                <DropdownMenuLabel className="text-base font-semibold text-gray-900">My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <User className="w-4 h-4 text-gray-600" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Settings className="w-4 h-4 text-gray-600" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <FileTextIcon className="w-4 h-4 text-gray-600" />
-                  <span>My Resumes</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <BarChartIcon className="w-4 h-4 text-gray-600" />
-                  <span>Dashboard</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors">
-                  <LogOut className="w-4 h-4" />
-                  <span>Sign Out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Authentication Section */}
+            {isAuthenticated && user ? (
+              // User is logged in - show user menu
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold text-sm">
+                        {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                      </span>
+                    </div>
+                    <span className="hidden lg:block text-gray-700 font-medium">
+                      {user.name || 'User'}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 p-2 bg-white border border-gray-200 shadow-xl">
+                  <DropdownMenuLabel className="text-base font-semibold text-gray-900 px-3 py-2">
+                    My Account
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-gray-200" />
+                  
+                  {/* User Info */}
+                  <div className="px-3 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                    <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
+                  </div>
+                  
+                  <DropdownMenuSeparator className="bg-gray-200" />
+                  
+                  {/* Menu Items */}
+                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                    <User className="w-4 h-4 text-gray-600" />
+                    <span className="text-gray-900 font-medium">Profile</span>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                    <Settings className="w-4 h-4 text-gray-600" />
+                    <span className="text-gray-900 font-medium">Settings</span>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                    <FileTextIcon className="w-4 h-4 text-gray-600" />
+                    <span className="text-gray-900 font-medium">My Resumes</span>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                    <BarChartIcon className="w-4 h-4 text-gray-600" />
+                    <span className="text-gray-900 font-medium">Dashboard</span>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator className="bg-gray-200" />
+                  
+                  {/* Logout */}
+                  <DropdownMenuItem 
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span className="font-medium">Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              // User is not logged in - show auth buttons
+              <div className="hidden lg:flex items-center space-x-2">
+                <Link
+                  href="/auth/login"
+                  className="px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
 
             {/* Mobile Menu Button - Enhanced */}
             <button
@@ -192,23 +231,52 @@ export default function MainNavigation({
                 </Link>
               ))}
               
-              {/* Mobile Authentication Links - New */}
-              <div className="px-4 py-3 space-y-2">
-                <Link
-                  href="/auth/login"
-                  onClick={closeMenu}
-                  className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth/register"
-                  onClick={closeMenu}
-                  className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 font-medium"
-                >
-                  Sign Up
-                </Link>
-              </div>
+              {/* Mobile Authentication Section */}
+              {isAuthenticated && user ? (
+                // User is logged in - show user info and logout
+                <div className="px-4 py-3 space-y-3 border-t border-gray-200">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                    <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
+                  </div>
+                  
+                  <Link
+                    href="/profile"
+                    onClick={closeMenu}
+                    className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Profile
+                  </Link>
+                  
+                  <button
+                    onClick={() => { handleLogout(); closeMenu(); }}
+                    className="w-full flex items-center justify-center px-4 py-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all duration-300 font-medium border border-red-200"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                // User is not logged in - show auth buttons
+                <div className="px-4 py-3 space-y-2 border-t border-gray-200">
+                  <Link
+                    href="/auth/login"
+                    onClick={closeMenu}
+                    className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    onClick={closeMenu}
+                    className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 font-medium"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
               
               {/* Mobile Resume Upload Button - Fixed */}
               <Link
