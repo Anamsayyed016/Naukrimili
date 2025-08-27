@@ -1,11 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  getMobileGeolocationMethodWithFallback,
-  getMobileErrorMessageWithSolution,
-  detectMobileWithFallback
-} from '@/lib/mobile-auth-fixes';
 
-// Minimal country metadata used by the app (extend when needed)
+// Minimal country metadata used by the app
 export const TARGET_COUNTRIES = {
   US: { name: 'United States', currency: 'USD', currencySymbol: '$', cities: ['New York', 'San Francisco'] },
   GB: { name: 'United Kingdom', currency: 'GBP', currencySymbol: '£', cities: ['London', 'Manchester'] },
@@ -33,6 +28,18 @@ interface UseLocationDetectionOptions {
   enableHighAccuracy?: boolean;
 }
 
+// Simple mobile detection
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+// Check if HTTPS is available (required for mobile geolocation)
+const isHTTPS = () => {
+  if (typeof window === 'undefined') return false;
+  return window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+};
+
 export function useLocationDetection(options: UseLocationDetectionOptions = {}) {
   const { autoDetect = true, fallbackCountry = 'IN', enableHighAccuracy = false } = options;
 
@@ -50,7 +57,8 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [permissionState, setPermissionState] = useState<'granted' | 'denied' | 'prompt' | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [mobileInfo, setMobileInfo] = useState<any>(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isSecureConnection, setIsSecureConnection] = useState(false);
 
   // Check geolocation permission status
   const checkPermissionStatus = useCallback(async () => {
@@ -59,7 +67,10 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
     }
 
     // Check if we're on HTTPS (required for geolocation on mobile)
-    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+    const secure = isHTTPS();
+    setIsSecureConnection(secure);
+    
+    if (!secure && isMobile()) {
       console.warn('Geolocation requires HTTPS on mobile devices');
       return 'denied';
     }
@@ -79,198 +90,204 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
     return null;
   }, []);
 
-  // Very lightweight IP lookup (single service; silent failure)
+  // IP-based location detection with multiple fallback services
   const detectCountryFromIP = useCallback(async (): Promise<Partial<LocationData> | null> => {
-    try {
-      const res = await fetch('https://ipapi.co/json/');
-      if (!res.ok) return null;
-      const data: any = await res.json();
-      if (data && data.country_code && TARGET_COUNTRIES[data.country_code as CountryCode]) {
-        return {
-          country: data.country_code,
-          countryName: data.country_name,
-          city: data.city,
-          state: data.region
-        };
+    const services = [
+      'https://ipapi.co/json/',
+      'https://ipinfo.io/json',
+      'https://api.ipify.org?format=json'
+    ];
+
+    for (const service of services) {
+      try {
+        const res = await fetch(service, { 
+          method: 'GET',
+          mode: 'cors',
+          headers: { 'Accept': 'application/json' }
+        });
+        
+        if (res.ok) {
+          const data: any = await res.json();
+          
+          // Handle different service response formats
+          let countryCode = data.country_code || data.country || data.countryCode;
+          let countryName = data.country_name || data.country;
+          let city = data.city;
+          let state = data.region || data.state;
+          
+          if (countryCode && TARGET_COUNTRIES[countryCode.toUpperCase() as CountryCode]) {
+            return {
+              country: countryCode.toUpperCase() as CountryCode,
+              countryName: countryName || TARGET_COUNTRIES[countryCode.toUpperCase() as CountryCode].name,
+              city,
+              state
+            };
+          }
+        }
+      } catch (error) {
+        console.warn(`IP service ${service} failed:`, error);
+        continue;
       }
-      return null;
-    } catch (_) {
-      return null;
     }
+    
+    return null;
   }, []);
 
+  // GPS-based location detection with mobile optimization
   const detectLocationFromGPS = useCallback(async (): Promise<Partial<LocationData> | null> => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined' || !('geolocation' in navigator)) {
+      return null;
+    }
 
-    try {
-      // Get mobile-optimized geolocation method
-      const geoMethod = getMobileGeolocationMethodWithFallback();
-      console.log('📍 Mobile geolocation method:', geoMethod);
+    // Mobile devices need HTTPS for geolocation
+    if (isMobile() && !isHTTPS()) {
+      setError('Geolocation requires HTTPS on mobile devices. Using IP-based location instead.');
+      return await detectCountryFromIP();
+    }
 
-      if (geoMethod.method === 'fallback') {
-        console.log('⚠️ Using fallback geolocation method:', geoMethod.fallbackMessage);
-        // Fallback to IP-based detection
-        return await detectCountryFromIP();
-      }
+    return new Promise((resolve) => {
+      const timeoutId = setTimeout(() => {
+        setError('Location request timed out. Using IP-based location instead.');
+        resolve(null);
+      }, 15000); // 15 second timeout for mobile
 
-      if (!('geolocation' in navigator)) {
-        const mobileError = getMobileErrorMessageWithSolution({ code: 'not_supported' }, 'geolocation');
-        setError(`${mobileError.message}. ${mobileError.solution}`);
-        return null;
-      }
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          clearTimeout(timeoutId);
+          try {
+            const { latitude, longitude } = position.coords;
+            console.log('📍 GPS coordinates obtained:', { latitude, longitude });
 
-      // Check HTTPS requirement for mobile
-      if (mobileInfo?.isMobile && window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-        const mobileError = getMobileErrorMessageWithSolution({ code: 'https_required' }, 'geolocation');
-        setError(`${mobileError.message}. ${mobileError.solution}`);
-        console.log('⚠️ HTTPS required for mobile geolocation, using IP fallback');
-        return await detectCountryFromIP();
-      }
-
-      return new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-          reject(new Error('Geolocation timeout'));
-        }, 15000);
-
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            clearTimeout(timeoutId);
+            // Try to get city name from coordinates using multiple services
+            let locationData = null;
+            
+            // Service 1: BigDataCloud
             try {
-              const { latitude, longitude } = position.coords;
-              console.log('📍 GPS coordinates obtained:', { latitude, longitude });
+              const r = await fetch(
+                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+              );
+              if (r.ok) {
+                const d: any = await r.json();
+                if (d.countryCode && TARGET_COUNTRIES[d.countryCode as CountryCode]) {
+                  locationData = {
+                    country: d.countryCode,
+                    countryName: TARGET_COUNTRIES[d.countryCode as CountryCode].name,
+                    city: d.city || d.locality,
+                    state: d.principalSubdivision,
+                    coordinates: { lat: latitude, lng: longitude }
+                  };
+                }
+              }
+            } catch (error) {
+              console.warn('BigDataCloud reverse geocoding failed');
+            }
 
-              // Use existing reverse geocoding logic
-              let locationData = null;
-              
-              // Try BigDataCloud first
+            // Service 2: OpenStreetMap (fallback)
+            if (!locationData) {
               try {
                 const r = await fetch(
-                  `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+                  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&accept-language=en`
                 );
                 if (r.ok) {
                   const d: any = await r.json();
-                  if (d.countryCode && TARGET_COUNTRIES[d.countryCode as CountryCode]) {
+                  if (d.address && d.address.country_code && TARGET_COUNTRIES[d.address.country_code.toUpperCase() as CountryCode]) {
                     locationData = {
-                      country: d.countryCode,
-                      countryName: d.countryCode,
-                      city: d.city || d.locality,
-                      state: d.principalSubdivision,
-                      coordinates: { lat: latitude, lng: longitude },
-                      source: 'gps'
+                      country: d.address.country_code.toUpperCase() as CountryCode,
+                      countryName: TARGET_COUNTRIES[d.address.country_code.toUpperCase() as CountryCode].name,
+                      city: d.address.city || d.address.town || d.address.village,
+                      state: d.address.state,
+                      coordinates: { lat: latitude, lng: longitude }
                     };
                   }
                 }
               } catch (error) {
-                console.warn('BigDataCloud reverse geocoding failed, trying fallback');
+                console.warn('OpenStreetMap reverse geocoding failed');
               }
-
-              // Fallback to OpenStreetMap if BigDataCloud fails
-              if (!locationData) {
-                try {
-                  const r = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&accept-language=en`
-                  );
-                  if (r.ok) {
-                    const d: any = await r.json();
-                    if (d.address && d.address.country_code && TARGET_COUNTRIES[d.address.country_code.toUpperCase() as CountryCode]) {
-                      locationData = {
-                        country: d.address.country_code.toUpperCase(),
-                        countryName: d.address.country,
-                        city: d.address.city || d.address.town || d.address.village,
-                        state: d.address.state,
-                        coordinates: { lat: latitude, lng: longitude },
-                        source: 'gps'
-                      };
-                    }
-                  }
-                } catch (error) {
-                  console.warn('OpenStreetMap reverse geocoding also failed');
-                }
-              }
-
-              resolve(locationData);
-            } catch (error) {
-              reject(error);
             }
-          },
-          (error) => {
-            clearTimeout(timeoutId);
-            const mobileError = getMobileErrorMessageWithSolution(error, 'geolocation');
-            setError(`${mobileError.message}. ${mobileError.solution}`);
-            console.error('❌ GPS geolocation error:', mobileError);
-            reject(error);
-          },
-          {
-            enableHighAccuracy: false,
-            timeout: 15000,
-            maximumAge: 300000
-          }
-        );
-      });
-    } catch (error: any) {
-      const mobileError = getMobileErrorMessageWithSolution(error, 'geolocation');
-      setError(`${mobileError.message}. ${mobileError.solution}`);
-      console.error('❌ GPS detection failed:', mobileError);
-      return null;
-    }
-  }, [mobileInfo]);
 
+            resolve(locationData);
+          } catch (error) {
+            console.error('Error processing GPS coordinates:', error);
+            resolve(null);
+          }
+        },
+        (error) => {
+          clearTimeout(timeoutId);
+          let errorMessage = 'Location access denied';
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location access denied. Please allow location access in your browser settings.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information unavailable. Please check your GPS settings.';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out. Please check your internet connection.';
+              break;
+          }
+          
+          setError(errorMessage);
+          console.error('❌ GPS geolocation error:', error);
+          resolve(null);
+        },
+        {
+          enableHighAccuracy: enableHighAccuracy,
+          timeout: 15000, // 15 seconds for mobile
+          maximumAge: 300000 // 5 minutes cache
+        }
+      );
+    });
+  }, [enableHighAccuracy, detectCountryFromIP]);
+
+  // Main location detection function
   const detectLocation = useCallback(async (): Promise<Partial<LocationData> | null> => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Check mobile compatibility first
-      if (mobileInfo?.isMobile) {
-        const geoMethod = getMobileGeolocationMethodWithFallback();
-        console.log('📍 Mobile geolocation strategy:', geoMethod);
-        
-        if (geoMethod.method === 'gps') {
-          console.log('📍 Attempting GPS geolocation on mobile');
-          const gpsLocation = await detectLocationFromGPS();
-          if (gpsLocation) {
-            setLocation(prev => ({ ...prev, ...gpsLocation }));
-            return gpsLocation;
-          }
-        }
-        
-        if (geoMethod.method === 'ip' || geoMethod.method === 'fallback') {
-          console.log('📍 Using IP-based geolocation on mobile');
-          const ipLocation = await detectCountryFromIP();
-          if (ipLocation) {
-            setLocation(prev => ({ ...prev, ...ipLocation }));
-            return ipLocation;
-          }
+      // Strategy: Try GPS first, then IP fallback
+      console.log('📍 Starting location detection...');
+      
+      // Check if we can use GPS
+      if (isMobile() && !isHTTPS()) {
+        console.log('📍 Mobile without HTTPS - using IP-based detection');
+        const ipLocation = await detectCountryFromIP();
+        if (ipLocation) {
+          setLocation(prev => ({ ...prev, ...ipLocation, isDetected: true }));
+          return ipLocation;
         }
       } else {
-        // Desktop flow
-        console.log('📍 Desktop geolocation flow');
+        // Try GPS first
+        console.log('📍 Attempting GPS geolocation...');
         const gpsLocation = await detectLocationFromGPS();
         if (gpsLocation) {
-          setLocation(prev => ({ ...prev, ...gpsLocation }));
+          setLocation(prev => ({ ...prev, ...gpsLocation, isDetected: true }));
           return gpsLocation;
         }
       }
 
       // Fallback to IP detection
-      console.log('📍 Falling back to IP-based detection');
+      console.log('📍 Falling back to IP-based detection...');
       const ipLocation = await detectCountryFromIP();
       if (ipLocation) {
-        setLocation(prev => ({ ...prev, ...ipLocation }));
+        setLocation(prev => ({ ...prev, ...ipLocation, isDetected: true }));
         return ipLocation;
       }
 
+      // All methods failed
       throw new Error('All location detection methods failed');
     } catch (error: any) {
-      const mobileError = getMobileErrorMessageWithSolution(error, 'geolocation');
-      setError(`${mobileError.message}. ${mobileError.solution}`);
-      console.error('❌ Location detection failed:', mobileError);
+      const errorMessage = error.message || 'Location detection failed';
+      setError(errorMessage);
+      console.error('❌ Location detection failed:', error);
       return null;
     } finally {
       setIsLoading(false);
     }
-  }, [mobileInfo, detectLocationFromGPS, detectCountryFromIP]);
+  }, [detectLocationFromGPS, detectCountryFromIP]);
 
+  // Set country manually
   const setCountry = useCallback((code: CountryCode) => {
     const meta = TARGET_COUNTRIES[code];
     setLocation(prev => ({
@@ -319,12 +336,18 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
     }
   }, []);
 
+  // Initialize on mount
   useEffect(() => {
-    // Check mobile compatibility on mount
-    const mobile = detectMobileWithFallback();
-    setMobileInfo(mobile);
+    const mobile = isMobile();
+    const secure = isHTTPS();
+    
+    setIsMobileDevice(mobile);
+    setIsSecureConnection(secure);
+    
+    console.log(`📍 Device: ${mobile ? 'Mobile' : 'Desktop'}, HTTPS: ${secure ? 'Yes' : 'No'}`);
   }, []);
 
+  // Auto-detect location if enabled
   useEffect(() => {
     if (autoDetect) {
       detectLocation();
@@ -347,6 +370,7 @@ export function useLocationDetection(options: UseLocationDetectionOptions = {}) 
     targetCountries: TARGET_COUNTRIES,
     error,
     clearError,
-    mobileInfo
+    isMobileDevice,
+    isSecureConnection
   };
 }

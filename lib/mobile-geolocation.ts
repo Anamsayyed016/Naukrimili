@@ -1,13 +1,12 @@
 /**
- * Mobile-specific geolocation utilities
- * Handles mobile device geolocation issues and provides better fallbacks
+ * Simplified Mobile Geolocation Utility
+ * Provides reliable geolocation for both mobile and desktop devices
  */
 
 export interface MobileGeolocationOptions {
   enableHighAccuracy?: boolean;
   timeout?: number;
   maximumAge?: number;
-  forceIPFallback?: boolean;
 }
 
 export interface GeolocationResult {
@@ -38,43 +37,27 @@ export function isHTTPSRequired(): boolean {
 }
 
 /**
- * Check geolocation permission status
+ * Check if the device is likely mobile
  */
-export async function checkGeolocationPermission(): Promise<'granted' | 'denied' | 'prompt' | null> {
-  if (!isGeolocationSupported()) return null;
+export function isMobileDevice(): boolean {
+  if (typeof window === 'undefined') return false;
   
-  if ('permissions' in navigator) {
-    try {
-      const permission = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
-      return permission.state;
-    } catch (error) {
-      console.warn('Permission query not supported:', error);
-      return null;
-    }
-  }
+  const userAgent = navigator.userAgent.toLowerCase();
+  const mobileKeywords = ['mobile', 'android', 'iphone', 'ipad', 'windows phone'];
   
-  return null;
+  return mobileKeywords.some(keyword => userAgent.includes(keyword)) || 
+         window.innerWidth <= 768;
 }
 
 /**
- * Request geolocation permission explicitly
+ * Get mobile-optimized geolocation options
  */
-export async function requestGeolocationPermission(): Promise<boolean> {
-  if (!isGeolocationSupported()) return false;
-  
-  try {
-    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject, {
-        enableHighAccuracy: false,
-        timeout: 5000,
-        maximumAge: 0
-      });
-    });
-    return true;
-  } catch (error: any) {
-    console.error('Permission request failed:', error);
-    return false;
-  }
+export function getMobileGeolocationOptions(): MobileGeolocationOptions {
+  return {
+    enableHighAccuracy: false, // Better for mobile battery life
+    timeout: 15000, // 15 seconds for mobile
+    maximumAge: 300000 // 5 minutes cache
+  };
 }
 
 /**
@@ -95,7 +78,8 @@ export async function getCurrentLocationGPS(options: MobileGeolocationOptions = 
     };
   }
 
-  if (isHTTPSRequired()) {
+  // Mobile devices need HTTPS for geolocation
+  if (isMobileDevice() && isHTTPSRequired()) {
     return {
       success: false,
       error: 'Geolocation requires HTTPS on mobile devices',
@@ -122,6 +106,7 @@ export async function getCurrentLocationGPS(options: MobileGeolocationOptions = 
             source: 'gps'
           });
         } catch (error) {
+          // Return coordinates even if reverse geocoding fails
           resolve({
             success: true,
             coordinates: { lat: latitude, lng: longitude },
@@ -160,26 +145,41 @@ export async function getCurrentLocationGPS(options: MobileGeolocationOptions = 
  * Get location from IP address as fallback
  */
 export async function getLocationFromIP(): Promise<GeolocationResult> {
-  try {
-    const response = await fetch('https://ipapi.co/json/');
-    if (!response.ok) throw new Error('IP geolocation service unavailable');
-    
-    const data = await response.json();
-    
-    return {
-      success: true,
-      city: data.city,
-      country: data.country_code,
-      state: data.region,
-      source: 'ip'
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Failed to get location from IP',
-      source: 'ip'
-    };
+  const services = [
+    'https://ipapi.co/json/',
+    'https://ipinfo.io/json'
+  ];
+
+  for (const service of services) {
+    try {
+      const response = await fetch(service, {
+        method: 'GET',
+        mode: 'cors',
+        headers: { 'Accept': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        return {
+          success: true,
+          city: data.city,
+          country: data.country_code || data.country,
+          state: data.region || data.state,
+          source: 'ip'
+        };
+      }
+    } catch (error) {
+      console.warn(`IP service ${service} failed:`, error);
+      continue;
+    }
   }
+
+  return {
+    success: false,
+    error: 'Failed to get location from IP',
+    source: 'ip'
+  };
 }
 
 /**
@@ -231,34 +231,22 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ city?: string
  * Smart location detection that tries GPS first, then falls back to IP
  */
 export async function getSmartLocation(options: MobileGeolocationOptions = {}): Promise<GeolocationResult> {
-  // Check permission first
-  const permission = await checkGeolocationPermission();
-  
-  if (permission === 'denied') {
-    // Permission denied, use IP fallback
+  // Check if we can use GPS
+  if (isMobileDevice() && isHTTPSRequired()) {
+    console.log('📍 Mobile without HTTPS - using IP fallback');
     return getLocationFromIP();
   }
-  
-  if (permission === 'granted' || permission === 'prompt') {
-    // Try GPS first
-    const gpsResult = await getCurrentLocationGPS(options);
-    
-    if (gpsResult.success) {
-      return gpsResult;
-    }
-    
-    // GPS failed, use IP fallback
-    return getLocationFromIP();
-  }
-  
-  // No permission info available, try GPS anyway
+
+  // Try GPS first
+  console.log('📍 Attempting GPS geolocation...');
   const gpsResult = await getCurrentLocationGPS(options);
   
   if (gpsResult.success) {
     return gpsResult;
   }
-  
-  // Fallback to IP
+
+  // GPS failed, use IP fallback
+  console.log('📍 GPS failed, using IP fallback...');
   return getLocationFromIP();
 }
 
@@ -278,29 +266,4 @@ export function getGeolocationErrorMessage(errorCode?: number): string {
     default:
       return 'Failed to detect location. Please try again or select a location manually.';
   }
-}
-
-/**
- * Check if the device is likely mobile
- */
-export function isMobileDevice(): boolean {
-  if (typeof window === 'undefined') return false;
-  
-  const userAgent = navigator.userAgent.toLowerCase();
-  const mobileKeywords = ['mobile', 'android', 'iphone', 'ipad', 'windows phone'];
-  
-  return mobileKeywords.some(keyword => userAgent.includes(keyword)) || 
-         window.innerWidth <= 768;
-}
-
-/**
- * Get mobile-optimized geolocation options
- */
-export function getMobileGeolocationOptions(): MobileGeolocationOptions {
-  return {
-    enableHighAccuracy: false, // Better for mobile battery life
-    timeout: 15000, // Longer timeout for mobile GPS
-    maximumAge: 300000, // 5 minutes cache
-    forceIPFallback: false
-  };
 }
