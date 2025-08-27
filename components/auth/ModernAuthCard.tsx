@@ -8,14 +8,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Eye, EyeOff, Loader2, Mail, Lock, User, AlertCircle, Smartphone, Monitor } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Mail, Lock, User, AlertCircle, Smartphone, Monitor, AlertTriangle, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { 
-  isMobileDevice, 
-  getPreferredAuthMethod, 
-  validateMobileAuthEnvironment,
-  getMobileOAuthErrorMessage 
-} from '@/lib/mobile-auth'
+  getMobileAuthMethodWithFallback,
+  getMobileErrorMessageWithSolution,
+  getMobileStatusMessage,
+  checkMobileFeatureCompatibility
+} from '@/lib/mobile-auth-fixes';
+import { Badge } from '@/components/ui/badge';
 
 interface ModernAuthCardProps {
   mode: 'signin' | 'signup'
@@ -37,6 +38,8 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
     warnings: string[];
     errors: string[];
   }>({ isMobile: false, warnings: [], errors: [] })
+  const [mobileStatus, setMobileStatus] = useState<any>(null);
+  const [mobileCompatibility, setMobileCompatibility] = useState<any>(null);
 
   // Check mobile environment on component mount
   useEffect(() => {
@@ -47,6 +50,14 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
       errors: env.errors
     })
   }, [])
+
+  useEffect(() => {
+    // Check mobile compatibility on component mount
+    const status = getMobileStatusMessage();
+    const compatibility = checkMobileFeatureCompatibility();
+    setMobileStatus(status);
+    setMobileCompatibility(compatibility);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -77,39 +88,123 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
     }
   }
 
-  const handleOAuthSignIn = async (provider: string) => {
-    setIsLoading(provider)
-    setError('')
-    
+  const handleOAuthSignIn = async (provider: 'google' | 'linkedin') => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const isMobile = isMobileDevice()
-      const authMethod = getPreferredAuthMethod()
-      
-      console.log(`🔐 OAuth sign-in: ${provider} on ${isMobile ? 'mobile' : 'desktop'} using ${authMethod}`)
-      
-      const result = await signIn(provider, { 
+      // Get mobile-optimized authentication method
+      const authMethod = getMobileAuthMethodWithFallback();
+      console.log('🔐 Mobile auth method:', authMethod);
+
+      const result = await signIn(provider, {
         callbackUrl: '/dashboard',
-        redirect: authMethod === 'redirect'
-      })
-      
+        redirect: authMethod.method === 'redirect' || authMethod.method === 'fallback'
+      });
+
       if (result?.error) {
-        const mobileError = getMobileOAuthErrorMessage(result.error)
-        setError(mobileError)
-        console.error(`❌ OAuth error for ${provider}:`, result.error)
+        // Get mobile-specific error message with solution
+        const mobileError = getMobileErrorMessageWithSolution(result.error, 'oauth');
+        setError(`${mobileError.message}. ${mobileError.solution}`);
+        console.error('❌ OAuth error:', mobileError);
       }
-    } catch (error: any) {
-      const mobileError = getMobileOAuthErrorMessage(error)
-      setError(mobileError)
-      console.error(`❌ OAuth exception for ${provider}:`, error)
+    } catch (err: any) {
+      const mobileError = getMobileErrorMessageWithSolution(err, 'oauth');
+      setError(`${mobileError.message}. ${mobileError.solution}`);
+      console.error('❌ OAuth signin failed:', err);
     } finally {
-      setIsLoading('')
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="auth-container">
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <Card className="auth-card w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Mobile Status Banner */}
+        {mobileStatus && (
+          <div className={`mb-4 p-4 rounded-lg border ${
+            mobileStatus.severity === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
+            mobileStatus.severity === 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-800' :
+            'bg-blue-50 border-blue-200 text-blue-800'
+          }`}>
+            <div className="flex items-start gap-3">
+              {mobileStatus.severity === 'error' ? (
+                <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+              ) : mobileStatus.severity === 'warning' ? (
+                <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+              ) : (
+                <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              )}
+              <div className="flex-1">
+                <h4 className="font-medium">{mobileStatus.title}</h4>
+                <p className="text-sm mt-1">{mobileStatus.message}</p>
+                {mobileStatus.actions && (
+                  <ul className="mt-2 text-sm space-y-1">
+                    {mobileStatus.actions.map((action, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <span className="text-xs">•</span>
+                        <span>{action}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Compatibility Info */}
+        {mobileCompatibility && (
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
+            <h4 className="font-medium text-gray-900 mb-2">Mobile Feature Support</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium">OAuth:</span>
+                <Badge 
+                  variant={
+                    mobileCompatibility.oauth === 'full' ? 'default' :
+                    mobileCompatibility.oauth === 'limited' ? 'secondary' :
+                    'destructive'
+                  }
+                  className="ml-2"
+                >
+                  {mobileCompatibility.oauth === 'full' ? 'Full' :
+                   mobileCompatibility.oauth === 'limited' ? 'Limited' : 'None'}
+                </Badge>
+              </div>
+              <div>
+                <span className="font-medium">Geolocation:</span>
+                <Badge 
+                  variant={
+                    mobileCompatibility.geolocation === 'full' ? 'default' :
+                    mobileCompatibility.geolocation === 'limited' ? 'secondary' :
+                    'destructive'
+                  }
+                  className="ml-2"
+                >
+                  {mobileCompatibility.geolocation === 'full' ? 'Full' :
+                   mobileCompatibility.geolocation === 'limited' ? 'Limited' : 'None'}
+                </Badge>
+              </div>
+            </div>
+            {mobileCompatibility.recommendations.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <p className="text-xs text-gray-600 mb-2">Recommendations:</p>
+                <ul className="text-xs text-gray-600 space-y-1">
+                  {mobileCompatibility.recommendations.map((rec, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-gray-400">•</span>
+                      <span>{rec}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Existing Auth Card */}
+        <Card className="shadow-xl">
           <CardHeader className="space-y-2 text-center">
             <div className="mx-auto w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-4">
               <User className="w-6 h-6 text-white" />
@@ -298,6 +393,16 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
             </div>
           </CardContent>
         </Card>
+
+        {/* Mobile Debug Link */}
+        <div className="mt-4 text-center">
+          <Link 
+            href="/auth/debug-mobile" 
+            className="text-sm text-blue-600 hover:text-blue-800 underline"
+          >
+            🔍 Debug Mobile Issues
+          </Link>
+        </div>
       </div>
     </div>
   )
