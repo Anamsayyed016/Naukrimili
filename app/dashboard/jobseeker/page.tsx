@@ -47,6 +47,8 @@ interface Job {
 }
 
 export default function JobseekerPage() {
+  console.log('Jobseeker dashboard page loaded');
+  
   const [stats, setStats] = useState<DashboardStats>({
     applicationsCount: 0,
     profileViews: 0,
@@ -59,10 +61,12 @@ export default function JobseekerPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Jobseeker dashboard useEffect running');
     let isMounted = true;
     
     const fetchDashboardData = async () => {
       try {
+        console.log('Fetching dashboard data...');
         // Fetch applications
         const applicationsRes = await fetch('/api/applications');
         const applications = applicationsRes.ok ? await applicationsRes.json() : [];

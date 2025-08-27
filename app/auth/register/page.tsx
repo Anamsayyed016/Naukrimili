@@ -74,6 +74,18 @@ export default function RegisterPage() {
       setLoading(false);
       return;
     }
+
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      setError('First name and last name are required!');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required!');
+      setLoading(false);
+      return;
+    }
     
     try {
       // Mobile-optimized request - skip CSRF on mobile if needed
@@ -86,20 +98,30 @@ export default function RegisterPage() {
         headers['x-csrf-token'] = csrfToken;
       }
       
+      console.log('Sending registration data:', {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        role: formData.role
+      });
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email.trim(),
           password: formData.password,
-          phone: formData.phone,
+          phone: formData.phone.trim() || undefined,
           role: formData.role
         }),
       });
 
       const data = await response.json();
+      console.log('Registration response:', data);
 
       if (data.success) {
         // Store user data and token
@@ -119,7 +141,11 @@ export default function RegisterPage() {
           }
         }
       } else {
-        setError(data.error || 'Registration failed');
+        if (data.details && Array.isArray(data.details)) {
+          setError(`Validation failed: ${data.details.join(', ')}`);
+        } else {
+          setError(data.error || 'Registration failed');
+        }
       }
     } catch (error) {
       console.error('Registration error:', error);

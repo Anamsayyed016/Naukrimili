@@ -48,8 +48,9 @@ export default function AuthGuard({
       const userRole = (session.user as any)?.role;
       if (userRole && !allowedRoles.includes(userRole)) {
         const roleRedirects: Record<string, string> = {
-          jobseeker: "/jobseeker/dashboard",
-          admin: "/admin/dashboard"
+          jobseeker: "/dashboard/jobseeker",
+          employer: "/dashboard/company",
+          admin: "/dashboard/admin"
         };
         return { hasAccess: false, reason: "Insufficient permissions", targetPath: roleRedirects[userRole] || "/dashboard" };
       }

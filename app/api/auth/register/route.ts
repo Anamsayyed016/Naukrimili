@@ -4,27 +4,21 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
 const registerSchema = z.object({
-  name: z.string().min(1, 'Full name is required'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
-  location: z.string().optional(),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string().min(6, 'Confirm password is required'),
   role: z.enum(['jobseeker', 'employer']).default('jobseeker')
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('Registration request body:', body);
+    
     const validatedData = registerSchema.parse(body);
-
-    // Check if passwords match
-    if (validatedData.password !== validatedData.confirmPassword) {
-      return NextResponse.json(
-        { error: 'Passwords do not match' },
-        { status: 400 }
-      );
-    }
+    console.log('Validated data:', validatedData);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -41,40 +35,40 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hash(validatedData.password, 12);
 
-    // Extract first and last name from full name
-    const nameParts = validatedData.name.trim().split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
+    // Create full name from first and last name
+    const fullName = `${validatedData.firstName} ${validatedData.lastName}`.trim();
 
     // Create user
     const user = await prisma.user.create({
       data: {
-        name: validatedData.name,
+        name: fullName,
         email: validatedData.email,
         password: hashedPassword,
         role: validatedData.role,
-        phone: validatedData.phone,
-        location: validatedData.location,
-        firstName: firstName,
-        lastName: lastName,
+        phone: validatedData.phone || null,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
         isActive: true,
         isVerified: false
       }
     });
 
+    console.log('User created successfully:', user.id);
+
     // If user is an employer, create a default company
     if (validatedData.role === 'employer') {
       await prisma.company.create({
         data: {
-          name: `${firstName}'s Company`,
+          name: `${validatedData.firstName}'s Company`,
           description: 'Company profile will be updated later',
-          location: validatedData.location || 'India',
+          location: 'India',
           industry: 'Technology',
           size: '1-10',
           isVerified: false,
           createdBy: user.id
         }
       });
+      console.log('Company created for employer');
     }
 
     return NextResponse.json({
@@ -93,8 +87,12 @@ export async function POST(request: NextRequest) {
     console.error('Registration error:', error);
     
     if (error instanceof z.ZodError) {
+      console.error('Validation errors:', error.errors);
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
+        { 
+          error: 'Validation failed', 
+          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        },
         { status: 400 }
       );
     }
@@ -113,7 +111,7 @@ export async function OPTIONS(request: NextRequest) {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-csrf-token',
     },
   });
 }
