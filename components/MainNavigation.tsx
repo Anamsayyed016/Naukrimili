@@ -107,6 +107,22 @@ export default function MainNavigation({
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
 
+            {/* Authentication Links - New */}
+            <div className="hidden lg:flex items-center space-x-2">
+              <Link
+                href="/auth/login"
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/auth/register"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95"
+              >
+                Sign Up
+              </Link>
+            </div>
+
             {/* User Menu - Enhanced */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -175,6 +191,24 @@ export default function MainNavigation({
                   {link.title}
                 </Link>
               ))}
+              
+              {/* Mobile Authentication Links - New */}
+              <div className="px-4 py-3 space-y-2">
+                <Link
+                  href="/auth/login"
+                  onClick={closeMenu}
+                  className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/register"
+                  onClick={closeMenu}
+                  className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 font-medium"
+                >
+                  Sign Up
+                </Link>
+              </div>
               
               {/* Mobile Resume Upload Button - Fixed */}
               <Link

@@ -12,11 +12,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { FaGoogle, FaLinkedin } from 'react-icons/fa';
 import { Loader2, Smartphone, Monitor } from 'lucide-react';
-import { 
-  isMobileDevice, 
-  getPreferredAuthMethod, 
-  getMobileOAuthErrorMessage 
-} from '@/lib/mobile-auth';
+
+// Simplified mobile detection
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
 
 interface OAuthButtonsProps {
   callbackUrl?: string;
@@ -46,24 +47,20 @@ export function OAuthButtons({
       setLoadingProvider(providerId);
       
       const isMobile = isMobileDevice();
-      const authMethod = getPreferredAuthMethod();
       
-      console.log(`🔐 OAuth sign-in: ${providerId} on ${isMobile ? 'mobile' : 'desktop'} using ${authMethod}`);
+      console.log(`🔐 OAuth sign-in: ${providerId} on ${isMobile ? 'mobile' : 'desktop'}`);
       
+      // Mobile-optimized OAuth - always use redirect
       const result = await signIn(providerId, {
         callbackUrl,
-        redirect: authMethod === 'redirect',
+        redirect: true, // Force redirect for mobile compatibility
       });
       
       if (result?.error) {
-        const mobileError = getMobileOAuthErrorMessage(result.error);
         console.error(`❌ OAuth error for ${providerId}:`, result.error);
-        console.error(`📱 Mobile-friendly error:`, mobileError);
       }
     } catch (error: any) {
-      const mobileError = getMobileOAuthErrorMessage(error);
       console.error(`❌ OAuth exception for ${providerId}:`, error);
-      console.error(`📱 Mobile-friendly error:`, mobileError);
     } finally {
       setLoadingProvider(null);
     }

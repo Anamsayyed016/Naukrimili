@@ -4,12 +4,12 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
 const registerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  name: z.string().min(1, 'Full name is required'),
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
   location: z.string().optional(),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string().min(6, 'Confirm password is required'),
   role: z.enum(['jobseeker', 'employer']).default('jobseeker')
 });
 
@@ -17,6 +17,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = registerSchema.parse(body);
+
+    // Check if passwords match
+    if (validatedData.password !== validatedData.confirmPassword) {
+      return NextResponse.json(
+        { error: 'Passwords do not match' },
+        { status: 400 }
+      );
+    }
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -33,17 +41,22 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hash(validatedData.password, 12);
 
+    // Extract first and last name from full name
+    const nameParts = validatedData.name.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
     // Create user
     const user = await prisma.user.create({
       data: {
-        name: `${validatedData.firstName} ${validatedData.lastName}`,
+        name: validatedData.name,
         email: validatedData.email,
         password: hashedPassword,
         role: validatedData.role,
         phone: validatedData.phone,
         location: validatedData.location,
-        firstName: validatedData.firstName,
-        lastName: validatedData.lastName,
+        firstName: firstName,
+        lastName: lastName,
         isActive: true,
         isVerified: false
       }
@@ -53,7 +66,7 @@ export async function POST(request: NextRequest) {
     if (validatedData.role === 'employer') {
       await prisma.company.create({
         data: {
-          name: `${validatedData.firstName}'s Company`,
+          name: `${firstName}'s Company`,
           description: 'Company profile will be updated later',
           location: validatedData.location || 'India',
           industry: 'Technology',
@@ -72,7 +85,8 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role
-      }
+      },
+      token: `user_${user.id}_${Date.now()}` // Simple token for now
     });
 
   } catch (error) {

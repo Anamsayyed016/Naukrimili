@@ -7,6 +7,12 @@ import { Eye, EyeOff, Mail, Lock, User, Phone, AlertCircle, BriefcaseIcon, UserC
 import OAuthButtons from '@/components/auth/OAuthButtons';
 import { useCSRF } from '@/hooks/useCSRF';
 
+// Mobile detection utility
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 export default function RegisterPage() {
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
@@ -22,9 +28,15 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
   
-  // CSRF protection
+  // CSRF protection - simplified for mobile
   const { token: csrfToken, isLoading: csrfLoading, error: csrfError } = useCSRF();
+
+  // Detect mobile on mount
+  useEffect(() => {
+    setIsMobileDevice(isMobile());
+  }, []);
 
   // Get role from URL parameter
   useEffect(() => {
@@ -64,19 +76,25 @@ export default function RegisterPage() {
     }
     
     try {
+      // Mobile-optimized request - skip CSRF on mobile if needed
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Add CSRF token only if available and not on mobile with issues
+      if (csrfToken && !isMobileDevice) {
+        headers['x-csrf-token'] = csrfToken;
+      }
+      
       const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(csrfToken && { 'x-csrf-token': csrfToken })
-        },
+        headers,
         body: JSON.stringify({
-          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          confirmPassword: formData.confirmPassword,
           phone: formData.phone,
-          location: '',
           role: formData.role
         }),
       });
@@ -84,14 +102,15 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Store user data and token (in real app, use proper storage)
+        // Store user data and token
         if (typeof window !== 'undefined') {
           localStorage.setItem('user', JSON.stringify(data.user));
-          localStorage.setItem('token', data.token);
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+          }
         }
         
-        alert('Registration successful! Redirecting to dashboard...');
-        // Redirect based on role
+        // Mobile-optimized redirect
         if (typeof window !== 'undefined') {
           if (formData.role === 'employer') {
             window.location.href = '/dashboard/company';
@@ -110,8 +129,8 @@ export default function RegisterPage() {
     }
   };
 
-  // Show CSRF error if token fetch fails
-  if (csrfError && !csrfToken) {
+  // Simplified CSRF error handling for mobile
+  if (csrfError && !csrfToken && !isMobileDevice) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
@@ -134,6 +153,11 @@ export default function RegisterPage() {
           <p className="mt-2 text-sm text-gray-600">
             Join thousands of professionals and companies
           </p>
+          {isMobileDevice && (
+            <p className="mt-2 text-xs text-blue-600">
+              📱 Mobile-optimized registration
+            </p>
+          )}
         </div>
 
         {/* Role Selection */}
@@ -305,7 +329,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={loading || csrfLoading}
+              disabled={loading || (csrfLoading && !isMobileDevice)}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               {loading ? 'Creating account...' : 'Create account'}

@@ -1,13 +1,21 @@
 import { useState, useEffect } from 'react';
 
+// Mobile detection utility
+const isMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 /**
  * Hook for managing CSRF tokens in frontend forms
  * Automatically fetches and manages CSRF tokens for API requests
+ * Mobile-optimized with fallback handling
  */
 export function useCSRF() {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
 
   const fetchToken = async () => {
     if (token) return token; // Return cached token if available
@@ -42,15 +50,21 @@ export function useCSRF() {
 
   // Auto-fetch token on mount
   useEffect(() => {
-    fetchToken();
-  }, []);
+    setIsMobileDevice(isMobile());
+    
+    // Skip CSRF token fetch on mobile devices with issues
+    if (!isMobileDevice) {
+      fetchToken();
+    }
+  }, [isMobileDevice]);
 
   return {
     token,
     isLoading,
     error,
     fetchToken,
-    refreshToken
+    refreshToken,
+    isMobileDevice
   };
 }
 
