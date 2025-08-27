@@ -10,15 +10,9 @@ export async function GET(
   try {
     const companyId = params.id;
 
+    // Verify company exists
     const company = await prisma.company.findUnique({
-      where: { id: companyId },
-      include: {
-        _count: {
-          select: {
-            jobs: true
-          }
-        }
-      }
+      where: { id: companyId }
     });
 
     if (!company) {
@@ -28,19 +22,28 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(company);
+    // Get company's jobs
+    const jobs = await prisma.job.findMany({
+      where: { 
+        companyId: companyId,
+        isActive: true
+      },
+      orderBy: [
+        { isFeatured: 'desc' },
+        { isUrgent: 'desc' },
+        { postedAt: 'desc' }
+      ]
+    });
+
+    return NextResponse.json(jobs);
 
   } catch (error) {
-    console.error('Error fetching company:', error);
+    console.error('Error fetching company jobs:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch company' },
+      { error: 'Failed to fetch company jobs' },
       { status: 500 }
     );
   } finally {
     await prisma.$disconnect();
   }
-}
-
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200 });
 }

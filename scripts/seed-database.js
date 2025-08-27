@@ -13,7 +13,6 @@ const prisma = new PrismaClient();
 // Sample companies data
 const companies = [
   {
-    id: 'company-1',
     name: 'TechCorp Solutions',
     description: 'Leading technology solutions provider specializing in AI and machine learning',
     logo: 'https://via.placeholder.com/150x150/3B82F6/FFFFFF?text=TC',
@@ -25,7 +24,6 @@ const companies = [
     isVerified: true
   },
   {
-    id: 'company-2',
     name: 'FinTech Innovations',
     description: 'Revolutionary financial technology company transforming digital banking',
     logo: 'https://via.placeholder.com/150x150/10B981/FFFFFF?text=FI',
@@ -37,7 +35,6 @@ const companies = [
     isVerified: true
   },
   {
-    id: 'company-3',
     name: 'HealthTech Systems',
     description: 'Advanced healthcare technology solutions for modern medical facilities',
     logo: 'https://via.placeholder.com/150x150/EF4444/FFFFFF?text=HS',
@@ -49,7 +46,6 @@ const companies = [
     isVerified: true
   },
   {
-    id: 'company-4',
     name: 'EduTech Pro',
     description: 'Innovative educational technology platform for modern learning',
     logo: 'https://via.placeholder.com/150x150/8B5CF6/FFFFFF?text=EP',
@@ -61,7 +57,6 @@ const companies = [
     isVerified: true
   },
   {
-    id: 'company-5',
     name: 'Green Energy Corp',
     description: 'Sustainable energy solutions for a greener future',
     logo: 'https://via.placeholder.com/150x150/059669/FFFFFF?text=GE',
@@ -79,7 +74,6 @@ const jobs = [
   {
     title: 'Senior Software Engineer',
     company: 'TechCorp Solutions',
-    companyId: 'company-1',
     location: 'Bangalore, Karnataka',
     country: 'IN',
     description: 'We are looking for a Senior Software Engineer to join our growing team. You will be responsible for designing, developing, and maintaining high-quality software solutions.',
@@ -103,7 +97,6 @@ const jobs = [
   {
     title: 'Data Scientist',
     company: 'FinTech Innovations',
-    companyId: 'company-2',
     location: 'Mumbai, Maharashtra',
     country: 'IN',
     description: 'Join our data science team to build cutting-edge machine learning models for financial risk assessment and fraud detection.',
@@ -127,7 +120,6 @@ const jobs = [
   {
     title: 'Frontend Developer',
     company: 'HealthTech Systems',
-    companyId: 'company-3',
     location: 'Hyderabad, Telangana',
     country: 'IN',
     description: 'Create beautiful and responsive user interfaces for our healthcare applications. Experience with modern frontend frameworks required.',
@@ -151,7 +143,6 @@ const jobs = [
   {
     title: 'Product Manager',
     company: 'EduTech Pro',
-    companyId: 'company-4',
     location: 'Delhi, NCR',
     country: 'IN',
     description: 'Lead product strategy and development for our educational technology platform. Experience in EdTech or SaaS products preferred.',
@@ -175,7 +166,6 @@ const jobs = [
   {
     title: 'DevOps Engineer',
     company: 'Green Energy Corp',
-    companyId: 'company-5',
     location: 'Chennai, Tamil Nadu',
     country: 'IN',
     description: 'Build and maintain our cloud infrastructure and deployment pipelines. Experience with AWS, Docker, and Kubernetes required.',
@@ -199,7 +189,6 @@ const jobs = [
   {
     title: 'UI/UX Designer',
     company: 'TechCorp Solutions',
-    companyId: 'company-1',
     location: 'Bangalore, Karnataka',
     country: 'IN',
     description: 'Create intuitive and beautiful user experiences for our products. Strong portfolio and design thinking skills required.',
@@ -223,7 +212,6 @@ const jobs = [
   {
     title: 'Backend Developer',
     company: 'FinTech Innovations',
-    companyId: 'company-2',
     location: 'Mumbai, Maharashtra',
     country: 'IN',
     description: 'Build scalable backend services and APIs for our financial applications. Experience with Java, Spring Boot, and microservices preferred.',
@@ -247,7 +235,6 @@ const jobs = [
   {
     title: 'Marketing Manager',
     company: 'HealthTech Systems',
-    companyId: 'company-3',
     location: 'Hyderabad, Telangana',
     country: 'IN',
     description: 'Lead our marketing initiatives and drive customer acquisition. Experience in B2B healthcare marketing preferred.',
@@ -323,15 +310,27 @@ async function seedDatabase() {
     console.log('💼 Seeding jobs...');
     for (const job of jobs) {
       console.log(`   Creating job: ${job.title} at ${job.company}`);
+      
+      // Find the company by name to get its ID
+      const company = await prisma.company.findFirst({
+        where: { name: job.company }
+      });
+      
+      if (!company) {
+        console.log(`   ⚠️  Company not found: ${job.company}, skipping job: ${job.title}`);
+        continue;
+      }
+      
       const createdJob = await prisma.job.create({
         data: {
           ...job,
+          companyId: company.id, // Link to the actual company ID
           rawJson: job, // Store the full job data as JSON
           source: 'manual',
           sourceId: `job-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
         }
       });
-      console.log(`   ✅ Created job: ${createdJob.id} - ${createdJob.title}`);
+      console.log(`   ✅ Created job: ${createdJob.id} - ${createdJob.title} at ${company.name}`);
     }
 
     console.log('✅ Database seeding completed successfully!');
