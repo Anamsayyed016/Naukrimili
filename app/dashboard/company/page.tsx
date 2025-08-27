@@ -82,10 +82,49 @@ export default function CompanyDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Company Dashboard</h1>
-        <Button onClick={fetchCompanyStats} variant="outline">
-          Refresh
-        </Button>
+        <div className="flex gap-3">
+          <Link href="/employer/post-job">
+            <Button className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white">
+              <Briefcase className="h-4 w-4 mr-2" />
+              Post New Job
+            </Button>
+          </Link>
+          <Button onClick={fetchCompanyStats} variant="outline">
+            Refresh
+          </Button>
+        </div>
       </div>
+
+      {/* Welcome Message for New Users */}
+      {stats && stats.totalJobs === 0 && (
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-blue-900 mb-2">Welcome to Your Company Dashboard!</h3>
+              <p className="text-blue-700 mb-4">
+                Get started by posting your first job and building your company profile to attract top talent.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link href="/employer/post-job">
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    Post Your First Job
+                  </Button>
+                </Link>
+                <Link href="/employer/company-profile">
+                  <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Complete Company Profile
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

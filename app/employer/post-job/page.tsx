@@ -92,16 +92,46 @@ export default function PostJobPage() {
     setLoading(true);
 
     try {
-      // For now, just log the data - implement API call later
-      // Job posting data logged
+      const response = await fetch('/api/employer/post-job', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          company: formData.company,
+          location: formData.location,
+          country: formData.country,
+          description: formData.description,
+          requirements: formData.requirements,
+          benefits: formData.benefits,
+          salary: formData.salary,
+          jobType: formData.jobType,
+          experienceLevel: formData.experienceLevel,
+          skills: formData.skills,
+          isRemote: formData.isRemote,
+          isHybrid: formData.isHybrid,
+          isUrgent: formData.isUrgent,
+          sector: formData.sector
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to post job');
+      }
+
+      const result = await response.json();
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirect to job management page
-      router.push('/employer/jobs');
+      if (result.success) {
+        alert('Job posted successfully!');
+        router.push('/employer/jobs');
+      } else {
+        throw new Error(result.error || 'Failed to post job');
+      }
     } catch (error) {
       console.error('Error posting job:', error);
+      alert(error instanceof Error ? error.message : 'Failed to post job');
     } finally {
       setLoading(false);
     }
@@ -110,12 +140,14 @@ export default function PostJobPage() {
   const handleSaveDraft = async () => {
     setLoading(true);
     try {
-      // Save as draft logic
-              // Draft saving logged
+      // Save as draft logic - you can implement this later
+      console.log('Saving draft:', formData);
       await new Promise(resolve => setTimeout(resolve, 500));
+      alert('Draft saved successfully!');
       router.push('/employer/jobs');
     } catch (error) {
       console.error('Error saving draft:', error);
+      alert('Failed to save draft');
     } finally {
       setLoading(false);
     }

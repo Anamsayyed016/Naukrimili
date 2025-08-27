@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Building, Briefcase, Users, TrendingUp, ArrowRight, Brain, Shield, Zap, Upload, FileText, CheckCircle, Sparkles, Globe, Award, Clock } from 'lucide-react';
+import { Search, MapPin, Building, Briefcase, Users, TrendingUp, ArrowRight, Brain, Shield, Zap, Upload, FileText, CheckCircle, Sparkles, Globe, Award, Clock, UserCheck, Building2, BriefcaseIcon } from 'lucide-react';
 
 interface Job {
   id: number;
@@ -79,7 +79,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      {/* Hero Section - Enhanced */}
+      {/* Hero Section - Enhanced with Role Selection */}
       <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -90,13 +90,7 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto text-center">
           <div className="mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-white/20 rounded-full text-sm font-medium text-gray-700 mb-6 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles w-4 h-4 text-blue-600" aria-hidden="true">
-                <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path>
-                <path d="M20 3v4"></path>
-                <path d="M22 5h-4"></path>
-                <path d="M4 17v2"></path>
-                <path d="M5 18H3"></path>
-              </svg>
+              <Sparkles className="w-4 h-4 text-blue-600" />
               AI-Powered Job Matching Platform
             </div>
           </div>
@@ -112,42 +106,66 @@ export default function HomePage() {
             Discover thousands of opportunities across top companies. AI-powered matching, real-time updates, and seamless application process.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 lg:gap-6 justify-center mb-12">
-            <a 
-              href="/jobs"
-              className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl text-lg font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search w-5 h-5 mr-3 group-hover:scale-110 transition-transform" aria-hidden="true">
-                <path d="m21 21-4.34-4.34"></path>
-                <circle cx="11" cy="11" r="8"></circle>
-              </svg>
-              Search Jobs
-            </a>
-            
-            <a 
-              href="/auth/register"
-              className="group border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl text-lg font-semibold transition-all duration-300 inline-flex items-center justify-center hover:shadow-xl"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users w-5 h-5 mr-3 group-hover:scale-110 transition-transform" aria-hidden="true">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-              </svg>
-              Get Started
-            </a>
-            
-            <a 
-              href="/resumes/upload"
-              className="group bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl text-lg font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-upload w-5 h-5 mr-3 group-hover:scale-110 transition-transform" aria-hidden="true">
-                <path d="M12 3v12"></path>
-                <path d="m17 8-5-5-5 5"></path>
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              </svg>
-              Upload Resume
-            </a>
+          {/* Role Selection Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto mb-12">
+            {/* Job Seeker Card */}
+            <div className="group bg-white/90 backdrop-blur-md border-2 border-blue-200 rounded-3xl p-6 md:p-8 hover:border-blue-400 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-4 md:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <UserCheck className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
+              </div>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">I'm a Job Seeker</h3>
+              <p className="text-gray-600 mb-4 md:mb-6 leading-relaxed text-sm md:text-base">
+                Find your perfect job match with AI-powered recommendations and instant applications.
+              </p>
+              <div className="space-y-3">
+                <Link 
+                  href="/jobs"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 md:px-6 py-3 rounded-xl text-sm md:text-base font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105"
+                >
+                  <Search className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  Search Jobs
+                </Link>
+                <Link 
+                  href="/auth/register?role=jobseeker"
+                  className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-4 md:px-6 py-3 rounded-xl text-sm md:text-base font-semibold transition-all duration-300 inline-flex items-center justify-center hover:shadow-xl"
+                >
+                  <Users className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  Create Account
+                </Link>
+              </div>
+            </div>
+
+            {/* Employer Card */}
+            <div className="group bg-white/90 backdrop-blur-md border-2 border-emerald-200 rounded-3xl p-6 md:p-8 hover:border-emerald-400 hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4 md:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Building2 className="w-8 h-8 md:w-10 md:h-10 text-emerald-600" />
+              </div>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">I'm an Employer</h3>
+              <p className="text-gray-600 mb-4 md:mb-6 leading-relaxed text-sm md:text-base">
+                Post jobs, find top talent, and manage your hiring process efficiently.
+              </p>
+              <div className="space-y-3">
+                <Link 
+                  href="/employer/post-job"
+                  className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-4 md:px-6 py-3 rounded-xl text-sm md:text-base font-semibold transition-all duration-300 inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105"
+                >
+                  <BriefcaseIcon className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  Post a Job
+                </Link>
+                <Link 
+                  href="/auth/register?role=employer"
+                  className="w-full border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-4 md:px-6 py-3 rounded-xl text-sm md:text-base font-semibold transition-all duration-300 inline-flex items-center justify-center hover:shadow-xl"
+                >
+                  <Building className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  Company Account
+                </Link>
+              </div>
+            </div>
+          </div>
+          
+          {/* Navigation Hint */}
+          <div className="text-center text-sm text-gray-500 mb-8">
+            <p>Choose your path above to get started, or explore our platform below</p>
           </div>
           
           <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">

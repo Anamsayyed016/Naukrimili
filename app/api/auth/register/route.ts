@@ -1,35 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { hash } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { validateCSRF, createCSRFErrorResponse } from '@/lib/utils/csrf';
 
 const registerSchema = z.object({
-  name: z.string().min(2).max(100),
-  email: z.string().email(),
-  password: z.string().min(6).max(100),
-  confirmPassword: z.string().min(6).max(100),
-  role: z.enum(['jobseeker', 'employer']).default('jobseeker'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
   location: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional()
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum(['jobseeker', 'employer']).default('jobseeker')
 });
 
 export async function POST(request: NextRequest) {
   try {
-    // CSRF protection
-    const csrfValidation = validateCSRF(request);
-    if (!csrfValidation.isValid) {
-      return NextResponse.json(
-        createCSRFErrorResponse(csrfValidation.error || 'CSRF validation failed'),
-        { status: 403 }
-      );
-    }
-
     const body = await request.json();
     const validatedData = registerSchema.parse(body);
 
@@ -39,19 +24,19 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
-      return NextResponse.json({
-        success: false,
-        error: 'User with this email already exists'
-      }, { status: 409 });
+      return NextResponse.json(
+        { error: 'User with this email already exists' },
+        { status: 400 }
+      );
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+    const hashedPassword = await hash(validatedData.password, 12);
 
     // Create user
     const user = await prisma.user.create({
       data: {
-        name: validatedData.name,
+        name: `${validatedData.firstName} ${validatedData.lastName}`,
         email: validatedData.email,
         password: hashedPassword,
         role: validatedData.role,
@@ -64,34 +49,20 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Create default settings for the user
-    await prisma.settings.create({
-      data: {
-        userId: user.id,
-        key: 'notifications',
-        value: {
-          email: true,
-          push: true,
-          sms: false
+    // If user is an employer, create a default company
+    if (validatedData.role === 'employer') {
+      await prisma.company.create({
+        data: {
+          name: `${validatedData.firstName}'s Company`,
+          description: 'Company profile will be updated later',
+          location: validatedData.location || 'India',
+          industry: 'Technology',
+          size: '1-10',
+          isVerified: false,
+          createdBy: user.id
         }
-      }
-    });
-
-    // Create default settings for job preferences
-    await prisma.settings.create({
-      data: {
-        userId: user.id,
-        key: 'job_preferences',
-        value: {
-          jobTypes: ['full-time'],
-          experienceLevels: ['entry', 'mid'],
-          remotePreference: 'any',
-          salaryRange: { min: 0, max: 1000000 },
-          locations: [],
-          skills: []
-        }
-      }
-    });
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -100,29 +71,24 @@ export async function POST(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phone: user.phone,
-        location: user.location,
-        createdAt: user.createdAt
+        role: user.role
       }
-    }, { status: 201 });
+    });
 
   } catch (error) {
+    console.error('Registration error:', error);
+    
     if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid input data',
-        details: error.errors
-      }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.errors },
+        { status: 400 }
+      );
     }
 
-    console.error('Registration error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Registration failed. Please try again.'
-    }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 

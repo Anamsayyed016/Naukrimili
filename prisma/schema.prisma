@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Job {
-  id              Int       @id @default(autoincrement())
+  id              String    @id @default(cuid())
   source          String    @default("manual")
   sourceId        String    @default(cuid())
   title           String
@@ -18,6 +18,7 @@ model Job {
   location        String?
   country         String    @default("IN")
   description     String    @db.Text
+  requirements    String[]  @default([])
   applyUrl        String?   // @deprecated - use apply_url instead
   apply_url       String?   // New field for internal application URL
   source_url      String?   // New field for external source URL
@@ -37,9 +38,9 @@ model Job {
   sector          String?   // Technology, Finance, Healthcare, etc.
   views           Int       @default(0)
   applicationsCount Int     @default(0)
-  createdBy       Int?      // User who created this job
-  companyId       Int?      // Company this job belongs to
-  rawJson         Json
+  createdBy       String?   // User who created this job
+  companyId       String?   // Company this job belongs to
+  rawJson         Json?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   
@@ -61,7 +62,7 @@ model Job {
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
+  id              String    @id @default(cuid())
   email           String    @unique
   emailVerified   DateTime?
   name            String?
@@ -99,17 +100,17 @@ model User {
 
 // NextAuth.js OAuth Account Model
 model Account {
-  id                Int     @id @default(autoincrement())
-  userId            Int
+  id                String   @id @default(cuid())
+  userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?  @db.Text
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -122,21 +123,20 @@ model Account {
 
 // NextAuth.js Session Model
 model Session {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       Int
+  userId       String
   expires      DateTime
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@index([userId])
 }
 
 // NextAuth.js Verification Token Model
 model VerificationToken {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(cuid())
   identifier String
   token      String   @unique
   expires    DateTime
@@ -145,9 +145,9 @@ model VerificationToken {
 }
 
 model JobBookmark {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  jobId     Int
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
   notes     String?  @db.Text
   createdAt DateTime @default(now())
   
@@ -160,23 +160,23 @@ model JobBookmark {
 }
 
 model Company {
-  id              Int       @id @default(autoincrement())
+  id              String   @id @default(cuid())
   name            String
-  description     String?   @db.Text
+  description     String?  @db.Text
   logo            String?
   website         String?
   location        String?
   industry        String?
   size            String?  // e.g., "1-10", "11-50", "51-200", etc.
   founded         Int?
-  isVerified      Boolean   @default(false)
-  createdBy       Int?      // User who created this company
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  isVerified      Boolean  @default(false)
+  createdBy       String?  // User who created this company
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   
   // Relations
   jobs            Job[]
-  creator         User?     @relation(fields: [createdBy], references: [id])
+  creator         User?    @relation(fields: [createdBy], references: [id])
   applications    Application[]
   
   @@index([createdBy])
@@ -185,17 +185,17 @@ model Company {
 }
 
 model Resume {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  fileName    String
-  fileUrl     String
-  fileSize    Int?
-  mimeType    String?
-  parsedData  Json?    // AI-extracted resume data
-  atsScore    Int?     // ATS compatibility score
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  fileName  String
+  fileUrl   String
+  fileSize  Int?
+  mimeType  String?
+  parsedData Json?   // AI-extracted resume data
+  atsScore  Int?     // ATS compatibility score
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
   // Relations
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -205,16 +205,16 @@ model Resume {
 }
 
 model Application {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  jobId     Int
-  companyId Int
-  resumeId    Int?
-  status      String   @default("submitted") // submitted, reviewed, interview, rejected, hired
-  coverLetter String?  @db.Text
-  notes       String?  @db.Text
-  appliedAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  companyId String
+  resumeId  String?
+  status    String   @default("submitted") // submitted, reviewed, interview, rejected, hired
+  coverLetter String? @db.Text
+  notes     String?  @db.Text
+  appliedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
   // Relations
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -229,13 +229,13 @@ model Application {
 }
 
 model Message {
-  id              Int      @id @default(autoincrement())
-  senderId        Int
-  receiverId      Int
-  content        String   @db.Text
-  isRead         Boolean  @default(false)
-  messageType    String   @default("text") // text, system, notification
-  createdAt      DateTime @default(now())
+  id              String   @id @default(cuid())
+  senderId        String
+  receiverId      String
+  content         String   @db.Text
+  isRead          Boolean  @default(false)
+  messageType     String   @default("text") // text, system, notification
+  createdAt       DateTime @default(now())
   
   // Relations
   sender         User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
@@ -247,7 +247,7 @@ model Message {
 }
 
 model Category {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid())
   name        String   @unique
   description String?
   isActive    Boolean  @default(true)
@@ -256,8 +256,8 @@ model Category {
 }
 
 model Settings {
-  id        Int      @id @default(autoincrement())
-  userId    Int
+  id        String   @id @default(cuid())
+  userId    String
   key       String
   value     Json
   createdAt DateTime @default(now())

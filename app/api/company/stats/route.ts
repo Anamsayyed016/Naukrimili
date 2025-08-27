@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { requireEmployerAuth } from "@/lib/auth-utils";
-import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import { requireEmployerAuth } from '@/lib/auth-utils';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,77 +10,103 @@ export async function GET(request: NextRequest) {
     }
 
     const { user } = auth;
-    
-    // Get company statistics
-    const [totalJobs, activeJobs, totalApplications, recentApplications] = await Promise.all([
+
+    // Get company
+    const company = await prisma.company.findFirst({
+      where: { createdBy: user.id }
+    });
+
+    if (!company) {
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      );
+    }
+
+    // Get company stats
+    const [
+      totalJobs,
+      activeJobs,
+      totalApplications,
+      pendingApplications,
+      recentJobs,
+      jobTypeDistribution,
+      applicationStatusDistribution
+    ] = await Promise.all([
+      // Total jobs
       prisma.job.count({
-        where: { companyId: user.company.id }
+        where: { companyId: company.id }
       }),
+      
+      // Active jobs
       prisma.job.count({
         where: { 
-          companyId: user.company.id,
+          companyId: company.id,
           isActive: true
         }
       }),
+      
+      // Total applications
       prisma.application.count({
-        where: {
-          job: { companyId: user.company.id }
+        where: { companyId: company.id }
+      }),
+      
+      // Pending applications
+      prisma.application.count({
+        where: { 
+          companyId: company.id,
+          status: 'submitted'
         }
       }),
-      prisma.application.count({
-        where: {
-          job: { companyId: user.company.id },
-          appliedAt: {
-            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
+      
+      // Recent jobs with application counts
+      prisma.job.findMany({
+        where: { companyId: company.id },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        include: {
+          _count: {
+            select: { applications: true }
           }
         }
+      }),
+      
+      // Job type distribution
+      prisma.job.groupBy({
+        by: ['jobType'],
+        where: { companyId: company.id },
+        _count: { jobType: true }
+      }),
+      
+      // Application status distribution
+      prisma.application.groupBy({
+        by: ['status'],
+        where: { companyId: company.id },
+        _count: { status: true }
       })
     ]);
 
-    // Get job applications by status
-    const applicationsByStatus = await prisma.application.groupBy({
-      by: ['status'],
-      where: {
-        job: { companyId: user.company.id }
-      },
-      _count: {
-        status: true
-      }
-    });
-
-    // Get top performing jobs
-    const topJobs = await prisma.job.findMany({
-      where: { companyId: user.company.id },
-      select: {
-        id: true,
-        title: true,
-        applicationsCount: true,
-        views: true
-      },
-      orderBy: { applicationsCount: 'desc' },
-      take: 5
-    });
+    const stats = {
+      totalJobs,
+      activeJobs,
+      totalApplications,
+      pendingApplications,
+      profileViews: 0, // Placeholder - implement later
+      companyRating: 0, // Placeholder - implement later
+      recentJobs,
+      jobTypeDistribution,
+      applicationStatusDistribution
+    };
 
     return NextResponse.json({
       success: true,
-      data: {
-        overview: {
-          totalJobs,
-          activeJobs,
-          totalApplications,
-          recentApplications
-        },
-        applicationsByStatus: applicationsByStatus.reduce((acc, item) => {
-          acc[item.status] = item._count.status;
-          return acc;
-        }, {} as Record<string, number>),
-        topJobs
-      }
+      data: stats
     });
+
   } catch (error) {
-    console.error("Error fetching company stats:", error);
+    console.error('Error fetching company stats:', error);
     return NextResponse.json(
-      { error: "Failed to fetch company statistics" },
+      { error: 'Failed to fetch company stats' },
       { status: 500 }
     );
   }

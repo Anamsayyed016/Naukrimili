@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { requireEmployerAuth } from "@/lib/auth-utils";
-import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import { requireEmployerAuth } from '@/lib/auth-utils';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,70 +11,60 @@ export async function POST(request: NextRequest) {
 
     const { user } = auth;
     const body = await request.json();
-    
-    const {
-      title,
-      company,
-      location,
-      country = "IN",
-      description,
-      applyUrl,
-      salary,
-      salaryMin,
-      salaryMax,
-      salaryCurrency = "INR",
-      jobType,
-      experienceLevel,
-      skills = [],
-      isRemote = false,
-      isHybrid = false,
-      isUrgent = false,
-      sector
-    } = body;
 
-    // Validate required fields
-    if (!title || !description) {
+    // Get the user's company
+    const company = await prisma.company.findFirst({
+      where: { createdBy: user.id }
+    });
+
+    if (!company) {
       return NextResponse.json(
-        { error: "Title and description are required" },
+        { error: "Company not found. Please complete your company profile first." },
         { status: 400 }
       );
     }
 
+    // Create the job
     const job = await prisma.job.create({
       data: {
-        title,
-        company: company || user.company.name,
-        location,
-        country,
-        description,
-        applyUrl,
-        salary,
-        salaryMin,
-        salaryMax,
-        salaryCurrency,
-        jobType,
-        experienceLevel,
-        skills,
-        isRemote,
-        isHybrid,
-        isUrgent,
-        sector,
-        companyId: user.company.id,
+        title: body.title,
+        company: company.name,
+        location: body.location,
+        country: body.country || 'IN',
+        description: body.description,
+        requirements: body.requirements ? [body.requirements] : [],
+        salary: body.salary,
+        jobType: body.jobType,
+        experienceLevel: body.experienceLevel,
+        skills: body.skills || [],
+        isRemote: body.isRemote || false,
+        isHybrid: body.isHybrid || false,
+        isUrgent: body.isUrgent || false,
+        isFeatured: body.isFeatured || false,
+        sector: body.sector,
+        source: 'manual',
+        sourceId: `manual_${Date.now()}`,
         createdBy: user.id,
-        source: "manual",
+        companyId: company.id,
         rawJson: body
       }
     });
 
     return NextResponse.json({
       success: true,
-      data: job,
-      message: "Job posted successfully"
-    }, { status: 201 });
+      message: 'Job posted successfully',
+      job: {
+        id: job.id,
+        title: job.title,
+        company: job.company,
+        location: job.location
+      }
+    });
+
   } catch (error) {
-    console.error("Error creating job:", error);
+    console.error('Error posting job:', error);
     return NextResponse.json(
-      { error: "Failed to create job" },
+      { error: 'Failed to post job' },
       { status: 500 }
     );
   }
