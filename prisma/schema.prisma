@@ -83,6 +83,21 @@ model User {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   
+  // Job Seeker specific fields
+  resumeUrl       String?   // Resume file URL
+  locationPreference String? // Preferred job locations
+  salaryExpectation Int?    // Expected salary
+  jobTypePreference String[] @default([]) // full-time, part-time, contract, internship
+  remotePreference Boolean  @default(false) // Remote work preference
+  
+  // Employer specific fields
+  companyName     String?   // Company name
+  recruiterName  String?   // Recruiter's name
+  companyWebsite  String?   // Company website
+  companyIndustry String?   // Company industry
+  companySize     String?   // Company size (1-10, 11-50, etc.)
+  companyFounded  Int?      // Company founding year
+  
   // OAuth Relations
   accounts        Account[]
   sessions        Session[]

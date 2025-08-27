@@ -6,6 +6,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global input field fixes to prevent visibility issues */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="search"],
+input[type="url"],
+textarea,
+select {
+  background-color: white !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+/* Ensure password fields are always visible */
+input[type="password"] {
+  background-color: white !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+/* Focus states */
+input:focus,
+textarea:focus,
+select:focus {
+  background-color: white !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+/* Placeholder text */
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important;
+  -webkit-text-fill-color: #6b7280 !important;
+}
+
+/* Disable autofill styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  background-color: white !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
