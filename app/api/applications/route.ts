@@ -4,9 +4,9 @@ import { requireAuth } from '@/lib/auth-utils';
 import { z } from 'zod';
 
 const applicationSchema = z.object({
-  jobId: z.number().int().positive(),
+  jobId: z.string(),
   coverLetter: z.string().optional(),
-  resumeId: z.number().int().positive().optional(),
+  resumeId: z.string().optional(),
   notes: z.string().optional()
 });
 
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: user.id,
         jobId: jobId,
-        companyId: job.companyId || 0,
+        companyId: job.companyId || '0',
         coverLetter: coverLetter || '',
         notes: notes || '',
         status: 'submitted',

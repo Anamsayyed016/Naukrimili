@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useSession } from 'next-auth/react';
 import { applicationApi } from '@/lib/api';
 import { useErrorHandler } from '@/lib/error-boundary';
 import { toast } from '@/components/ui/use-toast';
@@ -24,10 +25,21 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
   size = 'default',
   className = ''
 }) => {
+  const { data: session, status } = useSession();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const handleError = useErrorHandler();
 
   const handleApply = async () => {
+    // Check if user is authenticated
+    if (!session?.user?.id) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to apply for this job.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       
@@ -51,6 +63,31 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
       setIsSubmitting(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <Button disabled variant={variant} size={size} className={className}>
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        Loading...
+      </Button>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!session?.user?.id) {
+    return (
+      <Button 
+        onClick={() => window.location.href = '/auth/login'} 
+        variant={variant} 
+        size={size} 
+        className={className}
+      >
+        Login to Apply
+        <ChevronRight className="w-4 h-4 ml-2" />
+      </Button>
+    );
+  }
 
   return (
     <Button

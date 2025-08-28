@@ -3,7 +3,7 @@ import { authOptions } from "./nextauth-config";
 import { prisma } from "./prisma";
 
 export interface AuthUser {
-  id: number;
+  id: string;
   email: string;
   name?: string;
   role: string;
@@ -11,7 +11,7 @@ export interface AuthUser {
 
 export interface CompanyUser extends AuthUser {
   company: {
-    id: number;
+    id: string;
     name: string;
     description?: string;
     logo?: string;
@@ -34,9 +34,9 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
       return null;
     }
 
-    // Convert string ID to number
-    const userId = parseInt(session.user.id as string, 10);
-    if (isNaN(userId)) {
+    // Use string ID directly
+    const userId = session.user.id as string;
+    if (!userId) {
       return null;
     }
 

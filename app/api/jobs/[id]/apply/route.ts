@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(
@@ -17,8 +17,8 @@ export async function POST(
       );
     }
 
-    const jobId = parseInt(params.id);
-    if (isNaN(jobId)) {
+    const jobId = params.id; // Keep as string, don't parse as int
+    if (!jobId) {
       return NextResponse.json(
         { success: false, error: 'Invalid job ID' },
         { status: 400 }
@@ -43,7 +43,7 @@ export async function POST(
     const existingApplication = await prisma.application.findFirst({
       where: {
         jobId: jobId,
-        userId: session.user.id
+        userId: session.user.id as string
       }
     });
 
@@ -58,7 +58,8 @@ export async function POST(
     const application = await prisma.application.create({
       data: {
         jobId: jobId,
-        userId: session.user.id,
+        userId: session.user.id as string,
+        companyId: job.companyId || '0', // Use string ID
         status: 'submitted',
         coverLetter: body.coverLetter || '',
         resumeId: body.resumeId || null,
