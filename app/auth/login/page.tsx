@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import OAuthButtons from '@/components/auth/OAuthButtons';
-import { useAuth } from '@/context/AuthContext';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -16,48 +16,29 @@ export default function LoginPage() {
   const [success, setSuccess] = useState<string | null>(null);
   
   const router = useRouter();
-  const { login } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(null);
     
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
       });
 
-      const data = await response.json();
-
-      if (data.success) {
-        setSuccess('Login successful! Redirecting...');
-        
-        // Use the AuthContext login function
-        login(data.user, data.token);
-        
-        // Redirect to appropriate dashboard based on user role
-        setTimeout(() => {
-          if (data.user.role === 'employer') {
-            router.push('/dashboard/company');
-          } else if (data.user.role === 'jobseeker') {
-            router.push('/dashboard/jobseeker');
-          } else if (data.user.role === 'admin') {
-            router.push('/dashboard/admin');
-          } else {
-            router.push('/profile');
-          }
-        }, 1500);
+      if (result?.error) {
+        setError('Invalid email or password');
       } else {
-        setError(data.error || 'Login failed');
+        setSuccess('Login successful! Redirecting...');
+        if (result?.ok) {
+          router.push('/dashboard/company');
+        }
       }
     } catch (error) {
-      console.error('Login error:', error);
       setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
