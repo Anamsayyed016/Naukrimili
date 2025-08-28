@@ -91,15 +91,15 @@ export default function EmployerRegisterPage() {
       const response = await fetch('/api/auth/register/employer', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...formData,
           role: 'employer',
           requiredSkills: formData.requiredSkills.split(',').map(skill => skill.trim()).filter(Boolean),
+          openings: parseInt(formData.openings) || 1,
           salaryMin: formData.salaryMin ? parseInt(formData.salaryMin) : null,
           salaryMax: formData.salaryMax ? parseInt(formData.salaryMax) : null,
-          openings: parseInt(formData.openings),
           companyFounded: formData.companyFounded ? parseInt(formData.companyFounded) : null
         }),
       });

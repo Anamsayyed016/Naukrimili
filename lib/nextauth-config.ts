@@ -8,6 +8,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -32,22 +33,36 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
+          if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
+
           // Check if user exists in database
           const user = await prisma.user.findUnique({
-            where: { email: credentials?.email || '' }
+            where: { email: credentials.email }
           });
           
-          if (user && credentials?.password) {
-            // In production, hash and verify password
-            // For now, allow basic auth
-            return {
-              id: user.id, // Keep as Int for Prisma compatibility
-              email: user.email,
-              name: user.name,
-              role: user.role || 'user'
-            };
+          if (!user || !user.password) {
+            return null;
           }
-          return null;
+
+          // Verify password
+          const isValidPassword = await bcrypt.compare(credentials.password, user.password);
+          if (!isValidPassword) {
+            return null;
+          }
+
+          // Check if user is active
+          if (!user.isActive) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role || 'jobseeker'
+          };
         } catch (error) {
           console.error('Credentials auth error:', error);
           return null;
@@ -60,12 +75,48 @@ export const authOptions: NextAuthOptions = {
       try {
         if (user) {
           token.id = user.id;
-          token.role = (user as any).role || 'user';
+          token.role = user.role || 'jobseeker';
           token.email = user.email;
         }
-        if (account?.provider) {
-          token.provider = account.provider;
+        
+        if (account?.provider === 'google' && profile) {
+          // Handle Google OAuth user creation/update
+          try {
+            const existingUser = await prisma.user.findUnique({
+              where: { email: profile.email || '' }
+            });
+
+            if (!existingUser) {
+              // Create new user from Google OAuth
+              const newUser = await prisma.user.create({
+                data: {
+                  email: profile.email || '',
+                  name: profile.name || '',
+                  role: 'jobseeker', // Default role for OAuth users
+                  isActive: true,
+                  isVerified: true,
+                  emailVerified: new Date()
+                }
+              });
+              token.id = newUser.id;
+              token.role = newUser.role;
+            } else {
+              // Update existing user
+              await prisma.user.update({
+                where: { id: existingUser.id },
+                data: {
+                  emailVerified: new Date(),
+                  updatedAt: new Date()
+                }
+              });
+              token.id = existingUser.id;
+              token.role = existingUser.role;
+            }
+          } catch (error) {
+            console.error('Error handling Google OAuth user:', error);
+          }
         }
+        
         return token;
       } catch (error) {
         console.error('JWT callback error:', error);
@@ -76,7 +127,7 @@ export const authOptions: NextAuthOptions = {
       try {
         if (session.user) {
           (session.user as any).id = token.id || token.sub || '';
-          (session.user as any).role = token.role || 'user';
+          (session.user as any).role = token.role || 'jobseeker';
           (session.user as any).email = token.email || '';
         }
         return session;
@@ -87,73 +138,23 @@ export const authOptions: NextAuthOptions = {
     },
     async signIn({ user, account, profile, email, credentials }) {
       try {
-        console.log('🔐 SignIn callback triggered:', {
-          user: user?.email,
-          account: account?.provider,
-          profile: profile?.email,
-          hasCredentials: !!credentials
+        // Log sign-in attempt
+        console.log('Sign-in attempt:', { 
+          provider: account?.provider, 
+          email: user.email, 
+          role: user.role 
         });
-
-        // Handle OAuth account linking
-        if (account?.provider && profile?.email) {
-          // Check if user exists with this email
-          const existingUser = await prisma.user.findUnique({
-            where: { email: profile.email },
-            include: { accounts: true }
-          });
-
-          if (existingUser) {
-            // Check if OAuth account is already linked
-            const isLinked = existingUser.accounts.some(
-              acc => acc.provider === account.provider
-            );
-
-            if (!isLinked) {
-              // Link the OAuth account to existing user
-              await prisma.account.create({
-                data: {
-                  userId: existingUser.id,
-                  type: account.type,
-                  provider: account.provider,
-                  providerAccountId: account.providerAccountId,
-                  access_token: account.access_token,
-                  expires_at: account.expires_at,
-                  refresh_token: account.refresh_token,
-                  token_type: account.token_type,
-                  scope: account.scope,
-                  id_token: account.id_token,
-                  session_state: account.session_state
-                }
-              });
-              
-              console.log('✅ OAuth account linked to existing user:', profile.email);
-            }
-          }
-        }
-
-        // Allow all sign-ins
+        
         return true;
       } catch (error) {
-        console.error('❌ SignIn callback error:', error);
+        console.error('Sign-in callback error:', error);
         return false;
-      }
-    },
-    async redirect({ url, baseUrl }) {
-      try {
-        // Security: Only allow relative URLs and same-origin URLs
-        if (url.startsWith("/")) return `${baseUrl}${url}`;
-        if (new URL(url).origin === baseUrl) return url;
-        return baseUrl;
-      } catch (error) {
-        console.error('❌ Redirect callback error:', error);
-        return baseUrl;
       }
     }
   },
   pages: {
     signIn: '/auth/login',
-    error: '/auth/error',
-    signOut: '/auth/logout'
+    error: '/auth/error'
   },
   session: {
     strategy: 'jwt',
@@ -163,60 +164,4 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   debug: process.env.NODE_ENV === 'development',
-  secret: process.env.NEXTAUTH_SECRET,
-  useSecureCookies: process.env.NODE_ENV === 'production',
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production'
-      }
-    },
-    callbackUrl: {
-      name: `next-auth.callback-url`,
-      options: {
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production'
-      }
-    },
-    csrfToken: {
-      name: `next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production'
-      }
-    }
-  },
-  events: {
-    async signIn({ user, account, profile, isNewUser }) {
-      console.log('✅ User signed in:', {
-        email: user.email,
-        provider: account?.provider,
-        isNewUser
-      });
-    },
-    async signOut({ session, token }) {
-      console.log('👋 User signed out:', {
-        email: session?.user?.email
-      });
-    },
-    async createUser({ user }) {
-      console.log('👤 New user created:', {
-        email: user.email,
-        id: user.id
-      });
-    },
-    async linkAccount({ user, account, profile }) {
-      console.log('🔗 Account linked:', {
-        email: user.email,
-        provider: account.provider
-      });
-    }
-  }
 };

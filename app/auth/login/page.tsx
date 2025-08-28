@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import OAuthButtons from '@/components/auth/OAuthButtons';
-import { useCSRF } from '@/hooks/useCSRF';
 import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
@@ -18,9 +17,6 @@ export default function LoginPage() {
   
   const router = useRouter();
   const { login } = useAuth();
-  
-  // CSRF protection
-  const { token: csrfToken, isLoading: csrfLoading, error: csrfError } = useCSRF();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +29,6 @@ export default function LoginPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(csrfToken && { 'x-csrf-token': csrfToken })
         },
         body: JSON.stringify({ email, password }),
       });
@@ -68,20 +63,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
-  // Show CSRF error if token fetch fails
-  if (csrfError && !csrfToken) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md">
-          <div className="flex items-center">
-            <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-            <p className="text-sm text-red-700">Security error: {csrfError}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -149,12 +130,8 @@ export default function LoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     placeholder="Enter your email"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
                   />
                 </div>
               </div>
@@ -176,18 +153,13 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none relative block w-full pl-10 pr-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm bg-white"
+                    className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     placeholder="Enter your password"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827',
-                      WebkitTextFillColor: '#111827'
-                    }}
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -203,13 +175,13 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105"
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
                 >
                   {loading ? (
-                    <>
+                    <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Signing in...
-                    </>
+                    </div>
                   ) : (
                     'Sign in'
                   )}
@@ -217,25 +189,35 @@ export default function LoginPage() {
               </div>
             </div>
           </div>
-
-          {/* OAuth Buttons */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-            <OAuthButtons 
-              callbackUrl="/dashboard" 
-              className="mb-4"
-            />
-          </div>
-
-          {/* Sign Up Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign up now
-              </Link>
-            </p>
-          </div>
         </form>
+
+        {/* OAuth Buttons */}
+        <div className="mt-6">
+          <OAuthButtons />
+        </div>
+
+        {/* Additional Links */}
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+            <span>Don't have an account?</span>
+            <Link 
+              href="/auth/register" 
+              className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
+            >
+              Sign up
+            </Link>
+          </div>
+          
+          <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+            <span>Forgot your password?</span>
+            <Link 
+              href="/auth/forgot-password" 
+              className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
+            >
+              Reset it
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

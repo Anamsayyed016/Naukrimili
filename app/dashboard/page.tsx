@@ -2,28 +2,31 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession() || {};
+  const { data: session, status } = useSession();
+  const { user: authUser, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (status === "loading") return; // Still loading
 
-    if (!session) {
+    // Check if user is authenticated via either NextAuth or custom auth
+    if (status === "unauthenticated" && !isAuthenticated) {
       router.push("/auth/login");
       return;
     }
 
-    // Redirect based on user role
-    const userRole = session.user?.role || "jobseeker";
+    // Get user role from either NextAuth session or custom auth
+    const userRole = session?.user?.role || authUser?.role || "jobseeker";
     
+    // Redirect based on user role
     switch (userRole) {
       case "admin":
         router.push("/dashboard/admin");
         break;
       case "employer":
-      case "company":
         router.push("/dashboard/company");
         break;
       case "jobseeker":
@@ -31,7 +34,7 @@ export default function DashboardPage() {
         router.push("/dashboard/jobseeker");
         break;
     }
-  }, [session, status, router]);
+  }, [session, status, authUser, isAuthenticated, router]);
 
   if (status === "loading") {
     return (

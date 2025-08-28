@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import AuthGuard from "@/components/auth/AuthGuard";
+import { useSession } from "next-auth/react";
+import { useAuth } from "@/context/AuthContext";
 
 interface JobFormData {
   title: string;
@@ -42,6 +43,8 @@ interface JobFormData {
 
 export default function PostJobPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const { user: authUser, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<JobFormData>({
     title: '',
@@ -64,6 +67,62 @@ export default function PostJobPage() {
   });
 
   const [skillsInput, setSkillsInput] = useState('');
+
+  // Check authentication and role on component mount
+  useEffect(() => {
+    if (status === 'loading') return;
+
+    // Check if user is authenticated via NextAuth
+    if (status === 'unauthenticated' && !isAuthenticated) {
+      router.push('/auth/login?redirect=/employer/post-job');
+      return;
+    }
+
+    // Check if user has employer role
+    const userRole = session?.user?.role || authUser?.role;
+    if (userRole && userRole !== 'employer') {
+      // Redirect to appropriate dashboard based on role
+      if (userRole === 'jobseeker') {
+        router.push('/dashboard/jobseeker');
+      } else if (userRole === 'admin') {
+        router.push('/dashboard/admin');
+      } else {
+        router.push('/dashboard');
+      }
+      return;
+    }
+
+    // If user is not an employer, redirect to registration
+    if (status === 'unauthenticated' && !isAuthenticated) {
+      router.push('/auth/register?role=employer');
+      return;
+    }
+  }, [status, session, authUser, isAuthenticated, router]);
+
+  // Show loading while checking authentication
+  if (status === 'loading' || (status === 'unauthenticated' && !isAuthenticated)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  // Show access denied if user is not an employer
+  const userRole = session?.user?.role || authUser?.role;
+  if (userRole && userRole !== 'employer') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h2>
+          <p className="text-gray-600 mb-4">Only employers can post jobs.</p>
+          <Link href="/dashboard">
+            <Button>Go to Dashboard</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleInputChange = (field: keyof JobFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -154,18 +213,17 @@ export default function PostJobPage() {
   };
 
   return (
-    <AuthGuard allowedRoles={['employer']}>
-      <div className="container mx-auto p-6">
-        <div className="mb-8">
-          <Link href="/dashboard/company" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Post New Job</h1>
-          <p className="text-gray-600">Create a compelling job posting to attract top talent</p>
-        </div>
+    <div className="container mx-auto p-6">
+      <div className="mb-8">
+        <Link href="/dashboard/company" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
+        </Link>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Post New Job</h1>
+        <p className="text-gray-600">Create a compelling job posting to attract top talent</p>
+      </div>
 
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Form */}
             <div className="lg:col-span-2 space-y-6">
@@ -484,6 +542,6 @@ export default function PostJobPage() {
           </div>
         </form>
       </div>
-    </AuthGuard>
+    </div>
   );
 }

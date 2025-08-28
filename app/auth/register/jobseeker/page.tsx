@@ -85,7 +85,7 @@ export default function JobSeekerRegisterPage() {
       const response = await fetch('/api/auth/register/jobseeker', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...formData,
