@@ -6,6 +6,7 @@ import { Search, MapPin, Building, Briefcase, TrendingUp, Filter, ChevronDown, E
 import { useGoogleFallback } from '@/hooks/useGoogleFallback';
 import { useLocationDetection } from '@/hooks/useLocationDetection';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import GoogleCSESearch from '@/components/GoogleCSESearch';
 import {
   Pagination,
   PaginationContent,
@@ -1071,6 +1072,17 @@ export default function JobsPage() {
                        </div>
                      </div>
                    )}
+
+                  {/* Google Custom Search Engine - Always Visible When Search Query Exists */}
+                  {searchQuery && (
+                    <div className="mt-8">
+                      <GoogleCSESearch 
+                        searchQuery={searchQuery}
+                        location={selectedLocation}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
                 </>
               )}
             </div>
