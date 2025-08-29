@@ -43,15 +43,19 @@ export default function GoogleCSETestPage() {
               This is the raw Google CSE implementation. You should see search results below:
             </p>
             
-            {/* Google CSE Script */}
-            <script async src="https://cse.google.com/cse.js?cx=236ab1baa2d4f451d"></script>
-            
             {/* Google CSE Search Box */}
             <div className="gcse-search" 
                  data-gname="jobsearch"
                  data-queryParameterName="q"
                  data-enableHistory="true"
                  data-newWindow="true">
+            </div>
+            
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">
+                <strong>Note:</strong> The raw Google CSE element above will only work if you have the Google CSE script loaded. 
+                The component above uses the proper React integration method.
+              </p>
             </div>
           </div>
         </div>
