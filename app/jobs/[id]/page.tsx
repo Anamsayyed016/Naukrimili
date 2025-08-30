@@ -174,36 +174,60 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
 
           <div className="prose max-w-none mb-10" dangerouslySetInnerHTML={{ __html: job.description }} />
 
-          <div className="flex gap-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
             {job.source !== 'manual' ? (
-              // External job - redirect directly to company website
-              <button 
-                onClick={() => {
-                  if (job.source_url) {
-                    window.open(job.source_url, '_blank', 'noopener,noreferrer');
-                  }
-                }}
-                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Apply on Company Website
-              </button>
+              // External job - show enhanced external application flow
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
+                <button 
+                  onClick={() => {
+                    if (job.source_url) {
+                      // Track external application click
+                      if (typeof window !== 'undefined') {
+                        trackExternalApplication({
+                          jobId: job.id,
+                          source: job.source,
+                          company: job.company || 'Unknown Company',
+                          title: job.title
+                        });
+                      }
+                      window.open(job.source_url, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-medium flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span className="hidden sm:inline">Apply on Company Website</span>
+                  <span className="sm:hidden">Apply Now</span>
+                </button>
+                
+                {/* Additional info for external jobs */}
+                <div className="text-center sm:text-left">
+                  <p className="text-sm text-gray-600 mb-2">
+                    This job is posted on {job.source === 'adzuna' ? 'Adzuna' : 'external platform'}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    You'll be redirected to the company's official website
+                  </p>
+                </div>
+              </div>
             ) : (
               // Internal job - route to internal application page
               <Link 
                 href={`/jobs/${job.id}/apply`}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
               >
                 Apply Now
               </Link>
             )}
+            
             <Link 
               href="/jobs"
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700"
+              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-gray-700 text-center"
             >
-              Back to Jobs
+              <span className="hidden sm:inline">Back to Jobs</span>
+              <span className="sm:hidden">Back</span>
             </Link>
           </div>
         </div>

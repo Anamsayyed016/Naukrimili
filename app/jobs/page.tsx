@@ -21,6 +21,7 @@ import {
   getGeolocationErrorMessage, 
   getMobileGeolocationOptions 
 } from '@/lib/mobile-geolocation';
+import { trackExternalApplication } from '@/lib/jobs/external-application-tracker';
 
 interface Job {
   id: string | number;
@@ -886,7 +887,15 @@ export default function JobsPage() {
                               onClick={() => {
                                 const isExternal = job.source && job.source !== 'manual';
                                 if (isExternal && job.source_url) {
-                                  // External job - redirect directly to company website
+                                  // External job - track and redirect
+                                  if (typeof window !== 'undefined') {
+                                    trackExternalApplication({
+                                      jobId: job.id,
+                                      source: job.source,
+                                      company: job.company || 'Unknown Company',
+                                      title: job.title
+                                    });
+                                  }
                                   window.open(job.source_url, '_blank', 'noopener,noreferrer');
                                 } else {
                                   // Internal job - open apply page
@@ -894,7 +903,7 @@ export default function JobsPage() {
                                   window.open(route, '_blank');
                                 }
                               }}
-                              className="group inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 text-sm"
+                              className="flex-1 group inline-flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 text-sm"
                             >
                               Apply Now
                               <span className="group-hover:translate-x-1 transition-transform">→</span>
