@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
           ...job,
           id: `ext-${job.source}-${job.sourceId}`,
           apply_url: null, // External jobs don't have internal apply URL
-          source_url: job.applyUrl, // Use the old applyUrl as source_url
+          source_url: job.source_url, // Use the correct source_url field from providers
           isExternal: true,
           source: job.source,
           // Add missing required fields for sorting

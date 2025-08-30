@@ -17,7 +17,8 @@ import {
   BarChartIcon,
   Brain,
   Home,
-  Upload
+  Upload,
+  Search
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,12 +64,12 @@ export default function MainNavigation({
     <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Brand - Enhanced Logo */}
-          <Link href="/" className="flex items-center hover:opacity-80 transition-all duration-300 group">
-            <span className="text-lg lg:text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-              {brandName}
-            </span>
-          </Link>
+                     {/* Brand - Clean Text Only */}
+           <Link href="/" className="flex items-center hover:opacity-80 transition-all duration-300 group">
+             <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+               {brandName}
+             </span>
+           </Link>
 
           {/* Main Navigation - Enhanced Desktop */}
           <div className="hidden lg:flex items-center space-x-1">
@@ -97,9 +98,18 @@ export default function MainNavigation({
                 <span className="xl:hidden">Post</span>
               </Link>
             )}
-            
-            {/* Resume Upload Button - REMOVED to avoid duplication */}
-            {/* Single resume upload section on main page is sufficient */}
+          </div>
+
+          {/* Search Bar - Responsive */}
+          <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search jobs, companies..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+              />
+            </div>
           </div>
 
           {/* Right Side - Enhanced User Actions */}
@@ -218,6 +228,18 @@ export default function MainNavigation({
             className="lg:hidden border-t border-gray-200/50 py-6 bg-white/95 backdrop-blur-md"
           >
             <div className="space-y-3">
+              {/* Mobile Search Bar */}
+              <div className="px-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search jobs, companies..."
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                  />
+                </div>
+              </div>
+              
               {navLinks.map((link) => (
                 <Link
                   key={link.title}

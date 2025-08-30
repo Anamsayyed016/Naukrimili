@@ -182,7 +182,7 @@ export default function EnhancedJobCard({
                 }}
                 className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
               >
-                Apply
+                {job.source !== 'manual' && job.source_url ? 'Apply on Website' : 'Apply'}
                 <ChevronRightIcon className="w-3 h-3" />
               </button>
             </div>
@@ -373,13 +373,29 @@ export default function EnhancedJobCard({
 
         {/* Card Footer Actions */}
         <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 flex gap-3">
-          <button
-            onClick={() => setIsApplicationModalOpen(true)}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
-          >
-            Apply Now
-            <ChevronRightIcon className="w-4 h-4" />
-          </button>
+          {job.source !== 'manual' && job.source_url ? (
+            // External job - redirect directly to company website
+            <button
+              onClick={() => {
+                if (job.source_url) {
+                  window.open(job.source_url, '_blank', 'noopener,noreferrer');
+                }
+              }}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
+            >
+              Apply on Company Website
+              <ChevronRightIcon className="w-4 h-4" />
+            </button>
+          ) : (
+            // Internal job - open application modal
+            <button
+              onClick={() => setIsApplicationModalOpen(true)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
+            >
+              Apply Now
+              <ChevronRightIcon className="w-4 h-4" />
+            </button>
+          )}
           
           <button 
             onClick={handleQuickView}
