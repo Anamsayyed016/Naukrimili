@@ -338,18 +338,18 @@ export default function HomePage() {
       </section>
 
       {/* Featured Jobs Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-blue-50/30">
+      <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-blue-50/30">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-12">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Featured Jobs</h2>
-              <p className="text-gray-600">Discover the latest opportunities from top companies</p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-12">
+            <div className="mb-6 sm:mb-0">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">Featured Jobs</h2>
+              <p className="text-sm sm:text-base text-gray-600">Discover the latest opportunities from top companies</p>
             </div>
             <a 
               href="/jobs"
-              className="group flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold mt-4 sm:mt-0 px-6 py-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className="group flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold px-4 sm:px-6 py-2 sm:py-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100 hover:border-blue-200"
             >
-              View All Jobs
+              <span className="text-sm sm:text-base">View All Jobs</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true">
                 <path d="M5 12h14"></path>
                 <path d="m12 5 7 7-7 7"></path>
@@ -357,15 +357,91 @@ export default function HomePage() {
             </a>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Placeholder job cards with loading animation */}
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl shadow-lg p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            {loading ? (
+              // Loading skeleton
+              [...Array(6)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              ))
+            ) : featuredJobs.length > 0 ? (
+              // Actual job cards
+              featuredJobs.map((job) => (
+                <div key={job.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 overflow-hidden hover:border-blue-200">
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-2 line-clamp-2 leading-tight">
+                          {job.title}
+                        </h3>
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
+                          <Building className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="truncate">{job.company || 'Company not specified'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="truncate">{job.location || 'Location not specified'}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-2 ml-2">
+                        {job.isFeatured && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-700 text-xs font-medium rounded-full whitespace-nowrap shadow-sm">
+                            ⭐ Featured
+                          </span>
+                        )}
+                        {job.isRemote && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 text-xs font-medium rounded-full whitespace-nowrap shadow-sm">
+                            🌐 Remote
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      {job.jobType && (
+                        <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 whitespace-nowrap shadow-sm">
+                          {job.jobType}
+                        </span>
+                      )}
+                      {job.salary && (
+                        <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 whitespace-nowrap shadow-sm">
+                          💰 {job.salary}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <a 
+                        href={`/jobs/${job.id}`}
+                        className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium group-hover:underline order-2 sm:order-1 transition-colors duration-200"
+                      >
+                        View Details →
+                      </a>
+                      <a 
+                        href={`/jobs/${job.id}`}
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-105 w-full sm:w-auto text-center order-1 sm:order-2 shadow-md hover:shadow-lg"
+                      >
+                        Apply Now
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              // No jobs found message
+              <div className="col-span-full text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Featured Jobs Found</h3>
+                <p className="text-gray-600">We couldn't find any featured jobs at the moment. Please check back later or browse all available positions.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -391,14 +467,100 @@ export default function HomePage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Placeholder company cards with loading animation */}
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-50 rounded-2xl shadow-lg p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+            {loading ? (
+              // Loading skeleton
+              [...Array(6)].map((_, i) => (
+                <div key={i} className="bg-gray-50 rounded-2xl shadow-lg p-6 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              ))
+            ) : topCompanies.length > 0 ? (
+              // Actual company cards
+              topCompanies.map((company) => (
+                <div key={company.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-3">
+                          {company.logo ? (
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                              <img 
+                                src={company.logo} 
+                                alt={`${company.name} logo`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <Building2 className="w-6 h-6 text-blue-600" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1 truncate leading-tight">
+                              {company.name}
+                            </h3>
+                            {company.industry && (
+                              <p className="text-sm text-gray-600 truncate">{company.industry}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {company.location && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                            <MapPin className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{company.location}</span>
+                          </div>
+                        )}
+                        
+                        {company.jobCount > 0 && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                            <Briefcase className="w-4 h-4 flex-shrink-0" />
+                            <span>{company.jobCount} open position{company.jobCount !== 1 ? 's' : ''}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <a 
+                        href={`/companies/${company.id}`}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
+                      >
+                        View Company →
+                      </a>
+                      <a 
+                        href={`/companies/${company.id}`}
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105"
+                      >
+                        Explore Jobs
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              // No companies found
+              <div className="col-span-full text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Building2 className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Companies Available</h3>
+                <p className="text-gray-600 mb-4">Check back later for company listings</p>
+                <a 
+                  href="/companies"
+                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Browse All Companies
+                  <ArrowRight className="w-4 h-4" />
+                </a>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
