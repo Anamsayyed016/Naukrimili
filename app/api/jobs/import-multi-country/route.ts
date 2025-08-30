@@ -114,13 +114,13 @@ export async function POST(request: NextRequest) {
         name: countryConfig.name,
         totalJobs: countryJobs.length,
         providers: {
-          adzuna: adzunaCount,
-          jsearch: jsearchCount,
-          googleJobs: googleCount
+          externalProvider1: adzunaCount,
+          externalProvider2: jsearchCount,
+          externalProvider3: googleCount
         }
       };
 
-      console.log(`✅ ${countryConfig.name}: Found ${countryJobs.length} jobs (Adzuna: ${adzunaCount}, JSearch: ${jsearchCount}, Google: ${googleCount})`);
+      console.log(`✅ ${countryConfig.name}: Found ${countryJobs.length} jobs (External Provider 1: ${adzunaCount}, External Provider 2: ${jsearchCount}, External Provider 3: ${googleCount})`);
     }
 
     // Upsert all jobs to database

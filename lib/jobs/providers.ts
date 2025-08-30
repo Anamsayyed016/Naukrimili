@@ -21,7 +21,7 @@ function safeUpper(a?: string) {
 }
 
 /**
- * Adzuna fetcher with enhanced error handling and logging
+ * External job provider fetcher with enhanced error handling and logging
  * countryCode like 'gb','in','us','ae'
  */
 export async function fetchFromAdzuna(
@@ -34,13 +34,12 @@ export async function fetchFromAdzuna(
   const app_key = process.env.ADZUNA_APP_KEY;
   
   if (!app_id || !app_key) {
-    console.warn('Adzuna API keys not configured, skipping Adzuna job fetch');
+    console.warn('External job API keys not configured, skipping external job fetch');
     return [] as NormalizedJob[];
   }
 
   try {
     const url = `https://api.adzuna.com/v1/api/jobs/${countryCode}/search/${page}`;
-    // // console.log(`🔍 Fetching from Adzuna: ${countryCode.toUpperCase()} - "${query}"`);
     
     const { data } = await axios.get(url, {
       params: {
@@ -55,7 +54,7 @@ export async function fetchFromAdzuna(
     });
 
     const jobs = (data.results || []).map((r: any): NormalizedJob => ({
-      source: 'external', // Changed from 'adzuna' to 'external' - hides the source
+      source: 'external', // Generic external source - hides the provider
       sourceId: `${r.id}`,
       title: r.title || r.position || '',
       company: r.company?.display_name || r.company || '',
@@ -73,13 +72,12 @@ export async function fetchFromAdzuna(
       raw: r,
     }));
 
-    // // console.log(`✅ Adzuna: Found ${jobs.length} jobs for "${query}" in ${countryCode.toUpperCase()}`);
     return jobs;
 
   } catch (error: any) {
-    console.error(`❌ Adzuna API error for ${countryCode}:`, error.message);
+    console.error(`❌ External job API error for ${countryCode}:`, error.message);
     if (error.response?.status === 429) {
-      console.warn('⚠️ Adzuna rate limit reached, consider upgrading plan');
+      console.warn('⚠️ External job API rate limit reached, consider upgrading plan');
     }
     return [] as NormalizedJob[];
   }
@@ -93,13 +91,11 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
   const key = process.env.RAPIDAPI_KEY;
   
   if (!key) {
-    console.warn('RapidAPI key not configured, skipping JSearch job fetch');
+    console.warn('External job API key not configured, skipping external job fetch');
     return [] as NormalizedJob[];
   }
 
   try {
-    // // console.log(`🔍 Fetching from JSearch: ${countryCode} - "${query}"`);
-    
     const { data } = await axios.get('https://jsearch.p.rapidapi.com/search', {
       params: { 
         query: `${query} jobs ${countryCode}`,
@@ -115,7 +111,7 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
     });
 
     const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
-      source: 'external', // Changed from 'jsearch' to 'external' - hides the source
+      source: 'external', // Generic external source - hides the provider
       sourceId: r.job_id || r.job_link || `${r.job_title}-${r.employer_name}-${r.job_city}`.slice(0, 255),
       title: r.job_title || r.title || '',
       company: r.employer_name || r.employer || '',
@@ -130,16 +126,10 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
       raw: r,
     }));
 
-    // // console.log(`✅ JSearch: Found ${jobs.length} jobs for "${query}" in ${countryCode}`);
     return jobs;
 
   } catch (error: any) {
-    console.error(`❌ JSearch API error:`, error.message);
-    if (error.response?.status === 403) {
-      console.warn('⚠️ JSearch API subscription required. Visit: https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch/');
-    } else if (error.response?.status === 429) {
-      console.warn('⚠️ JSearch rate limit reached, consider upgrading plan');
-    }
+    console.error(`❌ External job API error:`, error.message);
     return [] as NormalizedJob[];
   }
 }
@@ -160,8 +150,6 @@ export async function fetchFromGoogleJobs(
   }
 
   try {
-    // // console.log(`🔍 Fetching from Google Jobs: "${query}" in ${location}`);
-    
     const { data } = await axios.get('https://google-jobs-api.p.rapidapi.com/google-jobs/job-type', {
       params: {
         jobType: 'Full-time',
@@ -177,8 +165,8 @@ export async function fetchFromGoogleJobs(
     });
 
     const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
-      source: 'external', // Changed from 'google-jobs' to 'external' - hides the source
-      sourceId: r.job_id || `google-${Date.now()}-${Math.random()}`,
+      source: 'external', // Generic external source - hides the provider
+      sourceId: r.job_id || `ext-${Date.now()}-${Math.random()}`,
       title: r.job_title || r.title || '',
       company: r.company_name || r.employer || '',
       location: r.location || location,
@@ -192,15 +180,14 @@ export async function fetchFromGoogleJobs(
       raw: r,
     }));
 
-    // // console.log(`✅ Google Jobs: Found ${jobs.length} jobs for "${query}" in ${location}`);
     return jobs;
 
   } catch (error: any) {
-    console.error(`❌ Google Jobs API error:`, error.message);
+    console.error(`❌ External job API error:`, error.message);
     if (error.response?.status === 403) {
-      console.warn('⚠️ Google Jobs API subscription required. Visit: https://rapidapi.com/letscrape-6bRBa3QguO5/api/google-jobs-api/');
+      console.warn('⚠️ External job API subscription required. Visit: https://rapidapi.com/letscrape-6bRBa3QguO5/api/google-jobs-api/');
     } else if (error.response?.status === 429) {
-      console.warn('⚠️ Google Jobs rate limit reached, consider upgrading plan');
+      console.warn('⚠️ External job API rate limit reached, consider upgrading plan');
     }
     return [] as NormalizedJob[];
   }
@@ -210,55 +197,55 @@ export async function fetchFromGoogleJobs(
  * Health check for all job providers
  */
 export async function checkJobProvidersHealth(): Promise<{
-  adzuna: boolean;
-  jsearch: boolean;
-  googleJobs: boolean;
+  externalProvider1: boolean;
+  externalProvider2: boolean;
+  externalProvider3: boolean;
   details: Record<string, any>;
 }> {
   const health = {
-    adzuna: false,
-    jsearch: false,
-    googleJobs: false,
+    externalProvider1: false,
+    externalProvider2: false,
+    externalProvider3: false,
     details: {} as Record<string, any>
   };
 
-  // Check Adzuna
+  // Check External Provider 1
   if (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) {
     try {
       const testJobs = await fetchFromAdzuna('test', 'gb', 1);
-      health.adzuna = testJobs.length >= 0; // Success if no error
-      health.details.adzuna = { status: 'healthy', jobsFound: testJobs.length };
+      health.externalProvider1 = testJobs.length >= 0; // Success if no error
+      health.details.externalProvider1 = { status: 'healthy', jobsFound: testJobs.length };
     } catch (error: any) {
-      health.details.adzuna = { status: 'error', message: error.message };
+      health.details.externalProvider1 = { status: 'error', message: error.message };
     }
   } else {
-    health.details.adzuna = { status: 'not_configured' };
+    health.details.externalProvider1 = { status: 'not_configured' };
   }
 
-  // Check JSearch
+  // Check External Provider 2
   if (process.env.RAPIDAPI_KEY) {
     try {
       const testJobs = await fetchFromJSearch('test', 'US', 1);
-      health.jsearch = testJobs.length >= 0; // Success if no error
-      health.details.jsearch = { status: 'healthy', jobsFound: testJobs.length };
+      health.externalProvider2 = testJobs.length >= 0; // Success if no error
+      health.details.externalProvider2 = { status: 'healthy', jobsFound: testJobs.length };
     } catch (error: any) {
-      health.details.jsearch = { status: 'error', message: error.message };
+      health.details.externalProvider2 = { status: 'error', message: error.message };
     }
   } else {
-    health.details.jsearch = { status: 'not_configured' };
+    health.details.externalProvider2 = { status: 'not_configured' };
   }
 
-  // Check Google Jobs
+  // Check External Provider 3
   if (process.env.RAPIDAPI_KEY) {
     try {
       const testJobs = await fetchFromGoogleJobs('test', 'India', 1);
-      health.googleJobs = testJobs.length >= 0; // Success if no error
-      health.details.googleJobs = { status: 'healthy', jobsFound: testJobs.length };
+      health.externalProvider3 = testJobs.length >= 0; // Success if no error
+      health.details.externalProvider3 = { status: 'healthy', jobsFound: testJobs.length };
     } catch (error: any) {
-      health.details.googleJobs = { status: 'error', message: error.message };
+      health.details.externalProvider3 = { status: 'error', message: error.message };
     }
   } else {
-    health.details.googleJobs = { status: 'not_configured' };
+    health.details.externalProvider3 = { status: 'not_configured' };
   }
 
   return health;

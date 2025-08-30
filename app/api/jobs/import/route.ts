@@ -33,31 +33,29 @@ export async function POST(req: NextRequest) {
     // Fetch from providers concurrently for all queries
     const fetchTasks: Promise<any[]>[] = [];
     for (const q of queries) {
-      // Adzuna
+      // External Provider 1
       fetchTasks.push(fetchFromAdzuna(q, adzunaCountry, page, { location, distanceKm: radiusKm }));
-      // JSearch
+      // External Provider 2
       fetchTasks.push(fetchFromJSearch(q, jsearchCountry, page));
-      // Google Jobs
+      // External Provider 3
       fetchTasks.push(fetchFromGoogleJobs(q, location || 'India', page));
     }
 
     const fetchedBatches = await Promise.allSettled(fetchTasks);
     const fetched: any[] = [];
-    let adzunaCount = 0;
-    let jsearchCount = 0;
-    let googleCount = 0;
+    let provider1Count = 0;
+    let provider2Count = 0;
+    let provider3Count = 0;
 
     fetchedBatches.forEach((res, idx) => {
       if (res.status === 'fulfilled' && Array.isArray(res.value)) {
         fetched.push(...res.value);
-        // Count by provider (every 3rd is Google Jobs)
-        if (idx % 3 === 0) adzunaCount += res.value.length;
-        else if (idx % 3 === 1) jsearchCount += res.value.length;
-        else googleCount += res.value.length;
+        // Count by provider (every 3rd is Provider 3)
+        if (idx % 3 === 0) provider1Count += res.value.length;
+        else if (idx % 3 === 1) provider2Count += res.value.length;
+        else provider3Count += res.value.length;
       }
     });
-
-    // // console.log(`📈 Import Summary: Adzuna(${adzunaCount}), JSearch(${jsearchCount}), Google(${googleCount})`);
 
     // Upsert into database (composite unique [source, sourceId])
     const persisted = await upsertNormalizedJobs(fetched);
@@ -67,9 +65,9 @@ export async function POST(req: NextRequest) {
       imported: persisted.length,
       fetched: fetched.length,
       providers: {
-        adzuna: adzunaCount,
-        jsearch: jsearchCount,
-        googleJobs: googleCount,
+        externalProvider1: provider1Count,
+        externalProvider2: provider2Count,
+        externalProvider3: provider3Count,
       },
       health: health,
       country,

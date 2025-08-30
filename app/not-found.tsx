@@ -15,9 +15,6 @@ export default function NotFound() {
         {/* Logo */}
         <div className="mb-8">
           <Link href="/" className="inline-flex items-center space-x-2">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">N</span>
-            </div>
             <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               NaukriMili
             </span>

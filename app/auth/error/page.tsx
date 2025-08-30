@@ -130,9 +130,6 @@ export default function AuthErrorPage() {
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="inline-flex items-center space-x-2 mb-8">
-            <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-orange-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">N</span>
-            </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
               NaukriMili
             </span>

@@ -58,37 +58,31 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
   
   const all: NormalizedJob[] = [];
 
-  // 1. Fetch from Adzuna
+  // 1. Fetch from External Provider 1
   try {
-    // // console.log(`📡 Fetching from Adzuna (${adzunaCountry.toUpperCase()})...`);
     const adz = await withRetry(() => fetchFromAdzuna(query, adzunaCountry, page, {
       location: location || undefined,
       distanceKm: radiusKm,
     }));
     all.push(...adz);
-    // // console.log(`✅ Adzuna: Added ${adz.length} jobs`);
   } catch (e: any) {
-    console.error('❌ Adzuna fetch failed:', e?.message || e);
+    console.error('❌ External provider 1 fetch failed:', e?.message || e);
   }
 
-  // 2. Fetch from JSearch
+  // 2. Fetch from External Provider 2
   try {
-    // // console.log(`📡 Fetching from JSearch (${jsearchCountry})...`);
     const js = await withRetry(() => fetchFromJSearch(`${query}${location ? ` in ${location}` : ''}`, jsearchCountry, page));
     all.push(...js);
-    // // console.log(`✅ JSearch: Added ${js.length} jobs`);
   } catch (e: any) {
-    console.error('❌ JSearch fetch failed:', e?.message || e);
+    console.error('❌ External provider 2 fetch failed:', e?.message || e);
   }
 
-  // 3. Fetch from Google Jobs (using RapidAPI)
+  // 3. Fetch from External Provider 3
   try {
-    // // console.log(`📡 Fetching from Google Jobs...`);
     const google = await withRetry(() => fetchFromGoogleJobs(query, location || 'India', page));
     all.push(...google);
-    // // console.log(`✅ Google Jobs: Added ${google.length} jobs`);
   } catch (e: any) {
-    console.error('❌ Google Jobs fetch failed:', e?.message || e);
+    console.error('❌ External provider 3 fetch failed:', e?.message || e);
   }
 
   // 4. Fallback: Google Jobs redirect (if no results from APIs)
