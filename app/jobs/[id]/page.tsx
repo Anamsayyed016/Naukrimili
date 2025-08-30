@@ -40,6 +40,7 @@ interface Job {
   updatedAt: string;
   creator: any;
   source: string; // Added source field
+  source_url: string | null; // Added source_url field
 }
 
 export default async function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -175,16 +176,20 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
 
           <div className="flex gap-3 pt-6 border-t border-gray-200">
             {job.source !== 'manual' ? (
-              // External job - route to external application page
-              <Link 
-                href={`/jobs/${job.id}/external`}
+              // External job - redirect directly to company website
+              <button 
+                onClick={() => {
+                  if (job.source_url) {
+                    window.open(job.source_url, '_blank', 'noopener,noreferrer');
+                  }
+                }}
                 className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
-                Apply on External Site
-              </Link>
+                Apply on Company Website
+              </button>
             ) : (
               // Internal job - route to internal application page
               <Link 

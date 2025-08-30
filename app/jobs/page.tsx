@@ -40,6 +40,7 @@ interface Job {
   isFeatured: boolean;
   source: string;
   createdAt: string;
+  source_url?: string; // Added for external jobs
 }
 
 interface PaginationData {
@@ -884,8 +885,14 @@ export default function JobsPage() {
                             <button
                               onClick={() => {
                                 const isExternal = job.source && job.source !== 'manual';
-                                const route = isExternal ? `/jobs/${job.id}/external` : `/jobs/${job.id}/apply`;
-                                window.open(route, '_blank');
+                                if (isExternal && job.source_url) {
+                                  // External job - redirect directly to company website
+                                  window.open(job.source_url, '_blank', 'noopener,noreferrer');
+                                } else {
+                                  // Internal job - open apply page
+                                  const route = `/jobs/${job.id}/apply`;
+                                  window.open(route, '_blank');
+                                }
                               }}
                               className="group inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 text-sm"
                             >

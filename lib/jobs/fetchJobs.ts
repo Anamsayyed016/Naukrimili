@@ -20,6 +20,7 @@ export interface NormalizedJob {
   country: string;
   description: string;
   applyUrl?: string;
+  source_url?: string; // External source URL for direct redirects
   postedAt?: string;
   salary?: string;
   raw: any;

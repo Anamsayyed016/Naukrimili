@@ -55,7 +55,7 @@ export async function fetchFromAdzuna(
     });
 
     const jobs = (data.results || []).map((r: any): NormalizedJob => ({
-      source: 'adzuna',
+      source: 'external', // Changed from 'adzuna' to 'external' - hides the source
       sourceId: `${r.id}`,
       title: r.title || r.position || '',
       company: r.company?.display_name || r.company || '',
@@ -115,7 +115,7 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
     });
 
     const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
-      source: 'jsearch',
+      source: 'external', // Changed from 'jsearch' to 'external' - hides the source
       sourceId: r.job_id || r.job_link || `${r.job_title}-${r.employer_name}-${r.job_city}`.slice(0, 255),
       title: r.job_title || r.title || '',
       company: r.employer_name || r.employer || '',
@@ -177,7 +177,7 @@ export async function fetchFromGoogleJobs(
     });
 
     const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
-      source: 'google-jobs',
+      source: 'external', // Changed from 'google-jobs' to 'external' - hides the source
       sourceId: r.job_id || `google-${Date.now()}-${Math.random()}`,
       title: r.job_title || r.title || '',
       company: r.company_name || r.employer || '',
@@ -187,8 +187,8 @@ export async function fetchFromGoogleJobs(
       applyUrl: r.apply_link || r.job_url || '',  // @deprecated - keep for backward compatibility
       apply_url: null,                             // External jobs don't have internal apply URL
       source_url: r.apply_link || r.job_url || '', // External source URL
-      postedAt: r.posted_date || undefined,
-      salary: r.salary || undefined,
+      postedAt: undefined,
+      salary: undefined,
       raw: r,
     }));
 
