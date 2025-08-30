@@ -220,7 +220,7 @@ export default function HomePage() {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto mb-8 sm:mb-10 px-4">
               <div className="flex items-center justify-center gap-2 sm:gap-3 text-blue-100 bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-check-big w-5 h-5 sm:w-6 sm:h-6 text-green-300" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-check-big w-5 h-5 sm:w-6 sm:w-6 text-green-300" aria-hidden="true">
                   <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
                   <path d="m9 11 3 3L22 4"></path>
                 </svg>
@@ -228,7 +228,7 @@ export default function HomePage() {
               </div>
               
               <div className="flex items-center justify-center gap-2 sm:gap-3 text-blue-100 bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-brain w-5 h-5 sm:w-6 sm:h-6 text-purple-300" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-brain w-5 h-5 sm:w-6 sm:w-6 text-purple-300" aria-hidden="true">
                   <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"></path>
                   <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"></path>
                   <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"></path>
@@ -243,7 +243,7 @@ export default function HomePage() {
               </div>
               
               <div className="flex items-center justify-center gap-2 sm:gap-3 text-blue-100 bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-zap w-5 h-5 sm:w-6 sm:h-6 text-yellow-300" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-zap w-5 h-5 sm:w-6 sm:w-6 text-yellow-300" aria-hidden="true">
                   <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5 5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5 5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path>
                 </svg>
                 <span className="font-medium text-sm sm:text-base">Instant Matching</span>
