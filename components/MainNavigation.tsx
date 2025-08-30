@@ -101,15 +101,8 @@ export default function MainNavigation({
               </Link>
             )}
             
-            {/* Resume Upload Button - Enhanced */}
-            <Link
-              href="/resumes/upload"
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
-            >
-              <Upload className="w-4 h-4" />
-              <span className="hidden xl:inline">Upload Resume</span>
-              <span className="xl:hidden">Upload</span>
-            </Link>
+            {/* Resume Upload Button - REMOVED to avoid duplication */}
+            {/* Single resume upload section on main page is sufficient */}
           </div>
 
           {/* Right Side - Enhanced User Actions */}
@@ -302,15 +295,8 @@ export default function MainNavigation({
                 </div>
               )}
               
-              {/* Mobile Resume Upload Button - Fixed */}
-              <Link
-                href="/resumes/upload"
-                onClick={closeMenu}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl active:scale-95"
-              >
-                <Upload className="w-5 h-5" />
-                Upload Resume
-              </Link>
+              {/* Mobile Resume Upload Button - REMOVED to avoid duplication */}
+              {/* Single resume upload section on main page is sufficient */}
             </div>
           </motion.div>
         )}
