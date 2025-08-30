@@ -45,7 +45,7 @@ export default function MainNavigation({
   const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isMounted } = useAuth();
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
@@ -59,6 +59,68 @@ export default function MainNavigation({
     { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
     { title: "Companies", href: "/companies", icon: BuildingIcon }
   ], []);
+
+  // Don't render authentication-dependent content until mounted to prevent hydration mismatch
+  if (!isMounted) {
+    return (
+      <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            {/* Brand - Clean Text Only - Fixed for hydration consistency */}
+            <Link href="/" className="flex items-center hover:opacity-80 transition-all duration-300 group">
+              <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                {brandName}
+              </span>
+            </Link>
+            
+            {/* Placeholder for navigation items */}
+            <div className="hidden lg:flex items-center space-x-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.title}
+                  href={link.href}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300"
+                >
+                  <link.icon className="w-4 h-4" />
+                  {link.title}
+                </Link>
+              ))}
+            </div>
+
+            {/* Placeholder for search bar */}
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search jobs, companies..."
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                />
+              </div>
+            </div>
+
+            {/* Placeholder for right side */}
+            <div className="flex items-center space-x-2 lg:space-x-4">
+              <div className="hidden lg:flex items-center space-x-2">
+                <Link
+                  href="/auth/login"
+                  className="px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">

@@ -39,6 +39,7 @@ interface AuthContextType {
   login: (userData: User, authToken: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  isMounted: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,22 +47,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // Set mounted state to prevent hydration mismatch
+    setIsMounted(true);
+    
     // Check for stored auth data on component mount
-    if (typeof window !== 'undefined') {
-      const storedUser = localStorage.getItem('user');
-      const storedToken = localStorage.getItem('token');
-      
-      if (storedUser && storedToken) {
-        try {
-          setUser(JSON.parse(storedUser));
-          setToken(storedToken);
-        } catch (error) {
-          console.error('Error parsing stored user data:', error);
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
-        }
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
+    
+    if (storedUser && storedToken) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setToken(storedToken);
+      } catch (error) {
+        console.error('Error parsing stored user data:', error);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
       }
     }
   }, []);
@@ -86,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     logout,
     isAuthenticated: !!user && !!token,
+    isMounted,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
