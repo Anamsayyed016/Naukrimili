@@ -25,7 +25,6 @@ const linkGroups = [
   ]},
   { title: "For Job Seekers", links: [
     { name: "Create Profile", href: "/profile-setup", icon: <FiUser /> },
-    { name: "Upload Resume", href: "/resumes/upload", icon: <FiUpload /> },
     { name: "Job Alerts", href: "/settings", icon: <FiBell /> },
     { name: "Dashboard", href: "/dashboard", icon: <FiBook /> },
   ]},

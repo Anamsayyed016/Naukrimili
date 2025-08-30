@@ -141,11 +141,6 @@ export default function ProfilePage() {
               <button className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
                 Change Password
               </button>
-              {user.role === 'jobseeker' && (
-                <button className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
-                  Upload Resume
-                </button>
-              )}
               {user.role === 'employer' && (
                 <button className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors">
                   Post New Job

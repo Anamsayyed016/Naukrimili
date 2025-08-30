@@ -210,19 +210,7 @@ export default function JobseekerPage() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link href="/jobs">
-                <Button variant="outline" className="w-full h-16 flex flex-col">
-                  <Search className="h-5 w-5 mb-1" />
-                  Search Jobs
-                </Button>
-              </Link>
-              <Link href="/resumes/upload">
-                <Button variant="outline" className="w-full h-16 flex flex-col">
-                  <Upload className="h-5 w-5 mb-1" />
-                  Upload Resume
-                </Button>
-              </Link>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Link href="/profile">
                 <Button variant="outline" className="w-full h-16 flex flex-col">
                   <User className="h-5 w-5 mb-1" />

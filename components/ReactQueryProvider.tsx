@@ -99,14 +99,14 @@ export default function ReactQueryProvider({
       <QueryClientProvider client={queryClient}>
         {children}
         
-        {/* Development tools */}
-        {process.env.NODE_ENV === 'development' && (
+        {/* Development tools - REMOVED to eliminate floating button */}
+        {/* {process.env.NODE_ENV === 'development' && (
           <ReactQueryDevtools
             initialIsOpen={false}
             position="bottom"
             buttonPosition="bottom-right"
           />
-        )}
+        )} */}
       </QueryClientProvider>
     </ErrorBoundary>
   );
