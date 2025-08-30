@@ -18,6 +18,7 @@ interface Job {
   source_url?: string;
   skills?: string[];
   postedAt?: string;
+  source?: string;
 }
 
 export default function ExternalJobApplicationPage() {
@@ -203,35 +204,41 @@ export default function ExternalJobApplicationPage() {
           <button
             onClick={handleExternalApply}
             disabled={!job.source_url}
-            className="px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 font-medium flex items-center justify-center gap-2 text-lg"
+            className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 font-medium flex items-center justify-center gap-2 text-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 w-full sm:w-auto"
           >
             <ExternalLink className="w-5 h-5" />
-            Apply on Company Site
+            <span className="hidden sm:inline">Apply on Company Site</span>
+            <span className="sm:hidden">Apply Now</span>
           </button>
           
           <Link 
             href={`/jobs/${jobId}`}
-            className="px-8 py-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700 font-medium text-center text-lg"
+            className="px-8 py-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-gray-700 font-medium text-center text-lg w-full sm:w-auto"
           >
-            View Job Details
+            <span className="hidden sm:inline">View Job Details</span>
+            <span className="sm:hidden">Details</span>
           </Link>
           
           <Link 
             href="/jobs" 
-            className="px-8 py-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700 font-medium text-center text-lg"
+            className="px-8 py-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-gray-700 font-medium text-center text-lg w-full sm:w-auto"
           >
-            Back to Jobs
+            <span className="hidden sm:inline">Back to Jobs</span>
+            <span className="sm:hidden">Back</span>
           </Link>
         </div>
 
         {/* Additional Information */}
         <div className="mt-12 bg-gray-50 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">About External Applications</h3>
-          <div className="text-gray-700 space-y-2">
+          <div className="text-gray-700 space-y-2 text-sm sm:text-base">
             <p>• You will be redirected to the company's official website to complete your application</p>
             <p>• Make sure to have your resume and cover letter ready</p>
             <p>• The application process may vary depending on the company's requirements</p>
             <p>• You can always return to our job portal to search for more opportunities</p>
+            {job.source === 'adzuna' && (
+              <p className="text-blue-600 font-medium">• This job is sourced from Adzuna, a trusted job platform</p>
+            )}
           </div>
         </div>
       </div>
