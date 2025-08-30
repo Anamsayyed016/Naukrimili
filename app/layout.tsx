@@ -13,11 +13,6 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Job Portal - Find Your Dream Job',
   description: 'Discover thousands of job opportunities and connect with top employers',
-  icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
-  },
 };
 
 export default function RootLayout({
