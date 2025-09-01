@@ -19,7 +19,7 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope: 'openid email profile',
-          prompt: 'select_account', // Better for mobile
+          prompt: 'select_account',
           access_type: 'offline',
           response_type: 'code'
         }
@@ -34,31 +34,44 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
+            console.log('Missing credentials');
             return null;
           }
+
+          console.log('Attempting login for:', credentials.email);
 
           // Check if user exists in database
           const user = await prisma.user.findUnique({
             where: { email: credentials.email }
           });
           
-          if (!user || !user.password) {
+          if (!user) {
+            console.log('User not found:', credentials.email);
+            return null;
+          }
+
+          if (!user.password) {
+            console.log('User has no password (OAuth only):', credentials.email);
             return null;
           }
 
           // Verify password
           const isValidPassword = await bcrypt.compare(credentials.password, user.password);
           if (!isValidPassword) {
+            console.log('Invalid password for:', credentials.email);
             return null;
           }
 
           // Check if user is active
           if (!user.isActive) {
+            console.log('User account inactive:', credentials.email);
             return null;
           }
 
+          console.log('Login successful for:', credentials.email);
+
           return {
-            id: user.id,
+            id: user.id.toString(),
             email: user.email,
             name: user.name,
             role: user.role || 'jobseeker'
@@ -92,13 +105,13 @@ export const authOptions: NextAuthOptions = {
                 data: {
                   email: profile.email || '',
                   name: profile.name || '',
-                  role: 'jobseeker', // Default role for OAuth users
+                  role: 'jobseeker',
                   isActive: true,
                   isVerified: true,
                   emailVerified: new Date()
                 }
               });
-              token.id = newUser.id;
+              token.id = newUser.id.toString();
               token.role = newUser.role;
             } else {
               // Update existing user
@@ -109,7 +122,7 @@ export const authOptions: NextAuthOptions = {
                   updatedAt: new Date()
                 }
               });
-              token.id = existingUser.id;
+              token.id = existingUser.id.toString();
               token.role = existingUser.role;
             }
           } catch (error) {
@@ -138,7 +151,6 @@ export const authOptions: NextAuthOptions = {
     },
     async signIn({ user, account, profile, email, credentials }) {
       try {
-        // Log sign-in attempt
         console.log('Sign-in attempt:', { 
           provider: account?.provider, 
           email: user.email, 
@@ -163,5 +175,6 @@ export const authOptions: NextAuthOptions = {
   jwt: {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  debug: process.env.NODE_ENV === 'development',
+  debug: true, // Enable debug mode to see detailed logs
+  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key-change-in-production',
 };
