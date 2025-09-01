@@ -757,16 +757,16 @@ export default function JobsPage() {
 
                    </div>
 
-                   {/* Google CSE Integration - Shows Results Inline */}
-                   {searchQuery && (
-                     <div className="mb-6">
-                       <GoogleCSESearch 
-                         searchQuery={searchQuery}
-                         location={selectedLocation}
-                         className="w-full"
-                       />
-                     </div>
-                   )}
+                                       {/* Google CSE Integration - Shows Results Inline */}
+                    {searchQuery && (
+                      <div className="mb-6">
+                        <GoogleCSESearch 
+                          searchQuery={searchQuery}
+                          location={selectedLocation}
+                          className="w-full"
+                        />
+                      </div>
+                    )}
 
                   {/* Enhanced Job Cards Grid */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
@@ -890,7 +890,7 @@ export default function JobsPage() {
                                   // External job - track and redirect
                                   if (typeof window !== 'undefined') {
                                     trackExternalApplication({
-                                      jobId: job.id,
+                                      jobId: String(job.id),
                                       source: job.source,
                                       company: job.company || 'Unknown Company',
                                       title: job.title
