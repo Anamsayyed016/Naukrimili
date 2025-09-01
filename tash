@@ -1,0 +1,423 @@
+[1mdiff --git a/prisma/schema.prisma b/prisma/schema.prisma[m
+[1mindex 1e9d76c..cdd3782 100644[m
+[1m--- a/prisma/schema.prisma[m
+[1m+++ b/prisma/schema.prisma[m
+[36m@@ -1,4 +1,3 @@[m
+[31m-// Minimal Prisma schema focusing on external job aggregation storage only.[m
+ generator client {[m
+   provider = "prisma-client-js"[m
+ }[m
+[36m@@ -9,47 +8,44 @@[m [mdatasource db {[m
+ }[m
+ [m
+ model Job {[m
+[31m-  id              String    @id @default(cuid())[m
+[31m-  source          String    @default("manual")[m
+[31m-  sourceId        String    @default(cuid())[m
+[31m-  title           String[m
+[31m-  company         String?[m
+[31m-  companyLogo     String?   // Company logo URL[m
+[31m-  location        String?[m
+[31m-  country         String    @default("IN")[m
+[31m-  description     String    @db.Text[m
+[31m-  requirements    String[]  @default([])[m
+[31m-  applyUrl        String?   // @deprecated - use apply_url instead[m
+[31m-  apply_url       String?   // New field for internal application URL[m
+[31m-  source_url      String?   // New field for external source URL[m
+[31m-  postedAt        DateTime?[m
+[31m-  salary          String?[m
+[31m-  salaryMin       Int?      // Minimum salary in local currency[m
+[31m-  salaryMax       Int?      // Maximum salary in local currency  [m
+[31m-  salaryCurrency  String?   // Currency code (INR, USD, etc.)[m
+[31m-  jobType         String?   // full-time, part-time, contract, internship[m
+[31m-  experienceLevel String?   // entry, mid, senior, executive[m
+[31m-  skills          String[]  @default([]) // Array of required skills[m
+[31m-  isRemote        Boolean   @default(false)[m
+[31m-  isHybrid        Boolean   @default(false)[m
+[31m-  isUrgent        Boolean   @default(false)[m
+[31m-  isFeatured      Boolean   @default(false)[m
+[31m-  isActive        Boolean   @default(true)[m
+[31m-  sector          String?   // Technology, Finance, Healthcare, etc.[m
+[31m-  views           Int       @default(0)[m
+[31m-  applicationsCount Int     @default(0)[m
+[31m-  createdBy       String?   // User who created this job[m
+[31m-  companyId       String?   // Company this job belongs to[m
+[31m-  rawJson         Json?[m
+[31m-  createdAt       DateTime  @default(now())[m
+[31m-  updatedAt       DateTime  @updatedAt[m
+[31m-  [m
+[31m-  // Relations[m
+[31m-  bookmarks       JobBookmark[][m
+[31m-  applications    Application[][m
+[31m-  companyRelation Company?  @relation(fields: [companyId], references: [id])[m
+[31m-  creator         User?     @relation(fields: [createdBy], references: [id])[m
+[31m-  [m
+[32m+[m[32m  id                Int           @id @default(autoincrement())[m
+[32m+[m[32m  source            String        @default("manual")[m
+[32m+[m[32m  sourceId          String        @default(cuid())[m
+[32m+[m[32m  title             String[m
+[32m+[m[32m  company           String?[m
+[32m+[m[32m  companyLogo       String?[m
+[32m+[m[32m  location          String?[m
+[32m+[m[32m  country           String        @default("IN")[m
+[32m+[m[32m  description       String[m
+[32m+[m[32m  applyUrl          String?[m
+[32m+[m[32m  postedAt          DateTime?[m
+[32m+[m[32m  salary            String?[m
+[32m+[m[32m  salaryMin         Int?[m
+[32m+[m[32m  salaryMax         Int?[m
+[32m+[m[32m  salaryCurrency    String?[m
+[32m+[m[32m  jobType           String?[m
+[32m+[m[32m  experienceLevel   String?[m
+[32m+[m[32m  skills            String[]      @default([])[m
+[32m+[m[32m  isRemote          Boolean       @default(false)[m
+[32m+[m[32m  isHybrid          Boolean       @default(false)[m
+[32m+[m[32m  isUrgent          Boolean       @default(false)[m
+[32m+[m[32m  isFeatured        Boolean       @default(false)[m
+[32m+[m[32m  isActive          Boolean       @default(true)[m
+[32m+[m[32m  sector            String?[m
+[32m+[m[32m  views             Int           @default(0)[m
+[32m+[m[32m  applicationsCount Int           @default(0)[m
+[32m+[m[32m  createdBy         Int?[m
+[32m+[m[32m  companyId         Int?[m
+[32m+[m[32m  rawJson           Json[m
+[32m+[m[32m  createdAt         DateTime      @default(now())[m
+[32m+[m[32m  updatedAt         DateTime      @updatedAt[m
+[32m+[m[32m  apply_url         String?[m
+[32m+[m[32m  source_url        String?[m
+[32m+[m[32m  applications      Application[][m
+[32m+[m[32m  companyRelation   Company?      @relation(fields: [companyId], references: [id])[m
+[32m+[m[32m  creator           User?         @relation(fields: [createdBy], references: [id])[m
+[32m+[m[32m  bookmarks         JobBookmark[][m
+[32m+[m
+   @@unique([source, sourceId])[m
+   @@index([createdAt])[m
+   @@index([country, location])[m
+[36m@@ -62,81 +58,73 @@[m [mmodel Job {[m
+ }[m
+ [m
+ model User {[m
+[31m-  id              String    @id @default(cuid())[m
+[31m-  email           String    @unique[m
+[31m-  emailVerified   DateTime?[m
+[31m-  name            String?[m
+[31m-  image           String?[m
+[31m-  password        String?   // Optional for OAuth users[m
+[31m-  firstName       String?[m
+[31m-  lastName        String?[m
+[31m-  role            String    @default("jobseeker") // jobseeker, employer, admin[m
+[31m-  phone           String?[m
+[31m-  location        String?[m
+[31m-  bio             String?   @db.Text[m
+[31m-  skills          String[]  @default([])[m
+[31m-  experience      String?   @db.Text[m
+[31m-  education       String?   @db.Text[m
+[31m-  profilePicture  String?[m
+[31m-  isVerified      Boolean   @default(false)[m
+[31m-  isActive        Boolean   @default(true)[m
+[31m-  createdAt       DateTime  @default(now())[m
+[31m-  updatedAt       DateTime  @updatedAt[m
+[31m-  [m
+[31m-  // OAuth Relations[m
+[31m-  accounts        Account[][m
+[31m-  sessions        Session[][m
+[31m-  [m
+[31m-  // Relations  [m
+[31m-  bookmarks       JobBookmark[][m
+[31m-  createdJobs     Job[][m
+[32m+[m[32m  id               Int           @id @default(autoincrement())[m
+[32m+[m[32m  email            String        @unique[m
+[32m+[m[32m  emailVerified    DateTime?[m
+[32m+[m[32m  name             String?[m
+[32m+[m[32m  image            String?[m
+[32m+[m[32m  password         String?[m
+[32m+[m[32m  firstName        String?[m
+[32m+[m[32m  lastName         String?[m
+[32m+[m[32m  role             String        @default("jobseeker")[m
+[32m+[m[32m  phone            String?[m
+[32m+[m[32m  location         String?[m
+[32m+[m[32m  bio              String?[m
+[32m+[m[32m  skills           String[]      @default([])[m
+[32m+[m[32m  experience       String?[m
+[32m+[m[32m  education        String?[m
+[32m+[m[32m  profilePicture   String?[m
+[32m+[m[32m  isVerified       Boolean       @default(false)[m
+[32m+[m[32m  isActive         Boolean       @default(true)[m
+[32m+[m[32m  createdAt        DateTime      @default(now())[m
+[32m+[m[32m  updatedAt        DateTime      @updatedAt[m
+[32m+[m[32m  accounts         Account[][m
+[32m+[m[32m  applications     Application[][m
+   createdCompanies Company[][m
+[31m-  resumes         Resume[][m
+[31m-  applications    Application[][m
+[31m-  sentMessages    Message[]   @relation("SentMessages")[m
+[31m-  receivedMessages Message[]  @relation("ReceivedMessages")[m
+[31m-  settings        Settings[][m
+[32m+[m[32m  createdJobs      Job[][m
+[32m+[m[32m  bookmarks        JobBookmark[][m
+[32m+[m[32m  receivedMessages Message[]     @relation("ReceivedMessages")[m
+[32m+[m[32m  sentMessages     Message[]     @relation("SentMessages")[m
+[32m+[m[32m  resumes          Resume[][m
+[32m+[m[32m  sessions         Session[][m
+[32m+[m[32m  settings         Settings[][m
+ }[m
+ [m
+[31m-// NextAuth.js OAuth Account Model[m
+ model Account {[m
+[31m-  id                String   @id @default(cuid())[m
+[31m-  userId            String[m
+[32m+[m[32m  id                Int      @id @default(autoincrement())[m
+[32m+[m[32m  userId            Int[m
+   type              String[m
+   provider          String[m
+   providerAccountId String[m
+[31m-  refresh_token     String?  @db.Text[m
+[31m-  access_token      String?  @db.Text[m
+[32m+[m[32m  refresh_token     String?[m
+[32m+[m[32m  access_token      String?[m
+   expires_at        Int?[m
+   token_type        String?[m
+   scope             String?[m
+[31m-  id_token          String?  @db.Text[m
+[32m+[m[32m  id_token          String?[m
+   session_state     String?[m
+   createdAt         DateTime @default(now())[m
+   updatedAt         DateTime @updatedAt[m
+[31m-[m
+[31m-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+[32m+[m[32m  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+ [m
+   @@unique([provider, providerAccountId])[m
+   @@index([userId])[m
+ }[m
+ [m
+[31m-// NextAuth.js Session Model[m
+ model Session {[m
+[31m-  id           String   @id @default(cuid())[m
+[32m+[m[32m  id           Int      @id @default(autoincrement())[m
+   sessionToken String   @unique[m
+[31m-  userId       String[m
+[32m+[m[32m  userId       Int[m
+   expires      DateTime[m
+   createdAt    DateTime @default(now())[m
+   updatedAt    DateTime @updatedAt[m
+[32m+[m[32m  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+ [m
+[31m-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+   @@index([userId])[m
+ }[m
+ [m
+[31m-// NextAuth.js Verification Token Model[m
+ model VerificationToken {[m
+[31m-  id         String   @id @default(cuid())[m
+[32m+[m[32m  id         Int      @id @default(autoincrement())[m
+   identifier String[m
+   token      String   @unique[m
+   expires    DateTime[m
+[36m@@ -145,83 +133,76 @@[m [mmodel VerificationToken {[m
+ }[m
+ [m
+ model JobBookmark {[m
+[31m-  id        String   @id @default(cuid())[m
+[31m-  userId    String[m
+[31m-  jobId     String[m
+[31m-  notes     String?  @db.Text[m
+[32m+[m[32m  id        Int      @id @default(autoincrement())[m
+[32m+[m[32m  userId    Int[m
+[32m+[m[32m  jobId     Int[m
+[32m+[m[32m  notes     String?[m
+   createdAt DateTime @default(now())[m
+[31m-  [m
+[31m-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)[m
+[31m-  [m
+[32m+[m[32m  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+[32m+[m
+   @@unique([userId, jobId])[m
+   @@index([userId])[m
+   @@index([jobId])[m
+ }[m
+ [m
+ model Company {[m
+[31m-  id              String   @id @default(cuid())[m
+[31m-  name            String[m
+[31m-  description     String?  @db.Text[m
+[31m-  logo            String?[m
+[31m-  website         String?[m
+[31m-  location        String?[m
+[31m-  industry        String?[m
+[31m-  size            String?  // e.g., "1-10", "11-50", "51-200", etc.[m
+[31m-  founded         Int?[m
+[31m-  isVerified      Boolean  @default(false)[m
+[31m-  createdBy       String?  // User who created this company[m
+[31m-  createdAt       DateTime @default(now())[m
+[31m-  updatedAt       DateTime @updatedAt[m
+[31m-  [m
+[31m-  // Relations[m
+[31m-  jobs            Job[][m
+[31m-  creator         User?    @relation(fields: [createdBy], references: [id])[m
+[31m-  applications    Application[][m
+[31m-  [m
+[32m+[m[32m  id           Int           @id @default(autoincrement())[m
+[32m+[m[32m  name         String[m
+[32m+[m[32m  description  String?[m
+[32m+[m[32m  logo         String?[m
+[32m+[m[32m  website      String?[m
+[32m+[m[32m  location     String?[m
+[32m+[m[32m  industry     String?[m
+[32m+[m[32m  size         String?[m
+[32m+[m[32m  founded      Int?[m
+[32m+[m[32m  isVerified   Boolean       @default(false)[m
+[32m+[m[32m  createdBy    Int?[m
+[32m+[m[32m  createdAt    DateTime      @default(now())[m
+[32m+[m[32m  updatedAt    DateTime      @updatedAt[m
+[32m+[m[32m  applications Application[][m
+[32m+[m[32m  creator      User?         @relation(fields: [createdBy], references: [id])[m
+[32m+[m[32m  jobs         Job[][m
+[32m+[m
+   @@index([createdBy])[m
+   @@index([industry])[m
+   @@index([location])[m
+ }[m
+ [m
+ model Resume {[m
+[31m-  id        String   @id @default(cuid())[m
+[31m-  userId    String[m
+[31m-  fileName  String[m
+[31m-  fileUrl   String[m
+[31m-  fileSize  Int?[m
+[31m-  mimeType  String?[m
+[31m-  parsedData Json?   // AI-extracted resume data[m
+[31m-  atsScore  Int?     // ATS compatibility score[m
+[31m-  isActive  Boolean  @default(true)[m
+[31m-  createdAt DateTime @default(now())[m
+[31m-  updatedAt DateTime @updatedAt[m
+[31m-  [m
+[31m-  // Relations[m
+[31m-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+[32m+[m[32m  id           Int           @id @default(autoincrement())[m
+[32m+[m[32m  userId       Int[m
+[32m+[m[32m  fileName     String[m
+[32m+[m[32m  fileUrl      String[m
+[32m+[m[32m  fileSize     Int?[m
+[32m+[m[32m  mimeType     String?[m
+[32m+[m[32m  parsedData   Json?[m
+[32m+[m[32m  atsScore     Int?[m
+[32m+[m[32m  isActive     Boolean       @default(true)[m
+[32m+[m[32m  createdAt    DateTime      @default(now())[m
+[32m+[m[32m  updatedAt    DateTime      @updatedAt[m
+   applications Application[][m
+[31m-  [m
+[32m+[m[32m  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+[32m+[m
+   @@index([userId])[m
+ }[m
+ [m
+ model Application {[m
+[31m-  id        String   @id @default(cuid())[m
+[31m-  userId    String[m
+[31m-  jobId     String[m
+[31m-  companyId String[m
+[31m-  resumeId  String?[m
+[31m-  status    String   @default("submitted") // submitted, reviewed, interview, rejected, hired[m
+[31m-  coverLetter String? @db.Text[m
+[31m-  notes     String?  @db.Text[m
+[31m-  appliedAt DateTime @default(now())[m
+[31m-  updatedAt DateTime @updatedAt[m
+[31m-  [m
+[31m-  // Relations[m
+[31m-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+[32m+[m[32m  id          Int      @id @default(autoincrement())[m
+[32m+[m[32m  userId      Int[m
+[32m+[m[32m  jobId       Int[m
+[32m+[m[32m  companyId   Int[m
+[32m+[m[32m  resumeId    Int?[m
+[32m+[m[32m  status      String   @default("submitted")[m
+[32m+[m[32m  coverLetter String?[m
+[32m+[m[32m  notes       String?[m
+[32m+[m[32m  appliedAt   DateTime @default(now())[m
+[32m+[m[32m  updatedAt   DateTime @updatedAt[m
+[32m+[m[32m  company     Company  @relation(fields: [companyId], references: [id])[m
+   job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)[m
+[31m-  company     Company? @relation(fields: [companyId], references: [id])[m
+   resume      Resume?  @relation(fields: [resumeId], references: [id])[m
+[31m-  [m
+[32m+[m[32m  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+[32m+[m
+   @@unique([userId, jobId])[m
+   @@index([userId])[m
+   @@index([jobId])[m
+[36m@@ -229,25 +210,23 @@[m [mmodel Application {[m
+ }[m
+ [m
+ model Message {[m
+[31m-  id              String   @id @default(cuid())[m
+[31m-  senderId        String[m
+[31m-  receiverId      String[m
+[31m-  content         String   @db.Text[m
+[31m-  isRead          Boolean  @default(false)[m
+[31m-  messageType     String   @default("text") // text, system, notification[m
+[31m-  createdAt       DateTime @default(now())[m
+[31m-  [m
+[31m-  // Relations[m
+[31m-  sender         User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)[m
+[31m-  receiver       User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)[m
+[31m-  [m
+[32m+[m[32m  id          Int      @id @default(autoincrement())[m
+[32m+[m[32m  senderId    Int[m
+[32m+[m[32m  receiverId  Int[m
+[32m+[m[32m  content     String[m
+[32m+[m[32m  isRead      Boolean  @default(false)[m
+[32m+[m[32m  messageType String   @default("text")[m
+[32m+[m[32m  createdAt   DateTime @default(now())[m
+[32m+[m[32m  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)[m
+[32m+[m[32m  sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)[m
+[32m+[m
+   @@index([senderId])[m
+   @@index([receiverId])[m
+   @@index([createdAt])[m
+ }[m
+ [m
+ model Category {[m
+[31m-  id          String   @id @default(cuid())[m
+[32m+[m[32m  id          Int      @id @default(autoincrement())[m
+   name        String   @unique[m
+   description String?[m
+   isActive    Boolean  @default(true)[m
+[36m@@ -256,28 +235,26 @@[m [mmodel Category {[m
+ }[m
+ [m
+ model Settings {[m
+[31m-  id        String   @id @default(cuid())[m
+[31m-  userId    String[m
+[32m+[m[32m  id        Int      @id @default(autoincrement())[m
+[32m+[m[32m  userId    Int[m
+   key       String[m
+   value     Json[m
+   createdAt DateTime @default(now())[m
+   updatedAt DateTime @updatedAt[m
+[31m-  [m
+[31m-  // Relations[m
+   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)[m
+[31m-  [m
+[32m+[m
+   @@unique([userId, key])[m
+   @@index([userId])[m
+ }[m
+ [m
+ model StaticContent {[m
+   id        String   @id @default(cuid())[m
+[31m-  key       String   @unique // e.g., "terms", "privacy", "about"[m
+[32m+[m[32m  key       String   @unique[m
+   title     String[m
+[31m-  content   String   @db.Text[m
+[32m+[m[32m  content   String[m
+   isActive  Boolean  @default(true)[m
+   createdAt DateTime @default(now())[m
+   updatedAt DateTime @updatedAt[m
+[31m-  [m
+[32m+[m
+   @@index([key])[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m

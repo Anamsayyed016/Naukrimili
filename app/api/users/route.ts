@@ -19,7 +19,7 @@ async function requireAdminAuth(request: NextRequest) {
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: parseInt(session.user.id as string, 10) }
+    where: { id: session.user.id }
   });
 
   if (!user || user.role !== "admin") {
