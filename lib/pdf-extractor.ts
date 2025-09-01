@@ -1,6 +1,5 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
-import pdf from 'pdf-parse';
 
 export class PDFExtractor {
   /**
@@ -13,11 +12,24 @@ export class PDFExtractor {
       // Read the file as buffer
       const buffer = await readFile(filePath);
       
-      // Use pdf-parse to extract text
-      const data = await pdf(buffer);
-      const text = data.text;
+      // Try to use pdf-parse with error handling
+      try {
+        const pdf = require('pdf-parse');
+        const data = await pdf(buffer);
+        const text = data.text;
+        
+        if (text && text.length > 50) {
+          console.log('✅ PDF text extraction completed with pdf-parse, length:', text.length);
+          return text;
+        }
+      } catch (pdfError) {
+        console.log('⚠️ pdf-parse failed, using fallback method:', pdfError.message);
+      }
       
-      console.log('✅ Text extraction completed, length:', text.length);
+      // Fallback to basic buffer conversion
+      const text = this.bufferToText(buffer);
+      
+      console.log('✅ Text extraction completed with fallback, length:', text.length);
       
       return text;
       
@@ -152,18 +164,26 @@ export class PDFExtractor {
     try {
       console.log('📄 Extracting text from buffer, mime type:', mimeType);
       
-      // Check if it's a PDF and use pdf-parse
+      // Check if it's a PDF and try pdf-parse with error handling
       if (mimeType === 'application/pdf') {
-        const data = await pdf(buffer);
-        const text = data.text;
-        console.log('✅ PDF buffer text extraction completed, length:', text.length);
-        return text;
+        try {
+          const pdf = require('pdf-parse');
+          const data = await pdf(buffer);
+          const text = data.text;
+          
+          if (text && text.length > 50) {
+            console.log('✅ PDF buffer text extraction completed with pdf-parse, length:', text.length);
+            return text;
+          }
+        } catch (pdfError) {
+          console.log('⚠️ pdf-parse failed for buffer, using fallback method:', pdfError.message);
+        }
       }
       
-      // For other file types, use basic buffer conversion
+      // For other file types or if pdf-parse fails, use basic buffer conversion
       const text = this.bufferToText(buffer);
       
-      console.log('✅ Buffer text extraction completed, length:', text.length);
+      console.log('✅ Buffer text extraction completed with fallback, length:', text.length);
       
       return text;
       
