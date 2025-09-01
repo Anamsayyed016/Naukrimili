@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { PrismaClient } from '@prisma/client';
 import EnhancedResumeAI, { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import PDFExtractor from '@/lib/pdf-extractor';
+
+const prisma = new PrismaClient();
 
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -89,10 +92,37 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ Profile generated: ${profile.fullName}, ${profile.skills.length} skills, confidence: ${profile.confidence}%`);
 
+    // 🔧 FIX: Save extracted resume data to database
+    let savedResume = null;
+    try {
+      // Create a temporary user ID for now (will be updated when user completes profile)
+      const tempUserId = 'temp-user-' + Date.now();
+      
+      savedResume = await prisma.resume.create({
+        data: {
+          userId: tempUserId,
+          fileName: file.name,
+          fileUrl: `/uploads/resumes/${filename}`,
+          fileSize: file.size,
+          mimeType: file.type,
+          parsedData: profile,
+          atsScore: Math.floor(profile.confidence || 75),
+          isActive: true,
+          isBuilder: false
+        }
+      });
+      
+      console.log('💾 Resume saved to database with ID:', savedResume.id);
+    } catch (dbError) {
+      console.error('❌ Database save failed:', dbError);
+      // Continue without database save - user can still see extracted data
+    }
+
     return NextResponse.json({ 
       success: true, 
       profile,
       aiSuccess,
+      resumeId: savedResume?.id || null,
       message: aiSuccess ? 'Resume processed successfully with AI' : 'Resume processed with basic extraction',
       extractedText: extractedText.substring(0, 500) + '...', // Truncate for response
       confidence: profile.confidence
@@ -100,17 +130,11 @@ export async function POST(req: NextRequest) {
 
   } catch (e: any) {
     console.error('❌ Autofill error:', e?.message || e);
-    
-    // Return fallback data that will definitely work
-    const fallbackProfile = createFallbackProfile('Unknown');
-    
     return NextResponse.json({ 
-      success: true,
-      profile: fallbackProfile,
-      aiSuccess: false,
-      fallback: true,
-      message: 'Resume processing failed, but form will show with default data'
-    });
+      success: false, 
+      error: e?.message || 'Failed to process resume',
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
   }
 }
 
