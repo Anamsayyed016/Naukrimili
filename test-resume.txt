@@ -1,0 +1,1 @@
+John Doe\nSoftware Engineer\njohn.doe@example.com\n+91 98765 43210\nMumbai, India\nSkills: JavaScript, React, Node.js
