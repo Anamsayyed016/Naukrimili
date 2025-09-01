@@ -50,7 +50,7 @@ export default function GoogleCSESearch({
 
         // Create and inject the Google CSE script
         const script = document.createElement('script');
-        script.src = 'https://cse.google.com/cse.js?cx=' + (process.env.NEXT_PUBLIC_GOOGLE_CSE_ID || '');
+        script.src = 'https://cse.google.com/cse.js?cx=236ab1baa2d4f451d';
         script.async = true;
         script.defer = true;
         
@@ -103,7 +103,7 @@ export default function GoogleCSESearch({
         window.google.search.cse.element.render(resultsRef.current, {
           gname: 'gsearch',
           q: searchQueryWithLocation,
-          cx: process.env.NEXT_PUBLIC_GOOGLE_CSE_ID || '',
+          cx: '236ab1baa2d4f451d',
           num: 6, // Show 6 results
           sort: 'date', // Sort by date
           safe: 'active', // Safe search
