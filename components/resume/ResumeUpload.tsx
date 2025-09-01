@@ -125,15 +125,26 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       
       const result = await response.json();
       
-      if (result.success) {
-        setExtractedProfile(result.profile);
-        setAiSuccess(result.aiSuccess || false);
-        setConfidence(result.confidence || 0);
-        setUploaded(true);
-        setFile(null);
-        setShowProfileForm(true);
-        
-        console.log('✅ Resume processed successfully:', result.profile);
+      		if (result.success) {
+			setExtractedProfile(result.profile);
+			setAiSuccess(result.aiSuccess || false);
+			setConfidence(result.confidence || 0);
+			setUploaded(true);
+			setFile(null);
+			setShowProfileForm(true);
+			
+			// ADDED: Debug logging to verify data structure
+			console.log('✅ ResumeUpload - Extracted Profile Data:', {
+				fullName: result.profile.fullName,
+				email: result.profile.email,
+				skillsCount: result.profile.skills?.length || 0,
+				experienceCount: result.profile.experience?.length || 0,
+				educationCount: result.profile.education?.length || 0,
+				summary: result.profile.summary?.substring(0, 100) + '...',
+				confidence: result.confidence
+			});
+			
+			console.log('✅ Resume processed successfully:', result.profile);
         
         // Show success message based on AI success
         if (result.aiSuccess) {
