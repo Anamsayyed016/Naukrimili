@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
+import pdf from 'pdf-parse';
 
 export class PDFExtractor {
   /**
@@ -9,15 +10,12 @@ export class PDFExtractor {
     try {
       console.log('📄 Extracting text from PDF:', filePath);
       
-      // For now, we'll use a simple approach
-      // In production, you might want to use libraries like pdf-parse or pdf2pic
-      
       // Read the file as buffer
       const buffer = await readFile(filePath);
       
-      // Convert buffer to text (basic approach)
-      // This is a simplified version - in production, use proper PDF parsing
-      const text = this.bufferToText(buffer);
+      // Use pdf-parse to extract text
+      const data = await pdf(buffer);
+      const text = data.text;
       
       console.log('✅ Text extraction completed, length:', text.length);
       
@@ -154,9 +152,15 @@ export class PDFExtractor {
     try {
       console.log('📄 Extracting text from buffer, mime type:', mimeType);
       
-      // For now, we'll use a simple approach
-      // In production, you might want to use proper parsing libraries
+      // Check if it's a PDF and use pdf-parse
+      if (mimeType === 'application/pdf') {
+        const data = await pdf(buffer);
+        const text = data.text;
+        console.log('✅ PDF buffer text extraction completed, length:', text.length);
+        return text;
+      }
       
+      // For other file types, use basic buffer conversion
       const text = this.bufferToText(buffer);
       
       console.log('✅ Buffer text extraction completed, length:', text.length);
