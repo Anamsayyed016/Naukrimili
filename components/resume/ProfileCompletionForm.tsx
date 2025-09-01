@@ -113,25 +113,43 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		setSaveStatus('saving');
 
 		try {
-			// Save to database via API
-			const response = await fetch('/api/resumes', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					action: 'create',
-					data: {
-						userId: session?.user?.id || 'temp', // Will be replaced with actual user ID from session
-						fileName: 'profile',
-						fileUrl: '',
-						fileSize: 0,
-						mimeType: 'application/json',
+			let response;
+			
+			if (resumeId) {
+				// Update existing resume to prevent duplicates
+				console.log('🔄 Updating existing resume:', resumeId);
+				response = await fetch(`/api/resumes/${resumeId}`, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
 						parsedData: profileData,
-						atsScore: 85, // Default ATS score
-					}
-				}),
-			});
+						isActive: true
+					}),
+				});
+			} else {
+				// Create new resume only if no resumeId exists
+				console.log('🆕 Creating new resume record');
+				response = await fetch('/api/resumes', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						action: 'create',
+						data: {
+							userId: session?.user?.id || 'temp', // Will be replaced with actual user ID from session
+							fileName: 'profile',
+							fileUrl: '',
+							fileSize: 0,
+							mimeType: 'application/json',
+							parsedData: profileData,
+							atsScore: 85, // Default ATS score
+						}
+					}),
+				});
+			}
 
 			if (!response.ok) {
 				throw new Error('Failed to save profile to database');
@@ -141,9 +159,14 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			
 			if (result.success) {
 				setSaveStatus('success');
+				
+				// Handle both update and create responses safely
+				const savedId = result.resume?.id || resumeId;
+				console.log('✅ Profile saved successfully with ID:', savedId);
+				
 				toast({
 					title: 'Profile Saved!',
-					description: 'Your profile has been saved to the database successfully',
+					description: resumeId ? 'Your profile has been updated successfully' : 'Your profile has been saved to the database successfully',
 				});
 
 				if (onComplete) {
