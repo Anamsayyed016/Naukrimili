@@ -22,7 +22,7 @@ export default function LoginPage() {
   // Redirect if already logged in
   React.useEffect(() => {
     if (session?.user) {
-      const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+      const callbackUrl = searchParams.get('callbackUrl') || '/';
       router.push(callbackUrl);
     }
   }, [session, router, searchParams]);
@@ -48,8 +48,8 @@ export default function LoginPage() {
         setError('Invalid email or password. Please check your credentials.');
       } else if (result?.ok) {
         setSuccess('Login successful! Redirecting...');
-        // Get the callback URL or default to dashboard
-        const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+        // Get the callback URL or default to homepage instead of dashboard
+        const callbackUrl = searchParams.get('callbackUrl') || '/';
         setTimeout(() => {
           router.push(callbackUrl);
         }, 1000);
@@ -70,7 +70,7 @@ export default function LoginPage() {
     
     try {
       const result = await signIn('google', {
-        callbackUrl: searchParams.get('callbackUrl') || '/dashboard',
+        callbackUrl: searchParams.get('callbackUrl') || '/',
         redirect: false,
       });
       
