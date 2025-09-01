@@ -94,7 +94,7 @@ export class PDFExtractor {
       }
       
       // If not readable, try other encodings
-      const encodings = ['latin1', 'ascii', 'base64'];
+      const encodings: BufferEncoding[] = ['latin1', 'ascii', 'base64'];
       
       for (const encoding of encodings) {
         try {
