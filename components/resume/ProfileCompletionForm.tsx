@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Edit3, Save, CheckCircle, AlertCircle, X, Plus, Star } from 'lucide-react';
+import { Edit3, Save, CheckCircle, AlertCircle, X, Plus, Star, Briefcase, GraduationCap, User } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useSession } from 'next-auth/react';
 
@@ -30,6 +30,12 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		expectedSalary: initialData.expectedSalary || initialData.salary || '',
 		linkedin: initialData.linkedin || '',
 		portfolio: initialData.portfolio || '',
+		// Add missing fields for comprehensive data
+		summary: initialData.summary || '',
+		projects: Array.isArray(initialData.projects) ? initialData.projects : [],
+		certifications: Array.isArray(initialData.certifications) ? initialData.certifications : [],
+		languages: Array.isArray(initialData.languages) ? initialData.languages : [],
+		preferredJobType: initialData.preferredJobType || '',
 	});
 
 	const [isEditing, setIsEditing] = useState(true); // Start in edit mode
@@ -46,13 +52,19 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				email: initialData.email || '',
 				phone: initialData.phone || '',
 				location: initialData.location || '',
-				jobTitle: initialData.jobTitle || '',
+				jobTitle: initialData.jobTitle || initialData.summary?.split(' ').slice(0, 3).join(' ') || '',
 				skills: Array.isArray(initialData.skills) ? initialData.skills : [],
 				education: Array.isArray(initialData.education) ? initialData.education : [],
 				experience: Array.isArray(initialData.experience) ? initialData.experience : [],
 				expectedSalary: initialData.expectedSalary || initialData.salary || '',
 				linkedin: initialData.linkedin || '',
 				portfolio: initialData.portfolio || '',
+				// Add missing fields for comprehensive data mapping
+				summary: initialData.summary || '',
+				projects: Array.isArray(initialData.projects) ? initialData.projects : [],
+				certifications: Array.isArray(initialData.certifications) ? initialData.certifications : [],
+				languages: Array.isArray(initialData.languages) ? initialData.languages : [],
+				preferredJobType: initialData.preferredJobType || '',
 			});
 		}
 	}, [initialData]);
@@ -349,6 +361,74 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							💡 Add relevant skills to improve your job matches
 						</p>
 					</div>
+
+					{/* Experience Section - NEW */}
+					{profileData.experience && profileData.experience.length > 0 && (
+						<div className="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-xl border border-orange-100">
+							<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+								<Briefcase className="h-5 w-5 text-orange-600" />
+								Work Experience ({profileData.experience.length})
+							</h3>
+							<div className="space-y-4">
+								{profileData.experience.map((exp: any, index: number) => (
+									<div key={index} className="bg-white p-4 rounded-lg border border-orange-200">
+										<div className="flex justify-between items-start mb-2">
+											<h4 className="font-semibold text-gray-800">{exp.position}</h4>
+											<span className="text-sm text-gray-600">{exp.company}</span>
+										</div>
+										<p className="text-sm text-gray-600 mb-2">{exp.location} • {exp.startDate} - {exp.current ? 'Present' : exp.endDate}</p>
+										<p className="text-sm text-gray-700">{exp.description}</p>
+										{exp.achievements && exp.achievements.length > 0 && (
+											<ul className="mt-2 space-y-1">
+												{exp.achievements.map((achievement: string, idx: number) => (
+													<li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+														<span className="text-orange-500 mt-1">•</span>
+														{achievement}
+													</li>
+												))}
+											</ul>
+										)}
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+
+					{/* Education Section - NEW */}
+					{profileData.education && profileData.education.length > 0 && (
+						<div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
+							<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+								<GraduationCap className="h-5 w-5 text-indigo-600" />
+								Education ({profileData.education.length})
+							</h3>
+							<div className="space-y-4">
+								{profileData.education.map((edu: any, index: number) => (
+									<div key={index} className="bg-white p-4 rounded-lg border border-indigo-200">
+										<div className="flex justify-between items-start mb-2">
+											<h4 className="font-semibold text-gray-800">{edu.degree}</h4>
+											<span className="text-sm text-gray-600">{edu.institution}</span>
+										</div>
+										<p className="text-sm text-gray-600 mb-2">{edu.field} • {edu.startDate} - {edu.endDate}</p>
+										{edu.gpa && <p className="text-sm text-gray-600">GPA: {edu.gpa}</p>}
+										{edu.description && <p className="text-sm text-gray-700">{edu.description}</p>}
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+
+					{/* Summary Section - NEW */}
+					{profileData.summary && (
+						<div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl border border-teal-100">
+							<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+								<User className="h-5 w-5 text-teal-600" />
+								Professional Summary
+							</h3>
+							<div className="bg-white p-4 rounded-lg border border-teal-200">
+								<p className="text-gray-700 leading-relaxed">{profileData.summary}</p>
+							</div>
+						</div>
+					)}
 
 					{/* Action Buttons */}
 					<div className="flex gap-3 pt-6 border-t border-gray-200">
