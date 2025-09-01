@@ -136,7 +136,7 @@ start_application() {
     log "Starting application..."
     
     if [ "$1" = "pm2" ]; then
-        pm2 start ecosystem.pm2.js --env production
+        pm2 start ecosystem.config.mjs --env production
         success "Application started with PM2"
     elif [ "$1" = "production" ]; then
         npm run start:production
@@ -163,7 +163,7 @@ restart_application() {
     log "Restarting application..."
     
     if [ "$1" = "pm2" ]; then
-        pm2 reload ecosystem.pm2.js --env production
+        pm2 reload ecosystem.config.mjs --env production
         success "Application restarted with PM2"
     else
         stop_application
