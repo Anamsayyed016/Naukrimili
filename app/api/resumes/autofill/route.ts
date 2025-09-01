@@ -89,10 +89,84 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ Profile generated: ${profile.fullName}, ${profile.skills.length} skills, confidence: ${profile.confidence}%`);
 
+    // Save the AI-extracted data to database for future autofill (prevents data loss)
+    let savedResumeId = null;
+    try {
+      const { getServerSession } = await import('next-auth');
+      const { authOptions } = await import('@/lib/nextauth-config');
+      const { prisma } = await import('@/lib/prisma');
+      
+      const session = await getServerSession(authOptions);
+      
+      if (session?.user?.email) {
+        // Find or create user
+        let user = await prisma.user.findUnique({
+          where: { email: session.user.email }
+        });
+        
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              email: session.user.email,
+              name: session.user.name || profile.fullName || 'Unknown User',
+              role: 'jobseeker',
+              isActive: true,
+              isVerified: true
+            }
+          });
+        }
+        
+        // Check if resume with same filename already exists to prevent duplicates
+        const existingResume = await prisma.resume.findFirst({
+          where: {
+            userId: user.id,
+            fileName: file.name,
+            createdAt: {
+              gte: new Date(Date.now() - 5 * 60 * 1000) // Within last 5 minutes
+            }
+          }
+        });
+        
+        if (existingResume) {
+          // Update existing resume instead of creating duplicate
+          const updatedResume = await prisma.resume.update({
+            where: { id: existingResume.id },
+            data: {
+              parsedData: profile,
+              atsScore: profile.confidence || 0,
+              updatedAt: new Date()
+            }
+          });
+          savedResumeId = updatedResume.id;
+          console.log('✅ Updated existing resume with AI-extracted data:', savedResumeId);
+        } else {
+          // Create new resume with AI-extracted parsedData
+          const savedResume = await prisma.resume.create({
+            data: {
+              fileName: file.name,
+              fileUrl: `/uploads/resumes/${filename}`,
+              fileSize: file.size,
+              mimeType: file.type,
+              userId: user.id,
+              isActive: true,
+              parsedData: profile,
+              atsScore: profile.confidence || 0
+            }
+          });
+          savedResumeId = savedResume.id;
+          console.log('✅ AI-extracted data saved to database for future autofill:', savedResumeId);
+        }
+      }
+    } catch (dbError) {
+      console.warn('⚠️ Failed to save AI data to database (non-blocking):', dbError);
+      // Don't fail the request if database save fails
+    }
+
     return NextResponse.json({ 
       success: true, 
       profile,
       aiSuccess,
+      resumeId: savedResumeId,
       message: aiSuccess ? 'Resume processed successfully with AI' : 'Resume processed with basic extraction',
       extractedText: extractedText.substring(0, 500) + '...', // Truncate for response
       confidence: profile.confidence

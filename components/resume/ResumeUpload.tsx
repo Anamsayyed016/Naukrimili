@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, FileText, CheckCircle, X, AlertCircle, Brain, User, Mail, Phone, MapPin, Briefcase, GraduationCap, Globe, DollarSign, Clock, Sparkles, Zap } from 'lucide-react';
 import ProfileCompletionForm from './ProfileCompletionForm';
 import { toast } from '@/hooks/use-toast';
@@ -71,6 +71,47 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [aiSuccess, setAiSuccess] = useState(false);
   const [confidence, setConfidence] = useState(0);
+  const [hasCheckedExistingData, setHasCheckedExistingData] = useState(false);
+
+  // Check for existing autofill data when user is authenticated
+  const checkForExistingData = async () => {
+    if (hasCheckedExistingData) return; // Prevent duplicate checks
+    
+    try {
+      console.log('🔍 Checking for existing autofill data...');
+      const response = await fetch('/api/resumes/autofill-data');
+      
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.profile) {
+          console.log('✅ Found existing autofill data:', result.profile);
+          setExtractedProfile(result.profile);
+          setResumeId(result.resumeId);
+          setConfidence(result.profile.confidence || 0);
+          setAiSuccess(true);
+          setShowProfileForm(true);
+          
+          toast({
+            title: 'Previous Data Found!',
+            description: `Loaded your resume data from ${result.fileName || 'previous upload'}`,
+          });
+        } else {
+          console.log('ℹ️ No existing autofill data found');
+        }
+      }
+    } catch (error) {
+      console.log('ℹ️ No existing autofill data available:', error);
+    } finally {
+      setHasCheckedExistingData(true);
+    }
+  };
+
+  // Auto-check for existing data when user is authenticated
+  useEffect(() => {
+    if (session?.user && !hasCheckedExistingData && !showProfileForm) {
+      checkForExistingData();
+    }
+  }, [session?.user?.email, hasCheckedExistingData, showProfileForm]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -129,12 +170,14 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
 			setExtractedProfile(result.profile);
 			setAiSuccess(result.aiSuccess || false);
 			setConfidence(result.confidence || 0);
+			setResumeId(result.resumeId); // Store the saved resume ID to prevent duplicates
 			setUploaded(true);
 			setFile(null);
 			setShowProfileForm(true);
 			
 			// ADDED: Debug logging to verify data structure
 			console.log('✅ ResumeUpload - Extracted Profile Data:', {
+				resumeId: result.resumeId,
 				fullName: result.profile.fullName,
 				email: result.profile.email,
 				skillsCount: result.profile.skills?.length || 0,
@@ -144,7 +187,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
 				confidence: result.confidence
 			});
 			
-			console.log('✅ Resume processed successfully:', result.profile);
+			console.log('✅ Resume processed and saved with ID:', result.resumeId);
         
         // Show success message based on AI success
         if (result.aiSuccess) {
@@ -194,56 +237,16 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     setResumeId(null);
     setAiSuccess(false);
     setConfidence(0);
+    setHasCheckedExistingData(false); // Reset to allow fresh data checks
   };
 
-  const handleProfileComplete = async () => {
-    try {
-      // Save profile to database
-      const response = await fetch('/api/resumes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'create',
-          data: {
-            userId: session?.user?.id || 1, // Use actual user ID from session
-            fileName: file?.name || 'resume',
-            fileUrl: '', // Will be set by the API
-            fileSize: file?.size || 0,
-            mimeType: file?.type || 'application/pdf',
-            parsedData: extractedProfile,
-            atsScore: extractedProfile?.confidence || 0,
-          }
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save profile to database');
-      }
-
-      const result = await response.json();
-      if (result.success) {
-        setResumeId(result.resume.id);
-        toast({
-          title: 'Profile Saved!',
-          description: 'Your profile has been saved to the database successfully',
-        });
-        
-        // Call onComplete callback if provided
-        if (onComplete) {
-          onComplete();
-        }
-      } else {
-        throw new Error(result.error?.message || 'Failed to save profile');
-      }
-    } catch (error) {
-      console.error('Profile save error:', error);
-      toast({
-        title: 'Save Failed',
-        description: 'Failed to save profile to database. Please try again.',
-        variant: 'destructive',
-      });
+  const handleProfileComplete = () => {
+    // ProfileCompletionForm handles its own saving now to prevent duplicates
+    console.log('✅ Profile completion handled by form component');
+    
+    // Call onComplete callback if provided
+    if (onComplete) {
+      onComplete();
     }
   };
 
@@ -318,6 +321,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         </div>
 
         <ProfileCompletionForm
+          resumeId={resumeId}
           initialData={extractedProfile}
           onComplete={handleProfileComplete}
           onClose={resetUpload}
