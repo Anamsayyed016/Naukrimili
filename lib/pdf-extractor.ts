@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
+import pdf from 'pdf-parse';
 
 export class PDFExtractor {
   /**
@@ -9,18 +10,49 @@ export class PDFExtractor {
     try {
       console.log('📄 Extracting text from PDF:', filePath);
       
-      // For now, we'll use a simple approach
-      // In production, you might want to use libraries like pdf-parse or pdf2pic
-      
       // Read the file as buffer
       const buffer = await readFile(filePath);
       
-      // Convert buffer to text (basic approach)
-      // This is a simplified version - in production, use proper PDF parsing
+<<<<<<< Updated upstream
+      // Try to use pdf-parse with error handling
+      try {
+        const pdf = require('pdf-parse');
+        const data = await pdf(buffer);
+        const text = data.text;
+        
+        if (text && text.length > 50) {
+          console.log('✅ PDF text extraction completed with pdf-parse, length:', text.length);
+          return text;
+        }
+      } catch (pdfError) {
+        console.log('⚠️ pdf-parse failed, using fallback method:', pdfError.message);
+      }
+      
+      // Fallback to basic buffer conversion
       const text = this.bufferToText(buffer);
       
-      console.log('✅ Text extraction completed, length:', text.length);
+      console.log('✅ Text extraction completed with fallback, length:', text.length);
       
+=======
+      // Try pdf-parse first
+      try {
+        const data = await pdf(buffer);
+        const text = data.text;
+        
+        // Check if we got meaningful text
+        if (text && text.length > 100 && !text.includes('%PDF')) {
+          console.log('✅ Text extraction completed with pdf-parse, length:', text.length);
+          return text;
+        }
+      } catch (pdfError) {
+        console.log('⚠️ pdf-parse failed, trying alternative method...');
+      }
+      
+      // Fallback: Try to extract text using basic buffer conversion
+      const text = this.bufferToText(buffer);
+      
+      console.log('✅ Text extraction completed with fallback, length:', text.length);
+>>>>>>> Stashed changes
       return text;
       
     } catch (error) {
@@ -88,15 +120,16 @@ export class PDFExtractor {
       
       for (const encoding of encodings) {
         try {
-          const decodedText = buffer.toString(encoding);
-          if (decodedText.length > 100 && this.isReadableText(decodedText)) {
-            return decodedText;
+          const encodedText = buffer.toString(encoding);
+          if (encodedText.length > 100 && this.isReadableText(encodedText)) {
+            return encodedText;
           }
         } catch (e) {
-          continue;
+          // Continue to next encoding
         }
       }
       
+<<<<<<< Updated upstream
       // If all else fails, return a basic text representation
       return this.createBasicTextFromBuffer(buffer);
       
@@ -154,49 +187,49 @@ export class PDFExtractor {
     try {
       console.log('📄 Extracting text from buffer, mime type:', mimeType);
       
-      // For now, we'll use a simple approach
-      // In production, you might want to use proper parsing libraries
+      // Check if it's a PDF and try pdf-parse with error handling
+      if (mimeType === 'application/pdf') {
+        try {
+          const pdf = require('pdf-parse');
+          const data = await pdf(buffer);
+          const text = data.text;
+          
+          if (text && text.length > 50) {
+            console.log('✅ PDF buffer text extraction completed with pdf-parse, length:', text.length);
+            return text;
+          }
+        } catch (pdfError) {
+          console.log('⚠️ pdf-parse failed for buffer, using fallback method:', pdfError.message);
+        }
+      }
       
+      // For other file types or if pdf-parse fails, use basic buffer conversion
       const text = this.bufferToText(buffer);
       
-      console.log('✅ Buffer text extraction completed, length:', text.length);
+      console.log('✅ Buffer text extraction completed with fallback, length:', text.length);
       
+=======
+      // If all else fails, return the UTF-8 version
+>>>>>>> Stashed changes
       return text;
       
     } catch (error) {
-      console.error('❌ Buffer text extraction failed:', error);
-      throw new Error(`Failed to extract text from buffer: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('❌ Buffer to text conversion failed:', error);
+      return '';
     }
   }
 
   /**
-   * Get file type from mime type
+   * Check if text is readable (contains mostly readable characters)
    */
-  static getFileType(mimeType: string): string {
-    switch (mimeType) {
-      case 'application/pdf':
-        return 'pdf';
-      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        return 'docx';
-      case 'application/msword':
-        return 'doc';
-      default:
-        return 'unknown';
-    }
-  }
-
-  /**
-   * Validate if file type is supported
-   */
-  static isSupportedFileType(mimeType: string): boolean {
-    const supportedTypes = [
-      'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/msword'
-    ];
+  private static isReadableText(text: string): boolean {
+    if (!text || text.length < 50) return false;
     
-    return supportedTypes.includes(mimeType);
+    // Count readable characters (letters, numbers, spaces, punctuation)
+    const readableChars = text.replace(/[^a-zA-Z0-9\s.,!?;:'"()-]/g, '').length;
+    const totalChars = text.length;
+    
+    // If more than 60% of characters are readable, consider it readable
+    return (readableChars / totalChars) > 0.6;
   }
 }
-
-export default PDFExtractor;
