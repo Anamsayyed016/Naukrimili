@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { Upload, FileText, CheckCircle, X, AlertCircle, Brain, User, Mail, Phone, MapPin, Briefcase, GraduationCap, Globe, DollarSign, Clock } from 'lucide-react';
+import { Upload, FileText, CheckCircle, X, AlertCircle, Brain, User, Mail, Phone, MapPin, Briefcase, GraduationCap, Globe, DollarSign, Clock, Sparkles, Zap } from 'lucide-react';
 import ProfileCompletionForm from './ProfileCompletionForm';
 import { toast } from '@/hooks/use-toast';
 
@@ -15,14 +15,46 @@ interface ExtractedProfile {
   email: string;
   phone: string;
   location: string;
-  jobTitle: string;
+  linkedin?: string;
+  portfolio?: string;
+  summary: string;
   skills: string[];
-  education: string[];
-  experience: string[];
-  linkedin: string;
-  portfolio: string;
-  expectedSalary: string;
-  preferredJobType: string;
+  experience: Array<{
+    company: string;
+    position: string;
+    location?: string;
+    startDate: string;
+    endDate?: string;
+    current: boolean;
+    description: string;
+    achievements: string[];
+  }>;
+  education: Array<{
+    institution: string;
+    degree: string;
+    field: string;
+    startDate: string;
+    endDate: string;
+    gpa?: string;
+    description?: string;
+  }>;
+  projects?: Array<{
+    name: string;
+    description: string;
+    technologies: string[];
+    url?: string;
+    startDate?: string;
+    endDate?: string;
+  }>;
+  certifications?: Array<{
+    name: string;
+    issuer: string;
+    date: string;
+    url?: string;
+  }>;
+  languages?: string[];
+  expectedSalary?: string;
+  preferredJobType?: string;
   confidence: number;
   rawText: string;
 }
@@ -37,6 +69,8 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   const [extractedProfile, setExtractedProfile] = useState<ExtractedProfile | null>(null);
   const [showProfileForm, setShowProfileForm] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
+  const [aiSuccess, setAiSuccess] = useState(false);
+  const [confidence, setConfidence] = useState(0);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -63,6 +97,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     if (!file) return;
     
     setUploading(true);
+    setAnalyzing(true);
     setError(null);
     
     try {
@@ -70,7 +105,13 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       const formData = new FormData();
       formData.append('resume', file);
       
-      console.log('🔄 Uploading and analyzing resume...');
+      console.log('🔄 Uploading and analyzing resume with AI...');
+      
+      // Show AI processing message
+      toast({
+        title: 'AI Processing',
+        description: 'Our AI is analyzing your resume to extract comprehensive details...',
+      });
       
       // Call the autofill endpoint to get AI-extracted profile
       const response = await fetch('/api/resumes/autofill', {
@@ -86,11 +127,27 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       
       if (result.success) {
         setExtractedProfile(result.profile);
+        setAiSuccess(result.aiSuccess || false);
+        setConfidence(result.confidence || 0);
         setUploaded(true);
         setFile(null);
         setShowProfileForm(true);
         
         console.log('✅ Resume processed successfully:', result.profile);
+        
+        // Show success message based on AI success
+        if (result.aiSuccess) {
+          toast({
+            title: 'AI Analysis Complete!',
+            description: `Successfully extracted ${result.profile.skills.length} skills and ${result.profile.experience.length} experiences with ${result.confidence}% confidence`,
+          });
+        } else {
+          toast({
+            title: 'Basic Processing Complete',
+            description: 'Resume processed with basic extraction. You can manually edit the details.',
+            variant: 'default',
+          });
+        }
         
         // Call onComplete callback if provided
         if (onComplete) {
@@ -102,8 +159,14 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     } catch (err: any) {
       console.error('Upload error:', err);
       setError(err?.message || 'Upload failed. Please try again.');
+      toast({
+        title: 'Processing Failed',
+        description: err?.message || 'Failed to process resume. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setUploading(false);
+      setAnalyzing(false);
     }
   };
 
@@ -118,6 +181,8 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     setExtractedProfile(null);
     setShowProfileForm(false);
     setResumeId(null);
+    setAiSuccess(false);
+    setConfidence(0);
   };
 
   const handleProfileComplete = async () => {
@@ -209,50 +274,43 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
 
   if (showProfileForm && extractedProfile) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-          <div className="p-6">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Brain className="w-8 h-8 text-green-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Profile Generated!</h2>
-              <p className="text-gray-600">We've analyzed your resume and extracted the following information. Please review and edit as needed.</p>
-              <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
-                <span>Confidence Score: {extractedProfile.confidence}%</span>
-              </div>
+      <div className="max-w-4xl mx-auto">
+        {/* AI Processing Results Header */}
+        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {aiSuccess ? (
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">AI Analysis Successful</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-orange-600" />
+                  <span className="text-sm font-medium text-orange-800">Basic Processing</span>
+                </div>
+              )}
             </div>
-
-            <ProfileCompletionForm
-              resumeId={resumeId}
-              initialData={extractedProfile}
-              onComplete={handleProfileComplete}
-              onClose={resetUpload}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (uploaded) {
-    return (
-      <div className="max-w-md mx-auto p-6">
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm text-center">
-          <div className="p-6 pt-6">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Confidence:</span>
+              <span className={`text-sm font-medium ${confidence >= 80 ? 'text-green-600' : confidence >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
+                {confidence}%
+              </span>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Resume Uploaded Successfully!</h2>
-            <p className="text-sm text-gray-600 mb-4">Your resume has been uploaded and is being analyzed by our AI.</p>
-            <button
-              onClick={resetUpload}
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-700 h-10 px-4 py-2"
-            >
-              Upload Another Resume
-            </button>
           </div>
+          <p className="text-sm text-gray-600 mt-2">
+            {aiSuccess 
+              ? `Extracted ${extractedProfile.skills.length} skills, ${extractedProfile.experience.length} experiences, and ${extractedProfile.education.length} education entries.`
+              : 'Basic information extracted. You can manually edit and enhance the details below.'
+            }
+          </p>
         </div>
+
+        <ProfileCompletionForm
+          initialData={extractedProfile}
+          onComplete={handleProfileComplete}
+          onClose={resetUpload}
+        />
       </div>
     );
   }
@@ -261,97 +319,109 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     <div className="max-w-md mx-auto p-6">
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <div className="p-6 pt-6">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Upload className="w-8 h-8 text-blue-600" />
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Upload Your Resume</h2>
-            <p className="text-sm text-gray-600">Get AI-powered analysis and job matching</p>
-          </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
-              <AlertCircle className="w-4 h-4" />
-              {error}
+          {/* AI Processing Indicator */}
+          {analyzing && (
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                <div>
+                  <p className="text-sm font-medium text-blue-800">AI Processing Resume</p>
+                  <p className="text-xs text-blue-600">Extracting comprehensive details...</p>
+                </div>
+              </div>
             </div>
           )}
 
-          <div className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileChange}
-                className="hidden"
-                id="resume-upload"
-                disabled={uploading}
-              />
-              <label
-                htmlFor="resume-upload"
-                className="cursor-pointer block"
-              >
-                {file ? (
-                  <div className="space-y-2">
-                    <FileText className="w-8 h-8 text-blue-600 mx-auto" />
-                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
+          {!uploaded && (
+            <>
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Upload className="w-8 h-8 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2 text-center">Upload Your Resume</h2>
+              <p className="text-sm text-gray-600 mb-6 text-center">
+                Upload your resume and our AI will automatically extract all your details
+              </p>
+
+              {/* AI Features Highlight */}
+              <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Brain className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm font-medium text-purple-800">AI-Powered Extraction</span>
+                </div>
+                <ul className="text-xs text-purple-700 space-y-1">
+                  <li>• Extracts skills, experience, education, and more</li>
+                  <li>• Identifies contact information and social profiles</li>
+                  <li>• Analyzes resume completeness and ATS compatibility</li>
+                  <li>• Provides confidence scores for extracted data</li>
+                </ul>
+              </div>
+
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="resume-upload"
+                    disabled={uploading}
+                  />
+                  <label
+                    htmlFor="resume-upload"
+                    className="cursor-pointer block"
+                  >
+                    <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">
+                      {file ? file.name : 'Click to select or drag and drop'}
                     </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto" />
-                    <div className="text-sm font-medium text-gray-900">
-                      Click to select file
+                    <p className="text-xs text-gray-500 mt-1">
+                      PDF, DOC, or DOCX (max 10MB)
+                    </p>
+                  </label>
+                </div>
+
+                {file && (
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm text-green-800">{file.name}</span>
                     </div>
-                    <div className="text-xs text-gray-500">
-                      PDF, DOC, or DOCX up to 10MB
-                    </div>
+                    <button
+                      onClick={removeFile}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
                 )}
-              </label>
-            </div>
 
-            {file && (
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm text-gray-700">{file.name}</span>
-                </div>
+                {error && (
+                  <div className="flex items-center gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
+                    <AlertCircle className="w-4 h-4 text-red-600" />
+                    <span className="text-sm text-red-800">{error}</span>
+                  </div>
+                )}
+
                 <button
-                  onClick={removeFile}
-                  className="p-1 hover:bg-gray-200 rounded transition-colors"
-                  disabled={uploading}
+                  onClick={handleUpload}
+                  disabled={!file || uploading}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
-                  <X className="w-4 h-4 text-gray-500" />
+                  {uploading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="w-4 h-4" />
+                      Analyze with AI
+                    </>
+                  )}
                 </button>
               </div>
-            )}
-
-            <button
-              onClick={handleUpload}
-              disabled={!file || uploading}
-              className="w-full inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-700 h-10 px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {uploading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Brain className="w-4 h-4 mr-2" />
-                  Upload & Analyze
-                </>
-              )}
-            </button>
-          </div>
-
-          <div className="mt-4 text-center">
-            <p className="text-xs text-gray-500">
-              By uploading, you agree to our terms and privacy policy
-            </p>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>

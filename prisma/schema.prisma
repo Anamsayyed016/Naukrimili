@@ -212,6 +212,12 @@ model Resume {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
+  // NEW: Builder-specific fields
+  isBuilder     Boolean  @default(false) // Distinguish upload vs builder
+  templateStyle String?  // For builder resumes (e.g., "modern", "classic", "creative")
+  builderData   Json?    // Builder-generated content structure
+  colorScheme   String?  // Color theme for builder resumes
+  
   // Relations
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   applications Application[]

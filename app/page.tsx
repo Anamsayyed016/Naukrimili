@@ -260,12 +260,20 @@ export default function HomePage() {
                   </div>
                   <h2 className="text-lg sm:text-xl font-semibold text-white mb-2">Ready to Upload?</h2>
                   <p className="text-xs sm:text-sm text-blue-100 mb-3 sm:mb-4">Click the button below to upload your resume and get started</p>
-                  <a
-                    href="/resumes/upload"
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white text-blue-600 hover:bg-gray-100 h-9 sm:h-10 px-3 sm:px-4 py-2 rounded-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-                  >
-                    Upload Resume Now
-                  </a>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <a
+                      href="/resumes/upload"
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white text-blue-600 hover:bg-gray-100 h-9 sm:h-10 px-3 sm:px-4 py-2 rounded-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                    >
+                      Upload Resume
+                    </a>
+                    <a
+                      href="/resumes/builder"
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-700 h-9 sm:h-10 px-3 sm:px-4 py-2 rounded-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                    >
+                      Build Resume
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
