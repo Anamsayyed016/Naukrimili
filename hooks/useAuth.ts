@@ -98,6 +98,28 @@ export function useAuth(): AuthState & {
   // Sign out with redirect
   const logout = useCallback(async (callbackUrl?: string) => {
     try {
+      // Clear all storage before signing out
+      if (typeof window !== 'undefined') {
+        // Clear localStorage
+        localStorage.clear();
+        // Clear sessionStorage  
+        sessionStorage.clear();
+        
+        // Clear specific auth keys
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
+        sessionStorage.removeItem('auth_token');
+        
+        // Clear any other auth-related keys
+        Object.keys(localStorage).forEach(key => {
+          if (key.includes('auth') || key.includes('user') || key.includes('token')) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
+      
+      // Sign out from NextAuth
       await nextAuthSignOut({
         callbackUrl: callbackUrl || '/',
         redirect: true,
