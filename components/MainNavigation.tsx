@@ -200,10 +200,10 @@ export default function MainNavigation({
                   Sign In
                 </Link>
                 <Link
-                  href="/auth/register"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95"
+                  href="/role-selection"
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                 >
-                  Sign Up
+                  Get Started
                 </Link>
               </div>
             )}
@@ -305,11 +305,11 @@ export default function MainNavigation({
                     Sign In
                   </Link>
                   <Link
-                    href="/auth/register"
+                    href="/role-selection"
                     onClick={closeMenu}
-                    className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 font-medium"
+                    className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
                   >
-                    Sign Up
+                    Get Started
                   </Link>
                 </div>
               )}

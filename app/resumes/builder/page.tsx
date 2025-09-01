@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/context/AuthContext';
+import { useSession } from 'next-auth/react';
 
 interface ResumeData {
   personalInfo: {
@@ -110,6 +111,7 @@ const colorSchemes = [
 
 export default function ResumeBuilderPage() {
   const { user } = useAuth();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
@@ -117,12 +119,47 @@ export default function ResumeBuilderPage() {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [atsScore, setAtsScore] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
-      router.push('/auth/login');
+    // Check authentication status
+    if (status === 'loading') return;
+    
+    // If user is not authenticated via either system, redirect to login
+    if (status === 'unauthenticated' && !user) {
+      router.push('/auth/login?redirect=/resumes/builder');
+      return;
     }
-  }, [user, router]);
+    
+    // If user is authenticated, allow access
+    if (status === 'authenticated' || user) {
+      setIsLoading(false);
+    }
+  }, [status, user, router]);
+
+  // Show loading while checking authentication
+  if (isLoading || status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  // Show access denied if not authenticated
+  if (status === 'unauthenticated' && !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Authentication Required</h2>
+          <p className="text-gray-600 mb-4">Please log in to access the resume builder.</p>
+          <Button onClick={() => router.push('/auth/login?redirect=/resumes/builder')}>
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const updatePersonalInfo = (field: keyof ResumeData['personalInfo'], value: string) => {
     setResumeData(prev => ({
@@ -294,10 +331,6 @@ export default function ResumeBuilderPage() {
     // TODO: Implement PDF generation
     alert('PDF download feature coming soon!');
   };
-
-  if (!user) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
