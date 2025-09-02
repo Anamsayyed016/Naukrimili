@@ -19,7 +19,11 @@ export async function POST(request: NextRequest) {
     const validatedData = sendOTPSchema.parse(body);
 
     const otpService = getOTPService();
-    const result = await otpService.generateAndSendOTP(validatedData);
+    const result = await otpService.generateAndSendOTP({
+      email: validatedData.email,
+      purpose: validatedData.purpose,
+      userName: validatedData.userName
+    });
 
     if (result.success) {
       return NextResponse.json({

@@ -207,12 +207,12 @@ export default function OTPVerification({
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {error && (
-          <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+                 {error && (
+           <Alert className="border-red-200 bg-red-50">
+             <XCircle className="h-4 w-4 text-red-600" />
+             <AlertDescription className="text-red-800">{error}</AlertDescription>
+           </Alert>
+         )}
 
         {success && (
           <Alert className="border-green-200 bg-green-50">
@@ -232,7 +232,7 @@ export default function OTPVerification({
             {otp.map((digit, index) => (
               <Input
                 key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
+                                 ref={(el) => { inputRefs.current[index] = el; }}
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"

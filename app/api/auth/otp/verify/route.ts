@@ -20,7 +20,11 @@ export async function POST(request: NextRequest) {
     const validatedData = verifyOTPSchema.parse(body);
 
     const otpService = getOTPService();
-    const result = await otpService.verifyOTP(validatedData);
+    const result = await otpService.verifyOTP({
+      email: validatedData.email,
+      otp: validatedData.otp,
+      purpose: validatedData.purpose
+    });
 
     if (!result.success) {
       return NextResponse.json({
