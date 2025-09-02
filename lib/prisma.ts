@@ -8,11 +8,13 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   // Add connection pooling for production
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
+  ...(process.env.DATABASE_URL && {
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
     },
-  },
+  }),
   // Performance monitoring
   ...(process.env.NODE_ENV === 'production' && {
     // Production optimizations
