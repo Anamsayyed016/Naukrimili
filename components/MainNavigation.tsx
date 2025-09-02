@@ -200,8 +200,8 @@ export default function MainNavigation({
                   Sign In
                 </Link>
                 <Link
-                  href="/role-selection"
-                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                  href="/"
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                 >
                   Get Started
                 </Link>
@@ -305,9 +305,9 @@ export default function MainNavigation({
                     Sign In
                   </Link>
                   <Link
-                    href="/role-selection"
+                    href="/"
                     onClick={closeMenu}
-                    className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                    className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
                   >
                     Get Started
                   </Link>

@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Search, MapPin, Building, Briefcase, Users, TrendingUp, ArrowRight, Brain, Shield, Zap, Upload, FileText, CheckCircle, Sparkles, Globe, Award, Clock, UserCheck, Building2, BriefcaseIcon } from 'lucide-react';
+import { Search, MapPin, Building, Briefcase, Users, TrendingUp, ArrowRight, Brain, Shield, Zap, Upload, FileText, CheckCircle, Sparkles, Globe, Award, Clock, UserCheck, Building2, BriefcaseIcon, User } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+import { OAuthButtons } from '@/components/auth/OAuthButtons';
 
 interface Job {
   id: number;
@@ -37,6 +40,7 @@ export default function HomePageClient({
   trendingSearches,
   popularLocations
 }: HomePageClientProps) {
+  const { data: session, status } = useSession();
   const [selectedRole, setSelectedRole] = useState<'jobseeker' | 'employer' | null>(null);
   const [showJobSeekerOptions, setShowJobSeekerOptions] = useState(false);
   const [showEmployerOptions, setShowEmployerOptions] = useState(false);
@@ -58,9 +62,38 @@ export default function HomePageClient({
     setShowEmployerOptions(false);
   };
 
+  // If user is authenticated, redirect to appropriate dashboard
+  if (status === 'authenticated' && session?.user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-12 h-12 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Welcome back, {session.user.name}! 👋</h1>
+          <p className="text-lg text-gray-600 mb-8">Redirecting you to your dashboard...</p>
+          <div className="flex justify-center gap-4">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors gap-2"
+            >
+              Go to Dashboard <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/jobs"
+              className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors gap-2"
+            >
+              Browse Jobs <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      {/* Hero Section - Enhanced with Role Selection */}
+      {/* Hero Section - Enhanced with Authentication */}
       <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -114,6 +147,44 @@ export default function HomePageClient({
                 >
                   <Search className="w-5 h-5 mr-2" />
                   Search Jobs
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Authentication Section - PROMINENTLY DISPLAYED */}
+          <div className="max-w-2xl mx-auto mb-8 sm:mb-12">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20 shadow-xl">
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">
+                Get Started in Seconds
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Sign in with your Google account or create a new account to access all features
+              </p>
+              
+              {/* Google OAuth Button - PROMINENT */}
+              <div className="mb-4">
+                <OAuthButtons 
+                  callbackUrl="/dashboard" 
+                  className="w-full"
+                />
+              </div>
+              
+              {/* Alternative Options */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/auth/register"
+                  className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors gap-2"
+                >
+                  <User className="w-4 h-4" />
+                  Create Account
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-blue-50 text-blue-700 font-semibold rounded-xl hover:bg-blue-100 transition-colors gap-2"
+                >
+                  <User className="w-4 h-4" />
+                  Sign In
                 </Link>
               </div>
             </div>
@@ -197,7 +268,7 @@ export default function HomePageClient({
         </div>
       </section>
 
-      {/* Role Selection Section - INTEGRATED INTO MAIN PAGE */}
+      {/* Role Selection Section - STREAMLINED */}
       <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           {!selectedRole ? (
@@ -827,11 +898,11 @@ export default function HomePageClient({
               Start Job Search
             </Link>
             <Link
-              href="/role-selection"
+              href="/resumes/upload"
               className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-lg"
             >
-              <UserCheck className="w-5 h-5 mr-2" />
-              Get Started
+              <Upload className="w-5 h-5 mr-2" />
+              Upload Resume
             </Link>
           </div>
         </div>

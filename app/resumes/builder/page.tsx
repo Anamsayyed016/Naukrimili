@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/context/AuthContext';
 import { useSession } from 'next-auth/react';
+import { toast } from '@/components/ui/use-toast';
 
 interface ResumeData {
   personalInfo: {
@@ -322,14 +323,27 @@ export default function ResumeBuilderPage() {
 
       if (response.ok) {
         const result = await response.json();
-        alert('Resume saved successfully!');
-        router.push(`/resumes/${result.resume.id}`);
+        
+        // Show success message
+        toast({
+          title: 'Resume Saved Successfully!',
+          description: 'Your resume has been successfully built and saved!',
+        });
+        
+        // Redirect to dashboard with success message
+        setTimeout(() => {
+          router.push('/dashboard?message=resume-built');
+        }, 1500);
       } else {
         throw new Error('Failed to save resume');
       }
     } catch (error) {
       console.error('Error saving resume:', error);
-      alert('Failed to save resume. Please try again.');
+      toast({
+        title: 'Save Failed',
+        description: 'Failed to save resume. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsSaving(false);
     }
