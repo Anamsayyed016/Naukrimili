@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Search, MapPin, Building, Briefcase, Users, TrendingUp, ArrowRight, Brain, Shield, Zap, Upload, FileText, CheckCircle, Sparkles, Globe, Award, Clock, UserCheck, Building2, BriefcaseIcon, User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import { OAuthButtons } from '@/components/auth/OAuthButtons';
+import UnifiedAuthFlow from '@/components/auth/UnifiedAuthFlow';
 import { useRouter } from 'next/navigation';
 
 interface Job {
@@ -80,7 +80,7 @@ export default function HomePageClient({
         <div className="relative max-w-7xl mx-auto text-center">
           <div className="mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-white/20 rounded-full text-sm font-medium text-gray-700 mb-6 shadow-lg">
-              <Sparkles className="w-4 w-4 text-blue-600" />
+              <Sparkles className="w-4 h-4 text-blue-600" />
               AI-Powered Job Matching Platform
             </div>
           </div>
@@ -138,25 +138,35 @@ export default function HomePageClient({
                 Sign in with your Google account or create a new account to access all features
               </p>
               
-              {/* Google OAuth Button - PROMINENT */}
+              {/* Unified Authentication Flow - PROMINENT */}
               <div className="mb-4">
-                <OAuthButtons 
-                  callbackUrl="/dashboard" 
-                  className="w-full"
+                <UnifiedAuthFlow 
+                  onAuthSuccess={(user) => {
+                    // Handle successful authentication
+                    console.log('Authentication successful:', user);
+                    // Redirect to appropriate dashboard based on role
+                    if (user.role === 'jobseeker') {
+                      router.push('/dashboard/jobseeker');
+                    } else if (user.role === 'employer') {
+                      router.push('/dashboard/company');
+                    } else {
+                      router.push('/dashboard');
+                    }
+                  }}
                 />
               </div>
               
               {/* Alternative Options */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
-                  href="/auth/register"
+                  href="/auth/unified"
                   className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors gap-2"
                 >
                   <User className="w-4 h-4" />
                   Create Account
                 </Link>
                 <Link
-                  href="/auth/login"
+                  href="/auth/unified"
                   className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-blue-50 text-blue-700 font-semibold rounded-xl hover:bg-blue-100 transition-colors gap-2"
                 >
                   <User className="w-4 h-4" />
