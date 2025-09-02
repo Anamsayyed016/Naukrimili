@@ -111,6 +111,7 @@ model User {
   sentMessages    Message[]   @relation("SentMessages")
   receivedMessages Message[]  @relation("ReceivedMessages")
   settings        Settings[]
+  otps            OTP[]
 }
 
 // NextAuth.js OAuth Account Model
@@ -301,4 +302,25 @@ model StaticContent {
   updatedAt DateTime @updatedAt
   
   @@index([key])
+}
+
+// OTP Authentication Model
+model OTP {
+  id        String   @id @default(cuid())
+  email     String
+  otp       String   // Hashed OTP
+  purpose   String   // 'login', 'registration', 'verification'
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  maxAttempts Int    @default(3)
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User?    @relation(fields: [email], references: [email])
+  
+  @@index([email])
+  @@index([expiresAt])
+  @@index([purpose])
 }

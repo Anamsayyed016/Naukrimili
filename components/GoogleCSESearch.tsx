@@ -43,7 +43,9 @@ export default function GoogleCSESearch({
 
       // Check if we have the required environment variable
       const cseId = process.env.NEXT_PUBLIC_GOOGLE_CSE_ID;
+      console.log('Google CSE ID:', cseId);
       if (!cseId) {
+        console.error('NEXT_PUBLIC_GOOGLE_CSE_ID environment variable is not set');
         setError('Google CSE not configured. Please set NEXT_PUBLIC_GOOGLE_CSE_ID environment variable.');
         return;
       }
@@ -60,6 +62,7 @@ export default function GoogleCSESearch({
           script.src = `https://cse.google.com/cse.js?cx=${cseId}`;
           script.async = true;
           script.defer = true;
+          script.type = 'text/javascript';
         
         script.onload = () => {
           window.__google_cse_init = true;
@@ -67,8 +70,11 @@ export default function GoogleCSESearch({
           setIsLoading(false);
         };
 
-        script.onerror = () => {
-          setError('Failed to load Google search');
+        script.onerror = (error) => {
+          console.error('Google CSE script failed to load:', error);
+          console.error('CSE ID:', cseId);
+          console.error('Script URL:', script.src);
+          setError('Failed to load Google search. Please check console for details.');
           setIsLoading(false);
         };
 
