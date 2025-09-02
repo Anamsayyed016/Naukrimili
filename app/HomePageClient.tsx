@@ -64,87 +64,8 @@ export default function HomePageClient({
     setShowEmployerOptions(false);
   };
 
-  // If user is authenticated, redirect to appropriate dashboard
-  if (status === 'authenticated' && session?.user) {
-    // Add automatic redirect effect
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        // Redirect based on user role
-        const userRole = session.user.role || 'jobseeker';
-        switch (userRole) {
-          case 'admin':
-            router.push('/dashboard/admin');
-            break;
-          case 'employer':
-            router.push('/dashboard/company');
-            break;
-          case 'jobseeker':
-          default:
-            router.push('/dashboard/jobseeker');
-            break;
-        }
-      }, 2000); // 2 second delay to show welcome message
-
-      return () => clearTimeout(timer);
-    }, [session.user.role, router]);
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-12 h-12 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Welcome back, {session.user.name}! 👋</h1>
-          <p className="text-lg text-gray-600 mb-8">Redirecting you to your dashboard...</p>
-          
-          {/* Progress indicator */}
-          <div className="w-64 h-2 bg-gray-200 rounded-full mx-auto mb-8 overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full animate-pulse"></div>
-          </div>
-          
-          <div className="flex justify-center gap-4 mb-6">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors gap-2"
-            >
-              Go to Dashboard <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/jobs"
-              className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors gap-2"
-            >
-              Browse Jobs <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          
-          {/* Logout button for users who want to escape */}
-          <div className="text-center">
-            <button
-              onClick={() => {
-                // Use the enhanced logout from useAuth
-                if (typeof window !== 'undefined') {
-                  // Clear all browser data first
-                  localStorage.clear();
-                  sessionStorage.clear();
-                  
-                  // Clear cookies
-                  document.cookie.split(";").forEach(function(c) { 
-                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-                  });
-                  
-                  // Redirect to auth reset page
-                  window.location.href = '/auth/reset';
-                }
-              }}
-              className="text-sm text-gray-500 hover:text-red-600 transition-colors underline"
-            >
-              Not you? Sign out and start fresh
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Check if user is authenticated for conditional rendering
+  const isAuthenticated = status === 'authenticated' && session?.user;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
