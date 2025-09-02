@@ -150,7 +150,8 @@ export default function HomePageClient({
                     } else if (user.role === 'employer') {
                       router.push('/dashboard/company');
                     } else {
-                      router.push('/dashboard');
+                      // No role set, redirect to role selection
+                      router.push('/auth/role-selection');
                     }
                   }}
                 />
