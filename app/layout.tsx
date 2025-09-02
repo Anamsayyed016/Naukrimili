@@ -7,6 +7,7 @@ import SessionProvider from '@/components/providers/SessionProvider';
 import BufferPolyfill from '@/components/BufferPolyfill';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/context/AuthContext';
+
 import AuthDebugPanel from '@/components/debug/AuthDebugPanel';
 
 const inter = Inter({ subsets: ['latin'] });

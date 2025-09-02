@@ -35,24 +35,31 @@ export default function GoogleCSESearch({
   const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Prevent duplicate script injection
-  useEffect(() => {
-    if (window.__google_cse_init) {
-      return;
-    }
+      // Prevent duplicate script injection
+    useEffect(() => {
+      if (window.__google_cse_init) {
+        return;
+      }
 
-    const loadGoogleCSEScript = () => {
-      try {
-        // Check if script already exists
-        if (document.querySelector('script[src*="cse.google.com"]')) {
-          return;
-        }
+      // Check if we have the required environment variable
+      const cseId = process.env.NEXT_PUBLIC_GOOGLE_CSE_ID;
+      if (!cseId) {
+        setError('Google CSE not configured. Please set NEXT_PUBLIC_GOOGLE_CSE_ID environment variable.');
+        return;
+      }
 
-        // Create and inject the Google CSE script
-        const script = document.createElement('script');
-        script.src = 'https://cse.google.com/cse.js?cx=236ab1baa2d4f451d';
-        script.async = true;
-        script.defer = true;
+      const loadGoogleCSEScript = () => {
+        try {
+          // Check if script already exists
+          if (document.querySelector('script[src*="cse.google.com"]')) {
+            return;
+          }
+
+          // Create and inject the Google CSE script
+          const script = document.createElement('script');
+          script.src = `https://cse.google.com/cse.js?cx=${cseId}`;
+          script.async = true;
+          script.defer = true;
         
         script.onload = () => {
           window.__google_cse_init = true;
@@ -103,7 +110,7 @@ export default function GoogleCSESearch({
         window.google.search.cse.element.render(resultsRef.current, {
           gname: 'gsearch',
           q: searchQueryWithLocation,
-          cx: '236ab1baa2d4f451d',
+          cx: process.env.NEXT_PUBLIC_GOOGLE_CSE_ID,
           num: 6, // Show 6 results
           sort: 'date', // Sort by date
           safe: 'active', // Safe search

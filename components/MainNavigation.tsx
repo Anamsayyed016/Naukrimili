@@ -112,8 +112,8 @@ export default function MainNavigation({
             )}
           </div>
 
-          {/* Search Bar - Responsive */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          {/* Search Bar - Removed to avoid duplication with homepage */}
+          {/* <div className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -122,7 +122,7 @@ export default function MainNavigation({
                 className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Right Side - Enhanced User Actions */}
           <div className="flex items-center space-x-2 lg:space-x-4">
@@ -212,10 +212,10 @@ export default function MainNavigation({
                   Sign In
                 </Link>
                 <Link
-                  href="/"
+                  href="/auth/register"
                   className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                 >
-                  Get Started
+                  Sign Up
                 </Link>
               </div>
             )}
@@ -240,8 +240,8 @@ export default function MainNavigation({
             className="lg:hidden border-t border-gray-200/50 py-6 bg-white/95 backdrop-blur-md"
           >
             <div className="space-y-3">
-              {/* Mobile Search Bar */}
-              <div className="px-4">
+              {/* Mobile Search Bar - Removed to avoid duplication with homepage */}
+              {/* <div className="px-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
@@ -250,7 +250,7 @@ export default function MainNavigation({
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                   />
                 </div>
-              </div>
+              </div> */}
               
               {navLinks.map((link) => (
                 <Link
@@ -317,11 +317,11 @@ export default function MainNavigation({
                     Sign In
                   </Link>
                   <Link
-                    href="/"
+                    href="/auth/register"
                     onClick={closeMenu}
                     className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
                   >
-                    Get Started
+                    Sign Up
                   </Link>
                 </div>
               )}

@@ -125,6 +125,21 @@ export default function JobsPage() {
 
   const fetchJobs = async () => {
     try {
+      console.log('🔍 Starting job fetch...', {
+        searchQuery,
+        selectedLocation,
+        selectedJobType,
+        selectedExperience,
+        isRemote,
+        selectedCountry,
+        includeExternal,
+        source,
+        currentPage,
+        userCoordinates,
+        searchRadius,
+        sortByDistance
+      });
+      
       setLoading(true);
       setError(null);
 
@@ -151,13 +166,22 @@ export default function JobsPage() {
       params.append('page', currentPage.toString());
       params.append('limit', jobsPerPage.toString());
 
+      const apiUrl = `/api/jobs/unified?${params.toString()}`;
+      console.log('🌐 Calling API:', apiUrl);
+
       // Use the new unified API
-      const response = await fetch(`/api/jobs/unified?${params.toString()}`);
+      const response = await fetch(apiUrl);
+      console.log('📡 API Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch jobs');
+        const errorText = await response.text();
+        console.error('❌ API Error:', response.status, errorText);
+        throw new Error(`Failed to fetch jobs: ${response.status} ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('📊 API Response data:', data);
+      
       if (data.success) {
         setJobs(data.jobs);
         
@@ -169,9 +193,11 @@ export default function JobsPage() {
         
         console.log(`✅ Fetched ${data.jobs.length} jobs from ${data.sources.database ? 'database' : ''}${data.sources.external ? ' and external APIs' : ''}`);
       } else {
+        console.error('❌ API returned success: false:', data.error);
         setError(data.error || 'Failed to load jobs');
       }
     } catch (err: any) {
+      console.error('❌ Job fetch error:', err);
       setError(err?.message || 'Failed to load jobs');
     } finally {
       setLoading(false);
