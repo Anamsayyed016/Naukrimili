@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, MapPin, Building2, ExternalLink, Clock, DollarSign, Navigation } from 'lucide-react';
-import { getSmartLocation, getMobileGeolocationOptions, isMobileDevice } from '@/lib/mobile-geolocation';
+import { getSmartLocation, getMobileGeolocationOptions, isMobileDevice, getGeolocationDiagnostics } from '@/lib/mobile-geolocation';
 import GoogleCSESearch from '@/components/GoogleCSESearch';
 
 interface Job {
@@ -131,6 +131,10 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
       setLocationLoading(true);
       setLocationError(null);
       
+      // Get diagnostics for better error handling
+      const diagnostics = getGeolocationDiagnostics();
+      console.log('🔍 Geolocation diagnostics:', diagnostics);
+      
       // Use mobile-optimized geolocation
       const mobile = isMobileDevice();
       const options = getMobileGeolocationOptions();
@@ -149,21 +153,25 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         const cityName = result.city || 'Current Location';
         setLocation(cityName);
         
-        if (mobile) {
-          console.log(`✅ Mobile geolocation successful: ${cityName} (${result.source})`);
-        }
+        console.log(`✅ Geolocation successful: ${cityName} (${result.source})`);
+        
+        // Clear any previous errors
+        setLocationError(null);
       } else {
         const errorMessage = result.error || 'Failed to detect location';
         setLocationError(errorMessage);
         
-        if (mobile) {
-          console.warn(`❌ Mobile geolocation failed: ${errorMessage}`);
+        console.warn(`❌ Geolocation failed: ${errorMessage}`);
+        
+        // Provide helpful suggestions based on diagnostics
+        if (diagnostics.isMobile && diagnostics.needsHTTPS) {
+          setLocationError('Mobile devices require HTTPS for location access. Please use HTTPS or select a location manually.');
         }
       }
       
     } catch (error) {
       console.error('Location detection failed:', error);
-      setLocationError('An unexpected error occurred while detecting location. Please try again.');
+      setLocationError('An unexpected error occurred while detecting location. Please try again or select a location manually.');
     } finally {
       setLocationLoading(false);
     }
@@ -270,8 +278,29 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
           {/* Location Error */}
           {locationError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700">{locationError}</p>
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">Location Detection Failed</h3>
+                  <p className="text-sm text-red-700 mt-1">{locationError}</p>
+                  <div className="mt-2">
+                    <p className="text-xs text-red-600">
+                      <strong>Try these solutions:</strong>
+                    </p>
+                    <ul className="text-xs text-red-600 mt-1 list-disc list-inside">
+                      <li>Allow location access in your browser settings</li>
+                      <li>Check your internet connection</li>
+                      <li>Try typing your location manually</li>
+                      <li>If on mobile, ensure you're using HTTPS</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
