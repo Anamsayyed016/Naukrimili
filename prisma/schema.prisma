@@ -17,7 +17,7 @@ model Job {
   companyLogo     String?   // Company logo URL
   location        String?
   country         String    @default("IN")
-  description     String    @db.Text
+  description     String
   requirements    String[]  @default([])
   applyUrl        String?   // @deprecated - use apply_url instead
   apply_url       String?   // New field for internal application URL

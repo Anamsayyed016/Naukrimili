@@ -70,7 +70,10 @@ export async function getCurrentLocationGPS(options: MobileGeolocationOptions = 
     maximumAge = 300000
   } = options;
 
+  console.log('📍 Starting GPS geolocation...');
+
   if (!isGeolocationSupported()) {
+    console.warn('❌ Geolocation not supported by this browser');
     return {
       success: false,
       error: 'Geolocation not supported by this browser',
@@ -78,20 +81,43 @@ export async function getCurrentLocationGPS(options: MobileGeolocationOptions = 
     };
   }
 
-  // Mobile devices need HTTPS for geolocation
+  // Check HTTPS requirement for mobile
   if (isMobileDevice() && isHTTPSRequired()) {
+    console.warn('❌ Mobile device requires HTTPS for geolocation');
     return {
       success: false,
-      error: 'Geolocation requires HTTPS on mobile devices',
+      error: 'Geolocation requires HTTPS on mobile devices. Please use HTTPS or try the IP-based location detection.',
       errorCode: -1,
       source: 'ip'
     };
   }
 
+  // Check if we're on localhost (development)
+  const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  console.log(`📍 GPS geolocation settings:`, {
+    enableHighAccuracy,
+    timeout,
+    maximumAge,
+    isMobile: isMobileDevice(),
+    isHTTPS: !isHTTPSRequired(),
+    isLocalhost
+  });
+
   return new Promise((resolve) => {
+    const startTime = Date.now();
+    
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
+        const duration = Date.now() - startTime;
+        const { latitude, longitude, accuracy } = position.coords;
+        
+        console.log(`✅ GPS location obtained in ${duration}ms:`, {
+          lat: latitude,
+          lng: longitude,
+          accuracy: accuracy
+        });
         
         try {
           // Try to get city name from coordinates
@@ -106,6 +132,7 @@ export async function getCurrentLocationGPS(options: MobileGeolocationOptions = 
             source: 'gps'
           });
         } catch (error) {
+          console.warn('⚠️ Reverse geocoding failed, returning coordinates only:', error);
           // Return coordinates even if reverse geocoding fails
           resolve({
             success: true,
@@ -115,18 +142,23 @@ export async function getCurrentLocationGPS(options: MobileGeolocationOptions = 
         }
       },
       (error) => {
+        const duration = Date.now() - startTime;
         let errorMessage = 'Unknown geolocation error';
+        
+        console.warn(`❌ GPS geolocation failed after ${duration}ms:`, error);
         
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = 'Location access denied';
+            errorMessage = 'Location access denied. Please allow location access in your browser settings and try again.';
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Location information unavailable';
+            errorMessage = 'Location information unavailable. Please check your GPS settings and internet connection.';
             break;
           case error.TIMEOUT:
-            errorMessage = 'Location request timed out';
+            errorMessage = 'Location request timed out. Please check your internet connection and try again.';
             break;
+          default:
+            errorMessage = `Geolocation error: ${error.message || 'Unknown error'}`;
         }
         
         resolve({
@@ -146,38 +178,76 @@ export async function getCurrentLocationGPS(options: MobileGeolocationOptions = 
  */
 export async function getLocationFromIP(): Promise<GeolocationResult> {
   const services = [
-    'https://ipapi.co/json/',
-    'https://ipinfo.io/json'
+    {
+      url: 'https://ipapi.co/json/',
+      parser: (data: any) => ({
+        city: data.city,
+        country: data.country_code,
+        state: data.region
+      })
+    },
+    {
+      url: 'https://ipinfo.io/json',
+      parser: (data: any) => ({
+        city: data.city,
+        country: data.country,
+        state: data.region
+      })
+    },
+    {
+      url: 'https://api.ipify.org?format=json',
+      parser: (data: any) => ({
+        city: 'Unknown',
+        country: 'Unknown',
+        state: 'Unknown'
+      })
+    }
   ];
 
   for (const service of services) {
     try {
-      const response = await fetch(service, {
+      console.log(`🌐 Trying IP service: ${service.url}`);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(service.url, {
         method: 'GET',
         mode: 'cors',
-        headers: { 'Accept': 'application/json' }
+        headers: { 
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; JobPortal/1.0)'
+        },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (response.ok) {
         const data = await response.json();
+        const locationData = service.parser(data);
+        
+        console.log(`✅ IP service success: ${service.url}`, locationData);
         
         return {
           success: true,
-          city: data.city,
-          country: data.country_code || data.country,
-          state: data.region || data.state,
+          city: locationData.city,
+          country: locationData.country,
+          state: locationData.state,
           source: 'ip'
         };
+      } else {
+        console.warn(`❌ IP service failed with status ${response.status}: ${service.url}`);
       }
     } catch (error) {
-      console.warn(`IP service ${service} failed:`, error);
+      console.warn(`❌ IP service error: ${service.url}`, error);
       continue;
     }
   }
 
   return {
     success: false,
-    error: 'Failed to get location from IP',
+    error: 'All IP geolocation services failed. Please check your internet connection or try again later.',
     source: 'ip'
   };
 }
@@ -231,23 +301,58 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ city?: string
  * Smart location detection that tries GPS first, then falls back to IP
  */
 export async function getSmartLocation(options: MobileGeolocationOptions = {}): Promise<GeolocationResult> {
-  // Check if we can use GPS
-  if (isMobileDevice() && isHTTPSRequired()) {
-    console.log('📍 Mobile without HTTPS - using IP fallback');
-    return getLocationFromIP();
-  }
-
-  // Try GPS first
-  console.log('📍 Attempting GPS geolocation...');
-  const gpsResult = await getCurrentLocationGPS(options);
+  console.log('🚀 Starting smart location detection...');
   
-  if (gpsResult.success) {
-    return gpsResult;
+  const isMobile = isMobileDevice();
+  const needsHTTPS = isHTTPSRequired();
+  const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  console.log('📍 Environment check:', {
+    isMobile,
+    needsHTTPS,
+    isLocalhost,
+    protocol: typeof window !== 'undefined' ? window.location.protocol : 'unknown'
+  });
+
+  // Strategy 1: Try GPS if conditions are met
+  if (!isMobile || !needsHTTPS || isLocalhost) {
+    console.log('📍 Attempting GPS geolocation...');
+    const gpsResult = await getCurrentLocationGPS(options);
+    
+    if (gpsResult.success) {
+      console.log('✅ GPS geolocation successful');
+      return gpsResult;
+    } else {
+      console.log('❌ GPS geolocation failed:', gpsResult.error);
+    }
+  } else {
+    console.log('📍 Skipping GPS - mobile device requires HTTPS');
   }
 
-  // GPS failed, use IP fallback
-  console.log('📍 GPS failed, using IP fallback...');
-  return getLocationFromIP();
+  // Strategy 2: IP-based fallback
+  console.log('📍 Falling back to IP-based location detection...');
+  const ipResult = await getLocationFromIP();
+  
+  if (ipResult.success) {
+    console.log('✅ IP-based location successful');
+    return ipResult;
+  } else {
+    console.log('❌ IP-based location failed:', ipResult.error);
+  }
+
+  // Strategy 3: Manual fallback with helpful error
+  const errorMessage = isMobile && needsHTTPS 
+    ? 'Location detection failed. Mobile devices require HTTPS for GPS access. Please use HTTPS or select a location manually.'
+    : 'Location detection failed. Please check your internet connection or select a location manually.';
+
+  console.log('❌ All location detection methods failed');
+  
+  return {
+    success: false,
+    error: errorMessage,
+    source: 'manual'
+  };
 }
 
 /**
@@ -256,14 +361,63 @@ export async function getSmartLocation(options: MobileGeolocationOptions = {}): 
 export function getGeolocationErrorMessage(errorCode?: number): string {
   switch (errorCode) {
     case 1:
-      return 'Location access denied. Please allow location access in your browser settings.';
+      return 'Location access denied. Please allow location access in your browser settings and try again.';
     case 2:
-      return 'Location information unavailable. Please check your GPS settings.';
+      return 'Location information unavailable. Please check your GPS settings and internet connection.';
     case 3:
-      return 'Location request timed out. Please check your internet connection.';
+      return 'Location request timed out. Please check your internet connection and try again.';
     case -1:
-      return 'Geolocation requires HTTPS on mobile devices.';
+      return 'Geolocation requires HTTPS on mobile devices. Please use HTTPS or select a location manually.';
     default:
       return 'Failed to detect location. Please try again or select a location manually.';
   }
+}
+
+/**
+ * Get comprehensive geolocation diagnostics
+ */
+export function getGeolocationDiagnostics(): {
+  supported: boolean;
+  isMobile: boolean;
+  needsHTTPS: boolean;
+  isLocalhost: boolean;
+  protocol: string;
+  userAgent: string;
+  recommendations: string[];
+} {
+  const supported = isGeolocationSupported();
+  const isMobile = isMobileDevice();
+  const needsHTTPS = isHTTPSRequired();
+  const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  const protocol = typeof window !== 'undefined' ? window.location.protocol : 'unknown';
+  const userAgent = typeof window !== 'undefined' ? navigator.userAgent : 'unknown';
+
+  const recommendations: string[] = [];
+
+  if (!supported) {
+    recommendations.push('Geolocation is not supported by this browser');
+  }
+
+  if (isMobile && needsHTTPS) {
+    recommendations.push('Mobile devices require HTTPS for geolocation to work');
+  }
+
+  if (!isMobile && needsHTTPS) {
+    recommendations.push('Consider using HTTPS for better geolocation support');
+  }
+
+  if (isLocalhost) {
+    recommendations.push('Development environment detected - geolocation should work');
+  }
+
+  return {
+    supported,
+    isMobile,
+    needsHTTPS,
+    isLocalhost,
+    protocol,
+    userAgent,
+    recommendations
+  };
 }
