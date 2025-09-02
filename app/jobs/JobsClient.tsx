@@ -206,10 +206,14 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               <button
                 onClick={detectCurrentLocation}
                 disabled={locationLoading}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Detect my location"
               >
-                <Navigation className="w-4 h-4" />
+                {locationLoading ? (
+                  <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                ) : (
+                  <Navigation className="w-4 h-4" />
+                )}
               </button>
             </div>
 
@@ -225,6 +229,42 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               <option value="CA">Canada</option>
               <option value="AU">Australia</option>
               <option value="AE">UAE</option>
+            </select>
+          </div>
+
+          {/* Additional Filters */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Job Type</option>
+              <option value="full-time">Full Time</option>
+              <option value="part-time">Part Time</option>
+              <option value="contract">Contract</option>
+              <option value="remote">Remote</option>
+            </select>
+            
+            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Experience Level</option>
+              <option value="entry">Entry Level</option>
+              <option value="mid">Mid Level</option>
+              <option value="senior">Senior Level</option>
+              <option value="executive">Executive</option>
+            </select>
+            
+            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Salary Range</option>
+              <option value="0-3">₹0-3 LPA</option>
+              <option value="3-6">₹3-6 LPA</option>
+              <option value="6-10">₹6-10 LPA</option>
+              <option value="10+">₹10+ LPA</option>
+            </select>
+            
+            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Industry</option>
+              <option value="technology">Technology</option>
+              <option value="finance">Finance</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="education">Education</option>
+              <option value="retail">Retail</option>
             </select>
           </div>
 
@@ -248,7 +288,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         {/* Results */}
         <div className="space-y-6">
           {/* Results Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
                 {jobs.length > 0 ? `${jobs.length} Jobs Found` : 'No Jobs Found'}
@@ -256,6 +296,19 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               {searchQuery && (
                 <p className="text-gray-600">Results for "{searchQuery}"</p>
               )}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">View:</span>
+              <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="List View">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <button className="p-2 text-blue-600 hover:text-blue-700 transition-colors" title="Grid View">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+              </button>
             </div>
           </div>
 
