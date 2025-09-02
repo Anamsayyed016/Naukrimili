@@ -8,7 +8,7 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
 
   // Output optimization
-  output: 'standalone',
+  // output: 'standalone',
   trailingSlash: false,
 
   // Image optimization

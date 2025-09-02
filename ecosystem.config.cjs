@@ -2,7 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'jobportal',
-      script: '.next/standalone/server.js',
+      script: 'node_modules/.bin/next',
+      args: 'start',
       instances: 1,
       exec_mode: 'fork',
       env: {

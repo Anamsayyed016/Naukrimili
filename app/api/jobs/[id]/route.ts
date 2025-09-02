@@ -9,11 +9,11 @@ export async function GET(
     const { id } = params;
     
     // Try to parse as numeric ID first
-    let jobId = parseInt(id);
-    let isNumericId = !isNaN(jobId);
+    let jobId = id;
+    let isNumericId = false;
     
     // If not numeric, check if it's an external ID
-    if (!isNumericId) {
+    if (true) {
       // Check if this is an external job ID (starts with 'ext-')
       if (id.startsWith('ext-')) {
         // For external jobs, return detailed job information

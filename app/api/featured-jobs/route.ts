@@ -4,62 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-
-// Mock featured jobs data
-const mockFeaturedJobs = [
-  {
-    id: 1,
-    title: "Senior Software Engineer",
-    company: "TechCorp",
-    location: "Bangalore, Karnataka",
-    salary: "15-25 LPA",
-    jobType: "Full-time",
-    isRemote: false,
-    isFeatured: true,
-    description: "We are looking for a Senior Software Engineer to join our team...",
-    requirements: ["5+ years experience", "React", "Node.js", "AWS"],
-    postedAt: "2024-01-15T10:00:00Z"
-  },
-  {
-    id: 2,
-    title: "Product Manager",
-    company: "InnovateSoft",
-    location: "Mumbai, Maharashtra",
-    salary: "20-35 LPA",
-    jobType: "Full-time",
-    isRemote: true,
-    isFeatured: true,
-    description: "Lead product strategy and development for our SaaS platform...",
-    requirements: ["3+ years PM experience", "Agile", "User Research", "Analytics"],
-    postedAt: "2024-01-14T14:30:00Z"
-  },
-  {
-    id: 3,
-    title: "Data Scientist",
-    company: "Digital Solutions",
-    location: "Delhi, NCR",
-    salary: "18-30 LPA",
-    jobType: "Full-time",
-    isRemote: false,
-    isFeatured: true,
-    description: "Join our AI/ML team to build cutting-edge data solutions...",
-    requirements: ["Python", "Machine Learning", "Statistics", "SQL"],
-    postedAt: "2024-01-13T09:15:00Z"
-  },
-  {
-    id: 4,
-    title: "UX Designer",
-    company: "Future Systems",
-    location: "Hyderabad, Telangana",
-    salary: "12-20 LPA",
-    jobType: "Full-time",
-    isRemote: true,
-    isFeatured: true,
-    description: "Create amazing user experiences for our mobile apps...",
-    requirements: ["Figma", "User Research", "Prototyping", "Design Systems"],
-    postedAt: "2024-01-12T16:45:00Z"
-  }
-];
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -68,32 +13,85 @@ export async function GET(request: NextRequest) {
     const location = searchParams.get('location');
     const category = searchParams.get('category');
 
-    let filteredJobs = mockFeaturedJobs;
+    // Build where clause
+    const whereClause: any = {
+      isFeatured: true,
+      isActive: true
+    };
 
     // Filter by location if specified
     if (location) {
-      filteredJobs = filteredJobs.filter(job => 
-        job.location.toLowerCase().includes(location.toLowerCase())
-      );
+      whereClause.location = {
+        contains: location,
+        mode: 'insensitive'
+      };
     }
 
-    // Filter by category if specified
+    // Filter by category/sector if specified
     if (category) {
-      filteredJobs = filteredJobs.filter(job => 
-        job.title.toLowerCase().includes(category.toLowerCase()) ||
-        job.description.toLowerCase().includes(category.toLowerCase())
-      );
+      whereClause.OR = [
+        { title: { contains: category, mode: 'insensitive' } },
+        { description: { contains: category, mode: 'insensitive' } },
+        { sector: { contains: category, mode: 'insensitive' } }
+      ];
     }
 
-    // Limit results
-    const limitedJobs = filteredJobs.slice(0, limit);
+    const jobs = await prisma.job.findMany({
+      where: whereClause,
+      take: limit,
+      orderBy: [
+        { isUrgent: 'desc' },
+        { createdAt: 'desc' }
+      ],
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        location: true,
+        salary: true,
+        salaryMin: true,
+        salaryMax: true,
+        salaryCurrency: true,
+        jobType: true,
+        isRemote: true,
+        isFeatured: true,
+        isUrgent: true,
+        description: true,
+        requirements: true,
+        skills: true,
+        postedAt: true,
+        createdAt: true,
+        sector: true,
+        experienceLevel: true
+      }
+    });
+
+    const formattedJobs = jobs.map(job => ({
+      id: job.id,
+      title: job.title,
+      company: job.company,
+      location: job.location,
+      salary: job.salary || (job.salaryMin && job.salaryMax ? 
+        `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'INR'}` : null),
+      jobType: job.jobType,
+      isRemote: job.isRemote,
+      isFeatured: job.isFeatured,
+      isUrgent: job.isUrgent,
+      description: job.description,
+      requirements: job.requirements || [],
+      skills: job.skills || [],
+      sector: job.sector,
+      experienceLevel: job.experienceLevel,
+      postedAt: job.postedAt?.toISOString() || job.createdAt.toISOString()
+    }));
 
     const res = NextResponse.json({
       success: true,
-      jobs: limitedJobs,
-      total: limitedJobs.length,
-      message: `Found ${limitedJobs.length} featured jobs`
+      jobs: formattedJobs,
+      total: formattedJobs.length,
+      message: `Found ${formattedJobs.length} featured jobs`
     });
+
     // Short cache for homepage sections
     res.headers.set('Cache-Control', 'public, max-age=120, s-maxage=120, stale-while-revalidate=600');
     return res;
@@ -103,7 +101,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch featured jobs',
-      jobs: mockFeaturedJobs.slice(0, 4) // Fallback to first 4 jobs
+      jobs: []
     }, { status: 500 });
   }
 }
