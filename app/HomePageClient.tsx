@@ -1,11 +1,12 @@
 "use client";
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, MapPin, Building, Briefcase, Users, TrendingUp, ArrowRight, Brain, Shield, Zap, Upload, FileText, CheckCircle, Sparkles, Globe, Award, Clock, UserCheck, Building2, BriefcaseIcon, User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
+import { useRouter } from 'next/navigation';
 
 interface Job {
   id: number;
@@ -44,6 +45,7 @@ export default function HomePageClient({
   const [selectedRole, setSelectedRole] = useState<'jobseeker' | 'employer' | null>(null);
   const [showJobSeekerOptions, setShowJobSeekerOptions] = useState(false);
   const [showEmployerOptions, setShowEmployerOptions] = useState(false);
+  const router = useRouter();
 
   const handleRoleSelect = (role: 'jobseeker' | 'employer') => {
     setSelectedRole(role);
@@ -64,6 +66,28 @@ export default function HomePageClient({
 
   // If user is authenticated, redirect to appropriate dashboard
   if (status === 'authenticated' && session?.user) {
+    // Add automatic redirect effect
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        // Redirect based on user role
+        const userRole = session.user.role || 'jobseeker';
+        switch (userRole) {
+          case 'admin':
+            router.push('/dashboard/admin');
+            break;
+          case 'employer':
+            router.push('/dashboard/company');
+            break;
+          case 'jobseeker':
+          default:
+            router.push('/dashboard/jobseeker');
+            break;
+        }
+      }, 2000); // 2 second delay to show welcome message
+
+      return () => clearTimeout(timer);
+    }, [session.user.role, router]);
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center">
         <div className="text-center">
@@ -72,7 +96,13 @@ export default function HomePageClient({
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Welcome back, {session.user.name}! 👋</h1>
           <p className="text-lg text-gray-600 mb-8">Redirecting you to your dashboard...</p>
-          <div className="flex justify-center gap-4">
+          
+          {/* Progress indicator */}
+          <div className="w-64 h-2 bg-gray-200 rounded-full mx-auto mb-8 overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full animate-pulse"></div>
+          </div>
+          
+          <div className="flex justify-center gap-4 mb-6">
             <Link
               href="/dashboard"
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors gap-2"
@@ -85,6 +115,31 @@ export default function HomePageClient({
             >
               Browse Jobs <ArrowRight className="w-4 h-4" />
             </Link>
+          </div>
+          
+          {/* Logout button for users who want to escape */}
+          <div className="text-center">
+            <button
+              onClick={() => {
+                // Use the enhanced logout from useAuth
+                if (typeof window !== 'undefined') {
+                  // Clear all browser data first
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  
+                  // Clear cookies
+                  document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                  });
+                  
+                  // Redirect to auth reset page
+                  window.location.href = '/auth/reset';
+                }
+              }}
+              className="text-sm text-gray-500 hover:text-red-600 transition-colors underline"
+            >
+              Not you? Sign out and start fresh
+            </button>
           </div>
         </div>
       </div>

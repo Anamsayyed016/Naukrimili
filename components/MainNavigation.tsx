@@ -98,6 +98,18 @@ export default function MainNavigation({
                 <span className="xl:hidden">Post</span>
               </Link>
             )}
+            
+            {/* Logout Button - Always visible when authenticated */}
+            {isMounted && isAuthenticated && user && (
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden xl:inline">Sign Out</span>
+                <span className="xl:hidden">Logout</span>
+              </button>
+            )}
           </div>
 
           {/* Search Bar - Responsive */}

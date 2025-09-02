@@ -9,6 +9,7 @@ import { useSession, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User, UserRole, AuthState, BiometricState, Credentials } from '@/types/auth';
+import { clearAllBrowserAuthData, forceRefreshAndClear, clearAuthAndRedirect } from '@/lib/auth-utils';
 
 interface ExtendedUser extends User {
   role: UserRole; // Use the correct UserRole type
@@ -39,6 +40,17 @@ export function useAuth(): AuthState & {
   redirectToSignIn: (callbackUrl?: string) => void;
   requireAuth: (callbackUrl?: string) => boolean;
   requireRole: (role: string, fallbackUrl?: string) => boolean;
+  
+  // Force clear and reset methods
+  forceClearAllAuth: () => Promise<void>;
+  forceRefreshAndClear: () => void;
+  clearAuthAndRedirect: (url?: string) => void;
+  checkRemainingAuthData: () => {
+    hasLocalStorage: boolean;
+    hasSessionStorage: boolean;
+    hasCookies: boolean;
+    remainingItems: string[];
+  };
   
   // Role checks
   hasRole: (role: string) => boolean;
@@ -98,34 +110,23 @@ export function useAuth(): AuthState & {
   // Sign out with redirect
   const logout = useCallback(async (callbackUrl?: string) => {
     try {
-      // Clear all storage before signing out
-      if (typeof window !== 'undefined') {
-        // Clear localStorage
-        localStorage.clear();
-        // Clear sessionStorage  
-        sessionStorage.clear();
-        
-        // Clear specific auth keys
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        localStorage.removeItem('auth_token');
-        sessionStorage.removeItem('auth_token');
-        
-        // Clear any other auth-related keys
-        Object.keys(localStorage).forEach(key => {
-          if (key.includes('auth') || key.includes('user') || key.includes('token')) {
-            localStorage.removeItem(key);
-          }
-        });
-      }
+      console.log('🔄 Starting comprehensive logout process...');
+      
+      // Use the comprehensive browser clearing utility
+      clearAllBrowserAuthData();
       
       // Sign out from NextAuth
       await nextAuthSignOut({
         callbackUrl: callbackUrl || '/',
         redirect: true,
       });
+      
+      console.log('✅ Logout completed successfully');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('❌ Logout error:', error);
+      // Even if NextAuth fails, we've cleared browser data
+      // Force redirect to ensure user is logged out
+      window.location.href = callbackUrl || '/';
     }
   }, []);
 
@@ -218,6 +219,53 @@ export function useAuth(): AuthState & {
 
   const authUser = session?.user as ExtendedUser | undefined;
 
+  // Force clear all authentication data (both client and server)
+  const forceClearAllAuth = useCallback(async () => {
+    try {
+      console.log('🔄 Force clearing all authentication data...');
+      
+      // Clear browser data
+      clearAllBrowserAuthData();
+      
+      // Call server-side force clear endpoint
+      const response = await fetch('/api/auth/force-clear', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        console.log('✅ Server-side auth data cleared successfully');
+      } else {
+        console.warn('⚠️ Server-side clear may have failed, but browser data is cleared');
+      }
+      
+      // Force refresh the page
+      forceRefreshAndClear();
+    } catch (error) {
+      console.error('❌ Error during force clear:', error);
+      // Even if server call fails, browser data is cleared
+      forceRefreshAndClear();
+    }
+  }, []);
+
+  // Force refresh and clear (browser only)
+  const forceRefreshAndClearHandler = useCallback(() => {
+    forceRefreshAndClear();
+  }, []);
+
+  // Clear auth and redirect
+  const clearAuthAndRedirectHandler = useCallback((url: string = '/') => {
+    clearAuthAndRedirect(url);
+  }, []);
+
+  // Check remaining auth data
+  const checkRemainingAuthData = useCallback(() => {
+    const { checkRemainingAuthData: checkAuth } = require('@/lib/auth-utils');
+    return checkAuth();
+  }, []);
+
   return {
     // Core auth state
     user: authUser || null,
@@ -232,6 +280,12 @@ export function useAuth(): AuthState & {
     redirectToSignIn,
     requireAuth,
     requireRole,
+    
+    // Force clear and reset methods
+    forceClearAllAuth,
+    forceRefreshAndClear: forceRefreshAndClearHandler,
+    clearAuthAndRedirect: clearAuthAndRedirectHandler,
+    checkRemainingAuthData,
     
     // Role checks
     hasRole,
