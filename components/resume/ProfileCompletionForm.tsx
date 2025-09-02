@@ -45,9 +45,11 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 
 	// Auto-fill form when initialData changes
 	useEffect(() => {
-		if (initialData) {
+		if (initialData && Object.keys(initialData).length > 0) {
 			console.log('🔄 Updating form with initial data:', initialData);
-			setProfileData({
+			
+			// Enhanced data mapping with fallbacks
+			const mappedData = {
 				fullName: initialData.fullName || initialData.name || '',
 				email: initialData.email || '',
 				phone: initialData.phone || '',
@@ -59,13 +61,15 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				expectedSalary: initialData.expectedSalary || initialData.salary || '',
 				linkedin: initialData.linkedin || '',
 				portfolio: initialData.portfolio || '',
-				// Add missing fields for comprehensive data mapping
 				summary: initialData.summary || '',
 				projects: Array.isArray(initialData.projects) ? initialData.projects : [],
 				certifications: Array.isArray(initialData.certifications) ? initialData.certifications : [],
 				languages: Array.isArray(initialData.languages) ? initialData.languages : [],
 				preferredJobType: initialData.preferredJobType || '',
-			});
+			};
+			
+			console.log('📝 Mapped form data:', mappedData);
+			setProfileData(mappedData);
 		}
 	}, [initialData]);
 

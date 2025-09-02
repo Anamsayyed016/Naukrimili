@@ -80,7 +80,7 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
       if (result?.error) {
         setError('Invalid credentials')
       } else {
-        window.location.href = '/dashboard'
+        window.location.href = '/'
       }
     } catch (error) {
       setError('Authentication failed')
@@ -99,7 +99,7 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
       console.log('🔐 Mobile auth method:', authMethod);
 
       const result = await signIn(provider, {
-        callbackUrl: '/dashboard',
+        callbackUrl: '/',
         redirect: authMethod.method === 'redirect' || authMethod.method === 'fallback'
       });
 

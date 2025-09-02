@@ -132,41 +132,22 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
 			setUploaded(true);
 			setFile(null);
 			setShowProfileForm(true);
-			
+
 			// ADDED: Debug logging to verify data structure
 			console.log('✅ ResumeUpload - Extracted Profile Data:', {
-				fullName: result.profile.fullName,
-				email: result.profile.email,
-				skillsCount: result.profile.skills?.length || 0,
-				experienceCount: result.profile.experience?.length || 0,
-				educationCount: result.profile.education?.length || 0,
-				summary: result.profile.summary?.substring(0, 100) + '...',
-				confidence: result.confidence
+				profile: result.profile,
+				aiSuccess: result.aiSuccess,
+				confidence: result.confidence,
+				resumeId: result.resumeId
 			});
-			
-			console.log('✅ Resume processed successfully:', result.profile);
-        
-        // Show success message based on AI success
-        if (result.aiSuccess) {
-          toast({
-            title: 'AI Analysis Complete!',
-            description: `Successfully extracted ${result.profile.skills.length} skills and ${result.profile.experience.length} experiences with ${result.confidence}% confidence`,
-          });
-        } else {
-          toast({
-            title: 'Basic Processing Complete',
-            description: 'Resume processed with basic extraction. You can manually edit the details.',
-            variant: 'default',
-          });
-        }
-        
-        // Call onComplete callback if provided
-        if (onComplete) {
-          onComplete();
-        }
-      } else {
-        throw new Error(result.error || 'Failed to process resume');
-      }
+
+			toast({
+				title: 'Resume Analyzed!',
+				description: `AI extracted ${result.profile.skills?.length || 0} skills with ${result.confidence}% confidence`,
+			});
+		} else {
+			throw new Error(result.error || 'Failed to analyze resume');
+		}
     } catch (err: any) {
       console.error('Upload error:', err);
       setError(err?.message || 'Upload failed. Please try again.');

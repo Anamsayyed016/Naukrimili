@@ -109,6 +109,12 @@ const colorSchemes = [
   { id: 'gray', name: 'Neutral Gray', class: 'bg-gray-600' }
 ];
 
+const fontOptions = [
+  { id: 'sans', name: 'Sans-serif' },
+  { id: 'serif', name: 'Serif' },
+  { id: 'mono', name: 'Monospace' }
+];
+
 export default function ResumeBuilderPage() {
   const { user } = useAuth();
   const { data: session, status } = useSession();
@@ -116,6 +122,7 @@ export default function ResumeBuilderPage() {
   const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
   const [selectedColor, setSelectedColor] = useState('blue');
+  const [selectedFont, setSelectedFont] = useState('sans');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [atsScore, setAtsScore] = useState(0);
@@ -306,6 +313,7 @@ export default function ResumeBuilderPage() {
           builderData: resumeData,
           templateStyle: selectedTemplate,
           colorScheme: selectedColor,
+          fontFamily: selectedFont,
           atsScore: score,
           fileName: `${resumeData.personalInfo.fullName || 'Resume'}_${selectedTemplate}`,
           isBuilder: true
@@ -350,7 +358,7 @@ export default function ResumeBuilderPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Template Style
@@ -380,6 +388,23 @@ export default function ResumeBuilderPage() {
                     {colorSchemes.map(scheme => (
                       <SelectItem key={scheme.id} value={scheme.id}>
                         {scheme.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Font Family
+                </label>
+                <Select value={selectedFont} onValueChange={setSelectedFont}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {fontOptions.map(font => (
+                      <SelectItem key={font.id} value={font.id}>
+                        {font.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

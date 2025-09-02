@@ -175,6 +175,6 @@ export const authOptions: NextAuthOptions = {
   jwt: {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  debug: true, // Enable debug mode to see detailed logs
+  debug: false, // Disable debug mode to reduce conflicts
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key-change-in-production',
 };
