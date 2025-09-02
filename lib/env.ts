@@ -40,6 +40,11 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   
+  // Postmark Email Service
+  POSTMARK_SERVER_TOKEN: z.string().optional(),
+  POSTMARK_FROM_EMAIL: z.string().email().optional(),
+  POSTMARK_FROM_NAME: z.string().optional(),
+  
   // Security
   ENCRYPTION_KEY: z.string().optional(),
   JWT_SECRET: z.string().optional(),
