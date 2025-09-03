@@ -74,23 +74,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sync with NextAuth session when available
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
-      // If NextAuth session is available, use it instead of stored data
-      const nextAuthUser: User = {
-        id: session.user.id || '',
-        name: session.user.name || '',
-        email: session.user.email || '',
-        role: (session.user as any)?.role || 'jobseeker',
-        isVerified: true,
-        isActive: true,
-        // Add other fields as needed
-      };
+      const user = session.user as any;
       
-      setUser(nextAuthUser);
-      setToken('nextauth-session'); // Use a placeholder for NextAuth sessions
-      
-      // Clear stored data since we're using NextAuth
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      // Check if user requires OTP verification for Google OAuth
+      if (user.requiresOTP && user.otpPurpose === 'gmail-oauth') {
+        // User is in Google OAuth OTP verification flow - don't set as authenticated yet
+        setUser(null);
+        setToken(null);
+        console.log('🔐 Google OAuth user requires OTP verification, not setting as authenticated');
+      } else {
+        // User is fully authenticated
+        const nextAuthUser: User = {
+          id: session.user.id || '',
+          name: session.user.name || '',
+          email: session.user.email || '',
+          role: user?.role || 'jobseeker',
+          isVerified: user?.isVerified !== false, // Use session verification status
+          isActive: true,
+          // Add other fields as needed
+        };
+        
+        setUser(nextAuthUser);
+        setToken('nextauth-session'); // Use a placeholder for NextAuth sessions
+        
+        // Clear stored data since we're using NextAuth
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
     } else if (status === 'unauthenticated') {
       // If NextAuth session is not available, check stored data
       const storedUser = localStorage.getItem('user');

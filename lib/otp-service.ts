@@ -10,14 +10,14 @@ import { getPostmarkService } from './postmark-service';
 
 export interface OTPData {
   email: string;
-  purpose: 'login' | 'registration' | 'verification';
+  purpose: 'login' | 'registration' | 'verification' | 'gmail-oauth';
   userName?: string;
 }
 
 export interface OTPVerification {
   email: string;
   otp: string;
-  purpose: string;
+  purpose: 'login' | 'registration' | 'verification' | 'gmail-oauth';
 }
 
 export interface OTPResult {
@@ -34,6 +34,7 @@ class OTPService {
 
   /**
    * Generate and send OTP via email
+   * Supports: login, registration, verification, gmail-oauth
    */
   async generateAndSendOTP(data: OTPData): Promise<OTPResult> {
     try {

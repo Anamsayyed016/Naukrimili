@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 const sendOTPSchema = z.object({
   email: z.string().email('Invalid email address'),
-  purpose: z.enum(['login', 'registration', 'verification']),
+  purpose: z.enum(['login', 'registration', 'verification', 'gmail-oauth']),
   userName: z.string().optional()
 });
 
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const otpService = getOTPService();
     const result = await otpService.generateAndSendOTP({
       email: validatedData.email,
-      purpose: validatedData.purpose,
+      purpose: validatedData.purpose as 'login' | 'registration' | 'verification' | 'gmail-oauth',
       userName: validatedData.userName
     });
 

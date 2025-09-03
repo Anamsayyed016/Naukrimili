@@ -14,7 +14,7 @@ import { Loader2, Mail, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 
 interface OTPVerificationProps {
   email: string;
-  purpose: 'login' | 'registration' | 'verification';
+  purpose: 'login' | 'registration' | 'verification' | 'gmail-oauth';
   userName?: string;
   onVerificationSuccess: (data: any) => void;
   onBack: () => void;

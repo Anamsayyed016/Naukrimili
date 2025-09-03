@@ -9,7 +9,7 @@ export interface OTPEmailData {
   to: string;
   otp: string;
   userName?: string;
-  purpose: 'login' | 'registration' | 'verification';
+  purpose: 'login' | 'registration' | 'verification' | 'gmail-oauth';
 }
 
 export interface PostmarkConfig {
@@ -129,7 +129,8 @@ class PostmarkService {
     const subjects = {
       login: 'Your Login Verification Code',
       registration: 'Verify Your Email Address',
-      verification: 'Email Verification Code'
+      verification: 'Email Verification Code',
+      'gmail-oauth': 'Complete Your Gmail Sign-In'
     };
     
     return subjects[purpose as keyof typeof subjects] || 'Your Verification Code';
@@ -139,7 +140,8 @@ class PostmarkService {
     const purposeText = {
       login: 'login to your account',
       registration: 'complete your registration',
-      verification: 'verify your email address'
+      verification: 'verify your email address',
+      'gmail-oauth': 'complete your Gmail sign-in'
     };
 
     return `
@@ -200,7 +202,8 @@ class PostmarkService {
     const purposeText = {
       login: 'login to your account',
       registration: 'complete your registration',
-      verification: 'verify your email address'
+      verification: 'verify your email address',
+      'gmail-oauth': 'complete your Gmail sign-in'
     };
 
     return `

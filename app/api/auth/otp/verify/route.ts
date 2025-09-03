@@ -11,7 +11,7 @@ import { z } from 'zod';
 const verifyOTPSchema = z.object({
   email: z.string().email('Invalid email address'),
   otp: z.string().length(6, 'OTP must be 6 digits'),
-  purpose: z.enum(['login', 'registration', 'verification'])
+  purpose: z.enum(['login', 'registration', 'verification', 'gmail-oauth'])
 });
 
 export async function POST(request: NextRequest) {
@@ -125,6 +125,59 @@ export async function POST(request: NextRequest) {
         success: true,
         message: 'Email verification successful',
         verified: true
+      });
+
+    } else if (validatedData.purpose === 'gmail-oauth') {
+      // Handle Gmail OAuth + OTP verification - Complete the authentication flow
+      const user = await prisma.user.findUnique({
+        where: { email: validatedData.email },
+        include: {
+          accounts: true,
+          settings: true
+        }
+      });
+
+      if (!user) {
+        return NextResponse.json({
+          success: false,
+          message: 'User not found',
+          error: 'USER_NOT_FOUND'
+        }, { status: 404 });
+      }
+
+      if (!user.isActive) {
+        return NextResponse.json({
+          success: false,
+          message: 'Account is deactivated. Please contact support.',
+          error: 'ACCOUNT_DEACTIVATED'
+        }, { status: 403 });
+      }
+
+      // Mark user as verified and update email verification
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          isVerified: true,
+          emailVerified: new Date(),
+          updatedAt: new Date()
+        }
+      });
+
+      console.log(`✅ Google OAuth + OTP verification completed for ${validatedData.email}`);
+
+      return NextResponse.json({
+        success: true,
+        message: 'Google OAuth verification successful. You are now logged in.',
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          isVerified: true
+        },
+        authMethod: 'gmail-oauth',
+        // Signal to frontend that NextAuth session should be refreshed
+        sessionRefresh: true
       });
     }
 
