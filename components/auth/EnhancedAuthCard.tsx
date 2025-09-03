@@ -46,8 +46,8 @@ export default function EnhancedAuthCard({ onAuthSuccess }: EnhancedAuthCardProp
 
     try {
       const result = await signIn('google', {
-        callbackUrl: '/',
-        redirect: false
+        callbackUrl: '/', // Let middleware handle OTP verification redirect
+        redirect: true // Use redirect for proper flow
       });
 
       if (result?.error) {

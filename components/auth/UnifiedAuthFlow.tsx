@@ -45,9 +45,9 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     setSuccess('');
 
     try {
-      // Direct Google authentication with redirect to role selection
+      // Google authentication - let middleware handle OTP verification redirect
       const result = await signIn('google', {
-        callbackUrl: '/auth/role-selection',
+        callbackUrl: '/', // Let middleware redirect to OTP verification if needed
         redirect: true
       });
 
