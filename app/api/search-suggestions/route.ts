@@ -3,27 +3,25 @@
  * Provides dynamic search suggestions based on actual job data
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const q = (searchParams.get('q') || '').trim();
 
     if (!q || q.length < 2) {
-      return NextResponse.json({ success: true, suggestions: [] });
+      return Response.json({ success: true, suggestions: [] });
     }
 
     const suggestions = getFallbackSuggestions(q);
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       suggestions,
       query: q,
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    return NextResponse.json({ success: true, suggestions: getFallbackSuggestions('') });
+    return Response.json({ success: true, suggestions: getFallbackSuggestions('') });
   }
 }
 
