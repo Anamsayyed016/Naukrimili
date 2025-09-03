@@ -1,6 +1,6 @@
 /**
  * Unified Authentication Flow
- * Complete flow: Gmail → Create Account → OTP → Login → Role Choose → Jobseeker/Employer options
+ * Clean registration and login flow without OTP
  */
 
 'use client';
@@ -13,13 +13,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Mail, User, ArrowLeft, CheckCircle, Briefcase, UserCheck } from 'lucide-react';
-import OTPVerification from './OTPVerification';
 
 interface UnifiedAuthFlowProps {
   onAuthSuccess?: (user: any) => void;
 }
 
-type AuthStep = 'welcome' | 'otp-verification' | 'role-selection' | 'complete-profile';
+type AuthStep = 'welcome' | 'role-selection' | 'complete-profile';
 
 export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps) {
   const [currentStep, setCurrentStep] = useState<AuthStep>('welcome');
@@ -35,9 +34,6 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     role: '',
     authMethod: 'email' // 'email' or 'google'
   });
-  
-  // OTP verification state
-  const [otpPurpose, setOtpPurpose] = useState<'login' | 'registration' | 'verification'>('registration');
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
@@ -45,19 +41,23 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     setSuccess('');
 
     try {
-      // Google authentication - let middleware handle OTP verification redirect
       const result = await signIn('google', {
-        callbackUrl: '/', // Let middleware redirect to OTP verification if needed
+        callbackUrl: '/dashboard',
         redirect: true
       });
 
       if (result?.error) {
         setError('Google authentication failed. Please try again.');
-        setIsLoading(false);
+      } else if (result?.ok) {
+        setSuccess('Google authentication successful!');
+        if (onAuthSuccess) {
+          onAuthSuccess({ authMethod: 'google' });
+        }
       }
     } catch (error) {
       console.error('Google auth error:', error);
       setError('Authentication failed. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -69,53 +69,14 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     setSuccess('');
 
     try {
-      // Send OTP for registration
-      const response = await fetch('/api/auth/otp/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: userData.email,
-          purpose: 'registration',
-          userName: userData.name
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setOtpPurpose('registration');
-        setCurrentStep('otp-verification');
-        setSuccess('OTP sent to your email!');
-      } else {
-        setError(data.message || 'Failed to send OTP');
-      }
+      // Move to role selection after basic info collection
+      setCurrentStep('role-selection');
+      setSuccess('Please select your role to continue');
     } catch (error) {
       console.error('Registration error:', error);
       setError('Network error. Please try again.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleOTPVerificationSuccess = async (data: any) => {
-    setSuccess('Email verified successfully!');
-    
-    if (otpPurpose === 'registration' || otpPurpose === 'verification') {
-      // Move to role selection after OTP verification
-      setCurrentStep('role-selection');
-    } else if (otpPurpose === 'login') {
-      // Handle login success - redirect to role selection or dashboard
-      if (data.user?.role) {
-        // User has role, redirect to appropriate dashboard
-        if (onAuthSuccess) {
-          onAuthSuccess(data.user);
-        }
-      } else {
-        // No role set, redirect to role selection
-        setCurrentStep('role-selection');
-      }
     }
   };
 
@@ -180,23 +141,6 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     setError('');
     setSuccess('');
   };
-
-  // OTP Verification Step
-  if (currentStep === 'otp-verification') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <OTPVerification
-            email={userData.email}
-            purpose={otpPurpose}
-            userName={userData.name}
-            onVerificationSuccess={handleOTPVerificationSuccess}
-            onBack={handleBackToWelcome}
-          />
-        </div>
-      </div>
-    );
-  }
 
   // Role Selection Step
   if (currentStep === 'role-selection') {
@@ -375,7 +319,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     );
   }
 
-  // Welcome Step (Initial) - Clean, modern UI like the image
+  // Welcome Step (Initial) - Clean, modern UI
   return (
     <div className="min-h-screen bg-white">
       <div className="flex min-h-screen">
@@ -406,37 +350,6 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
                 <AlertDescription className="text-green-800">{success}</AlertDescription>
               </Alert>
             )}
-
-            {/* Role Selection */}
-            <div className="mb-6">
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  onClick={() => setUserData(prev => ({ ...prev, role: 'jobseeker' }))}
-                  variant={userData.role === 'jobseeker' ? 'default' : 'outline'}
-                  className={`h-16 flex flex-col items-center justify-center space-y-1 ${
-                    userData.role === 'jobseeker' 
-                      ? 'bg-blue-50 border-blue-300 text-blue-700' 
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  <UserCheck className="h-5 w-5" />
-                  <span className="text-sm font-medium">Candidate</span>
-                </Button>
-                
-                <Button
-                  onClick={() => setUserData(prev => ({ ...prev, role: 'employer' }))}
-                  variant={userData.role === 'employer' ? 'default' : 'outline'}
-                  className={`h-16 flex flex-col items-center justify-center space-y-1 ${
-                    userData.role === 'employer' 
-                      ? 'bg-blue-50 border-blue-300 text-blue-700' 
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  <Briefcase className="h-5 w-5" />
-                  <span className="text-sm font-medium">Employer</span>
-                </Button>
-              </div>
-            </div>
 
             {/* Sign up with section */}
             <div className="mb-6">
@@ -526,7 +439,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
               <Button
                 type="submit"
                 className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
-                disabled={isLoading || !userData.name || !userData.email || !userData.role}
+                disabled={isLoading || !userData.name || !userData.email}
               >
                 {isLoading ? (
                   <>
@@ -543,12 +456,9 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <button
-                  onClick={() => setCurrentStep('otp-verification')}
-                  className="font-medium text-blue-600 hover:text-blue-500"
-                >
+                <a href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
                   Sign in
-                </button>
+                </a>
               </p>
             </div>
           </div>

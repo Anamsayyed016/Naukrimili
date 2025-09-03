@@ -15,14 +15,7 @@ export default withAuth(
       return NextResponse.next();
     }
 
-    // If user is authenticated and requires OTP verification for Google OAuth
-    if (token && (token as any).requiresOTP && (token as any).otpPurpose === 'gmail-oauth') {
-      // Redirect to OTP verification page (except if already on verify-otp page)
-      if (pathname !== '/auth/verify-otp') {
-        console.log('🔄 Middleware: Redirecting to OTP verification for Google OAuth user');
-        return NextResponse.redirect(new URL('/auth/verify-otp', req.url));
-      }
-    }
+
 
     return NextResponse.next();
   },
