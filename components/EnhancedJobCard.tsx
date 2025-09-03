@@ -98,15 +98,15 @@ export default function EnhancedJobCard({
     return (
       <>
         <motion.div
-          className="group bg-white dark:bg-gray-900 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-700 p-4"
+          className="group bg-white dark:bg-gray-900 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-700 p-3 sm:p-4"
           whileHover={{ y: -2 }}
           layoutId={`job-card-${job.id}`}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-2">
                 {showCompanyLogo && job.companyLogo && !imageError && (
-                  <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                     <Image
                       src={job.companyLogo}
                       alt={`${job.company} logo`}
@@ -117,44 +117,48 @@ export default function EnhancedJobCard({
                     />
                   </div>
                 )}
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                   {job.is_urgent && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                    <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
                       <FireIcon className="w-3 h-3" />
-                      Urgent
+                      <span className="hidden sm:inline">Urgent</span>
                     </span>
                   )}
                   {job.is_featured && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
-                      ⭐ Featured
+                    <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
+                      ⭐ <span className="hidden sm:inline">Featured</span>
                     </span>
                   )}
                 </div>
               </div>
               
-              <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1 truncate group-hover:text-blue-600 transition-colors">
+              <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
                 {job.title}
               </h3>
               
-              <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mb-2">
-                <BuildingOffice2Icon className="w-3 h-3 mr-1" />
-                <span className="truncate">{job.company}</span>
-                <span className="mx-2">•</span>
-                <MapPinIcon className="w-3 h-3 mr-1" />
-                <span className="truncate">{job.location}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center text-xs text-gray-600 dark:text-gray-400 mb-2 gap-1 sm:gap-0">
+                <div className="flex items-center">
+                  <BuildingOffice2Icon className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">{job.company}</span>
+                </div>
+                <span className="hidden sm:inline mx-2">•</span>
+                <div className="flex items-center">
+                  <MapPinIcon className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">{job.location}</span>
+                </div>
               </div>
               
               {job.salary_formatted && (
-                <div className="text-green-600 font-medium text-sm mb-2">
+                <div className="text-green-600 font-medium text-xs sm:text-sm mb-2">
                   {job.salary_formatted}
                 </div>
               )}
             </div>
             
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-2 flex-shrink-0">
               <button
                 onClick={handleBookmark}
-                className={`p-2 rounded-lg transition-colors ${
+                className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                   isBookmarked
                     ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
                     : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-500'
@@ -162,9 +166,9 @@ export default function EnhancedJobCard({
                 title={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
               >
                 {isBookmarked ? (
-                  <StarIconSolid className="w-4 h-4" />
+                  <StarIconSolid className="w-3 h-3 sm:w-4 sm:h-4" />
                 ) : (
-                  <StarIcon className="w-4 h-4" />
+                  <StarIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                 )}
               </button>
               
@@ -180,9 +184,10 @@ export default function EnhancedJobCard({
                     window.open(route, '_blank');
                   }
                 }}
-                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
               >
-                {job.source !== 'manual' && job.source_url ? 'Apply on Website' : 'Apply'}
+                <span className="hidden sm:inline">{job.source !== 'manual' && job.source_url ? 'Apply on Website' : 'Apply'}</span>
+                <span className="sm:hidden">Apply</span>
                 <ChevronRightIcon className="w-3 h-3" />
               </button>
             </div>

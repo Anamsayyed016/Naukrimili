@@ -112,47 +112,47 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold mb-2 text-gray-900">{job.title}</h1>
-              <div className="text-gray-600 flex items-center gap-4">
-                <span>{job.company || 'Unknown Company'}</span>
-                <span>•</span>
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900 line-clamp-3">{job.title}</h1>
+              <div className="text-gray-600 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <span className="font-medium">{job.company || 'Unknown Company'}</span>
+                <span className="hidden sm:inline">•</span>
                 <span>{job.location || 'Remote'}</span>
               </div>
             </div>
             {job.isFeatured && (
-              <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+              <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full self-start sm:self-auto">
                 Featured
               </span>
             )}
           </div>
 
           {job.salary && (
-            <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <span className="text-green-700 font-semibold">💰 {job.salary}</span>
+            <div className="mb-6 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg">
+              <span className="text-green-700 font-semibold text-lg">💰 {job.salary}</span>
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500">Job Type:</span>
-              <span className="font-medium">{job.jobType || 'Not specified'}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-500 text-sm sm:text-base">Job Type:</span>
+              <span className="font-medium text-sm sm:text-base">{job.jobType || 'Not specified'}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500">Experience:</span>
-              <span className="font-medium">{job.experienceLevel || 'Not specified'}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-500 text-sm sm:text-base">Experience:</span>
+              <span className="font-medium text-sm sm:text-base">{job.experienceLevel || 'Not specified'}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500">Remote:</span>
-              <span className="font-medium">{job.isRemote ? 'Yes' : 'No'}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-500 text-sm sm:text-base">Remote:</span>
+              <span className="font-medium text-sm sm:text-base">{job.isRemote ? 'Yes' : 'No'}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500">Views:</span>
-              <span className="font-medium">{job.views}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-500 text-sm sm:text-base">Views:</span>
+              <span className="font-medium text-sm sm:text-base">{job.views}</span>
             </div>
           </div>
 
@@ -163,7 +163,7 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
                 {job.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"
+                    className="bg-blue-100 text-blue-800 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1 rounded-full"
                   >
                     {skill}
                   </span>
@@ -172,39 +172,40 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
             </div>
           )}
 
-          <div className="prose max-w-none mb-10" dangerouslySetInnerHTML={{ __html: job.description }} />
+          <div className="prose max-w-none mb-6 sm:mb-10 text-sm sm:text-base" dangerouslySetInnerHTML={{ __html: job.description }} />
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col gap-3 pt-6 border-t border-gray-200">
             {job.source !== 'manual' ? (
               // External job - show enhanced external application flow
-              <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <div className="space-y-3">
                 <button 
                   onClick={() => {
                     if (job.source_url) {
-                      // Track external application click
+                      // Track external application click (client-side only)
                       if (typeof window !== 'undefined') {
-                        trackExternalApplication({
-                          jobId: job.id,
-                          source: job.source,
-                          company: job.company || 'Unknown Company',
-                          title: job.title
+                        import('@/lib/jobs/external-application-tracker').then(({ trackExternalApplication }) => {
+                          trackExternalApplication({
+                            jobId: job.id.toString(),
+                            source: job.source,
+                            company: job.company || 'Unknown Company',
+                            title: job.title
+                          });
                         });
                       }
                       window.open(job.source_url, '_blank', 'noopener,noreferrer');
                     }
                   }}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-medium flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                  className="w-full px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-medium flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 text-base"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
-                  <span className="hidden sm:inline">Apply on Company Website</span>
-                  <span className="sm:hidden">Apply Now</span>
+                  <span>Apply on Company Website</span>
                 </button>
                 
                 {/* Additional info for external jobs */}
-                <div className="text-center sm:text-left">
-                  <p className="text-sm text-gray-600 mb-2">
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 mb-1">
                     This job is posted on {job.source === 'adzuna' ? 'Adzuna' : 'external platform'}
                   </p>
                   <p className="text-xs text-gray-500">
@@ -216,7 +217,7 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
               // Internal job - route to internal application page
               <Link 
                 href={`/jobs/${job.id}/apply`}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium text-center shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 text-base"
               >
                 Apply Now
               </Link>
@@ -224,10 +225,9 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
             
             <Link 
               href="/jobs"
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-gray-700 text-center"
+              className="w-full px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-gray-700 text-center text-base"
             >
-              <span className="hidden sm:inline">Back to Jobs</span>
-              <span className="sm:hidden">Back</span>
+              Back to Jobs
             </Link>
           </div>
         </div>

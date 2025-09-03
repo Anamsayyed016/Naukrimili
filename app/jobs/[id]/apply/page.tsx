@@ -214,42 +214,42 @@ export default function JobApplicationPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Job Summary */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Apply for {job.title}</h1>
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-6 sm:mb-8 border border-gray-100">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 line-clamp-2">Apply for {job.title}</h1>
           
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
             <div className="flex items-center gap-3">
-              <Building className="h-5 w-5 text-blue-600" />
-              <span className="text-gray-700">{job.company}</span>
+              <Building className="h-5 w-5 text-blue-600 flex-shrink-0" />
+              <span className="text-gray-700 text-sm sm:text-base truncate">{job.company}</span>
             </div>
             <div className="flex items-center gap-3">
-              <MapPin className="h-5 w-5 text-blue-600" />
-              <span className="text-gray-700">{job.location}</span>
+              <MapPin className="h-5 w-5 text-blue-600 flex-shrink-0" />
+              <span className="text-gray-700 text-sm sm:text-base truncate">{job.location}</span>
             </div>
             <div className="flex items-center gap-3">
-              <Clock className="h-5 w-5 text-blue-600" />
-              <span className="text-gray-700">{job.jobType}</span>
+              <Clock className="h-5 w-5 text-blue-600 flex-shrink-0" />
+              <span className="text-gray-700 text-sm sm:text-base truncate">{job.jobType}</span>
             </div>
             <div className="flex items-center gap-3">
-              <DollarSign className="h-5 w-5 text-blue-600" />
-              <span className="text-gray-700">{job.salary}</span>
+              <DollarSign className="h-5 w-5 text-blue-600 flex-shrink-0" />
+              <span className="text-gray-700 text-sm sm:text-base truncate">{job.salary}</span>
             </div>
           </div>
           
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-2">Job Description</h3>
-            <p className="text-gray-700 text-sm leading-relaxed">{job.description}</p>
+            <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Job Description</h3>
+            <p className="text-gray-700 text-xs sm:text-sm leading-relaxed line-clamp-3">{job.description}</p>
           </div>
         </div>
 
         {/* Application Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Application Form</h2>
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-gray-100">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Application Form</h2>
           
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name *
@@ -261,7 +261,7 @@ export default function JobApplicationPage() {
                   required
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -277,13 +277,13 @@ export default function JobApplicationPage() {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   placeholder="Enter your email"
                 />
               </div>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                   Phone Number
@@ -294,7 +294,7 @@ export default function JobApplicationPage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   placeholder="Enter your phone number"
                 />
               </div>
@@ -309,7 +309,7 @@ export default function JobApplicationPage() {
                   required
                   value={formData.experience}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                 >
                   <option value="">Select experience level</option>
                   <option value="0-1">0-1 years</option>
@@ -328,10 +328,10 @@ export default function JobApplicationPage() {
               <textarea
                 id="coverLetter"
                 name="coverLetter"
-                rows={6}
+                rows={4}
                 value={formData.coverLetter}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base resize-none"
                 placeholder="Tell us why you're interested in this position and what makes you a great fit..."
               />
             </div>
@@ -340,12 +340,12 @@ export default function JobApplicationPage() {
               <label htmlFor="resume" className="block text-sm font-medium text-gray-700 mb-2">
                 Resume/CV *
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center hover:border-blue-400 transition-colors">
+                <Upload className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
                 <div className="text-sm text-gray-600 mb-2">
                   <label htmlFor="resume-upload" className="cursor-pointer">
                     <span className="text-blue-600 hover:text-blue-700 font-medium">Click to upload</span>
-                    {' '}or drag and drop
+                    <span className="hidden sm:inline"> or drag and drop</span>
                   </label>
                 </div>
                 <p className="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
@@ -359,28 +359,30 @@ export default function JobApplicationPage() {
                   required
                 />
                 {formData.resume && (
-                  <div className="mt-4 text-sm text-green-600">
+                  <div className="mt-3 sm:mt-4 text-sm text-green-600">
                     ✓ {formData.resume.name} selected
                   </div>
                 )}
               </div>
             </div>
             
-            <div className="pt-6">
+            <div className="pt-4 sm:pt-6">
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-base sm:text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Submitting...
+                    <span className="hidden sm:inline">Submitting...</span>
+                    <span className="sm:hidden">Submitting...</span>
                   </>
                 ) : (
                   <>
                     <Send className="h-5 w-5" />
-                    Submit Application
+                    <span className="hidden sm:inline">Submit Application</span>
+                    <span className="sm:hidden">Submit</span>
                   </>
                 )}
               </button>

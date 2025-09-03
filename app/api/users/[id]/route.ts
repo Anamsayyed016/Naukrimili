@@ -1,10 +1,3 @@
-/**
- * Enhanced User Profile API - Real Database Integration
- * GET /api/users/[id] - Get specific user profile
- * PUT /api/users/[id] - Update user profile
- * DELETE /api/users/[id] - Delete user account
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
@@ -14,43 +7,27 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const authResult = await requireAdminAuth();
-    if ('error' in authResult) {
-      return NextResponse.json(
-        { error: authResult.error },
-        { status: authResult.status }
-      );
-    }
-
-    const userId = parseInt(params.id, 10);
-    
-    if (isNaN(userId)) {
-      return NextResponse.json(
-        { error: 'Invalid user ID' },
-        { status: 400 }
-      );
+    const auth = await requireAdminAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        location: true,
-        skills: true,
-        isActive: true,
-        isVerified: true,
-        createdAt: true,
-        updatedAt: true,
-        profilePicture: true
+      where: { id: params.id },
+      include: {
+        applications: {
+          include: {
+            job: true
+          }
+        },
+        createdJobs: true,
+        createdCompanies: true
       }
     });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'User not found' },
+        { success: false, error: "User not found" },
         { status: 404 }
       );
     }
@@ -59,10 +36,11 @@ export async function GET(
       success: true,
       data: user
     });
+
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error("Error fetching user:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch user' },
+      { success: false, error: "Failed to fetch user" },
       { status: 500 }
     );
   }
@@ -73,45 +51,43 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const userId = parseInt(params.id, 10);
-    
-    if (isNaN(userId)) {
-      return NextResponse.json(
-        { error: 'Invalid user ID' },
-        { status: 400 }
-      );
+    const auth = await requireAdminAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const body = await request.json();
-    const {
-      name,
-      location,
-      skills,
-      isActive,
-      isVerified
-    } = body;
+    const { isActive, isVerified, role } = body;
+
+    const updateData: any = {};
+    if (typeof isActive === 'boolean') updateData.isActive = isActive;
+    if (typeof isVerified === 'boolean') updateData.isVerified = isVerified;
+    if (role) updateData.role = role;
 
     const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        name,
-        location,
-        skills,
-        isActive,
-        isVerified,
-        updatedAt: new Date()
+      where: { id: params.id },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        isVerified: true,
+        updatedAt: true
       }
     });
 
     return NextResponse.json({
       success: true,
-      data: updatedUser,
-      message: 'User updated successfully'
+      message: "User updated successfully",
+      data: updatedUser
     });
+
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error("Error updating user:", error);
     return NextResponse.json(
-      { error: 'Failed to update user' },
+      { success: false, error: "Failed to update user" },
       { status: 500 }
     );
   }
@@ -122,49 +98,38 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const userId = parseInt(params.id, 10);
-    
-    if (isNaN(userId)) {
-      return NextResponse.json(
-        { error: 'Invalid user ID' },
-        { status: 400 }
-      );
+    const auth = await requireAdminAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { id: userId }
+    const user = await prisma.user.findUnique({
+      where: { id: params.id }
     });
 
-    if (!existingUser) {
+    if (!user) {
       return NextResponse.json(
-        { error: 'User not found' },
+        { success: false, error: "User not found" },
         { status: 404 }
       );
     }
 
-    // Soft delete by setting isActive to false
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        isActive: false,
-        updatedAt: new Date()
-      }
+    // Delete user (this will cascade delete related records)
+    await prisma.user.delete({
+      where: { id: params.id }
     });
 
     return NextResponse.json({
       success: true,
-      message: 'User deactivated successfully'
+      message: "User deleted successfully"
     });
+
   } catch (error) {
-    console.error('Error deactivating user:', error);
+    console.error("Error deleting user:", error);
     return NextResponse.json(
-      { error: 'Failed to deactivate user' },
+      { success: false, error: "Failed to delete user" },
       { status: 500 }
     );
   }
-}
-
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200 });
 }

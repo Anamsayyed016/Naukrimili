@@ -206,13 +206,13 @@ export default function MainNavigation({
               // User is not logged in - show auth buttons (always show for consistency)
               <div className="hidden lg:flex items-center space-x-2">
                 <Link
-                  href="/auth/login"
+                  href="/auth/unified"
                   className="px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium"
                 >
                   Sign In
                 </Link>
                 <Link
-                  href="/auth/role-selection"
+                  href="/auth/unified"
                   className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                 >
                   Get Started
@@ -310,14 +310,14 @@ export default function MainNavigation({
                 // User is not logged in - show auth buttons
                 <div className="px-4 py-3 space-y-2 border-t border-gray-200">
                   <Link
-                    href="/auth/login"
+                    href="/auth/unified"
                     onClick={closeMenu}
                     className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200"
                   >
                     Sign In
                   </Link>
                   <Link
-                    href="/auth/role-selection"
+                    href="/auth/unified"
                     onClick={closeMenu}
                     className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
                   >

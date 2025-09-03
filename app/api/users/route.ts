@@ -8,30 +8,12 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/nextauth-config";
+import { requireAdminAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-
-async function requireAdminAuth(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return { error: "Unauthorized", status: 401 };
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id }
-  });
-
-  if (!user || user.role !== "admin") {
-    return { error: "Access denied. Admin account required.", status: 403 };
-  }
-
-  return { user };
-}
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireAdminAuth(request);
+    const auth = await requireAdminAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
@@ -107,10 +89,66 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error("Error fetching users:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch users" },
+      { status: 500 }
+    );
   }
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200 });
+export async function POST(request: NextRequest) {
+  try {
+    const auth = await requireAdminAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const body = await request.json();
+    const { action, userIds } = body;
+
+    if (!userIds || userIds.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "No user IDs provided" },
+        { status: 400 }
+      );
+    }
+
+    let updateData: any = {};
+    let message = '';
+
+    switch (action) {
+      case 'activate':
+        updateData = { isActive: true };
+        message = 'Users activated successfully';
+        break;
+      case 'deactivate':
+        updateData = { isActive: false };
+        message = 'Users deactivated successfully';
+        break;
+      default:
+        return NextResponse.json(
+          { success: false, error: 'Invalid action' },
+          { status: 400 }
+        );
+    }
+
+    // Update users
+    const updatedUsers = await prisma.user.updateMany({
+      where: { id: { in: userIds } },
+      data: updateData
+    });
+
+    return NextResponse.json({
+      success: true,
+      message,
+      data: { updatedCount: updatedUsers.count }
+    });
+
+  } catch (error) {
+    console.error("Error performing bulk action:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to perform action" },
+      { status: 500 }
+    );
+  }
 }

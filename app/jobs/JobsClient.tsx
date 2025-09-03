@@ -205,17 +205,17 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8 backdrop-blur-sm">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6 mb-8 backdrop-blur-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
             {/* Search Query */}
-            <div className="relative">
+            <div className="relative sm:col-span-2 lg:col-span-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Job title, keywords..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm"
               />
             </div>
 
@@ -227,7 +227,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
                 placeholder="Location..."
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-12 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm"
               />
               <button
                 onClick={detectCurrentLocation}
@@ -247,7 +247,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm"
             >
               <option value="IN">India</option>
               <option value="US">United States</option>
@@ -258,9 +258,9 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
             </select>
           </div>
 
-          {/* Additional Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          {/* Additional Filters - Collapsible on mobile */}
+          <div className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 mb-4">
+            <select className="w-full px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm">
               <option value="">Job Type</option>
               <option value="full-time">Full Time</option>
               <option value="part-time">Part Time</option>
@@ -268,7 +268,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               <option value="remote">Remote</option>
             </select>
             
-            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select className="w-full px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm">
               <option value="">Experience Level</option>
               <option value="entry">Entry Level</option>
               <option value="mid">Mid Level</option>
@@ -276,7 +276,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               <option value="executive">Executive</option>
             </select>
             
-            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select className="w-full px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm">
               <option value="">Salary Range</option>
               <option value="0-3">₹0-3 LPA</option>
               <option value="3-6">₹3-6 LPA</option>
@@ -284,7 +284,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               <option value="10+">₹10+ LPA</option>
             </select>
             
-            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select className="w-full px-4 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-sm">
               <option value="">Industry</option>
               <option value="technology">Technology</option>
               <option value="finance">Finance</option>
@@ -326,17 +326,19 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
           <button
             onClick={handleSearch}
             disabled={loading}
-            className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-base sm:text-sm font-medium"
           >
             {loading ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Searching...
+                <span className="hidden sm:inline">Searching...</span>
+                <span className="sm:hidden">Searching...</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <Search className="w-4 h-4" />
-                Search Jobs
+                <span className="hidden sm:inline">Search Jobs</span>
+                <span className="sm:hidden">Search</span>
               </div>
             )}
           </button>
@@ -406,44 +408,46 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
           {/* Jobs List */}
           {!loading && jobs.length > 0 && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {jobs.map((job) => (
-                <div key={job.id} className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
-                        {job.is_featured && (
-                          <span className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                            ⭐ Featured
-                          </span>
-                        )}
-                        {job.is_remote && (
-                          <span className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                            🏠 Remote
-                          </span>
-                        )}
+                <div key={job.id} className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 line-clamp-2">{job.title}</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {job.is_featured && (
+                            <span className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 text-xs font-semibold px-2 sm:px-3 py-1 rounded-full shadow-sm">
+                              ⭐ Featured
+                            </span>
+                          )}
+                          {job.is_remote && (
+                            <span className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs font-semibold px-2 sm:px-3 py-1 rounded-full shadow-sm">
+                              🏠 Remote
+                            </span>
+                          )}
+                        </div>
                       </div>
                       
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 text-sm text-gray-600 mb-3">
                         <div className="flex items-center gap-1">
-                          <Building2 className="w-4 h-4" />
-                          <span>{job.company}</span>
+                          <Building2 className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{job.company}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          <span>{job.location}</span>
+                          <MapPin className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{job.location}</span>
                         </div>
                         {job.salary && (
                           <div className="flex items-center gap-1">
-                            <DollarSign className="w-4 h-4" />
-                            <span>{job.salary}</span>
+                            <DollarSign className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{job.salary}</span>
                           </div>
                         )}
                         {job.postedAt && (
                           <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>{new Date(job.postedAt).toLocaleDateString()}</span>
+                            <Clock className="w-4 h-4 flex-shrink-0" />
+                            <span className="truncate">{new Date(job.postedAt).toLocaleDateString()}</span>
                           </div>
                         )}
                       </div>
@@ -453,13 +457,14 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
                       </p>
                     </div>
                     
-                    <div className="ml-4">
+                    <div className="flex-shrink-0 w-full sm:w-auto">
                       <button
                         onClick={() => handleApply(job)}
-                        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base font-medium"
                       >
                         <ExternalLink className="w-4 h-4" />
-                        Apply Now
+                        <span className="hidden sm:inline">Apply Now</span>
+                        <span className="sm:hidden">Apply</span>
                       </button>
                     </div>
                   </div>

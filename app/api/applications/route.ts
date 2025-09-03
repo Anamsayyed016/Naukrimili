@@ -1,43 +1,55 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuth } from '@/lib/auth-utils';
-import { z } from 'zod';
-
-const applicationSchema = z.object({
-  jobId: z.string(),
-  coverLetter: z.string().optional(),
-  resumeId: z.string().optional(),
-  notes: z.string().optional()
-});
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/nextauth-config";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
-  const auth = await requireAuth();
-  if ("error" in auth) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
-
-  const { user } = auth;
-
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
+      }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const page = parseInt(searchParams.get('page') || '1');
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const status = searchParams.get("status");
+    const search = searchParams.get("search");
+
     const skip = (page - 1) * limit;
 
-    // Build where clause
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        error: 'User not found'
+      }, { status: 404 });
+    }
+
     const where: any = { userId: user.id };
-    if (status) {
+
+    if (status && status !== "all") {
       where.status = status;
     }
 
-    // Get applications with pagination and related data
+    if (search) {
+      where.OR = [
+        { job: { title: { contains: search, mode: "insensitive" } } },
+        { job: { company: { contains: search, mode: "insensitive" } } }
+      ];
+    }
+
     const [applications, total] = await Promise.all([
       prisma.application.findMany({
         where,
-        skip,
-        take: limit,
-        orderBy: { appliedAt: 'desc' },
         include: {
           job: {
             select: {
@@ -45,59 +57,31 @@ export async function GET(request: NextRequest) {
               title: true,
               company: true,
               location: true,
-              salary: true,
               jobType: true,
-              experienceLevel: true,
-              isRemote: true,
-              companyRelation: {
-                select: {
-                  name: true,
-                  logo: true,
-                  industry: true
-                }
-              }
+              salary: true,
+              isRemote: true
             }
           },
-          resume: {
+          company: {
             select: {
-              fileName: true,
-              fileUrl: true
+              id: true,
+              name: true,
+              logo: true,
+              website: true
             }
           }
-        }
+        },
+        orderBy: { appliedAt: 'desc' },
+        skip,
+        take: limit
       }),
       prisma.application.count({ where })
     ]);
 
-    // Transform data to match expected format
-    const transformedApplications = applications.map(app => ({
-      id: app.id,
-      status: app.status,
-      appliedAt: app.appliedAt,
-      coverLetter: app.coverLetter,
-      notes: app.notes,
-      job: {
-        id: app.job.id,
-        title: app.job.title,
-        company: app.job.company,
-        location: app.job.location,
-        salary: app.job.salary,
-        jobType: app.job.jobType,
-        experienceLevel: app.job.experienceLevel,
-        isRemote: app.job.isRemote,
-        companyInfo: app.job.companyRelation ? {
-          name: app.job.companyRelation.name,
-          logo: app.job.companyRelation.logo,
-          industry: app.job.companyRelation.industry
-        } : null
-      },
-      resume: app.resume
-    }));
-
     return NextResponse.json({
       success: true,
       data: {
-        applications: transformedApplications,
+        applications,
         pagination: {
           page,
           limit,
@@ -106,117 +90,12 @@ export async function GET(request: NextRequest) {
         }
       }
     });
+
   } catch (error) {
-    console.error('Applications GET error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch applications' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request: NextRequest) {
-  const auth = await requireAuth();
-  if ("error" in auth) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
-
-  const { user } = auth;
-
-  try {
-    const body = await request.json();
-    const { jobId, coverLetter, resumeId, notes } = applicationSchema.parse(body);
-
-    // Check if user has already applied to this job
-    const existingApplication = await prisma.application.findFirst({
-      where: {
-        userId: user.id,
-        jobId: jobId
-      }
-    });
-
-    if (existingApplication) {
-      return NextResponse.json(
-        { success: false, error: 'You have already applied to this job' },
-        { status: 400 }
-      );
-    }
-
-    // Get job details to verify it exists and is active
-    const job = await prisma.job.findUnique({
-      where: { id: jobId },
-      select: {
-        id: true,
-        title: true,
-        company: true,
-        isActive: true,
-        companyId: true
-      }
-    });
-
-    if (!job) {
-      return NextResponse.json(
-        { success: false, error: 'Job not found' },
-        { status: 404 }
-      );
-    }
-
-    if (!job.isActive) {
-      return NextResponse.json(
-        { success: false, error: 'This job is no longer accepting applications' },
-        { status: 400 }
-      );
-    }
-
-    // Create application
-    const application = await prisma.application.create({
-      data: {
-        userId: user.id,
-        jobId: jobId,
-        companyId: job.companyId || '0',
-        coverLetter: coverLetter || '',
-        notes: notes || '',
-        status: 'submitted',
-        appliedAt: new Date()
-      },
-      include: {
-        job: {
-          select: {
-            id: true,
-            title: true,
-            company: true,
-            location: true
-          }
-        }
-      }
-    });
-
-    // Update job applications count
-    await prisma.job.update({
-      where: { id: jobId },
-      data: {
-        applicationsCount: {
-          increment: 1
-        }
-      }
-    });
-
+    console.error('Error fetching applications:', error);
     return NextResponse.json({
-      success: true,
-      data: application,
-      message: 'Application submitted successfully'
-    }, { status: 201 });
-  } catch (error) {
-    console.error('Applications POST error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to submit application' },
-      { status: 500 }
-    );
+      success: false,
+      error: 'Failed to fetch applications'
+    }, { status: 500 });
   }
 }
-
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200 });
-}
-
-

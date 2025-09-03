@@ -188,7 +188,7 @@ export default function JobSeekerDashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <Link href="/resumes/upload">
               <CardContent className="p-6 text-center">
@@ -214,12 +214,24 @@ export default function JobSeekerDashboard() {
           </Card>
           
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <Link href="/jobs">
+            <Link href="/dashboard/jobseeker/resumes">
+              <CardContent className="p-6 text-center">
+                <FileText className="w-12 h-12 text-orange-600 mx-auto mb-4" />
+                <h3 className="font-semibold text-gray-900 mb-2">Manage Resumes</h3>
+                <p className="text-sm text-gray-600">
+                  View and manage all your resumes
+                </p>
+              </CardContent>
+            </Link>
+          </Card>
+          
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/dashboard/jobseeker/applications">
               <CardContent className="p-6 text-center">
                 <Briefcase className="w-12 h-12 text-green-600 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">Browse Jobs</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Track Applications</h3>
                 <p className="text-sm text-gray-600">
-                  Find your next career opportunity
+                  Monitor your job application status
                 </p>
               </CardContent>
             </Link>
