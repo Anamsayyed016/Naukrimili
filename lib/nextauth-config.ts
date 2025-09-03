@@ -121,6 +121,12 @@ export const authOptions: NextAuthOptions = {
               token.name = profile.name || '';
               
               console.log(`🔐 Google OAuth: New user created, OTP verification required for ${profile.email}`);
+              console.log('🔍 JWT Token set with OTP requirements:', {
+                requiresOTP: token.requiresOTP,
+                otpPurpose: token.otpPurpose,
+                tempUserId: token.tempUserId,
+                email: token.email
+              });
             } else {
               // Check if user is already verified - if so, allow direct login
               if (existingUser.isVerified) {
@@ -146,6 +152,12 @@ export const authOptions: NextAuthOptions = {
                 token.name = profile.name || '';
                 
                 console.log(`🔐 Google OAuth: Existing unverified user, OTP verification required for ${profile.email}`);
+                console.log('🔍 JWT Token set with OTP requirements for existing user:', {
+                  requiresOTP: token.requiresOTP,
+                  otpPurpose: token.otpPurpose,
+                  tempUserId: token.tempUserId,
+                  email: token.email
+                });
               }
             }
           } catch (error) {
@@ -173,6 +185,12 @@ export const authOptions: NextAuthOptions = {
             (session.user as any).otpPurpose = 'gmail-oauth';
             (session.user as any).tempUserId = token.tempUserId || null;
             (session.user as any).isVerified = false; // Mark as unverified until OTP is completed
+            
+            console.log('🔍 Session callback: Setting OTP required session for Google OAuth user:', {
+              email: session.user.email,
+              requiresOTP: (session.user as any).requiresOTP,
+              otpPurpose: (session.user as any).otpPurpose
+            });
           } else {
             // Normal session for verified users
             (session.user as any).id = token.id || token.sub || '';
@@ -180,6 +198,11 @@ export const authOptions: NextAuthOptions = {
             (session.user as any).email = token.email || '';
             (session.user as any).requiresOTP = false;
             (session.user as any).isVerified = true;
+            
+            console.log('🔍 Session callback: Normal session for verified user:', {
+              email: session.user.email,
+              requiresOTP: (session.user as any).requiresOTP
+            });
           }
         }
         return session;

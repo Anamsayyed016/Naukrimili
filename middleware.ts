@@ -6,9 +6,8 @@ export default withAuth(
     const token = req.nextauth.token;
     const pathname = req.nextUrl.pathname;
 
-    // Skip middleware for auth pages and API routes
+    // Skip middleware for API routes and static files
     if (
-      pathname.startsWith('/auth/') ||
       pathname.startsWith('/api/') ||
       pathname.startsWith('/_next/') ||
       pathname.startsWith('/static/')
@@ -18,8 +17,9 @@ export default withAuth(
 
     // If user is authenticated and requires OTP verification for Google OAuth
     if (token && (token as any).requiresOTP && (token as any).otpPurpose === 'gmail-oauth') {
-      // Redirect to OTP verification page
+      // Redirect to OTP verification page (except if already on verify-otp page)
       if (pathname !== '/auth/verify-otp') {
+        console.log('🔄 Middleware: Redirecting to OTP verification for Google OAuth user');
         return NextResponse.redirect(new URL('/auth/verify-otp', req.url));
       }
     }
