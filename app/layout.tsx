@@ -32,7 +32,6 @@ export default function RootLayout({
             {children}
             <Footer />
             <Toaster />
-            <AuthDebugPanel />
           </AuthProvider>
         </SessionProvider>
       </body>

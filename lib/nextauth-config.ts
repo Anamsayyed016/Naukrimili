@@ -87,7 +87,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account, profile }) {
       try {
         if (user) {
-          token.id = user.id;
+          token.id = user.id.toString();
           token.role = user.role || 'jobseeker';
           token.email = user.email;
         }
