@@ -25,7 +25,25 @@ export async function POST(request: NextRequest) {
     // Get the current session to verify the user is in Google OAuth flow
     const session = await getServerSession(authOptions);
     
+    console.log('🔍 Google OAuth Initiate OTP - Session Debug:', {
+      hasSession: !!session,
+      userEmail: session?.user?.email,
+      requestedEmail: validatedData.email,
+      userData: session?.user ? {
+        id: (session.user as any).id,
+        email: (session.user as any).email,
+        requiresOTP: (session.user as any).requiresOTP,
+        otpPurpose: (session.user as any).otpPurpose,
+        isVerified: (session.user as any).isVerified
+      } : null
+    });
+    
     if (!session?.user?.email || session.user.email !== validatedData.email) {
+      console.log('❌ Session validation failed:', {
+        hasSession: !!session,
+        sessionEmail: session?.user?.email,
+        requestedEmail: validatedData.email
+      });
       return NextResponse.json({
         success: false,
         message: 'Invalid session or email mismatch',
@@ -36,6 +54,11 @@ export async function POST(request: NextRequest) {
     // Check if session indicates OTP is required for Google OAuth
     const user = session.user as any;
     if (!user.requiresOTP || user.otpPurpose !== 'gmail-oauth') {
+      console.log('❌ OTP not required for session:', {
+        requiresOTP: user.requiresOTP,
+        otpPurpose: user.otpPurpose,
+        isVerified: user.isVerified
+      });
       return NextResponse.json({
         success: false,
         message: 'OTP verification not required for this session',

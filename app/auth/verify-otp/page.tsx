@@ -46,6 +46,9 @@ export default function VerifyOTPPage() {
     if (!session?.user?.email) return;
 
     try {
+      // Add a small delay to ensure session is fully established
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Automatically send OTP for Google OAuth verification
       const response = await fetch('/api/auth/google-oauth-initiate-otp', {
         method: 'POST',
