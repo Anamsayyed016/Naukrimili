@@ -47,6 +47,12 @@ export interface ExtractedResumeData {
   preferredJobType?: string;
   confidence: number;
   rawText: string;
+  // New enhanced fields
+  atsSuggestions?: string[];
+  jobSuggestions?: Array<{
+    title: string;
+    reason: string;
+  }>;
 }
 
 export interface ResumeAnalysis {
@@ -74,75 +80,81 @@ export class EnhancedResumeAI {
     try {
       console.log('🤖 Starting AI-powered resume extraction...');
 
-      const prompt = `
-        Extract comprehensive resume information from the following text. Return a JSON object with the following structure:
-        
-        {
-          "fullName": "string",
-          "email": "string", 
-          "phone": "string",
-          "location": "string",
-          "linkedin": "string (optional)",
-          "portfolio": "string (optional)",
-          "summary": "string (professional summary/objective)",
-          "skills": ["array of skills"],
-          "experience": [
-            {
-              "company": "string",
-              "position": "string", 
-              "location": "string (optional)",
-              "startDate": "string (MM/YYYY)",
-              "endDate": "string (MM/YYYY or 'Present')",
-              "current": "boolean",
-              "description": "string",
-              "achievements": ["array of achievements"]
-            }
-          ],
-          "education": [
-            {
-              "institution": "string",
-              "degree": "string",
-              "field": "string", 
-              "startDate": "string (MM/YYYY)",
-              "endDate": "string (MM/YYYY)",
-              "gpa": "string (optional)",
-              "description": "string (optional)"
-            }
-          ],
-          "projects": [
-            {
-              "name": "string",
-              "description": "string",
-              "technologies": ["array of technologies"],
-              "url": "string (optional)",
-              "startDate": "string (optional)",
-              "endDate": "string (optional)"
-            }
-          ],
-          "certifications": [
-            {
-              "name": "string",
-              "issuer": "string",
-              "date": "string",
-              "url": "string (optional)"
-            }
-          ],
-          "languages": ["array of languages"],
-          "expectedSalary": "string (optional)",
-          "preferredJobType": "string (optional)"
-        }
+      const resumeAssistantPrompt = `
+ROLE: 
+You are "ResumeAI", an enterprise-grade Resume Autofill & Career Assistant integrated into a job portal. 
+You must always return clean, structured JSON that can be consumed directly by frontend components and APIs. 
+You must never output text outside JSON or duplicate fields. 
+Your goal is to enhance the user's job-seeking experience without breaking or conflicting with existing components.
 
-        Resume text:
-        ${resumeText}
+RESPONSIBILITIES:
 
-        Instructions:
-        1. Extract all available information accurately
-        2. If information is not found, use empty string or empty array
-        3. For dates, use MM/YYYY format
-        4. For skills, extract technical and soft skills
-        5. For experience, include detailed descriptions and achievements
-        6. For education, include degree, field, and institution details
-        7. Return only valid JSON, no additional text
+1. Resume Autofill:
+   - Parse resumes (PDF/DOC/DOCX) into structured fields.
+   - Extract: fullName, email, phone, location, linkedin, portfolio, summary, skills[], experience[], education[], certifications[], languages[].
+   - Always include a confidence score (0–100).
+
+2. Resume Builder Enhancements:
+   - If the user builds their resume manually, analyze and return:
+     - Improved phrasing for clarity and professionalism.
+     - Missing keywords based on job market standards.
+     - ATS-friendly rewrites to improve compatibility.
+   - Provide suggestions as \`atsSuggestions[]\`.
+
+3. Job Suggestions:
+   - Based on skills, education, and experience, recommend 3–5 relevant job titles.
+   - For each job, include a short explanation in \`jobSuggestions[]\`.
+
+4. Data Integrity:
+   - Strictly return valid JSON.
+   - Do not create duplicate fields or corrupt data.
+   - Respect existing schema so integration does not break.
+
+OUTPUT FORMAT (strict JSON only, no explanations):
+{
+  "fullName": "John Doe",
+  "email": "john.doe@email.com",
+  "phone": "+1-555-123-4567",
+  "location": "San Francisco, CA",
+  "linkedin": "https://linkedin.com/in/johndoe",
+  "portfolio": "https://johndoe.dev",
+  "summary": "Experienced software engineer with expertise in ...",
+  "skills": ["JavaScript", "React", "Node.js", "Python"],
+  "experience": [
+    {
+      "company": "Tech Corp",
+      "position": "Senior Software Engineer",
+      "startDate": "01/2021",
+      "endDate": "Present",
+      "description": "Led development of a scalable platform...",
+      "achievements": ["Improved API speed by 40%"]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of California",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "startDate": "08/2016",
+      "endDate": "05/2020"
+    }
+  ],
+  "certifications": ["AWS Certified Developer"],
+  "languages": ["English", "Spanish"],
+  "confidence": 90,
+  "atsSuggestions": [
+    "Add 'TypeScript' keyword to match frontend developer roles.",
+    "Rephrase 'Made website fast' → 'Optimized web performance, reducing load time by 35%'."
+  ],
+  "jobSuggestions": [
+    {"title": "Full-Stack Developer", "reason": "Strong React + Node.js background"},
+    {"title": "Backend Engineer", "reason": "Experience with scalable APIs"},
+    {"title": "AI Integration Specialist", "reason": "Worked with AI-powered features"}
+  ]
+}
+
+Resume text to analyze:
+${resumeText}
       `;
 
       const completion = await this.openai.chat.completions.create({
@@ -150,11 +162,11 @@ export class EnhancedResumeAI {
         messages: [
           {
             role: "system",
-            content: "You are an expert resume parser. Extract comprehensive information from resume text and return it in the specified JSON format. Be thorough and accurate."
+            content: "You are ResumeAI, an enterprise-grade Resume Autofill & Career Assistant. You must always return clean, structured JSON that can be consumed directly by frontend components and APIs. Never output text outside JSON or duplicate fields."
           },
           {
             role: "user", 
-            content: prompt
+            content: resumeAssistantPrompt
           }
         ],
         temperature: 0.1,
@@ -318,7 +330,16 @@ export class EnhancedResumeAI {
       expectedSalary: this.extractSalary(resumeText),
       preferredJobType: 'Full-time',
       confidence: 50,
-      rawText: resumeText
+      rawText: resumeText,
+      // Enhanced fields with fallback values
+      atsSuggestions: [
+        'Add more specific technical skills to improve ATS compatibility',
+        'Include quantifiable achievements in your experience descriptions'
+      ],
+      jobSuggestions: [
+        { title: 'Software Developer', reason: 'Based on technical skills found in resume' },
+        { title: 'Full-Stack Engineer', reason: 'Experience with multiple technologies' }
+      ]
     };
   }
 

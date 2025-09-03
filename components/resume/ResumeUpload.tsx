@@ -61,6 +61,12 @@ interface ExtractedProfile {
   preferredJobType?: string;
   confidence: number;
   rawText: string;
+  // Enhanced ResumeAI fields
+  atsSuggestions?: string[];
+  jobSuggestions?: Array<{
+    title: string;
+    reason: string;
+  }>;
 }
 
 interface ResumeStatus {
@@ -427,7 +433,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
               {aiSuccess ? (
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">AI Analysis Successful</span>
+                  <span className="text-sm font-medium text-blue-800">ResumeAI Analysis Complete</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
@@ -450,6 +456,55 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
             }
           </p>
         </div>
+
+        {/* Enhanced ResumeAI Features */}
+        {(extractedProfile.atsSuggestions?.length > 0 || extractedProfile.jobSuggestions?.length > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* ATS Suggestions */}
+            {extractedProfile.atsSuggestions?.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Target className="w-5 h-5 text-green-600" />
+                    ATS Optimization Tips
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {extractedProfile.atsSuggestions.map((suggestion, index) => (
+                      <li key={index} className="flex items-start gap-2 text-sm">
+                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-700">{suggestion}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Job Suggestions */}
+            {extractedProfile.jobSuggestions?.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Briefcase className="w-5 h-5 text-blue-600" />
+                    Recommended Jobs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {extractedProfile.jobSuggestions.map((job, index) => (
+                      <div key={index} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <h4 className="font-medium text-blue-900">{job.title}</h4>
+                        <p className="text-sm text-blue-700 mt-1">{job.reason}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
 
         {/* Profile Completion Form */}
         <ProfileCompletionForm

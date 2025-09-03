@@ -87,7 +87,10 @@ export async function POST(req: NextRequest) {
       expectedSalary: extractedData.expectedSalary || '',
       preferredJobType: extractedData.preferredJobType || 'Full-time',
       confidence: extractedData.confidence || 0,
-      rawText: extractedData.rawText || extractedText
+      rawText: extractedData.rawText || extractedText,
+      // Enhanced ResumeAI fields
+      atsSuggestions: extractedData.atsSuggestions || [],
+      jobSuggestions: extractedData.jobSuggestions || []
     };
 
     console.log(`✅ Profile generated: ${profile.fullName}, ${profile.skills.length} skills, confidence: ${profile.confidence}%`);
@@ -191,7 +194,18 @@ function createFallbackProfile(fileName: string): any {
     expectedSalary: '15-25 LPA',
     preferredJobType: 'Full-time',
     confidence: 50,
-    rawText: `Resume: ${fileName}`
+    rawText: `Resume: ${fileName}`,
+    // Enhanced ResumeAI fields
+    atsSuggestions: [
+      'Add more specific technical skills to improve ATS compatibility',
+      'Include quantifiable achievements in your experience descriptions',
+      'Consider adding relevant certifications to strengthen your profile'
+    ],
+    jobSuggestions: [
+      { title: 'Full-Stack Developer', reason: 'Strong JavaScript and React background' },
+      { title: 'Software Engineer', reason: 'Experience with modern web technologies' },
+      { title: 'Frontend Developer', reason: 'Proficient in React and modern CSS frameworks' }
+    ]
   };
 }
 
