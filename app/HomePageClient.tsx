@@ -157,23 +157,7 @@ export default function HomePageClient({
                 />
               </div>
               
-              {/* Alternative Options */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link
-                  href="/auth/unified"
-                  className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors gap-2"
-                >
-                  <User className="w-4 h-4" />
-                  Create Account
-                </Link>
-                <Link
-                  href="/auth/unified"
-                  className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-blue-50 text-blue-700 font-semibold rounded-xl hover:bg-blue-100 transition-colors gap-2"
-                >
-                  <User className="w-4 h-4" />
-                  Sign In
-                </Link>
-              </div>
+
             </div>
           </div>
 

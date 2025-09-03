@@ -6,7 +6,7 @@
 'use client';
 
 import React from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/rgiteact';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import PostAuthRoleSelection from '@/components/auth/PostAuthRoleSelection';

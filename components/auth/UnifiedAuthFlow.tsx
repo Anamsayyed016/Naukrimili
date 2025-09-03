@@ -45,49 +45,19 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     setSuccess('');
 
     try {
-      // First, get user info from Google
+      // Direct Google authentication with redirect to role selection
       const result = await signIn('google', {
-        callbackUrl: '/auth/unified',
-        redirect: false
+        callbackUrl: '/auth/role-selection',
+        redirect: true
       });
 
       if (result?.error) {
         setError('Google authentication failed. Please try again.');
         setIsLoading(false);
-      } else if (result?.ok) {
-        // Google auth successful, now send OTP to user's email
-        setSuccess('Google authentication successful! Sending OTP to your email...');
-        
-        // Extract email from Google response or use a placeholder
-        const email = 'user@gmail.com'; // This will be replaced with actual email from Google
-        
-        // Send OTP for verification
-        const otpResponse = await fetch('/api/auth/otp/send', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: email,
-            purpose: 'verification',
-            userName: 'User'
-          }),
-        });
-
-        const otpData = await otpResponse.json();
-
-        if (otpData.success) {
-          setUserData(prev => ({ ...prev, email, authMethod: 'google' }));
-          setOtpPurpose('verification');
-          setCurrentStep('otp-verification');
-        } else {
-          setError('Failed to send OTP. Please try again.');
-        }
       }
     } catch (error) {
       console.error('Google auth error:', error);
       setError('Authentication failed. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -453,68 +423,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
         Continue with Google
       </Button>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with email
-          </span>
-        </div>
-      </div>
 
-      {/* Email Login Form */}
-      <form onSubmit={handleEmailRegistration} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={userData.email}
-            onChange={(e) => setUserData(prev => ({ ...prev, email: e.target.value }))}
-            placeholder="Enter your email"
-            required
-          />
-        </div>
-
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isLoading || !userData.email}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sending OTP...
-            </>
-          ) : (
-            <>
-              <Mail className="mr-2 h-4 w-4" />
-              Send OTP
-            </>
-          )}
-        </Button>
-      </form>
-
-      {/* Forgot Password Link */}
-      <div className="text-center">
-        <Button
-          variant="ghost"
-          className="text-sm text-blue-600 hover:text-blue-800"
-          onClick={() => {
-            // Handle forgot password - send OTP for password reset
-            if (userData.email) {
-              setOtpPurpose('login');
-              setCurrentStep('otp-verification');
-            } else {
-              setError('Please enter your email first');
-            }
-          }}
-        >
-          Forgot Password?
-        </Button>
-      </div>
     </div>
   );
 }
