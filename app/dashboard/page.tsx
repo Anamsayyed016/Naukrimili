@@ -26,10 +26,16 @@ export default function DashboardPage() {
     }
 
     // User is authenticated, now check role and redirect appropriately
-    const userRole = session?.user?.role || authUser?.role || "jobseeker";
+    const userRole = session?.user?.role || authUser?.role;
     
     setIsRedirecting(true);
     setIsLoading(false);
+    
+    // If user has no role, redirect to role selection
+    if (!userRole) {
+      router.push("/auth/role-selection");
+      return;
+    }
     
     // Redirect based on user role
     switch (userRole) {
@@ -40,8 +46,11 @@ export default function DashboardPage() {
         router.push("/dashboard/company");
         break;
       case "jobseeker":
-      default:
         router.push("/dashboard/jobseeker");
+        break;
+      default:
+        // Unknown role, redirect to role selection
+        router.push("/auth/role-selection");
         break;
     }
   }, [session, status, authUser, isAuthenticated, router, isRedirecting]);

@@ -122,12 +122,12 @@ export const authOptions: NextAuthOptions = {
             });
 
             if (!existingUser) {
-              // Create new user from Google OAuth
+              // Create new user from Google OAuth without a role - they'll select it later
               const newUser = await prisma.user.create({
                 data: {
                   email: profile.email || '',
                   name: profile.name || '',
-                  role: 'jobseeker',
+                  role: null, // No default role - user will select
                   isActive: true,
                   isVerified: true, // Google OAuth users are automatically verified
                   emailVerified: new Date()
@@ -135,7 +135,7 @@ export const authOptions: NextAuthOptions = {
               });
               
               token.id = newUser.id.toString();
-              token.role = newUser.role;
+              token.role = null; // No role assigned yet
               token.email = profile.email || '';
               token.name = profile.name || '';
               // Mark as new user for OAuth registration
@@ -264,7 +264,7 @@ export const authOptions: NextAuthOptions = {
       try {
         if (session.user) {
           (session.user as any).id = token.id || token.sub || '';
-          (session.user as any).role = token.role || 'jobseeker';
+          (session.user as any).role = token.role || null; // Don't default to jobseeker
           (session.user as any).email = token.email || '';
           (session.user as any).isVerified = true;
           // Pass isNewUser flag to session for frontend use

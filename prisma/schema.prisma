@@ -70,7 +70,7 @@ model User {
   password        String?   // Optional for OAuth users
   firstName       String?
   lastName        String?
-  role            String    @default("jobseeker") // jobseeker, employer, admin
+  role            String?   // jobseeker, employer, admin (null means role not selected yet)
   phone           String?
   location        String?
   bio             String?   @db.Text
