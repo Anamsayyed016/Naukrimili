@@ -36,7 +36,7 @@ ADZUNA_APP_KEY=your_adzuna_app_key_here
 RAPIDAPI_KEY=your_rapidapi_key_here
 
 # Optional: Additional providers
-GOOGLE_JOBS_API_KEY=your_google_jobs_api_key_here
+GOOGLE_JOBS_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
 LINKEDIN_CLIENT_ID=your_linkedin_client_id_here
 LINKEDIN_CLIENT_SECRET=your_linkedin_client_secret_here
 ```

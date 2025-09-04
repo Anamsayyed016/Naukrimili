@@ -92,11 +92,14 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # AI Services (Optional)
 OPENAI_API_KEY=your-openai-api-key
+GEMINI_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
 
 # Job APIs (Optional)
 ADZUNA_APP_ID=your-adzuna-app-id
 ADZUNA_API_KEY=your-adzuna-api-key
 REED_API_KEY=your-reed-api-key
+GOOGLE_JOBS_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
+GOOGLE_CSE_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
 
 # AWS S3 (Optional for file uploads)
 AWS_ACCESS_KEY_ID=your-aws-access-key

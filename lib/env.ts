@@ -27,6 +27,7 @@ const envSchema = z.object({
   // AI Services
   OPENAI_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
   
   // File Storage
   AWS_ACCESS_KEY_ID: z.string().optional(),

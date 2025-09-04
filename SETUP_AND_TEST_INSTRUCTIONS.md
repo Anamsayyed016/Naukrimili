@@ -155,7 +155,7 @@ python -c "import os; from dotenv import load_dotenv; load_dotenv(); print('API 
 ### Gemini API Not Working
 1. Verify API key in `.env` file:
    ```env
-   GEMINI_API_KEY=AIzaSyDyF8XadN-zSk4X3wlERgphfRsEiMYroBg
+   GEMINI_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
    ```
 2. Test API directly:
    ```bash

@@ -16,7 +16,7 @@
 ```bash
 # Server-side (private)
 GOOGLE_CSE_ID=your-custom-search-engine-id
-GOOGLE_CSE_API_KEY=your-google-api-key
+GOOGLE_CSE_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
 
 # Client-side (public)
 NEXT_PUBLIC_GOOGLE_CSE_ID=your-custom-search-engine-id
@@ -135,7 +135,7 @@ window.google.search.cse.element.render(resultsRef.current, {
 # Add to .env.local
 NEXT_PUBLIC_GOOGLE_CSE_ID=your-cse-id
 GOOGLE_CSE_ID=your-cse-id
-GOOGLE_CSE_API_KEY=your-api-key
+GOOGLE_CSE_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
 ```
 
 ## 🎯 **Usage:**

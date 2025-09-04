@@ -17,7 +17,7 @@ Google CSE integration provides additional job search results from across the we
 NEXT_PUBLIC_GOOGLE_CSE_ID=your-google-custom-search-engine-id
 
 # ❌ NOT SET (Optional but recommended)
-GOOGLE_CSE_API_KEY=your-google-api-key-for-cse
+GOOGLE_CSE_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
 ```
 
 ### **2. Hardcoded Search Engine ID**
@@ -51,7 +51,7 @@ GOOGLE_CSE_API_KEY=your-google-api-key-for-cse
 ```bash
 # Add to your .env.local file
 NEXT_PUBLIC_GOOGLE_CSE_ID=123456789:abcdefghijk
-GOOGLE_CSE_API_KEY=your-api-key-here
+GOOGLE_CSE_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
 ```
 
 ### **Step 5: Restart Your Application**
