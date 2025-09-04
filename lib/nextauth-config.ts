@@ -22,6 +22,7 @@ import { createWelcomeNotification } from '@/lib/notification-service';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  allowDangerousEmailAccountLinking: true, // Allow linking OAuth accounts to existing email accounts
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -161,12 +162,14 @@ export const authOptions: NextAuthOptions = {
                 console.error('Failed to send welcome email:', error);
               });
             } else {
-              // Update existing user
+              // Update existing user - handle both OAuth and credential users
               await prisma.user.update({
                 where: { id: existingUser.id },
                 data: {
                   emailVerified: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  // If user was created with credentials, update name from OAuth
+                  name: existingUser.name || profile.name || ''
                 }
               });
               
@@ -284,6 +287,11 @@ export const authOptions: NextAuthOptions = {
           email: user.email, 
           role: user.role 
         });
+        
+        // Allow OAuth sign-ins to proceed
+        if (account?.provider === 'google') {
+          return true;
+        }
         
         return true;
       } catch (error) {
