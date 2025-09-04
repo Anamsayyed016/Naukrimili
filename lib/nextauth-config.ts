@@ -294,18 +294,24 @@ export const authOptions: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       console.log('Redirect callback:', { url, baseUrl });
       
-      // Handle OAuth redirects
+      // Handle relative URLs
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
       }
       
-      // For OAuth providers, always redirect to role selection for new users
+      // Handle absolute URLs that start with baseUrl
       if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      
+      // For OAuth callbacks, always redirect to role selection
+      // This ensures new users go through role selection
+      if (url.includes('auth/role-selection') || url.includes('callback')) {
         return `${baseUrl}/auth/role-selection`;
       }
       
-      // Default fallback
-      return baseUrl;
+      // Default fallback to role selection for OAuth
+      return `${baseUrl}/auth/role-selection`;
     }
   },
   pages: {

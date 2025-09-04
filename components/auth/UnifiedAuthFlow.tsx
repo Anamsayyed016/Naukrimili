@@ -5,8 +5,8 @@
 
 'use client';
 
-import React, { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import React, { useState, useEffect } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,7 @@ interface UnifiedAuthFlowProps {
 type AuthStep = 'welcome' | 'role-selection' | 'complete-profile';
 
 export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps) {
+  const { data: session, status } = useSession();
   const [currentStep, setCurrentStep] = useState<AuthStep>('welcome');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -35,31 +36,54 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     authMethod: 'email' // 'email' or 'google'
   });
 
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      console.log('User already authenticated:', session.user);
+      if (session.user.role) {
+        // User has a role, redirect to dashboard
+        if (session.user.role === 'jobseeker') {
+          window.location.href = '/dashboard/jobseeker';
+        } else if (session.user.role === 'employer') {
+          window.location.href = '/dashboard/company';
+        }
+      } else {
+        // User authenticated but no role, redirect to role selection
+        window.location.href = '/auth/role-selection';
+      }
+    }
+  }, [session, status]);
+
   const handleGoogleAuth = async () => {
+    // Prevent multiple simultaneous OAuth attempts
+    if (isLoading) {
+      console.log('OAuth already in progress, ignoring click');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
     setSuccess('');
 
     try {
+      console.log('Starting Google OAuth...');
+      
+      // Use proper OAuth flow with automatic redirect
       const result = await signIn('google', {
         callbackUrl: '/auth/role-selection',
-        redirect: false // Don't redirect automatically, handle it manually
+        redirect: true // Let NextAuth handle the redirect properly
       });
 
+      // This code will only execute if redirect: false, but we're using redirect: true
+      // So this is just a fallback
       if (result?.error) {
         console.error('Google auth error:', result.error);
         setError(`Google authentication failed: ${result.error}. Please try again.`);
-      } else if (result?.ok) {
-        setSuccess('Google authentication successful! Redirecting...');
-        // Redirect manually to role selection
-        window.location.href = '/auth/role-selection';
-      } else {
-        setError('Authentication failed. Please try again.');
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Google auth error:', error);
       setError('Network error during authentication. Please check your connection and try again.');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -370,7 +394,10 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-gray-600" />
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin text-gray-600 mr-2" />
+                      <span className="text-sm font-medium">Connecting...</span>
+                    </>
                   ) : (
                     <>
                       <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
