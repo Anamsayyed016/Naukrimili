@@ -57,20 +57,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set mounted state to prevent hydration mismatch
     setIsMounted(true);
     
-    // Check for stored auth data on component mount
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
-    
-    if (storedUser && storedToken) {
-      try {
-        setUser(JSON.parse(storedUser));
-        setToken(storedToken);
-      } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
-    }
+    // Don't automatically restore stored auth data - require explicit login
+    // This prevents auto-login behavior
   }, []);
 
   // Sync with NextAuth session when available
@@ -116,25 +104,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('token');
       }
     } else if (status === 'unauthenticated') {
-      // If NextAuth session is not available, check stored data
-      const storedUser = localStorage.getItem('user');
-      const storedToken = localStorage.getItem('token');
-      
-      if (storedUser && storedToken) {
-        try {
-          setUser(JSON.parse(storedUser));
-          setToken(storedToken);
-        } catch (error) {
-          console.error('Error parsing stored user data:', error);
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
-          setUser(null);
-          setToken(null);
-        }
-      } else {
-        setUser(null);
-        setToken(null);
-      }
+      // If NextAuth session is not available, clear auth state
+      // Don't restore from localStorage to prevent auto-login
+      setUser(null);
+      setToken(null);
     }
   }, [session, status]);
 

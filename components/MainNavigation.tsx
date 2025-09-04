@@ -49,9 +49,20 @@ export default function MainNavigation({
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
-  const handleLogout = useCallback(() => {
-    logout();
-    router.push('/');
+  const handleLogout = useCallback(async () => {
+    try {
+      // Use NextAuth signOut for proper session cleanup
+      const { signOut } = await import('next-auth/react');
+      await signOut({ 
+        callbackUrl: '/',
+        redirect: true 
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback to local logout
+      logout();
+      router.push('/');
+    }
   }, [logout, router]);
 
   const navLinks = useMemo(() => [
@@ -99,17 +110,6 @@ export default function MainNavigation({
               </Link>
             )}
             
-            {/* Logout Button - Always visible when authenticated */}
-            {isMounted && isAuthenticated && user && (
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden xl:inline">Sign Out</span>
-                <span className="xl:hidden">Logout</span>
-              </button>
-            )}
           </div>
 
           {/* Search Bar - Removed to avoid duplication with homepage */}
@@ -298,13 +298,6 @@ export default function MainNavigation({
                     Profile
                   </Link>
                   
-                  <button
-                    onClick={() => { handleLogout(); closeMenu(); }}
-                    className="w-full flex items-center justify-center px-4 py-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all duration-300 font-medium border border-red-200"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </button>
                 </div>
               ) : (
                 // User is not logged in - show auth buttons
