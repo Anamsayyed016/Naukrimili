@@ -21,7 +21,8 @@ import { sendWelcomeEmail } from '@/lib/welcome-email';
 import { createWelcomeNotification } from '@/lib/notification-service';
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  // Temporarily disable adapter to test OAuth without database dependency
+  // adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
