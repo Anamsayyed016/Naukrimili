@@ -22,7 +22,6 @@ import { createWelcomeNotification } from '@/lib/notification-service';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  allowDangerousEmailAccountLinking: true, // Allow linking OAuth accounts to existing email accounts
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
