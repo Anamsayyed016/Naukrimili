@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { signIn, useSession } from 'next-auth/react';
+import { signIn, useSession, getSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -69,17 +69,30 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     try {
       console.log('Starting Google OAuth...');
       
-      // Use proper OAuth flow with automatic redirect to home page
+      // Use OAuth flow with manual redirect handling
       const result = await signIn('google', {
         callbackUrl: '/',
-        redirect: true // Let NextAuth handle the redirect properly
+        redirect: false // Handle redirect manually
       });
 
-      // This code will only execute if redirect: false, but we're using redirect: true
-      // So this is just a fallback
       if (result?.error) {
         console.error('Google auth error:', result.error);
         setError(`Google authentication failed: ${result.error}. Please try again.`);
+        setIsLoading(false);
+      } else if (result?.ok) {
+        console.log('Google OAuth successful, redirecting to home page...');
+        setSuccess('Authentication successful! Redirecting...');
+        
+        // Refresh session to get updated user data
+        await getSession();
+        
+        // Force redirect to home page
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      } else {
+        console.log('OAuth result:', result);
+        setError('Authentication failed. Please try again.');
         setIsLoading(false);
       }
     } catch (error) {

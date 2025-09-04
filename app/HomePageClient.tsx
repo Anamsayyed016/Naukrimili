@@ -49,8 +49,21 @@ export default function HomePageClient({
 
   // Show role selection if user is authenticated but has no role
   useEffect(() => {
-    if (status === 'authenticated' && session?.user && !session.user.role) {
-      setShowRoleSelection(true);
+    console.log('HomePageClient - Session status:', status);
+    console.log('HomePageClient - Session data:', session);
+    
+    if (status === 'authenticated' && session?.user) {
+      console.log('HomePageClient - User authenticated:', session.user);
+      if (!session.user.role) {
+        console.log('HomePageClient - User has no role, showing role selection');
+        setShowRoleSelection(true);
+      } else {
+        console.log('HomePageClient - User has role:', session.user.role);
+      }
+    } else if (status === 'unauthenticated') {
+      console.log('HomePageClient - User not authenticated');
+    } else if (status === 'loading') {
+      console.log('HomePageClient - Session loading...');
     }
   }, [session, status]);
 
