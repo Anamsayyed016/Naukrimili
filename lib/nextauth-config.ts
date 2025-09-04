@@ -289,10 +289,23 @@ export const authOptions: NextAuthOptions = {
         console.error('Sign-in callback error:', error);
         return false;
       }
+    },
+    async redirect({ url, baseUrl }) {
+      // Handle OAuth redirects
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      
+      // For OAuth providers, redirect to role selection if user has no role
+      if (url.startsWith(baseUrl)) {
+        return `${baseUrl}/auth/role-selection`;
+      }
+      
+      return baseUrl;
     }
   },
   pages: {
-    signIn: '/auth/login',
+    signIn: '/auth/unified',
     error: '/auth/error'
   },
   session: {

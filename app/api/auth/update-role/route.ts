@@ -1,65 +1,85 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
+
+const updateRoleSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  role: z.enum(['jobseeker', 'employer'], {
+    errorMap: () => ({ message: 'Role must be either jobseeker or employer' })
+  })
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const body = await request.json();
+    console.log('Update role request body:', body);
     
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const validatedData = updateRoleSchema.parse(body);
+    console.log('Validated update role data:', validatedData);
 
-    const { userId, role } = await request.json();
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id: validatedData.userId }
+    });
 
-    if (!userId || !role) {
+    if (!existingUser) {
       return NextResponse.json(
-        { success: false, message: 'User ID and role are required' },
-        { status: 400 }
-      );
-    }
-
-    if (!['jobseeker', 'employer'].includes(role)) {
-      return NextResponse.json(
-        { success: false, message: 'Invalid role' },
-        { status: 400 }
+        { error: 'User not found' },
+        { status: 404 }
       );
     }
 
     // Update user role
     const updatedUser = await prisma.user.update({
-      where: {
-        id: userId
-      },
+      where: { id: validatedData.userId },
       data: {
-        role: role
-      },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        emailVerified: true,
-        createdAt: true
+        role: validatedData.role,
+        updatedAt: new Date()
       }
     });
+
+    console.log('User role updated successfully:', updatedUser.id);
 
     return NextResponse.json({
       success: true,
       message: 'Role updated successfully',
-      user: updatedUser
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        role: updatedUser.role
+      }
     });
 
   } catch (error) {
     console.error('Update role error:', error);
+    
+    if (error instanceof z.ZodError) {
+      console.error('Validation errors:', error.errors);
+      return NextResponse.json(
+        { 
+          error: 'Validation failed', 
+          details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
+}
+
+// OPTIONS handler for CORS
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-csrf-token',
+    },
+  });
 }

@@ -42,7 +42,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
 
     try {
       const result = await signIn('google', {
-        callbackUrl: '/dashboard',
+        callbackUrl: '/auth/role-selection',
         redirect: true
       });
 
@@ -105,8 +105,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
           lastName: userData.name.split(' ').slice(1).join(' ') || '',
           email: userData.email,
           password: userData.password,
-          role: userData.role,
-          authMethod: userData.authMethod
+          role: userData.role
         }),
       });
 
