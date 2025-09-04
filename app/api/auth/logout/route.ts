@@ -4,114 +4,27 @@ import { authOptions } from '@/lib/nextauth-config';
 
 export async function POST(request: NextRequest) {
   try {
-    // Get current session to log what we're clearing
     const session = await getServerSession(authOptions);
     
-    if (session?.user) {
-      console.log('👋 Logging out user:', session.user.email);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, message: 'No active session found' },
+        { status: 401 }
+      );
     }
 
-    // Create a response that will clear all auth cookies
-    const response = NextResponse.json({
-      success: true,
-      message: 'Logged out successfully',
-      timestamp: new Date().toISOString(),
-      loggedOut: {
-        session: !!session,
-        userEmail: session?.user?.email || null,
-        timestamp: new Date().toISOString()
-      }
-    });
-
-    // Clear all NextAuth cookies
-    const nextAuthCookieNames = [
-      'next-auth.session-token',
-      'next-auth.callback-url',
-      'next-auth.csrf-token',
-      '__Secure-next-auth.session-token',
-      '__Secure-next-auth.callback-url',
-      '__Secure-next-auth.csrf-token',
-      'next-auth.pkce.code-verifier',
-      '__Host-next-auth.csrf-token'
-    ];
-
-    nextAuthCookieNames.forEach(cookieName => {
-      // Clear cookie with various path and domain combinations
-      response.cookies.set(cookieName, '', {
-        expires: new Date(0),
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
-      });
-      
-      // Also try to clear with /api path
-      response.cookies.set(cookieName, '', {
-        expires: new Date(0),
-        path: '/api',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
-      });
-      
-      // And with /auth path
-      response.cookies.set(cookieName, '', {
-        expires: new Date(0),
-        path: '/auth',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
-      });
-    });
-
-    // Clear any other potential auth cookies
-    const additionalCookieNames = [
-      'auth_token',
-      'user_token',
-      'session_token',
-      'access_token',
-      'refresh_token',
-      'user',
-      'token'
-    ];
-
-    additionalCookieNames.forEach(cookieName => {
-      response.cookies.set(cookieName, '', {
-        expires: new Date(0),
-        path: '/',
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
-      });
-    });
-
-    // Add headers to prevent caching
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
-
-    console.log('✅ Logout completed successfully');
+    // Clear any server-side session data if needed
+    // NextAuth handles most of the session cleanup automatically
     
-    return response;
-
-  } catch (error) {
-    console.error('❌ Logout error:', error);
     return NextResponse.json({
-      success: false,
-      error: 'Logout failed',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+      success: true,
+      message: 'Logged out successfully'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    return NextResponse.json(
+      { success: false, message: 'Logout failed' },
+      { status: 500 }
+    );
   }
-}
-
-// OPTIONS handler for CORS
-export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
 }
