@@ -43,20 +43,22 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     try {
       const result = await signIn('google', {
         callbackUrl: '/auth/role-selection',
-        redirect: true
+        redirect: false // Don't redirect automatically, handle it manually
       });
 
       if (result?.error) {
-        setError('Google authentication failed. Please try again.');
+        console.error('Google auth error:', result.error);
+        setError(`Google authentication failed: ${result.error}. Please try again.`);
       } else if (result?.ok) {
-        setSuccess('Google authentication successful!');
-        if (onAuthSuccess) {
-          onAuthSuccess({ authMethod: 'google' });
-        }
+        setSuccess('Google authentication successful! Redirecting...');
+        // Redirect manually to role selection
+        window.location.href = '/auth/role-selection';
+      } else {
+        setError('Authentication failed. Please try again.');
       }
     } catch (error) {
       console.error('Google auth error:', error);
-      setError('Authentication failed. Please try again.');
+      setError('Network error during authentication. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -112,14 +114,21 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
       const data = await response.json();
 
       if (data.success) {
-        setSuccess('Registration completed successfully!');
+        setSuccess('Registration completed successfully! Redirecting to dashboard...');
         setTimeout(() => {
           if (onAuthSuccess) {
             onAuthSuccess(data.user);
           }
-        }, 1000);
+          // Redirect to appropriate dashboard
+          if (userData.role === 'jobseeker') {
+            window.location.href = '/dashboard/jobseeker';
+          } else {
+            window.location.href = '/dashboard/company';
+          }
+        }, 1500);
       } else {
-        setError(data.message || 'Registration failed');
+        console.error('Registration failed:', data);
+        setError(data.error || data.message || 'Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Registration completion error:', error);

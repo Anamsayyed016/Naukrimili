@@ -44,22 +44,33 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       const data = await response.json();
 
       if (data.success) {
-        // Redirect based on role
-        if (role === 'jobseeker') {
-          router.push('/dashboard/jobseeker?setup=true');
-        } else {
-          router.push('/dashboard/company?setup=true');
+        console.log('Role updated successfully:', data.user);
+        
+        // Update the session with new role
+        if (typeof window !== 'undefined') {
+          // Force session refresh
+          window.location.reload();
         }
+        
+        // Redirect based on role
+        setTimeout(() => {
+          if (role === 'jobseeker') {
+            router.push('/dashboard/jobseeker?setup=true');
+          } else {
+            router.push('/dashboard/company?setup=true');
+          }
+        }, 1000);
         
         if (onComplete) {
           onComplete({ ...user, role });
         }
       } else {
-        setError(data.message || 'Failed to update role');
+        console.error('Role update failed:', data);
+        setError(data.error || data.message || 'Failed to update role. Please try again.');
       }
     } catch (error) {
       console.error('Role selection error:', error);
-      setError('Network error. Please try again.');
+      setError('Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }

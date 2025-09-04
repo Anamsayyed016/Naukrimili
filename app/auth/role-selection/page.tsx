@@ -20,17 +20,22 @@ export default function RoleSelectionPage() {
 
     if (!session) {
       // Not authenticated, redirect to unified auth
+      console.log('No session found, redirecting to unified auth');
       router.push('/auth/unified');
       return;
     }
 
     if (session.user?.role) {
       // User already has a role, redirect to appropriate dashboard
+      console.log('User has role:', session.user.role, 'redirecting to dashboard');
       if (session.user.role === 'jobseeker') {
         router.push('/dashboard/jobseeker');
       } else if (session.user.role === 'employer') {
         router.push('/dashboard/company');
       }
+    } else {
+      // User is authenticated but has no role - show role selection
+      console.log('User authenticated but no role assigned, showing role selection');
     }
   }, [session, status, router]);
 

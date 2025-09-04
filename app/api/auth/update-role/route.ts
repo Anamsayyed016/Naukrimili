@@ -23,10 +23,30 @@ export async function POST(request: NextRequest) {
     });
 
     if (!existingUser) {
+      console.error('User not found:', validatedData.userId);
       return NextResponse.json(
-        { error: 'User not found' },
+        { 
+          success: false,
+          error: 'User not found',
+          message: 'The user account could not be found. Please try logging in again.'
+        },
         { status: 404 }
       );
+    }
+
+    // Check if user already has this role
+    if (existingUser.role === validatedData.role) {
+      console.log('User already has this role:', validatedData.role);
+      return NextResponse.json({
+        success: true,
+        message: 'Role already set',
+        user: {
+          id: existingUser.id,
+          email: existingUser.email,
+          name: existingUser.name,
+          role: existingUser.role
+        }
+      });
     }
 
     // Update user role
@@ -38,7 +58,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('User role updated successfully:', updatedUser.id);
+    console.log('User role updated successfully:', updatedUser.id, 'from', existingUser.role, 'to', updatedUser.role);
 
     return NextResponse.json({
       success: true,
@@ -58,7 +78,9 @@ export async function POST(request: NextRequest) {
       console.error('Validation errors:', error.errors);
       return NextResponse.json(
         { 
+          success: false,
           error: 'Validation failed', 
+          message: 'Invalid data provided',
           details: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
         },
         { status: 400 }
@@ -66,7 +88,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        success: false,
+        error: 'Internal server error',
+        message: 'An unexpected error occurred. Please try again.'
+      },
       { status: 500 }
     );
   }

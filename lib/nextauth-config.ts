@@ -181,6 +181,7 @@ export const authOptions: NextAuthOptions = {
             }
           } catch (error) {
             console.error('Error handling Google OAuth user:', error);
+            // Don't throw error, just log it to prevent auth failure
           }
         }
         
@@ -291,16 +292,19 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async redirect({ url, baseUrl }) {
+      console.log('Redirect callback:', { url, baseUrl });
+      
       // Handle OAuth redirects
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
       }
       
-      // For OAuth providers, redirect to role selection if user has no role
+      // For OAuth providers, always redirect to role selection for new users
       if (url.startsWith(baseUrl)) {
         return `${baseUrl}/auth/role-selection`;
       }
       
+      // Default fallback
       return baseUrl;
     }
   },
@@ -311,6 +315,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // Update every 24 hours
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   jwt: {
