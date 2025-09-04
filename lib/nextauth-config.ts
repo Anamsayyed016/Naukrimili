@@ -106,16 +106,67 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, account, profile }) {
       try {
+        // Handle initial user data from sign-in
         if (user) {
-          token.id = user.id.toString();
-          token.role = user.role || 'jobseeker';
-          token.email = user.email;
-          // Set isNewUser flag for credentials login (always false for existing users)
+          token.id = user.id?.toString() || token.sub;
+          token.role = user.role || null;
+          token.email = user.email || token.email;
+          token.name = user.name || token.name;
           token.isNewUser = false;
         }
         
+        // Handle OAuth provider data
         if (account?.provider === 'google' && profile) {
-          // Handle Google OAuth user creation/update
+          token.email = profile.email || token.email;
+          token.name = profile.name || token.name;
+          token.picture = (profile as any).picture || token.picture;
+          // Mark as OAuth user for role selection
+          token.isOAuthUser = true;
+        }
+        
+        if (account?.provider === 'linkedin' && profile) {
+          token.email = profile.email || token.email;
+          token.name = profile.name || token.name;
+          token.picture = (profile as any).picture || token.picture;
+          // Mark as OAuth user for role selection
+          token.isOAuthUser = true;
+        }
+        
+        return token;
+      } catch (error) {
+        console.error('JWT callback error:', error);
+        return token;
+      }
+    },
+    async session({ session, token }) {
+      try {
+        if (session.user) {
+          (session.user as any).id = token.id || token.sub || '';
+          (session.user as any).role = token.role || null; // Don't default to jobseeker
+          (session.user as any).email = token.email || '';
+          (session.user as any).name = token.name || '';
+          (session.user as any).picture = token.picture || '';
+          (session.user as any).isVerified = true;
+          // Pass flags to session for frontend use
+          (session.user as any).isNewUser = token.isNewUser || false;
+          (session.user as any).isOAuthUser = token.isOAuthUser || false;
+        }
+        return session;
+      } catch (error) {
+        console.error('Session callback error:', error);
+        return session;
+      }
+    },
+    async signIn({ user, account, profile, email, credentials }) {
+      try {
+        console.log('Sign-in attempt:', { 
+          provider: account?.provider, 
+          email: user.email, 
+          role: user.role 
+        });
+        
+        // Handle OAuth sign-ins
+        if (account?.provider === 'google' && profile) {
           try {
             const existingUser = await prisma.user.findUnique({
               where: { email: profile.email || '' }
@@ -134,14 +185,7 @@ export const authOptions: NextAuthOptions = {
                 }
               });
               
-              token.id = newUser.id.toString();
-              token.role = null; // No role assigned yet
-              token.email = profile.email || '';
-              token.name = profile.name || '';
-              // Mark as new user for OAuth registration
-              token.isNewUser = true;
-              
-              console.log(`✅ Google OAuth: New user created and verified for ${profile.email}`);
+              console.log(`✅ Google OAuth: New user created for ${profile.email}`);
               
               // Create welcome notification for new OAuth users (async, don't await to avoid blocking)
               createWelcomeNotification(
@@ -172,13 +216,6 @@ export const authOptions: NextAuthOptions = {
                 }
               });
               
-              token.id = existingUser.id.toString();
-              token.role = existingUser.role;
-              token.email = profile.email || '';
-              token.name = profile.name || '';
-              // Mark as existing user
-              token.isNewUser = false;
-              
               console.log(`✅ Google OAuth: Existing user logged in for ${profile.email}`);
             }
           } catch (error) {
@@ -200,21 +237,14 @@ export const authOptions: NextAuthOptions = {
                 data: {
                   email: profile.email || '',
                   name: profile.name || '',
-                  role: 'jobseeker',
+                  role: null, // No default role - user will select
                   isActive: true,
                   isVerified: true, // LinkedIn OAuth users are automatically verified
                   emailVerified: new Date()
                 }
               });
               
-              token.id = newUser.id.toString();
-              token.role = newUser.role;
-              token.email = profile.email || '';
-              token.name = profile.name || '';
-              // Mark as new user for OAuth registration
-              token.isNewUser = true;
-              
-              console.log(`✅ LinkedIn OAuth: New user created and verified for ${profile.email}`);
+              console.log(`✅ LinkedIn OAuth: New user created for ${profile.email}`);
               
               // Create welcome notification for new OAuth users (async, don't await to avoid blocking)
               createWelcomeNotification(
@@ -243,53 +273,11 @@ export const authOptions: NextAuthOptions = {
                 }
               });
               
-              token.id = existingUser.id.toString();
-              token.role = existingUser.role;
-              token.email = profile.email || '';
-              token.name = profile.name || '';
-              // Mark as existing user
-              token.isNewUser = false;
-              
               console.log(`✅ LinkedIn OAuth: Existing user logged in for ${profile.email}`);
             }
           } catch (error) {
             console.error('Error handling LinkedIn OAuth user:', error);
           }
-        }
-        
-        return token;
-      } catch (error) {
-        console.error('JWT callback error:', error);
-        return token;
-      }
-    },
-    async session({ session, token }) {
-      try {
-        if (session.user) {
-          (session.user as any).id = token.id || token.sub || '';
-          (session.user as any).role = token.role || null; // Don't default to jobseeker
-          (session.user as any).email = token.email || '';
-          (session.user as any).isVerified = true;
-          // Pass isNewUser flag to session for frontend use
-          (session.user as any).isNewUser = token.isNewUser || false;
-        }
-        return session;
-      } catch (error) {
-        console.error('Session callback error:', error);
-        return session;
-      }
-    },
-    async signIn({ user, account, profile, email, credentials }) {
-      try {
-        console.log('Sign-in attempt:', { 
-          provider: account?.provider, 
-          email: user.email, 
-          role: user.role 
-        });
-        
-        // Allow OAuth sign-ins to proceed
-        if (account?.provider === 'google') {
-          return true;
         }
         
         return true;
