@@ -18,6 +18,7 @@ import { prisma } from '@/lib/prisma';
 // @ts-ignore - bcryptjs types are available but may have module resolution issues
 import bcrypt from 'bcryptjs';
 import { sendWelcomeEmail } from '@/lib/welcome-email';
+import { createWelcomeNotification } from '@/lib/notification-service';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -142,6 +143,15 @@ export const authOptions: NextAuthOptions = {
               
               console.log(`✅ Google OAuth: New user created and verified for ${profile.email}`);
               
+              // Create welcome notification for new OAuth users (async, don't await to avoid blocking)
+              createWelcomeNotification(
+                newUser.id,
+                profile.name || 'User',
+                'Google'
+              ).catch(error => {
+                console.error('Failed to create welcome notification:', error);
+              });
+              
               // Send welcome email for new OAuth users (async, don't await to avoid blocking)
               sendWelcomeEmail({
                 email: profile.email || '',
@@ -202,6 +212,15 @@ export const authOptions: NextAuthOptions = {
               token.isNewUser = true;
               
               console.log(`✅ LinkedIn OAuth: New user created and verified for ${profile.email}`);
+              
+              // Create welcome notification for new OAuth users (async, don't await to avoid blocking)
+              createWelcomeNotification(
+                newUser.id,
+                profile.name || 'User',
+                'LinkedIn'
+              ).catch(error => {
+                console.error('Failed to create welcome notification:', error);
+              });
               
               // Send welcome email for new OAuth users (async, don't await to avoid blocking)
               sendWelcomeEmail({

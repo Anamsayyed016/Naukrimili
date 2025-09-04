@@ -111,6 +111,7 @@ model User {
   sentMessages    Message[]   @relation("SentMessages")
   receivedMessages Message[]  @relation("ReceivedMessages")
   settings        Settings[]
+  notifications   Notification[]
 }
 
 // NextAuth.js OAuth Account Model
@@ -301,5 +302,25 @@ model StaticContent {
   updatedAt DateTime @updatedAt
   
   @@index([key])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // WELCOME, JOB_MATCH, APPLICATION_UPDATE, SYSTEM, etc.
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  data      Json?    // Additional notification data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
 }
 
