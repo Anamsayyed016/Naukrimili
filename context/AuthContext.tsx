@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { toast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
@@ -19,6 +20,7 @@ interface User {
   profilePicture?: string;
   isVerified?: boolean;
   isActive?: boolean;
+  isNewUser?: boolean; // Flag to track if user is new (OAuth registration)
   companyName?: string;
   recruiterName?: string;
   companyWebsite?: string;
@@ -91,11 +93,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: user?.role || 'jobseeker',
           isVerified: user?.isVerified !== false, // Use session verification status
           isActive: true,
+          isNewUser: user?.isNewUser || false, // Track if user is new (OAuth registration)
           // Add other fields as needed
         };
         
         setUser(nextAuthUser);
         setToken('nextauth-session'); // Use a placeholder for NextAuth sessions
+        
+        // Show welcome notification for new OAuth users (only once per session)
+        if (user?.isNewUser && !sessionStorage.getItem('welcome-shown')) {
+          toast({
+            title: "🎉 Welcome to Naukrimili!",
+            description: "You have successfully connected to Naukrimili! Start exploring job opportunities.",
+            duration: 5000,
+          });
+          // Mark welcome as shown for this session
+          sessionStorage.setItem('welcome-shown', 'true');
+        }
         
         // Clear stored data since we're using NextAuth
         localStorage.removeItem('user');

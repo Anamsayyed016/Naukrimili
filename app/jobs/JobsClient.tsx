@@ -34,6 +34,8 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
   const [userCoordinates, setUserCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  // Add state to track if we should show CSE as fallback
+  const [showCSEAsFallback, setShowCSEAsFallback] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -100,6 +102,12 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
       if (data.success) {
         const newJobs = (data.jobs || []).map(convertToSimpleJob);
         setJobs(newJobs);
+        
+        // Determine if we should show CSE as fallback
+        // Show as fallback if no jobs found from external providers (Adzuna, JSearch, Google Jobs)
+        const hasExternalJobs = newJobs.some(job => job.source === 'external');
+        const shouldShowFallback = newJobs.length === 0 || (!hasExternalJobs && newJobs.length < 3);
+        setShowCSEAsFallback(shouldShowFallback);
       } else {
         throw new Error(data.error || 'Failed to fetch jobs');
       }
@@ -346,6 +354,18 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
         {/* Results */}
         <div className="space-y-6">
+          {/* Google CSE - Show above results when search query exists */}
+          {searchQuery && (
+            <div className="mb-6">
+              <GoogleCSESearch 
+                searchQuery={searchQuery}
+                location={location}
+                className="w-full"
+                isFallback={showCSEAsFallback}
+              />
+            </div>
+          )}
+
           {/* Results Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -499,21 +519,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
             </div>
           )}
 
-          {/* Google CSE Additional Results */}
-          {searchQuery && (
-            <div className="mt-8">
-              <div className="border-t border-gray-200 pt-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Additional Job Results from Google
-                </h2>
-                <GoogleCSESearch 
-                  searchQuery={searchQuery}
-                  location={location}
-                  className="w-full"
-                />
-              </div>
-            </div>
-          )}
+          {/* Note: Google CSE is now rendered above the results section for better visibility */}
         </div>
       </div>
     </div>

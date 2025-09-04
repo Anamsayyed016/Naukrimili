@@ -7,6 +7,7 @@ interface GoogleCSESearchProps {
   searchQuery: string;
   location?: string;
   className?: string;
+  isFallback?: boolean; // New prop to indicate if this is shown as fallback
 }
 
 declare global {
@@ -27,7 +28,8 @@ declare global {
 export default function GoogleCSESearch({ 
   searchQuery, 
   location, 
-  className = '' 
+  className = '',
+  isFallback = false // Default to false for backward compatibility
 }: GoogleCSESearchProps) {
   const searchBoxRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -136,7 +138,7 @@ export default function GoogleCSESearch({
   }
 
   return (
-    <div className={`bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-3xl p-4 sm:p-6 lg:p-8 shadow-lg ${className}`}>
+    <div className={`bg-white/95 backdrop-blur-md border ${isFallback ? 'border-orange-200/80 bg-orange-50/30' : 'border-gray-200/60'} rounded-3xl p-4 sm:p-6 lg:p-8 shadow-lg ${className}`}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -144,10 +146,13 @@ export default function GoogleCSESearch({
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
-            Additional Job Opportunities
+            {isFallback ? '🔎 Additional results powered by Google Search' : 'Additional Job Opportunities'}
           </h3>
           <p className="text-gray-600 text-xs sm:text-sm">
-            Broader search results from across the web for: 
+            {isFallback 
+              ? `No jobs found from our partners. Here are broader search results from across the web for:`
+              : `Broader search results from across the web for:`
+            }
             <span className="font-medium text-gray-800 ml-1">"{searchQuery}"</span>
             {location && location !== 'All Locations' && (
               <span className="ml-1">in <span className="font-medium text-gray-800">{location}</span></span>

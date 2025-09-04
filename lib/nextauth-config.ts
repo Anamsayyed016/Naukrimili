@@ -3,12 +3,21 @@
  * Clean implementation without OTP verification
  */
 
+// Type declarations for Node.js environment
+declare const process: {
+  env: {
+    [key: string]: string | undefined;
+  };
+};
+
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
+// @ts-ignore - bcryptjs types are available but may have module resolution issues
 import bcrypt from 'bcryptjs';
+import { sendWelcomeEmail } from '@/lib/welcome-email';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -25,6 +34,16 @@ export const authOptions: NextAuthOptions = {
         }
       }
     }),
+    // LinkedIn OAuth Provider (commented out until credentials are configured)
+    // LinkedInProvider({
+    //   clientId: process.env.LINKEDIN_CLIENT_ID || '',
+    //   clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '',
+    //   authorization: {
+    //     params: {
+    //       scope: 'r_liteprofile r_emailaddress',
+    //     }
+    //   }
+    // }),
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -90,6 +109,8 @@ export const authOptions: NextAuthOptions = {
           token.id = user.id.toString();
           token.role = user.role || 'jobseeker';
           token.email = user.email;
+          // Set isNewUser flag for credentials login (always false for existing users)
+          token.isNewUser = false;
         }
         
         if (account?.provider === 'google' && profile) {
@@ -116,8 +137,19 @@ export const authOptions: NextAuthOptions = {
               token.role = newUser.role;
               token.email = profile.email || '';
               token.name = profile.name || '';
+              // Mark as new user for OAuth registration
+              token.isNewUser = true;
               
               console.log(`✅ Google OAuth: New user created and verified for ${profile.email}`);
+              
+              // Send welcome email for new OAuth users (async, don't await to avoid blocking)
+              sendWelcomeEmail({
+                email: profile.email || '',
+                name: profile.name || '',
+                provider: 'google'
+              }).catch(error => {
+                console.error('Failed to send welcome email:', error);
+              });
             } else {
               // Update existing user
               await prisma.user.update({
@@ -132,11 +164,74 @@ export const authOptions: NextAuthOptions = {
               token.role = existingUser.role;
               token.email = profile.email || '';
               token.name = profile.name || '';
+              // Mark as existing user
+              token.isNewUser = false;
               
               console.log(`✅ Google OAuth: Existing user logged in for ${profile.email}`);
             }
           } catch (error) {
             console.error('Error handling Google OAuth user:', error);
+          }
+        }
+        
+        // Handle LinkedIn OAuth (if implemented)
+        if (account?.provider === 'linkedin' && profile) {
+          try {
+            const existingUser = await prisma.user.findUnique({
+              where: { email: profile.email || '' }
+            });
+
+            if (!existingUser) {
+              // Create new user from LinkedIn OAuth
+              const newUser = await prisma.user.create({
+                data: {
+                  email: profile.email || '',
+                  name: profile.name || '',
+                  role: 'jobseeker',
+                  isActive: true,
+                  isVerified: true, // LinkedIn OAuth users are automatically verified
+                  emailVerified: new Date()
+                }
+              });
+              
+              token.id = newUser.id.toString();
+              token.role = newUser.role;
+              token.email = profile.email || '';
+              token.name = profile.name || '';
+              // Mark as new user for OAuth registration
+              token.isNewUser = true;
+              
+              console.log(`✅ LinkedIn OAuth: New user created and verified for ${profile.email}`);
+              
+              // Send welcome email for new OAuth users (async, don't await to avoid blocking)
+              sendWelcomeEmail({
+                email: profile.email || '',
+                name: profile.name || '',
+                provider: 'linkedin'
+              }).catch(error => {
+                console.error('Failed to send welcome email:', error);
+              });
+            } else {
+              // Update existing user
+              await prisma.user.update({
+                where: { id: existingUser.id },
+                data: {
+                  emailVerified: new Date(),
+                  updatedAt: new Date()
+                }
+              });
+              
+              token.id = existingUser.id.toString();
+              token.role = existingUser.role;
+              token.email = profile.email || '';
+              token.name = profile.name || '';
+              // Mark as existing user
+              token.isNewUser = false;
+              
+              console.log(`✅ LinkedIn OAuth: Existing user logged in for ${profile.email}`);
+            }
+          } catch (error) {
+            console.error('Error handling LinkedIn OAuth user:', error);
           }
         }
         
@@ -153,6 +248,8 @@ export const authOptions: NextAuthOptions = {
           (session.user as any).role = token.role || 'jobseeker';
           (session.user as any).email = token.email || '';
           (session.user as any).isVerified = true;
+          // Pass isNewUser flag to session for frontend use
+          (session.user as any).isNewUser = token.isNewUser || false;
         }
         return session;
       } catch (error) {
