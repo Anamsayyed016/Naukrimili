@@ -48,8 +48,9 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
           window.location.href = '/dashboard/company';
         }
       } else {
-        // User authenticated but no role, redirect to role selection
-        window.location.href = '/auth/role-selection';
+        // User authenticated but no role, redirect to home page
+        // User can choose role from home page
+        window.location.href = '/';
       }
     }
   }, [session, status]);
@@ -68,9 +69,9 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     try {
       console.log('Starting Google OAuth...');
       
-      // Use proper OAuth flow with automatic redirect
+      // Use proper OAuth flow with automatic redirect to home page
       const result = await signIn('google', {
-        callbackUrl: '/auth/role-selection',
+        callbackUrl: '/',
         redirect: true // Let NextAuth handle the redirect properly
       });
 

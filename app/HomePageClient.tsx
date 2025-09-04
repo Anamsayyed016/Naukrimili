@@ -43,16 +43,56 @@ export default function HomePageClient({
   const [selectedRole, setSelectedRole] = useState<'jobseeker' | 'employer' | null>(null);
   const [showJobSeekerOptions, setShowJobSeekerOptions] = useState(false);
   const [showEmployerOptions, setShowEmployerOptions] = useState(false);
+  const [showRoleSelection, setShowRoleSelection] = useState(false);
+  const [isUpdatingRole, setIsUpdatingRole] = useState(false);
   const router = useRouter();
 
-  const handleRoleSelect = (role: 'jobseeker' | 'employer') => {
+  // Show role selection if user is authenticated but has no role
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user && !session.user.role) {
+      setShowRoleSelection(true);
+    }
+  }, [session, status]);
+
+  const handleRoleSelect = async (role: 'jobseeker' | 'employer') => {
+    if (!session?.user?.id) return;
+    
+    setIsUpdatingRole(true);
     setSelectedRole(role);
-    if (role === 'jobseeker') {
-      setShowJobSeekerOptions(true);
-      setShowEmployerOptions(false);
-    } else {
-      setShowEmployerOptions(true);
-      setShowJobSeekerOptions(false);
+    
+    try {
+      // Update user role in database
+      const response = await fetch('/api/auth/update-role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: session.user.id,
+          role: role
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log('Role updated successfully:', data.user);
+        
+        // Redirect to appropriate dashboard
+        if (role === 'jobseeker') {
+          router.push('/dashboard/jobseeker?setup=true');
+        } else {
+          router.push('/dashboard/company?setup=true');
+        }
+      } else {
+        console.error('Role update failed:', data);
+        alert('Failed to update role. Please try again.');
+      }
+    } catch (error) {
+      console.error('Role selection error:', error);
+      alert('Network error. Please try again.');
+    } finally {
+      setIsUpdatingRole(false);
     }
   };
 
@@ -67,6 +107,82 @@ export default function HomePageClient({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+      {/* User Profile Corner - Show if authenticated */}
+      {isAuthenticated && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-white" />
+              </div>
+              <div className="text-sm">
+                <div className="font-medium text-gray-900">{session.user.name || 'User'}</div>
+                <div className="text-gray-500 text-xs">{session.user.email}</div>
+              </div>
+              {!session.user.role && (
+                <button
+                  onClick={() => setShowRoleSelection(true)}
+                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Choose Role
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role Selection Modal */}
+      {showRoleSelection && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Choose Your Role</h3>
+              <p className="text-gray-600">Select how you want to use our platform</p>
+            </div>
+            
+            <div className="space-y-3">
+              <button
+                onClick={() => handleRoleSelect('jobseeker')}
+                disabled={isUpdatingRole}
+                className="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-left disabled:opacity-50"
+              >
+                <div className="flex items-center gap-3">
+                  <UserCheck className="w-6 h-6 text-blue-600" />
+                  <div>
+                    <div className="font-semibold text-gray-900">Job Seeker</div>
+                    <div className="text-sm text-gray-600">Find jobs, upload resume, build profile</div>
+                  </div>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => handleRoleSelect('employer')}
+                disabled={isUpdatingRole}
+                className="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all text-left disabled:opacity-50"
+              >
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-6 h-6 text-green-600" />
+                  <div>
+                    <div className="font-semibold text-gray-900">Employer</div>
+                    <div className="text-sm text-gray-600">Post jobs, find candidates, manage company</div>
+                  </div>
+                </div>
+              </button>
+            </div>
+            
+            {isUpdatingRole && (
+              <div className="mt-4 text-center">
+                <div className="inline-flex items-center gap-2 text-blue-600">
+                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  Updating role...
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Hero Section - Enhanced with Authentication */}
       <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Background Elements */}

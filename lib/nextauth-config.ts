@@ -304,14 +304,14 @@ export const authOptions: NextAuthOptions = {
         return url;
       }
       
-      // For OAuth callbacks, always redirect to role selection
-      // This ensures new users go through role selection
-      if (url.includes('auth/role-selection') || url.includes('callback')) {
-        return `${baseUrl}/auth/role-selection`;
+      // For OAuth callbacks, redirect to home page
+      // User can choose role from home page
+      if (url.includes('callback') || url.includes('auth')) {
+        return `${baseUrl}/`;
       }
       
-      // Default fallback to role selection for OAuth
-      return `${baseUrl}/auth/role-selection`;
+      // Default fallback to home page for OAuth
+      return `${baseUrl}/`;
     }
   },
   pages: {
