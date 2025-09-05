@@ -56,7 +56,6 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
   }, [session, status]);
 
   const handleGoogleAuth = async () => {
-    // Prevent multiple simultaneous OAuth attempts
     if (isLoading) {
       console.log('OAuth already in progress, ignoring click');
       return;
@@ -69,10 +68,9 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     try {
       console.log('Starting Google OAuth...');
       
-      // Use OAuth flow with manual redirect handling
       const result = await signIn('google', {
-        callbackUrl: '/',
-        redirect: false // Handle redirect manually
+        callbackUrl: '/auth/role-selection',
+        redirect: false
       });
 
       if (result?.error) {
@@ -80,15 +78,13 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
         setError(`Google authentication failed: ${result.error}. Please try again.`);
         setIsLoading(false);
       } else if (result?.ok) {
-        console.log('Google OAuth successful, redirecting to home page...');
+        console.log('Google OAuth successful, redirecting...');
         setSuccess('Authentication successful! Redirecting...');
         
-        // Refresh session to get updated user data
         await getSession();
         
-        // Force redirect to home page
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = '/auth/role-selection';
         }, 1000);
       } else {
         console.log('OAuth result:', result);
