@@ -116,21 +116,59 @@ export const authOptions: NextAuthOptions = {
           token.isNewUser = false;
         }
         
-        // Handle OAuth provider data
+        // Handle OAuth provider data - fetch user from database
         if (account?.provider === 'google' && profile) {
-          token.email = profile.email || token.email;
-          token.name = profile.name || token.name;
-          token.picture = (profile as any).picture || token.picture;
-          // Mark as OAuth user for role selection
-          token.isOAuthUser = true;
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { email: profile.email || '' }
+            });
+            
+            if (dbUser) {
+              token.id = dbUser.id;
+              token.role = dbUser.role;
+              token.email = dbUser.email;
+              token.name = dbUser.name;
+              token.isOAuthUser = true;
+            } else {
+              token.email = profile.email || token.email;
+              token.name = profile.name || token.name;
+              token.picture = (profile as any).picture || token.picture;
+              token.isOAuthUser = true;
+            }
+          } catch (error) {
+            console.error('Error fetching user in JWT callback:', error);
+            token.email = profile.email || token.email;
+            token.name = profile.name || token.name;
+            token.picture = (profile as any).picture || token.picture;
+            token.isOAuthUser = true;
+          }
         }
         
         if (account?.provider === 'linkedin' && profile) {
-          token.email = profile.email || token.email;
-          token.name = profile.name || token.name;
-          token.picture = (profile as any).picture || token.picture;
-          // Mark as OAuth user for role selection
-          token.isOAuthUser = true;
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { email: profile.email || '' }
+            });
+            
+            if (dbUser) {
+              token.id = dbUser.id;
+              token.role = dbUser.role;
+              token.email = dbUser.email;
+              token.name = dbUser.name;
+              token.isOAuthUser = true;
+            } else {
+              token.email = profile.email || token.email;
+              token.name = profile.name || token.name;
+              token.picture = (profile as any).picture || token.picture;
+              token.isOAuthUser = true;
+            }
+          } catch (error) {
+            console.error('Error fetching user in JWT callback:', error);
+            token.email = profile.email || token.email;
+            token.name = profile.name || token.name;
+            token.picture = (profile as any).picture || token.picture;
+            token.isOAuthUser = true;
+          }
         }
         
         return token;

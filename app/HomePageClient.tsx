@@ -74,6 +74,10 @@ export default function HomePageClient({
     setSelectedRole(role);
     
     try {
+      console.log('HomePageClient - Session user:', session.user);
+      console.log('HomePageClient - User ID:', session.user.id);
+      console.log('HomePageClient - Role to set:', role);
+      
       // Update user role in database
       const response = await fetch('/api/auth/update-role', {
         method: 'POST',

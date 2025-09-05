@@ -29,6 +29,10 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
     setError('');
 
     try {
+      console.log('PostAuthRoleSelection - User data:', user);
+      console.log('PostAuthRoleSelection - User ID:', user.id);
+      console.log('PostAuthRoleSelection - Role to set:', role);
+      
       // Update user role in database
       const response = await fetch('/api/auth/update-role', {
         method: 'POST',

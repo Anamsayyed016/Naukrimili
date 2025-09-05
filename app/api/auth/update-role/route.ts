@@ -16,6 +16,10 @@ export async function POST(request: NextRequest) {
     
     const validatedData = updateRoleSchema.parse(body);
     console.log('Validated update role data:', validatedData);
+    
+    // Additional debugging
+    console.log('User ID type:', typeof validatedData.userId);
+    console.log('User ID value:', validatedData.userId);
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
