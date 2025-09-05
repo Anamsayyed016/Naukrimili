@@ -11,7 +11,8 @@ import {
   TrendingUp, 
   Building2,
   Eye,
-  Star
+  Star,
+  BarChart3
 } from "lucide-react";
 import Link from "next/link";
 
@@ -210,6 +211,12 @@ export default function CompanyDashboard() {
               <Button variant="outline">
                 <Building2 className="h-4 w-4 mr-2" />
                 Edit Company Profile
+              </Button>
+            </Link>
+            <Link href="/employer/analytics">
+              <Button variant="outline">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
               </Button>
             </Link>
           </div>

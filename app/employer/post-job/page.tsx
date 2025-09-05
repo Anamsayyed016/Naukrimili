@@ -150,6 +150,55 @@ export default function PostJobPage() {
     e.preventDefault();
     setLoading(true);
 
+    // Enhanced validation
+    if (!formData.title.trim()) {
+      alert('Job title is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      alert('Job description is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.location.trim()) {
+      alert('Job location is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.jobType) {
+      alert('Please select a job type');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.experienceLevel) {
+      alert('Please select experience level');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.sector) {
+      alert('Please select a sector');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.skills.length === 0) {
+      alert('Please add at least one required skill');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.salary && !formData.salary.match(/^\d+(\s*-\s*\d+)?$/)) {
+      alert('Please enter a valid salary range (e.g., 50000-80000)');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/employer/post-job', {
         method: 'POST',
@@ -271,6 +320,22 @@ export default function PostJobPage() {
                         <SelectItem value="education">Education</SelectItem>
                         <SelectItem value="retail">Retail</SelectItem>
                         <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                        <SelectItem value="marketing">Marketing & Advertising</SelectItem>
+                        <SelectItem value="media">Media & Entertainment</SelectItem>
+                        <SelectItem value="real-estate">Real Estate</SelectItem>
+                        <SelectItem value="consulting">Consulting</SelectItem>
+                        <SelectItem value="transportation">Transportation & Logistics</SelectItem>
+                        <SelectItem value="energy">Energy & Utilities</SelectItem>
+                        <SelectItem value="government">Government & Public Sector</SelectItem>
+                        <SelectItem value="nonprofit">Non-profit & NGO</SelectItem>
+                        <SelectItem value="food">Food & Beverage</SelectItem>
+                        <SelectItem value="fashion">Fashion & Apparel</SelectItem>
+                        <SelectItem value="automotive">Automotive</SelectItem>
+                        <SelectItem value="construction">Construction & Engineering</SelectItem>
+                        <SelectItem value="legal">Legal Services</SelectItem>
+                        <SelectItem value="travel">Travel & Tourism</SelectItem>
+                        <SelectItem value="agriculture">Agriculture</SelectItem>
+                        <SelectItem value="telecommunications">Telecommunications</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
@@ -327,10 +392,11 @@ export default function PostJobPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="entry">Entry Level</SelectItem>
-                        <SelectItem value="mid">Mid Level</SelectItem>
-                        <SelectItem value="senior">Senior Level</SelectItem>
-                        <SelectItem value="executive">Executive</SelectItem>
+                        <SelectItem value="entry">Entry Level (0-2 years)</SelectItem>
+                        <SelectItem value="mid">Mid Level (3-5 years)</SelectItem>
+                        <SelectItem value="senior">Senior Level (6-10 years)</SelectItem>
+                        <SelectItem value="lead">Lead (11-15 years)</SelectItem>
+                        <SelectItem value="executive">Executive (15+ years)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

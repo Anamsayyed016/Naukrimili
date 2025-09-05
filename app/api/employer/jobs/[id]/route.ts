@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requireEmployerAuth } from '@/lib/auth-utils';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { requireEmployerAuth } from "@/lib/auth-utils";
+import { prisma } from "@/lib/prisma";
 
+// GET - Fetch single job
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -13,34 +14,33 @@ export async function GET(
     }
 
     const { user } = auth;
-    const jobId = parseInt(params.id, 10);
+    const jobId = params.id;
 
-    if (isNaN(jobId)) {
+    if (!jobId) {
       return NextResponse.json(
-        { error: 'Invalid job ID' },
+        { error: "Invalid job ID" },
         { status: 400 }
       );
     }
 
-    // Verify the job belongs to the employer's company
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
         companyId: user.company.id
       },
       include: {
-        companyRelation: {
+        applications: {
           select: {
             id: true,
-            name: true,
-            logo: true,
-            industry: true
-          }
-        },
-        _count: {
-          select: {
-            applications: true,
-            bookmarks: true
+            status: true,
+            appliedAt: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
           }
         }
       }
@@ -48,7 +48,7 @@ export async function GET(
 
     if (!job) {
       return NextResponse.json(
-        { error: 'Job not found or access denied' },
+        { error: "Job not found" },
         { status: 404 }
       );
     }
@@ -58,14 +58,15 @@ export async function GET(
       data: job
     });
   } catch (error) {
-    console.error('Error fetching job details:', error);
+    console.error("Error fetching job:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch job details' },
+      { error: "Failed to fetch job" },
       { status: 500 }
     );
   }
 }
 
+// PUT - Update job
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -77,29 +78,17 @@ export async function PUT(
     }
 
     const { user } = auth;
-    const jobId = parseInt(params.id, 10);
+    const jobId = params.id;
+    const body = await request.json();
 
-    if (isNaN(jobId)) {
+    if (!jobId) {
       return NextResponse.json(
-        { error: 'Invalid job ID' },
+        { error: "Invalid job ID" },
         { status: 400 }
       );
     }
 
-    const body = await request.json();
-    const {
-      title,
-      description,
-      location,
-      jobType,
-      experienceLevel,
-      salaryMin,
-      salaryMax,
-      isRemote,
-      isActive
-    } = body;
-
-    // Verify the job belongs to the employer's company
+    // Verify job belongs to employer's company
     const existingJob = await prisma.job.findFirst({
       where: {
         id: jobId,
@@ -109,24 +98,62 @@ export async function PUT(
 
     if (!existingJob) {
       return NextResponse.json(
-        { error: 'Job not found or access denied' },
+        { error: "Job not found" },
         { status: 404 }
       );
     }
 
-    // Update the job
+    const {
+      title,
+      description,
+      location,
+      country = "IN",
+      jobType,
+      experienceLevel,
+      salary,
+      salaryMin,
+      salaryMax,
+      salaryCurrency = "INR",
+      skills = [],
+      isRemote = false,
+      isHybrid = false,
+      isUrgent = false,
+      isFeatured = false,
+      sector,
+      requirements,
+      benefits,
+      applicationDeadline
+    } = body;
+
+    // Validate required fields
+    if (!title || !description || !location) {
+      return NextResponse.json(
+        { error: "Title, description, and location are required" },
+        { status: 400 }
+      );
+    }
+
     const updatedJob = await prisma.job.update({
       where: { id: jobId },
       data: {
         title,
         description,
         location,
+        country,
         jobType,
         experienceLevel,
+        salary,
         salaryMin,
         salaryMax,
+        salaryCurrency,
+        skills,
         isRemote,
-        isActive,
+        isHybrid,
+        isUrgent,
+        isFeatured,
+        sector,
+        requirements: requirements ? [requirements] : existingJob.requirements,
+        // applicationDeadline: applicationDeadline ? new Date(applicationDeadline) : null,
         updatedAt: new Date()
       }
     });
@@ -134,17 +161,18 @@ export async function PUT(
     return NextResponse.json({
       success: true,
       data: updatedJob,
-      message: 'Job updated successfully'
+      message: "Job updated successfully"
     });
   } catch (error) {
-    console.error('Error updating job:', error);
+    console.error("Error updating job:", error);
     return NextResponse.json(
-      { error: 'Failed to update job' },
+      { error: "Failed to update job" },
       { status: 500 }
     );
   }
 }
 
+// DELETE - Delete job
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -156,16 +184,16 @@ export async function DELETE(
     }
 
     const { user } = auth;
-    const jobId = parseInt(params.id, 10);
+    const jobId = params.id;
 
-    if (isNaN(jobId)) {
+    if (!jobId) {
       return NextResponse.json(
-        { error: 'Invalid job ID' },
+        { error: "Invalid job ID" },
         { status: 400 }
       );
     }
 
-    // Verify the job belongs to the employer's company
+    // Verify job belongs to employer's company
     const existingJob = await prisma.job.findFirst({
       where: {
         id: jobId,
@@ -175,24 +203,37 @@ export async function DELETE(
 
     if (!existingJob) {
       return NextResponse.json(
-        { error: 'Job not found or access denied' },
+        { error: "Job not found" },
         { status: 404 }
       );
     }
 
-    // Delete the job
-    await prisma.job.delete({
-      where: { id: jobId }
+    // Delete job and related applications
+    await prisma.$transaction(async (tx) => {
+      // Delete applications first
+      await tx.application.deleteMany({
+        where: { jobId: jobId }
+      });
+
+      // Delete job bookmarks
+      await tx.jobBookmark.deleteMany({
+        where: { jobId: jobId }
+      });
+
+      // Delete the job
+      await tx.job.delete({
+        where: { id: jobId }
+      });
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Job deleted successfully'
+      message: "Job deleted successfully"
     });
   } catch (error) {
-    console.error('Error deleting job:', error);
+    console.error("Error deleting job:", error);
     return NextResponse.json(
-      { error: 'Failed to delete job' },
+      { error: "Failed to delete job" },
       { status: 500 }
     );
   }
@@ -201,4 +242,3 @@ export async function DELETE(
 export async function OPTIONS() {
   return new NextResponse(null, { status: 200 });
 }
-

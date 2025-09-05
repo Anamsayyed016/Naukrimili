@@ -65,11 +65,24 @@ export default function MainNavigation({
     }
   }, [logout, router]);
 
-  const navLinks = useMemo(() => [
-    { title: "Home", href: "/", icon: Home },
-    { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
-    { title: "Companies", href: "/companies", icon: BuildingIcon }
-  ], []);
+  const navLinks = useMemo(() => {
+    const baseLinks = [
+      { title: "Home", href: "/", icon: Home },
+      { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
+      { title: "Companies", href: "/companies", icon: BuildingIcon }
+    ];
+
+    // Add employer-specific links
+    if (isMounted && isAuthenticated && user?.role === 'employer') {
+      baseLinks.push(
+        { title: "Dashboard", href: "/dashboard/company", icon: BarChartIcon },
+        { title: "Post Job", href: "/employer/post-job", icon: BriefcaseIcon },
+        { title: "Applications", href: "/employer/applications", icon: FileTextIcon }
+      );
+    }
+
+    return baseLinks;
+  }, [isMounted, isAuthenticated, user?.role]);
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">

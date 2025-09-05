@@ -69,6 +69,49 @@ export default function CompanyProfilePage() {
     e.preventDefault();
     setLoading(true);
 
+    // Enhanced validation
+    if (!formData.name.trim()) {
+      alert('Company name is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      alert('Company description is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.location.trim()) {
+      alert('Company location is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.industry) {
+      alert('Please select an industry');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.size) {
+      alert('Please select company size');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.website && !formData.website.match(/^https?:\/\/.+/)) {
+      alert('Please enter a valid website URL (e.g., https://company.com)');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.founded && (parseInt(formData.founded) < 1800 || parseInt(formData.founded) > new Date().getFullYear())) {
+      alert('Please enter a valid founding year');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch('/api/company/profile', {
         method: 'PUT',
@@ -109,6 +152,20 @@ export default function CompanyProfilePage() {
     'Consulting',
     'Media',
     'Real Estate',
+    'Marketing & Advertising',
+    'Transportation & Logistics',
+    'Energy & Utilities',
+    'Government & Public Sector',
+    'Non-profit & NGO',
+    'Entertainment & Sports',
+    'Food & Beverage',
+    'Fashion & Apparel',
+    'Automotive',
+    'Construction & Engineering',
+    'Legal Services',
+    'Travel & Tourism',
+    'Agriculture',
+    'Telecommunications',
     'Other'
   ];
 
@@ -118,7 +175,9 @@ export default function CompanyProfilePage() {
     '51-200',
     '201-500',
     '501-1000',
-    '1000+'
+    '1001-5000',
+    '5001-10000',
+    '10000+'
   ];
 
   return (

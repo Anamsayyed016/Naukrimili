@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,19 +11,18 @@ import { Label } from "@/components/ui/label";
 import { 
   Briefcase, 
   MapPin, 
+  DollarSign, 
+  Calendar,
   Save,
   ArrowLeft,
-  Trash2,
-  Eye
+  X
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import AuthGuard from "@/components/auth/AuthGuard";
 
 interface JobFormData {
-  id: number;
   title: string;
-  company: string;
   location: string;
   country: string;
   jobType: string;
@@ -38,24 +38,18 @@ interface JobFormData {
   sector: string;
   skills: string[];
   applicationDeadline: string;
-  status: 'active' | 'inactive' | 'draft' | 'expired';
 }
 
-export default function EditJobPage() {
+export default function EditJobPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const params = useParams();
-  const jobId = params.id;
-  
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [formData, setFormData] = useState<JobFormData>({
-    id: 0,
     title: '',
-    company: '',
     location: '',
     country: 'IN',
-    jobType: 'full-time',
-    experienceLevel: 'entry',
+    jobType: '',
+    experienceLevel: '',
     salary: '',
     description: '',
     requirements: '',
@@ -64,53 +58,52 @@ export default function EditJobPage() {
     isHybrid: false,
     isUrgent: false,
     isFeatured: false,
-    sector: 'technology',
+    sector: '',
     skills: [],
-    applicationDeadline: '',
-    status: 'draft'
+    applicationDeadline: ''
   });
 
   const [skillsInput, setSkillsInput] = useState('');
 
   useEffect(() => {
-    if (jobId) {
-      fetchJobData();
-    }
-  }, [jobId]);
+    fetchJob();
+  }, [params.id]);
 
-  const fetchJobData = async () => {
+  const fetchJob = async () => {
     try {
-      setLoading(true);
-      
-      // For now, use mock data - implement API call later
-      const mockJob: JobFormData = {
-        id: parseInt(jobId as string),
-        title: 'Senior React Developer',
-        company: 'TechCorp India',
-        location: 'Bangalore, India',
-        country: 'IN',
-        jobType: 'full-time',
-        experienceLevel: 'senior',
-        salary: '₹12L - ₹25L PA',
-        description: 'We are looking for a Senior React Developer to join our team and help build innovative web applications.',
-        requirements: '5+ years of experience with React, TypeScript, and modern web technologies. Strong problem-solving skills and team collaboration.',
-        benefits: 'Competitive salary, health insurance, flexible work hours, remote work options, professional development',
-        isRemote: true,
-        isHybrid: false,
-        isUrgent: false,
-        isFeatured: true,
-        sector: 'technology',
-        skills: ['React', 'TypeScript', 'Node.js', 'MongoDB', 'Git'],
-        applicationDeadline: '2024-12-31',
-        status: 'active'
-      };
+      setFetching(true);
+      const response = await fetch(`/api/employer/jobs/${params.id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch job');
+      }
 
-      setFormData(mockJob);
-      setSkillsInput('');
+      const data = await response.json();
+      if (data.success) {
+        const job = data.data;
+        setFormData({
+          title: job.title || '',
+          location: job.location || '',
+          country: job.country || 'IN',
+          jobType: job.jobType || '',
+          experienceLevel: job.experienceLevel || '',
+          salary: job.salary || '',
+          description: job.description || '',
+          requirements: job.requirements?.[0] || '',
+          benefits: job.benefits?.[0] || '',
+          isRemote: job.isRemote || false,
+          isHybrid: job.isHybrid || false,
+          isUrgent: job.isUrgent || false,
+          isFeatured: job.isFeatured || false,
+          sector: job.sector || '',
+          skills: job.skills || [],
+          applicationDeadline: job.applicationDeadline ? new Date(job.applicationDeadline).toISOString().split('T')[0] : ''
+        });
+      }
     } catch (error) {
-      console.error('Error fetching job data:', error);
+      console.error('Error fetching job:', error);
+      alert('Failed to fetch job details');
     } finally {
-      setLoading(false);
+      setFetching(false);
     }
   };
 
@@ -138,51 +131,129 @@ export default function EditJobPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaving(true);
+    setLoading(true);
 
-    try {
-      // For now, just log the data - implement API call later
-      // Job update logged
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirect to job management page
-      router.push('/employer/jobs');
-    } catch (error) {
-      console.error('Error updating job:', error);
-    } finally {
-      setSaving(false);
+    // Enhanced validation
+    if (!formData.title.trim()) {
+      alert('Job title is required');
+      setLoading(false);
+      return;
     }
-  };
 
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+    if (!formData.description.trim()) {
+      alert('Job description is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.location.trim()) {
+      alert('Job location is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.jobType) {
+      alert('Please select a job type');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.experienceLevel) {
+      alert('Please select experience level');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.sector) {
+      alert('Please select a sector');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.skills.length === 0) {
+      alert('Please add at least one required skill');
+      setLoading(false);
       return;
     }
 
     try {
-      // Implement delete logic
-              // Job deletion logged
+      const response = await fetch(`/api/employer/jobs/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update job');
+      }
+
+      const result = await response.json();
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Redirect to job management page
-      router.push('/employer/jobs');
+      if (result.success) {
+        alert('Job updated successfully!');
+        router.push('/employer/jobs');
+      } else {
+        throw new Error(result.error || 'Failed to update job');
+      }
     } catch (error) {
-      console.error('Error deleting job:', error);
+      console.error('Error updating job:', error);
+      alert(error instanceof Error ? error.message : 'Failed to update job');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) {
+  const jobTypeOptions = [
+    'Full-time',
+    'Part-time',
+    'Contract',
+    'Internship',
+    'Remote',
+    'Hybrid',
+    'Freelance'
+  ];
+
+  const experienceLevelOptions = [
+    'Entry Level (0-2 years)',
+    'Mid Level (3-5 years)',
+    'Senior Level (6-10 years)',
+    'Lead (11-15 years)',
+    'Executive (15+ years)'
+  ];
+
+  const sectorOptions = [
+    'Technology',
+    'Healthcare',
+    'Finance',
+    'Education',
+    'Manufacturing',
+    'Retail',
+    'Marketing & Advertising',
+    'Media & Entertainment',
+    'Real Estate',
+    'Consulting',
+    'Transportation & Logistics',
+    'Energy & Utilities',
+    'Government & Public Sector',
+    'Non-profit & NGO',
+    'Food & Beverage',
+    'Fashion & Apparel',
+    'Automotive',
+    'Construction & Engineering',
+    'Legal Services',
+    'Travel & Tourism',
+    'Agriculture',
+    'Telecommunications',
+    'Other'
+  ];
+
+  if (fetching) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="animate-pulse space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
-          ))}
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
       </div>
     );
   }
@@ -193,30 +264,10 @@ export default function EditJobPage() {
         <div className="mb-8">
           <Link href="/employer/jobs" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4">
             <ArrowLeft className="h-4 w-4" />
-            Back to Job Management
+            Back to Jobs
           </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Job</h1>
-              <p className="text-gray-600">Update your job posting: {formData.title}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href={`/jobs/${jobId}`}>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Eye className="h-4 w-4" />
-                  View Job
-                </Button>
-              </Link>
-              <Button
-                onClick={handleDelete}
-                variant="destructive"
-                className="flex items-center gap-2"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete Job
-              </Button>
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Job</h1>
+          <p className="text-gray-600">Update your job posting details</p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -245,36 +296,6 @@ export default function EditJobPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="company">Company Name *</Label>
-                      <Input
-                        id="company"
-                        value={formData.company}
-                        onChange={(e) => handleInputChange('company', e.target.value)}
-                        placeholder="Your company name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="sector">Industry Sector</Label>
-                      <Select value={formData.sector} onValueChange={(value) => handleInputChange('sector', value)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="technology">Technology</SelectItem>
-                          <SelectItem value="healthcare">Healthcare</SelectItem>
-                          <SelectItem value="finance">Finance</SelectItem>
-                          <SelectItem value="education">Education</SelectItem>
-                          <SelectItem value="retail">Retail</SelectItem>
-                          <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
                       <Label htmlFor="location">Location *</Label>
                       <Input
                         id="location"
@@ -284,6 +305,7 @@ export default function EditJobPage() {
                         required
                       />
                     </div>
+
                     <div>
                       <Label htmlFor="country">Country</Label>
                       <Select value={formData.country} onValueChange={(value) => handleInputChange('country', value)}>
@@ -306,59 +328,59 @@ export default function EditJobPage() {
                       <Label htmlFor="jobType">Job Type *</Label>
                       <Select value={formData.jobType} onValueChange={(value) => handleInputChange('jobType', value)}>
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Select job type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="full-time">Full Time</SelectItem>
-                          <SelectItem value="part-time">Part Time</SelectItem>
-                          <SelectItem value="contract">Contract</SelectItem>
-                          <SelectItem value="internship">Internship</SelectItem>
-                          <SelectItem value="freelance">Freelance</SelectItem>
+                          {jobTypeOptions.map((type) => (
+                            <SelectItem key={type} value={type.toLowerCase()}>
+                              {type}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
+
                     <div>
-                      <Label htmlFor="experienceLevel">Experience Level</Label>
+                      <Label htmlFor="experienceLevel">Experience Level *</Label>
                       <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Select experience" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="entry">Entry Level</SelectItem>
-                          <SelectItem value="mid">Mid Level</SelectItem>
-                          <SelectItem value="senior">Senior Level</SelectItem>
-                          <SelectItem value="executive">Executive</SelectItem>
+                          {experienceLevelOptions.map((level) => (
+                            <SelectItem key={level} value={level.split(' ')[0].toLowerCase()}>
+                              {level}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
+
                     <div>
-                      <Label htmlFor="salary">Salary Range</Label>
-                      <Input
-                        id="salary"
-                        value={formData.salary}
-                        onChange={(e) => handleInputChange('salary', e.target.value)}
-                        placeholder="e.g., ₹8L - ₹15L PA"
-                      />
+                      <Label htmlFor="sector">Sector *</Label>
+                      <Select value={formData.sector} onValueChange={(value) => handleInputChange('sector', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select sector" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {sectorOptions.map((sector) => (
+                            <SelectItem key={sector} value={sector.toLowerCase().replace(/\s+/g, '-')}>
+                              {sector}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="isRemote"
-                        checked={formData.isRemote}
-                        onCheckedChange={(checked) => handleInputChange('isRemote', !!checked)}
-                      />
-                      <Label htmlFor="isRemote">Remote Work Available</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="isHybrid"
-                        checked={formData.isHybrid}
-                        onCheckedChange={(checked) => handleInputChange('isHybrid', !!checked)}
-                      />
-                      <Label htmlFor="isHybrid">Hybrid Work Available</Label>
-                    </div>
+                  <div>
+                    <Label htmlFor="salary">Salary Range</Label>
+                    <Input
+                      id="salary"
+                      value={formData.salary}
+                      onChange={(e) => handleInputChange('salary', e.target.value)}
+                      placeholder="e.g., 50000-80000"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -366,28 +388,28 @@ export default function EditJobPage() {
               {/* Job Description */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Job Description & Requirements</CardTitle>
+                  <CardTitle>Job Description</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="description">Job Description *</Label>
+                    <Label htmlFor="description">Description *</Label>
                     <Textarea
                       id="description"
                       value={formData.description}
                       onChange={(e) => handleInputChange('description', e.target.value)}
-                      placeholder="Provide a detailed description of the role, responsibilities, and what the candidate will be doing..."
+                      placeholder="Describe the role, responsibilities, and what makes this opportunity unique..."
                       rows={6}
                       required
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="requirements">Requirements & Qualifications</Label>
+                    <Label htmlFor="requirements">Requirements</Label>
                     <Textarea
                       id="requirements"
                       value={formData.requirements}
                       onChange={(e) => handleInputChange('requirements', e.target.value)}
-                      placeholder="List the required skills, experience, education, and qualifications..."
+                      placeholder="List the key requirements and qualifications..."
                       rows={4}
                     />
                   </div>
@@ -398,8 +420,8 @@ export default function EditJobPage() {
                       id="benefits"
                       value={formData.benefits}
                       onChange={(e) => handleInputChange('benefits', e.target.value)}
-                      placeholder="Describe the benefits, perks, and advantages of working at your company..."
-                      rows={3}
+                      placeholder="List the benefits, perks, and what you offer..."
+                      rows={4}
                     />
                   </div>
                 </CardContent>
@@ -412,31 +434,31 @@ export default function EditJobPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="skills">Add Skills (separate with commas)</Label>
+                    <Label htmlFor="skills">Add Skills</Label>
                     <Input
                       id="skills"
                       value={skillsInput}
                       onChange={(e) => handleSkillsChange(e.target.value)}
-                      placeholder="e.g., React, TypeScript, Node.js"
+                      placeholder="Type skills and press comma to add (e.g., React, Node.js,)"
                     />
                   </div>
-                  
+
                   {formData.skills.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {formData.skills.map((skill, index) => (
-                        <span
+                        <div
                           key={index}
-                          className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                          className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
                         >
                           {skill}
                           <button
                             type="button"
                             onClick={() => removeSkill(skill)}
-                            className="text-blue-600 hover:text-blue-800"
+                            className="ml-1 hover:text-blue-600"
                           >
-                            ×
+                            <X className="h-3 w-3" />
                           </button>
-                        </span>
+                        </div>
                       ))}
                     </div>
                   )}
@@ -452,106 +474,75 @@ export default function EditJobPage() {
                   <CardTitle>Job Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="status">Job Status</Label>
-                    <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="inactive">Inactive</SelectItem>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="expired">Expired</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="isRemote"
+                      checked={formData.isRemote}
+                      onCheckedChange={(checked) => handleInputChange('isRemote', checked)}
+                    />
+                    <Label htmlFor="isRemote">Remote Work</Label>
                   </div>
 
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="isHybrid"
+                      checked={formData.isHybrid}
+                      onCheckedChange={(checked) => handleInputChange('isHybrid', checked)}
+                    />
+                    <Label htmlFor="isHybrid">Hybrid Work</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="isUrgent"
+                      checked={formData.isUrgent}
+                      onCheckedChange={(checked) => handleInputChange('isUrgent', checked)}
+                    />
+                    <Label htmlFor="isUrgent">Urgent Hiring</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="isFeatured"
+                      checked={formData.isFeatured}
+                      onCheckedChange={(checked) => handleInputChange('isFeatured', checked)}
+                    />
+                    <Label htmlFor="isFeatured">Featured Job</Label>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Application Deadline */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Application Deadline</CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div>
-                    <Label htmlFor="deadline">Application Deadline</Label>
+                    <Label htmlFor="applicationDeadline">Deadline</Label>
                     <Input
-                      id="deadline"
+                      id="applicationDeadline"
                       type="date"
                       value={formData.applicationDeadline}
                       onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
                     />
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="isUrgent"
-                        checked={formData.isUrgent}
-                        onCheckedChange={(checked) => handleInputChange('isUrgent', !!checked)}
-                      />
-                      <Label htmlFor="isUrgent">Mark as Urgent</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="isFeatured"
-                        checked={formData.isFeatured}
-                        onCheckedChange={(checked) => handleInputChange('isFeatured', !!checked)}
-                      />
-                      <Label htmlFor="isFeatured">Feature this job</Label>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Actions */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Actions</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button
-                    type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                    disabled={saving}
-                  >
-                    {saving ? (
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Updating Job...
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Save className="h-4 w-4" />
-                        Update Job
-                      </div>
-                    )}
-                  </Button>
-                  
-                  <Link href="/employer/jobs">
-                    <Button variant="outline" className="w-full">
-                      Cancel
+                <CardContent className="p-4">
+                  <div className="space-y-2">
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? 'Updating...' : 'Update Job'}
                     </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              {/* Job Preview */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Preview</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <h4 className="font-semibold text-gray-900">{formData.title}</h4>
-                    <p className="text-sm text-gray-600">{formData.company}</p>
-                    <p className="text-sm text-gray-600">{formData.location}</p>
+                    <Link href="/employer/jobs">
+                      <Button variant="outline" className="w-full">
+                        Cancel
+                      </Button>
+                    </Link>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded">{formData.jobType}</span>
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded">{formData.experienceLevel}</span>
-                    {formData.isRemote && (
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Remote</span>
-                    )}
-                  </div>
-                  {formData.salary && (
-                    <p className="text-sm text-gray-600">💰 {formData.salary}</p>
-                  )}
                 </CardContent>
               </Card>
             </div>

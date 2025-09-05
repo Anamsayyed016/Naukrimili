@@ -49,6 +49,20 @@ export async function GET(request: NextRequest) {
       prisma.job.findMany({
         where,
         include: {
+          applications: {
+            select: {
+              id: true,
+              status: true,
+              appliedAt: true,
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true
+                }
+              }
+            }
+          },
           _count: {
             select: {
               applications: true,
@@ -63,6 +77,22 @@ export async function GET(request: NextRequest) {
       prisma.job.count({ where })
     ]);
 
+    // Calculate statistics
+    const stats = await prisma.job.aggregate({
+      where: { companyId: user.company.id },
+      _count: {
+        id: true
+      }
+    });
+
+    const totalApplications = await prisma.application.count({
+      where: {
+        job: {
+          companyId: user.company.id
+        }
+      }
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -72,6 +102,10 @@ export async function GET(request: NextRequest) {
           limit,
           total,
           totalPages: Math.ceil(total / limit)
+        },
+        stats: {
+          totalJobs: stats._count.id,
+          totalApplications
         }
       }
     });
