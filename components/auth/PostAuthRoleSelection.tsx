@@ -42,16 +42,41 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       }
       
       // Update user role in database
-      const response = await fetch('/api/auth/update-role', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          role: role
-        }),
-      });
+      console.log('PostAuthRoleSelection - Making API request to:', '/api/auth/update-role');
+      console.log('PostAuthRoleSelection - Request body:', JSON.stringify({
+        userId: user.id,
+        role: role
+      }));
+      
+      let response;
+      try {
+        response = await fetch('/api/auth/update-role', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            role: role
+          }),
+        });
+      } catch (error) {
+        console.error('PostAuthRoleSelection - Relative URL failed, trying absolute URL:', error);
+        // Fallback to absolute URL
+        response = await fetch(`${window.location.origin}/api/auth/update-role`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            role: role
+          }),
+        });
+      }
+      
+      console.log('PostAuthRoleSelection - Response status:', response.status);
+      console.log('PostAuthRoleSelection - Response headers:', response.headers);
 
       const data = await response.json();
 

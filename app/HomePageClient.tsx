@@ -83,6 +83,12 @@ export default function HomePageClient({
       console.log('HomePageClient - Role to set:', role);
       
       // Update user role in database
+      console.log('HomePageClient - Making API request to:', '/api/auth/update-role');
+      console.log('HomePageClient - Request body:', JSON.stringify({
+        userId: session.user.id,
+        role: role
+      }));
+      
       const response = await fetch('/api/auth/update-role', {
         method: 'POST',
         headers: {
@@ -93,6 +99,9 @@ export default function HomePageClient({
           role: role
         }),
       });
+      
+      console.log('HomePageClient - Response status:', response.status);
+      console.log('HomePageClient - Response headers:', response.headers);
 
       const data = await response.json();
 
