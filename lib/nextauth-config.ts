@@ -119,17 +119,20 @@ export const authOptions: NextAuthOptions = {
         // Handle OAuth provider data - fetch user from database
         if (account?.provider === 'google' && profile) {
           try {
+            console.log('JWT callback - Google OAuth, fetching user for email:', profile.email);
             const dbUser = await prisma.user.findUnique({
               where: { email: profile.email || '' }
             });
             
             if (dbUser) {
+              console.log('JWT callback - Found user in database:', dbUser.id, dbUser.email);
               token.id = dbUser.id;
               token.role = dbUser.role;
               token.email = dbUser.email;
               token.name = dbUser.name;
               token.isOAuthUser = true;
             } else {
+              console.log('JWT callback - User not found in database, using profile data');
               token.email = profile.email || token.email;
               token.name = profile.name || token.name;
               token.picture = (profile as any).picture || token.picture;
@@ -179,7 +182,33 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       try {
+        console.log('Session callback - Token data:', {
+          id: token.id,
+          sub: token.sub,
+          email: token.email,
+          role: token.role,
+          isOAuthUser: token.isOAuthUser
+        });
+        
         if (session.user) {
+          // If we don't have a user ID in token, try to fetch it from database
+          if (!token.id && token.email) {
+            try {
+              console.log('Session callback - No user ID in token, fetching from database for email:', token.email);
+              const dbUser = await prisma.user.findUnique({
+                where: { email: token.email }
+              });
+              
+              if (dbUser) {
+                console.log('Session callback - Found user in database:', dbUser.id);
+                token.id = dbUser.id;
+                token.role = dbUser.role;
+              }
+            } catch (error) {
+              console.error('Session callback - Error fetching user from database:', error);
+            }
+          }
+          
           (session.user as any).id = token.id || token.sub || '';
           (session.user as any).role = token.role || null; // Don't default to jobseeker
           (session.user as any).email = token.email || '';
@@ -189,6 +218,13 @@ export const authOptions: NextAuthOptions = {
           // Pass flags to session for frontend use
           (session.user as any).isNewUser = token.isNewUser || false;
           (session.user as any).isOAuthUser = token.isOAuthUser || false;
+          
+          console.log('Session callback - Final session user:', {
+            id: (session.user as any).id,
+            email: (session.user as any).email,
+            role: (session.user as any).role,
+            isOAuthUser: (session.user as any).isOAuthUser
+          });
         }
         return session;
       } catch (error) {

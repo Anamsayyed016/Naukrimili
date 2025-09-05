@@ -33,6 +33,14 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       console.log('PostAuthRoleSelection - User ID:', user.id);
       console.log('PostAuthRoleSelection - Role to set:', role);
       
+      // Check if user ID exists
+      if (!user.id) {
+        console.error('PostAuthRoleSelection - No user ID available');
+        setError('User session is invalid. Please sign in again.');
+        setIsLoading(false);
+        return;
+      }
+      
       // Update user role in database
       const response = await fetch('/api/auth/update-role', {
         method: 'POST',

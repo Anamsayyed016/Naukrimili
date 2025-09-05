@@ -68,7 +68,11 @@ export default function HomePageClient({
   }, [session, status]);
 
   const handleRoleSelect = async (role: 'jobseeker' | 'employer') => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id) {
+      console.error('HomePageClient - No user ID in session');
+      alert('User session is invalid. Please sign in again.');
+      return;
+    }
     
     setIsUpdatingRole(true);
     setSelectedRole(role);
