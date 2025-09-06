@@ -209,7 +209,7 @@ export const authOptions: NextAuthOptions = {
             }
           }
           
-          (session.user as any).id = token.id || token.sub || '';
+          (session.user as any).id = token.id || token.sub || (token.email ? await prisma.user.findUnique({where: {email: token.email}}).then(u => u?.id) : null) || '';
           (session.user as any).role = token.role || null; // Don't default to jobseeker
           (session.user as any).email = token.email || '';
           (session.user as any).name = token.name || '';
