@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -18,7 +18,7 @@ model Job {
   location        String?
   country         String    @default("IN")
   description     String
-  requirements    String[]  @default([])
+  requirements    String  
   applyUrl        String?   // @deprecated - use apply_url instead
   apply_url       String?   // New field for internal application URL
   source_url      String?   // New field for external source URL
@@ -29,7 +29,7 @@ model Job {
   salaryCurrency  String?   // Currency code (INR, USD, etc.)
   jobType         String?   // full-time, part-time, contract, internship
   experienceLevel String?   // entry, mid, senior, executive
-  skills          String[]  @default([]) // Array of required skills
+  skills          String   // Array of required skills
   isRemote        Boolean   @default(false)
   isHybrid        Boolean   @default(false)
   isUrgent        Boolean   @default(false)
@@ -73,10 +73,10 @@ model User {
   role            String?   // jobseeker, employer, admin (null means role not selected yet)
   phone           String?
   location        String?
-  bio             String?   @db.Text
-  skills          String[]  @default([])
-  experience      String?   @db.Text
-  education       String?   @db.Text
+  bio             String?   
+  skills          String  
+  experience      String?   
+  education       String?   
   profilePicture  String?
   isVerified      Boolean   @default(false)
   isActive        Boolean   @default(true)
@@ -87,7 +87,7 @@ model User {
   resumeUrl       String?   // Resume file URL
   locationPreference String? // Preferred job locations
   salaryExpectation Int?    // Expected salary
-  jobTypePreference String[] @default([]) // full-time, part-time, contract, internship
+  jobTypePreference String  // full-time, part-time, contract, internship
   remotePreference Boolean  @default(false) // Remote work preference
   
   // Employer specific fields
@@ -121,12 +121,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String?  
+  access_token      String?  
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String?  
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -164,7 +164,7 @@ model JobBookmark {
   id        String   @id @default(cuid())
   userId    String
   jobId     String
-  notes     String?  @db.Text
+  notes     String?  
   createdAt DateTime @default(now())
   
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -178,7 +178,7 @@ model JobBookmark {
 model Company {
   id              String   @id @default(cuid())
   name            String
-  description     String?  @db.Text
+  description     String?  
   logo            String?
   website         String?
   location        String?
@@ -233,8 +233,8 @@ model Application {
   companyId String
   resumeId  String?
   status    String   @default("submitted") // submitted, reviewed, interview, rejected, hired
-  coverLetter String? @db.Text
-  notes     String?  @db.Text
+  coverLetter String? 
+  notes     String?  
   appliedAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
@@ -254,7 +254,7 @@ model Message {
   id              String   @id @default(cuid())
   senderId        String
   receiverId      String
-  content         String   @db.Text
+  content         String   
   isRead          Boolean  @default(false)
   messageType     String   @default("text") // text, system, notification
   createdAt       DateTime @default(now())
@@ -296,7 +296,7 @@ model StaticContent {
   id        String   @id @default(cuid())
   key       String   @unique // e.g., "terms", "privacy", "about"
   title     String
-  content   String   @db.Text
+  content   String   
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -309,7 +309,7 @@ model Notification {
   userId    String
   type      String   // WELCOME, JOB_MATCH, APPLICATION_UPDATE, SYSTEM, etc.
   title     String
-  message   String   @db.Text
+  message   String   
   isRead    Boolean  @default(false)
   data      Json?    // Additional notification data
   createdAt DateTime @default(now())

@@ -30,13 +30,25 @@ jobs:
       uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
+        username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
         script: |
           echo "Starting deployment to Hostinger VPS..."
-          cd /home/root/jobportal
+          # Navigate to project directory
+          cd /var/www/jobportal
+          
+          # Stop PM2 process
+          pm2 stop jobportal
+          
+          # Pull latest changes
           git pull origin main
-          npm install
-          npm run build
-          pm2 restart jobportal
+          
+          # Install dependencies and build
+          npm ci
+          npm run build:fast
+          
+          # Start PM2 process with production environment
+          pm2 start ecosystem.config.cjs --env production
+          
           echo "Deployment completed successfully!"
