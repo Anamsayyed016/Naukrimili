@@ -70,6 +70,7 @@ export default function HomePageClient({
   const handleRoleSelect = async (role: 'jobseeker' | 'employer') => {
     if (!session?.user?.id) {
       console.error('HomePageClient - No user ID in session');
+      console.error('HomePageClient - Session data:', session);
       alert('User session is invalid. Please sign in again.');
       return;
     }

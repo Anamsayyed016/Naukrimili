@@ -200,6 +200,12 @@ export async function GET(request: NextRequest) {
       };
 
       console.log(`✅ Unified Jobs API: Successfully returned ${paginatedJobs.length} jobs (${totalJobs} total: ${totalJobs - externalJobsCount} DB + ${externalJobsCount} external)`);
+      
+      // If no jobs found, provide helpful message
+      if (paginatedJobs.length === 0) {
+        console.log('⚠️ No jobs found with current filters');
+      }
+      
       return NextResponse.json(response);
       
     } catch (processingError: any) {

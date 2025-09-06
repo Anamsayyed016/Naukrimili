@@ -103,7 +103,14 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         }
       } else {
         console.error('Role update failed:', data);
-        setError(data.error || data.message || 'Failed to update role. Please try again.');
+        // Handle specific error cases
+        if (data.error === 'User not found') {
+          setError('User session expired. Please sign in again.');
+        } else if (data.error === 'Validation failed') {
+          setError('Invalid data provided. Please try again.');
+        } else {
+          setError(data.error || data.message || 'Failed to update role. Please try again.');
+        }
       }
     } catch (error) {
       console.error('Role selection error:', error);

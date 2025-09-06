@@ -7,14 +7,6 @@ const globalForPrisma = globalThis as unknown as {
 // Enhanced Prisma client with connection pooling and performance monitoring
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  // Add connection pooling for production
-  ...(process.env.DATABASE_URL && {
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL,
-      },
-    },
-  }),
   // Performance monitoring
   ...(process.env.NODE_ENV === 'production' && {
     // Production optimizations

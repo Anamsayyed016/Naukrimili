@@ -21,8 +21,8 @@ import { sendWelcomeEmail } from '@/lib/welcome-email';
 import { createWelcomeNotification } from '@/lib/notification-service';
 
 export const authOptions: NextAuthOptions = {
-  // Temporarily disable adapter to test OAuth without database dependency
-  // adapter: PrismaAdapter(prisma),
+  // Enable Prisma adapter for proper session management
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -209,8 +209,20 @@ export const authOptions: NextAuthOptions = {
             }
           }
           
-          (session.user as any).id = token.id || token.sub || (token.email ? await prisma.user.findUnique({where: {email: token.email}}).then(u => u?.id) : null) || '';
-          (session.user as any).role = token.role || null; // Don't default to jobseeker
+          // Ensure user ID is properly set
+          if (token.id) {
+            (session.user as any).id = token.id;
+          } else if (token.email) {
+            // Fallback: find user by email if no ID in token
+            const dbUser = await prisma.user.findUnique({
+              where: { email: token.email }
+            });
+            (session.user as any).id = dbUser?.id || '';
+          } else {
+            (session.user as any).id = token.sub || '';
+          }
+          
+          (session.user as any).role = token.role || null;
           (session.user as any).email = token.email || '';
           (session.user as any).name = token.name || '';
           (session.user as any).picture = token.picture || '';
