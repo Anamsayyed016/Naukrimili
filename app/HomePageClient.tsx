@@ -91,7 +91,7 @@ export default function HomePageClient({
               </div>
               {!session.user.role && (
                 <button
-                  onClick={() => setShowRoleSelection(true)}
+                  onClick={() => router.push('/auth/role-selection')}
                   className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Choose Role
@@ -625,13 +625,13 @@ export default function HomePageClient({
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Link
                       href="/resumes"
-                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white text-blue-600 hover:bg-gray-100 h-9 sm:h-10 px-3 sm:px-4 py-2 rounded-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                      className="inline-flex items-center justify-center text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white text-blue-600 hover:bg-gray-100 h-9 sm:h-10 px-3 sm:px-4 py-2 rounded-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                     >
                       Manage Resumes
                     </Link>
                     <Link
                       href="/resumes/builder"
-                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-700 h-9 sm:h-10 px-3 sm:px-4 py-2 rounded-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                      className="inline-flex items-center justify-center text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-700 h-9 sm:h-10 px-3 sm:px-4 py-2 rounded-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
                     >
                       Build Resume
                     </Link>

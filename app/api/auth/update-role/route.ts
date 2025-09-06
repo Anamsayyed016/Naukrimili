@@ -10,6 +10,7 @@ const updateRoleSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  console.log('Update role API endpoint called');
   try {
     const body = await request.json();
     console.log('Update role request body:', body);
@@ -102,13 +103,22 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// GET method for testing endpoint accessibility
+export async function GET() {
+  return NextResponse.json({
+    success: true,
+    message: 'Update role API endpoint is accessible',
+    methods: ['POST', 'OPTIONS']
+  });
+}
+
 // OPTIONS handler for CORS
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-csrf-token',
     },
   });
