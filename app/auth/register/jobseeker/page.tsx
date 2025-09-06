@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, User, Phone, AlertCircle, FileText, MapPin, Briefcase, GraduationCap, DollarSign } from 'lucide-react';
 import OAuthButtons from '@/components/auth/OAuthButtons';
 import { useAuth } from '@/context/AuthContext';
+import { useSession } from 'next-auth/react';
 
 export default function JobSeekerRegisterPage() {
   const [formData, setFormData] = useState({
@@ -27,9 +28,36 @@ export default function JobSeekerRegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSetupMode, setIsSetupMode] = useState(false);
   
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
+  const { data: session, status } = useSession();
+
+  // Check if this is setup mode (coming from role selection)
+  useEffect(() => {
+    const setup = searchParams.get('setup');
+    if (setup === 'true') {
+      setIsSetupMode(true);
+      // Pre-fill with session data if available
+      if (session?.user) {
+        setFormData(prev => ({
+          ...prev,
+          firstName: session.user.name?.split(' ')[0] || '',
+          lastName: session.user.name?.split(' ').slice(1).join(' ') || '',
+          email: session.user.email || '',
+        }));
+      }
+    }
+  }, [searchParams, session]);
+
+  // Redirect if not authenticated in setup mode
+  useEffect(() => {
+    if (isSetupMode && status === 'unauthenticated') {
+      router.push('/auth/role-selection');
+    }
+  }, [isSetupMode, status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -57,13 +85,13 @@ export default function JobSeekerRegisterPage() {
     setError(null);
     
     // Basic validation
-    if (formData.password !== formData.confirmPassword) {
+    if (!isSetupMode && formData.password !== formData.confirmPassword) {
       setError('Passwords do not match!');
       setLoading(false);
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (!isSetupMode && formData.password.length < 6) {
       setError('Password must be at least 6 characters long!');
       setLoading(false);
       return;
@@ -82,37 +110,67 @@ export default function JobSeekerRegisterPage() {
     }
     
     try {
-      const response = await fetch('/api/auth/register/jobseeker', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          role: 'jobseeker',
-          skills: formData.skills.split(',').map(skill => skill.trim()).filter(Boolean),
-          salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : null
-        }),
-      });
+      let response;
+      
+      if (isSetupMode) {
+        // In setup mode, update existing user profile
+        response = await fetch('/api/jobseeker/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            phone: formData.phone,
+            skills: formData.skills.split(',').map(skill => skill.trim()).filter(Boolean),
+            experience: formData.experience,
+            education: formData.education,
+            locationPreference: formData.locationPreference,
+            salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : null,
+            jobTypePreference: formData.jobTypePreference,
+            remotePreference: formData.remotePreference
+          }),
+        });
+      } else {
+        // Normal registration flow
+        response = await fetch('/api/auth/register/jobseeker', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...formData,
+            role: 'jobseeker',
+            skills: formData.skills.split(',').map(skill => skill.trim()).filter(Boolean),
+            salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : null
+          }),
+        });
+      }
 
       const data = await response.json();
 
       if (data.success) {
-        // Use the AuthContext login function
-        login(data.user, data.token);
-        
-        // Redirect to jobseeker dashboard
-        router.push('/dashboard/jobseeker');
+        if (isSetupMode) {
+          // Profile updated successfully, redirect to dashboard
+          router.push('/dashboard/jobseeker');
+        } else {
+          // Use the AuthContext login function
+          login(data.user, data.token);
+          
+          // Redirect to jobseeker dashboard
+          router.push('/dashboard/jobseeker');
+        }
       } else {
         if (data.details && Array.isArray(data.details)) {
           setError(`Validation failed: ${data.details.join(', ')}`);
         } else {
-          setError(data.error || 'Registration failed');
+          setError(data.error || (isSetupMode ? 'Profile update failed' : 'Registration failed'));
         }
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      setError('Registration failed. Please try again.');
+      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', error);
+      setError(isSetupMode ? 'Profile update failed. Please try again.' : 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -123,10 +181,13 @@ export default function JobSeekerRegisterPage() {
       <div className="max-w-2xl w-full space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Create Your Job Seeker Account
+            {isSetupMode ? 'Complete Your Job Seeker Profile' : 'Create Your Job Seeker Account'}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Join thousands of professionals and find your dream job
+            {isSetupMode 
+              ? 'Tell us about yourself to get personalized job recommendations' 
+              : 'Join thousands of professionals and find your dream job'
+            }
           </p>
         </div>
 
@@ -357,80 +418,82 @@ export default function JobSeekerRegisterPage() {
               </div>
             </div>
 
-            {/* Password */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Security</h3>
-              
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Password *
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="••••••••"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827',
-                      WebkitTextFillColor: '#111827'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
+            {/* Password - Only show in registration mode */}
+            {!isSetupMode && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Security</h3>
+                
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                    Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
+                      placeholder="••••••••"
+                      style={{
+                        backgroundColor: 'white',
+                        color: '#111827',
+                        WebkitTextFillColor: '#111827'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirm Password *
-                </label>
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    required
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="••••••••"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827',
-                      WebkitTextFillColor: '#111827'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
+                      placeholder="••••••••"
+                      style={{
+                        backgroundColor: 'white',
+                        color: '#111827',
+                        WebkitTextFillColor: '#111827'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -446,7 +509,10 @@ export default function JobSeekerRegisterPage() {
               disabled={loading}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
-              {loading ? 'Creating Account...' : 'Create Job Seeker Account'}
+              {loading 
+                ? (isSetupMode ? 'Updating Profile...' : 'Creating Account...') 
+                : (isSetupMode ? 'Complete Profile' : 'Create Job Seeker Account')
+              }
             </button>
           </form>
 

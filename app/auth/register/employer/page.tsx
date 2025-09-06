@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Building2, User, Phone, AlertCircle, Globe, Briefcase, MapPin, DollarSign, Users } from 'lucide-react';
 import OAuthButtons from '@/components/auth/OAuthButtons';
 import { useAuth } from '@/context/AuthContext';
+import { useSession } from 'next-auth/react';
 
 export default function EmployerRegisterPage() {
   const [formData, setFormData] = useState({
@@ -36,9 +37,36 @@ export default function EmployerRegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSetupMode, setIsSetupMode] = useState(false);
   
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
+  const { data: session, status } = useSession();
+
+  // Check if this is setup mode (coming from role selection)
+  useEffect(() => {
+    const setup = searchParams.get('setup');
+    if (setup === 'true') {
+      setIsSetupMode(true);
+      // Pre-fill with session data if available
+      if (session?.user) {
+        setFormData(prev => ({
+          ...prev,
+          firstName: session.user.name?.split(' ')[0] || '',
+          lastName: session.user.name?.split(' ').slice(1).join(' ') || '',
+          email: session.user.email || '',
+        }));
+      }
+    }
+  }, [searchParams, session]);
+
+  // Redirect if not authenticated in setup mode
+  useEffect(() => {
+    if (isSetupMode && status === 'unauthenticated') {
+      router.push('/auth/role-selection');
+    }
+  }, [isSetupMode, status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -57,13 +85,13 @@ export default function EmployerRegisterPage() {
     setError(null);
     
     // Basic validation
-    if (formData.password !== formData.confirmPassword) {
+    if (!isSetupMode && formData.password !== formData.confirmPassword) {
       setError('Passwords do not match!');
       setLoading(false);
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (!isSetupMode && formData.password.length < 6) {
       setError('Password must be at least 6 characters long!');
       setLoading(false);
       return;
@@ -88,40 +116,69 @@ export default function EmployerRegisterPage() {
     }
     
     try {
-      const response = await fetch('/api/auth/register/employer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          role: 'employer',
-          requiredSkills: formData.requiredSkills.split(',').map(skill => skill.trim()).filter(Boolean),
-          openings: parseInt(formData.openings) || 1,
-          salaryMin: formData.salaryMin ? parseInt(formData.salaryMin) : null,
-          salaryMax: formData.salaryMax ? parseInt(formData.salaryMax) : null,
-          companyFounded: formData.companyFounded ? parseInt(formData.companyFounded) : null
-        }),
-      });
+      let response;
+      
+      if (isSetupMode) {
+        // In setup mode, update existing user profile
+        response = await fetch('/api/employer/company-profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            phone: formData.phone,
+            companyName: formData.companyName,
+            recruiterName: formData.recruiterName,
+            companyWebsite: formData.companyWebsite,
+            companyIndustry: formData.companyIndustry,
+            companySize: formData.companySize,
+            companyFounded: formData.companyFounded ? parseInt(formData.companyFounded) : null
+          }),
+        });
+      } else {
+        // Normal registration flow
+        response = await fetch('/api/auth/register/employer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...formData,
+            role: 'employer',
+            requiredSkills: formData.requiredSkills.split(',').map(skill => skill.trim()).filter(Boolean),
+            openings: parseInt(formData.openings) || 1,
+            salaryMin: formData.salaryMin ? parseInt(formData.salaryMin) : null,
+            salaryMax: formData.salaryMax ? parseInt(formData.salaryMax) : null,
+            companyFounded: formData.companyFounded ? parseInt(formData.companyFounded) : null
+          }),
+        });
+      }
 
       const data = await response.json();
 
       if (data.success) {
-        // Use the AuthContext login function
-        login(data.user, data.token);
-        
-        // Redirect to employer dashboard
-        router.push('/dashboard/company');
+        if (isSetupMode) {
+          // Profile updated successfully, redirect to dashboard
+          router.push('/dashboard/company');
+        } else {
+          // Use the AuthContext login function
+          login(data.user, data.token);
+          
+          // Redirect to employer dashboard
+          router.push('/dashboard/company');
+        }
       } else {
         if (data.details && Array.isArray(data.details)) {
           setError(`Validation failed: ${data.details.join(', ')}`);
         } else {
-          setError(data.error || 'Registration failed');
+          setError(data.error || (isSetupMode ? 'Profile update failed' : 'Registration failed'));
         }
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      setError('Registration failed. Please try again.');
+      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', error);
+      setError(isSetupMode ? 'Profile update failed. Please try again.' : 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -132,10 +189,13 @@ export default function EmployerRegisterPage() {
       <div className="max-w-3xl w-full space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Create Your Company Account
+            {isSetupMode ? 'Complete Your Company Profile' : 'Create Your Company Account'}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Post jobs and find the best talent for your company
+            {isSetupMode 
+              ? 'Tell us about your company to start posting jobs and finding talent' 
+              : 'Post jobs and find the best talent for your company'
+            }
           </p>
         </div>
 
@@ -556,80 +616,82 @@ export default function EmployerRegisterPage() {
               </div>
             </div>
 
-            {/* Password */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Security</h3>
-              
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Password *
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="••••••••"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827',
-                      WebkitTextFillColor: '#111827'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
+            {/* Password - Only show in registration mode */}
+            {!isSetupMode && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Security</h3>
+                
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                    Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
+                      placeholder="••••••••"
+                      style={{
+                        backgroundColor: 'white',
+                        color: '#111827',
+                        WebkitTextFillColor: '#111827'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirm Password *
-                </label>
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    required
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="••••••••"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827',
-                      WebkitTextFillColor: '#111827'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm Password *
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
+                      placeholder="••••••••"
+                      style={{
+                        backgroundColor: 'white',
+                        color: '#111827',
+                        WebkitTextFillColor: '#111827'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <Eye className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -645,7 +707,10 @@ export default function EmployerRegisterPage() {
               disabled={loading}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
-              {loading ? 'Creating Account...' : 'Create Company Account'}
+              {loading 
+                ? (isSetupMode ? 'Updating Profile...' : 'Creating Account...') 
+                : (isSetupMode ? 'Complete Profile' : 'Create Company Account')
+              }
             </button>
           </form>
 

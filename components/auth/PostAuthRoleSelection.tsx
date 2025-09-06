@@ -89,12 +89,12 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
           window.location.reload();
         }
         
-        // Redirect based on role
+        // Redirect to profile setup forms based on role
         setTimeout(() => {
           if (role === 'jobseeker') {
-            router.push('/dashboard/jobseeker?setup=true');
+            router.push('/auth/register/jobseeker?setup=true');
           } else {
-            router.push('/dashboard/company?setup=true');
+            router.push('/auth/register/employer?setup=true');
           }
         }, 1000);
         
