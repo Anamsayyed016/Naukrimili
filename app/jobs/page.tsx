@@ -57,7 +57,16 @@ export default function JobsPage() {
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(true);
+
+  // Auto-hide filters on mobile by default
+  useEffect(() => {
+    if (isMobile) {
+      setShowAdvancedFilters(false);
+    } else {
+      setShowAdvancedFilters(true);
+    }
+  }, [isMobile]);
   const [filters, setFilters] = useState({
     query: '',
     location: '',
@@ -193,31 +202,31 @@ export default function JobsPage() {
               
               {/* Enhanced Search Bar */}
               <div className="max-w-4xl mx-auto">
-                <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 sm:p-3">
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <div className="bg-white rounded-2xl shadow-2xl border-2 border-gray-200 p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <div className="flex-1 relative">
-                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
                       <input
                         type="text"
                         placeholder="Job title, keywords, or company"
                         value={filters.query}
                         onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
-                        className="w-full pl-12 pr-4 py-3 sm:py-4 text-gray-900 placeholder-gray-500 border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-xl text-base sm:text-lg"
+                        className="w-full pl-12 pr-4 py-4 sm:py-5 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base sm:text-lg font-medium transition-all duration-200"
                       />
                     </div>
                     <div className="flex-1 relative">
-                      <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
                       <input
                         type="text"
                         placeholder="Location or remote"
                         value={filters.location}
                         onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                        className="w-full pl-12 pr-4 py-3 sm:py-4 text-gray-900 placeholder-gray-500 border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none rounded-xl text-base sm:text-lg"
+                        className="w-full pl-12 pr-4 py-4 sm:py-5 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base sm:text-lg font-medium transition-all duration-200"
                       />
                     </div>
                     <Button 
                       onClick={handleSearch} 
-                      className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-base sm:text-lg"
+                      className="inline-flex items-center justify-center px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-base sm:text-lg min-w-[140px]"
                     >
                       <Search className="w-5 h-5 mr-2" />
                       Search Jobs
@@ -231,18 +240,23 @@ export default function JobsPage() {
 
         <div className="container mx-auto px-4 py-8">
           {/* Advanced Filters */}
-          <Card className="mb-8 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                <div className="flex items-center gap-2 mb-2 sm:mb-0">
-                  <SlidersHorizontal className="w-5 h-5 text-gray-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">Advanced Filters</h3>
+          <Card className="mb-8 shadow-xl border-2 border-gray-200 bg-white">
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                <div className="flex items-center gap-3 mb-3 sm:mb-0">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <SlidersHorizontal className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Advanced Filters</h3>
+                    <p className="text-sm text-gray-600">Refine your search to find the perfect job</p>
+                  </div>
                 </div>
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="lg"
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50"
                 >
                   {showAdvancedFilters ? 'Hide Filters' : 'Show Filters'}
                   <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
@@ -250,71 +264,88 @@ export default function JobsPage() {
               </div>
 
               {showAdvancedFilters && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Select value={filters.jobType} onValueChange={(value) => setFilters(prev => ({ ...prev, jobType: value }))}>
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Job Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Types</SelectItem>
-                        <SelectItem value="full-time">Full-time</SelectItem>
-                        <SelectItem value="part-time">Part-time</SelectItem>
-                        <SelectItem value="contract">Contract</SelectItem>
-                        <SelectItem value="internship">Internship</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-gray-700">Job Type</Label>
+                      <Select value={filters.jobType} onValueChange={(value) => setFilters(prev => ({ ...prev, jobType: value }))}>
+                        <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                          <SelectValue placeholder="Select job type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Types</SelectItem>
+                          <SelectItem value="full-time">Full-time</SelectItem>
+                          <SelectItem value="part-time">Part-time</SelectItem>
+                          <SelectItem value="contract">Contract</SelectItem>
+                          <SelectItem value="internship">Internship</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                    <Select value={filters.experienceLevel} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceLevel: value }))}>
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Experience Level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Levels</SelectItem>
-                        <SelectItem value="entry">Entry Level</SelectItem>
-                        <SelectItem value="mid">Mid Level</SelectItem>
-                        <SelectItem value="senior">Senior Level</SelectItem>
-                        <SelectItem value="lead">Lead</SelectItem>
-                        <SelectItem value="executive">Executive</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-gray-700">Experience Level</Label>
+                      <Select value={filters.experienceLevel} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceLevel: value }))}>
+                        <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                          <SelectValue placeholder="Select experience" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Levels</SelectItem>
+                          <SelectItem value="entry">Entry Level</SelectItem>
+                          <SelectItem value="mid">Mid Level</SelectItem>
+                          <SelectItem value="senior">Senior Level</SelectItem>
+                          <SelectItem value="lead">Lead</SelectItem>
+                          <SelectItem value="executive">Executive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                    <Input
-                      placeholder="Min Salary"
-                      value={filters.salaryMin}
-                      onChange={(e) => setFilters(prev => ({ ...prev, salaryMin: e.target.value }))}
-                      type="number"
-                      className="h-12"
-                    />
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-gray-700">Min Salary</Label>
+                      <Input
+                        placeholder="e.g., 50000"
+                        value={filters.salaryMin}
+                        onChange={(e) => setFilters(prev => ({ ...prev, salaryMin: e.target.value }))}
+                        type="number"
+                        className="h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      />
+                    </div>
 
-                    <Input
-                      placeholder="Max Salary"
-                      value={filters.salaryMax}
-                      onChange={(e) => setFilters(prev => ({ ...prev, salaryMax: e.target.value }))}
-                      type="number"
-                      className="h-12"
-                    />
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-gray-700">Max Salary</Label>
+                      <Input
+                        placeholder="e.g., 100000"
+                        value={filters.salaryMax}
+                        onChange={(e) => setFilters(prev => ({ ...prev, salaryMax: e.target.value }))}
+                        type="number"
+                        className="h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                      />
+                    </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center space-x-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t-2 border-gray-100">
+                    <div className="flex items-center space-x-3">
                       <Checkbox
                         id="remote"
                         checked={filters.isRemote}
                         onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isRemote: !!checked }))}
+                        className="w-5 h-5 border-2 border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                       />
-                      <Label htmlFor="remote" className="text-sm font-medium">Remote Work</Label>
+                      <Label htmlFor="remote" className="text-sm font-semibold text-gray-700 cursor-pointer">Remote Work Only</Label>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Button variant="outline" onClick={clearFilters} className="w-full sm:w-auto">
-                        <X className="h-4 w-4 mr-2" />
-                        Clear Filters
-                      </Button>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <TrendingUp className="w-4 h-4" />
-                        <span className="font-medium">{jobs.length} jobs found</span>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
+                        <TrendingUp className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-bold text-blue-800">{jobs.length} jobs found</span>
                       </div>
+                      <Button 
+                        variant="outline" 
+                        onClick={clearFilters} 
+                        className="w-full sm:w-auto border-2 border-gray-300 hover:border-red-500 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Clear All Filters
+                      </Button>
                     </div>
                   </div>
                 </div>
