@@ -169,19 +169,19 @@ export default function JobsPage() {
   };
 
   const getStatusBadge = (job: Job) => {
-    if (job.isFeatured) return <Badge className="bg-purple-100 text-purple-800">Featured</Badge>;
-    if (job.isUrgent) return <Badge className="bg-red-100 text-red-800">Urgent</Badge>;
+    if (job.isFeatured) return <Badge className="bg-purple-100 text-purple-800 border-2 border-purple-200 font-bold">Featured</Badge>;
+    if (job.isUrgent) return <Badge className="bg-red-100 text-red-800 border-2 border-red-200 font-bold">Urgent</Badge>;
     return null;
   };
 
   const getExperienceColor = (level: string) => {
     switch (level) {
-      case 'entry': return 'bg-blue-100 text-blue-800';
-      case 'mid': return 'bg-yellow-100 text-yellow-800';
-      case 'senior': return 'bg-orange-100 text-orange-800';
-      case 'lead': return 'bg-purple-100 text-purple-800';
-      case 'executive': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'entry': return 'bg-blue-100 text-blue-800 border-2 border-blue-200';
+      case 'mid': return 'bg-yellow-100 text-yellow-800 border-2 border-yellow-200';
+      case 'senior': return 'bg-orange-100 text-orange-800 border-2 border-orange-200';
+      case 'lead': return 'bg-purple-100 text-purple-800 border-2 border-purple-200';
+      case 'executive': return 'bg-red-100 text-red-800 border-2 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-2 border-gray-200';
     }
   };
 
@@ -366,7 +366,7 @@ export default function JobsPage() {
               'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             }`}>
               {jobs.map((job) => (
-                <Card key={job.id} className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border-0 bg-white/90 backdrop-blur-sm">
+                <Card key={job.id} className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-gray-200 bg-white shadow-lg">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1 min-w-0">
@@ -382,11 +382,13 @@ export default function JobsPage() {
                         </div>
                       </div>
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleBookmark(job.id)}
-                        className={`p-2 hover:bg-red-50 transition-colors ${
-                          bookmarkedJobs.includes(job.id) ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-500'
+                        className={`p-2 border-2 hover:bg-red-50 transition-colors ${
+                          bookmarkedJobs.includes(job.id) 
+                            ? 'text-red-500 hover:text-red-600 border-red-200 bg-red-50' 
+                            : 'text-gray-500 hover:text-red-500 border-gray-200 hover:border-red-300'
                         }`}
                       >
                         <Heart className={`h-5 w-5 ${bookmarkedJobs.includes(job.id) ? 'fill-current' : ''}`} />
@@ -423,10 +425,10 @@ export default function JobsPage() {
                         {job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1)}
                       </Badge>
                       {job.isRemote && (
-                        <Badge className="bg-green-100 text-green-800 font-medium">Remote</Badge>
+                        <Badge className="bg-green-100 text-green-800 border-2 border-green-200 font-bold">Remote</Badge>
                       )}
                       {job.isHybrid && (
-                        <Badge className="bg-blue-100 text-blue-800 font-medium">Hybrid</Badge>
+                        <Badge className="bg-blue-100 text-blue-800 border-2 border-blue-200 font-bold">Hybrid</Badge>
                       )}
                     </div>
 
@@ -437,20 +439,20 @@ export default function JobsPage() {
                     {job.skills.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-4">
                         {job.skills.slice(0, 3).map((skill, index) => (
-                          <Badge key={index} variant="outline" className="text-xs font-medium border-gray-200 hover:border-blue-300 transition-colors">
+                          <Badge key={index} variant="outline" className="text-xs font-medium border-2 border-gray-300 bg-gray-50 text-gray-700 hover:border-blue-400 hover:bg-blue-50 transition-colors">
                             {skill}
                           </Badge>
                         ))}
                         {job.skills.length > 3 && (
-                          <Badge variant="outline" className="text-xs font-medium border-gray-200">
+                          <Badge variant="outline" className="text-xs font-medium border-2 border-gray-300 bg-gray-50 text-gray-700">
                             +{job.skills.length - 3} more
                           </Badge>
                         )}
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
+                      <div className="flex items-center gap-1 text-xs text-gray-600 font-medium">
                         <Users className="h-3 w-3" />
                         <span>{job._count.applications} applications</span>
                       </div>
@@ -473,12 +475,12 @@ export default function JobsPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center mt-12">
-              <div className="flex items-center gap-2 bg-white rounded-xl shadow-lg p-2">
+              <div className="flex items-center gap-2 bg-white rounded-xl shadow-xl border-2 border-gray-200 p-3">
                 <Button
                   variant="outline"
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-lg hover:bg-blue-50 disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg border-2 border-gray-300 hover:bg-blue-50 hover:border-blue-400 disabled:opacity-50 font-medium"
                 >
                   Previous
                 </Button>
@@ -490,10 +492,10 @@ export default function JobsPage() {
                         key={pageNum}
                         variant={currentPage === pageNum ? "default" : "ghost"}
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`w-10 h-10 rounded-lg ${
+                        className={`w-10 h-10 rounded-lg border-2 font-medium ${
                           currentPage === pageNum 
-                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
-                            : 'hover:bg-gray-100'
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-blue-600' 
+                            : 'border-gray-300 hover:bg-gray-100 hover:border-gray-400'
                         }`}
                       >
                         {pageNum}
@@ -505,7 +507,7 @@ export default function JobsPage() {
                   variant="outline"
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-lg hover:bg-blue-50 disabled:opacity-50"
+                  className="px-4 py-2 rounded-lg border-2 border-gray-300 hover:bg-blue-50 hover:border-blue-400 disabled:opacity-50 font-medium"
                 >
                   Next
                 </Button>
@@ -514,7 +516,7 @@ export default function JobsPage() {
           )}
 
           {jobs.length === 0 && !loading && (
-            <Card className="mt-8 border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+            <Card className="mt-8 border-2 border-gray-200 shadow-2xl bg-white">
               <CardContent className="p-12 text-center">
                 <div className="relative mb-6">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full blur-3xl opacity-50"></div>
