@@ -78,7 +78,15 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       console.log('PostAuthRoleSelection - Response status:', response.status);
       console.log('PostAuthRoleSelection - Response headers:', response.headers);
 
+      if (!response.ok) {
+        console.error('PostAuthRoleSelection - HTTP error:', response.status, response.statusText);
+        setError(`Server error: ${response.status}. Please try again.`);
+        setIsLoading(false);
+        return;
+      }
+
       const data = await response.json();
+      console.log('PostAuthRoleSelection - Response data:', data);
 
       if (data.success) {
         console.log('Role updated successfully:', data.user);

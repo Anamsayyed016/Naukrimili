@@ -43,11 +43,9 @@ export default function HomePageClient({
   const [selectedRole, setSelectedRole] = useState<'jobseeker' | 'employer' | null>(null);
   const [showJobSeekerOptions, setShowJobSeekerOptions] = useState(false);
   const [showEmployerOptions, setShowEmployerOptions] = useState(false);
-  const [showRoleSelection, setShowRoleSelection] = useState(false);
-  const [isUpdatingRole, setIsUpdatingRole] = useState(false);
   const router = useRouter();
 
-  // Show role selection if user is authenticated but has no role
+  // Redirect authenticated users without role to role selection page
   useEffect(() => {
     console.log('HomePageClient - Session status:', status);
     console.log('HomePageClient - Session data:', session);
@@ -55,8 +53,8 @@ export default function HomePageClient({
     if (status === 'authenticated' && session?.user) {
       console.log('HomePageClient - User authenticated:', session.user);
       if (!session.user.role) {
-        console.log('HomePageClient - User has no role, showing role selection');
-        setShowRoleSelection(true);
+        console.log('HomePageClient - User has no role, redirecting to role selection');
+        router.push('/auth/role-selection');
       } else {
         console.log('HomePageClient - User has role:', session.user.role);
       }
@@ -65,67 +63,8 @@ export default function HomePageClient({
     } else if (status === 'loading') {
       console.log('HomePageClient - Session loading...');
     }
-  }, [session, status]);
+  }, [session, status, router]);
 
-  const handleRoleSelect = async (role: 'jobseeker' | 'employer') => {
-    if (!session?.user?.id) {
-      console.error('HomePageClient - No user ID in session');
-      console.error('HomePageClient - Session data:', session);
-      alert('User session is invalid. Please sign in again.');
-      return;
-    }
-    
-    setIsUpdatingRole(true);
-    setSelectedRole(role);
-    
-    try {
-      console.log('HomePageClient - Session user:', session.user);
-      console.log('HomePageClient - User ID:', session.user.id);
-      console.log('HomePageClient - Role to set:', role);
-      
-      // Update user role in database
-      console.log('HomePageClient - Making API request to:', '/api/auth/update-role');
-      console.log('HomePageClient - Request body:', JSON.stringify({
-        userId: session.user.id,
-        role: role
-      }));
-      
-      const response = await fetch('/api/auth/update-role', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: session.user.id,
-          role: role
-        }),
-      });
-      
-      console.log('HomePageClient - Response status:', response.status);
-      console.log('HomePageClient - Response headers:', response.headers);
-
-      const data = await response.json();
-
-      if (data.success) {
-        console.log('Role updated successfully:', data.user);
-        
-        // Redirect to appropriate dashboard
-        if (role === 'jobseeker') {
-          router.push('/dashboard/jobseeker?setup=true');
-        } else {
-          router.push('/dashboard/company?setup=true');
-        }
-      } else {
-        console.error('Role update failed:', data);
-        alert('Failed to update role. Please try again.');
-      }
-    } catch (error) {
-      console.error('Role selection error:', error);
-      alert('Network error. Please try again.');
-    } finally {
-      setIsUpdatingRole(false);
-    }
-  };
 
   const handleBack = () => {
     setSelectedRole(null);
@@ -163,56 +102,6 @@ export default function HomePageClient({
         </div>
       )}
 
-      {/* Role Selection Modal */}
-      {showRoleSelection && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Choose Your Role</h3>
-              <p className="text-gray-600">Select how you want to use our platform</p>
-            </div>
-            
-            <div className="space-y-3">
-              <button
-                onClick={() => handleRoleSelect('jobseeker')}
-                disabled={isUpdatingRole}
-                className="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-left disabled:opacity-50"
-              >
-                <div className="flex items-center gap-3">
-                  <UserCheck className="w-6 h-6 text-blue-600" />
-                  <div>
-                    <div className="font-semibold text-gray-900">Job Seeker</div>
-                    <div className="text-sm text-gray-600">Find jobs, upload resume, build profile</div>
-                  </div>
-                </div>
-              </button>
-              
-              <button
-                onClick={() => handleRoleSelect('employer')}
-                disabled={isUpdatingRole}
-                className="w-full p-4 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all text-left disabled:opacity-50"
-              >
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-6 h-6 text-green-600" />
-                  <div>
-                    <div className="font-semibold text-gray-900">Employer</div>
-                    <div className="text-sm text-gray-600">Post jobs, find candidates, manage company</div>
-                  </div>
-                </div>
-              </button>
-            </div>
-            
-            {isUpdatingRole && (
-              <div className="mt-4 text-center">
-                <div className="inline-flex items-center gap-2 text-blue-600">
-                  <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  Updating role...
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Hero Section - Enhanced with Authentication */}
       <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">

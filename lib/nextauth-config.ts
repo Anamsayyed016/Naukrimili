@@ -386,9 +386,9 @@ export const authOptions: NextAuthOptions = {
         return url;
       }
       
-      // For OAuth callbacks, always redirect to home page
-      // This ensures new users go to home page where they can choose role
-      return `${baseUrl}/`;
+      // For OAuth callbacks, redirect to role selection page
+      // This ensures new users go directly to role selection
+      return `${baseUrl}/auth/role-selection`;
     }
   },
   pages: {
