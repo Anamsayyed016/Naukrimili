@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  try {
+  {  try {
     const auth = await requireEmployerAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
@@ -100,6 +100,7 @@ export async function PUT(request: NextRequest) {
       { status: 500 }
     );
   }
+}
 }
 
 export async function OPTIONS() {
