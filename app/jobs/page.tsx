@@ -269,15 +269,15 @@ export default function JobsPage() {
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-gray-700">Job Type</Label>
                       <Select value={filters.jobType} onValueChange={(value) => setFilters(prev => ({ ...prev, jobType: value }))}>
-                        <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                        <SelectTrigger className="h-12 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium">
                           <SelectValue placeholder="Select job type" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Types</SelectItem>
-                          <SelectItem value="full-time">Full-time</SelectItem>
-                          <SelectItem value="part-time">Part-time</SelectItem>
-                          <SelectItem value="contract">Contract</SelectItem>
-                          <SelectItem value="internship">Internship</SelectItem>
+                        <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+                          <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Types</SelectItem>
+                          <SelectItem value="full-time" className="text-gray-900 hover:bg-blue-50">Full-time</SelectItem>
+                          <SelectItem value="part-time" className="text-gray-900 hover:bg-blue-50">Part-time</SelectItem>
+                          <SelectItem value="contract" className="text-gray-900 hover:bg-blue-50">Contract</SelectItem>
+                          <SelectItem value="internship" className="text-gray-900 hover:bg-blue-50">Internship</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -285,16 +285,16 @@ export default function JobsPage() {
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-gray-700">Experience Level</Label>
                       <Select value={filters.experienceLevel} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceLevel: value }))}>
-                        <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
+                        <SelectTrigger className="h-12 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium">
                           <SelectValue placeholder="Select experience" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Levels</SelectItem>
-                          <SelectItem value="entry">Entry Level</SelectItem>
-                          <SelectItem value="mid">Mid Level</SelectItem>
-                          <SelectItem value="senior">Senior Level</SelectItem>
-                          <SelectItem value="lead">Lead</SelectItem>
-                          <SelectItem value="executive">Executive</SelectItem>
+                        <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+                          <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Levels</SelectItem>
+                          <SelectItem value="entry" className="text-gray-900 hover:bg-blue-50">Entry Level</SelectItem>
+                          <SelectItem value="mid" className="text-gray-900 hover:bg-blue-50">Mid Level</SelectItem>
+                          <SelectItem value="senior" className="text-gray-900 hover:bg-blue-50">Senior Level</SelectItem>
+                          <SelectItem value="lead" className="text-gray-900 hover:bg-blue-50">Lead</SelectItem>
+                          <SelectItem value="executive" className="text-gray-900 hover:bg-blue-50">Executive</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -306,7 +306,7 @@ export default function JobsPage() {
                         value={filters.salaryMin}
                         onChange={(e) => setFilters(prev => ({ ...prev, salaryMin: e.target.value }))}
                         type="number"
-                        className="h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                        className="h-12 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium"
                       />
                     </div>
 
@@ -317,7 +317,7 @@ export default function JobsPage() {
                         value={filters.salaryMax}
                         onChange={(e) => setFilters(prev => ({ ...prev, salaryMax: e.target.value }))}
                         type="number"
-                        className="h-12 border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                        className="h-12 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium"
                       />
                     </div>
                   </div>
@@ -328,7 +328,7 @@ export default function JobsPage() {
                         id="remote"
                         checked={filters.isRemote}
                         onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isRemote: !!checked }))}
-                        className="w-5 h-5 border-2 border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                        className="w-5 h-5 border-2 border-gray-400 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white"
                       />
                       <Label htmlFor="remote" className="text-sm font-semibold text-gray-700 cursor-pointer">Remote Work Only</Label>
                     </div>
