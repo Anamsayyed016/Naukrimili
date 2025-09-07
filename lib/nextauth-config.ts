@@ -164,7 +164,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       
       // For OAuth callbacks, redirect to role selection
-      if (url.includes('/api/auth/callback/')) {
+      if (url.includes('/api/auth/callback/') || url.includes('google')) {
         const roleSelectionUrl = `${baseUrl}/auth/role-selection`;
         console.log('🔀 OAuth callback detected, redirecting to role selection:', roleSelectionUrl);
         return roleSelectionUrl;
@@ -186,4 +186,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key-change-in-production',
+  trustHost: true,
 });

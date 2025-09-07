@@ -31,7 +31,7 @@ export default function RoleSelectionPage() {
           console.log('Still no session after delay, redirecting to unified auth');
           router.push('/auth/unified');
         }
-      }, 2000); // Wait 2 seconds for session to be established
+      }, 3000); // Wait 3 seconds for session to be established
       
       return () => clearTimeout(timer);
     }

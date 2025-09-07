@@ -52,7 +52,7 @@ export function OAuthButtons({
       
       // Use redirect for OAuth - this will redirect the user to the provider
       await signIn(providerId, {
-        callbackUrl: callbackUrl || '/auth/role-selection',
+        callbackUrl: '/auth/role-selection',
         redirect: true, // This will redirect to the OAuth provider
       });
       
