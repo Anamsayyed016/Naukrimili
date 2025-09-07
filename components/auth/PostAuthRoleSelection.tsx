@@ -45,7 +45,6 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       const apiUrl = '/api/auth/update-role';
       console.log('PostAuthRoleSelection - Making API request to:', apiUrl);
       console.log('PostAuthRoleSelection - Request body:', JSON.stringify({
-        userId: user.id,
         role: role
       }));
       
@@ -55,7 +54,6 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: user.id,
           role: role
         }),
       });

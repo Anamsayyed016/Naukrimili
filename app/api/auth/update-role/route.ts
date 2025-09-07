@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const updateRoleSchema = z.object({
-  userId: z.string().min(1, "User ID is required"),
   role: z.enum(["jobseeker", "employer"], {
     errorMap: () => ({ message: "Role must be either jobseeker or employer" })
   })
@@ -13,21 +12,36 @@ const updateRoleSchema = z.object({
 export async function POST(request: NextRequest) {
   console.log("Update role API endpoint called");
   try {
+    // Get the current session
+    const session = await auth();
+    console.log("Session data:", session);
+
+    if (!session?.user?.id) {
+      console.error("No authenticated user found");
+      return NextResponse.json(
+        { 
+          success: false,
+          error: "Unauthorized",
+          message: "You must be logged in to update your role."
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     console.log("Update role request body:", body);
 
     const validatedData = updateRoleSchema.parse(body);
     console.log("Validated update role data:", validatedData);
 
-    console.log("User ID type:", typeof validatedData.userId);
-    console.log("User ID value:", validatedData.userId);
+    console.log("User ID from session:", session.user.id);
 
-    const existingUser = await prisma.User.findUnique({
-      where: { id: validatedData.userId }
+    const existingUser = await prisma.user.findUnique({
+      where: { id: session.user.id }
     });
 
     if (!existingUser) {
-      console.error("User not found:", validatedData.userId);
+      console.error("User not found:", session.user.id);
       return NextResponse.json(
         { 
           success: false,
@@ -52,8 +66,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const updatedUser = await prisma.User.update({
-      where: { id: validatedData.userId },
+    const updatedUser = await prisma.user.update({
+      where: { id: session.user.id },
       data: {
         role: validatedData.role,
         updatedAt: new Date()

@@ -50,19 +50,23 @@ export function OAuthButtons({
       
       console.log(`🔐 OAuth sign-in: ${providerId} on ${isMobile ? 'mobile' : 'desktop'}`);
       
-      // Mobile-optimized OAuth - always use redirect
-      const result = await signIn(providerId, {
-        callbackUrl,
-        redirect: true, // Force redirect for mobile compatibility
+      // Use redirect for OAuth - this will redirect the user to the provider
+      await signIn(providerId, {
+        callbackUrl: callbackUrl || '/auth/role-selection',
+        redirect: true, // This will redirect to the OAuth provider
       });
       
-      if (result?.error) {
-        console.error(`❌ OAuth error for ${providerId}:`, result.error);
-      }
+      // Note: When redirect: true, this code won't execute as the page will redirect
+      console.log(`✅ OAuth redirect initiated for ${providerId}`);
+      
+      // Reset loading state after a short delay in case redirect doesn't happen
+      setTimeout(() => {
+        setLoadingProvider(null);
+      }, 3000);
+      
     } catch (error: any) {
       console.error(`❌ OAuth exception for ${providerId}:`, error);
-    } finally {
-      setLoadingProvider(null);
+      setLoadingProvider(null); // Only reset loading if there's an error
     }
   };
 

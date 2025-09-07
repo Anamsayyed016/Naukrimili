@@ -148,18 +148,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async redirect({ url, baseUrl }) {
+      console.log('🔀 Redirect callback - url:', url, 'baseUrl:', baseUrl);
+      
       // Handle relative URLs
       if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
+        const redirectUrl = `${baseUrl}${url}`;
+        console.log('🔀 Redirecting to relative URL:', redirectUrl);
+        return redirectUrl;
       }
       
       // Handle absolute URLs that start with baseUrl
       if (url.startsWith(baseUrl)) {
+        console.log('🔀 Redirecting to absolute URL:', url);
         return url;
       }
       
-      // Default redirect to home
-      return baseUrl;
+      // For OAuth callbacks, redirect to role selection
+      if (url.includes('/api/auth/callback/')) {
+        const roleSelectionUrl = `${baseUrl}/auth/role-selection`;
+        console.log('🔀 OAuth callback detected, redirecting to role selection:', roleSelectionUrl);
+        return roleSelectionUrl;
+      }
+      
+      // Default redirect to role selection for new users
+      const defaultUrl = `${baseUrl}/auth/role-selection`;
+      console.log('🔀 Default redirect to role selection:', defaultUrl);
+      return defaultUrl;
     }
   },
   pages: {
