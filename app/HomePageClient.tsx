@@ -164,25 +164,6 @@ export default function HomePageClient({
             </div>
           </div>
 
-          {/* Authentication Section - PROMINENTLY DISPLAYED */}
-          <div className="max-w-2xl mx-auto mb-8 sm:mb-12">
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20 shadow-xl">
-              <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">
-                Get Started in Seconds
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Sign in with your Google account or create a new account to access all features
-              </p>
-              
-              {/* Real Google OAuth Button */}
-              <div className="mb-4">
-                <OAuthButtons 
-                  callbackUrl="/auth/role-selection"
-                  className="w-full"
-                />
-              </div>
-            </div>
-          </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
