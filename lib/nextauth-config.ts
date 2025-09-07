@@ -176,13 +176,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return url;
       }
       
-      // For OAuth flows, redirect to unified auth
+      // For OAuth flows, use the original callback URL or default to role-selection
       if (url.includes('/api/auth/callback/')) {
-        return `${baseUrl}/auth/unified`;
+        // Let the original callbackUrl from signIn() work as intended
+        return url;
       }
       
-      // Default to unified auth for OAuth flows
-      return `${baseUrl}/auth/unified`;
+      // Default to role-selection for OAuth flows
+      return `${baseUrl}/auth/role-selection`;
     }
   },
   pages: {

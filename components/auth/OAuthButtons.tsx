@@ -50,7 +50,7 @@ export function OAuthButtons({
       
       // Use NextAuth signIn with proper redirect
       const result = await signIn(providerId, {
-        callbackUrl: callbackUrl || '/auth/unified',
+        callbackUrl: callbackUrl || '/auth/role-selection',
         redirect: true
       });
       
