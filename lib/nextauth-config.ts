@@ -181,7 +181,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }
   },
   pages: {
-    signIn: '/auth/role-selection',
+    signIn: '/',
     error: '/auth/error'
   },
   session: {
