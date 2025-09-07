@@ -1,32 +1,17 @@
 /**
- * NextAuth.js Configuration for Google OAuth Authentication
- * Clean implementation without OTP verification
+ * NextAuth.js Configuration - Clean, Professional Implementation
+ * Unified authentication system for job portal
  */
-
-// Type declarations for Node.js environment
-declare const process: {
-  env: {
-    [key: string]: string | undefined;
-  };
-};
 
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
-// @ts-ignore - bcryptjs types are available but may have module resolution issues
 import bcrypt from 'bcryptjs';
-import { sendWelcomeEmail } from '@/lib/welcome-email';
-import { createWelcomeNotification } from '@/lib/notification-service';
 
 export const authOptions: NextAuthOptions = {
-  // Enable Prisma adapter for proper session management
   adapter: PrismaAdapter(prisma),
-  // Fix Next.js 15 compatibility
-  experimental: {
-    enableWebAuthn: false,
-  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -40,16 +25,6 @@ export const authOptions: NextAuthOptions = {
         }
       }
     }),
-    // LinkedIn OAuth Provider (commented out until credentials are configured)
-    // LinkedInProvider({
-    //   clientId: process.env.LINKEDIN_CLIENT_ID || '',
-    //   clientSecret: process.env.LINKEDIN_CLIENT_SECRET || '',
-    //   authorization: {
-    //     params: {
-    //       scope: 'r_liteprofile r_emailaddress',
-    //     }
-    //   }
-    // }),
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -57,46 +32,26 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
         try {
-          if (!credentials?.email || !credentials?.password) {
-            console.log('Missing credentials');
-            return null;
-          }
-
-          console.log('Attempting login for:', credentials.email);
-
-          // Check if user exists in database
-          const user = await prisma.User.findUnique({
+          const user = await prisma.user.findUnique({
             where: { email: credentials.email }
           });
           
-          if (!user) {
-            console.log('User not found:', credentials.email);
+          if (!user || !user.password || !user.isActive) {
             return null;
           }
 
-          if (!user.password) {
-            console.log('User has no password (OAuth only):', credentials.email);
-            return null;
-          }
-
-          // Verify password
           const isValidPassword = await bcrypt.compare(credentials.password, user.password);
           if (!isValidPassword) {
-            console.log('Invalid password for:', credentials.email);
             return null;
           }
-
-          // Check if user is active
-          if (!user.isActive) {
-            console.log('User account inactive:', credentials.email);
-            return null;
-          }
-
-          console.log('Login successful for:', credentials.email);
 
           return {
-            id: user.id.toString(),
+            id: user.id,
             email: user.email,
             name: user.name,
             role: user.role || 'jobseeker'
@@ -110,276 +65,89 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account, profile }) {
-      try {
-        // Handle initial user data from sign-in
-        if (user) {
-          token.id = user.id?.toString() || token.sub;
-          token.role = user.role || null;
-          token.email = user.email || token.email;
-          token.name = user.name || token.name;
-          token.isNewUser = false;
-        }
-        
-        // Handle OAuth provider data - fetch user from database
-        if (account?.provider === 'google' && profile) {
-          try {
-            console.log('JWT callback - Google OAuth, fetching user for email:', profile.email);
-            const dbUser = await prisma.User.findUnique({
-              where: { email: profile.email || '' }
-            });
-            
-            if (dbUser) {
-              console.log('JWT callback - Found user in database:', dbUser.id, dbUser.email);
-              token.id = dbUser.id;
-              token.role = dbUser.role;
-              token.email = dbUser.email;
-              token.name = dbUser.name;
-              token.isOAuthUser = true;
-            } else {
-              console.log('JWT callback - User not found in database, using profile data');
-              token.email = profile.email || token.email;
-              token.name = profile.name || token.name;
-              token.picture = (profile as any).picture || token.picture;
-              token.isOAuthUser = true;
-            }
-          } catch (error) {
-            console.error('Error fetching user in JWT callback:', error);
-            token.email = profile.email || token.email;
-            token.name = profile.name || token.name;
-            token.picture = (profile as any).picture || token.picture;
-            token.isOAuthUser = true;
-          }
-        }
-        
-        if (account?.provider === 'linkedin' && profile) {
-          try {
-            const dbUser = await prisma.User.findUnique({
-              where: { email: profile.email || '' }
-            });
-            
-            if (dbUser) {
-              token.id = dbUser.id;
-              token.role = dbUser.role;
-              token.email = dbUser.email;
-              token.name = dbUser.name;
-              token.isOAuthUser = true;
-            } else {
-              token.email = profile.email || token.email;
-              token.name = profile.name || token.name;
-              token.picture = (profile as any).picture || token.picture;
-              token.isOAuthUser = true;
-            }
-          } catch (error) {
-            console.error('Error fetching user in JWT callback:', error);
-            token.email = profile.email || token.email;
-            token.name = profile.name || token.name;
-            token.picture = (profile as any).picture || token.picture;
-            token.isOAuthUser = true;
-          }
-        }
-        
-        return token;
-      } catch (error) {
-        console.error('JWT callback error:', error);
-        return token;
+      // Handle initial user data from sign-in
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.email = user.email;
+        token.name = user.name;
       }
+      
+      // Handle OAuth provider data
+      if (account?.provider === 'google' && profile) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: profile.email || '' }
+          });
+          
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role;
+            token.email = dbUser.email;
+            token.name = dbUser.name;
+          } else {
+            token.email = profile.email || token.email;
+            token.name = profile.name || token.name;
+            token.picture = (profile as any).picture || token.picture;
+          }
+        } catch (error) {
+          console.error('Error in JWT callback:', error);
+        }
+      }
+      
+      return token;
     },
     async session({ session, token }) {
-      try {
-        console.log('Session callback - Token data:', {
-          id: token.id,
-          sub: token.sub,
-          email: token.email,
-          role: token.role,
-          isOAuthUser: token.isOAuthUser
-        });
-        
-        if (session.user) {
-          // If we don't have a user ID in token, try to fetch it from database
-          if (!token.id && token.email) {
-            try {
-              console.log('Session callback - No user ID in token, fetching from database for email:', token.email);
-              const dbUser = await prisma.User.findUnique({
-                where: { email: token.email }
-              });
-              
-              if (dbUser) {
-                console.log('Session callback - Found user in database:', dbUser.id);
-                token.id = dbUser.id;
-                token.role = dbUser.role;
-              }
-            } catch (error) {
-              console.error('Session callback - Error fetching user from database:', error);
-            }
-          }
-          
-          // Ensure user ID is properly set
-          if (token.id) {
-            (session.user as any).id = token.id;
-          } else if (token.email) {
-            // Fallback: find user by email if no ID in token
-            const dbUser = await prisma.User.findUnique({
-              where: { email: token.email }
-            });
-            (session.user as any).id = dbUser?.id || '';
-          } else {
-            (session.user as any).id = token.sub || '';
-          }
-          
-          (session.user as any).role = token.role || null;
-          (session.user as any).email = token.email || '';
-          (session.user as any).name = token.name || '';
-          (session.user as any).picture = token.picture || '';
-          (session.user as any).isVerified = true;
-          // Pass flags to session for frontend use
-          (session.user as any).isNewUser = token.isNewUser || false;
-          (session.user as any).isOAuthUser = token.isOAuthUser || false;
-          
-          console.log('Session callback - Final session user:', {
-            id: (session.user as any).id,
-            email: (session.user as any).email,
-            role: (session.user as any).role,
-            isOAuthUser: (session.user as any).isOAuthUser
-          });
-        }
-        return session;
-      } catch (error) {
-        console.error('Session callback error:', error);
-        return session;
+      if (session.user) {
+        (session.user as any).id = token.id || token.sub;
+        (session.user as any).role = token.role;
+        (session.user as any).email = token.email;
+        (session.user as any).name = token.name;
+        (session.user as any).picture = token.picture;
       }
+      return session;
     },
-    async signIn({ user, account, profile, email, credentials }) {
-      try {
-        console.log('Sign-in attempt:', { 
-          provider: account?.provider, 
-          email: user.email, 
-          role: user.role 
-        });
-        
-        // Handle OAuth sign-ins
-        if (account?.provider === 'google' && profile) {
-          try {
-            const existingUser = await prisma.User.findUnique({
-              where: { email: profile.email || '' }
-            });
+    async signIn({ user, account, profile }) {
+      // Handle OAuth sign-ins
+      if (account?.provider === 'google' && profile) {
+        try {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: profile.email || '' }
+          });
 
-            if (!existingUser) {
-              // Create new user from Google OAuth without a role - they'll select it later
-              const newUser = await prisma.User.create({
-                data: {
-                  email: profile.email || '',
-                  name: profile.name || '',
-                  role: null, // No default role - user will select
-                  isActive: true,
-                  isVerified: true, // Google OAuth users are automatically verified
-                  emailVerified: new Date()
-                }
-              });
-              
-              console.log(`✅ Google OAuth: New user created for ${profile.email}`);
-              
-              // Create welcome notification for new OAuth users (async, don't await to avoid blocking)
-              createWelcomeNotification(
-                newUser.id,
-                profile.name || 'User',
-                'Google'
-              ).catch(error => {
-                console.error('Failed to create welcome notification:', error);
-              });
-              
-              // Send welcome email for new OAuth users (async, don't await to avoid blocking)
-              sendWelcomeEmail({
+          if (!existingUser) {
+            // Create new user from Google OAuth
+            await prisma.user.create({
+              data: {
                 email: profile.email || '',
                 name: profile.name || '',
-                provider: 'google'
-              }).catch(error => {
-                console.error('Failed to send welcome email:', error);
-              });
-            } else {
-              // Update existing user - handle both OAuth and credential users
-              await prisma.User.update({
-                where: { id: existingUser.id },
-                data: {
-                  emailVerified: new Date(),
-                  updatedAt: new Date(),
-                  // If user was created with credentials, update name from OAuth
-                  name: existingUser.name || profile.name || ''
-                }
-              });
-              
-              console.log(`✅ Google OAuth: Existing user logged in for ${profile.email}`);
-            }
-          } catch (error) {
-            console.error('Error handling Google OAuth user:', error);
-            // Don't throw error, just log it to prevent auth failure
-          }
-        }
-        
-        // Handle LinkedIn OAuth (if implemented)
-        if (account?.provider === 'linkedin' && profile) {
-          try {
-            const existingUser = await prisma.User.findUnique({
-              where: { email: profile.email || '' }
+                role: null, // User will select role later
+                isActive: true,
+                isVerified: true,
+                emailVerified: new Date(),
+                skills: '',
+                jobTypePreference: 'full-time'
+              }
             });
-
-            if (!existingUser) {
-              // Create new user from LinkedIn OAuth
-              const newUser = await prisma.User.create({
-                data: {
-                  email: profile.email || '',
-                  name: profile.name || '',
-                  role: null, // No default role - user will select
-                  isActive: true,
-                  isVerified: true, // LinkedIn OAuth users are automatically verified
-                  emailVerified: new Date()
-                }
-              });
-              
-              console.log(`✅ LinkedIn OAuth: New user created for ${profile.email}`);
-              
-              // Create welcome notification for new OAuth users (async, don't await to avoid blocking)
-              createWelcomeNotification(
-                newUser.id,
-                profile.name || 'User',
-                'LinkedIn'
-              ).catch(error => {
-                console.error('Failed to create welcome notification:', error);
-              });
-              
-              // Send welcome email for new OAuth users (async, don't await to avoid blocking)
-              sendWelcomeEmail({
-                email: profile.email || '',
-                name: profile.name || '',
-                provider: 'linkedin'
-              }).catch(error => {
-                console.error('Failed to send welcome email:', error);
-              });
-            } else {
-              // Update existing user
-              await prisma.User.update({
-                where: { id: existingUser.id },
-                data: {
-                  emailVerified: new Date(),
-                  updatedAt: new Date()
-                }
-              });
-              
-              console.log(`✅ LinkedIn OAuth: Existing user logged in for ${profile.email}`);
-            }
-          } catch (error) {
-            console.error('Error handling LinkedIn OAuth user:', error);
+          } else {
+            // Update existing user
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: {
+                emailVerified: new Date(),
+                updatedAt: new Date(),
+                name: existingUser.name || profile.name || ''
+              }
+            });
           }
+        } catch (error) {
+          console.error('Error handling Google OAuth user:', error);
         }
-        
-        return true;
-      } catch (error) {
-        console.error('Sign-in callback error:', error);
-        return false;
       }
+      
+      return true;
     },
     async redirect({ url, baseUrl }) {
-      console.log('Redirect callback:', { url, baseUrl });
-      
       // Handle relative URLs
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
@@ -390,24 +158,18 @@ export const authOptions: NextAuthOptions = {
         return url;
       }
       
-      // For OAuth callbacks, redirect to role selection page
-      // This ensures new users go directly to role selection
-      return `${baseUrl}/auth/role-selection`;
+      // Default redirect to home
+      return baseUrl;
     }
   },
   pages: {
-    signIn: '/auth/unified',
+    signIn: '/auth/signin',
     error: '/auth/error'
   },
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // Update every 24 hours
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
-  jwt: {
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  debug: false,
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key-change-in-production',
 };
