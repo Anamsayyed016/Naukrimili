@@ -23,7 +23,7 @@ const errorMessages: { [key: string]: string } = {
   OAuthCreateAccount: 'Could not create OAuth account.',
   EmailCreateAccount: 'Could not create email account.',
   Callback: 'Error occurred during callback.',
-  OAuthAccountNotLinked: 'Email already exists with a different provider.',
+  OAuthAccountNotLinked: 'This email is already registered. Please sign in with your existing account or use a different email.',
   EmailSignin: 'Check your email for a sign in link.',
   CredentialsSignin: 'Sign in failed. Check your credentials.',
   SessionRequired: 'Please sign in to access this page.',
@@ -35,7 +35,11 @@ export default function AuthErrorPage() {
   const errorMessage = errorMessages[error] || errorMessages.Default;
 
   const handleRetry = () => {
-    window.location.href = '/auth/unified';
+    window.location.href = '/';
+  };
+
+  const handleSignInWithCredentials = () => {
+    window.location.href = '/auth/signin';
   };
 
   return (
@@ -68,6 +72,16 @@ export default function AuthErrorPage() {
               <RefreshCw className="mr-2 h-4 w-4" />
               Try Again
             </Button>
+
+            {error === 'OAuthAccountNotLinked' && (
+              <Button
+                onClick={handleSignInWithCredentials}
+                className="w-full"
+                variant="outline"
+              >
+                Sign In with Email/Password
+              </Button>
+            )}
 
             <Button
               asChild

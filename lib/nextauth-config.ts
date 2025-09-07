@@ -95,9 +95,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.email = dbUser.email;
             token.name = dbUser.name;
           } else {
+            // For new OAuth users, set basic info from profile
             token.email = profile.email || token.email;
             token.name = profile.name || token.name;
             token.picture = (profile as any).picture || token.picture;
+            token.role = null; // Will be set when user selects role
           }
         } catch (error) {
           console.error('Error in JWT callback:', error);
@@ -132,7 +134,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           if (!existingUser) {
             // Create new user from Google OAuth
-            await prisma.user.create({
+            const newUser = await prisma.user.create({
               data: {
                 email: profile.email,
                 name: profile.name || '',
@@ -144,9 +146,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 jobTypePreference: 'full-time'
               }
             });
+            console.log('✅ New Google OAuth user created:', newUser);
           } else {
-            // Update existing user
-            await prisma.user.update({
+            // Update existing user - allow account linking
+            const updatedUser = await prisma.user.update({
               where: { id: existingUser.id },
               data: {
                 emailVerified: new Date(),
@@ -154,19 +157,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 name: existingUser.name || profile.name || ''
               }
             });
+            console.log('✅ Existing user updated with Google OAuth:', updatedUser);
           }
+          
+          return true;
         } catch (error) {
           console.error('Error handling Google OAuth user:', error);
           return false;
         }
       }
       
+      // Handle credentials sign-ins
+      if (account?.provider === 'credentials') {
+        return true; // Already validated in credentials provider
+      }
+      
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // Always redirect to onboarding flow after OAuth
+      // Always redirect to homepage after OAuth
       if (url.includes('/api/auth/callback/')) {
-        return `${baseUrl}/auth/onboarding`;
+        return `${baseUrl}/`;
       }
       
       if (url.startsWith('/')) {
@@ -177,7 +188,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return url;
       }
       
-      return `${baseUrl}/auth/onboarding`;
+      return `${baseUrl}/`;
     }
   },
   pages: {
@@ -191,4 +202,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   useSecureCookies: process.env.NODE_ENV === 'production',
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key-change-in-production',
   trustHost: true,
+  debug: process.env.NODE_ENV === 'development',
 });
