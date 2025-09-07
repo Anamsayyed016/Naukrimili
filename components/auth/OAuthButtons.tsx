@@ -46,24 +46,19 @@ export function OAuthButtons({
     try {
       setLoadingProvider(providerId);
       
-      const isMobile = isMobileDevice();
+      console.log(`🔐 OAuth sign-in: ${providerId}`);
       
-      console.log(`🔐 OAuth sign-in: ${providerId} on ${isMobile ? 'mobile' : 'desktop'}`);
+      // Use NextAuth signIn with proper redirect
+      const result = await signIn(providerId, {
+        callbackUrl: callbackUrl || '/auth/unified',
+        redirect: true
+      });
       
-      // Use redirect for OAuth - this will redirect the user to the provider
-      window.location.href = `/api/auth/signin/${providerId}?callbackUrl=${encodeURIComponent('/auth/unified')}`;
-      
-      // Note: When redirect: true, this code won't execute as the page will redirect
-      console.log(`✅ OAuth redirect initiated for ${providerId}`);
-      
-      // Reset loading state after a short delay in case redirect doesn't happen
-      setTimeout(() => {
-        setLoadingProvider(null);
-      }, 3000);
+      console.log(`✅ OAuth result:`, result);
       
     } catch (error: any) {
       console.error(`❌ OAuth exception for ${providerId}:`, error);
-      setLoadingProvider(null); // Only reset loading if there's an error
+      setLoadingProvider(null);
     }
   };
 

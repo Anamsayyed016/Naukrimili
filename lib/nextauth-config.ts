@@ -10,6 +10,15 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
+// Validate Google OAuth credentials
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+if (!googleClientId || !googleClientSecret || 
+    googleClientId.includes('your-') || googleClientSecret.includes('your-')) {
+  console.warn('⚠️ Google OAuth credentials not properly configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env.local');
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -111,15 +120,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Handle OAuth sign-ins
       if (account?.provider === 'google' && profile) {
         try {
+          // Validate that we have required profile data
+          if (!profile.email) {
+            console.error('Google OAuth profile missing email');
+            return false;
+          }
+
           const existingUser = await prisma.user.findUnique({
-            where: { email: profile.email || '' }
+            where: { email: profile.email }
           });
 
           if (!existingUser) {
             // Create new user from Google OAuth
             await prisma.user.create({
               data: {
-                email: profile.email || '',
+                email: profile.email,
                 name: profile.name || '',
                 role: null, // User will select role later
                 isActive: true,
@@ -142,6 +157,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
         } catch (error) {
           console.error('Error handling Google OAuth user:', error);
+          return false;
         }
       }
       
@@ -152,28 +168,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       
       // Handle relative URLs
       if (url.startsWith('/')) {
-        const redirectUrl = `${baseUrl}${url}`;
-        console.log('🔀 Redirecting to relative URL:', redirectUrl);
-        return redirectUrl;
+        return `${baseUrl}${url}`;
       }
       
       // Handle absolute URLs that start with baseUrl
       if (url.startsWith(baseUrl)) {
-        console.log('🔀 Redirecting to absolute URL:', url);
         return url;
       }
       
-      // For OAuth callbacks, redirect to unified auth flow
-      if (url.includes('/api/auth/callback/') || url.includes('google') || url.includes('oauth')) {
-        const unifiedUrl = `${baseUrl}/auth/unified`;
-        console.log('🔀 OAuth callback detected, redirecting to unified auth:', unifiedUrl);
-        return unifiedUrl;
+      // For OAuth flows, redirect to unified auth
+      if (url.includes('/api/auth/callback/')) {
+        return `${baseUrl}/auth/unified`;
       }
       
-      // Default redirect to unified auth for new users
-      const defaultUrl = `${baseUrl}/auth/unified`;
-      console.log('🔀 Default redirect to unified auth:', defaultUrl);
-      return defaultUrl;
+      // Default to unified auth for OAuth flows
+      return `${baseUrl}/auth/unified`;
     }
   },
   pages: {

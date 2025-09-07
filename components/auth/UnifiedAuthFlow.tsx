@@ -74,29 +74,12 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     try {
       console.log('Starting Google OAuth...');
       
-      const result = await signIn('google', {
-        callbackUrl: '/auth/role-selection',
-        redirect: false
+      // Use redirect: true for proper OAuth flow
+      await signIn('google', {
+        callbackUrl: '/auth/unified',
+        redirect: true
       });
-
-      if (result?.error) {
-        console.error('Google auth error:', result.error);
-        setError(`Google authentication failed: ${result.error}. Please try again.`);
-        setIsLoading(false);
-      } else if (result?.ok) {
-        console.log('Google OAuth successful, redirecting...');
-        setSuccess('Authentication successful! Redirecting...');
-        
-        await getSession();
-        
-        setTimeout(() => {
-          window.location.href = '/auth/role-selection';
-        }, 1000);
-      } else {
-        console.log('OAuth result:', result);
-        setError('Authentication failed. Please try again.');
-        setIsLoading(false);
-      }
+      
     } catch (error) {
       console.error('Google auth error:', error);
       setError('Network error during authentication. Please check your connection and try again.');
