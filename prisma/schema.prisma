@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -51,14 +51,19 @@ model Job {
   creator         User?     @relation(fields: [createdBy], references: [id])
   
   @@unique([source, sourceId])
-  @@index([createdAt])
-  @@index([country, location])
-  @@index([salaryMin, salaryMax])
-  @@index([jobType])
-  @@index([experienceLevel])
-  @@index([isRemote])
-  @@index([sector])
-  @@index([isActive])
+  @@index([isActive, createdAt])
+  @@index([country, location, isActive])
+  @@index([salaryMin, salaryMax, isActive])
+  @@index([jobType, experienceLevel, isActive])
+  @@index([isRemote, isHybrid, isActive])
+  @@index([sector, isFeatured, isActive])
+  @@index([source, sourceId])
+  @@index([companyId])
+  @@index([createdBy])
+  @@index([postedAt])
+  @@index([title], type: Gin)
+  @@index([description], type: Gin)
+  @@index([skills], type: Gin)
 }
 
 model User {

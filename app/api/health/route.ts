@@ -1,38 +1,46 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+/**
+ * Health Check API Endpoint
+ * 
+ * Comprehensive health monitoring for the job portal system
+ */
 
-export async function GET() {
+import { NextRequest, NextResponse } from 'next/server';
+import { healthCheck } from '@/lib/middleware/monitoring-middleware';
+import { MonitoringService } from '@/lib/services/monitoring-service';
+
+export async function GET(request: NextRequest) {
+  return healthCheck();
+}
+
+export async function HEAD(request: NextRequest) {
   try {
-    // Check database connection
-    await prisma.$queryRaw`SELECT 1`;
+    // Quick health check
+    const healthStatus = MonitoringService.getHealthStatus();
     
-    // Get basic stats
-    const [jobCount, companyCount, categoryCount] = await Promise.all([
-      prisma.job.count(),
-      prisma.company.count(),
-      prisma.category.count()
-    ]);
-    
-    return NextResponse.json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      database: 'connected',
-      stats: {
-        jobs: jobCount,
-        companies: companyCount,
-        categories: categoryCount
+    if (healthStatus.overall === 'healthy') {
+      return new Response(null, { 
+        status: 200,
+        headers: {
+          'X-Health': 'OK',
+          'X-Timestamp': new Date().toISOString()
+        }
+      });
+    } else {
+      return new Response(null, { 
+        status: 503,
+        headers: {
+          'X-Health': 'DEGRADED',
+          'X-Timestamp': new Date().toISOString()
+        }
+      });
+    }
+  } catch (error) {
+    return new Response(null, { 
+      status: 503,
+      headers: {
+        'X-Health': 'ERROR',
+        'X-Timestamp': new Date().toISOString()
       }
     });
-    
-  } catch (error) {
-    console.error('Health check failed:', error);
-    return NextResponse.json(
-      { 
-        status: 'unhealthy',
-        timestamp: new Date().toISOString(),
-        error: 'Database connection failed'
-      },
-      { status: 500 }
-    );
   }
 }
