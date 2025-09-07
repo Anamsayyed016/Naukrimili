@@ -51,7 +51,7 @@ export function OAuthButtons({
       console.log(`🔐 OAuth sign-in: ${providerId} on ${isMobile ? 'mobile' : 'desktop'}`);
       
       // Use redirect for OAuth - this will redirect the user to the provider
-      window.location.href = `/api/auth/signin/${providerId}?callbackUrl=${encodeURIComponent('/auth/role-selection')}`;
+      window.location.href = `/api/auth/signin/${providerId}?callbackUrl=${encodeURIComponent('/auth/unified')}`;
       
       // Note: When redirect: true, this code won't execute as the page will redirect
       console.log(`✅ OAuth redirect initiated for ${providerId}`);

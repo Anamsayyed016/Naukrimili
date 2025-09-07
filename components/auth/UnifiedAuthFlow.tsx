@@ -48,9 +48,15 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
           window.location.href = '/dashboard/company';
         }
       } else {
-        // User authenticated but no role, redirect to home page
-        // User can choose role from home page
-        window.location.href = '/';
+        // User authenticated but no role, show role selection step
+        console.log('User authenticated but no role, showing role selection');
+        setCurrentStep('role-selection');
+        setUserData(prev => ({
+          ...prev,
+          email: session.user.email || '',
+          name: session.user.name || '',
+          authMethod: 'google'
+        }));
       }
     }
   }, [session, status]);

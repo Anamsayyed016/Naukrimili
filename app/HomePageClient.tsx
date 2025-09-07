@@ -45,18 +45,19 @@ export default function HomePageClient({
   const [showEmployerOptions, setShowEmployerOptions] = useState(false);
   const router = useRouter();
 
-  // Redirect authenticated users without role to role selection page
+  // Handle authenticated users
   useEffect(() => {
     console.log('HomePageClient - Session status:', status);
     console.log('HomePageClient - Session data:', session);
     
     if (status === 'authenticated' && session?.user) {
       console.log('HomePageClient - User authenticated:', session.user);
-      if (!session.user.role) {
-        console.log('HomePageClient - User has no role, redirecting to role selection');
-        router.push('/auth/role-selection');
-      } else {
+      if (session.user.role) {
         console.log('HomePageClient - User has role:', session.user.role);
+        // User has role, they can stay on homepage or go to dashboard
+      } else {
+        console.log('HomePageClient - User has no role, showing role selection on homepage');
+        // User has no role, show role selection on homepage instead of redirecting
       }
     } else if (status === 'unauthenticated') {
       console.log('HomePageClient - User not authenticated');

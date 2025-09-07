@@ -163,16 +163,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return url;
       }
       
-      // For OAuth callbacks, redirect to role selection
+      // For OAuth callbacks, redirect to unified auth flow
       if (url.includes('/api/auth/callback/') || url.includes('google') || url.includes('oauth')) {
-        const roleSelectionUrl = `${baseUrl}/auth/role-selection`;
-        console.log('🔀 OAuth callback detected, redirecting to role selection:', roleSelectionUrl);
-        return roleSelectionUrl;
+        const unifiedUrl = `${baseUrl}/auth/unified`;
+        console.log('🔀 OAuth callback detected, redirecting to unified auth:', unifiedUrl);
+        return unifiedUrl;
       }
       
-      // Default redirect to role selection for new users
-      const defaultUrl = `${baseUrl}/auth/role-selection`;
-      console.log('🔀 Default redirect to role selection:', defaultUrl);
+      // Default redirect to unified auth for new users
+      const defaultUrl = `${baseUrl}/auth/unified`;
+      console.log('🔀 Default redirect to unified auth:', defaultUrl);
       return defaultUrl;
     }
   },
