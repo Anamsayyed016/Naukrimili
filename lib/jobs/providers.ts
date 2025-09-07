@@ -64,11 +64,26 @@ export async function fetchFromAdzuna(
       ].filter(Boolean).join(', '),
       country: safeUpper(countryCode),
       description: r.description || r.redirect_url || '',
+      requirements: extractRequirements(r.description || ''),
       applyUrl: r.redirect_url || r.url,  // @deprecated - keep for backward compatibility
       apply_url: null,                    // External jobs don't have internal apply URL
       source_url: r.redirect_url || r.url, // External source URL
       postedAt: r.created ? new Date(r.created).toISOString() : undefined,
       salary: r.salary_min || r.salary_max ? `${r.salary_min || ''}-${r.salary_max || ''}` : undefined,
+      salaryMin: r.salary_min,
+      salaryMax: r.salary_max,
+      salaryCurrency: getCurrency(countryCode),
+      jobType: 'full-time',
+      experienceLevel: 'mid',
+      skills: 'Software Development',
+      isRemote: false,
+      isHybrid: false,
+      isUrgent: false,
+      isFeatured: false,
+      isActive: true,
+      sector: 'Technology',
+      views: 0,
+      applicationsCount: 0,
       raw: r,
     }));
 
@@ -249,4 +264,21 @@ export async function checkJobProvidersHealth(): Promise<{
   }
 
   return health;
+}
+
+// Helper functions
+function extractRequirements(description: string): string {
+  if (!description) return '';
+  const reqMatch = description.match(/(?:requirements?|qualifications?|skills?)[:\s]*(.*?)(?:\n\n|\n[A-Z]|$)/i);
+  return reqMatch ? reqMatch[1].substring(0, 500) : '';
+}
+
+function getCurrency(countryCode: string): string {
+  const currencies: Record<string, string> = {
+    'in': 'INR',
+    'us': 'USD',
+    'gb': 'GBP',
+    'ae': 'AED'
+  };
+  return currencies[countryCode.toLowerCase()] || 'USD';
 }
