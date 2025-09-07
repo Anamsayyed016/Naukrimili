@@ -7,8 +7,8 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect to unified authentication flow
-    router.replace('/auth/unified');
+    // Redirect to role selection page
+    router.replace('/auth/role-selection');
   }, [router]);
 
   return (
