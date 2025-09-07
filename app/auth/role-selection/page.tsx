@@ -23,11 +23,17 @@ export default function RoleSelectionPage() {
   useEffect(() => {
     if (status === 'loading') return; // Still loading
 
+    // Add a small delay to allow session to be established after OAuth
     if (!session) {
-      // Not authenticated, redirect to unified auth
-      console.log('No session found, redirecting to unified auth');
-      router.push('/auth/unified');
-      return;
+      console.log('No session found, waiting for session to be established...');
+      const timer = setTimeout(() => {
+        if (!session) {
+          console.log('Still no session after delay, redirecting to unified auth');
+          router.push('/auth/unified');
+        }
+      }, 2000); // Wait 2 seconds for session to be established
+      
+      return () => clearTimeout(timer);
     }
 
     if (session.user?.role) {
