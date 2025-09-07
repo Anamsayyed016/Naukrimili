@@ -164,26 +164,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async redirect({ url, baseUrl }) {
-      console.log('🔀 Redirect callback - url:', url, 'baseUrl:', baseUrl);
+      // Always redirect to onboarding flow after OAuth
+      if (url.includes('/api/auth/callback/')) {
+        return `${baseUrl}/auth/onboarding`;
+      }
       
-      // Handle relative URLs
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
       }
       
-      // Handle absolute URLs that start with baseUrl
       if (url.startsWith(baseUrl)) {
         return url;
       }
       
-      // For OAuth flows, use the original callback URL or default to role-selection
-      if (url.includes('/api/auth/callback/')) {
-        // Let the original callbackUrl from signIn() work as intended
-        return url;
-      }
-      
-      // Default to role-selection for OAuth flows
-      return `${baseUrl}/auth/role-selection`;
+      return `${baseUrl}/auth/onboarding`;
     }
   },
   pages: {

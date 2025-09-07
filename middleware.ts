@@ -31,6 +31,11 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/auth/signin', req.url));
   }
 
+  // If user is authenticated but has no role, redirect to onboarding
+  if (!session.user?.role && !pathname.startsWith('/auth/onboarding')) {
+    return NextResponse.redirect(new URL('/auth/onboarding', req.url));
+  }
+
   return NextResponse.next();
 }
 
