@@ -61,9 +61,9 @@ model Job {
   @@index([companyId])
   @@index([createdBy])
   @@index([postedAt])
-  @@index([title], type: Gin)
-  @@index([description], type: Gin)
-  @@index([skills], type: Gin)
+  @@index([title])
+  @@index([description])
+  @@index([skills])
 }
 
 model User {
