@@ -23,6 +23,10 @@ import { createWelcomeNotification } from '@/lib/notification-service';
 export const authOptions: NextAuthOptions = {
   // Enable Prisma adapter for proper session management
   adapter: PrismaAdapter(prisma),
+  // Fix Next.js 15 compatibility
+  experimental: {
+    enableWebAuthn: false,
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || '',

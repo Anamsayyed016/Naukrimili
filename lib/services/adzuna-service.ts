@@ -154,7 +154,7 @@ export class AdzunaService {
         ...(options.distanceKm && { distance: options.distanceKm }),
         ...(options.category && { category: options.category }),
         ...(options.salaryMin && { salary_min: options.salaryMin }),
-        ...(options.salaryMax && { salaryMax: options.salaryMax }),
+        ...(options.salaryMax && { salary_max: options.salaryMax }),
         ...(options.sortBy && { sort_by: options.sortBy })
       };
 
