@@ -164,7 +164,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       
       // For OAuth callbacks, redirect to role selection
-      if (url.includes('/api/auth/callback/') || url.includes('google')) {
+      if (url.includes('/api/auth/callback/') || url.includes('google') || url.includes('oauth')) {
         const roleSelectionUrl = `${baseUrl}/auth/role-selection`;
         console.log('🔀 OAuth callback detected, redirecting to role selection:', roleSelectionUrl);
         return roleSelectionUrl;
