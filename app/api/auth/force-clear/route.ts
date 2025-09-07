@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/nextauth-config';
+import { auth } from '@/lib/nextauth-config';
+
 
 /**
  * Force Clear All Authentication State
@@ -10,7 +10,7 @@ import { authOptions } from '@/lib/nextauth-config';
 export async function POST(request: NextRequest) {
   try {
     // Get current session to log what we're clearing
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (session?.user) {
       console.log('🔄 Force clearing session for user:', session.user.email);
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     return NextResponse.json({
       success: true,

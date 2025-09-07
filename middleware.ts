@@ -1,45 +1,38 @@
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { auth } from "@/lib/nextauth-config";
 
-export default withAuth(
-  function middleware(req: NextRequest) {
-    const token = req.nextauth.token;
-    const pathname = req.nextUrl.pathname;
+export default async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
 
-    // Skip middleware for API routes and static files
-    if (
-      pathname.startsWith('/api/') ||
-      pathname.startsWith('/_next/') ||
-      pathname.startsWith('/static/')
-    ) {
-      return NextResponse.next();
-    }
-
+  // Skip middleware for API routes and static files
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/static/')
+  ) {
     return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const pathname = req.nextUrl.pathname;
-        
-        // Allow access to auth pages and public pages
-        if (
-          pathname.startsWith('/auth/') ||
-          pathname.startsWith('/api/') ||
-          pathname === '/' ||
-          pathname.startsWith('/jobs') ||
-          pathname.startsWith('/companies')
-        ) {
-          return true;
-        }
-
-        // For protected routes, require authentication
-        return !!token;
-      },
-    },
   }
-);
+
+  // Allow access to auth pages and public pages
+  if (
+    pathname.startsWith('/auth/') ||
+    pathname.startsWith('/api/') ||
+    pathname === '/' ||
+    pathname.startsWith('/jobs') ||
+    pathname.startsWith('/companies')
+  ) {
+    return NextResponse.next();
+  }
+
+  // For protected routes, require authentication
+  const session = await auth();
+  if (!session) {
+    return NextResponse.redirect(new URL('/auth/signin', req.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "./nextauth-config";
+import { auth } from "./nextauth-config";
 import { prisma } from "./prisma";
 
 export interface AuthUser {
@@ -29,7 +28,7 @@ export interface CompanyUser extends AuthUser {
  */
 export async function getAuthenticatedUser(): Promise<AuthUser | null> {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id) {
       return null;
     }

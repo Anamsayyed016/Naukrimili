@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/nextauth-config';
+import { auth } from '@/lib/nextauth-config';
+
 
 export interface AuthenticatedRequest extends NextRequest {
   user: {
@@ -15,7 +15,7 @@ export interface AuthenticatedRequest extends NextRequest {
 
 // Authenticate API Request (server)
 export async function authenticateApiRequest(): Promise<{ user: AuthenticatedRequest['user'] } | null> {
-  const session: any = await getServerSession(authOptions as any);
+  const session: any = await auth();
   if (!session || !session.user) return null;
   return {
     user: {

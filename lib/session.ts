@@ -1,5 +1,5 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from './nextauth-config';
+import { auth } from '@/lib/nextauth-config';
+
 
 /**
  * Return the NextAuth session or null on failure.
@@ -7,7 +7,7 @@ import { authOptions } from './nextauth-config';
 export async function getSession() {
   try {
     // Casting to any avoids tight coupling to the authOptions type here.
-    return await getServerSession(authOptions as any);
+    return await auth();
   } catch {
     return null;
   }

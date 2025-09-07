@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/nextauth-config';
+import { auth } from '@/lib/nextauth-config';
+
 import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     console.log('📤 Resume upload request received');
     
     // Get user session for authentication
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session || !session.user) {
       console.log('❌ No authenticated user found');
