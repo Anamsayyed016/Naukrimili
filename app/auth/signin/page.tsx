@@ -7,8 +7,8 @@ export default function SignInPage() {
   const router = useRouter()
   
   useEffect(() => {
-    // Redirect to the unified authentication page
-    router.push('/auth/unified')
+    // Redirect to the role selection page
+    router.push('/auth/role-selection')
   }, [router])
   
   return (

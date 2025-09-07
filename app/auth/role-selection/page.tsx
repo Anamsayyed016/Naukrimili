@@ -28,8 +28,8 @@ export default function RoleSelectionPage() {
       console.log('No session found, waiting for session to be established...');
       const timer = setTimeout(() => {
         if (!session) {
-          console.log('Still no session after delay, redirecting to unified auth');
-          router.push('/auth/unified');
+          console.log('Still no session after delay, redirecting to signin');
+          router.push('/auth/signin');
         }
       }, 3000); // Wait 3 seconds for session to be established
       

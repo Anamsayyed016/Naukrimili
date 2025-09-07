@@ -76,7 +76,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
       
       // Use redirect: true for proper OAuth flow
       await signIn('google', {
-        callbackUrl: '/auth/unified',
+        callbackUrl: '/auth/role-selection',
         redirect: true
       });
       
