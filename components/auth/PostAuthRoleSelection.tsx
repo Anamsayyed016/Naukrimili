@@ -67,7 +67,17 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         console.error('PostAuthRoleSelection - HTTP error:', response.status, response.statusText);
         
         if (response.status === 404) {
-          setError('API endpoint not found. Please contact support or try refreshing the page.');
+          // Check if this is actually a user not found error from our API
+          try {
+            const errorData = await response.clone().json();
+            if (errorData.error === "User not found") {
+              setError('User session is invalid. Please sign in again.');
+            } else {
+              setError('API endpoint not found. Please contact support or try refreshing the page.');
+            }
+          } catch {
+            setError('API endpoint not found. Please contact support or try refreshing the page.');
+          }
         } else if (response.status === 500) {
           setError('Server error. Please try again in a few moments.');
         } else {

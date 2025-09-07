@@ -13,6 +13,11 @@ import PostAuthRoleSelection from '@/components/auth/PostAuthRoleSelection';
 
 export default function RoleSelectionPage() {
   const { data: session, status } = useSession();
+  console.log('RoleSelectionPage - Session data:', session);
+  console.log('RoleSelectionPage - User data:', session?.user);
+  console.log('RoleSelectionPage - User ID:', session?.user?.id);
+  console.log('RoleSelectionPage - User email:', session?.user?.email);
+  console.log('RoleSelectionPage - User name:', session?.user?.name);
   const router = useRouter();
 
   useEffect(() => {

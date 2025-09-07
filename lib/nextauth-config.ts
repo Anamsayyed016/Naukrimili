@@ -66,7 +66,7 @@ export const authOptions: NextAuthOptions = {
           console.log('Attempting login for:', credentials.email);
 
           // Check if user exists in database
-          const user = await prisma.user.findUnique({
+          const user = await prisma.User.findUnique({
             where: { email: credentials.email }
           });
           
@@ -124,7 +124,7 @@ export const authOptions: NextAuthOptions = {
         if (account?.provider === 'google' && profile) {
           try {
             console.log('JWT callback - Google OAuth, fetching user for email:', profile.email);
-            const dbUser = await prisma.user.findUnique({
+            const dbUser = await prisma.User.findUnique({
               where: { email: profile.email || '' }
             });
             
@@ -153,7 +153,7 @@ export const authOptions: NextAuthOptions = {
         
         if (account?.provider === 'linkedin' && profile) {
           try {
-            const dbUser = await prisma.user.findUnique({
+            const dbUser = await prisma.User.findUnique({
               where: { email: profile.email || '' }
             });
             
@@ -199,7 +199,7 @@ export const authOptions: NextAuthOptions = {
           if (!token.id && token.email) {
             try {
               console.log('Session callback - No user ID in token, fetching from database for email:', token.email);
-              const dbUser = await prisma.user.findUnique({
+              const dbUser = await prisma.User.findUnique({
                 where: { email: token.email }
               });
               
@@ -218,7 +218,7 @@ export const authOptions: NextAuthOptions = {
             (session.user as any).id = token.id;
           } else if (token.email) {
             // Fallback: find user by email if no ID in token
-            const dbUser = await prisma.user.findUnique({
+            const dbUser = await prisma.User.findUnique({
               where: { email: token.email }
             });
             (session.user as any).id = dbUser?.id || '';
@@ -259,13 +259,13 @@ export const authOptions: NextAuthOptions = {
         // Handle OAuth sign-ins
         if (account?.provider === 'google' && profile) {
           try {
-            const existingUser = await prisma.user.findUnique({
+            const existingUser = await prisma.User.findUnique({
               where: { email: profile.email || '' }
             });
 
             if (!existingUser) {
               // Create new user from Google OAuth without a role - they'll select it later
-              const newUser = await prisma.user.create({
+              const newUser = await prisma.User.create({
                 data: {
                   email: profile.email || '',
                   name: profile.name || '',
@@ -297,7 +297,7 @@ export const authOptions: NextAuthOptions = {
               });
             } else {
               // Update existing user - handle both OAuth and credential users
-              await prisma.user.update({
+              await prisma.User.update({
                 where: { id: existingUser.id },
                 data: {
                   emailVerified: new Date(),
@@ -318,13 +318,13 @@ export const authOptions: NextAuthOptions = {
         // Handle LinkedIn OAuth (if implemented)
         if (account?.provider === 'linkedin' && profile) {
           try {
-            const existingUser = await prisma.user.findUnique({
+            const existingUser = await prisma.User.findUnique({
               where: { email: profile.email || '' }
             });
 
             if (!existingUser) {
               // Create new user from LinkedIn OAuth
-              const newUser = await prisma.user.create({
+              const newUser = await prisma.User.create({
                 data: {
                   email: profile.email || '',
                   name: profile.name || '',
@@ -356,7 +356,7 @@ export const authOptions: NextAuthOptions = {
               });
             } else {
               // Update existing user
-              await prisma.user.update({
+              await prisma.User.update({
                 where: { id: existingUser.id },
                 data: {
                   emailVerified: new Date(),
