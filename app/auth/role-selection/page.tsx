@@ -62,20 +62,22 @@ export default function RoleSelectionPage() {
   }
 
   if (!session) {
-    return null; // Will redirect
-  }
-
-  if (session.user?.role) {
-    return null; // Will redirect
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to sign in...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <PostAuthRoleSelection 
-        user={session.user}
+        user={session.user} 
         onComplete={(user) => {
-          console.log('Role selection completed:', user);
-          // Redirect will be handled by the component
+          console.log('Role selection completed for user:', user);
         }}
       />
     </div>
