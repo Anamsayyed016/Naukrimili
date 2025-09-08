@@ -55,12 +55,7 @@ interface Job {
   createdAt: string;
   description: string;
   skills: string[];
-<<<<<<< HEAD
-  applicationsCount: number;
-  bookmarksCount: number;
-=======
   distance?: number | null;
->>>>>>> 72b2f20a89c670956b29be8726080635e9bb5a6e
   _count: {
     applications: number;
     bookmarks: number;
