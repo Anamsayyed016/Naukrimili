@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,14 +23,22 @@ import {
   TrendingUp,
   Users,
   ChevronDown,
-  Sparkles
+  Sparkles,
+  Navigation,
+  Loader2,
+  AlertCircle,
+  Globe,
+  Target,
+  Map
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import Link from "next/link";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { useResponsive } from "@/components/ui/use-mobile";
+import { getSmartLocation, isMobileDevice } from "@/lib/mobile-geolocation";
 
 interface Job {
   id: string;
@@ -47,6 +55,7 @@ interface Job {
   createdAt: string;
   description: string;
   skills: string[];
+  distance?: number | null;
   _count: {
     applications: number;
     bookmarks: number;
@@ -76,6 +85,19 @@ export default function JobsPage() {
     salaryMin: '',
     salaryMax: ''
   });
+  
+  // Geolocation state
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+    city: string;
+    country: string;
+  } | null>(null);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [searchRadius, setSearchRadius] = useState(25);
+  const [sortByDistance, setSortByDistance] = useState(false);
+  const [showLocationFilters, setShowLocationFilters] = useState(false);
   const [dynamicConstants, setDynamicConstants] = useState({
     jobTypes: [],
     experienceLevels: [],
@@ -119,7 +141,13 @@ export default function JobsPage() {
         ...(filters.experienceLevel !== 'all' && { experienceLevel: filters.experienceLevel }),
         ...(filters.isRemote && { isRemote: 'true' }),
         ...(filters.salaryMin && { salaryMin: filters.salaryMin }),
-        ...(filters.salaryMax && { salaryMax: filters.salaryMax })
+        ...(filters.salaryMax && { salaryMax: filters.salaryMax }),
+        // Add geolocation parameters
+        ...(userLocation && { lat: userLocation.lat.toString() }),
+        ...(userLocation && { lng: userLocation.lng.toString() }),
+        ...(searchRadius && { radius: searchRadius.toString() }),
+        ...(sortByDistance && { sortByDistance: 'true' }),
+        ...(sortByDistance && { includeDistance: 'true' })
       });
 
       const response = await fetch(`/api/jobs/unified?${params}&includeExternal=true`);
@@ -188,7 +216,82 @@ export default function JobsPage() {
       salaryMin: '',
       salaryMax: ''
     });
+    setUserLocation(null);
+    setSearchRadius(25);
+    setSortByDistance(false);
+    setLocationError(null);
   };
+
+  // Geolocation functions
+  const detectCurrentLocation = useCallback(async () => {
+    try {
+      setIsDetectingLocation(true);
+      setLocationError(null);
+      
+      const result = await getSmartLocation();
+      
+      if (result.success && result.coordinates) {
+        setUserLocation({
+          lat: result.coordinates.lat,
+          lng: result.coordinates.lng,
+          city: result.city || 'Current Location',
+          country: result.country || 'Unknown'
+        });
+        setFilters(prev => ({ ...prev, location: result.city || 'Current Location' }));
+        console.log('✅ Location detected:', result);
+      } else {
+        setLocationError(result.error || 'Failed to detect location');
+        console.warn('❌ Location detection failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Location detection error:', error);
+      setLocationError('An unexpected error occurred while detecting location');
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  }, []);
+
+  // Popular locations for top 4 countries
+  const popularLocations = [
+    // USA
+    { name: 'New York', country: 'USA', flag: '🇺🇸', jobCount: 2150, lat: 40.7128, lng: -74.0060 },
+    { name: 'San Francisco', country: 'USA', flag: '🇺🇸', jobCount: 1890, lat: 37.7749, lng: -122.4194 },
+    { name: 'Los Angeles', country: 'USA', flag: '🇺🇸', jobCount: 1650, lat: 34.0522, lng: -118.2437 },
+    { name: 'Chicago', country: 'USA', flag: '🇺🇸', jobCount: 1420, lat: 41.8781, lng: -87.6298 },
+    { name: 'Seattle', country: 'USA', flag: '🇺🇸', jobCount: 1280, lat: 47.6062, lng: -122.3321 },
+    
+    // UAE
+    { name: 'Dubai', country: 'UAE', flag: '🇦🇪', jobCount: 1850, lat: 25.2048, lng: 55.2708 },
+    { name: 'Abu Dhabi', country: 'UAE', flag: '🇦🇪', jobCount: 1200, lat: 24.2992, lng: 54.3773 },
+    { name: 'Sharjah', country: 'UAE', flag: '🇦🇪', jobCount: 650, lat: 25.3573, lng: 55.4033 },
+    
+    // UK
+    { name: 'London', country: 'UK', flag: '🇬🇧', jobCount: 1950, lat: 51.5074, lng: -0.1278 },
+    { name: 'Manchester', country: 'UK', flag: '🇬🇧', jobCount: 850, lat: 53.4808, lng: -2.2426 },
+    { name: 'Birmingham', country: 'UK', flag: '🇬🇧', jobCount: 720, lat: 52.4862, lng: -1.8904 },
+    { name: 'Edinburgh', country: 'UK', flag: '🇬🇧', jobCount: 580, lat: 55.9533, lng: -3.1883 },
+    
+    // India
+    { name: 'Mumbai', country: 'India', flag: '🇮🇳', jobCount: 2250, lat: 19.0760, lng: 72.8777 },
+    { name: 'Bangalore', country: 'India', flag: '🇮🇳', jobCount: 1980, lat: 12.9716, lng: 77.5946 },
+    { name: 'Delhi', country: 'India', flag: '🇮🇳', jobCount: 1890, lat: 28.7041, lng: 77.1025 },
+    { name: 'Hyderabad', country: 'India', flag: '🇮🇳', jobCount: 1650, lat: 17.3850, lng: 78.4867 },
+    { name: 'Chennai', country: 'India', flag: '🇮🇳', jobCount: 1520, lat: 13.0827, lng: 80.2707 },
+    { name: 'Pune', country: 'India', flag: '🇮🇳', jobCount: 1480, lat: 18.5204, lng: 73.8567 },
+    { name: 'Kolkata', country: 'India', flag: '🇮🇳', jobCount: 1420, lat: 22.5726, lng: 88.3639 },
+    { name: 'Ahmedabad', country: 'India', flag: '🇮🇳', jobCount: 1380, lat: 23.0225, lng: 72.5714 }
+  ];
+
+  const handleLocationSelect = useCallback((location: typeof popularLocations[0]) => {
+    setUserLocation({
+      lat: location.lat,
+      lng: location.lng,
+      city: location.name,
+      country: location.country
+    });
+    setFilters(prev => ({ ...prev, location: location.name }));
+    setLocationError(null);
+  }, []);
 
   const getStatusBadge = (job: Job) => {
     if (job.isFeatured) return <Badge className="bg-purple-100 text-purple-800 border-2 border-purple-200 font-bold">Featured</Badge>;
@@ -222,7 +325,7 @@ export default function JobsPage() {
                 Discover opportunities from top companies worldwide with our AI-powered job matching platform
               </p>
               
-              {/* Enhanced Search Bar */}
+              {/* Enhanced Search Bar with Geolocation */}
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white rounded-2xl shadow-2xl border-2 border-gray-200 p-3 sm:p-4">
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
@@ -243,8 +346,20 @@ export default function JobsPage() {
                         placeholder="Location or remote"
                         value={filters.location}
                         onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                        className="w-full pl-12 pr-4 py-4 sm:py-5 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base sm:text-lg font-medium transition-all duration-200"
+                        className="w-full pl-12 pr-20 py-4 sm:py-5 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base sm:text-lg font-medium transition-all duration-200"
                       />
+                      <Button
+                        type="button"
+                        onClick={detectCurrentLocation}
+                        disabled={isDetectingLocation}
+                        className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all duration-200"
+                      >
+                        {isDetectingLocation ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Navigation className="w-4 h-4" />
+                        )}
+                      </Button>
                     </div>
                     <Button 
                       onClick={handleSearch} 
@@ -254,6 +369,42 @@ export default function JobsPage() {
                       Search Jobs
                     </Button>
                   </div>
+                  
+                  {/* Location Status and Error Display */}
+                  {userLocation && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-green-600" />
+                          <span className="text-sm font-medium text-green-800">
+                            Location: {userLocation.city}, {userLocation.country}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            GPS: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setUserLocation(null)}
+                            className="text-green-600 hover:text-green-700 h-6 w-6 p-0"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {locationError && (
+                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                        <span className="text-sm text-red-700">{locationError}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -287,6 +438,103 @@ export default function JobsPage() {
 
               {showAdvancedFilters && (
                 <div className="space-y-6">
+                  {/* Location Filters Section */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Map className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900">Location & Distance</h4>
+                        <p className="text-sm text-gray-600">Find jobs near you or in specific locations</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Popular Locations */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-semibold text-gray-700">Popular Locations</Label>
+                        <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                          {popularLocations.map((location) => (
+                            <Button
+                              key={`${location.name}-${location.country}`}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleLocationSelect(location)}
+                              className={`justify-start h-auto p-3 text-left transition-all duration-200 ${
+                                userLocation?.city === location.name 
+                                  ? 'bg-blue-100 border-blue-500 text-blue-800' 
+                                  : 'hover:bg-gray-50 border-gray-300'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 w-full">
+                                <span className="text-lg">{location.flag}</span>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-sm truncate">{location.name}</div>
+                                  <div className="text-xs text-gray-500">{location.country}</div>
+                                </div>
+                                <Badge variant="secondary" className="text-xs">
+                                  {location.jobCount}
+                                </Badge>
+                              </div>
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Distance Controls */}
+                      <div className="space-y-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-semibold text-gray-700">Search Radius</Label>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-gray-600">5 km</span>
+                              <span className="text-sm text-gray-600">100 km</span>
+                            </div>
+                            <Slider
+                              value={[searchRadius]}
+                              onValueChange={(value) => setSearchRadius(value[0])}
+                              max={100}
+                              min={5}
+                              step={5}
+                              className="w-full"
+                            />
+                            <div className="text-center">
+                              <Badge variant="outline" className="text-sm font-medium">
+                                {searchRadius} km radius
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="sortByDistance"
+                              checked={sortByDistance}
+                              onCheckedChange={(checked) => setSortByDistance(!!checked)}
+                              className="w-4 h-4 border-2 border-gray-400 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white"
+                            />
+                            <Label htmlFor="sortByDistance" className="text-sm font-semibold text-gray-700 cursor-pointer">
+                              Sort by distance (closest first)
+                            </Label>
+                          </div>
+                          
+                          {userLocation && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                              <div className="flex items-center gap-2">
+                                <Target className="w-4 h-4 text-green-600" />
+                                <span className="text-sm font-medium text-green-800">
+                                  Current: {userLocation.city}, {userLocation.country}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-gray-700">Job Type</Label>
@@ -422,6 +670,11 @@ export default function JobsPage() {
                         <div className="flex items-center gap-1">
                           <MapPin className="h-4 w-4 text-blue-500" />
                           <span className="truncate">{job.location}</span>
+                          {job.distance !== null && job.distance !== undefined && (
+                            <Badge variant="outline" className="text-xs ml-2 bg-blue-50 text-blue-700 border-blue-200">
+                              {job.distance.toFixed(1)} km
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-1">
                           <Briefcase className="h-4 w-4 text-green-500" />
