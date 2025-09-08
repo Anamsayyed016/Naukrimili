@@ -1,16 +1,12 @@
+"use client";
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 // Disable static generation for this dynamic route
 // Cache job pages briefly for speed while staying fresh
-export const revalidate = 60; // seconds
 
 // Generate static params for build (empty for dynamic routes)
-export async function generateStaticParams() {
-  // This route is dynamic and should not be statically generated
-  return [];
-}
 
 interface Job {
   id: number;

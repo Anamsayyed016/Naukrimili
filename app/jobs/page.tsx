@@ -47,6 +47,8 @@ interface Job {
   createdAt: string;
   description: string;
   skills: string[];
+  applicationsCount: number;
+  bookmarksCount: number;
   _count: {
     applications: number;
     bookmarks: number;
@@ -476,7 +478,7 @@ export default function JobsPage() {
                     <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
                       <div className="flex items-center gap-1 text-xs text-gray-600 font-medium">
                         <Users className="h-3 w-3" />
-                        <span>{job._count.applications} applications</span>
+                        <span>{job.applicationsCount} applications</span>
                       </div>
                       <Link href={`/jobs/${job.id}`}>
                         <Button 
