@@ -94,12 +94,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.role = dbUser.role;
             token.email = dbUser.email;
             token.name = dbUser.name;
+            console.log('✅ JWT callback - Found existing user:', dbUser);
           } else {
-            // For new OAuth users, set basic info from profile
-            token.email = profile.email || token.email;
-            token.name = profile.name || token.name;
+            // For new OAuth users, create user first then set token data
+            const newUser = await prisma.user.create({
+              data: {
+                email: profile.email || '',
+                name: profile.name || '',
+                role: null, // User will select role later
+                isActive: true,
+                isVerified: true,
+                emailVerified: new Date(),
+                skills: '',
+                jobTypePreference: 'full-time'
+              }
+            });
+            
+            token.id = newUser.id;
+            token.email = newUser.email;
+            token.name = newUser.name;
             token.picture = (profile as any).picture || token.picture;
             token.role = null; // Will be set when user selects role
+            console.log('✅ JWT callback - Created new OAuth user:', newUser);
           }
         } catch (error) {
           console.error('Error in JWT callback:', error);
@@ -116,6 +132,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (session.user as any).name = token.name;
         (session.user as any).picture = token.picture;
       }
+      console.log('🔍 Session callback - User ID:', token.id);
+      console.log('🔍 Session callback - User email:', token.email);
+      console.log('🔍 Session callback - User role:', token.role);
       return session;
     },
     async signIn({ user, account, profile }) {
@@ -128,41 +147,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return false;
           }
 
-          const existingUser = await prisma.user.findUnique({
-            where: { email: profile.email }
-          });
-
-          if (!existingUser) {
-            // Create new user from Google OAuth
-            const newUser = await prisma.user.create({
-              data: {
-                email: profile.email,
-                name: profile.name || '',
-                role: null, // User will select role later
-                isActive: true,
-                isVerified: true,
-                emailVerified: new Date(),
-                skills: '',
-                jobTypePreference: 'full-time'
-              }
-            });
-            console.log('✅ New Google OAuth user created:', newUser);
-          } else {
-            // Update existing user - allow account linking
-            const updatedUser = await prisma.user.update({
-              where: { id: existingUser.id },
-              data: {
-                emailVerified: new Date(),
-                updatedAt: new Date(),
-                name: existingUser.name || profile.name || ''
-              }
-            });
-            console.log('✅ Existing user updated with Google OAuth:', updatedUser);
-          }
-          
+          console.log('✅ Google OAuth signIn callback - Profile:', profile.email);
           return true;
         } catch (error) {
-          console.error('Error handling Google OAuth user:', error);
+          console.error('Error in Google OAuth signIn callback:', error);
           return false;
         }
       }
