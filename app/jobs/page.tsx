@@ -39,6 +39,7 @@ import Link from "next/link";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { useResponsive } from "@/components/ui/use-mobile";
 import { getSmartLocation, isMobileDevice } from "@/lib/mobile-geolocation";
+import ModernGoogleCSESearch from "@/components/ModernGoogleCSESearch";
 
 interface Job {
   id: string;
@@ -412,6 +413,87 @@ export default function JobsPage() {
         </div>
 
         <div className="container mx-auto px-4 py-8">
+          {/* Google CSE Search - Prominently placed at top */}
+          <div className="mb-8">
+            <Card className="bg-gradient-to-r from-green-50 via-white to-blue-50 border-2 border-green-200 shadow-xl">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl">
+                      <Globe className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        Global Job Search
+                        <Badge className="bg-gradient-to-r from-green-100 to-blue-100 text-green-800 border-0 font-bold">
+                          Powered by Google
+                        </Badge>
+                      </CardTitle>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Search millions of job opportunities from across the web
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border-0 font-bold flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      AI Enhanced
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="bg-white rounded-xl p-4 border-2 border-gray-100">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                      <input
+                        type="text"
+                        placeholder="Search jobs worldwide (e.g., 'software engineer', 'marketing manager')"
+                        value={filters.query}
+                        onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
+                        className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-green-100 focus:border-green-500 focus:bg-white focus:outline-none rounded-xl text-base font-medium transition-all duration-200"
+                      />
+                    </div>
+                    <div className="flex-1 relative">
+                      <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                      <input
+                        type="text"
+                        placeholder="Location (optional)"
+                        value={filters.location}
+                        onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                        className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-green-100 focus:border-green-500 focus:bg-white focus:outline-none rounded-xl text-base font-medium transition-all duration-200"
+                      />
+                    </div>
+                    <Button 
+                      onClick={handleSearch} 
+                      className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-green-600 to-blue-600 text-white font-bold rounded-xl hover:from-green-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-base min-w-[140px]"
+                    >
+                      <Search className="w-5 h-5 mr-2" />
+                      Search Web
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* CSE Results - Show when there's a search query */}
+          {filters.query && (
+            <div className="mb-8">
+              <ModernGoogleCSESearch
+                searchQuery={filters.query}
+                location={filters.location}
+                className="w-full"
+                showAdvancedOptions={true}
+                enableAIFeatures={true}
+                onResultsUpdate={(results) => {
+                  console.log('CSE Results updated:', results.length);
+                }}
+              />
+            </div>
+          )}
+
           {/* Advanced Filters */}
           <Card className="mb-8 shadow-xl border-2 border-gray-200 bg-white">
             <CardContent className="p-6">
