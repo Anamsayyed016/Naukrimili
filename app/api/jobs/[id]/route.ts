@@ -12,6 +12,7 @@ export async function GET(
     
     // Check if this is an external job ID (starts with 'ext-')
     if (id.startsWith('ext-')) {
+<<<<<<< HEAD
       // For external jobs, fetch from unified API
       try {
         const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
@@ -94,6 +95,47 @@ export async function GET(
           { success: false, error: 'Failed to fetch external job details' },
           { status: 500 }
         );
+=======
+        const sourceId = id.replace('ext-external-', '').replace('ext-', '');
+
+        const externalJob = await prisma.job.findFirst({
+          where: {
+            source: 'external',
+            sourceId: sourceId
+          },
+          include: {
+            companyRelation: {
+              select: {
+                name: true,
+                logo: true,
+                location: true,
+                industry: true,
+                website: true
+              }
+            }
+          }
+        });
+
+        if (externalJob) {
+          const formattedJob = {
+            ...externalJob,
+            company: externalJob.company || externalJob.companyRelation?.name,
+            companyLogo: externalJob.companyLogo || externalJob.companyRelation?.logo,
+            companyLocation: externalJob.companyRelation?.location,
+            companyIndustry: externalJob.companyRelation?.industry,
+            companyWebsite: externalJob.companyRelation?.website,
+            isExternal: true,
+            source: "external"
+          };
+          return NextResponse.json({ success: true, job: formattedJob });
+        } else {
+          console.log(`❌ External job not found in database: ${id}`);
+          return NextResponse.json(
+            { success: false, error: 'External job not found' },
+            { status: 404 }
+          );
+        }
+>>>>>>> 72b2f20a89c670956b29be8726080635e9bb5a6e
       }
     }
     
