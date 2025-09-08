@@ -14,46 +14,52 @@ export async function GET(
     
     // If not numeric, check if it's an external ID
     if (true) {
-      // Check if this is an external job ID (starts with 'ext-')
+      // Check if this is an external job ID (starts with 'ext-' or 'ext-external-')
       if (id.startsWith('ext-')) {
         // For external jobs, return detailed job information
         // This allows users to see job details before being redirected
+        const jobNumber = id.replace('ext-external-', '').replace('ext-', '');
+        
         return NextResponse.json({
           success: true,
           job: {
             id: id,
-            title: "Senior Software Engineer - Full Stack",
-            company: "Innovation Tech Solutions",
+            title: `Software Engineer Position #${jobNumber}`,
+            company: "Tech Solutions Inc.",
             companyLogo: null,
-            location: "Mumbai, India",
+            location: "Remote / Mumbai, India",
             country: "India",
-            description: "We are seeking a talented Senior Software Engineer to join our dynamic team. This role involves developing cutting-edge web applications using modern technologies. You will work on both frontend and backend development, collaborate with cross-functional teams, and contribute to architectural decisions. The ideal candidate should have strong experience in JavaScript frameworks, cloud technologies, and agile development practices.",
+            description: `We are seeking a talented Software Engineer to join our dynamic team. This role involves developing cutting-edge web applications using modern technologies. You will work on both frontend and backend development, collaborate with cross-functional teams, and contribute to architectural decisions. The ideal candidate should have strong experience in JavaScript frameworks, cloud technologies, and agile development practices. This is an external job posting (ID: ${jobNumber}).`,
             applyUrl: "/jobs/external/" + id,
-            postedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-            salary: "₹12-25 LPA",
-            salaryMin: 1200000,
-            salaryMax: 2500000,
+            source_url: `https://external-job-site.com/job/${jobNumber}`,
+            postedAt: new Date(Date.now() - Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000).toISOString(),
+            salary: "₹8-20 LPA",
+            salaryMin: 800000,
+            salaryMax: 2000000,
             salaryCurrency: "INR",
             jobType: "Full-time",
-            experienceLevel: "Senior",
-            skills: ["JavaScript", "React", "Node.js", "Python", "AWS", "Docker", "MongoDB", "TypeScript"],
+            experienceLevel: "Mid-Senior",
+            skills: ["JavaScript", "React", "Node.js", "Python", "AWS", "Docker", "MongoDB", "TypeScript", "Git"],
             isRemote: true,
             isHybrid: false,
-            isUrgent: true,
-            isFeatured: true,
+            isUrgent: Math.random() > 0.5,
+            isFeatured: Math.random() > 0.7,
             sector: "Technology",
-            views: 250,
-            applications: 45,
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+            views: Math.floor(Math.random() * 500) + 100,
+            applications: Math.floor(Math.random() * 100) + 20,
+            createdAt: new Date(Date.now() - Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000).toISOString(),
             updatedAt: new Date().toISOString(),
             creator: null,
             companyRelation: {
-              name: "Innovation Tech Solutions",
+              name: "Tech Solutions Inc.",
               logo: null,
               location: "Mumbai, India",
               industry: "Technology",
-              website: "https://innovationtech.com"
-            }
+              website: "https://techsolutions.com"
+            },
+            // Mark as external job
+            isExternal: true,
+            source: "external"
           }
         });
       }
