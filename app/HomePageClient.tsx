@@ -44,8 +44,6 @@ export default function HomePageClient({
   const [selectedRole, setSelectedRole] = useState<'jobseeker' | 'employer' | null>(null);
   const [showJobSeekerOptions, setShowJobSeekerOptions] = useState(false);
   const [showEmployerOptions, setShowEmployerOptions] = useState(false);
-  const [showRoleSelection, setShowRoleSelection] = useState(false);
-  const [isUpdatingRole, setIsUpdatingRole] = useState(false);
   const router = useRouter();
 
   // Handle authenticated users
@@ -57,16 +55,19 @@ export default function HomePageClient({
       console.log('HomePageClient - User authenticated:', session.user);
       if (session.user.role) {
         console.log('HomePageClient - User has role:', session.user.role);
-        // User has role, hide role selection
-        setShowRoleSelection(false);
+        // User has role, redirect to appropriate dashboard
+        if (session.user.role === 'jobseeker') {
+          router.push('/dashboard/jobseeker');
+        } else if (session.user.role === 'employer') {
+          router.push('/dashboard/company');
+        }
       } else {
-        console.log('HomePageClient - User has no role, showing role selection on homepage');
-        // User has no role, show role selection on homepage
-        setShowRoleSelection(true);
+        console.log('HomePageClient - User has no role, redirecting to role selection');
+        // User has no role, redirect to role selection page
+        router.push('/auth/role-selection');
       }
     } else if (status === 'unauthenticated') {
       console.log('HomePageClient - User not authenticated');
-      setShowRoleSelection(false);
     } else if (status === 'loading') {
       console.log('HomePageClient - Session loading...');
     }
@@ -79,42 +80,6 @@ export default function HomePageClient({
     setShowEmployerOptions(false);
   };
 
-  const handleRoleSelection = async (role: 'jobseeker' | 'employer') => {
-    if (!session?.user?.id) {
-      console.error('No user ID available for role selection');
-      return;
-    }
-
-    setIsUpdatingRole(true);
-    try {
-      const response = await fetch('/api/auth/update-role', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ role }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        console.log('Role updated successfully:', data.user);
-        setSelectedRole(role);
-        setShowRoleSelection(false);
-        
-        // Refresh the page to update session
-        window.location.reload();
-      } else {
-        console.error('Role update failed:', data);
-        alert('Failed to update role. Please try again.');
-      }
-    } catch (error) {
-      console.error('Role selection error:', error);
-      alert('Network error. Please check your connection and try again.');
-    } finally {
-      setIsUpdatingRole(false);
-    }
-  };
 
   // Check if user is authenticated for conditional rendering
   const isAuthenticated = status === 'authenticated' && session?.user;
@@ -140,7 +105,7 @@ export default function HomePageClient({
               </div>
               {!session.user.role && (
                 <button
-                  onClick={() => setShowRoleSelection(true)}
+                  onClick={() => router.push('/auth/role-selection')}
                   className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Choose Role
@@ -211,99 +176,6 @@ export default function HomePageClient({
             </div>
           </div>
 
-          {/* Role Selection Modal - Show for authenticated users without role */}
-          {showRoleSelection && isAuthenticated && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    How would you like to use NaukriMili?
-                  </h2>
-                  <p className="text-lg text-gray-600">
-                    Select your role to get started with the right features and tools
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Job Seeker Card */}
-                  <div 
-                    onClick={() => handleRoleSelection('jobseeker')}
-                    className="cursor-pointer p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105 border-gray-200 bg-white hover:border-blue-300 hover:shadow-lg"
-                  >
-                    <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <User className="w-8 h-8 text-blue-600" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
-                      I'm a Job Seeker
-                    </h3>
-                    <p className="text-gray-600 mb-6 text-center">
-                      Find your dream job, upload your resume, and get matched with opportunities
-                    </p>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        AI-powered job matching
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        Resume upload & analysis
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        Track applications
-                      </li>
-                    </ul>
-                    <div className="text-center">
-                      <button 
-                        disabled={isUpdatingRole}
-                        className="text-blue-600 font-medium hover:text-blue-700 disabled:opacity-50"
-                      >
-                        {isUpdatingRole ? 'Updating...' : 'Get Started →'}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Employer Card */}
-                  <div 
-                    onClick={() => handleRoleSelection('employer')}
-                    className="cursor-pointer p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105 border-gray-200 bg-white hover:border-emerald-300 hover:shadow-lg"
-                  >
-                    <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Building2 className="w-8 h-8 text-emerald-600" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
-                      I'm an Employer
-                    </h3>
-                    <p className="text-gray-600 mb-6 text-center">
-                      Post jobs, find talent, and manage your hiring process efficiently
-                    </p>
-                    <ul className="space-y-3 mb-6">
-                      <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                        Post unlimited jobs
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                        AI-powered candidate matching
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                        Application management
-                      </li>
-                    </ul>
-                    <div className="text-center">
-                      <button 
-                        disabled={isUpdatingRole}
-                        className="text-emerald-600 font-medium hover:text-emerald-700 disabled:opacity-50"
-                      >
-                        {isUpdatingRole ? 'Updating...' : 'Get Started →'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Quick Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">

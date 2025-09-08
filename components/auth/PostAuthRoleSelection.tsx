@@ -91,20 +91,12 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       if (data.success) {
         console.log('Role updated successfully:', data.user);
         
-        // Update the session with new role
-        if (typeof window !== 'undefined') {
-          // Force session refresh
-          window.location.reload();
+        // Redirect to appropriate dashboard based on role
+        if (role === 'jobseeker') {
+          router.push('/dashboard/jobseeker');
+        } else {
+          router.push('/dashboard/company');
         }
-        
-        // Redirect to profile setup forms based on role
-        setTimeout(() => {
-          if (role === 'jobseeker') {
-            router.push('/auth/register/jobseeker?setup=true');
-          } else {
-            router.push('/auth/register/employer?setup=true');
-          }
-        }, 1000);
         
         if (onComplete) {
           onComplete({ ...user, role });
