@@ -21,7 +21,6 @@ if (!googleClientId || !googleClientSecret ||
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  allowDangerousEmailAccountLinking: true,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -102,24 +101,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               update: {
                 userId: dbUser.id,
                 type: account.type,
-                access_token: account.access_token,
-                expires_at: account.expires_at,
-                token_type: account.token_type,
-                scope: account.scope,
-                id_token: account.id_token,
-                session_state: account.session_state
+                access_token: account.access_token as string,
+                expires_at: account.expires_at as number,
+                token_type: account.token_type as string,
+                scope: account.scope as string,
+                id_token: account.id_token as string,
+                session_state: account.session_state as string | null
               },
               create: {
                 userId: dbUser.id,
                 type: account.type,
                 provider: account.provider,
                 providerAccountId: account.providerAccountId || '',
-                access_token: account.access_token,
-                expires_at: account.expires_at,
-                token_type: account.token_type,
-                scope: account.scope,
-                id_token: account.id_token,
-                session_state: account.session_state
+                access_token: account.access_token as string,
+                expires_at: account.expires_at as number,
+                token_type: account.token_type as string,
+                scope: account.scope as string,
+                id_token: account.id_token as string,
+                session_state: account.session_state as string | null
               }
             });
             
@@ -150,12 +149,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 type: account.type,
                 provider: account.provider,
                 providerAccountId: account.providerAccountId || '',
-                access_token: account.access_token,
-                expires_at: account.expires_at,
-                token_type: account.token_type,
-                scope: account.scope,
-                id_token: account.id_token,
-                session_state: account.session_state
+                access_token: account.access_token as string,
+                expires_at: account.expires_at as number,
+                token_type: account.token_type as string,
+                scope: account.scope as string,
+                id_token: account.id_token as string,
+                session_state: account.session_state as string | null
               }
             });
             
