@@ -49,7 +49,7 @@ export function JobList({
   const fetchJobs = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("/api/seeker/jobs");
+      const response = await fetch("/api/jobs/unified?includeExternal=true&limit=" + limit);
       if (!response.ok) throw new Error("Failed to fetch jobs");
       const data = await response.json();
       const received: Job[] = data.jobs || [];

@@ -100,13 +100,13 @@ export default function JobsPage() {
         ...(filters.salaryMax && { salaryMax: filters.salaryMax })
       });
 
-      const response = await fetch(`/api/jobs?${params}`);
+      const response = await fetch(`/api/jobs/unified?${params}&includeExternal=true`);
       if (!response.ok) throw new Error('Failed to fetch jobs');
 
       const data = await response.json();
       if (data.success) {
-        setJobs(data.data.jobs);
-        setTotalPages(data.data.pagination.totalPages);
+        setJobs(data.jobs);
+        setTotalPages(data.pagination.totalPages);
       }
     } catch (error) {
       console.error('Error fetching jobs:', error);

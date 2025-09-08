@@ -29,7 +29,7 @@ export default async function HomePage() {
   
   try {
     // Fetch featured jobs
-    const jobsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/jobs?limit=6`, {
+    const jobsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/jobs/unified?limit=6&includeExternal=true`, {
       cache: 'no-store'
     });
     const jobsData = await jobsResponse.json();
