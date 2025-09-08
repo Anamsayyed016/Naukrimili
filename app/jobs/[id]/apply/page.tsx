@@ -12,39 +12,83 @@ import {
   DollarSign,
   Upload,
   Send,
-  CheckCircle
+  CheckCircle,
+  Loader2,
+  Star,
+  FileText,
+  User,
+  Mail,
+  Phone
 } from 'lucide-react';
 
 interface Job {
-  id: number;
+  id: string;
   title: string;
-  company: string;
-  location: string;
-  salary: string;
-  jobType: string;
-  experienceLevel: string;
+  company: string | null;
+  location: string | null;
+  salary: string | null;
+  jobType: string | null;
+  experienceLevel: string | null;
   description: string;
+  skills: string[];
+  isRemote: boolean;
+  isFeatured: boolean;
+  source: string;
+  source_url: string | null;
+}
+
+interface ResumeProfile {
+  fullName: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  jobTitle?: string;
+  skills: string[];
+  education: string[];
+  experience: string[];
+}
+
+interface JobApplicationForm {
+  fullName: string;
+  email: string;
+  phone: string;
+  location: string;
+  coverLetter: string;
+  expectedSalary: string;
+  availability: string;
+  resume: File | null;
+  resumeProfile: ResumeProfile | null;
 }
 
 export default function JobApplicationPage() {
   const params = useParams();
   const router = useRouter();
-  const jobId = params.id;
+  const jobId = params.id as string;
   
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  // Form state
-  const [formData, setFormData] = useState({
+  // Enhanced form state
+  const [formData, setFormData] = useState<JobApplicationForm>({
     fullName: '',
     email: '',
     phone: '',
-    experience: '',
+    location: '',
     coverLetter: '',
-    resume: null as File | null
+    expectedSalary: '',
+    availability: 'Immediate',
+    resume: null,
+    resumeProfile: null
   });
+
+  // Resume analysis state
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [atsScore, setAtsScore] = useState<number | null>(null);
+  const [skillsMatch, setSkillsMatch] = useState<string[]>([]);
 
   useEffect(() => {
     if (jobId) {
@@ -55,50 +99,166 @@ export default function JobApplicationPage() {
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch(`/api/jobs/${jobId}`);
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
           setJob(data.job);
         } else {
-          console.error('Failed to fetch job:', data.error);
+          setError(data.error || 'Failed to load job details');
         }
       } else {
-        console.error('Failed to fetch job:', response.statusText);
+        setError('Failed to fetch job details');
       }
     } catch (error) {
       console.error('Error fetching job details:', error);
+      setError('Failed to load job details');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const handleInputChange = (field: keyof JobApplicationForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData(prev => ({ ...prev, [field]: e.target.value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData({
-        ...formData,
-        resume: e.target.files[0]
+  const handleResumeChange = async (file: File | null) => {
+    setFormData(prev => ({ ...prev, resume: file }));
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 200);
+
+      // Upload and analyze resume
+      const formData = new FormData();
+      formData.append('resume', file);
+      
+      const res = await fetch('/api/resumes/autofill', { 
+        method: 'POST', 
+        body: formData 
       });
+      
+      const data = await res.json();
+      
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
+      if (res.ok && data?.success && data?.profile) {
+        const profile = data.profile;
+        const analysis = data.analysis;
+        
+        // Auto-fill form fields
+        setFormData(prev => ({
+          ...prev,
+          fullName: profile.fullName || prev.fullName,
+          email: profile.email || prev.email,
+          phone: profile.phone || prev.phone,
+          location: profile.location || prev.location,
+          resumeProfile: profile
+        }));
+
+        // Use enhanced AI analysis for ATS score and skills match
+        if (analysis) {
+          setAtsScore(analysis.atsScore);
+          
+          // Calculate skills match using enhanced analysis
+          const matchedSkills = profile.skills.filter(skill => 
+            (job?.skills || []).some(required => 
+              required.toLowerCase().includes(skill.toLowerCase()) ||
+              skill.toLowerCase().includes(required.toLowerCase())
+            )
+          );
+          setSkillsMatch(matchedSkills);
+        } else {
+          // Fallback to basic calculation
+          calculateATSAndSkills(profile, job?.skills || []);
+        }
+        
+        // Show success message
+        setTimeout(() => {
+          setUploadProgress(0);
+          setIsUploading(false);
+        }, 1000);
+
+      } else {
+        throw new Error(data?.error || 'Failed to analyze resume');
+      }
+
+    } catch (err: any) {
+      console.error('Resume analysis failed:', err);
+      setUploadProgress(0);
+      setIsUploading(false);
+      // Continue without auto-fill - user can fill manually
     }
+  };
+
+  const calculateATSAndSkills = (profile: ResumeProfile, requiredSkills: string[]) => {
+    // Calculate ATS score based on completeness
+    let score = 0;
+    if (profile.fullName) score += 20;
+    if (profile.email) score += 20;
+    if (profile.phone) score += 15;
+    if (profile.location) score += 15;
+    if (profile.skills.length > 0) score += 20;
+    if (profile.education.length > 0) score += 10;
+    
+    setAtsScore(score);
+
+    // Calculate skills match
+    const matchedSkills = profile.skills.filter(skill => 
+      requiredSkills.some(required => 
+        required.toLowerCase().includes(skill.toLowerCase()) ||
+        skill.toLowerCase().includes(required.toLowerCase())
+      )
+    );
+    setSkillsMatch(matchedSkills);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError(null);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const form = new FormData();
+      form.append("jobId", jobId);
+      form.append("fullName", formData.fullName);
+      form.append("email", formData.email);
+      form.append("phone", formData.phone);
+      form.append("location", formData.location);
+      form.append("coverLetter", formData.coverLetter);
+      form.append("expectedSalary", formData.expectedSalary);
+      form.append("availability", formData.availability);
+      if (formData.resume) form.append("resume", formData.resume);
+      
+      const res = await fetch(`/api/applications`, { 
+        method: "POST", 
+        body: form 
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data?.error || "Failed to apply");
+      
       setSubmitted(true);
-    } catch (error) {
-      console.error('Error submitting application:', error);
+      setTimeout(() => router.push(`/jobs/${jobId}`), 2000);
+      
+    } catch (err: any) {
+      console.error('Error submitting application:', err);
+      setError(err?.message || "Failed to submit application");
     } finally {
       setSubmitting(false);
     }
@@ -141,24 +301,39 @@ export default function JobApplicationPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading job details...</p>
+          <p className="text-gray-600 text-lg">Loading job details...</p>
+          <p className="text-gray-500 text-sm mt-2">Please wait while we fetch the job information</p>
         </div>
       </div>
     );
   }
 
-  if (!job) {
+  if (error || !job) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-            <p className="text-red-600 mb-4">Job not found</p>
-            <Link
-              href="/jobs"
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Back to Jobs
-            </Link>
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-red-800 mb-2">Job Not Found</h2>
+            <p className="text-red-600 mb-6">{error || 'The job you are looking for does not exist or may have been removed.'}</p>
+            <div className="space-y-3">
+              <Link
+                href="/jobs"
+                className="block w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Back to Jobs
+              </Link>
+              <button
+                onClick={() => window.location.reload()}
+                className="block w-full border border-red-600 text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -167,26 +342,29 @@ export default function JobApplicationPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-8 max-w-md mx-auto">
-            <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-green-800 mb-2">Application Submitted!</h2>
-            <p className="text-green-700 mb-6">Your application for {job.title} has been submitted successfully.</p>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center">
+        <div className="text-center max-w-lg mx-auto px-4">
+          <div className="bg-white border border-green-200 rounded-2xl p-8 shadow-xl">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="h-12 w-12 text-green-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-green-800 mb-3">Application Submitted!</h2>
+            <p className="text-green-700 mb-6 text-lg">Your application for <strong>{job.title}</strong> at <strong>{job.company}</strong> has been submitted successfully.</p>
             <div className="space-y-3">
               <Link
                 href="/jobs"
-                className="block w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                className="block w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
               >
                 Browse More Jobs
               </Link>
               <Link
                 href="/dashboard"
-                className="block w-full border border-green-600 text-green-600 px-4 py-2 rounded-lg hover:bg-green-50 transition-colors"
+                className="block w-full border border-green-600 text-green-600 px-6 py-3 rounded-lg hover:bg-green-50 transition-colors font-medium"
               >
                 Go to Dashboard
               </Link>
             </div>
+            <p className="text-sm text-gray-500 mt-4">You will be redirected to the job details page in a moment...</p>
           </div>
         </div>
       </div>
@@ -197,7 +375,7 @@ export default function JobApplicationPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href={`/jobs/${jobId}`} className="text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
@@ -214,180 +392,358 @@ export default function JobApplicationPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Job Summary */}
-        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-6 sm:mb-8 border border-gray-100">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 line-clamp-2">Apply for {job.title}</h1>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
-            <div className="flex items-center gap-3">
-              <Building className="h-5 w-5 text-blue-600 flex-shrink-0" />
-              <span className="text-gray-700 text-sm sm:text-base truncate">{job.company}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <MapPin className="h-5 w-5 text-blue-600 flex-shrink-0" />
-              <span className="text-gray-700 text-sm sm:text-base truncate">{job.location}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Clock className="h-5 w-5 text-blue-600 flex-shrink-0" />
-              <span className="text-gray-700 text-sm sm:text-base truncate">{job.jobType}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <DollarSign className="h-5 w-5 text-blue-600 flex-shrink-0" />
-              <span className="text-gray-700 text-sm sm:text-base truncate">{job.salary}</span>
-            </div>
-          </div>
-          
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Job Description</h3>
-            <p className="text-gray-700 text-xs sm:text-sm leading-relaxed line-clamp-3">{job.description}</p>
-          </div>
-        </div>
-
-        {/* Application Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-gray-100">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Application Form</h2>
-          
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  required
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                  placeholder="Enter your full name"
-                />
-              </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Application Form */}
+          <div className="lg:col-span-2">
+            {/* Job Summary */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Apply for {job.title}</h1>
               
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                  placeholder="Enter your email"
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                  placeholder="Enter your phone number"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-2">
-                  Years of Experience *
-                </label>
-                <select
-                  id="experience"
-                  name="experience"
-                  required
-                  value={formData.experience}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                >
-                  <option value="">Select experience level</option>
-                  <option value="0-1">0-1 years</option>
-                  <option value="1-3">1-3 years</option>
-                  <option value="3-5">3-5 years</option>
-                  <option value="5-8">5-8 years</option>
-                  <option value="8+">8+ years</option>
-                </select>
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-700 mb-2">
-                Cover Letter
-              </label>
-              <textarea
-                id="coverLetter"
-                name="coverLetter"
-                rows={4}
-                value={formData.coverLetter}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base resize-none"
-                placeholder="Tell us why you're interested in this position and what makes you a great fit..."
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="resume" className="block text-sm font-medium text-gray-700 mb-2">
-                Resume/CV *
-              </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center hover:border-blue-400 transition-colors">
-                <Upload className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
-                <div className="text-sm text-gray-600 mb-2">
-                  <label htmlFor="resume-upload" className="cursor-pointer">
-                    <span className="text-blue-600 hover:text-blue-700 font-medium">Click to upload</span>
-                    <span className="hidden sm:inline"> or drag and drop</span>
-                  </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <Building className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <span className="text-gray-700 text-sm sm:text-base truncate">{job.company || 'Company'}</span>
                 </div>
-                <p className="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
-                <input
-                  id="resume-upload"
-                  type="file"
-                  name="resume"
-                  accept=".pdf,.doc,.docx"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  required
-                />
-                {formData.resume && (
-                  <div className="mt-3 sm:mt-4 text-sm text-green-600">
-                    ✓ {formData.resume.name} selected
-                  </div>
-                )}
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <span className="text-gray-700 text-sm sm:text-base truncate">{job.location || 'Remote'}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <span className="text-gray-700 text-sm sm:text-base truncate">{job.jobType || 'Full-time'}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <DollarSign className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <span className="text-gray-700 text-sm sm:text-base truncate">{job.salary || 'Competitive'}</span>
+                </div>
               </div>
+              
+              {job.skills && job.skills.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Required Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {job.skills.slice(0, 6).map((skill, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                    {job.skills.length > 6 && (
+                      <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-1 rounded-full">
+                        +{job.skills.length - 6} more
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-            
-            <div className="pt-4 sm:pt-6">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-base sm:text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span className="hidden sm:inline">Submitting...</span>
-                    <span className="sm:hidden">Submitting...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-5 w-5" />
-                    <span className="hidden sm:inline">Submit Application</span>
-                    <span className="sm:hidden">Submit</span>
-                  </>
-                )}
-              </button>
+
+            {/* Application Form */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Application Form
+              </h2>
+              
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-600 text-sm">{error}</p>
+                </div>
+              )}
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Personal Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Personal Information
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        id="fullName"
+                        required
+                        value={formData.fullName}
+                        onChange={handleInputChange('fullName')}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                        placeholder="Enter your full name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        required
+                        value={formData.email}
+                        onChange={handleInputChange('email')}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                        placeholder="Enter your email"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange('phone')}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        id="location"
+                        value={formData.location}
+                        onChange={handleInputChange('location')}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                        placeholder="Enter your location"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Resume Upload */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Upload className="h-5 w-5" />
+                    Resume Upload
+                  </h3>
+                  
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => handleResumeChange(e.target.files?.[0] || null)}
+                      className="hidden"
+                      id="resume-upload"
+                    />
+                    <label htmlFor="resume-upload" className="cursor-pointer">
+                      {isUploading ? (
+                        <div className="space-y-3">
+                          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
+                          <p className="text-sm text-gray-600">Analyzing resume...</p>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${uploadProgress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      ) : formData.resume ? (
+                        <div className="space-y-2">
+                          <CheckCircle className="h-8 w-8 mx-auto text-green-600" />
+                          <p className="font-medium">{formData.resume.name}</p>
+                          <p className="text-sm text-gray-600">Click to change</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <Upload className="h-8 w-8 mx-auto text-gray-400" />
+                          <p className="font-medium">Upload your resume</p>
+                          <p className="text-sm text-gray-600">PDF, DOC, or DOCX (Max 10MB)</p>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                </div>
+
+                {/* Additional Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    Additional Information
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="expectedSalary" className="block text-sm font-medium text-gray-700 mb-2">
+                        Expected Salary
+                      </label>
+                      <input
+                        type="text"
+                        id="expectedSalary"
+                        value={formData.expectedSalary}
+                        onChange={handleInputChange('expectedSalary')}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                        placeholder="e.g., ₹10 LPA"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="availability" className="block text-sm font-medium text-gray-700 mb-2">
+                        Availability
+                      </label>
+                      <select
+                        id="availability"
+                        value={formData.availability}
+                        onChange={handleInputChange('availability')}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                      >
+                        <option value="Immediate">Immediate</option>
+                        <option value="2 weeks">2 weeks</option>
+                        <option value="1 month">1 month</option>
+                        <option value="2 months">2 months</option>
+                        <option value="3 months">3 months</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-700 mb-2">
+                      Cover Letter
+                    </label>
+                    <textarea
+                      id="coverLetter"
+                      rows={4}
+                      value={formData.coverLetter}
+                      onChange={handleInputChange('coverLetter')}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base resize-none"
+                      placeholder="Tell us why you're interested in this position and what makes you a great fit..."
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span>Submitting Application...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-5 w-5" />
+                      <span>Submit Application</span>
+                    </>
+                  )}
+                </button>
+              </form>
             </div>
-          </form>
+          </div>
+
+          {/* Resume Analysis Sidebar */}
+          <div className="space-y-6">
+            {/* ATS Score */}
+            {atsScore !== null && (
+              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  ATS Score
+                </h3>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                    {atsScore}%
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                    <div 
+                      className={`h-3 rounded-full transition-all duration-300 ${
+                        atsScore >= 80 ? 'bg-green-500' : 
+                        atsScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: `${atsScore}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {atsScore >= 80 ? 'Excellent' : 
+                     atsScore >= 60 ? 'Good' : 'Needs improvement'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Skills Match */}
+            {skillsMatch.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  Skills Match
+                </h3>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600 mb-3">
+                    Your resume matches {skillsMatch.length} of {job.skills?.length || 0} required skills
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {skillsMatch.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Resume Profile Preview */}
+            {formData.resumeProfile && (
+              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                  <FileText className="h-5 w-5" />
+                  Resume Summary
+                </h3>
+                <div className="space-y-3">
+                  {formData.resumeProfile.skills.length > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Skills</label>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {formData.resumeProfile.skills.slice(0, 5).map((skill, index) => (
+                          <span
+                            key={index}
+                            className="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded-full"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {formData.resumeProfile.experience.length > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Experience</label>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {formData.resumeProfile.experience.length} positions found
+                      </p>
+                    </div>
+                  )}
+                  
+                  {formData.resumeProfile.education.length > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Education</label>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {formData.resumeProfile.education.length} degrees found
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

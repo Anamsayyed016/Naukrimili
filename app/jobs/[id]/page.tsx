@@ -1,12 +1,8 @@
 "use client";
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-
-// Disable static generation for this dynamic route
-// Cache job pages briefly for speed while staying fresh
-
-// Generate static params for build (empty for dynamic routes)
+import { useParams } from 'next/navigation';
 
 interface Job {
   id: number;
@@ -39,39 +35,49 @@ interface Job {
   source_url: string | null; // Added source_url field
 }
 
-export default async function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function JobDetailsPage() {
+  const params = useParams();
+  const id = params.id as string;
   
-  if (!id) {
-    notFound();
-  }
+  const [job, setJob] = useState<Job | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch job data server-side
-  let job: Job | null = null;
-  let error: string | null = null;
-
-  try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/jobs/${id}`, {
-      next: { revalidate: 60 }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch job');
+  useEffect(() => {
+    if (!id) {
+      setError('Invalid job ID');
+      setLoading(false);
+      return;
     }
 
-    const data = await response.json();
-    if (data.success) {
-      job = data.job;
-    } else {
-      error = data.error || 'Failed to load job';
-    }
-  } catch (err) {
-    error = 'Failed to load job details';
-    console.error('Error fetching job:', err);
-  }
+    const fetchJob = async () => {
+      try {
+        // Use relative URL to avoid CORS issues
+        const response = await fetch(`/api/jobs/${id}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch job');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setJob(data.job);
+        } else {
+          setError(data.error || 'Failed to load job');
+        }
+      } catch (err) {
+        setError('Failed to load job details');
+        console.error('Error fetching job:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJob();
+  }, [id]);
 
   // Show loading state while fetching
-  if (!job && !error) {
+  if (loading) {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
@@ -177,8 +183,8 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
                 <button 
                   onClick={() => {
                     if (job.source_url) {
-                      // Track external application click (client-side only)
-                      if (typeof window !== 'undefined') {
+                      // Track external application click
+                      try {
                         import('@/lib/jobs/external-application-tracker').then(({ trackExternalApplication }) => {
                           trackExternalApplication({
                             jobId: job.id.toString(),
@@ -187,6 +193,8 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
                             title: job.title
                           });
                         });
+                      } catch (error) {
+                        console.log('External tracking not available:', error);
                       }
                       window.open(job.source_url, '_blank', 'noopener,noreferrer');
                     }
