@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
           salary: job.salary,
           jobType: job.jobType,
           experienceLevel: job.experienceLevel,
-          skills: job.skills,
+          skills: typeof job.skills === 'string' ? JSON.parse(job.skills || '[]') : (job.skills || []),
           isRemote: job.isRemote,
           isFeatured: job.isFeatured,
           source: 'database',
@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
           location: job.location || 'Location not specified',
           country: job.country || country,
           description: job.description || 'No description available',
-          skills: job.skills || [],
+          skills: Array.isArray(job.skills) ? job.skills : (typeof job.skills === 'string' ? JSON.parse(job.skills || '[]') : []),
           isRemote: false,
           isFeatured: false
         }));
