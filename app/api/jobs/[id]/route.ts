@@ -9,14 +9,8 @@ export async function GET(
     const { id } = params;
     console.log('🔍 Job API called with ID:', id);
     
-    // Try to parse as numeric ID first
-    let jobId = id;
-    let isNumericId = false;
-    
-    // If not numeric, check if it's an external ID
-    if (true) {
-      // Check if this is an external job ID (starts with 'ext-' or 'ext-external-')
-      if (id.startsWith('ext-')) {
+    // Check if this is an external job ID first
+    if (id.startsWith('ext-')) {
         // For external jobs, return detailed job information
         // This allows users to see job details before being redirected
         const jobNumber = id.replace('ext-external-', '').replace('ext-', '');
@@ -64,16 +58,10 @@ export async function GET(
           }
         });
       }
-      
-      return NextResponse.json(
-        { success: false, error: 'Invalid job ID format' },
-        { status: 400 }
-      );
-    }
     
-    // Get job details with company information for numeric IDs
+    // Get job details with company information for database IDs
     const job = await prisma.job.findUnique({
-      where: { id: jobId },
+      where: { id: id },
       include: {
         companyRelation: {
           select: {
