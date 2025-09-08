@@ -7,6 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = params;
+    console.log('🔍 Job API called with ID:', id);
     
     // Try to parse as numeric ID first
     let jobId = id;
