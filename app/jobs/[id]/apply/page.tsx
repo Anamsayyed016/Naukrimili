@@ -321,7 +321,7 @@ export default function JobApplicationPage() {
             <h2 className="text-xl font-bold text-red-800 mb-2">Job Not Found</h2>
             <p className="text-red-600 mb-6">{error || 'The job you are looking for does not exist or may have been removed.'}</p>
             <div className="space-y-3">
-              <Link
+            image.png              <Link
                 href="/jobs"
                 className="block w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
               >
