@@ -76,14 +76,36 @@ export default function JobsPage() {
     salaryMin: '',
     salaryMax: ''
   });
+  const [dynamicConstants, setDynamicConstants] = useState({
+    jobTypes: [],
+    experienceLevels: [],
+    sectors: [],
+    skills: [],
+    locations: []
+  });
   const [bookmarkedJobs, setBookmarkedJobs] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
+    fetchDynamicConstants();
     fetchJobs();
     fetchBookmarks();
   }, [currentPage, filters]);
+
+  const fetchDynamicConstants = async () => {
+    try {
+      const response = await fetch('/api/jobs/constants');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setDynamicConstants(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching dynamic constants:', error);
+    }
+  };
 
   const fetchJobs = async () => {
     try {

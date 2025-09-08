@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { SkillsExtractionService } from '@/lib/services/skills-extraction';
 
 export type NormalizedJob = {
   source: string;
@@ -8,11 +9,26 @@ export type NormalizedJob = {
   location?: string;
   country: string;
   description: string;
+  requirements?: string;
   applyUrl?: string;      // @deprecated - use apply_url instead
   apply_url?: string;     // Internal application URL (null for external jobs)
   source_url?: string;    // External source URL (for external jobs)
   postedAt?: string;
   salary?: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency?: string;
+  jobType?: string;
+  experienceLevel?: string;
+  skills?: string[];
+  isRemote?: boolean;
+  isHybrid?: boolean;
+  isUrgent?: boolean;
+  isFeatured?: boolean;
+  isActive?: boolean;
+  sector?: string;
+  views?: number;
+  applicationsCount?: number;
   raw: any;
 };
 
@@ -75,7 +91,7 @@ export async function fetchFromAdzuna(
       salaryCurrency: getCurrency(countryCode),
       jobType: 'full-time',
       experienceLevel: 'mid',
-      skills: 'Software Development',
+      skills: SkillsExtractionService.extractSkills(r.description || '', r.title || '', r.company?.display_name || r.company || '').map(s => s.skill),
       isRemote: false,
       isHybrid: false,
       isUrgent: false,
@@ -138,6 +154,7 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
       source_url: r.job_apply_link || r.job_link || r.url, // External source URL
       postedAt: r.job_posted_at || undefined,
       salary: r.salary || undefined,
+      skills: SkillsExtractionService.extractSkills(r.job_description || (Array.isArray(r.job_highlights) ? r.job_highlights.join('\n') : r.snippet) || '', r.job_title || r.title || '', r.employer_name || r.employer || '').map(s => s.skill),
       raw: r,
     }));
 
@@ -192,6 +209,7 @@ export async function fetchFromGoogleJobs(
       source_url: r.apply_link || r.job_url || '', // External source URL
       postedAt: undefined,
       salary: undefined,
+      skills: SkillsExtractionService.extractSkills(r.job_description || r.snippet || '', r.job_title || r.title || '', r.company_name || r.employer || '').map(s => s.skill),
       raw: r,
     }));
 
