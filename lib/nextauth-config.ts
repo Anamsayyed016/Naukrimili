@@ -21,6 +21,7 @@ if (!googleClientId || !googleClientSecret ||
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  allowDangerousEmailAccountLinking: true,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -90,11 +91,43 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
           
           if (dbUser) {
+            // Link OAuth account to existing user
+            await prisma.account.upsert({
+              where: {
+                provider_providerAccountId: {
+                  provider: 'google',
+                  providerAccountId: account.providerAccountId || ''
+                }
+              },
+              update: {
+                userId: dbUser.id,
+                type: account.type,
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state
+              },
+              create: {
+                userId: dbUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId || '',
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state
+              }
+            });
+            
             token.id = dbUser.id;
             token.role = dbUser.role;
             token.email = dbUser.email;
             token.name = dbUser.name;
-            console.log('✅ JWT callback - Found existing user:', dbUser);
+            console.log('✅ JWT callback - Linked OAuth account to existing user:', dbUser);
           } else {
             // For new OAuth users, create user first then set token data
             const newUser = await prisma.user.create({
@@ -110,12 +143,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               }
             });
             
+            // Create OAuth account for new user
+            await prisma.account.create({
+              data: {
+                userId: newUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId || '',
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state
+              }
+            });
+            
             token.id = newUser.id;
             token.email = newUser.email;
             token.name = newUser.name;
             token.picture = (profile as any).picture || token.picture;
             token.role = null; // Will be set when user selects role
-            console.log('✅ JWT callback - Created new OAuth user:', newUser);
+            console.log('✅ JWT callback - Created new OAuth user with account:', newUser);
           }
         } catch (error) {
           console.error('Error in JWT callback:', error);
