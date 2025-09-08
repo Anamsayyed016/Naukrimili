@@ -372,67 +372,93 @@ export default function JobApplicationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="bg-white shadow-xl border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <Link href={`/jobs/${jobId}`} className="text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
+            <Link href={`/jobs/${jobId}`} className="text-blue-600 hover:text-blue-700 transition-all duration-300 flex items-center gap-3 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl font-medium">
+              <ArrowLeft className="h-5 w-5" />
               Back to Job
             </Link>
-            <nav className="text-sm text-gray-600">
-              <Link href="/" className="hover:text-blue-600">Home</Link>
-              <span className="mx-2">/</span>
-              <Link href="/jobs" className="hover:text-blue-600">Jobs</Link>
-              <span className="mx-2">/</span>
-              <span className="text-blue-600 font-semibold">Apply</span>
+            <nav className="text-sm text-gray-600 flex items-center gap-2">
+              <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
+              <span className="text-gray-400">/</span>
+              <Link href="/jobs" className="hover:text-blue-600 transition-colors">Jobs</Link>
+              <span className="text-gray-400">/</span>
+              <span className="text-blue-600 font-bold">Apply</span>
             </nav>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Application Form */}
           <div className="lg:col-span-2">
             {/* Job Summary */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Apply for {job.title}</h1>
+            <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8 border-0 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 -m-8 mb-8 p-8 text-white">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-4">Apply for {job.title}</h1>
+                <p className="text-blue-100 text-lg">Join {job.company || 'this company'} and advance your career</p>
+              </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <Building className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm sm:text-base truncate">{job.company || 'Company'}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-xl">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <Building className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Company</p>
+                    <p className="text-lg font-bold text-gray-900 truncate">{job.company || 'Company'}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm sm:text-base truncate">{job.location || 'Remote'}</span>
+                <div className="flex items-center gap-4 p-4 bg-green-50 rounded-xl">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                    <MapPin className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Location</p>
+                    <p className="text-lg font-bold text-gray-900 truncate">{job.location || 'Remote'}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm sm:text-base truncate">{job.jobType || 'Full-time'}</span>
+                <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-xl">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Job Type</p>
+                    <p className="text-lg font-bold text-gray-900 truncate">{job.jobType || 'Full-time'}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <DollarSign className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                  <span className="text-gray-700 text-sm sm:text-base truncate">{job.salary || 'Competitive'}</span>
+                <div className="flex items-center gap-4 p-4 bg-emerald-50 rounded-xl">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Salary</p>
+                    <p className="text-lg font-bold text-gray-900 truncate">{job.salary || 'Competitive'}</p>
+                  </div>
                 </div>
               </div>
               
               {job.skills && job.skills.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Required Skills</h3>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <Star className="h-5 w-5 text-yellow-500" />
+                    Required Skills
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
                     {job.skills.slice(0, 6).map((skill, index) => (
                       <span
                         key={index}
-                        className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full"
+                        className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 text-sm font-bold px-4 py-2 rounded-xl border border-blue-200"
                       >
                         {skill}
                       </span>
                     ))}
                     {job.skills.length > 6 && (
-                      <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-1 rounded-full">
+                      <span className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-sm font-bold px-4 py-2 rounded-xl border border-gray-300">
                         +{job.skills.length - 6} more
                       </span>
                     )}
@@ -442,9 +468,11 @@ export default function JobApplicationPage() {
             </div>
 
             {/* Application Form */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <FileText className="h-5 w-5" />
+            <div className="bg-white rounded-3xl shadow-2xl p-8 border-0">
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-white" />
+                </div>
                 Application Form
               </h2>
               
@@ -626,16 +654,16 @@ export default function JobApplicationPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl transition-all duration-300 font-bold text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-xl hover:shadow-2xl"
                 >
                   {submitting ? (
                     <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <Loader2 className="h-6 w-6 animate-spin" />
                       <span>Submitting Application...</span>
                     </>
                   ) : (
                     <>
-                      <Send className="h-5 w-5" />
+                      <Send className="h-6 w-6" />
                       <span>Submit Application</span>
                     </>
                   )}
@@ -648,25 +676,30 @@ export default function JobApplicationPage() {
           <div className="space-y-6">
             {/* ATS Score */}
             {atsScore !== null && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                  <Star className="h-5 w-5 text-yellow-500" />
+              <div className="bg-white rounded-2xl shadow-2xl p-6 border-0">
+                <h3 className="text-xl font-bold flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
+                    <Star className="h-5 w-5 text-white" />
+                  </div>
                   ATS Score
                 </h3>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                  <div className="text-4xl font-bold text-gray-900 mb-4">
                     {atsScore}%
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                  <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
                     <div 
-                      className={`h-3 rounded-full transition-all duration-300 ${
-                        atsScore >= 80 ? 'bg-green-500' : 
-                        atsScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                      className={`h-4 rounded-full transition-all duration-500 ${
+                        atsScore >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 
+                        atsScore >= 60 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-red-500 to-pink-500'
                       }`}
                       style={{ width: `${atsScore}%` }}
                     ></div>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className={`text-lg font-bold ${
+                    atsScore >= 80 ? 'text-green-600' : 
+                    atsScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>
                     {atsScore >= 80 ? 'Excellent' : 
                      atsScore >= 60 ? 'Good' : 'Needs improvement'}
                   </p>

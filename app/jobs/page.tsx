@@ -625,121 +625,156 @@ export default function JobsPage() {
 
           {/* Jobs Grid */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
-              <p className="text-gray-600 text-lg">Finding the best jobs for you...</p>
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="relative">
+                <div className="animate-spin rounded-full h-20 w-20 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
+                <div className="absolute inset-0 animate-ping rounded-full h-20 w-20 border-4 border-blue-300 opacity-20"></div>
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Finding the best jobs for you...</h3>
+                <p className="text-gray-600">Our AI is analyzing thousands of opportunities</p>
+              </div>
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="max-w-md mx-auto">
+                <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                  <Search className="w-12 h-12 text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">No jobs found</h3>
+                <p className="text-gray-600 mb-6">Try adjusting your search criteria or location filters</p>
+                <Button 
+                  onClick={clearFilters}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium"
+                >
+                  Clear All Filters
+                </Button>
+              </div>
             </div>
           ) : (
-            <div className={`grid gap-6 ${
+            <div className={`grid gap-8 ${
               isMobile ? 'grid-cols-1' : 
               isTablet ? 'grid-cols-1 sm:grid-cols-2' : 
               'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             }`}>
               {jobs.map((job) => (
-                <Card key={job.id} className="group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-gray-200 bg-white shadow-lg">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="text-lg font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
-                            {job.title}
-                          </h3>
-                          {getStatusBadge(job)}
+                <Card key={job.id} className="group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 bg-white shadow-xl rounded-2xl overflow-hidden">
+                  <CardContent className="p-0">
+                    {/* Job Header with Gradient */}
+                    <div className="relative bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 border-b border-gray-100">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-3">
+                            <h3 className="text-xl font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-300">
+                              {job.title}
+                            </h3>
+                            {getStatusBadge(job)}
+                          </div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                              <Building2 className="h-4 w-4 text-white" />
+                            </div>
+                            <p className="text-gray-700 font-semibold truncate">{job.company}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Building2 className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                          <p className="text-gray-600 truncate">{job.company}</p>
-                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleBookmark(job.id)}
+                          className={`p-3 rounded-xl border-2 hover:scale-110 transition-all duration-300 ${
+                            bookmarkedJobs.includes(job.id) 
+                              ? 'text-red-500 hover:text-red-600 border-red-200 bg-red-50 shadow-lg' 
+                              : 'text-gray-500 hover:text-red-500 border-gray-200 hover:border-red-300 hover:bg-red-50'
+                          }`}
+                        >
+                          <Heart className={`h-5 w-5 ${bookmarkedJobs.includes(job.id) ? 'fill-current' : ''}`} />
+                        </Button>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleBookmark(job.id)}
-                        className={`p-2 border-2 hover:bg-red-50 transition-colors ${
-                          bookmarkedJobs.includes(job.id) 
-                            ? 'text-red-500 hover:text-red-600 border-red-200 bg-red-50' 
-                            : 'text-gray-500 hover:text-red-500 border-gray-200 hover:border-red-300'
-                        }`}
-                      >
-                        <Heart className={`h-5 w-5 ${bookmarkedJobs.includes(job.id) ? 'fill-current' : ''}`} />
-                      </Button>
                     </div>
 
-                    <div className="space-y-3 mb-4">
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4 text-blue-500" />
-                          <span className="truncate">{job.location}</span>
-                          {job.distance !== null && job.distance !== undefined && (
-                            <Badge variant="outline" className="text-xs ml-2 bg-blue-50 text-blue-700 border-blue-200">
-                              {job.distance.toFixed(1)} km
+                    {/* Job Details */}
+                    <div className="p-6 space-y-4">
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                          <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
+                            <MapPin className="h-4 w-4 text-blue-600" />
+                            <span className="text-gray-700 font-medium truncate">{job.location}</span>
+                            {job.distance !== null && job.distance !== undefined && (
+                              <Badge className="ml-2 bg-blue-100 text-blue-700 border-0 text-xs font-bold px-2 py-1">
+                                {job.distance.toFixed(1)} km
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
+                            <Briefcase className="h-4 w-4 text-green-600" />
+                            <span className="text-gray-700 font-medium capitalize">{job.jobType}</span>
+                          </div>
+                        </div>
+                        
+                        {job.salary && (
+                          <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                            <DollarSign className="h-4 w-4 text-green-600" />
+                            <span className="text-green-700 font-bold">{job.salary}</span>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+                          <Clock className="h-4 w-4 text-gray-500" />
+                          <span className="text-gray-600 text-sm">Posted {new Date(job.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge className={`${getExperienceColor(job.experienceLevel)} font-bold px-3 py-1 rounded-lg`}>
+                          {job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1)}
+                        </Badge>
+                        {job.isRemote && (
+                          <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-0 font-bold px-3 py-1 rounded-lg">Remote</Badge>
+                        )}
+                        {job.isHybrid && (
+                          <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-0 font-bold px-3 py-1 rounded-lg">Hybrid</Badge>
+                        )}
+                      </div>
+
+                      <p className="text-gray-700 text-sm line-clamp-3 leading-relaxed">
+                        {job.description}
+                      </p>
+
+                      {job.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {job.skills.slice(0, 3).map((skill, index) => (
+                            <Badge key={index} variant="outline" className="text-xs font-medium border-2 border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 px-3 py-1 rounded-lg">
+                              {skill}
+                            </Badge>
+                          ))}
+                          {job.skills.length > 3 && (
+                            <Badge variant="outline" className="text-xs font-medium border-2 border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 px-3 py-1 rounded-lg">
+                              +{job.skills.length - 3} more
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Briefcase className="h-4 w-4 text-green-500" />
-                          <span className="capitalize">{job.jobType}</span>
-                        </div>
-                      </div>
-                      
-                      {job.salary && (
-                        <div className="flex items-center gap-1 text-sm font-medium text-green-600">
-                          <DollarSign className="h-4 w-4" />
-                          <span>{job.salary}</span>
-                        </div>
-                      )}
-                      
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
-                        <Clock className="h-4 w-4" />
-                        <span>Posted {new Date(job.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
-                      <Badge className={`${getExperienceColor(job.experienceLevel)} font-medium`}>
-                        {job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1)}
-                      </Badge>
-                      {job.isRemote && (
-                        <Badge className="bg-green-100 text-green-800 border-2 border-green-200 font-bold">Remote</Badge>
-                      )}
-                      {job.isHybrid && (
-                        <Badge className="bg-blue-100 text-blue-800 border-2 border-blue-200 font-bold">Hybrid</Badge>
                       )}
                     </div>
 
-                    <p className="text-gray-700 text-sm mb-4 line-clamp-3 leading-relaxed">
-                      {job.description}
-                    </p>
-
-                    {job.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-4">
-                        {job.skills.slice(0, 3).map((skill, index) => (
-                          <Badge key={index} variant="outline" className="text-xs font-medium border-2 border-gray-300 bg-gray-50 text-gray-700 hover:border-blue-400 hover:bg-blue-50 transition-colors">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {job.skills.length > 3 && (
-                          <Badge variant="outline" className="text-xs font-medium border-2 border-gray-300 bg-gray-50 text-gray-700">
-                            +{job.skills.length - 3} more
-                          </Badge>
-                        )}
+                    {/* Job Footer */}
+                    <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-blue-50 border-t border-gray-100">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                            <Users className="h-3 w-3 text-blue-600" />
+                          </div>
+                          <span className="font-semibold">{job._count.applications} applications</span>
+                        </div>
+                        <Link href={`/jobs/${job.id}`}>
+                          <Button 
+                            size="sm" 
+                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold px-6 py-2 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                          >
+                            View Details
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        </Link>
                       </div>
-                    )}
-
-                    <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
-                      <div className="flex items-center gap-1 text-xs text-gray-600 font-medium">
-                        <Users className="h-3 w-3" />
-                        <span>{job._count.applications} applications</span>
-                      </div>
-                      <Link href={`/jobs/${job.id}`}>
-                        <Button 
-                          size="sm" 
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105"
-                        >
-                          View Details
-                          <ArrowRight className="h-4 w-4 ml-1" />
-                        </Button>
-                      </Link>
                     </div>
                   </CardContent>
                 </Card>
