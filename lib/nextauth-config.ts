@@ -80,6 +80,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.email = user.email;
         token.name = user.name;
+        console.log('🔍 JWT callback - Initial user data:', user);
       }
       
       // Handle OAuth provider data
@@ -127,6 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.email = dbUser.email;
             token.name = dbUser.name;
             console.log('✅ JWT callback - Linked OAuth account to existing user:', dbUser);
+            console.log('🔍 JWT callback - Token after linking:', { id: token.id, email: token.email, name: token.name, role: token.role });
           } else {
             // For new OAuth users, create user first then set token data
             const newUser = await prisma.user.create({
@@ -164,6 +166,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.picture = (profile as any).picture || token.picture;
             token.role = null; // Will be set when user selects role
             console.log('✅ JWT callback - Created new OAuth user with account:', newUser);
+            console.log('🔍 JWT callback - Token after creating new user:', { id: token.id, email: token.email, name: token.name, role: token.role });
           }
         } catch (error) {
           console.error('Error in JWT callback:', error);
@@ -173,16 +176,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        (session.user as any).id = token.id || token.sub;
-        (session.user as any).role = token.role;
-        (session.user as any).email = token.email;
-        (session.user as any).name = token.name;
-        (session.user as any).picture = token.picture;
+      // Ensure session.user exists and type it properly
+      if (!session.user) {
+        session.user = {} as any;
       }
-      console.log('🔍 Session callback - User ID:', token.id);
-      console.log('🔍 Session callback - User email:', token.email);
-      console.log('🔍 Session callback - User role:', token.role);
+      
+      // Populate session.user with token data
+      (session.user as any).id = token.id || token.sub || '';
+      (session.user as any).email = token.email || '';
+      (session.user as any).name = token.name || '';
+      (session.user as any).role = token.role || null;
+      (session.user as any).picture = token.picture || '';
+      
+      console.log('🔍 Session callback - Token ID:', token.id);
+      console.log('🔍 Session callback - Token email:', token.email);
+      console.log('🔍 Session callback - Token name:', token.name);
+      console.log('🔍 Session callback - Token role:', token.role);
+      console.log('🔍 Session callback - Session user:', session.user);
+      
       return session;
     },
     async signIn({ user, account, profile }) {
