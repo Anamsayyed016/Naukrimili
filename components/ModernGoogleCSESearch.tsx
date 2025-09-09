@@ -253,17 +253,17 @@ export default function ModernGoogleCSESearch({
       )}
 
       {/* Header Section */}
-      <Card className="bg-gradient-to-r from-blue-50 via-white to-purple-50 border-2 border-blue-200 shadow-xl">
+      <Card className="bg-gradient-to-r from-green-50 via-white to-blue-50 border-2 border-green-200 shadow-xl">
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+              <div className="p-3 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl">
                 <Globe className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 flex flex-col sm:flex-row sm:items-center gap-2">
                   <span>Global Job Search</span>
-                  <Badge className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0 font-bold text-xs sm:text-sm w-fit">
+                  <Badge className="bg-gradient-to-r from-green-100 to-blue-100 text-green-800 border-0 font-bold text-xs sm:text-sm w-fit">
                     Powered by Google
                   </Badge>
                 </CardTitle>
@@ -274,8 +274,8 @@ export default function ModernGoogleCSESearch({
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {enableAIFeatures && (
-                <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-0 font-bold flex items-center gap-1 text-xs">
-                  <Brain className="w-3 h-3" />
+                <Badge className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border-0 font-bold flex items-center gap-1 text-xs">
+                  <Sparkles className="w-3 h-3" />
                   AI Enhanced
                 </Badge>
               )}
@@ -297,7 +297,7 @@ export default function ModernGoogleCSESearch({
         {/* Advanced Options */}
         {showAdvanced && showAdvancedOptions && (
           <CardContent className="pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-white rounded-lg border-2 border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-white rounded-xl border-2 border-gray-100">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-gray-700">Results Count</Label>
                 <Select 
@@ -388,7 +388,7 @@ export default function ModernGoogleCSESearch({
                   <Label htmlFor="includeVideos" className="text-sm font-medium">Include Videos</Label>
                 </div>
               </div>
-              <Button onClick={handleAdvancedSearch} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+              <Button onClick={handleAdvancedSearch} className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Apply Filters
               </Button>
@@ -437,11 +437,11 @@ export default function ModernGoogleCSESearch({
 
       {/* Placeholder State - No Search Query */}
       {!searchQuery.trim() && !isLoading && !error && (
-        <Card className="bg-gradient-to-r from-gray-50 to-blue-50 border-2 border-gray-200">
+        <Card className="bg-gradient-to-r from-gray-50 to-blue-50 border-2 border-gray-200 shadow-xl">
           <CardContent className="p-8 text-center">
             <div className="flex flex-col items-center space-y-4">
-              <div className="p-4 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full">
-                <Search className="w-12 h-12 text-blue-600" />
+              <div className="p-4 bg-gradient-to-r from-green-100 to-blue-100 rounded-full">
+                <Search className="w-12 h-12 text-green-600" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Ready to Search the Web</h3>
@@ -449,8 +449,8 @@ export default function ModernGoogleCSESearch({
                   Enter a job search term above to discover opportunities from across the web using Google's powerful search engine.
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
-                  <Badge className="bg-blue-100 text-blue-800 border-0">Software Engineer</Badge>
-                  <Badge className="bg-green-100 text-green-800 border-0">Remote Jobs</Badge>
+                  <Badge className="bg-green-100 text-green-800 border-0">Software Engineer</Badge>
+                  <Badge className="bg-blue-100 text-blue-800 border-0">Remote Jobs</Badge>
                   <Badge className="bg-purple-100 text-purple-800 border-0">Marketing</Badge>
                   <Badge className="bg-orange-100 text-orange-800 border-0">Data Science</Badge>
                 </div>
@@ -462,11 +462,11 @@ export default function ModernGoogleCSESearch({
 
       {/* Loading State */}
       {isLoading && (
-        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 shadow-xl">
           <CardContent className="p-8 text-center">
             <div className="relative mb-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
-              <div className="absolute inset-0 animate-ping rounded-full h-12 w-12 border-4 border-blue-300 opacity-20 mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-200 border-t-green-600 mx-auto"></div>
+              <div className="absolute inset-0 animate-ping rounded-full h-12 w-12 border-4 border-green-300 opacity-20 mx-auto"></div>
             </div>
             <h3 className="text-lg font-bold text-gray-800 mb-2">Searching the web...</h3>
             <p className="text-gray-600">Finding the best job opportunities for you</p>
@@ -476,7 +476,7 @@ export default function ModernGoogleCSESearch({
 
       {/* Error State */}
       {error && (
-        <Card className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200">
+        <Card className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 shadow-xl">
           <CardContent className="p-6 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-red-800 mb-2">Search Error</h3>
@@ -498,17 +498,17 @@ export default function ModernGoogleCSESearch({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Target className="w-5 h-5 text-blue-600" />
+              <Target className="w-5 h-5 text-green-600" />
               Found {results.length} opportunities
             </h3>
-            <Badge className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0 font-bold">
+            <Badge className="bg-gradient-to-r from-green-100 to-blue-100 text-green-800 border-0 font-bold">
               Web Results
             </Badge>
           </div>
 
           <div className="grid gap-4">
             {results.map((result, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-2 border-gray-200 hover:border-blue-300 bg-white">
+              <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-2 border-gray-200 hover:border-green-300 bg-white shadow-lg">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                     {/* Thumbnail */}
@@ -525,14 +525,14 @@ export default function ModernGoogleCSESearch({
                     <div className="flex-1 min-w-0">
                       {/* Title and Link */}
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 mb-2">
-                        <h4 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors flex-1 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
+                        <h4 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-green-600 transition-colors flex-1 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                           {result.title}
                         </h4>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => window.open(result.link, '_blank')}
-                          className="flex-shrink-0 border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 w-full sm:w-auto"
+                          className="flex-shrink-0 border-2 border-gray-300 hover:border-green-500 hover:bg-green-50 w-full sm:w-auto"
                         >
                           <ExternalLink className="w-4 h-4 mr-1" />
                           Visit
@@ -587,7 +587,7 @@ export default function ModernGoogleCSESearch({
 
       {/* No Results */}
       {!isLoading && !error && hasSearched && results.length === 0 && (
-        <Card className="bg-gradient-to-r from-gray-50 to-blue-50 border-2 border-gray-200">
+        <Card className="bg-gradient-to-r from-gray-50 to-blue-50 border-2 border-gray-200 shadow-xl">
           <CardContent className="p-8 text-center">
             <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-gray-800 mb-2">No web results found</h3>
