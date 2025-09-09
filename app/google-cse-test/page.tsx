@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import GoogleCSESearch from '@/components/GoogleCSESearch';
+import ModernGoogleCSESearch from '@/components/ModernGoogleCSESearch';
 import GoogleCSETest from '@/components/GoogleCSETest';
 
 export default function GoogleCSETestPage() {
@@ -28,10 +28,12 @@ export default function GoogleCSETestPage() {
           <div className="mb-12">
             <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border border-white/30 p-6 lg:p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Google CSE Component Test</h2>
-              <GoogleCSESearch 
+              <ModernGoogleCSESearch 
                 searchQuery="software developer jobs"
                 location="Remote"
                 className="w-full"
+                showAdvancedOptions={true}
+                enableAIFeatures={true}
               />
             </div>
           </div>
