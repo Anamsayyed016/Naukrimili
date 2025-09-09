@@ -13,27 +13,20 @@ export async function GET(request: NextRequest) {
     const dateRestrict = searchParams.get('dateRestrict');
     const searchType = searchParams.get('searchType');
 
-    console.log('CSE API Request:', { query, location, num, sort, safe, lr, cr, dateRestrict, searchType });
-
     if (!query) {
-      console.log('No query provided');
       return NextResponse.json({ error: 'Query parameter is required' }, { status: 400 });
     }
 
     const cseId = process.env.NEXT_PUBLIC_GOOGLE_CSE_ID;
     const apiKey = process.env.GOOGLE_CSE_API_KEY;
 
-    console.log('CSE Config:', { cseId: !!cseId, apiKey: !!apiKey });
-
     if (!cseId || !apiKey) {
-      console.log('CSE configuration missing');
       return NextResponse.json({ error: 'CSE configuration missing' }, { status: 500 });
     }
 
-    // Build search query - make it more specific for job searches
+    // Build search query for entire web
     const searchQuery = `${query} jobs ${location ? `in ${location}` : ''}`;
-    console.log('Final search query:', searchQuery);
-
+    
     const searchParams_g = new URLSearchParams({
       key: apiKey,
       cx: cseId,
@@ -48,24 +41,14 @@ export async function GET(request: NextRequest) {
     });
 
     const googleApiUrl = `https://www.googleapis.com/customsearch/v1?${searchParams_g}`;
-    console.log('Google API URL:', googleApiUrl);
-
     const response = await fetch(googleApiUrl);
-
-    console.log('Google API Response Status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Google CSE API Error:', response.status, errorText);
       throw new Error(`Google CSE API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('Google API Response:', {
-      searchInformation: data.searchInformation,
-      itemsCount: data.items?.length || 0,
-      hasItems: !!data.items
-    });
     
     // Clean up the data to prevent React rendering issues
     const searchResults = data.items?.map((item: any) => ({
@@ -82,8 +65,6 @@ export async function GET(request: NextRequest) {
         metatags: []
       }
     })) || [];
-
-    console.log('Processed results count:', searchResults.length);
 
     return NextResponse.json({
       success: true,
