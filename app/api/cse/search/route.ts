@@ -8,8 +8,8 @@ export async function GET(request: NextRequest) {
     const num = searchParams.get('num') || '6';
     const sort = searchParams.get('sort') || 'relevance';
     const safe = searchParams.get('safe') || 'active';
-    const lr = searchParams.get('lr') || 'lang_en';
-    const cr = searchParams.get('cr') || 'countryus';
+    const lr = searchParams.get('lr') || 'lang_hi';
+    const cr = searchParams.get('cr') || 'countryin';
     const dateRestrict = searchParams.get('dateRestrict');
     const searchType = searchParams.get('searchType');
 
@@ -33,8 +33,8 @@ export async function GET(request: NextRequest) {
     // Build search query - optimize for job searches
     let searchQuery = query;
     
-    // Add "jobs" keyword if not already present
-    if (!query.toLowerCase().includes('job')) {
+    // Add "jobs" keyword if not already present and not a job board name
+    if (!query.toLowerCase().includes("job") && !query.toLowerCase().includes("indeed") && !query.toLowerCase().includes("linkedin") && !query.toLowerCase().includes("glassdoor")) {
       searchQuery = `${query} jobs`;
     }
     
