@@ -739,7 +739,7 @@ export default function JobsPage() {
               isTablet ? 'grid-cols-1 sm:grid-cols-2' : 
               'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             }`}>
-              {jobs.map((job) => (
+              {jobs?.map((job) => (
                 <Card key={job.id} className="group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 bg-white shadow-xl rounded-2xl overflow-hidden">
                   <CardContent className="p-0">
                     {/* Job Header with Gradient */}
@@ -845,7 +845,7 @@ export default function JobsPage() {
                           <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
                             <Users className="h-3 w-3 text-blue-600" />
                           </div>
-                          <span className="font-semibold">{job._count.applications} applications</span>
+                          <span className="font-semibold">{job._count?.applications || 0} applications</span>
                         </div>
                         <Link href={`/jobs/${job.id}`}>
                           <Button 
