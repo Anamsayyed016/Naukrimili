@@ -139,12 +139,12 @@ export default function ModernGoogleCSESearch({
 
       const data = await response.json();
       const searchResults = data.items?.map((item: any) => ({
-        title: item.title,
-        link: item.link,
-        snippet: item.snippet,
-        displayLink: item.displayLink,
-        formattedUrl: item.formattedUrl,
-        pagemap: item.pagemap
+        title: item.title || "No Title",
+        link: item.link || "#",
+        snippet: item.snippet || "No description available",
+        displayLink: item.displayLink || "Unknown",
+        formattedUrl: item.formattedUrl || item.link || "#",
+        pagemap: item.pagemap || {}
       })) || [];
 
       setResults(searchResults);
