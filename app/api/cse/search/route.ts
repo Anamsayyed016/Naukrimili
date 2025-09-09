@@ -30,8 +30,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'CSE configuration missing' }, { status: 500 });
     }
 
-    // Build search query - make it more specific for job searches
-    const searchQuery = `${query} jobs ${location ? `in ${location}` : ''}`;
+    // Build search query - optimize for job searches
+    let searchQuery = query;
+    
+    // Add "jobs" keyword if not already present
+    if (!query.toLowerCase().includes('job')) {
+      searchQuery = `${query} jobs`;
+    }
+    
+    // Add location if provided, but make it optional
+    if (location && location.trim()) {
+      searchQuery = `${searchQuery} ${location}`;
+    }
+    
     console.log('Final search query:', searchQuery);
 
     const searchParams_g = new URLSearchParams({
@@ -64,7 +75,9 @@ export async function GET(request: NextRequest) {
     console.log('Google API Response:', {
       searchInformation: data.searchInformation,
       itemsCount: data.items?.length || 0,
-      hasItems: !!data.items
+      hasItems: !!data.items,
+      totalResults: data.searchInformation?.totalResults || '0',
+      searchQuery: searchQuery
     });
     
     // Clean up the data to prevent React rendering issues
