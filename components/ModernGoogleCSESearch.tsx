@@ -93,8 +93,8 @@ export default function ModernGoogleCSESearch({
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Check for CSE configuration
-  const cseId = process.env.NEXT_PUBLIC_GOOGLE_CSE_ID;
-  const apiKey = process.env.GOOGLE_CSE_API_KEY;
+  const cseId = process.env.NEXT_PUBLIC_GOOGLE_CSE_ID || "236ab1baa2d4f451d";
+  const apiKey = process.env.GOOGLE_CSE_API_KEY || "AIzaSyAsPtU2SyvZlHheTDbqL-HnktFyzLBYXsU";
 
   // Debounced search function
   const performSearch = useCallback(async (query: string, options = searchOptions) => {
@@ -139,11 +139,11 @@ export default function ModernGoogleCSESearch({
 
       const data = await response.json();
       const searchResults = data.items?.map((item: any) => ({
-        title: item.title,
+        title: item.title || "No Title",
         link: item.link,
-        snippet: item.snippet,
-        displayLink: item.displayLink,
-        formattedUrl: item.formattedUrl,
+        snippet: item.snippet || "No description available",
+        displayLink: item.displayLink || "Unknown",
+        formattedUrl: item.formattedUrl || item.link || "#",
         pagemap: item.pagemap
       })) || [];
 
