@@ -4521,3 +4521,161 @@
 2025-09-10T00:54:48:     at node:internal/main/run_main_module:36:49
 2025-09-10T00:54:48: 
 2025-09-10T00:54:48: Node.js v22.16.0
+2025-09-10T03:32:31: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:31: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:31:           ^^^^^^^
+2025-09-10T03:32:31: 
+2025-09-10T03:32:31: SyntaxError: missing ) after argument list
+2025-09-10T03:32:31:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:31:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:31:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:31:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:31:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:31:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:31:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:31:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:31:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:31: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:31: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:31:           ^^^^^^^
+2025-09-10T03:32:31: 
+2025-09-10T03:32:31: SyntaxError: missing ) after argument list
+2025-09-10T03:32:31:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:31:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:31:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:31:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:31:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:31:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:31:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:31:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:31:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:31: 
+2025-09-10T03:32:31: Node.js v22.16.0
+2025-09-10T03:32:32: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:32: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:32:           ^^^^^^^
+2025-09-10T03:32:32: 
+2025-09-10T03:32:32: SyntaxError: missing ) after argument list
+2025-09-10T03:32:32:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:32:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:32:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:32:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:32:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:32:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:32:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:32:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:32:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:32: 
+2025-09-10T03:32:32: Node.js v22.16.0
+2025-09-10T03:32:32: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:32: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:32:           ^^^^^^^
+2025-09-10T03:32:32: 
+2025-09-10T03:32:32: SyntaxError: missing ) after argument list
+2025-09-10T03:32:32:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:32:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:32:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:32:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:32:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:32:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:32:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:32:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:32:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:32: 
+2025-09-10T03:32:32: Node.js v22.16.0
+2025-09-10T03:32:32: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:32: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:32:           ^^^^^^^
+2025-09-10T03:32:32: 
+2025-09-10T03:32:32: SyntaxError: missing ) after argument list
+2025-09-10T03:32:32:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:32:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:32:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:32:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:32:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:32:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:32:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:32:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:32:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:32: 
+2025-09-10T03:32:32: Node.js v22.16.0
+2025-09-10T03:32:33: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:33: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:33:           ^^^^^^^
+2025-09-10T03:32:33: 
+2025-09-10T03:32:33: SyntaxError: missing ) after argument list
+2025-09-10T03:32:33:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:33:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:33:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:33:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:33:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:33:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:33:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:33:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:33:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:33: 
+2025-09-10T03:32:33: Node.js v22.16.0
+2025-09-10T03:32:33: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:33: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:33:           ^^^^^^^
+2025-09-10T03:32:33: 
+2025-09-10T03:32:33: SyntaxError: missing ) after argument list
+2025-09-10T03:32:33:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:33:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:33:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:33:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:33:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:33:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:33:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:33:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:33:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:33: 
+2025-09-10T03:32:33: Node.js v22.16.0
+2025-09-10T03:32:33: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:33: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:33:           ^^^^^^^
+2025-09-10T03:32:33: 
+2025-09-10T03:32:33: SyntaxError: missing ) after argument list
+2025-09-10T03:32:33:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:33:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:33:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:33:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:33:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:33:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:33:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:33:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:33:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:33: 
+2025-09-10T03:32:33: Node.js v22.16.0
+2025-09-10T03:32:33: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:33: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:33:           ^^^^^^^
+2025-09-10T03:32:33: 
+2025-09-10T03:32:33: SyntaxError: missing ) after argument list
+2025-09-10T03:32:33:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:33:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:33:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:33:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:33:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:33:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:33:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:33:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:33:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:33: 
+2025-09-10T03:32:33: Node.js v22.16.0
+2025-09-10T03:32:34: E:\myprojects\jobportal\node_modules\.bin\next:2
+2025-09-10T03:32:34: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-09-10T03:32:34:           ^^^^^^^
+2025-09-10T03:32:34: 
+2025-09-10T03:32:34: SyntaxError: missing ) after argument list
+2025-09-10T03:32:34:     at wrapSafe (node:internal/modules/cjs/loader:1662:18)
+2025-09-10T03:32:34:     at Module._compile (node:internal/modules/cjs/loader:1704:20)
+2025-09-10T03:32:34:     at Object..js (node:internal/modules/cjs/loader:1895:10)
+2025-09-10T03:32:34:     at Module.load (node:internal/modules/cjs/loader:1465:32)
+2025-09-10T03:32:34:     at Function._load (node:internal/modules/cjs/loader:1282:12)
+2025-09-10T03:32:34:     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+2025-09-10T03:32:34:     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+2025-09-10T03:32:34:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2025-09-10T03:32:34:     at node:internal/main/run_main_module:36:49
+2025-09-10T03:32:34: 
+2025-09-10T03:32:34: Node.js v22.16.0
