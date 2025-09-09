@@ -808,7 +808,7 @@ export default function JobsPage() {
 
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge className={`${getExperienceColor(job.experienceLevel)} font-bold px-3 py-1 rounded-lg`}>
-                          {job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1)}
+                          {job.experienceLevel ? job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1) : 'Not Specified'}
                         </Badge>
                         {job.isRemote && (
                           <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-0 font-bold px-3 py-1 rounded-lg">Remote</Badge>

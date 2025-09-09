@@ -200,7 +200,7 @@ function formatJobTypeLabel(jobType: string): string {
     'freelance': 'Freelance',
     'temporary': 'Temporary'
   };
-  return labels[jobType] || jobType.charAt(0).toUpperCase() + jobType.slice(1);
+  return labels[jobType] || (jobType ? jobType.charAt(0).toUpperCase() + jobType.slice(1) : 'Unknown');
 }
 
 function formatExperienceLabel(level: string): string {
@@ -212,11 +212,12 @@ function formatExperienceLabel(level: string): string {
     'executive': 'Executive (15+ years)',
     'internship': 'Internship'
   };
-  return labels[level] || level.charAt(0).toUpperCase() + level.slice(1);
+  return labels[level] || (level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Unknown');
 }
 
 function formatSkillLabel(skill: string): string {
+  if (!skill) return 'Unknown';
   return skill.split(' ').map(word => 
-    word.charAt(0).toUpperCase() + word.slice(1)
+    word ? word.charAt(0).toUpperCase() + word.slice(1) : ''
   ).join(' ');
 }

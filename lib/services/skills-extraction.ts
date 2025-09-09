@@ -204,8 +204,9 @@ export class SkillsExtractionService {
    * Format skill name for display
    */
   private static formatSkillName(skill: string): string {
+    if (!skill) return '';
     return skill.split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1) : '')
       .join(' ');
   }
 
