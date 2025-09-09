@@ -108,8 +108,18 @@ export default function ModernGoogleCSESearch({
 
   // Debounced search function
   const performSearch = useCallback(async (query: string, options = searchOptions) => {
-    if (!query.trim() || !cseId) return;
+    if (!query.trim()) {
+      console.log('No search query provided');
+      return;
+    }
 
+    if (!cseId) {
+      console.log('CSE ID not configured');
+      setError('Google CSE is not configured');
+      return;
+    }
+
+    console.log('Starting search with query:', query, 'location:', location);
     setIsLoading(true);
     setError(null);
     setHasSearched(true);
@@ -138,21 +148,28 @@ export default function ModernGoogleCSESearch({
         ...(options.includeVideos && { searchType: 'video' })
       });
 
-      const response = await fetch(
-        `/api/cse/search?${searchParams}`
-      );
+      console.log('Search params:', searchParams.toString());
+      const apiUrl = `/api/cse/search?${searchParams}`;
+      console.log('API URL:', apiUrl);
 
+      const response = await fetch(apiUrl);
+
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('API Error:', errorData);
         throw new Error(errorData.error || `Search failed: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('API Response:', data);
       
       if (!data.success) {
         throw new Error(data.error || 'Search failed');
       }
 
+      console.log('Search results count:', data.results?.length || 0);
       setResults(data.results || []);
       onResultsUpdate?.(data.results || []);
 
@@ -194,12 +211,15 @@ export default function ModernGoogleCSESearch({
 
   // Effect to trigger search when query changes
   useEffect(() => {
+    console.log('Search query changed:', searchQuery);
     if (searchQuery.trim()) {
+      console.log('Triggering search for:', searchQuery);
       performSearch(searchQuery);
       if (enableAIFeatures) {
         generateAISuggestions(searchQuery);
       }
     } else {
+      console.log('Clearing search results');
       setResults([]);
       setHasSearched(false);
       setAiSuggestions([]);
