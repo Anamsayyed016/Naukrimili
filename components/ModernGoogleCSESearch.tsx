@@ -144,7 +144,13 @@ export default function ModernGoogleCSESearch({
         snippet: item.snippet || "No description available",
         displayLink: item.displayLink || "Unknown",
         formattedUrl: item.formattedUrl || item.link || "#",
-        pagemap: item.pagemap || {}
+        pagemap: item.pagemap ? {
+          cse_thumbnail: item.pagemap.cse_thumbnail || [],
+          metatags: item.pagemap.metatags || []
+        } : {
+          cse_thumbnail: [],
+          metatags: []
+        }
       })) || [];
 
       setResults(searchResults);
