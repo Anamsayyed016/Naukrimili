@@ -94,6 +94,17 @@ export default function ModernGoogleCSESearch({
 
   // Check for CSE configuration
   const cseId = process.env.NEXT_PUBLIC_GOOGLE_CSE_ID;
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('ModernGoogleCSESearch Debug:', {
+      cseId,
+      searchQuery,
+      location,
+      showAdvancedOptions,
+      enableAIFeatures
+    });
+  }, [cseId, searchQuery, location, showAdvancedOptions, enableAIFeatures]);
 
   // Debounced search function
   const performSearch = useCallback(async (query: string, options = searchOptions) => {
@@ -195,18 +206,8 @@ export default function ModernGoogleCSESearch({
     }
   }, [searchQuery, performSearch, generateAISuggestions, enableAIFeatures]);
 
-  // Don't render if CSE not configured
-  if (!cseId) {
-    return (
-      <Card className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200">
-        <CardContent className="p-6 text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-red-800 mb-2">Configuration Error</h3>
-          <p className="text-red-600">Google CSE is not properly configured</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Show configuration warning if CSE not configured, but still render the component
+  const showConfigWarning = !cseId;
 
   const handleAdvancedSearch = () => {
     performSearch(searchQuery, searchOptions);
@@ -237,7 +238,20 @@ export default function ModernGoogleCSESearch({
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-6 ${className}`}>      {/* Configuration Warning */}
+      {showConfigWarning && (
+        <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200">
+          <CardContent className="p-4 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <AlertCircle className="w-5 h-5 text-yellow-600" />
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> Google CSE is not configured. Search functionality will be limited.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Header Section */}
       <Card className="bg-gradient-to-r from-blue-50 via-white to-purple-50 border-2 border-blue-200 shadow-xl">
         <CardHeader className="pb-4">
@@ -511,7 +525,7 @@ export default function ModernGoogleCSESearch({
                     <div className="flex-1 min-w-0">
                       {/* Title and Link */}
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 mb-2">
-                        <h4 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 flex-1">
+                        <h4 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors flex-1 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>
                           {result.title}
                         </h4>
                         <Button
@@ -543,7 +557,7 @@ export default function ModernGoogleCSESearch({
                       </div>
 
                       {/* Snippet */}
-                      <p className="text-gray-700 text-sm leading-relaxed line-clamp-3 mb-4">
+                      <p className="text-gray-700 text-sm leading-relaxed mb-4 overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical'}}>
                         {result.snippet}
                       </p>
 
