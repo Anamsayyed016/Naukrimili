@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, MapPin, Building2, ExternalLink, Clock, DollarSign, Navigation } from 'lucide-react';
 import { getSmartLocation, getMobileGeolocationOptions, isMobileDevice, getGeolocationDiagnostics } from '@/lib/mobile-geolocation';
-import GoogleCSESearch from '@/components/GoogleCSESearch';
 
 interface Job {
   id: string;
@@ -354,17 +353,6 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
         {/* Results */}
         <div className="space-y-6">
-          {/* Google CSE - Show above results when search query exists */}
-          {searchQuery && (
-            <div className="mb-6">
-              <GoogleCSESearch 
-                searchQuery={searchQuery}
-                location={location}
-                className="w-full"
-                isFallback={showCSEAsFallback}
-              />
-            </div>
-          )}
 
           {/* Results Header */}
           <div className="flex items-center justify-between mb-6">

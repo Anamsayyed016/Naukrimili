@@ -195,9 +195,17 @@ export default function ModernGoogleCSESearch({
     }
   }, [searchQuery, performSearch, generateAISuggestions, enableAIFeatures]);
 
-  // Don't render if no search query or CSE not configured
-  if (!searchQuery.trim() || !cseId) {
-    return null;
+  // Don't render if CSE not configured
+  if (!cseId) {
+    return (
+      <Card className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200">
+        <CardContent className="p-6 text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-red-800 mb-2">Configuration Error</h3>
+          <p className="text-red-600">Google CSE is not properly configured</p>
+        </CardContent>
+      </Card>
+    );
   }
 
   const handleAdvancedSearch = () => {
@@ -233,26 +241,26 @@ export default function ModernGoogleCSESearch({
       {/* Header Section */}
       <Card className="bg-gradient-to-r from-blue-50 via-white to-purple-50 border-2 border-blue-200 shadow-xl">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
                 <Globe className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  Global Job Search
-                  <Badge className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0 font-bold">
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span>Global Job Search</span>
+                  <Badge className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0 font-bold text-xs sm:text-sm w-fit">
                     Powered by Google
                   </Badge>
                 </CardTitle>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
                   Discover opportunities from across the web
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {enableAIFeatures && (
-                <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-0 font-bold flex items-center gap-1">
+                <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-0 font-bold flex items-center gap-1 text-xs">
                   <Brain className="w-3 h-3" />
                   AI Enhanced
                 </Badge>
@@ -261,10 +269,11 @@ export default function ModernGoogleCSESearch({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="border-2 border-gray-300 hover:border-blue-500"
+                className="border-2 border-gray-300 hover:border-blue-500 text-xs sm:text-sm"
               >
-                <Settings className="w-4 h-4 mr-2" />
-                {showAdvanced ? 'Hide' : 'Advanced'}
+                <Settings className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{showAdvanced ? 'Hide' : 'Advanced'}</span>
+                <span className="sm:hidden">{showAdvanced ? 'Hide' : 'Options'}</span>
                 {showAdvanced ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
               </Button>
             </div>
@@ -412,6 +421,31 @@ export default function ModernGoogleCSESearch({
         </Card>
       )}
 
+      {/* Placeholder State - No Search Query */}
+      {!searchQuery.trim() && !isLoading && !error && (
+        <Card className="bg-gradient-to-r from-gray-50 to-blue-50 border-2 border-gray-200">
+          <CardContent className="p-8 text-center">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="p-4 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full">
+                <Search className="w-12 h-12 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Ready to Search the Web</h3>
+                <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                  Enter a job search term above to discover opportunities from across the web using Google's powerful search engine.
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Badge className="bg-blue-100 text-blue-800 border-0">Software Engineer</Badge>
+                  <Badge className="bg-green-100 text-green-800 border-0">Remote Jobs</Badge>
+                  <Badge className="bg-purple-100 text-purple-800 border-0">Marketing</Badge>
+                  <Badge className="bg-orange-100 text-orange-800 border-0">Data Science</Badge>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Loading State */}
       {isLoading && (
         <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
@@ -461,30 +495,30 @@ export default function ModernGoogleCSESearch({
           <div className="grid gap-4">
             {results.map((result, index) => (
               <Card key={index} className="group hover:shadow-xl transition-all duration-300 border-2 border-gray-200 hover:border-blue-300 bg-white">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                     {/* Thumbnail */}
                     {result.pagemap?.cse_thumbnail?.[0] && (
-                      <div className="flex-shrink-0">
+                      <div className="flex-shrink-0 self-center sm:self-start">
                         <img
                           src={result.pagemap.cse_thumbnail[0].src}
                           alt=""
-                          className="w-16 h-16 rounded-lg object-cover border-2 border-gray-200"
+                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover border-2 border-gray-200"
                         />
                       </div>
                     )}
 
                     <div className="flex-1 min-w-0">
                       {/* Title and Link */}
-                      <div className="flex items-start justify-between gap-4 mb-2">
-                        <h4 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 mb-2">
+                        <h4 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 flex-1">
                           {result.title}
                         </h4>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => window.open(result.link, '_blank')}
-                          className="flex-shrink-0 border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50"
+                          className="flex-shrink-0 border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 w-full sm:w-auto"
                         >
                           <ExternalLink className="w-4 h-4 mr-1" />
                           Visit
@@ -492,10 +526,12 @@ export default function ModernGoogleCSESearch({
                       </div>
 
                       {/* URL and Domain */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <Globe className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-blue-600 font-medium">{result.displayLink}</span>
-                        <Badge variant="outline" className="text-xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-blue-600 font-medium truncate">{result.displayLink}</span>
+                        </div>
+                        <Badge variant="outline" className="text-xs w-fit">
                           {(() => {
                             try {
                               return new URL(result.link).hostname;
@@ -512,7 +548,7 @@ export default function ModernGoogleCSESearch({
                       </p>
 
                       {/* Metadata */}
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-gray-500">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           <span>Web Result</span>

@@ -478,21 +478,19 @@ export default function JobsPage() {
             </Card>
           </div>
 
-          {/* CSE Results - Show when there's a search query */}
-          {filters.query && (
-            <div className="mb-8">
-              <ModernGoogleCSESearch
-                searchQuery={filters.query}
-                location={filters.location}
-                className="w-full"
-                showAdvancedOptions={true}
-                enableAIFeatures={true}
-                onResultsUpdate={(results) => {
-                  console.log('CSE Results updated:', results.length);
-                }}
-              />
-            </div>
-          )}
+          {/* CSE Results - Always visible */}
+          <div className="mb-8">
+            <ModernGoogleCSESearch
+              searchQuery={filters.query || ''}
+              location={filters.location}
+              className="w-full"
+              showAdvancedOptions={true}
+              enableAIFeatures={true}
+              onResultsUpdate={(results) => {
+                console.log('CSE Results updated:', results.length);
+              }}
+            />
+          </div>
 
           {/* Advanced Filters */}
           <Card className="mb-8 shadow-xl border-2 border-gray-200 bg-white">
