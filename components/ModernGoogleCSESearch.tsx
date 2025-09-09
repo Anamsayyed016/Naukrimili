@@ -94,7 +94,6 @@ export default function ModernGoogleCSESearch({
 
   // Check for CSE configuration
   const cseId = process.env.NEXT_PUBLIC_GOOGLE_CSE_ID;
-  const apiKey = process.env.GOOGLE_CSE_API_KEY;
 
   // Debounced search function
   const performSearch = useCallback(async (query: string, options = searchOptions) => {
@@ -116,9 +115,8 @@ export default function ModernGoogleCSESearch({
       });
 
       const searchParams = new URLSearchParams({
-        key: apiKey || '',
-        cx: cseId,
-        q: `${query} jobs ${location ? `in ${location}` : ''}`,
+        q: query,
+        location: location || '',
         num: options.numResults.toString(),
         sort: options.sortBy,
         safe: options.safeSearch,
@@ -130,31 +128,22 @@ export default function ModernGoogleCSESearch({
       });
 
       const response = await fetch(
-        `https://www.googleapis.com/customsearch/v1?${searchParams}`
+        `/api/cse/search?${searchParams}`
       );
 
       if (!response.ok) {
-        throw new Error(`Search failed: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Search failed: ${response.status}`);
       }
 
       const data = await response.json();
-      const searchResults = data.items?.map((item: any) => ({
-        title: item.title || "No Title",
-        link: item.link || "#",
-        snippet: item.snippet || "No description available",
-        displayLink: item.displayLink || "Unknown",
-        formattedUrl: item.formattedUrl || item.link || "#",
-        pagemap: item.pagemap ? {
-          cse_thumbnail: item.pagemap.cse_thumbnail || [],
-          metatags: item.pagemap.metatags || []
-        } : {
-          cse_thumbnail: [],
-          metatags: []
-        }
-      })) || [];
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Search failed');
+      }
 
-      setResults(searchResults);
-      onResultsUpdate?.(searchResults);
+      setResults(data.results || []);
+      onResultsUpdate?.(data.results || []);
 
     } catch (err) {
       console.error('Google CSE Search Error:', err);
@@ -163,7 +152,7 @@ export default function ModernGoogleCSESearch({
     } finally {
       setIsLoading(false);
     }
-  }, [cseId, apiKey, location, searchOptions, onResultsUpdate]);
+  }, [cseId, location, searchOptions, onResultsUpdate]);
 
   // Generate AI-powered search suggestions
   const generateAISuggestions = useCallback(async (query: string) => {
@@ -507,7 +496,13 @@ export default function ModernGoogleCSESearch({
                         <Globe className="w-4 h-4 text-gray-400" />
                         <span className="text-sm text-blue-600 font-medium">{result.displayLink}</span>
                         <Badge variant="outline" className="text-xs">
-                          {new URL(result.link).hostname}
+                          {(() => {
+                            try {
+                              return new URL(result.link).hostname;
+                            } catch {
+                              return result.displayLink || 'Unknown';
+                            }
+                          })()}
                         </Badge>
                       </div>
 
