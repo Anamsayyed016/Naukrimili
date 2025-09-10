@@ -266,10 +266,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
               <h1 className="text-2xl font-bold text-blue-600">NaukriMili</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="text-gray-600 hover:text-gray-900">Sign in</button>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Get Started
-              </button>
+              <span className="text-gray-600">Welcome, {user.name || user.email}</span>
             </div>
           </div>
         </div>
@@ -279,10 +276,10 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            How would you like to use NaukriMili?
+            Choose Your Role
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Select your role to get started with the right features and tools.
+            Select how you want to use our platform to get started with the right features and tools.
           </p>
         </div>
 
