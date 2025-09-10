@@ -37,12 +37,12 @@ export default function RoleSelectionPage() {
     }
 
     if (session.user?.role) {
-      // User already has a role, redirect to appropriate dashboard
-      console.log('User has role:', session.user.role, 'redirecting to dashboard');
+      // User already has a role, redirect to appropriate action page
+      console.log('User has role:', session.user.role, 'redirecting to action page');
       if (session.user.role === 'jobseeker') {
-        router.push('/dashboard/jobseeker');
+        router.push('/resumes/upload');
       } else if (session.user.role === 'employer') {
-        router.push('/dashboard/company');
+        router.push('/employer/post-job');
       }
     } else {
       // User is authenticated but has no role - show role selection

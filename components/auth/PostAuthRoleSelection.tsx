@@ -91,11 +91,11 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       if (data.success) {
         console.log('Role updated successfully:', data.user);
         
-        // Redirect to appropriate dashboard based on role
+        // Redirect to appropriate action page based on role
         if (role === 'jobseeker') {
-          router.push('/dashboard/jobseeker');
+          router.push('/resumes/upload');
         } else {
-          router.push('/dashboard/company');
+          router.push('/employer/post-job');
         }
         
         if (onComplete) {
