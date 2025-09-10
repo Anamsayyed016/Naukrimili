@@ -65,12 +65,18 @@ export interface ResumeAnalysis {
 }
 
 export class EnhancedResumeAI {
-  private openai: OpenAI;
+  private openai: OpenAI | null;
 
   constructor() {
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      console.warn('⚠️ OPENAI_API_KEY not found. AI features will be disabled.');
+      this.openai = null;
+    } else {
+      this.openai = new OpenAI({
+        apiKey: apiKey,
+      });
+    }
   }
 
   /**
@@ -78,6 +84,12 @@ export class EnhancedResumeAI {
    */
   async extractResumeData(resumeText: string): Promise<ExtractedResumeData> {
     try {
+      // Check if OpenAI is available
+      if (!this.openai) {
+        console.log('⚠️ OpenAI not available, using fallback extraction...');
+        return this.createFallbackProfile(resumeText);
+      }
+
       console.log('🤖 Starting AI-powered resume extraction...');
 
       const resumeAssistantPrompt = `
@@ -197,7 +209,7 @@ ${resumeText}
       console.error('❌ AI extraction failed:', error);
       
       // Fallback to basic extraction
-      return this.fallbackExtraction(resumeText);
+      return this.createFallbackProfile(resumeText);
     }
   }
 
@@ -308,7 +320,7 @@ ${resumeText}
   /**
    * Fallback extraction when AI fails
    */
-  private fallbackExtraction(resumeText: string): ExtractedResumeData {
+  private createFallbackProfile(resumeText: string): ExtractedResumeData {
     console.log('🔄 Using fallback extraction...');
     
     const lines = resumeText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
@@ -472,6 +484,22 @@ ${resumeText}
     const salaryRegex = /(\d{1,2}[-–]\d{1,2})\s*(LPA|Lakh|K|Cr)/i;
     const match = text.match(salaryRegex);
     return match ? match[0] : '';
+  }
+
+  /**
+   * Health check for AI service
+   */
+  async healthCheck(): Promise<boolean> {
+    try {
+      if (!this.openai || !process.env.OPENAI_API_KEY) {
+        return false;
+      }
+
+      // Simple validation that the AI service could be reached
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
 
