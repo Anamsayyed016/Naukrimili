@@ -574,65 +574,6 @@ export default function HomePageClient({
         </div>
       </section>
 
-      {/* Resume Upload Section */}
-      <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto text-center">
-          <div className="mb-8 sm:mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-sm font-medium text-white mb-6">
-              <FileText className="w-4 h-4" />
-              AI-Powered Resume Analysis
-            </div>
-          </div>
-          
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
-            Get Discovered by Top Companies
-          </h2>
-          
-          <p className="text-lg sm:text-xl text-blue-100 mb-8 sm:mb-12 max-w-3xl mx-auto">
-            Upload your resume and let our AI analyze it to match you with the perfect job opportunities. 
-            Get personalized insights and recommendations.
-          </p>
-          
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-white/20 shadow-2xl mx-4">
-            <div className="max-w-md mx-auto p-4 sm:p-6">
-              <div className="rounded-lg border bg-card text-card-foreground shadow-sm text-center">
-                <div className="p-4 sm:p-6 pt-4 sm:pt-6">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h2 className="text-lg sm:text-xl font-semibold text-white mb-2">Ready to Upload?</h2>
-                  <p className="text-xs sm:text-sm text-blue-100 mb-3 sm:mb-4">Click the button below to upload your resume and get started</p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Link
-                      href="/resumes"
-                      className="inline-flex items-center justify-center text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white text-blue-600 hover:bg-gray-100 h-9 sm:h-10 px-3 sm:px-4 py-2 rounded-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-                    >
-                      Manage Resumes
-                    </Link>
-                    <Link
-                      href="/resumes/builder"
-                      className="inline-flex items-center justify-center text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-700 h-9 sm:h-10 px-3 sm:px-4 py-2 rounded-lg w-full sm:w-auto shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-                    >
-                      Build Resume
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-6 sm:mt-8 text-blue-100 text-xs sm:text-sm px-4">
-            <p>Supported formats: PDF, DOC, DOCX • Max size: 10MB</p>
-          </div>
-        </div>
-      </section>
 
       {/* Features Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
