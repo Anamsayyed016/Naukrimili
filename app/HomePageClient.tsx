@@ -279,7 +279,7 @@ export default function HomePageClient({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                 {/* Job Seeker Card */}
                 <Link 
-                  href={isAuthenticated ? "/auth/role-selection" : "/auth/register/jobseeker"}
+                  href={isAuthenticated ? "/auth/role-selection" : "/auth/unified?role=jobseeker"}
                   className="group cursor-pointer p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105 border-gray-200 bg-white hover:border-blue-300 hover:shadow-lg block"
                 >
                   <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -310,7 +310,7 @@ export default function HomePageClient({
 
                 {/* Employer Card */}
                 <Link 
-                  href={isAuthenticated ? "/auth/role-selection" : "/auth/register/employer"}
+                  href={isAuthenticated ? "/auth/role-selection" : "/auth/unified?role=employer"}
                   className="group cursor-pointer p-8 rounded-2xl border-2 transition-all duration-300 hover:scale-105 border-gray-200 bg-white hover:border-emerald-300 hover:shadow-lg block"
                 >
                   <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">

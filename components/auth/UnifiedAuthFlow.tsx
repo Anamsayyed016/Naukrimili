@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { signIn, useSession, getSession } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +23,7 @@ type AuthStep = 'welcome' | 'role-selection' | 'complete-profile';
 
 export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps) {
   const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState<AuthStep>('welcome');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,8 +35,17 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     name: '',
     password: '',
     role: '',
-    authMethod: 'email' // 'email' or 'google'
+    authMethod: 'email', // 'email' or 'google'
+    intendedRole: '' // Store the role user intended to select
   });
+
+  // Check for intended role from URL parameters
+  useEffect(() => {
+    const intendedRole = searchParams.get('role');
+    if (intendedRole && (intendedRole === 'jobseeker' || intendedRole === 'employer')) {
+      setUserData(prev => ({ ...prev, intendedRole }));
+    }
+  }, [searchParams]);
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -109,6 +120,14 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     setUserData(prev => ({ ...prev, role }));
     setCurrentStep('complete-profile');
   };
+
+  // Auto-select role if intended role is set
+  useEffect(() => {
+    if (userData.intendedRole && currentStep === 'role-selection' && !userData.role) {
+      setUserData(prev => ({ ...prev, role: userData.intendedRole }));
+      setCurrentStep('complete-profile');
+    }
+  }, [userData.intendedRole, currentStep, userData.role]);
 
   const handleCompleteProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -490,7 +509,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <a href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
+                <a href="/auth/signin" className="font-medium text-blue-600 hover:text-blue-500">
                   Sign in
                 </a>
               </p>
