@@ -320,8 +320,8 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     );
   }
 
-  // Show existing resume status if available
-  if (resumeStatus?.hasResumes && !showProfileForm) {
+  // Show existing resume status if available and not uploading new version
+  if (resumeStatus?.hasResumes && !showProfileForm && !uploaded) {
     return (
       <div className="max-w-4xl mx-auto p-6">
         {/* Existing Resume Status */}
@@ -339,14 +339,14 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
                 <h3 className="font-semibold text-gray-900 mb-3">Current Resume</h3>
                 <div className="space-y-2">
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium">File:</span> {resumeStatus.latestResume.fileName}
+                    <span className="font-medium">File:</span> {resumeStatus.latestResume?.fileName || 'Unknown'}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium">Last Updated:</span> {new Date(resumeStatus.latestResume.updatedAt).toLocaleDateString()}
+                    <span className="font-medium">Last Updated:</span> {resumeStatus.latestResume?.updatedAt ? new Date(resumeStatus.latestResume.updatedAt).toLocaleDateString() : 'Unknown'}
                   </p>
-                                       <p className="text-sm text-gray-600">
-                       <span className="font-medium">Type:</span> Uploaded
-                     </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">Type:</span> Uploaded
+                  </p>
                 </div>
               </div>
               
@@ -356,20 +356,20 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">ATS Score</span>
-                    <Badge variant={resumeStatus.resumeHealth.atsScore >= 80 ? 'default' : resumeStatus.resumeHealth.atsScore >= 60 ? 'secondary' : 'destructive'}>
-                      {resumeStatus.resumeHealth.atsScore}%
+                    <Badge variant={resumeStatus.resumeHealth?.atsScore >= 80 ? 'default' : resumeStatus.resumeHealth?.atsScore >= 60 ? 'secondary' : 'destructive'}>
+                      {resumeStatus.resumeHealth?.atsScore || 0}%
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Completeness</span>
-                    <Badge variant={resumeStatus.resumeHealth.completeness >= 80 ? 'default' : resumeStatus.resumeHealth.completeness >= 60 ? 'secondary' : 'destructive'}>
-                      {resumeStatus.resumeHealth.completeness}%
+                    <Badge variant={resumeStatus.resumeHealth?.completeness >= 80 ? 'default' : resumeStatus.resumeHealth?.completeness >= 60 ? 'secondary' : 'destructive'}>
+                      {resumeStatus.resumeHealth?.completeness || 0}%
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Status</span>
-                    <Badge variant={resumeStatus.resumeHealth.needsUpdate ? 'destructive' : 'default'}>
-                      {resumeStatus.resumeHealth.needsUpdate ? 'Needs Update' : 'Up to Date'}
+                    <Badge variant={resumeStatus.resumeHealth?.needsUpdate ? 'destructive' : 'default'}>
+                      {resumeStatus.resumeHealth?.needsUpdate ? 'Needs Update' : 'Up to Date'}
                     </Badge>
                   </div>
                 </div>
@@ -377,7 +377,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
             </div>
             
             {/* Recommendations */}
-            {resumeStatus.resumeHealth.recommendations.length > 0 && (
+            {resumeStatus.resumeHealth?.recommendations?.length > 0 && (
               <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-semibold text-blue-900 mb-2">AI Recommendations</h4>
                 <ul className="space-y-1">
@@ -396,19 +396,27 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         {/* Action Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Button
-            onClick={() => setShowProfileForm(false)}
+            onClick={() => {
+              setUploaded(false);
+              setShowProfileForm(false);
+              setFile(null);
+              setResumeText('');
+              setError(null);
+            }}
             className="w-full bg-blue-600 hover:bg-blue-700"
           >
             <Upload className="w-4 h-4 mr-2" />
             Upload New Version
           </Button>
           
-          <Link href={`/resumes/${resumeStatus.latestResume.id}`} className="w-full">
-            <Button variant="outline" className="w-full">
-              <Eye className="w-4 h-4 mr-2" />
-              View Current Resume
-            </Button>
-          </Link>
+          {resumeStatus.latestResume?.id && (
+            <Link href={`/resumes/${resumeStatus.latestResume.id}`} className="w-full">
+              <Button variant="outline" className="w-full">
+                <Eye className="w-4 h-4 mr-2" />
+                View Current Resume
+              </Button>
+            </Link>
+          )}
           
           <Link href="/resumes/builder" className="w-full">
             <Button variant="outline" className="w-full">
