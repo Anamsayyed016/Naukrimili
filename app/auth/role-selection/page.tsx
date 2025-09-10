@@ -75,7 +75,7 @@ export default function RoleSelectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-white">
       <PostAuthRoleSelection 
         user={session.user} 
         onComplete={(user) => {

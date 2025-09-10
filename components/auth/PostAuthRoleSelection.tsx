@@ -255,71 +255,129 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
     );
   }
 
-  // Role selection for new users
+  // Role selection for new users - Modern Design
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        <Card className="shadow-2xl border-0">
-          <CardHeader className="text-center pb-8">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
-              <UserCheck className="h-8 w-8 text-white" />
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-blue-600">NaukriMili</h1>
             </div>
-            <CardTitle className="text-3xl font-bold text-gray-900 mb-2">Choose Your Role</CardTitle>
-            <CardDescription className="text-lg text-gray-600">
-              Select how you want to use our platform
-            </CardDescription>
-          </CardHeader>
+            <div className="flex items-center space-x-4">
+              <button className="text-gray-600 hover:text-gray-900">Sign in</button>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                Get Started
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <CardContent className="px-8 pb-8">
-            {error && (
-              <Alert className="border-red-200 bg-red-50 mb-6">
-                <AlertDescription className="text-red-800 font-medium">{error}</AlertDescription>
-              </Alert>
-            )}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            How would you like to use NaukriMili?
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Select your role to get started with the right features and tools.
+          </p>
+        </div>
 
-            <div className="grid gap-6">
-              <Button
-                onClick={() => handleRoleSelection('jobseeker')}
-                variant="outline"
-                className="h-auto p-8 flex flex-col items-center space-y-4 border-2 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group"
-                disabled={isLoading}
-              >
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 group-hover:bg-blue-200 transition-colors">
+        {error && (
+          <div className="max-w-4xl mx-auto mb-8">
+            <Alert className="border-red-200 bg-red-50">
+              <AlertDescription className="text-red-800 font-medium">{error}</AlertDescription>
+            </Alert>
+          </div>
+        )}
+
+        {/* Role Selection Cards */}
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+          {/* Job Seeker Card */}
+          <Card className="border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-xl">
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100">
                   <UserCheck className="h-8 w-8 text-blue-600" />
                 </div>
-                <div className="text-center">
-                  <div className="font-bold text-lg text-gray-900 mb-2">Job Seeker</div>
-                  <div className="text-sm text-gray-600 leading-relaxed">
-                    Find jobs, upload resume, build profile
-                  </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">I'm a Job Seeker</h3>
+                <p className="text-gray-600 mb-6">
+                  Find your dream job, upload your resume, and get matched with opportunities.
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                  <span className="text-gray-700">AI-powered job matching</span>
                 </div>
-                {isLoading && selectedRole === 'jobseeker' && (
-                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                )}
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                  <span className="text-gray-700">Resume upload & analysis</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                  <span className="text-gray-700">Track applications</span>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => handleRoleSelection('jobseeker')}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                disabled={isLoading}
+              >
+                {isLoading && selectedRole === 'jobseeker' ? (
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                ) : null}
+                Get Started →
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Employer Card */}
+          <Card className="border-2 border-gray-200 hover:border-green-500 transition-all duration-300 hover:shadow-xl">
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-green-100">
+                  <Briefcase className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">I'm an Employer</h3>
+                <p className="text-gray-600 mb-6">
+                  Post jobs, find talent, and manage your hiring process efficiently.
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                  <span className="text-gray-700">Post unlimited jobs</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                  <span className="text-gray-700">AI-powered candidate matching</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                  <span className="text-gray-700">Application management</span>
+                </div>
+              </div>
 
               <Button
                 onClick={() => handleRoleSelection('employer')}
-                variant="outline"
-                className="h-auto p-8 flex flex-col items-center space-y-4 border-2 hover:border-green-500 hover:bg-green-50 transition-all duration-200 group"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
                 disabled={isLoading}
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 group-hover:bg-green-200 transition-colors">
-                  <Briefcase className="h-8 w-8 text-green-600" />
-                </div>
-                <div className="text-center">
-                  <div className="font-bold text-lg text-gray-900 mb-2">Employer</div>
-                  <div className="text-sm text-gray-600 leading-relaxed">
-                    Post jobs, find candidates, manage company
-                  </div>
-                </div>
-                {isLoading && selectedRole === 'employer' && (
-                  <Loader2 className="h-5 w-5 animate-spin text-green-600" />
-                )}
+                {isLoading && selectedRole === 'employer' ? (
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                ) : null}
+                Get Started →
               </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
