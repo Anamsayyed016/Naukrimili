@@ -13,13 +13,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Mail, User, ArrowLeft, CheckCircle, Briefcase, UserCheck } from 'lucide-react';
+import { Loader2, Mail, User, ArrowLeft, CheckCircle, UserCheck, Briefcase } from 'lucide-react';
 
 interface UnifiedAuthFlowProps {
   onAuthSuccess?: (user: any) => void;
 }
 
-type AuthStep = 'welcome' | 'role-selection' | 'complete-profile';
+type AuthStep = 'welcome' | 'complete-profile';
 
 export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps) {
   const { data: session, status } = useSession();
@@ -64,15 +64,9 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
           window.location.href = '/employer/post-job';
         }
       } else {
-        // User authenticated but no role, show role selection step
-        console.log('User authenticated but no role, showing role selection');
-        setCurrentStep('role-selection');
-        setUserData(prev => ({
-          ...prev,
-          email: session.user.email || '',
-          name: session.user.name || '',
-          authMethod: 'google'
-        }));
+        // User authenticated but no role, redirect to role selection page
+        console.log('User authenticated but no role, redirecting to role selection');
+        window.location.href = '/auth/role-selection';
       }
     }
   }, [session, status]);
@@ -117,9 +111,9 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
         setCurrentStep('complete-profile');
         setSuccess('Please set your password to complete registration');
       } else {
-        // Move to role selection after basic info collection
-        setCurrentStep('role-selection');
-        setSuccess('Please select your role to continue');
+        // Redirect to role selection page after basic info collection
+        console.log('Redirecting to role selection page');
+        window.location.href = '/auth/role-selection';
       }
     } catch (error) {
       console.error('Registration error:', error);
@@ -129,20 +123,14 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     }
   };
 
-  const handleRoleSelection = (role: 'jobseeker' | 'employer') => {
-    console.log('Manual role selection:', role);
-    setUserData(prev => ({ ...prev, role }));
-    setCurrentStep('complete-profile');
-  };
-
-  // Auto-select role if intended role is set
+  // Auto-select role if intended role is set and move to complete profile
   useEffect(() => {
-    if (userData.intendedRole && currentStep === 'role-selection' && !userData.role) {
+    if (userData.intendedRole && !userData.role) {
       console.log('Auto-selecting role:', userData.intendedRole);
       setUserData(prev => ({ ...prev, role: userData.intendedRole }));
       setCurrentStep('complete-profile');
     }
-  }, [userData.intendedRole, currentStep, userData.role]);
+  }, [userData.intendedRole, userData.role]);
 
   const handleCompleteProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,86 +196,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     setSuccess('');
   };
 
-  const handleBackToRoleSelection = () => {
-    setCurrentStep('role-selection');
-    setError('');
-    setSuccess('');
-  };
 
-  // Role Selection Step
-  if (currentStep === 'role-selection') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-            <CardTitle className="text-2xl font-bold">Choose Your Role</CardTitle>
-            <CardDescription>
-              Select how you want to use our platform
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {success && (
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">{success}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="grid gap-4">
-              <Button
-                onClick={() => handleRoleSelection('jobseeker')}
-                variant="outline"
-                className="h-auto p-6 flex flex-col items-center space-y-2"
-              >
-                <UserCheck className="h-8 w-8 text-blue-600" />
-                <div className="text-center">
-                  <div className="font-semibold">Job Seeker</div>
-                  <div className="text-sm text-muted-foreground">
-                    Find jobs, upload resume, build profile
-                  </div>
-                </div>
-              </Button>
-
-              <Button
-                onClick={() => handleRoleSelection('employer')}
-                variant="outline"
-                className="h-auto p-6 flex flex-col items-center space-y-2"
-              >
-                <Briefcase className="h-8 w-8 text-green-600" />
-                <div className="text-center">
-                  <div className="font-semibold">Employer</div>
-                  <div className="text-sm text-muted-foreground">
-                    Post jobs, find candidates, manage company
-                  </div>
-                </div>
-              </Button>
-            </div>
-
-            <div className="text-center">
-              <Button
-                variant="ghost"
-                onClick={handleBackToWelcome}
-                className="text-sm"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Welcome
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   // Complete Profile Step
   if (currentStep === 'complete-profile') {
@@ -378,11 +287,11 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
             <div className="mt-4 text-center">
               <Button
                 variant="ghost"
-                onClick={handleBackToRoleSelection}
+                onClick={handleBackToWelcome}
                 className="text-sm"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Role Selection
+                Back to Welcome
               </Button>
             </div>
           </CardContent>

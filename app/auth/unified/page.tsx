@@ -15,15 +15,8 @@ export default function UnifiedAuthPage() {
   const handleAuthSuccess = (user: any) => {
     console.log('Authentication successful:', user);
     
-    // Redirect based on user role to action pages
-    if (user.role === 'jobseeker') {
-      router.push('/resumes/upload');
-    } else if (user.role === 'employer') {
-      router.push('/employer/post-job');
-    } else {
-      // If no role set, redirect to role selection
-      router.push('/auth/role-selection');
-    }
+    // Always redirect to role selection page for clean flow
+    router.push('/auth/role-selection');
   };
 
   return (
