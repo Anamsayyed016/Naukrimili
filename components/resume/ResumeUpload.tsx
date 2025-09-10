@@ -164,7 +164,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         formData.append('resumeText', resumeText.trim());
       }
       
-      const response = await fetch('/api/resumes/simple-upload', {
+      const response = await fetch('/api/resumes/enhanced-upload', {
         method: 'POST',
         body: formData
       });
@@ -184,15 +184,6 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         setResumeText('');
         setShowProfileForm(true);
 
-        // Enhanced debug logging
-        console.log('✅ ResumeUpload - Enhanced Profile Data:', {
-          profile: result.profile,
-          aiSuccess: result.aiSuccess,
-          confidence: result.confidence,
-          resumeId: result.resumeId,
-          atsScore: result.atsScore,
-          recommendedJobTitles: result.recommendedJobTitles
-        });
 
         toast({
           title: '🎉 Resume Analyzed Successfully!',
@@ -329,11 +320,6 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   if (resumeStatus?.hasResumes && !showProfileForm && !uploaded && !showUploadInterface) {
     return (
       <div className="max-w-4xl mx-auto p-6">
-        {/* Debug Banner */}
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
-          <strong>📊 Resume Status View</strong> hasResumes: {resumeStatus?.hasResumes ? 'true' : 'false'}, showUploadInterface: {showUploadInterface ? 'true' : 'false'}
-        </div>
-        
         {/* Existing Resume Status */}
         <Card className="mb-6">
           <CardHeader>
@@ -455,11 +441,6 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   if (showProfileForm && extractedProfile) {
     return (
       <div className="max-w-4xl mx-auto">
-        {/* Debug Banner */}
-        <div className="bg-purple-100 border border-purple-400 text-purple-800 px-4 py-3 rounded mb-4">
-          <strong>📝 Profile Form View</strong> showProfileForm: {showProfileForm ? 'true' : 'false'}, extractedProfile: {extractedProfile ? 'exists' : 'null'}
-        </div>
-        
         {/* AI Processing Results Header */}
         <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
           <div className="flex items-center justify-between">
@@ -550,24 +531,10 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     );
   }
 
-  // Debug logging for state
-  console.log('ResumeUpload State Debug:', {
-    hasResumes: resumeStatus?.hasResumes,
-    showUploadInterface,
-    showProfileForm,
-    uploaded,
-    inputMode
-  });
-
   // Main Upload Interface (show if no resumes exist OR user wants to upload new version)
   if (!resumeStatus?.hasResumes || showUploadInterface) {
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg border-2 border-blue-500">
-      
-      {/* Debug Banner */}
-      <div className="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded mb-4">
-        <strong>✅ Upload Interface Active!</strong> hasResumes: {resumeStatus?.hasResumes ? 'true' : 'false'}, showUploadInterface: {showUploadInterface ? 'true' : 'false'}
-      </div>
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
 
       {/* Header */}
       <div className="text-center mb-8">

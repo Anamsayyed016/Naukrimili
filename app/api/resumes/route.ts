@@ -65,3 +65,76 @@ export async function GET(request: NextRequest) {
     }, { status: 500 });
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        error: 'User not found'
+      }, { status: 404 });
+    }
+
+    const body = await request.json();
+    const { action, data } = body;
+
+    if (action === 'create') {
+      // If setting as active, deactivate all other resumes first
+      if (data.isActive !== false) {
+        await prisma.resume.updateMany({
+          where: { 
+            userId: user.id,
+            isActive: true 
+          },
+          data: { isActive: false }
+        });
+      }
+
+      const resume = await prisma.resume.create({
+        data: {
+          userId: user.id,
+          fileName: data.fileName || 'resume',
+          fileUrl: data.fileUrl || '',
+          fileSize: data.fileSize || 0,
+          mimeType: data.mimeType || 'application/json',
+          parsedData: data.parsedData || {},
+          atsScore: data.atsScore || 0,
+          isActive: data.isActive !== false,
+          isBuilder: data.isBuilder || false
+        }
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Resume created successfully',
+        resume
+      });
+    }
+
+    return NextResponse.json({
+      success: false,
+      error: 'Invalid action'
+    }, { status: 400 });
+
+  } catch (error) {
+    console.error('Error creating resume:', error);
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to create resume'
+    }, { status: 500 });
+  }
+}

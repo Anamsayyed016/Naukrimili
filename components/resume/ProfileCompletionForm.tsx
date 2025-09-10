@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Edit3, Save, CheckCircle, AlertCircle, X, Plus, Star, Briefcase, GraduationCap, User } from 'lucide-react';
+import { Edit3, Save, CheckCircle, AlertCircle, X, Plus, Star, Briefcase, GraduationCap, User, Sparkles, Lightbulb, TrendingUp } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useSession } from 'next-auth/react';
 
@@ -42,6 +42,12 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 	const [newSkill, setNewSkill] = useState('');
+	
+	// AI Suggestions State
+	const [suggestions, setSuggestions] = useState<{ [key: string]: string[] }>({});
+	const [showSuggestions, setShowSuggestions] = useState<{ [key: string]: boolean }>({});
+	const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: string]: boolean }>({});
+	const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	// Auto-fill form when initialData changes
 	useEffect(() => {
@@ -76,6 +82,156 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	const handleInputChange = (field: string, value: string) => {
 		console.log(`📝 Updating ${field}:`, value);
 		setProfileData(prev => ({ ...prev, [field]: value }));
+		
+		// Trigger AI suggestions for relevant fields
+		if (['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field)) {
+			debounceSuggestions(field, value);
+		}
+	};
+
+	// Debounced AI suggestions
+	const debounceSuggestions = (field: string, value: string) => {
+		if (suggestionTimeoutRef.current) {
+			clearTimeout(suggestionTimeoutRef.current);
+		}
+		
+		suggestionTimeoutRef.current = setTimeout(() => {
+			if (value.length > 2) {
+				fetchAISuggestions(field, value);
+			}
+		}, 500);
+	};
+
+	// Fetch AI suggestions
+	const fetchAISuggestions = async (field: string, value: string) => {
+		setLoadingSuggestions(prev => ({ ...prev, [field]: true }));
+		
+		try {
+			const response = await fetch('/api/ai/form-suggestions', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					field,
+					value,
+					context: {
+						skills: profileData.skills,
+						jobTitle: profileData.jobTitle,
+						location: profileData.location
+					}
+				})
+			});
+
+			if (response.ok) {
+				const result = await response.json();
+				if (result.success) {
+					setSuggestions(prev => ({ ...prev, [field]: result.suggestions }));
+					setShowSuggestions(prev => ({ ...prev, [field]: true }));
+				}
+			}
+		} catch (error) {
+			console.error('Failed to fetch AI suggestions:', error);
+		} finally {
+			setLoadingSuggestions(prev => ({ ...prev, [field]: false }));
+		}
+	};
+
+	// Apply suggestion
+	const applySuggestion = (field: string, suggestion: string) => {
+		if (field === 'skills') {
+			if (!profileData.skills.includes(suggestion)) {
+				setProfileData(prev => ({
+					...prev,
+					skills: [...prev.skills, suggestion]
+				}));
+				toast({
+					title: 'Skill Added',
+					description: `Added "${suggestion}" to your skills`,
+				});
+			}
+		} else {
+			setProfileData(prev => ({ ...prev, [field]: suggestion }));
+		}
+		setShowSuggestions(prev => ({ ...prev, [field]: false }));
+	};
+
+	// AI-Powered Input Component
+	const AIPoweredInput = ({ field, label, placeholder, type = "text", required = false, className = "" }: {
+		field: string;
+		label: string;
+		placeholder: string;
+		type?: string;
+		required?: boolean;
+		className?: string;
+	}) => {
+		const fieldSuggestions = suggestions[field] || [];
+		const showFieldSuggestions = showSuggestions[field] || false;
+		const loading = loadingSuggestions[field] || false;
+
+		return (
+			<div className="relative">
+				<Label htmlFor={field} className="text-gray-700 font-medium">{label} {required && '*'}</Label>
+				<div className="relative">
+					<Input
+						id={field}
+						type={type}
+						value={profileData[field as keyof typeof profileData] as string}
+						onChange={(e) => handleInputChange(field, e.target.value)}
+						placeholder={placeholder}
+						className={`mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 ${className}`}
+						required={required}
+						onFocus={() => {
+							if (fieldSuggestions.length > 0) {
+								setShowSuggestions(prev => ({ ...prev, [field]: true }));
+							}
+						}}
+						onBlur={() => {
+							setTimeout(() => {
+								setShowSuggestions(prev => ({ ...prev, [field]: false }));
+							}, 200);
+						}}
+					/>
+					{loading && (
+						<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+						</div>
+					)}
+					{!loading && fieldSuggestions.length > 0 && (
+						<button
+							type="button"
+							onClick={() => setShowSuggestions(prev => ({ ...prev, [field]: !prev[field] }))}
+							className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-600 hover:text-blue-800"
+						>
+							<Sparkles className="h-4 w-4" />
+						</button>
+					)}
+				</div>
+				
+				{/* AI Suggestions Dropdown */}
+				{showFieldSuggestions && fieldSuggestions.length > 0 && (
+					<div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+						<div className="p-2 border-b border-gray-200 bg-blue-50">
+							<div className="flex items-center gap-2 text-sm text-blue-700">
+								<Lightbulb className="h-4 w-4" />
+								AI Suggestions
+							</div>
+						</div>
+						{fieldSuggestions.map((suggestion, index) => (
+							<button
+								key={index}
+								type="button"
+								onClick={() => applySuggestion(field, suggestion)}
+								className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-100 last:border-b-0"
+							>
+								<div className="flex items-center gap-2">
+									<TrendingUp className="h-3 w-3 text-blue-500" />
+									{suggestion}
+								</div>
+							</button>
+						))}
+					</div>
+				)}
+			</div>
+		);
 	};
 
 	const addSkill = () => {
@@ -247,49 +403,29 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							Personal Information
 						</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div>
-								<Label htmlFor="fullName" className="text-gray-700 font-medium">Full Name *</Label>
-								<Input
-									id="fullName"
-									value={profileData.fullName}
-									onChange={(e) => handleInputChange('fullName', e.target.value)}
-									placeholder="Enter your full name"
-									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
-									required
-								/>
-							</div>
-							<div>
-								<Label htmlFor="email" className="text-gray-700 font-medium">Email *</Label>
-								<Input
-									id="email"
-									type="email"
-									value={profileData.email}
-									onChange={(e) => handleInputChange('email', e.target.value)}
-									placeholder="your.email@example.com"
-									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
-									required
-								/>
-							</div>
-							<div>
-								<Label htmlFor="phone" className="text-gray-700 font-medium">Phone</Label>
-								<Input
-									id="phone"
-									value={profileData.phone}
-									onChange={(e) => handleInputChange('phone', e.target.value)}
-									placeholder="+91 98765 43210"
-									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
-								/>
-							</div>
-							<div>
-								<Label htmlFor="location" className="text-gray-700 font-medium">Location</Label>
-								<Input
-									id="location"
-									value={profileData.location}
-									onChange={(e) => handleInputChange('location', e.target.value)}
-									placeholder="City, State"
-									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
-								/>
-							</div>
+							<AIPoweredInput
+								field="fullName"
+								label="Full Name"
+								placeholder="Enter your full name"
+								required={true}
+							/>
+							<AIPoweredInput
+								field="email"
+								label="Email"
+								placeholder="your.email@example.com"
+								type="email"
+								required={true}
+							/>
+							<AIPoweredInput
+								field="phone"
+								label="Phone"
+								placeholder="+91 98765 43210"
+							/>
+							<AIPoweredInput
+								field="location"
+								label="Location"
+								placeholder="City, State"
+							/>
 						</div>
 					</div>
 
@@ -300,35 +436,32 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							Professional Information
 						</h3>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div>
-								<Label htmlFor="jobTitle" className="text-gray-700 font-medium">Job Title</Label>
-								<Input
-									id="jobTitle"
-									value={profileData.jobTitle}
-									onChange={(e) => handleInputChange('jobTitle', e.target.value)}
-									placeholder="e.g., Senior Software Engineer"
-									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-green-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
-								/>
-							</div>
-							<div>
-								<Label htmlFor="expectedSalary" className="text-gray-700 font-medium">Expected Salary</Label>
-								<Input
-									id="expectedSalary"
-									value={profileData.expectedSalary}
-									onChange={(e) => handleInputChange('expectedSalary', e.target.value)}
-									placeholder="e.g., 15-25 LPA"
-									className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-green-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
-								/>
-							</div>
+							<AIPoweredInput
+								field="jobTitle"
+								label="Job Title"
+								placeholder="e.g., Senior Software Engineer"
+								className="focus:border-green-500 focus:ring-green-500"
+							/>
+							<AIPoweredInput
+								field="expectedSalary"
+								label="Expected Salary"
+								placeholder="e.g., 15-25 LPA"
+								className="focus:border-green-500 focus:ring-green-500"
+							/>
 						</div>
 					</div>
 
-					{/* Skills - Enhanced UI */}
+					{/* Skills - Enhanced UI with AI */}
 					<div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
 						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
 							<Star className="h-5 w-5 text-purple-600" />
 							Skills & Expertise
+							{loadingSuggestions.skills && (
+								<div className="ml-2 animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+							)}
 						</h3>
+						
+						{/* Current Skills */}
 						<div className="flex flex-wrap gap-3 mb-4">
 							{profileData.skills.map((skill: string, index: number) => (
 								<span key={index} className="inline-flex items-center rounded-full border-2 px-3 py-1.5 text-sm font-semibold text-purple-700 bg-purple-100 border-purple-300 hover:bg-purple-200 transition-colors">
@@ -343,6 +476,31 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 								</span>
 							))}
 						</div>
+
+						{/* AI Skill Suggestions */}
+						{suggestions.skills && suggestions.skills.length > 0 && (
+							<div className="mb-4 p-3 bg-white rounded-lg border border-purple-200">
+								<div className="flex items-center gap-2 mb-2">
+									<Sparkles className="h-4 w-4 text-purple-600" />
+									<span className="text-sm font-medium text-purple-700">AI Suggested Skills</span>
+								</div>
+								<div className="flex flex-wrap gap-2">
+									{suggestions.skills.map((skill, index) => (
+										<button
+											key={index}
+											type="button"
+											onClick={() => applySuggestion('skills', skill)}
+											className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-full hover:bg-purple-100 hover:border-purple-300 transition-colors"
+										>
+											<Plus className="h-3 w-3" />
+											{skill}
+										</button>
+									))}
+								</div>
+							</div>
+						)}
+
+						{/* Add New Skill */}
 						<div className="flex gap-3">
 							<Input
 								value={newSkill}
@@ -362,8 +520,9 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 								Add
 							</Button>
 						</div>
-						<p className="text-sm text-gray-600 mt-2">
-							💡 Add relevant skills to improve your job matches
+						<p className="text-sm text-gray-600 mt-2 flex items-center gap-1">
+							<Lightbulb className="h-3 w-3" />
+							Add relevant skills to improve your job matches. AI will suggest related skills as you type!
 						</p>
 					</div>
 
@@ -422,26 +581,67 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						</div>
 					)}
 
-					{/* Summary Section - NEW */}
-					{profileData.summary && (
-						<div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl border border-teal-100">
-							<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-								<User className="h-5 w-5 text-teal-600" />
-								Professional Summary
-							</h3>
-							<div className="bg-white p-4 rounded-lg border border-teal-200">
-								<p className="text-gray-700 leading-relaxed">{profileData.summary}</p>
+					{/* Summary Section - Enhanced with AI */}
+					<div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl border border-teal-100">
+						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<User className="h-5 w-5 text-teal-600" />
+							Professional Summary
+							{loadingSuggestions.summary && (
+								<div className="ml-2 animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600"></div>
+							)}
+						</h3>
+						
+						{/* AI Summary Suggestions */}
+						{suggestions.summary && suggestions.summary.length > 0 && (
+							<div className="mb-4 p-3 bg-white rounded-lg border border-teal-200">
+								<div className="flex items-center gap-2 mb-2">
+									<Sparkles className="h-4 w-4 text-teal-600" />
+									<span className="text-sm font-medium text-teal-700">AI Suggested Summaries</span>
+								</div>
+								<div className="space-y-2">
+									{suggestions.summary.map((summary, index) => (
+										<button
+											key={index}
+											type="button"
+											onClick={() => applySuggestion('summary', summary)}
+											className="w-full p-3 text-left text-sm text-gray-700 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 hover:border-teal-300 transition-colors"
+										>
+											<div className="flex items-start gap-2">
+												<TrendingUp className="h-3 w-3 text-teal-500 mt-0.5 flex-shrink-0" />
+												<span>{summary}</span>
+											</div>
+										</button>
+									))}
+								</div>
 							</div>
+						)}
+
+						<div className="relative">
+							<textarea
+								value={profileData.summary}
+								onChange={(e) => handleInputChange('summary', e.target.value)}
+								placeholder="Write a compelling professional summary that highlights your key strengths and experience..."
+								className="w-full h-32 p-3 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-teal-500 focus:ring-teal-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 rounded-lg resize-none"
+							/>
+							{loadingSuggestions.summary && (
+								<div className="absolute right-3 top-3">
+									<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600"></div>
+								</div>
+							)}
 						</div>
-					)}
+						<p className="text-sm text-gray-600 mt-2 flex items-center gap-1">
+							<Lightbulb className="h-3 w-3" />
+							AI will suggest professional summaries based on your skills and experience!
+						</p>
+					</div>
 
 					{/* Action Buttons */}
-					<div className="flex gap-3 pt-6 border-t border-gray-200">
+					<div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
 						<Button
 							onClick={handleSubmit}
 							disabled={isSubmitting || saveStatus === 'saving'}
 							variant={getSaveButtonVariant()}
-							className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3"
+							className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 shadow-lg hover:shadow-xl transition-all duration-200"
 							size="lg"
 						>
 							{getSaveButtonContent()}
@@ -451,7 +651,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<Button
 								variant="outline"
 								onClick={onClose}
-								className="border-gray-300 text-gray-700 hover:bg-gray-50 py-3"
+								className="border-gray-300 text-gray-700 hover:bg-gray-50 py-3 transition-all duration-200"
 								size="lg"
 							>
 								Close
