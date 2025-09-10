@@ -53,20 +53,13 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
       console.log('User already authenticated:', session.user);
-      if (session.user.role) {
-        // User has a role, redirect to action page
-        console.log('OAuth user role:', session.user.role);
-        if (session.user.role === 'jobseeker') {
-          console.log('OAuth redirecting jobseeker to resume upload');
-          window.location.href = '/resumes/upload';
-        } else if (session.user.role === 'employer') {
-          console.log('OAuth redirecting employer to post job');
-          window.location.href = '/employer/post-job';
-        }
-      } else {
+      if (!session.user.role) {
         // User authenticated but no role, redirect to role selection page
         console.log('User authenticated but no role, redirecting to role selection');
         window.location.href = '/auth/role-selection';
+      } else {
+        console.log('User has role:', session.user.role, '- staying on auth page');
+        // User has role, they can stay or be redirected elsewhere
       }
     }
   }, [session, status]);

@@ -186,9 +186,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // Always redirect to homepage after OAuth
+      // Always redirect to role selection after OAuth
       if (url.includes('/api/auth/callback/')) {
-        return `${baseUrl}/`;
+        return `${baseUrl}/auth/role-selection`;
       }
       
       if (url.startsWith('/')) {
@@ -199,7 +199,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return url;
       }
       
-      return `${baseUrl}/`;
+      return `${baseUrl}/auth/role-selection`;
     }
   },
   pages: {
