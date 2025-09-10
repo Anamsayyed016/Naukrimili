@@ -36,12 +36,12 @@ export default function RoleSelectionPage() {
       console.log('User is authenticated:', session.user);
       
       if (session.user.role) {
-        // User already has a role, redirect to appropriate action page
-        console.log('User has role:', session.user.role, 'redirecting to action page');
+        // User already has a role, redirect to appropriate options page
+        console.log('User has role:', session.user.role, 'redirecting to options page');
         if (session.user.role === 'jobseeker') {
-          router.push('/resumes/upload');
+          router.push('/jobseeker/options');
         } else if (session.user.role === 'employer') {
-          router.push('/employer/post-job');
+          router.push('/employer/options');
         }
       } else {
         // User is authenticated but has no role - show role selection

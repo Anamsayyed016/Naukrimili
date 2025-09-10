@@ -157,16 +157,16 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
           if (onAuthSuccess) {
             onAuthSuccess(data.user);
           }
-          // Redirect to appropriate action page based on role
+          // Redirect to appropriate options page based on role
           console.log('Redirecting user with role:', userData.role);
           if (userData.role === 'jobseeker') {
-            // Redirect jobseekers to resume upload page
-            console.log('Redirecting jobseeker to resume upload');
-            window.location.href = '/resumes/upload';
+            // Redirect jobseekers to jobseeker options page
+            console.log('Redirecting jobseeker to options page');
+            window.location.href = '/jobseeker/options';
           } else if (userData.role === 'employer') {
-            // Redirect employers to post job page
-            console.log('Redirecting employer to post job');
-            window.location.href = '/employer/post-job';
+            // Redirect employers to employer options page
+            console.log('Redirecting employer to options page');
+            window.location.href = '/employer/options';
           } else {
             console.error('Unknown role:', userData.role);
           }
