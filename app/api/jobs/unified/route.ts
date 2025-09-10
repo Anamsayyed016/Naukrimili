@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
           ...job,
           id: `ext-${job.source}-${job.sourceId}`,
           apply_url: null, // External jobs don't have internal apply URL
-          source_url: job.source_url, // Use the correct source_url field from providers
+          source_url: job.source_url || job.applyUrl || job.redirect_url, // Use the correct source_url field from providers
           isExternal: true,
           source: job.source,
           // Add missing required fields for sorting
@@ -133,8 +133,10 @@ export async function GET(request: NextRequest) {
           country: job.country || country,
           description: job.description || 'No description available',
           skills: Array.isArray(job.skills) ? job.skills : (typeof job.skills === 'string' ? JSON.parse(job.skills || '[]') : []),
-          isRemote: false,
-          isFeatured: false
+          isRemote: job.isRemote || false,
+          isFeatured: job.isFeatured || false,
+          // Add raw data for debugging
+          rawData: job.raw || job
         }));
         
         allJobs.push(...processedExternalJobs);
@@ -239,12 +241,79 @@ async function fetchExternalJobs(query: string, location: string, country: strin
   try {
     const allExternalJobs: any[] = [];
     
-    // Fetch from multiple providers concurrently
-    const fetchPromises = [
-      fetchFromAdzuna(query, country.toLowerCase(), page, { location }),
-      fetchFromJSearch(query, country.toUpperCase(), page),
-      fetchFromGoogleJobs(query, location || 'India', page)
-    ];
+    // Dynamic query enhancement based on search terms
+    const enhancedQueries = [query];
+    
+    // Add dynamic variations based on common job search patterns
+    const queryLower = query.toLowerCase();
+    
+    // IT/Tech jobs
+    if (queryLower.includes('developer') || queryLower.includes('programmer') || queryLower.includes('engineer')) {
+      enhancedQueries.push('Software Developer', 'Programmer', 'Software Engineer');
+    }
+    
+    // Customer service jobs
+    if (queryLower.includes('customer') || queryLower.includes('service') || queryLower.includes('support')) {
+      enhancedQueries.push('Customer Service', 'Customer Support', 'Client Service');
+    }
+    
+    // Sales jobs
+    if (queryLower.includes('sales') || queryLower.includes('marketing')) {
+      enhancedQueries.push('Sales Representative', 'Marketing Executive', 'Business Development');
+    }
+    
+    // Healthcare jobs
+    if (queryLower.includes('nurse') || queryLower.includes('doctor') || queryLower.includes('medical')) {
+      enhancedQueries.push('Healthcare', 'Medical', 'Nursing');
+    }
+    
+    // Finance jobs
+    if (queryLower.includes('accountant') || queryLower.includes('finance') || queryLower.includes('banking')) {
+      enhancedQueries.push('Accounting', 'Finance', 'Banking');
+    }
+    
+    // BPO/Outsourcing jobs (keeping the original BPO logic)
+    if (queryLower.includes('bpo') || queryLower.includes('outsourcing')) {
+      enhancedQueries.push(
+        'BPO',
+        'Business Process Outsourcing',
+        'Customer Service',
+        'Call Center',
+        'Back Office',
+        'Data Entry'
+      );
+    }
+    
+    // Admin/Office jobs
+    if (queryLower.includes('admin') || queryLower.includes('office') || queryLower.includes('assistant')) {
+      enhancedQueries.push('Administrative', 'Office Assistant', 'Executive Assistant');
+    }
+    
+    // Remove duplicates from enhanced queries
+    const uniqueQueries = [...new Set(enhancedQueries)];
+    
+    console.log(`🔍 Enhanced search queries for "${query}":`, uniqueQueries);
+    
+    // Fetch from multiple providers concurrently with enhanced queries
+    const fetchPromises: Promise<any[]>[] = [];
+    
+    // Use the primary query for all providers
+    const primaryQuery = uniqueQueries[0];
+    
+    fetchPromises.push(
+      fetchFromAdzuna(primaryQuery, country.toLowerCase(), page, { location }),
+      fetchFromJSearch(primaryQuery, country.toUpperCase(), page),
+      fetchFromGoogleJobs(primaryQuery, location || 'India', page)
+    );
+    
+    // Add additional searches with alternative queries (limit to 2 additional to avoid rate limits)
+    if (uniqueQueries.length > 1) {
+      uniqueQueries.slice(1, 3).forEach(altQuery => {
+        fetchPromises.push(
+          fetchFromAdzuna(altQuery, country.toLowerCase(), 1, { location })
+        );
+      });
+    }
     
     const results = await Promise.allSettled(fetchPromises);
     
@@ -256,7 +325,28 @@ async function fetchExternalJobs(query: string, location: string, country: strin
       }
     });
     
-    return allExternalJobs;
+    // Enhanced duplicate removal based on multiple criteria
+    const uniqueJobs = allExternalJobs.filter((job, index, self) => {
+      // Check for exact duplicates based on sourceId and source
+      const isExactDuplicate = self.findIndex(j => 
+        j.sourceId === job.sourceId && 
+        j.source === job.source &&
+        j.title === job.title
+      ) !== index;
+      
+      // Check for similar jobs (same title and company)
+      const isSimilarDuplicate = self.findIndex(j => 
+        j.title?.toLowerCase() === job.title?.toLowerCase() &&
+        j.company?.toLowerCase() === job.company?.toLowerCase() &&
+        j.source === job.source
+      ) !== index;
+      
+      return !isExactDuplicate && !isSimilarDuplicate;
+    });
+    
+    console.log(`✅ External jobs fetched: ${uniqueJobs.length} unique jobs from ${allExternalJobs.length} total`);
+    
+    return uniqueJobs;
   } catch (error) {
     console.error('❌ External job fetch error:', error);
     return [];

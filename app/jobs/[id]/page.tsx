@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink } from "lucide-react";
+import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search } from "lucide-react";
 import JobShare from "@/components/JobShare";
 
 interface Job {
@@ -161,13 +161,56 @@ export default function JobDetailsPage() {
             </div>
             <h1 className="text-2xl font-bold mb-2 text-gray-900">Job not found</h1>
             <p className="text-gray-600 mb-6">The job you are looking for does not exist or may have been removed.</p>
-            <Link 
-              href="/jobs" 
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-            >
-              <ArrowRight className="w-4 h-4 mr-2" />
-              Back to Jobs
-            </Link>
+            
+            {/* Enhanced error handling for external jobs */}
+            {id && id.startsWith('ext-') && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-700 mb-2">
+                  <strong>External Job Issue:</strong> This appears to be an external job that may have expired or been removed from the source platform.
+                </p>
+                <p className="text-xs text-blue-600 mb-3">
+                  External jobs are fetched from multiple job boards and may become unavailable. Try the suggestions below:
+                </p>
+                <div className="space-y-2">
+                  <Link 
+                    href="/jobs" 
+                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                  >
+                    Browse All Jobs
+                  </Link>
+                  <Link 
+                    href="/jobs?search=bpo" 
+                    className="inline-block ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                  >
+                    Search BPO Jobs
+                  </Link>
+                </div>
+                <p className="text-xs text-blue-500 mt-2">
+                  Job ID: {id}
+                </p>
+              </div>
+            )}
+            
+            <div className="space-y-3">
+              <Link 
+                href="/jobs" 
+                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 w-full justify-center"
+              >
+                <ArrowRight className="w-4 h-4 mr-2" />
+                Back to Jobs
+              </Link>
+              
+              {/* Add search suggestions for BPO jobs */}
+              {id && id.includes('5391938001') && (
+                <Link 
+                  href="/jobs?query=BPO&includeExternal=true" 
+                  className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 w-full justify-center"
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Search BPO Jobs
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </div>
