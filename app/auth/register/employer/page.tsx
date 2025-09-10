@@ -725,7 +725,7 @@ export default function EmployerRegisterPage() {
             </div>
 
             <div className="mt-6">
-              <OAuthButtons callbackUrl="/dashboard/company" />
+              <OAuthButtons callbackUrl="/employer/post-job" />
             </div>
           </div>
 

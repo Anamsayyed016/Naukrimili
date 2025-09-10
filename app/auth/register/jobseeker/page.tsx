@@ -527,7 +527,7 @@ export default function JobSeekerRegisterPage() {
             </div>
 
             <div className="mt-6">
-              <OAuthButtons callbackUrl="/dashboard/jobseeker" />
+              <OAuthButtons callbackUrl="/resumes/upload" />
             </div>
           </div>
 

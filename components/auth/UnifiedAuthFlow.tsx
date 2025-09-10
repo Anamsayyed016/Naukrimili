@@ -52,11 +52,11 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     if (status === 'authenticated' && session?.user) {
       console.log('User already authenticated:', session.user);
       if (session.user.role) {
-        // User has a role, redirect to dashboard
+        // User has a role, redirect to action page
         if (session.user.role === 'jobseeker') {
-          window.location.href = '/dashboard/jobseeker';
+          window.location.href = '/resumes/upload';
         } else if (session.user.role === 'employer') {
-          window.location.href = '/dashboard/company';
+          window.location.href = '/employer/post-job';
         }
       } else {
         // User authenticated but no role, show role selection step
@@ -87,7 +87,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
       
       // Use redirect: true for proper OAuth flow
       await signIn('google', {
-        callbackUrl: '/auth/role-selection',
+        callbackUrl: '/auth/unified',
         redirect: true
       });
       
@@ -156,16 +156,18 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
       const data = await response.json();
 
       if (data.success) {
-        setSuccess('Registration completed successfully! Redirecting to dashboard...');
+        setSuccess('Registration completed successfully! Redirecting...');
         setTimeout(() => {
           if (onAuthSuccess) {
             onAuthSuccess(data.user);
           }
-          // Redirect to appropriate dashboard
+          // Redirect to appropriate action page based on role
           if (userData.role === 'jobseeker') {
-            window.location.href = '/dashboard/jobseeker';
+            // Redirect jobseekers to resume upload page
+            window.location.href = '/resumes/upload';
           } else {
-            window.location.href = '/dashboard/company';
+            // Redirect employers to post job page
+            window.location.href = '/employer/post-job';
           }
         }, 1500);
       } else {
