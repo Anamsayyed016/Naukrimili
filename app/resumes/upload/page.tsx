@@ -1,6 +1,18 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import ResumeUpload from '@/components/resume/ResumeUpload';
 
 export default function ResumeUploadPage() {
+  const router = useRouter();
+
+  const handleUploadComplete = () => {
+    // Show success message and redirect to jobseeker dashboard
+    setTimeout(() => {
+      router.push('/dashboard/jobseeker');
+    }, 2000);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
       <div className="container mx-auto px-4">
@@ -13,7 +25,7 @@ export default function ResumeUploadPage() {
           </p>
         </div>
         
-        <ResumeUpload />
+        <ResumeUpload onComplete={handleUploadComplete} />
       </div>
     </div>
   );

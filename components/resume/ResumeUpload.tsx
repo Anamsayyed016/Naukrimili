@@ -196,7 +196,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
 
         toast({
           title: '🎉 Resume Analyzed Successfully!',
-          description: `AI extracted ${result.profile.skills?.length || 0} skills with ${result.confidence}% confidence. ATS Score: ${result.atsScore}%`,
+          description: `AI extracted ${result.profile.skills?.length || 0} skills with ${result.confidence}% confidence. ATS Score: ${result.atsScore}%. Please review and save your profile.`,
           duration: 5000,
         });
 
@@ -329,6 +329,11 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   if (resumeStatus?.hasResumes && !showProfileForm && !uploaded && !showUploadInterface) {
     return (
       <div className="max-w-4xl mx-auto p-6">
+        {/* Debug Banner */}
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
+          <strong>📊 Resume Status View</strong> hasResumes: {resumeStatus?.hasResumes ? 'true' : 'false'}, showUploadInterface: {showUploadInterface ? 'true' : 'false'}
+        </div>
+        
         {/* Existing Resume Status */}
         <Card className="mb-6">
           <CardHeader>
@@ -450,6 +455,11 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   if (showProfileForm && extractedProfile) {
     return (
       <div className="max-w-4xl mx-auto">
+        {/* Debug Banner */}
+        <div className="bg-purple-100 border border-purple-400 text-purple-800 px-4 py-3 rounded mb-4">
+          <strong>📝 Profile Form View</strong> showProfileForm: {showProfileForm ? 'true' : 'false'}, extractedProfile: {extractedProfile ? 'exists' : 'null'}
+        </div>
+        
         {/* AI Processing Results Header */}
         <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
           <div className="flex items-center justify-between">
@@ -540,22 +550,23 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     );
   }
 
-  // Debug logging
-  console.log('ResumeUpload Debug:', {
+  // Debug logging for state
+  console.log('ResumeUpload State Debug:', {
     hasResumes: resumeStatus?.hasResumes,
     showUploadInterface,
     showProfileForm,
     uploaded,
-    resumeStatus
+    inputMode
   });
 
   // Main Upload Interface (show if no resumes exist OR user wants to upload new version)
   if (!resumeStatus?.hasResumes || showUploadInterface) {
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg border-2 border-red-500">
-      {/* Debug Info */}
-      <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
-        <strong>Debug Info:</strong> Upload Interface is rendering! hasResumes: {resumeStatus?.hasResumes ? 'true' : 'false'}, showUploadInterface: {showUploadInterface ? 'true' : 'false'}
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg border-2 border-blue-500">
+      
+      {/* Debug Banner */}
+      <div className="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded mb-4">
+        <strong>✅ Upload Interface Active!</strong> hasResumes: {resumeStatus?.hasResumes ? 'true' : 'false'}, showUploadInterface: {showUploadInterface ? 'true' : 'false'}
       </div>
 
       {/* Header */}

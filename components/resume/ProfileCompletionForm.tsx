@@ -146,8 +146,9 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			if (result.success) {
 				setSaveStatus('success');
 				toast({
-					title: 'Profile Saved!',
-					description: 'Your profile has been saved to the database successfully',
+					title: '🎉 Successfully Uploaded Resume!',
+					description: 'Your resume has been processed and profile saved successfully. Redirecting to dashboard...',
+					duration: 3000,
 				});
 
 				if (onComplete) {
