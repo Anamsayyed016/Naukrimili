@@ -81,6 +81,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.name = user.name;
         console.log('🔍 JWT callback - Initial user data:', user);
       }
+
+      // Always fetch the latest user data from database to ensure role is up-to-date
+      if (token.id) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id }
+          });
+          
+          if (dbUser) {
+            token.role = dbUser.role;
+            token.email = dbUser.email;
+            token.name = dbUser.name;
+            console.log('🔍 JWT callback - Updated token with latest DB data:', { id: token.id, role: token.role });
+          }
+        } catch (error) {
+          console.error('Error fetching user data in JWT callback:', error);
+        }
+      }
       
       // Handle OAuth provider data
       if (account?.provider === 'google' && profile) {

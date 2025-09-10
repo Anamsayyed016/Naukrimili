@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -19,6 +20,7 @@ interface PostAuthRoleSelectionProps {
 
 export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRoleSelectionProps) {
   const router = useRouter();
+  const { update: updateSession } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedRole, setSelectedRole] = useState<'jobseeker' | 'employer' | null>(null);
@@ -91,12 +93,18 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       if (data.success) {
         console.log('Role updated successfully:', data.user);
         
-        // Redirect to appropriate options page based on role
-        if (role === 'jobseeker') {
-          router.push('/jobseeker/options');
-        } else {
-          router.push('/employer/options');
-        }
+        // Update the session to reflect the new role
+        await updateSession();
+        
+        // Small delay to ensure session is updated
+        setTimeout(() => {
+          // Redirect to appropriate options page based on role
+          if (role === 'jobseeker') {
+            router.push('/jobseeker/options');
+          } else {
+            router.push('/employer/options');
+          }
+        }, 500);
         
         if (onComplete) {
           onComplete({ ...user, role });
