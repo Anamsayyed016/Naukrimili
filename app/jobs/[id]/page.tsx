@@ -284,22 +284,22 @@ export default function JobDetailsPage() {
                       </div>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4">
                       <Button 
                         variant="outline" 
                         size="lg" 
-                        className="flex items-center gap-2 sm:gap-3 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-4 sm:px-6 py-3 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base"
+                        className="flex items-center justify-center gap-2 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 rounded-xl transition-all duration-300 text-xs sm:text-sm md:text-base min-w-0 flex-1 xs:flex-none"
                       >
-                        <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <Heart className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
                         <span className="hidden sm:inline">Save Job</span>
                         <span className="sm:hidden">Save</span>
                       </Button>
                       <Button 
                         variant="outline" 
                         size="lg" 
-                        className="flex items-center gap-2 sm:gap-3 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-4 sm:px-6 py-3 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base"
+                        className="flex items-center justify-center gap-2 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 rounded-xl transition-all duration-300 text-xs sm:text-sm md:text-base min-w-0 flex-1 xs:flex-none"
                       >
-                        <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <Bookmark className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
                         <span className="hidden sm:inline">Bookmark</span>
                         <span className="sm:hidden">Bookmark</span>
                       </Button>
@@ -310,7 +310,7 @@ export default function JobDetailsPage() {
                           company: job.company,
                           location: job.location
                         }}
-                        className="flex-shrink-0"
+                        className="flex-1 xs:flex-none"
                       />
                     </div>
                   </div>
@@ -569,7 +569,7 @@ export default function JobDetailsPage() {
               </Link>
             )}
             
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1 sm:flex-none">
+            <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4 flex-1 sm:flex-none">
               <JobShare 
                 job={{
                   id: job.id,
@@ -577,14 +577,14 @@ export default function JobDetailsPage() {
                   company: job.company,
                   location: job.location
                 }}
-                className="flex-1 sm:flex-none"
+                className="flex-1 xs:flex-none"
               />
               
               <Link 
                 href="/jobs"
-                className="flex-1 sm:flex-none border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 py-3 sm:py-4 px-6 sm:px-8 rounded-lg font-semibold text-base sm:text-lg transition-all duration-200 text-center flex items-center justify-center gap-2"
+                className="flex-1 xs:flex-none border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 py-3 sm:py-4 px-4 sm:px-6 md:px-8 rounded-lg font-semibold text-sm sm:text-base md:text-lg transition-all duration-200 text-center flex items-center justify-center gap-2"
               >
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 flex-shrink-0" />
                 <span className="hidden sm:inline">Back to Jobs</span>
                 <span className="sm:hidden">Back</span>
               </Link>

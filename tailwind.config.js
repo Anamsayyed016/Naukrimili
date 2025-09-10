@@ -6,7 +6,11 @@ module.exports = {
 		'./pages/**/*.{js,ts,jsx,tsx,mdx}',
 	],
 	theme: {
-		extend: {},
+		extend: {
+			screens: {
+				'xs': '475px',
+			},
+		},
 	},
 	plugins: [
 		require('tailwindcss-animate'),
