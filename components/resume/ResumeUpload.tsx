@@ -91,6 +91,8 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   const [confidence, setConfidence] = useState(0);
   const [resumeStatus, setResumeStatus] = useState<ResumeStatus | null>(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
+  const [resumeText, setResumeText] = useState('');
+  const [inputMode, setInputMode] = useState<'file' | 'text'>('file');
 
   // Check for existing resumes on component mount
   useEffect(() => {
@@ -137,18 +139,14 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file && !resumeText.trim()) return;
     
     setUploading(true);
     setAnalyzing(true);
     setError(null);
     
     try {
-      // Upload and analyze resume
-      const formData = new FormData();
-      formData.append('resume', file);
-      
-      console.log('🔄 Uploading and analyzing resume with AI...');
+      console.log('🔄 Processing resume with enhanced AI...');
       
       // Show AI processing message
       toast({
@@ -156,8 +154,16 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         description: 'Our AI is analyzing your resume to extract comprehensive details...',
       });
       
-      // Call the autofill endpoint to get AI-extracted profile
-      const response = await fetch('/api/resumes/autofill', {
+      // Prepare form data based on input mode
+      const formData = new FormData();
+      
+      if (inputMode === 'file' && file) {
+        formData.append('file', file);
+      } else if (inputMode === 'text' && resumeText.trim()) {
+        formData.append('resumeText', resumeText.trim());
+      }
+      
+      const response = await fetch('/api/resumes/enhanced-upload', {
         method: 'POST',
         body: formData
       });
@@ -174,19 +180,23 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         setConfidence(result.confidence || 0);
         setUploaded(true);
         setFile(null);
+        setResumeText('');
         setShowProfileForm(true);
 
-        // ADDED: Debug logging to verify data structure
-        console.log('✅ ResumeUpload - Extracted Profile Data:', {
+        // Enhanced debug logging
+        console.log('✅ ResumeUpload - Enhanced Profile Data:', {
           profile: result.profile,
           aiSuccess: result.aiSuccess,
           confidence: result.confidence,
-          resumeId: result.resumeId
+          resumeId: result.resumeId,
+          atsScore: result.atsScore,
+          recommendedJobTitles: result.recommendedJobTitles
         });
 
         toast({
-          title: 'Resume Analyzed!',
-          description: `AI extracted ${result.profile.skills?.length || 0} skills with ${result.confidence}% confidence`,
+          title: '🎉 Resume Analyzed Successfully!',
+          description: `AI extracted ${result.profile.skills?.length || 0} skills with ${result.confidence}% confidence. ATS Score: ${result.atsScore}%`,
+          duration: 5000,
         });
 
         // Refresh resume status after successful upload
@@ -195,7 +205,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         throw new Error(result.error || 'Failed to analyze resume');
       }
     } catch (err: any) {
-      console.error('Upload error:', err);
+      console.error('Enhanced upload error:', err);
       setError(err?.message || 'Upload failed. Please try again.');
       toast({
         title: 'Processing Failed',
@@ -528,57 +538,101 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         </p>
       </div>
 
+      {/* Input Mode Selection */}
+      <div className="mb-6">
+        <div className="flex justify-center gap-4">
+          <Button
+            variant={inputMode === 'file' ? 'default' : 'outline'}
+            onClick={() => setInputMode('file')}
+            className="flex items-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Upload File
+          </Button>
+          <Button
+            variant={inputMode === 'text' ? 'default' : 'outline'}
+            onClick={() => setInputMode('text')}
+            className="flex items-center gap-2"
+          >
+            <FileText className="w-4 h-4" />
+            Paste Text
+          </Button>
+        </div>
+      </div>
+
       {/* Upload Area */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Upload className="w-5 h-5" />
-            Upload Your Resume
+            {inputMode === 'file' ? <Upload className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+            {inputMode === 'file' ? 'Upload Your Resume' : 'Paste Your Resume Text'}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {!file ? (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
-              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Drop your resume here</h3>
-              <p className="text-gray-600 mb-4">or click to browse files</p>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileChange}
-                className="hidden"
-                id="resume-upload"
-              />
-              <label
-                htmlFor="resume-upload"
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
-              >
-                Choose File
-              </label>
-              <p className="text-sm text-gray-500 mt-2">
-                Supported formats: PDF, DOC, DOCX • Max size: 10MB
-              </p>
-            </div>
-          ) : (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <div>
-                    <p className="font-medium text-green-900">{file.name}</p>
-                    <p className="text-sm text-green-600">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={removeFile}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          {inputMode === 'file' ? (
+            // File Upload Mode
+            !file ? (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Drop your resume here</h3>
+                <p className="text-gray-600 mb-4">or click to browse files</p>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="resume-upload"
+                />
+                <label
+                  htmlFor="resume-upload"
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 cursor-pointer transition-colors"
                 >
-                  <X className="w-4 h-4" />
-                </Button>
+                  Choose File
+                </label>
+                <p className="text-sm text-gray-500 mt-2">
+                  Supported formats: PDF, DOC, DOCX • Max size: 10MB
+                </p>
+              </div>
+            ) : (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <div>
+                      <p className="font-medium text-green-900">{file.name}</p>
+                      <p className="text-sm text-green-600">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={removeFile}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            )
+          ) : (
+            // Text Input Mode
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="resume-text" className="block text-sm font-medium text-gray-700 mb-2">
+                  Paste your resume text here
+                </label>
+                <textarea
+                  id="resume-text"
+                  value={resumeText}
+                  onChange={(e) => setResumeText(e.target.value)}
+                  placeholder="Paste your resume content here... (name, contact info, experience, education, skills, etc.)"
+                  className="w-full h-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Character count: {resumeText.length}
+                </p>
               </div>
             </div>
           )}
@@ -586,7 +640,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       </Card>
 
       {/* Upload Button */}
-      {file && (
+      {(file || (inputMode === 'text' && resumeText.trim())) && (
         <div className="text-center mb-6">
           <Button
             onClick={handleUpload}
@@ -601,7 +655,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
             ) : (
               <>
                 <Brain className="w-5 h-5 mr-2" />
-                Upload & Analyze with AI
+                {inputMode === 'file' ? 'Upload & Analyze with AI' : 'Parse & Analyze with AI'}
               </>
             )}
           </Button>
