@@ -18,7 +18,7 @@ model Job {
   location        String?
   country         String    @default("IN")
   description     String
-  requirements    String  
+  requirements    String   // JSON string of requirements array
   applyUrl        String?   // @deprecated - use apply_url instead
   apply_url       String?   // New field for internal application URL
   source_url      String?   // New field for external source URL
@@ -29,7 +29,7 @@ model Job {
   salaryCurrency  String?   // Currency code (INR, USD, etc.)
   jobType         String?   // full-time, part-time, contract, internship
   experienceLevel String?   // entry, mid, senior, executive
-  skills          String   // Array of required skills
+  skills          String   // JSON string of required skills array
   isRemote        Boolean   @default(false)
   isHybrid        Boolean   @default(false)
   isUrgent        Boolean   @default(false)
@@ -79,7 +79,7 @@ model User {
   phone           String?
   location        String?
   bio             String?   
-  skills          String  
+  skills          String   @default("[]") // JSON string of skills array
   experience      String?   
   education       String?   
   profilePicture  String?
@@ -92,7 +92,7 @@ model User {
   resumeUrl       String?   // Resume file URL
   locationPreference String? // Preferred job locations
   salaryExpectation Int?    // Expected salary
-  jobTypePreference String  // full-time, part-time, contract, internship
+  jobTypePreference String?  // full-time, part-time, contract, internship
   remotePreference Boolean  @default(false) // Remote work preference
   
   // Employer specific fields
@@ -191,6 +191,8 @@ model Company {
   size            String?  // e.g., "1-10", "11-50", "51-200", etc.
   founded         Int?
   isVerified      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  socialLinks     String?  // JSON string of social media links
   createdBy       String?  // User who created this company
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -235,7 +237,7 @@ model Application {
   id        String   @id @default(cuid())
   userId    String
   jobId     String
-  companyId String
+  companyId String?
   resumeId  String?
   status    String   @default("submitted") // submitted, reviewed, interview, rejected, hired
   coverLetter String? 

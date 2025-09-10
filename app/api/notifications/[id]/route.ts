@@ -11,7 +11,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -23,7 +23,7 @@ export async function PATCH(
       );
     }
 
-    const notificationId = params.id;
+    const { id: notificationId } = await params;
     const body = await request.json();
     const { action } = body;
 

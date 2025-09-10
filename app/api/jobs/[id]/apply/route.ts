@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -17,7 +17,7 @@ export async function POST(
       );
     }
 
-    const jobId = params.id; // Keep as string, don't parse as int
+    const { id: jobId } = await params; // Keep as string, don't parse as int
     if (!jobId) {
       return NextResponse.json(
         { success: false, error: 'Invalid job ID' },

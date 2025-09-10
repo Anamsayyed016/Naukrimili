@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 const jobActionSchema = z.object({
   action: z.enum(['approve', 'reject', 'feature', 'unfeature', 'activate', 'deactivate', 'delete']),
-  jobIds: z.array(z.number().int().positive()),
+  jobIds: z.array(z.string()),
   reason: z.string().optional()
 });
 

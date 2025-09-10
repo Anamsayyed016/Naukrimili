@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
         phone: validatedData.phone || null,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
+        skills: "[]", // Default empty skills array
+        jobTypePreference: null, // Will be set later based on role
         isActive: true,
         isVerified: false
       }

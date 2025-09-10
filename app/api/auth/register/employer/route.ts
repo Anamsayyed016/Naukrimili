@@ -70,6 +70,8 @@ export async function POST(request: NextRequest) {
         companyIndustry: validatedData.companyIndustry || null,
         companySize: validatedData.companySize || null,
         companyFounded: validatedData.companyFounded || null,
+        skills: "[]", // Default empty skills array
+        jobTypePreference: null, // Not applicable for employers
         isActive: true,
         isVerified: false
       }
@@ -104,7 +106,7 @@ export async function POST(request: NextRequest) {
           company: validatedData.companyName,
           companyId: company.id,
           createdBy: user.id,
-          skills: validatedData.requiredSkills,
+          skills: JSON.stringify(validatedData.requiredSkills || []),
           salaryMin: validatedData.salaryMin || null,
           salaryMax: validatedData.salaryMax || null,
           salaryCurrency: validatedData.salaryCurrency,

@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -15,15 +15,15 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'pdf';
 
     // Get resume data
     const resume = await prisma.resume.findFirst({
       where: {
-        id: parseInt(id),
-        userId: parseInt(session.user.id)
+        id: id,
+        userId: session.user.id
       },
       include: {
         user: {

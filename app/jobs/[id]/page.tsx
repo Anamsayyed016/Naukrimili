@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink } from "lucide-react";
+import JobShare from "@/components/JobShare";
 
 interface Job {
   id: string;
@@ -300,6 +301,15 @@ export default function JobDetailsPage() {
                         <Bookmark className="w-5 h-5" />
                         Bookmark
                       </Button>
+                      <JobShare 
+                        job={{
+                          id: job.id,
+                          title: job.title,
+                          company: job.company,
+                          location: job.location
+                        }}
+                        className="flex-shrink-0"
+                      />
                     </div>
                   </div>
                 </div>
@@ -557,13 +567,25 @@ export default function JobDetailsPage() {
               </Link>
             )}
             
-            <Link 
-              href="/jobs"
-              className="flex-1 sm:flex-none border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 py-4 px-8 rounded-lg font-semibold text-lg transition-all duration-200 text-center flex items-center justify-center gap-2"
-            >
-              <ArrowRight className="w-4 h-4" />
-              Back to Jobs
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 flex-1 sm:flex-none">
+              <JobShare 
+                job={{
+                  id: job.id,
+                  title: job.title,
+                  company: job.company,
+                  location: job.location
+                }}
+                className="flex-1 sm:flex-none"
+              />
+              
+              <Link 
+                href="/jobs"
+                className="flex-1 sm:flex-none border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 py-4 px-8 rounded-lg font-semibold text-lg transition-all duration-200 text-center flex items-center justify-center gap-2"
+              >
+                <ArrowRight className="w-4 h-4" />
+                Back to Jobs
+              </Link>
+            </div>
           </div>
         </div>
       </div>

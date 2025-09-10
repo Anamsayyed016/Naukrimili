@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireEmployerAuth();
@@ -13,14 +13,7 @@ export async function GET(
     }
 
     const { user } = auth;
-    const applicationId = parseInt(params.id, 10);
-
-    if (isNaN(applicationId)) {
-      return NextResponse.json(
-        { error: "Invalid application ID" },
-        { status: 400 }
-      );
-    }
+    const { id: applicationId } = await params;
 
     const application = await prisma.application.findFirst({
       where: {
@@ -87,7 +80,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireEmployerAuth();
@@ -96,16 +89,9 @@ export async function PATCH(
     }
 
     const { user } = auth;
-    const applicationId = parseInt(params.id, 10);
+    const { id: applicationId } = await params;
     const body = await request.json();
     const { status, notes } = body;
-
-    if (isNaN(applicationId)) {
-      return NextResponse.json(
-        { error: "Invalid application ID" },
-        { status: 400 }
-      );
-    }
 
     // Verify the application belongs to the employer's company
     const existingApplication = await prisma.application.findFirst({
