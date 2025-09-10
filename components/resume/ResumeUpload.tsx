@@ -540,10 +540,24 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     );
   }
 
+  // Debug logging
+  console.log('ResumeUpload Debug:', {
+    hasResumes: resumeStatus?.hasResumes,
+    showUploadInterface,
+    showProfileForm,
+    uploaded,
+    resumeStatus
+  });
+
   // Main Upload Interface (show if no resumes exist OR user wants to upload new version)
   if (!resumeStatus?.hasResumes || showUploadInterface) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg border-2 border-red-500">
+      {/* Debug Info */}
+      <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
+        <strong>Debug Info:</strong> Upload Interface is rendering! hasResumes: {resumeStatus?.hasResumes ? 'true' : 'false'}, showUploadInterface: {showUploadInterface ? 'true' : 'false'}
+      </div>
+
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-between mb-4">
