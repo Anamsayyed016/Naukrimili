@@ -284,22 +284,24 @@ export default function JobDetailsPage() {
                       </div>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                       <Button 
                         variant="outline" 
                         size="lg" 
-                        className="flex items-center gap-3 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-6 py-4 rounded-xl transition-all duration-300"
+                        className="flex items-center gap-2 sm:gap-3 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-4 sm:px-6 py-3 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base"
                       >
-                        <Heart className="w-5 h-5" />
-                        Save Job
+                        <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="hidden sm:inline">Save Job</span>
+                        <span className="sm:hidden">Save</span>
                       </Button>
                       <Button 
                         variant="outline" 
                         size="lg" 
-                        className="flex items-center gap-3 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-6 py-4 rounded-xl transition-all duration-300"
+                        className="flex items-center gap-2 sm:gap-3 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-4 sm:px-6 py-3 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base"
                       >
-                        <Bookmark className="w-5 h-5" />
-                        Bookmark
+                        <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="hidden sm:inline">Bookmark</span>
+                        <span className="sm:hidden">Bookmark</span>
                       </Button>
                       <JobShare 
                         job={{
@@ -567,7 +569,7 @@ export default function JobDetailsPage() {
               </Link>
             )}
             
-            <div className="flex flex-col sm:flex-row gap-4 flex-1 sm:flex-none">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1 sm:flex-none">
               <JobShare 
                 job={{
                   id: job.id,
@@ -580,10 +582,11 @@ export default function JobDetailsPage() {
               
               <Link 
                 href="/jobs"
-                className="flex-1 sm:flex-none border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 py-4 px-8 rounded-lg font-semibold text-lg transition-all duration-200 text-center flex items-center justify-center gap-2"
+                className="flex-1 sm:flex-none border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 py-3 sm:py-4 px-6 sm:px-8 rounded-lg font-semibold text-base sm:text-lg transition-all duration-200 text-center flex items-center justify-center gap-2"
               >
                 <ArrowRight className="w-4 h-4" />
-                Back to Jobs
+                <span className="hidden sm:inline">Back to Jobs</span>
+                <span className="sm:hidden">Back</span>
               </Link>
             </div>
           </div>
