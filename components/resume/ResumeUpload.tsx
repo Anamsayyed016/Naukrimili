@@ -163,7 +163,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         formData.append('resumeText', resumeText.trim());
       }
       
-      const response = await fetch('/api/resumes/enhanced-upload', {
+      const response = await fetch('/api/resumes/simple-upload', {
         method: 'POST',
         body: formData
       });
