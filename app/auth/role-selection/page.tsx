@@ -21,32 +21,32 @@ export default function RoleSelectionPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return; // Still loading
-
-    // Add a small delay to allow session to be established after OAuth
-    if (!session) {
-      console.log('No session found, waiting for session to be established...');
-      const timer = setTimeout(() => {
-        if (!session) {
-          console.log('Still no session after delay, redirecting to signin');
-          router.push('/auth/signin');
-        }
-      }, 3000); // Wait 3 seconds for session to be established
-      
-      return () => clearTimeout(timer);
+    if (status === 'loading') {
+      console.log('Session is loading...');
+      return; // Still loading
     }
 
-    if (session.user?.role) {
-      // User already has a role, redirect to appropriate action page
-      console.log('User has role:', session.user.role, 'redirecting to action page');
-      if (session.user.role === 'jobseeker') {
-        router.push('/resumes/upload');
-      } else if (session.user.role === 'employer') {
-        router.push('/employer/post-job');
+    if (status === 'unauthenticated') {
+      console.log('User is not authenticated, redirecting to signin');
+      router.push('/auth/signin');
+      return;
+    }
+
+    if (status === 'authenticated' && session?.user) {
+      console.log('User is authenticated:', session.user);
+      
+      if (session.user.role) {
+        // User already has a role, redirect to appropriate action page
+        console.log('User has role:', session.user.role, 'redirecting to action page');
+        if (session.user.role === 'jobseeker') {
+          router.push('/resumes/upload');
+        } else if (session.user.role === 'employer') {
+          router.push('/employer/post-job');
+        }
+      } else {
+        // User is authenticated but has no role - show role selection
+        console.log('User authenticated but no role assigned, showing role selection');
       }
-    } else {
-      // User is authenticated but has no role - show role selection
-      console.log('User authenticated but no role assigned, showing role selection');
     }
   }, [session, status, router]);
 
@@ -61,12 +61,14 @@ export default function RoleSelectionPage() {
     );
   }
 
-  if (!session) {
+
+  // Only render if we have a valid session
+  if (!session?.user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirecting to sign in...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
