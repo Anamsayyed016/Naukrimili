@@ -140,125 +140,156 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
     router.push('/employer/post-job');
   };
 
-  // If user already has a role, show appropriate options
-  if (user.role === 'jobseeker') {
+  // If user already has a role, show role change options
+  if (user.role) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-              <UserCheck className="h-6 w-6 text-blue-600" />
-            </div>
-            <CardTitle className="text-2xl font-bold">Welcome, Job Seeker!</CardTitle>
-            <CardDescription>
-              Let's get your profile ready. Choose how you'd like to add your resume.
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="grid gap-4">
-              <Button
-                onClick={() => handleJobSeekerOptions('upload')}
-                variant="outline"
-                className="h-auto p-6 flex flex-col items-center space-y-2"
-                disabled={isLoading}
-              >
-                <Upload className="h-8 w-8 text-blue-600" />
-                <div className="text-center">
-                  <div className="font-semibold">Upload Resume</div>
-                  <div className="text-sm text-muted-foreground">
-                    Upload your existing resume file
-                  </div>
-                </div>
-              </Button>
-
-              <Button
-                onClick={() => handleJobSeekerOptions('build')}
-                variant="outline"
-                className="h-auto p-6 flex flex-col items-center space-y-2"
-                disabled={isLoading}
-              >
-                <FileText className="h-8 w-8 text-green-600" />
-                <div className="text-center">
-                  <div className="font-semibold">Build Resume</div>
-                  <div className="text-sm text-muted-foreground">
-                    Create a new resume from scratch
-                  </div>
-                </div>
-              </Button>
-            </div>
-
-            <div className="text-center">
-              <Button
-                variant="ghost"
-                onClick={() => router.push('/dashboard/jobseeker')}
-                className="text-sm"
-              >
-                Skip for now <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (user.role === 'employer') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <Briefcase className="h-6 w-6 text-green-600" />
-            </div>
-            <CardTitle className="text-2xl font-bold">Welcome, Employer!</CardTitle>
-            <CardDescription>
-              Let's get your company profile set up. Start by posting your first job.
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <Button
-              onClick={handleEmployerSetup}
-              className="w-full h-auto p-6 flex flex-col items-center space-y-2"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="h-8 w-8 animate-spin" />
-              ) : (
-                <Briefcase className="h-8 w-8" />
-              )}
-              <div className="text-center">
-                <div className="font-semibold">Post Your First Job</div>
-                <div className="text-sm opacity-90">
-                  Create a job posting to attract candidates
-                </div>
+      <div className="min-h-screen bg-white">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <h1 className="text-2xl font-bold text-blue-600">NaukriMili</h1>
               </div>
-            </Button>
-
-            <div className="text-center">
-              <Button
-                variant="ghost"
-                onClick={() => router.push('/dashboard/company')}
-                className="text-sm"
-              >
-                Skip for now <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-600">Welcome, {user.name || user.email}</span>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Change Your Role
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              You are currently registered as a <strong>{user.role}</strong>. You can change your role or continue with your current role.
+            </p>
+          </div>
+
+          {error && (
+            <div className="max-w-4xl mx-auto mb-8">
+              <Alert className="border-red-200 bg-red-50">
+                <AlertDescription className="text-red-800 font-medium">{error}</AlertDescription>
+              </Alert>
+            </div>
+          )}
+
+          {/* Role Selection Cards */}
+          <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+            {/* Job Seeker Card */}
+            <Card className={`border-2 ${user.role === 'jobseeker' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-500'} transition-all duration-300 hover:shadow-xl`}>
+              <CardContent className="p-8">
+                <div className="text-center mb-6">
+                  <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl ${user.role === 'jobseeker' ? 'bg-blue-200' : 'bg-blue-100'}`}>
+                    <UserCheck className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">I'm a Job Seeker</h3>
+                  <p className="text-gray-600 mb-6">
+                    Find your dream job, upload your resume, and get matched with opportunities.
+                  </p>
+                  {user.role === 'jobseeker' && (
+                    <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
+                      Current Role
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                    <span className="text-gray-700">AI-powered job matching</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                    <span className="text-gray-700">Resume upload & analysis</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                    <span className="text-gray-700">Track applications</span>
+                  </div>
+                </div>
+
+                {user.role === 'jobseeker' ? (
+                  <Button
+                    onClick={() => router.push('/jobseeker/options')}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Continue as Job Seeker →
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleRoleSelection('jobseeker')}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    disabled={isLoading}
+                  >
+                    {isLoading && selectedRole === 'jobseeker' ? (
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    ) : null}
+                    Switch to Job Seeker →
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Employer Card */}
+            <Card className={`border-2 ${user.role === 'employer' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-500'} transition-all duration-300 hover:shadow-xl`}>
+              <CardContent className="p-8">
+                <div className="text-center mb-6">
+                  <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl ${user.role === 'employer' ? 'bg-green-200' : 'bg-green-100'}`}>
+                    <Briefcase className="h-8 w-8 text-green-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">I'm an Employer</h3>
+                  <p className="text-gray-600 mb-6">
+                    Post jobs, find talent, and manage your hiring process efficiently.
+                  </p>
+                  {user.role === 'employer' && (
+                    <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
+                      Current Role
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    <span className="text-gray-700">Post unlimited jobs</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    <span className="text-gray-700">AI-powered candidate matching</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                    <span className="text-gray-700">Application management</span>
+                  </div>
+                </div>
+
+                {user.role === 'employer' ? (
+                  <Button
+                    onClick={() => router.push('/employer/options')}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Continue as Employer →
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleRoleSelection('employer')}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    disabled={isLoading}
+                  >
+                    {isLoading && selectedRole === 'employer' ? (
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    ) : null}
+                    Switch to Employer →
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }
