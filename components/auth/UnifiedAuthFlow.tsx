@@ -42,7 +42,9 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
   // Check for intended role from URL parameters
   useEffect(() => {
     const intendedRole = searchParams.get('role');
+    console.log('URL role parameter:', intendedRole);
     if (intendedRole && (intendedRole === 'jobseeker' || intendedRole === 'employer')) {
+      console.log('Setting intended role:', intendedRole);
       setUserData(prev => ({ ...prev, intendedRole }));
     }
   }, [searchParams]);
@@ -53,9 +55,12 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
       console.log('User already authenticated:', session.user);
       if (session.user.role) {
         // User has a role, redirect to action page
+        console.log('OAuth user role:', session.user.role);
         if (session.user.role === 'jobseeker') {
+          console.log('OAuth redirecting jobseeker to resume upload');
           window.location.href = '/resumes/upload';
         } else if (session.user.role === 'employer') {
+          console.log('OAuth redirecting employer to post job');
           window.location.href = '/employer/post-job';
         }
       } else {
@@ -105,9 +110,17 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     setSuccess('');
 
     try {
-      // Move to role selection after basic info collection
-      setCurrentStep('role-selection');
-      setSuccess('Please select your role to continue');
+      // If we have an intended role, auto-select it and skip role selection
+      if (userData.intendedRole) {
+        console.log('Email registration with intended role:', userData.intendedRole);
+        setUserData(prev => ({ ...prev, role: userData.intendedRole }));
+        setCurrentStep('complete-profile');
+        setSuccess('Please set your password to complete registration');
+      } else {
+        // Move to role selection after basic info collection
+        setCurrentStep('role-selection');
+        setSuccess('Please select your role to continue');
+      }
     } catch (error) {
       console.error('Registration error:', error);
       setError('Network error. Please try again.');
@@ -117,6 +130,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
   };
 
   const handleRoleSelection = (role: 'jobseeker' | 'employer') => {
+    console.log('Manual role selection:', role);
     setUserData(prev => ({ ...prev, role }));
     setCurrentStep('complete-profile');
   };
@@ -124,6 +138,7 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
   // Auto-select role if intended role is set
   useEffect(() => {
     if (userData.intendedRole && currentStep === 'role-selection' && !userData.role) {
+      console.log('Auto-selecting role:', userData.intendedRole);
       setUserData(prev => ({ ...prev, role: userData.intendedRole }));
       setCurrentStep('complete-profile');
     }
@@ -162,12 +177,17 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
             onAuthSuccess(data.user);
           }
           // Redirect to appropriate action page based on role
+          console.log('Redirecting user with role:', userData.role);
           if (userData.role === 'jobseeker') {
             // Redirect jobseekers to resume upload page
+            console.log('Redirecting jobseeker to resume upload');
             window.location.href = '/resumes/upload';
-          } else {
+          } else if (userData.role === 'employer') {
             // Redirect employers to post job page
+            console.log('Redirecting employer to post job');
             window.location.href = '/employer/post-job';
+          } else {
+            console.error('Unknown role:', userData.role);
           }
         }, 1500);
       } else {
