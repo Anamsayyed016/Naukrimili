@@ -93,6 +93,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [resumeText, setResumeText] = useState('');
   const [inputMode, setInputMode] = useState<'file' | 'text'>('file');
+  const [showUploadInterface, setShowUploadInterface] = useState(false);
 
   // Check for existing resumes on component mount
   useEffect(() => {
@@ -201,6 +202,9 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
 
         // Refresh resume status after successful upload
         await checkResumeStatus();
+        
+        // Reset upload interface state
+        setShowUploadInterface(false);
       } else {
         throw new Error(result.error || 'Failed to analyze resume');
       }
@@ -231,6 +235,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     setResumeId(null);
     setAiSuccess(false);
     setConfidence(0);
+    setShowUploadInterface(false);
   };
 
   const handleProfileComplete = async () => {
@@ -321,7 +326,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   }
 
   // Show existing resume status if available and not uploading new version
-  if (resumeStatus?.hasResumes && !showProfileForm && !uploaded) {
+  if (resumeStatus?.hasResumes && !showProfileForm && !uploaded && !showUploadInterface) {
     return (
       <div className="max-w-4xl mx-auto p-6">
         {/* Existing Resume Status */}
@@ -397,6 +402,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Button
             onClick={() => {
+              setShowUploadInterface(true);
               setUploaded(false);
               setShowProfileForm(false);
               setFile(null);
@@ -534,11 +540,24 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
     );
   }
 
-  // Main Upload Interface
-  return (
-    <div className="max-w-4xl mx-auto p-6">
+  // Main Upload Interface (show if no resumes exist OR user wants to upload new version)
+  if (!resumeStatus?.hasResumes || showUploadInterface) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
       {/* Header */}
       <div className="text-center mb-8">
+        <div className="flex items-center justify-between mb-4">
+          {resumeStatus?.hasResumes && (
+            <Button
+              variant="ghost"
+              onClick={() => setShowUploadInterface(false)}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              ← Back to Status
+            </Button>
+          )}
+          <div className="flex-1"></div>
+        </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Resume Upload & AI Analysis</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Upload your resume and let our AI analyze it to extract key information, 
@@ -711,6 +730,25 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
             </p>
           </CardContent>
         </Card>
+      </div>
+    </div>
+    );
+  }
+
+  // Fallback - should not reach here
+  return (
+    <div className="max-w-md mx-auto p-6">
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm text-center">
+        <div className="p-6 pt-6">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-gray-400" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
+          <p className="text-sm text-gray-600 mb-4">Please refresh the page and try again.</p>
+          <Button onClick={() => window.location.reload()}>
+            Refresh Page
+          </Button>
+        </div>
       </div>
     </div>
   );
