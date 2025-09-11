@@ -52,6 +52,62 @@ function debounce<T extends (...args: any[]) => any>(
   };
 }
 
+// Helper functions for dynamic styling
+function getFontClass(fontFamily: string): string {
+  switch (fontFamily) {
+    case 'serif': return 'font-serif';
+    case 'mono': return 'font-mono';
+    default: return 'font-sans';
+  }
+}
+
+function getColorClass(colorScheme: string, type: 'text' | 'bg' | 'border'): string {
+  const colorMap: Record<string, Record<string, string>> = {
+    blue: {
+      text: 'text-blue-600',
+      bg: 'bg-blue-50',
+      border: 'border-blue-200'
+    },
+    green: {
+      text: 'text-green-600',
+      bg: 'bg-green-50',
+      border: 'border-green-200'
+    },
+    purple: {
+      text: 'text-purple-600',
+      bg: 'bg-purple-50',
+      border: 'border-purple-200'
+    },
+    red: {
+      text: 'text-red-600',
+      bg: 'bg-red-50',
+      border: 'border-red-200'
+    },
+    orange: {
+      text: 'text-orange-600',
+      bg: 'bg-orange-50',
+      border: 'border-orange-200'
+    },
+    teal: {
+      text: 'text-teal-600',
+      bg: 'bg-teal-50',
+      border: 'border-teal-200'
+    },
+    pink: {
+      text: 'text-pink-600',
+      bg: 'bg-pink-50',
+      border: 'border-pink-200'
+    },
+    gray: {
+      text: 'text-gray-600',
+      bg: 'bg-gray-50',
+      border: 'border-gray-200'
+    }
+  };
+  
+  return colorMap[colorScheme]?.[type] || colorMap.blue[type];
+}
+
 // Remove old interface - using UnifiedResumeData from types
 
 // Template system now handled by ResumeTemplateManager
@@ -151,16 +207,44 @@ export default function ResumeBuilderPage() {
   }, [resumeData, debouncedAnalysis]);
 
   // Handle wizard completion
-  const handleWizardComplete = (wizardResumeData: UnifiedResumeData, templateId: string, wizardCustomization: any) => {
-    setResumeData(wizardResumeData);
-    setSelectedTemplate(templateId);
-    setCustomization(wizardCustomization);
-    setShowWizard(false);
-    setIsNewResume(false);
-    toast({
-      title: "Resume Created!",
-      description: "Your resume has been created with AI-optimized keywords. Start editing to customize it further.",
-    });
+  const handleWizardComplete = async (wizardResumeData: UnifiedResumeData, templateId: string, wizardCustomization: any) => {
+    try {
+      // Generate AI-powered resume data based on selections
+      const aiCoach = new AIResumeCoach();
+      const enhancedResumeData = await aiCoach.generateResumeFromField(
+        wizardCustomization.selectedField || 'Software Development',
+        wizardCustomization.selectedKeywords || []
+      );
+      
+      // Merge wizard data with AI-generated data
+      const mergedResumeData = {
+        ...wizardResumeData,
+        ...enhancedResumeData,
+        personalInfo: {
+          ...wizardResumeData.personalInfo,
+          ...enhancedResumeData.personalInfo
+        }
+      };
+      
+      setResumeData(mergedResumeData);
+      setSelectedTemplate(templateId);
+      setCustomization(wizardCustomization);
+      setShowWizard(false);
+      setIsNewResume(false);
+      
+      toast({
+        title: "Resume Created!",
+        description: "Your resume has been created with AI-optimized keywords. Start editing to customize it further.",
+      });
+    } catch (error) {
+      console.error('Error generating resume:', error);
+      // Fallback to basic data
+      setResumeData(wizardResumeData);
+      setSelectedTemplate(templateId);
+      setCustomization(wizardCustomization);
+      setShowWizard(false);
+      setIsNewResume(false);
+    }
   };
 
   // Handle wizard close
@@ -1393,10 +1477,10 @@ export default function ResumeBuilderPage() {
               <CardContent>
                 <div className="border rounded-lg p-6 bg-white min-h-[600px]">
                   {/* Resume Preview Content */}
-                  <div className="space-y-6">
+                  <div className={`space-y-6 ${getFontClass(customization.fontFamily)}`}>
                     {/* Header */}
                     <div className="text-center border-b pb-4">
-                      <h1 className="text-2xl font-bold text-gray-900">
+                      <h1 className={`text-2xl font-bold ${getColorClass(customization.colorScheme, 'text')}`}>
                         {resumeData.personalInfo.fullName || 'Your Name'}
                       </h1>
                       <p className="text-gray-600">
@@ -1406,12 +1490,17 @@ export default function ResumeBuilderPage() {
                         {resumeData.personalInfo.phone && `${resumeData.personalInfo.phone} • `}
                         {resumeData.personalInfo.location || 'Location'}
                       </p>
+                      {resumeData.personalInfo.linkedin && (
+                        <p className="text-sm text-gray-500">
+                          LinkedIn: {resumeData.personalInfo.linkedin}
+                        </p>
+                      )}
                     </div>
 
                     {/* Summary */}
                     {resumeData.personalInfo.summary && (
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-2">Summary</h2>
+                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-2`}>Summary</h2>
                         <p className="text-gray-700">{resumeData.personalInfo.summary}</p>
                       </div>
                     )}
@@ -1419,7 +1508,7 @@ export default function ResumeBuilderPage() {
                     {/* Experience */}
                     {resumeData.experience.length > 0 && (
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Experience</h2>
+                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Experience</h2>
                         <div className="space-y-4">
                           {resumeData.experience.map((exp) => (
                             <div key={exp.id}>
@@ -1444,7 +1533,7 @@ export default function ResumeBuilderPage() {
                     {/* Education */}
                     {resumeData.education.length > 0 && (
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Education</h2>
+                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Education</h2>
                         <div className="space-y-3">
                           {resumeData.education.map((edu) => (
                             <div key={edu.id}>
@@ -1468,7 +1557,7 @@ export default function ResumeBuilderPage() {
                     {/* Skills */}
                     {resumeData.skills.length > 0 && (
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Skills</h2>
+                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Skills</h2>
                         <div className="flex flex-wrap gap-2">
                           {resumeData.skills.map((skill) => (
                             <Badge key={skill.id} variant="outline">
@@ -1482,7 +1571,7 @@ export default function ResumeBuilderPage() {
                     {/* Projects */}
                     {resumeData.projects.length > 0 && (
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Projects</h2>
+                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Projects</h2>
                         <div className="space-y-3">
                           {resumeData.projects.map((project) => (
                             <div key={project.id}>
@@ -1511,7 +1600,7 @@ export default function ResumeBuilderPage() {
                     {/* Certifications */}
                     {resumeData.certifications.length > 0 && (
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Certifications</h2>
+                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Certifications</h2>
                         <div className="space-y-3">
                           {resumeData.certifications.map((cert) => (
                             <div key={cert.id}>
@@ -1536,7 +1625,7 @@ export default function ResumeBuilderPage() {
                     {/* Languages */}
                     {resumeData.languages.length > 0 && (
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Languages</h2>
+                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Languages</h2>
                         <div className="flex flex-wrap gap-2">
                           {resumeData.languages.map((lang) => (
                             <Badge key={lang.id} variant="secondary">
@@ -1550,7 +1639,7 @@ export default function ResumeBuilderPage() {
                     {/* References */}
                     {resumeData.references.length > 0 && (
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-900 mb-3">References</h2>
+                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>References</h2>
                         <div className="space-y-3">
                           {resumeData.references.map((ref) => (
                             <div key={ref.id}>

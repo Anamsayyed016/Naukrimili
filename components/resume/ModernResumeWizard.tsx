@@ -124,23 +124,33 @@ export default function ModernResumeWizard({ onComplete, onClose }: ModernResume
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     setIsLoading(true);
-    // Apply selected keywords to resume data
-    const updatedResumeData = {
-      ...resumeData,
-      skills: [
-        ...resumeData.skills,
-        ...selectedKeywords.map(keyword => ({
-          id: Date.now().toString() + Math.random(),
-          name: keyword,
-          level: 'intermediate' as const
-        }))
-      ]
-    };
-    
-    onComplete(updatedResumeData, selectedTemplate, customization);
-    setIsLoading(false);
+    try {
+      // Apply selected keywords to resume data
+      const updatedResumeData = {
+        ...resumeData,
+        skills: [
+          ...resumeData.skills,
+          ...selectedKeywords.map(keyword => ({
+            id: Date.now().toString() + Math.random(),
+            name: keyword,
+            level: 'intermediate' as const
+          }))
+        ]
+      };
+      
+      // Call the completion handler with additional data
+      await onComplete(updatedResumeData, selectedTemplate, {
+        ...customization,
+        selectedField,
+        selectedKeywords
+      });
+    } catch (error) {
+      console.error('Error completing wizard:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderStepContent = () => {

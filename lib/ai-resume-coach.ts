@@ -643,4 +643,36 @@ export class AIResumeCoach {
       `Mentored 3 junior team members and improved their performance`
     ];
   }
+
+  /**
+   * Generate resume data from field and keywords
+   */
+  async generateResumeFromField(field: string, keywords: string[]): Promise<UnifiedResumeData> {
+    try {
+      const suggestions = await this.hybridSuggestions.generateSuggestions(
+        'resume_generation',
+        `Field: ${field}, Keywords: ${keywords.join(', ')}`,
+        'Generate professional resume content'
+      );
+      
+      // Create enhanced resume data based on field and keywords
+      const baseResume = ResumeDataFactory.createEmpty();
+      
+      // Enhance with field-specific content
+      baseResume.personalInfo.summary = suggestions.suggestion || 
+        `Experienced ${field} professional with expertise in ${keywords.slice(0, 3).join(', ')} and more.`;
+      
+      // Add selected keywords as skills
+      baseResume.skills = keywords.map(keyword => ({
+        id: ResumeDataFactory.createId(),
+        name: keyword,
+        level: 'intermediate' as const
+      }));
+      
+      return baseResume;
+    } catch (error) {
+      console.error('Failed to generate resume from field:', error);
+      return ResumeDataFactory.createEmpty();
+    }
+  }
 }
