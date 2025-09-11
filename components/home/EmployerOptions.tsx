@@ -52,7 +52,7 @@ export default function EmployerOptions({ onBack }: EmployerOptionsProps) {
             </div>
           </div>
           <Link
-            href="/employer/post-job"
+            href="/employer/jobs/create"
             className="inline-flex items-center justify-center w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors gap-2"
           >
             Post Job <ArrowRight className="w-4 h-4" />
@@ -83,7 +83,7 @@ export default function EmployerOptions({ onBack }: EmployerOptionsProps) {
             </div>
           </div>
           <Link
-            href="/employer/company-profile"
+            href="/employer/company/profile"
             className="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors gap-2"
           >
             Manage Profile <ArrowRight className="w-4 h-4" />

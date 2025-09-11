@@ -137,7 +137,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
   };
 
   const handleEmployerSetup = () => {
-    router.push('/employer/post-job');
+    router.push('/employer/options');
   };
 
   // If user already has a role, show role change options

@@ -42,7 +42,7 @@ export default function EmployerOptionsPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
@@ -66,21 +66,7 @@ export default function EmployerOptionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-blue-600">NaukriMili</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-600">Welcome, {session.user.name || session.user.email}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-[calc(100vh-4rem)]">
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
@@ -95,7 +81,7 @@ export default function EmployerOptionsPage() {
         {/* Employer Options */}
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
           {/* Company Profile Card */}
-          <Card className="border-2 border-gray-200 hover:border-green-500 transition-all duration-300 hover:shadow-xl">
+          <Card className="border-2 border-gray-200 hover:border-green-500 transition-all duration-300 hover:shadow-xl bg-white/95 backdrop-blur-sm">
             <CardContent className="p-8">
               <div className="text-center mb-6">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-green-100">
@@ -122,7 +108,7 @@ export default function EmployerOptionsPage() {
                 </div>
               </div>
 
-              <Link href="/employer/company-profile">
+              <Link href="/employer/company/profile">
                 <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors">
                   Set Up Company <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -131,7 +117,7 @@ export default function EmployerOptionsPage() {
           </Card>
 
           {/* Post Job Card */}
-          <Card className="border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-xl">
+          <Card className="border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-xl bg-white/95 backdrop-blur-sm">
             <CardContent className="p-8">
               <div className="text-center mb-6">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100">
@@ -158,7 +144,7 @@ export default function EmployerOptionsPage() {
                 </div>
               </div>
 
-              <Link href="/employer/post-job">
+              <Link href="/employer/jobs/create">
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
                   Post Job <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
