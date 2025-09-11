@@ -4,8 +4,6 @@ import { prisma } from '@/lib/prisma';
 import { DynamicResumeAI } from '@/lib/dynamic-resume-ai';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import pdf from 'pdf-parse';
-import mammoth from 'mammoth';
 
 const dynamicResumeAI = new DynamicResumeAI();
 
@@ -239,21 +237,40 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
     
     if (file.type === 'application/pdf') {
       console.log('📄 Processing PDF file...');
-      const pdfData = await pdf(Buffer.from(bytes));
-      const text = pdfData.text;
-      console.log('✅ PDF text extracted, length:', text.length);
-      console.log('📄 PDF preview:', text.substring(0, 200) + '...');
-      return text;
+      try {
+        const pdf = await import('pdf-parse');
+        const pdfData = await pdf.default(Buffer.from(bytes));
+        const text = pdfData.text;
+        console.log('✅ PDF text extracted, length:', text.length);
+        console.log('📄 PDF preview:', text.substring(0, 200) + '...');
+        return text;
+      } catch (pdfError) {
+        console.error('❌ PDF parsing failed:', pdfError);
+        // Fallback to basic text extraction for PDF
+        const text = new TextDecoder().decode(bytes);
+        const readableText = text.replace(/[^\x20-\x7E\s]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (readableText.length > 50) {
+          console.log('✅ Basic PDF text extraction successful, length:', readableText.length);
+          return readableText;
+        }
+        throw pdfError;
+      }
     }
     
     if (file.type === 'application/msword' || 
         file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       console.log('📄 Processing Word document...');
-      const result = await mammoth.extractRawText({ buffer: Buffer.from(bytes) });
-      const text = result.value;
-      console.log('✅ Word document text extracted, length:', text.length);
-      console.log('📄 Word preview:', text.substring(0, 200) + '...');
-      return text;
+      try {
+        const mammoth = await import('mammoth');
+        const result = await mammoth.extractRawText({ buffer: Buffer.from(bytes) });
+        const text = result.value;
+        console.log('✅ Word document text extracted, length:', text.length);
+        console.log('📄 Word preview:', text.substring(0, 200) + '...');
+        return text;
+      } catch (wordError) {
+        console.error('❌ Word document parsing failed:', wordError);
+        throw wordError;
+      }
     }
     
     // Fallback for unknown file types
