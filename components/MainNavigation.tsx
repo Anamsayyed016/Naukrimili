@@ -111,17 +111,6 @@ export default function MainNavigation({
               </Link>
             ))}
             
-            {/* Post Job Button - Only for Employers */}
-            {isMounted && isAuthenticated && user?.role === 'employer' && (
-              <Link
-                href="/employer/jobs/create"
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
-              >
-                <BriefcaseIcon className="w-4 h-4" />
-                <span className="hidden xl:inline">Post Job</span>
-                <span className="xl:hidden">Post</span>
-              </Link>
-            )}
             
           </div>
 
@@ -290,17 +279,6 @@ export default function MainNavigation({
                     <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
                   </div>
                   
-                  {/* Post Job Button for Employers - Mobile */}
-                  {user.role === 'employer' && (
-                    <Link
-                      href="/employer/jobs/create"
-                      onClick={closeMenu}
-                      className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl active:scale-95"
-                    >
-                      <BriefcaseIcon className="w-5 h-5" />
-                      Post Job
-                    </Link>
-                  )}
                   
                   <Link
                     href="/profile"
