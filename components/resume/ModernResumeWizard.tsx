@@ -110,6 +110,16 @@ export default function ModernResumeWizard({ onComplete, onClose }: ModernResume
     );
   };
 
+  const canProceed = () => {
+    switch (currentStep) {
+      case 0: return selectedField !== '';
+      case 1: return selectedTemplate !== '';
+      case 2: return true; // Customization step always allows proceeding
+      case 3: return true; // Preview step always allows proceeding
+      default: return false;
+    }
+  };
+
   const handleComplete = () => {
     setIsLoading(true);
     // Apply selected keywords to resume data
