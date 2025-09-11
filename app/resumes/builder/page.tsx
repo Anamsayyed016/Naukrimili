@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
@@ -14,7 +14,13 @@ import {
   Briefcase, 
   Award,
   Plus,
-  Trash2
+  Trash2,
+  Brain,
+  Lightbulb,
+  CheckCircle,
+  AlertCircle,
+  Camera,
+  Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,111 +29,83 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/context/AuthContext';
 import { useSession } from 'next-auth/react';
 import { toast } from '@/components/ui/use-toast';
+import { UnifiedResumeData, ResumeDataFactory, ResumeValidator } from '@/types/unified-resume';
+import { AIResumeCoach, ResumeSuggestion, ATSAnalysis, ProfessionalCoaching } from '@/lib/ai-resume-coach';
+import { ResumeTemplateManager, TemplateCustomization } from '@/lib/resume-templates';
+import { ResumeExporter, ExportOptions } from '@/lib/resume-export';
 
-interface ResumeData {
-  personalInfo: {
-    fullName: string;
-    email: string;
-    phone: string;
-    location: string;
-    linkedin: string;
-    summary: string;
+// Utility function for debouncing
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
   };
-  education: Array<{
-    id: string;
-    institution: string;
-    degree: string;
-    field: string;
-    startDate: string;
-    endDate: string;
-    gpa: string;
-    description: string;
-  }>;
-  experience: Array<{
-    id: string;
-    company: string;
-    position: string;
-    location: string;
-    startDate: string;
-    endDate: string;
-    current: boolean;
-    description: string;
-    achievements: string[];
-  }>;
-  skills: Array<{
-    id: string;
-    name: string;
-    level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  }>;
-  projects: Array<{
-    id: string;
-    name: string;
-    description: string;
-    technologies: string[];
-    url: string;
-    startDate: string;
-    endDate: string;
-  }>;
-  certifications: Array<{
-    id: string;
-    name: string;
-    issuer: string;
-    date: string;
-    url: string;
-  }>;
 }
 
-const defaultResumeData: ResumeData = {
-  personalInfo: {
-    fullName: '',
-    email: '',
-    phone: '',
-    location: '',
-    linkedin: '',
-    summary: ''
-  },
-  education: [],
-  experience: [],
-  skills: [],
-  projects: [],
-  certifications: []
-};
+// Remove old interface - using UnifiedResumeData from types
 
-const templateStyles = [
-  { id: 'modern', name: 'Modern', description: 'Clean and professional' },
-  { id: 'classic', name: 'Classic', description: 'Traditional and formal' },
-  { id: 'creative', name: 'Creative', description: 'Unique and eye-catching' },
-  { id: 'minimal', name: 'Minimal', description: 'Simple and focused' }
-];
-
-const colorSchemes = [
-  { id: 'blue', name: 'Professional Blue', class: 'bg-blue-600' },
-  { id: 'green', name: 'Success Green', class: 'bg-green-600' },
-  { id: 'purple', name: 'Creative Purple', class: 'bg-purple-600' },
-  { id: 'gray', name: 'Neutral Gray', class: 'bg-gray-600' }
-];
-
-const fontOptions = [
-  { id: 'sans', name: 'Sans-serif' },
-  { id: 'serif', name: 'Serif' },
-  { id: 'mono', name: 'Monospace' }
-];
+// Template system now handled by ResumeTemplateManager
 
 export default function ResumeBuilderPage() {
   const { user } = useAuth();
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
-  const [selectedTemplate, setSelectedTemplate] = useState('modern');
-  const [selectedColor, setSelectedColor] = useState('blue');
-  const [selectedFont, setSelectedFont] = useState('sans');
+  
+  // State management
+  const [resumeData, setResumeData] = useState<UnifiedResumeData>(ResumeDataFactory.createEmpty());
+  const [selectedTemplate, setSelectedTemplate] = useState('modern-professional');
+  const [customization, setCustomization] = useState<TemplateCustomization>({
+    templateId: 'modern-professional',
+    colorScheme: 'blue',
+    fontFamily: 'sans',
+    showProfilePhoto: false,
+    spacing: 'standard'
+  });
+  
+  // UI State
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [atsScore, setAtsScore] = useState(0);
+  const [isExporting, setIsExporting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('personal');
+  
+  // AI State
+  const [atsAnalysis, setAtsAnalysis] = useState<ATSAnalysis | null>(null);
+  const [suggestions, setSuggestions] = useState<ResumeSuggestion[]>([]);
+  const [coachingSteps, setCoachingSteps] = useState<ProfessionalCoaching[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  // AI Coach instance
+  const [aiCoach] = useState(() => new AIResumeCoach());
+
+  // Load coaching steps and analyze resume
+  useEffect(() => {
+    const loadCoachingData = async () => {
+      try {
+        const steps = await aiCoach.getCoachingSteps(resumeData);
+        setCoachingSteps(steps);
+        
+        const analysis = await aiCoach.analyzeATS(resumeData);
+        setAtsAnalysis(analysis);
+        setSuggestions(analysis.improvements);
+      } catch (error) {
+        console.error('Failed to load coaching data:', error);
+      }
+    };
+
+    if (resumeData.personalInfo.fullName) {
+      loadCoachingData();
+    }
+  }, [resumeData, aiCoach]);
 
   useEffect(() => {
     // Check authentication status
@@ -144,6 +122,30 @@ export default function ResumeBuilderPage() {
       setIsLoading(false);
     }
   }, [status, user, router]);
+
+  // Debounced AI analysis
+  const debouncedAnalysis = useCallback(
+    debounce(async (data: UnifiedResumeData) => {
+      setIsAnalyzing(true);
+      try {
+        const analysis = await aiCoach.analyzeATS(data);
+        setAtsAnalysis(analysis);
+        setSuggestions(analysis.improvements);
+      } catch (error) {
+        console.error('AI analysis failed:', error);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    }, 1000),
+    [aiCoach]
+  );
+
+  // Trigger analysis when resume data changes
+  useEffect(() => {
+    if (resumeData.personalInfo.fullName) {
+      debouncedAnalysis(resumeData);
+    }
+  }, [resumeData, debouncedAnalysis]);
 
   // Show loading while checking authentication
   if (isLoading || status === 'loading') {
@@ -169,7 +171,7 @@ export default function ResumeBuilderPage() {
     );
   }
 
-  const updatePersonalInfo = (field: keyof ResumeData['personalInfo'], value: string) => {
+  const updatePersonalInfo = (field: keyof UnifiedResumeData['personalInfo'], value: string | boolean) => {
     setResumeData(prev => ({
       ...prev,
       personalInfo: { ...prev.personalInfo, [field]: value }
@@ -178,14 +180,16 @@ export default function ResumeBuilderPage() {
 
   const addEducation = () => {
     const newEducation = {
-      id: Date.now().toString(),
+      id: ResumeDataFactory.createId(),
       institution: '',
       degree: '',
       field: '',
       startDate: '',
       endDate: '',
       gpa: '',
-      description: ''
+      description: '',
+      location: '',
+      isCurrent: false
     };
     setResumeData(prev => ({
       ...prev,
@@ -271,38 +275,14 @@ export default function ResumeBuilderPage() {
     }));
   };
 
-  const calculateATSScore = () => {
-    let score = 0;
-    
-    // Personal info completeness
-    if (resumeData.personalInfo.fullName) score += 10;
-    if (resumeData.personalInfo.email) score += 10;
-    if (resumeData.personalInfo.phone) score += 5;
-    if (resumeData.personalInfo.location) score += 5;
-    if (resumeData.personalInfo.summary) score += 10;
-    
-    // Experience
-    score += resumeData.experience.length * 10;
-    
-    // Education
-    score += resumeData.education.length * 5;
-    
-    // Skills
-    score += resumeData.skills.length * 2;
-    
-    // Projects
-    score += resumeData.projects.length * 5;
-    
-    return Math.min(score, 100);
-  };
+  // ATS score now calculated by AI analysis
 
   const saveResume = async () => {
     if (!user) return;
     
     setIsSaving(true);
     try {
-      const score = calculateATSScore();
-      setAtsScore(score);
+      const score = atsAnalysis?.score || 0;
       
       const response = await fetch('/api/resumes/builder', {
         method: 'POST',
@@ -312,11 +292,11 @@ export default function ResumeBuilderPage() {
         body: JSON.stringify({
           userId: user.id,
           builderData: resumeData,
-          templateStyle: selectedTemplate,
-          colorScheme: selectedColor,
-          fontFamily: selectedFont,
+          templateStyle: customization.templateId,
+          colorScheme: customization.colorScheme,
+          fontFamily: customization.fontFamily,
           atsScore: score,
-          fileName: `${resumeData.personalInfo.fullName || 'Resume'}_${selectedTemplate}`,
+          fileName: `${resumeData.personalInfo.fullName || 'Resume'}_${customization.templateId}`,
           isBuilder: true
         }),
       });
@@ -349,9 +329,43 @@ export default function ResumeBuilderPage() {
     }
   };
 
-  const downloadPDF = () => {
-    // TODO: Implement PDF generation
-    alert('PDF download feature coming soon!');
+  const handleExport = async (format: 'pdf' | 'docx') => {
+    if (!user) return;
+    
+    setIsExporting(true);
+    try {
+      const exportOptions: ExportOptions = {
+        format,
+        templateId: selectedTemplate,
+        customization,
+        includePhoto: customization.showProfilePhoto,
+        quality: 'high',
+        filename: `${resumeData.personalInfo.fullName || 'Resume'}_${selectedTemplate}.${format}`
+      };
+
+      const result = format === 'pdf' 
+        ? await ResumeExporter.exportToPDF(resumeData, exportOptions)
+        : await ResumeExporter.exportToDOCX(resumeData, exportOptions);
+
+      if (result.success && result.data) {
+        ResumeExporter.downloadFile(result.data, result.filename);
+        toast({
+          title: 'Export Successful!',
+          description: `Your resume has been exported as ${format.toUpperCase()}`,
+        });
+      } else {
+        throw new Error(result.error || 'Export failed');
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to export resume. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -359,8 +373,26 @@ export default function ResumeBuilderPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Resume Builder</h1>
-          <p className="text-gray-600">Create a professional, ATS-friendly resume</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Resume Builder</h1>
+              <p className="text-gray-600">Create a professional, ATS-friendly resume with AI guidance</p>
+            </div>
+            <div className="flex items-center gap-4">
+              {atsAnalysis && (
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{atsAnalysis.score}/100</div>
+                  <div className="text-sm text-gray-600">ATS Score</div>
+                </div>
+              )}
+              {isAnalyzing && (
+                <div className="flex items-center gap-2 text-blue-600">
+                  <Brain className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Analyzing...</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Template & Color Selection */}
@@ -377,12 +409,12 @@ export default function ResumeBuilderPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Template Style
                 </label>
-                <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                <Select value={customization.templateId} onValueChange={(value) => setCustomization(prev => ({ ...prev, templateId: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {templateStyles.map(template => (
+                    {ResumeTemplateManager.getAllTemplates().map(template => (
                       <SelectItem key={template.id} value={template.id}>
                         {template.name} - {template.description}
                       </SelectItem>
@@ -394,14 +426,14 @@ export default function ResumeBuilderPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Color Scheme
                 </label>
-                <Select value={selectedColor} onValueChange={setSelectedColor}>
+                <Select value={customization.colorScheme} onValueChange={(value) => setCustomization(prev => ({ ...prev, colorScheme: value as any }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {colorSchemes.map(scheme => (
-                      <SelectItem key={scheme.id} value={scheme.id}>
-                        {scheme.name}
+                    {ResumeTemplateManager.getTemplateById(customization.templateId)?.colorSchemes.map(scheme => (
+                      <SelectItem key={scheme} value={scheme}>
+                        {scheme.charAt(0).toUpperCase() + scheme.slice(1)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -411,14 +443,14 @@ export default function ResumeBuilderPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Font Family
                 </label>
-                <Select value={selectedFont} onValueChange={setSelectedFont}>
+                <Select value={customization.fontFamily} onValueChange={(value) => setCustomization(prev => ({ ...prev, fontFamily: value as any }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {fontOptions.map(font => (
-                      <SelectItem key={font.id} value={font.id}>
-                        {font.name}
+                    {ResumeTemplateManager.getTemplateById(customization.templateId)?.fontOptions.map(font => (
+                      <SelectItem key={font} value={font}>
+                        {font.charAt(0).toUpperCase() + font.slice(1)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -790,7 +822,7 @@ export default function ResumeBuilderPage() {
                     Live Preview
                   </span>
                   <Badge variant="secondary">
-                    ATS Score: {calculateATSScore()}/100
+                    ATS Score: {atsAnalysis?.score || 0}/100
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -889,16 +921,52 @@ export default function ResumeBuilderPage() {
           </div>
         </div>
 
+        {/* AI Suggestions Panel */}
+        {suggestions.length > 0 && (
+          <Card className="mb-6 border-blue-200 bg-blue-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-blue-800">
+                <Lightbulb className="w-5 h-5" />
+                AI Suggestions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {suggestions.slice(0, 3).map((suggestion) => (
+                  <Alert key={suggestion.id} className="border-blue-200">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <div className="font-medium">{suggestion.title}</div>
+                      <div className="text-sm text-gray-600">{suggestion.suggestion}</div>
+                    </AlertDescription>
+                  </Alert>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Action Buttons */}
         <div className="fixed bottom-6 right-6 flex gap-3">
           <Button
-            onClick={downloadPDF}
+            onClick={() => handleExport('pdf')}
+            disabled={isExporting}
             variant="outline"
             size="lg"
             className="shadow-lg"
           >
             <Download className="w-5 h-5 mr-2" />
-            Download PDF
+            {isExporting ? 'Exporting...' : 'Download PDF'}
+          </Button>
+          <Button
+            onClick={() => handleExport('docx')}
+            disabled={isExporting}
+            variant="outline"
+            size="lg"
+            className="shadow-lg"
+          >
+            <FileText className="w-5 h-5 mr-2" />
+            {isExporting ? 'Exporting...' : 'Download DOCX'}
           </Button>
           <Button
             onClick={saveResume}

@@ -2,62 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
+// Simplified schema for backward compatibility
 const builderResumeSchema = z.object({
   userId: z.string(),
-  builderData: z.object({
-    personalInfo: z.object({
-      fullName: z.string(),
-      email: z.string().email(),
-      phone: z.string().optional(),
-      location: z.string().optional(),
-      linkedin: z.string().optional(),
-      summary: z.string().optional(),
-    }),
-    education: z.array(z.object({
-      id: z.string(),
-      institution: z.string(),
-      degree: z.string(),
-      field: z.string(),
-      startDate: z.string(),
-      endDate: z.string(),
-      gpa: z.string().optional(),
-      description: z.string().optional(),
-    })).optional(),
-    experience: z.array(z.object({
-      id: z.string(),
-      company: z.string(),
-      position: z.string(),
-      location: z.string().optional(),
-      startDate: z.string(),
-      endDate: z.string(),
-      current: z.boolean().optional(),
-      description: z.string().optional(),
-      achievements: z.array(z.string()).optional(),
-    })).optional(),
-    skills: z.array(z.object({
-      id: z.string(),
-      name: z.string(),
-      level: z.enum(['beginner', 'intermediate', 'advanced', 'expert']),
-    })).optional(),
-    projects: z.array(z.object({
-      id: z.string(),
-      name: z.string(),
-      description: z.string(),
-      technologies: z.array(z.string()).optional(),
-      url: z.string().optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-    })).optional(),
-    certifications: z.array(z.object({
-      id: z.string(),
-      name: z.string(),
-      issuer: z.string(),
-      date: z.string(),
-      url: z.string().optional(),
-    })).optional(),
-  }),
+  builderData: z.any(), // Accept any structure for now
   templateStyle: z.string().optional(),
   colorScheme: z.string().optional(),
+  fontFamily: z.string().optional(),
   atsScore: z.number().min(0).max(100).optional(),
   fileName: z.string(),
   isBuilder: z.boolean().default(true),
