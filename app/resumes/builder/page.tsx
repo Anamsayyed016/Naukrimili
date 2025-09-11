@@ -38,6 +38,7 @@ import { UnifiedResumeData, ResumeDataFactory, ResumeValidator } from '@/types/u
 import { AIResumeCoach, ResumeSuggestion, ATSAnalysis, ProfessionalCoaching } from '@/lib/ai-resume-coach';
 import { ResumeTemplateManager, TemplateCustomization } from '@/lib/resume-templates';
 import { ResumeExporter, ExportOptions } from '@/lib/resume-export';
+import ModernResumeWizard from '@/components/resume/ModernResumeWizard';
 
 // Utility function for debouncing
 function debounce<T extends (...args: any[]) => any>(
@@ -77,6 +78,8 @@ export default function ResumeBuilderPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('personal');
+  const [showWizard, setShowWizard] = useState(true);
+  const [isNewResume, setIsNewResume] = useState(true);
   
   // AI State
   const [atsAnalysis, setAtsAnalysis] = useState<ATSAnalysis | null>(null);
@@ -147,6 +150,25 @@ export default function ResumeBuilderPage() {
     }
   }, [resumeData, debouncedAnalysis]);
 
+  // Handle wizard completion
+  const handleWizardComplete = (wizardResumeData: UnifiedResumeData, templateId: string, wizardCustomization: any) => {
+    setResumeData(wizardResumeData);
+    setSelectedTemplate(templateId);
+    setCustomization(wizardCustomization);
+    setShowWizard(false);
+    setIsNewResume(false);
+    toast({
+      title: "Resume Created!",
+      description: "Your resume has been created with AI-optimized keywords. Start editing to customize it further.",
+    });
+  };
+
+  // Handle wizard close
+  const handleWizardClose = () => {
+    setShowWizard(false);
+    setIsNewResume(false);
+  };
+
   // Show loading while checking authentication
   if (isLoading || status === 'loading') {
     return (
@@ -169,6 +191,11 @@ export default function ResumeBuilderPage() {
         </div>
       </div>
     );
+  }
+
+  // Show wizard for new resumes
+  if (isNewResume && showWizard) {
+    return <ModernResumeWizard onComplete={handleWizardComplete} onClose={handleWizardClose} />;
   }
 
   const updatePersonalInfo = (field: keyof UnifiedResumeData['personalInfo'], value: string | boolean) => {
@@ -509,6 +536,16 @@ export default function ResumeBuilderPage() {
               <p className="text-gray-600">Create a professional, ATS-friendly resume with AI guidance</p>
             </div>
             <div className="flex items-center gap-4">
+              <Button 
+                onClick={() => {
+                  setShowWizard(true);
+                  setIsNewResume(true);
+                }}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create New Resume
+              </Button>
               {atsAnalysis && (
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-600">{atsAnalysis.score}/100</div>
