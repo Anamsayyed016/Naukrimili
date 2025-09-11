@@ -110,6 +110,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			const response = await fetch('/api/ai/form-suggestions', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
+				credentials: 'include',
 				body: JSON.stringify({
 					field,
 					value,
@@ -279,6 +280,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				headers: {
 					'Content-Type': 'application/json',
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					action: 'create',
 					data: {

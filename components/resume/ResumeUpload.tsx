@@ -105,7 +105,9 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   const checkResumeStatus = async () => {
     try {
       setCheckingStatus(true);
-      const response = await fetch('/api/resumes/check');
+      const response = await fetch('/api/resumes/check', {
+        credentials: 'include'
+      });
       
       if (response.ok) {
         const result = await response.json();
@@ -166,7 +168,8 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       
       const response = await fetch('/api/resumes/enhanced-upload', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'include'
       });
       
       if (!response.ok) {
@@ -237,6 +240,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           action: 'create',
           data: {
