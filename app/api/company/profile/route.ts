@@ -47,8 +47,77 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const auth = await requireEmployerAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { user } = auth;
+    const body = await request.json();
+    
+    const {
+      name,
+      description,
+      website,
+      location,
+      industry,
+      size,
+      founded
+    } = body;
+
+    // Validate required fields
+    if (!name || !description || !location || !industry || !size) {
+      return NextResponse.json(
+        { error: "Name, description, location, industry, and size are required" },
+        { status: 400 }
+      );
+    }
+
+    // Check if company already exists
+    const existingCompany = await prisma.company.findFirst({
+      where: { createdBy: user.id }
+    });
+
+    if (existingCompany) {
+      return NextResponse.json(
+        { error: "Company already exists. Use PUT to update." },
+        { status: 400 }
+      );
+    }
+
+    // Create company profile
+    const company = await prisma.company.create({
+      data: {
+        name,
+        description,
+        website,
+        location,
+        industry,
+        size,
+        founded: founded ? parseInt(founded) : null,
+        isVerified: false,
+        createdBy: user.id
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Company profile created successfully",
+      data: company
+    });
+  } catch (error) {
+    console.error("Error creating company profile:", error);
+    return NextResponse.json(
+      { error: "Failed to create company profile" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(request: NextRequest) {
-  {  try {
+  try {
     const auth = await requireEmployerAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });

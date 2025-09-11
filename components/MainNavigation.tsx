@@ -75,8 +75,8 @@ export default function MainNavigation({
     // Add employer-specific links
     if (isMounted && isAuthenticated && user?.role === 'employer') {
       baseLinks.push(
-        { title: "Dashboard", href: "/dashboard/company", icon: BarChartIcon },
-        { title: "Post Job", href: "/employer/post-job", icon: BriefcaseIcon },
+        { title: "Dashboard", href: "/employer/dashboard", icon: BarChartIcon },
+        { title: "Post Job", href: "/employer/jobs/create", icon: BriefcaseIcon },
         { title: "Applications", href: "/employer/applications", icon: FileTextIcon }
       );
     }
@@ -114,7 +114,7 @@ export default function MainNavigation({
             {/* Post Job Button - Only for Employers */}
             {isMounted && isAuthenticated && user?.role === 'employer' && (
               <Link
-                href="/employer/post-job"
+                href="/employer/jobs/create"
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
               >
                 <BriefcaseIcon className="w-4 h-4" />
@@ -293,7 +293,7 @@ export default function MainNavigation({
                   {/* Post Job Button for Employers - Mobile */}
                   {user.role === 'employer' && (
                     <Link
-                      href="/employer/post-job"
+                      href="/employer/jobs/create"
                       onClick={closeMenu}
                       className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl active:scale-95"
                     >

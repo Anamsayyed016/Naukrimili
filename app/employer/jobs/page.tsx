@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { 
   Search, 
   Filter, 
@@ -17,24 +19,28 @@ import {
   MapPin,
   DollarSign,
   Briefcase,
-  MoreHorizontal
-} from "lucide-react";
+  MoreHorizontal,
+  ArrowRight,
+  Clock,
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import AuthGuard from "@/components/auth/AuthGuard";
+} from '@/components/ui/select';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface Job {
   id: string;
@@ -84,11 +90,12 @@ interface JobsResponse {
 
 export default function EmployerJobsPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
+  const [jobStatus, setJobStatus] = useState("all");
   const [jobType, setJobType] = useState("all");
   const [experienceLevel, setExperienceLevel] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -103,9 +110,22 @@ export default function EmployerJobsPage() {
     totalApplications: 0
   });
 
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (status === 'unauthenticated') {
+      router.push('/auth/login?redirect=/employer/jobs');
+      return;
+    }
+    if (session?.user?.role !== 'employer') {
+      router.push('/dashboard');
+      return;
+    }
+  }, [status, session, router]);
+
   useEffect(() => {
     fetchJobs();
-  }, [currentPage, status, jobType, experienceLevel]);
+  }, [currentPage, jobStatus, jobType, experienceLevel]);
 
   const fetchJobs = async () => {
     try {
@@ -113,7 +133,7 @@ export default function EmployerJobsPage() {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: "10",
-        ...(status !== "all" && { status }),
+        ...(jobStatus !== "all" && { status: jobStatus }),
         ...(jobType !== "all" && { jobType }),
         ...(experienceLevel !== "all" && { experienceLevel }),
         ...(search && { search })
@@ -156,10 +176,10 @@ export default function EmployerJobsPage() {
         throw new Error('Failed to delete job');
       }
 
-      // Refresh jobs list
+      toast.success('Job deleted successfully');
       fetchJobs();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete job');
+      toast.error(err instanceof Error ? err.message : 'Failed to delete job');
     }
   };
 
@@ -177,10 +197,10 @@ export default function EmployerJobsPage() {
         throw new Error('Failed to update job status');
       }
 
-      // Refresh jobs list
+      toast.success(`Job ${!isActive ? 'activated' : 'deactivated'} successfully`);
       fetchJobs();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update job status');
+      toast.error(err instanceof Error ? err.message : 'Failed to update job status');
     }
   };
 
@@ -202,63 +222,71 @@ export default function EmployerJobsPage() {
     }
   };
 
-  if (loading) {
+  if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your jobs...</p>
+        </div>
       </div>
     );
   }
 
+  if (status === 'unauthenticated' || session?.user?.role !== 'employer') {
+    return null;
+  }
+
   return (
-    <AuthGuard allowedRoles={['employer']}>
-      <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Job Management</h1>
-              <p className="text-gray-600">Manage your job postings and applications</p>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">Job Management</h1>
+              <p className="text-gray-600 text-lg">Manage your job postings and track applications</p>
             </div>
-            <Link href="/employer/post-job">
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
+            <Link href="/employer/jobs/create">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3">
+                <Plus className="h-5 w-5 mr-2" />
                 Post New Job
               </Button>
             </Link>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card>
-              <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Jobs</p>
-                    <p className="text-2xl font-bold">{stats.totalJobs}</p>
+                    <p className="text-3xl font-bold text-gray-900">{stats.totalJobs}</p>
                   </div>
-                  <Briefcase className="h-8 w-8 text-blue-500" />
+                  <Briefcase className="h-8 w-8 text-emerald-500" />
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Applications</p>
-                    <p className="text-2xl font-bold">{stats.totalApplications}</p>
+                    <p className="text-3xl font-bold text-gray-900">{stats.totalApplications}</p>
                   </div>
-                  <Users className="h-8 w-8 text-green-500" />
+                  <Users className="h-8 w-8 text-blue-500" />
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-4">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Active Jobs</p>
-                    <p className="text-2xl font-bold">{jobs.filter(job => job.isActive).length}</p>
+                    <p className="text-3xl font-bold text-gray-900">{jobs.filter(job => job.isActive).length}</p>
                   </div>
-                  <Calendar className="h-8 w-8 text-purple-500" />
+                  <CheckCircle className="h-8 w-8 text-green-500" />
                 </div>
               </CardContent>
             </Card>
@@ -266,21 +294,21 @@ export default function EmployerJobsPage() {
 
           {/* Filters */}
           <Card className="mb-6">
-            <CardContent className="p-4">
-              <div className="flex flex-wrap gap-4">
-                <div className="flex-1 min-w-64">
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <Input
                       placeholder="Search jobs..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 h-12"
                     />
                   </div>
                 </div>
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger className="w-40">
+                <Select value={jobStatus} onValueChange={setJobStatus}>
+                  <SelectTrigger className="w-full sm:w-40 h-12">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -292,7 +320,7 @@ export default function EmployerJobsPage() {
                   </SelectContent>
                 </Select>
                 <Select value={jobType} onValueChange={setJobType}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-full sm:w-40 h-12">
                     <SelectValue placeholder="Job Type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -301,11 +329,10 @@ export default function EmployerJobsPage() {
                     <SelectItem value="part-time">Part-time</SelectItem>
                     <SelectItem value="contract">Contract</SelectItem>
                     <SelectItem value="internship">Internship</SelectItem>
-                    <SelectItem value="remote">Remote</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={experienceLevel} onValueChange={setExperienceLevel}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-full sm:w-40 h-12">
                     <SelectValue placeholder="Experience" />
                   </SelectTrigger>
                   <SelectContent>
@@ -317,7 +344,7 @@ export default function EmployerJobsPage() {
                     <SelectItem value="executive">Executive</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button onClick={handleSearch} variant="outline">
+                <Button onClick={handleSearch} variant="outline" className="h-12">
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
@@ -328,94 +355,103 @@ export default function EmployerJobsPage() {
 
         {/* Jobs List */}
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <p className="text-red-800">{error}</p>
+            </div>
           </div>
         )}
 
-        <div className="space-y-4">
-          {jobs.map((job) => (
-            <Card key={job.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">{job.title}</h3>
-                      {getStatusBadge(job)}
-                      <Badge className={getExperienceLevelColor(job.experienceLevel)}>
-                        {job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1)}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {job.location}
+        <div className="space-y-6">
+          {jobs.map((job, index) => (
+            <motion.div
+              key={job.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <Card className="hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-xl font-semibold text-gray-900">{job.title}</h3>
+                        {getStatusBadge(job)}
+                        <Badge className={getExperienceLevelColor(job.experienceLevel)}>
+                          {job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1)}
+                        </Badge>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Briefcase className="h-4 w-4" />
-                        {job.jobType}
-                      </div>
-                      {job.salary && (
+                      
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
                         <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
-                          {job.salary}
+                          <MapPin className="h-4 w-4" />
+                          {job.location}
                         </div>
-                      )}
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {job._count.applications} applications
+                        <div className="flex items-center gap-1">
+                          <Briefcase className="h-4 w-4" />
+                          {job.jobType}
+                        </div>
+                        {job.salary && (
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="h-4 w-4" />
+                            {job.salary}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          {job._count.applications} applications
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          Posted {new Date(job.createdAt).toLocaleDateString()}
+                        </div>
                       </div>
+
+                      <p className="text-gray-700 text-sm line-clamp-2">
+                        {job.description || 'No description available'}
+                      </p>
                     </div>
 
-                    <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-                      {job.description || 'No description available'}
-                    </p>
-
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Calendar className="h-3 w-3" />
-                      Posted {new Date(job.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 ml-4">
-                    <Link href={`/employer/jobs/${job.id}/edit`}>
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edit
-                      </Button>
-                    </Link>
-                    
-                    <Link href={`/employer/applications?jobId=${job.id}`}>
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View Applications
-                      </Button>
-                    </Link>
-
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/employer/jobs/${job.id}/edit`}>
                         <Button variant="outline" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => toggleJobStatus(job.id, job.isActive)}>
-                          {job.isActive ? 'Deactivate' : 'Activate'}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleDeleteJob(job.id)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      </Link>
+                      
+                      <Link href={`/employer/applications?jobId=${job.id}`}>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4 mr-1" />
+                          View Applications
+                        </Button>
+                      </Link>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => toggleJobStatus(job.id, job.isActive)}>
+                            {job.isActive ? 'Deactivate' : 'Activate'}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteJob(job.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
 
@@ -427,6 +463,7 @@ export default function EmployerJobsPage() {
                 variant="outline"
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
+                className="h-10"
               >
                 Previous
               </Button>
@@ -437,6 +474,7 @@ export default function EmployerJobsPage() {
                 variant="outline"
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.totalPages))}
                 disabled={currentPage === pagination.totalPages}
+                className="h-10"
               >
                 Next
               </Button>
@@ -444,17 +482,32 @@ export default function EmployerJobsPage() {
           </div>
         )}
 
+        {/* Empty State */}
         {jobs.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
-            <p className="text-gray-600 mb-4">Get started by posting your first job.</p>
-            <Link href="/employer/post-job">
-              <Button>Post Your First Job</Button>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-12"
+          >
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Briefcase className="h-12 w-12 text-gray-400" />
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">No jobs found</h3>
+            <p className="text-gray-600 mb-8 text-lg">
+              {search || jobStatus !== 'all' || jobType !== 'all' || experienceLevel !== 'all'
+                ? 'Try adjusting your filters to see more results.'
+                : 'Get started by posting your first job to attract top talent.'
+              }
+            </p>
+            <Link href="/employer/jobs/create">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3">
+                <Plus className="h-5 w-5 mr-2" />
+                Post Your First Job
+              </Button>
             </Link>
-          </div>
+          </motion.div>
         )}
       </div>
-    </AuthGuard>
+    </div>
   );
 }
