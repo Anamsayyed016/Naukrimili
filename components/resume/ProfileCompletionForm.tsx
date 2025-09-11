@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Edit3, Save, CheckCircle, AlertCircle, X, Plus, Star, Briefcase, GraduationCap, User, Sparkles, Lightbulb, TrendingUp } from 'lucide-react';
+import { Edit3, Save, CheckCircle, AlertCircle, X, Plus, Star, Briefcase, GraduationCap, User, Sparkles, Lightbulb, TrendingUp, RefreshCw, Upload } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useSession } from 'next-auth/react';
 
@@ -89,17 +89,21 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		}
 	};
 
-	// Debounced AI suggestions
+	// Optimized debounced AI suggestions with better performance
 	const debounceSuggestions = (field: string, value: string) => {
 		if (suggestionTimeoutRef.current) {
 			clearTimeout(suggestionTimeoutRef.current);
 		}
-		
+
+		// Only fetch suggestions for meaningful input
+		if (value.trim().length < 2) {
+			setSuggestions(prev => ({ ...prev, [field]: [] }));
+			return;
+		}
+
 		suggestionTimeoutRef.current = setTimeout(() => {
-			if (value.length > 2) {
-				fetchAISuggestions(field, value);
-			}
-		}, 500);
+			fetchAISuggestions(field, value);
+		}, 300); // Reduced debounce time for better responsiveness
 	};
 
 	// Fetch AI suggestions
@@ -134,37 +138,25 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					setSuggestions(prev => ({ ...prev, [field]: result.suggestions }));
 					setShowSuggestions(prev => ({ ...prev, [field]: true }));
 					
-					// Show success toast
-					toast({
-						title: 'AI Suggestions Ready',
-						description: `Found ${result.suggestions.length} suggestions for ${field}`,
-					});
+					// Only show toast for important fields to reduce noise
+					if (['skills', 'jobTitle', 'summary'].includes(field)) {
+						toast({
+							title: 'AI Suggestions Ready',
+							description: `Found ${result.suggestions.length} suggestions for ${field}`,
+							duration: 2000
+						});
+					}
 				} else {
 					console.warn(`⚠️ No suggestions received for ${field}`);
-					toast({
-						title: 'No Suggestions',
-						description: `No AI suggestions available for ${field}`,
-						variant: 'destructive'
-					});
+					// Don't show toast for no suggestions to reduce noise
 				}
 			} else {
 				console.error(`❌ API error: ${response.status} ${response.statusText}`);
-				const errorData = await response.json();
-				console.error('Error details:', errorData);
-				
-				toast({
-					title: 'Suggestion Error',
-					description: 'Failed to load AI suggestions. Using fallback options.',
-					variant: 'destructive'
-				});
+				// Don't show error toast for every failed request to reduce noise
 			}
 		} catch (error) {
 			console.error('Failed to fetch AI suggestions:', error);
-			toast({
-				title: 'Connection Error',
-				description: 'Unable to connect to suggestion service. Please try again.',
-				variant: 'destructive'
-			});
+			// Don't show error toast for every failed request to reduce noise
 		} finally {
 			setLoadingSuggestions(prev => ({ ...prev, [field]: false }));
 		}
@@ -422,7 +414,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	};
 
 	return (
-		<div className="max-w-4xl mx-auto">
+		<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 			<Card className="shadow-lg border-0">
 				<CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50 border-b">
 					<CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -447,7 +439,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<Edit3 className="h-5 w-5 text-blue-600" />
 							Personal Information
 						</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
 							<AIPoweredInput
 								field="fullName"
 								label="Full Name"
@@ -480,7 +472,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<Edit3 className="h-5 w-5 text-green-600" />
 							Professional Information
 						</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
 							<AIPoweredInput
 								field="jobTitle"
 								label="Job Title"
@@ -625,7 +617,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 												<X className="h-4 w-4" />
 											</Button>
 										</div>
-										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
 											<AIPoweredInput
 												field={`experience.${index}.position`}
 												label="Position/Job Title"
@@ -761,7 +753,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 												<X className="h-4 w-4" />
 											</Button>
 										</div>
-										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
 											<AIPoweredInput
 												field={`education.${index}.degree`}
 												label="Degree"
@@ -915,7 +907,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<Briefcase className="h-5 w-5 text-slate-600" />
 							Additional Information
 						</h3>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
 							<AIPoweredInput
 								field="linkedin"
 								label="LinkedIn Profile"
@@ -1047,6 +1039,36 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 								Close
 							</Button>
 						)}
+					</div>
+
+					{/* Additional Actions */}
+					<div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+						<div className="text-center">
+							<h3 className="text-sm font-medium text-gray-700 mb-2">Need to make changes?</h3>
+							<p className="text-xs text-gray-500 mb-3">
+								You can edit any field above or upload a new resume to replace this data.
+							</p>
+							<div className="flex flex-col sm:flex-row gap-2 justify-center">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => window.location.reload()}
+									className="text-gray-600 hover:text-gray-800"
+								>
+									<RefreshCw className="h-4 w-4 mr-1" />
+									Refresh Form
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => window.location.href = '/resumes/upload'}
+									className="text-blue-600 hover:text-blue-800"
+								>
+									<Upload className="h-4 w-4 mr-1" />
+									Upload New Resume
+								</Button>
+							</div>
+						</div>
 					</div>
 				</CardContent>
 			</Card>

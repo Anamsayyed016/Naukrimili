@@ -366,40 +366,71 @@ function createFallbackData(resumeText: string) {
   console.log('📊 Extracted fallback data:', { email, phone, name, skills: skills.length, jobTitle });
   
   return {
-    personalInformation: {
-      fullName: name || 'Resume Uploaded',
-      email: email || '',
-      phone: phone || '',
-      location: 'Location not specified'
-    },
-    professionalInformation: {
-      jobTitle: jobTitle,
-      expectedSalary: 'Salary not specified'
-    },
+    fullName: name || 'Resume Uploaded',
+    email: email || '',
+    phone: phone || '',
+    location: 'Location not specified',
+    jobTitle: jobTitle,
+    expectedSalary: 'Salary not specified',
+    summary: 'Professional summary not extracted. Please review and update.',
     skills: skills,
     education: [
       {
         degree: 'Education details not extracted',
         institution: 'Institution not specified',
-        year: 'Year not specified'
+        field: 'Field not specified',
+        startDate: 'Start date not specified',
+        endDate: 'End date not specified',
+        gpa: '',
+        description: 'Please review and update your education details'
       }
     ],
     experience: [
       {
-        role: 'Experience details not extracted',
+        position: 'Experience details not extracted',
         company: 'Company not specified',
-        duration: 'Duration not specified',
+        location: 'Location not specified',
+        startDate: 'Start date not specified',
+        endDate: 'End date not specified',
+        current: false,
+        description: 'Please review and update your experience details',
         achievements: ['Please review and update your experience details']
       }
     ],
-    certifications: [],
-    recommendedJobTitles: [jobTitle, 'Software Engineer', 'Developer'],
-    atsScore: 30, // Lower score for fallback data
-    improvementTips: [
+    projects: [
+      {
+        name: 'Project details not extracted',
+        description: 'Please review and update your project details',
+        technologies: ['Technology not specified'],
+        url: '',
+        startDate: 'Start date not specified',
+        endDate: 'End date not specified'
+      }
+    ],
+    certifications: [
+      {
+        name: 'Certification details not extracted',
+        issuer: 'Issuer not specified',
+        date: 'Date not specified',
+        url: ''
+      }
+    ],
+    languages: ['English'],
+    linkedin: '',
+    portfolio: '',
+    preferredJobType: 'Full-time',
+    confidence: 25,
+    rawText: resumeText,
+    atsSuggestions: [
       'AI parsing was unavailable. Please review and update your information manually.',
       'Add more specific technical skills',
       'Include quantifiable achievements',
       'Optimize keywords for ATS systems'
+    ],
+    jobSuggestions: [
+      { title: jobTitle, reason: 'Based on your technical skills' },
+      { title: 'Software Engineer', reason: 'Common role for your skills' },
+      { title: 'Developer', reason: 'General development role' }
     ]
   };
 }
