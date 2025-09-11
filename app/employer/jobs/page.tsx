@@ -224,7 +224,7 @@ export default function EmployerJobsPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100">
+      <div className="bg-gradient-to-br from-emerald-50 to-green-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your jobs...</p>
@@ -238,7 +238,7 @@ export default function EmployerJobsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100">
+    <div className="bg-gradient-to-br from-emerald-50 to-green-100 min-h-[calc(100vh-4rem)]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">

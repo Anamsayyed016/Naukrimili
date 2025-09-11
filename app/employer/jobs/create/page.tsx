@@ -215,8 +215,11 @@ export default function CreateJobPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+      <div className="bg-gradient-to-br from-emerald-50 to-green-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading job creation form...</p>
+        </div>
       </div>
     );
   }
@@ -226,7 +229,7 @@ export default function CreateJobPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 py-8">
+    <div className="bg-gradient-to-br from-emerald-50 to-green-100 min-h-[calc(100vh-4rem)] py-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -272,7 +275,7 @@ export default function CreateJobPage() {
         </div>
 
         {/* Form Content */}
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
           <CardContent className="p-6 sm:p-8">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
@@ -300,7 +303,7 @@ export default function CreateJobPage() {
                         value={formData.title}
                         onChange={(e) => handleInputChange('title', e.target.value)}
                         placeholder="e.g., Senior React Developer"
-                        className="mt-1 h-12 text-lg"
+                        className="mt-1 h-12 text-lg bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
                         required
                       />
                     </div>
@@ -315,7 +318,7 @@ export default function CreateJobPage() {
                         onChange={(e) => handleInputChange('description', e.target.value)}
                         placeholder="Describe the role, responsibilities, and what makes this position exciting..."
                         rows={6}
-                        className="mt-1 text-lg"
+                        className="mt-1 text-lg bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-emerald-500 focus:ring-emerald-500"
                         required
                       />
                     </div>

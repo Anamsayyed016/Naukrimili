@@ -197,7 +197,7 @@ export default function CompanyProfilePage() {
 
   if (status === 'loading' || initialLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-red-100">
+      <div className="bg-gradient-to-br from-orange-50 to-red-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading company profile...</p>
@@ -211,7 +211,7 @@ export default function CompanyProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 py-8">
+    <div className="bg-gradient-to-br from-orange-50 to-red-100 min-h-[calc(100vh-4rem)] py-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
