@@ -647,14 +647,14 @@ export default function ResumeBuilderPage() {
         </div>
 
         {/* Template & Color Selection */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="w-5 h-5" />
+        <Card className="mb-6 bg-white/95 backdrop-blur-sm border-gray-200 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+            <CardTitle className="flex items-center gap-2 text-gray-800">
+              <Palette className="w-5 h-5 text-blue-600" />
               Template & Style
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="bg-white/80">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -715,27 +715,27 @@ export default function ResumeBuilderPage() {
           {/* Builder Form */}
           <div className="space-y-6">
             <Tabs defaultValue="personal" className="w-full">
-              <TabsList className="grid w-full grid-cols-8">
-                <TabsTrigger value="personal">Personal</TabsTrigger>
-                <TabsTrigger value="education">Education</TabsTrigger>
-                <TabsTrigger value="experience">Experience</TabsTrigger>
-                <TabsTrigger value="skills">Skills</TabsTrigger>
-                <TabsTrigger value="projects">Projects</TabsTrigger>
-                <TabsTrigger value="certifications">Certifications</TabsTrigger>
-                <TabsTrigger value="languages">Languages</TabsTrigger>
-                <TabsTrigger value="references">References</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-8 bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg">
+                <TabsTrigger value="personal" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Personal</TabsTrigger>
+                <TabsTrigger value="education" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Education</TabsTrigger>
+                <TabsTrigger value="experience" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Experience</TabsTrigger>
+                <TabsTrigger value="skills" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Skills</TabsTrigger>
+                <TabsTrigger value="projects" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Projects</TabsTrigger>
+                <TabsTrigger value="certifications" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Certifications</TabsTrigger>
+                <TabsTrigger value="languages" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Languages</TabsTrigger>
+                <TabsTrigger value="references" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">References</TabsTrigger>
               </TabsList>
 
               {/* Personal Information */}
               <TabsContent value="personal" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="w-5 h-5" />
+                <Card className="bg-white/95 backdrop-blur-sm border-gray-200 shadow-lg">
+                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                    <CardTitle className="flex items-center gap-2 text-gray-800">
+                      <User className="w-5 h-5 text-blue-600" />
                       Personal Information
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-4 bg-white/80">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -745,6 +745,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.fullName}
                           onChange={(e) => updatePersonalInfo('fullName', e.target.value)}
                           placeholder="John Doe"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
                       </div>
                       <div>
@@ -756,6 +757,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.email}
                           onChange={(e) => updatePersonalInfo('email', e.target.value)}
                           placeholder="john@example.com"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
                       </div>
                     </div>
@@ -768,6 +770,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.phone}
                           onChange={(e) => updatePersonalInfo('phone', e.target.value)}
                           placeholder="+1 (555) 123-4567"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
                       </div>
                       <div>
@@ -778,6 +781,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.location}
                           onChange={(e) => updatePersonalInfo('location', e.target.value)}
                           placeholder="New York, NY"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         />
                       </div>
                     </div>
@@ -785,11 +789,12 @@ export default function ResumeBuilderPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         LinkedIn
                       </label>
-                      <Input
-                        value={resumeData.personalInfo.linkedin}
-                        onChange={(e) => updatePersonalInfo('linkedin', e.target.value)}
-                        placeholder="linkedin.com/in/johndoe"
-                      />
+                        <Input
+                          value={resumeData.personalInfo.linkedin}
+                          onChange={(e) => updatePersonalInfo('linkedin', e.target.value)}
+                          placeholder="linkedin.com/in/johndoe"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                        />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -800,6 +805,7 @@ export default function ResumeBuilderPage() {
                         onChange={(e) => updatePersonalInfo('summary', e.target.value)}
                         placeholder="Experienced software developer with 5+ years..."
                         rows={4}
+                        className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
                   </CardContent>
@@ -1403,10 +1409,10 @@ export default function ResumeBuilderPage() {
             </Tabs>
 
             {/* AI Suggestions Panel */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="w-5 h-5" />
+            <Card className="mt-6 bg-white/95 backdrop-blur-sm border-gray-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                <CardTitle className="flex items-center gap-2 text-gray-800">
+                  <Brain className="w-5 h-5 text-purple-600" />
                   AI Suggestions
                   {isAnalyzing && (
                     <div className="flex items-center gap-2 text-blue-600">
@@ -1416,7 +1422,7 @@ export default function ResumeBuilderPage() {
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="bg-white/80">
                 {suggestions.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <Lightbulb className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -1462,20 +1468,20 @@ export default function ResumeBuilderPage() {
 
           {/* Live Preview */}
           <div className="sticky top-8">
-            <Card className="h-fit">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+            <Card className="h-fit bg-white/95 backdrop-blur-sm border-gray-200 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+                <CardTitle className="flex items-center justify-between text-gray-800">
                   <span className="flex items-center gap-2">
-                    <Eye className="w-5 h-5" />
+                    <Eye className="w-5 h-5 text-green-600" />
                     Live Preview
                   </span>
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="bg-white/80">
                     ATS Score: {atsAnalysis?.score || 0}/100
                   </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="border rounded-lg p-6 bg-white min-h-[600px]">
+              <CardContent className="bg-white/80">
+                <div className="border rounded-lg p-6 bg-white min-h-[600px] shadow-inner">
                   {/* Resume Preview Content */}
                   <div className={`space-y-6 ${getFontClass(customization.fontFamily)}`}>
                     {/* Header */}
