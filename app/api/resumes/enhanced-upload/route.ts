@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
-import { DynamicResumeAI } from '@/lib/dynamic-resume-ai';
+import { HybridResumeAI } from '@/lib/hybrid-resume-ai';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
-const dynamicResumeAI = new DynamicResumeAI();
+const hybridResumeAI = new HybridResumeAI();
 
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -94,23 +94,26 @@ export async function POST(request: NextRequest) {
 
     console.log('📄 Extracted text length:', extractedText.length);
 
-    // Parse resume using dynamic AI
+    // Parse resume using hybrid AI (OpenAI + Gemini)
     let parsedData;
     let aiSuccess = false;
     let confidence = 0;
+    let aiProvider = 'fallback';
 
     try {
-      parsedData = await dynamicResumeAI.parseResumeText(extractedText);
+      parsedData = await hybridResumeAI.parseResumeText(extractedText);
       aiSuccess = true;
-      confidence = parsedData.atsScore;
-      console.log('✅ Dynamic AI parsing successful with ATS score:', confidence);
+      confidence = parsedData.confidence;
+      aiProvider = parsedData.aiProvider;
+      console.log(`✅ Hybrid AI parsing successful with ${aiProvider}, confidence: ${confidence}%, ATS score: ${parsedData.atsScore}%`);
     } catch (aiError) {
-      console.error('❌ Dynamic AI parsing failed:', aiError);
+      console.error('❌ Hybrid AI parsing failed:', aiError);
       
       // Fallback to basic parsing
       parsedData = createFallbackData(extractedText);
       aiSuccess = false;
-      confidence = 50;
+      confidence = 30;
+      aiProvider = 'fallback';
     }
 
     // Convert to the format expected by the frontend
@@ -205,10 +208,12 @@ export async function POST(request: NextRequest) {
       resumeId: resume.id,
       profile,
       aiSuccess,
-      atsScore: confidence,
+      atsScore: parsedData.atsScore,
       recommendedJobTitles: parsedData.recommendedJobTitles,
       improvementTips: parsedData.improvementTips,
-      confidence: confidence
+      confidence: confidence,
+      aiProvider: aiProvider,
+      processingTime: parsedData.processingTime || 0
     });
 
   } catch (error) {
