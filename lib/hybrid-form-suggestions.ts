@@ -43,6 +43,12 @@ export class HybridFormSuggestions {
   async generateSuggestions(field: string, value: string, context: any): Promise<FormSuggestion> {
     console.log(`🔮 Generating suggestions for field: ${field}`);
 
+    // Check if any AI providers are available
+    if (!this.openai && !this.gemini) {
+      console.log(`⚠️ No AI providers available for ${field}, using enhanced fallback`);
+      return this.getEnhancedFallbackSuggestions(field, value, context);
+    }
+
     // Try multiple approaches in parallel
     const promises: Promise<FormSuggestion>[] = [];
 
@@ -54,11 +60,6 @@ export class HybridFormSuggestions {
     // Add Gemini suggestions if available
     if (this.gemini) {
       promises.push(this.generateWithGemini(field, value, context));
-    }
-
-    // If no AI providers available, use fallback
-    if (promises.length === 0) {
-      return this.getFallbackSuggestions(field, value);
     }
 
     try {
@@ -77,8 +78,8 @@ export class HybridFormSuggestions {
       });
 
       if (successfulResults.length === 0) {
-        console.log(`⚠️ All AI providers failed for ${field}, using fallback`);
-        return this.getFallbackSuggestions(field, value);
+        console.log(`⚠️ All AI providers failed for ${field}, using enhanced fallback`);
+        return this.getEnhancedFallbackSuggestions(field, value, context);
       }
 
       // If we have multiple successful results, combine them
@@ -91,7 +92,7 @@ export class HybridFormSuggestions {
 
     } catch (error) {
       console.error(`❌ Hybrid suggestions failed for ${field}:`, error);
-      return this.getFallbackSuggestions(field, value);
+      return this.getEnhancedFallbackSuggestions(field, value, context);
     }
   }
 
@@ -221,36 +222,141 @@ export class HybridFormSuggestions {
   }
 
   /**
-   * Get fallback suggestions when AI is not available
+   * Get enhanced fallback suggestions when AI is not available
    */
-  private getFallbackSuggestions(field: string, value: string): FormSuggestion {
+  private getEnhancedFallbackSuggestions(field: string, value: string, context: any): FormSuggestion {
+    const baseContext = {
+      skills: context.skills || [],
+      experience: context.experience || [],
+      education: context.education || []
+    };
+
     const fallbackSuggestions: { [key: string]: string[] } = {
       skills: [
         'JavaScript', 'Python', 'React', 'Node.js', 'TypeScript',
-        'AWS', 'Docker', 'Git', 'SQL', 'MongoDB'
+        'AWS', 'Docker', 'Git', 'SQL', 'MongoDB', 'Express.js',
+        'Next.js', 'Vue.js', 'Angular', 'Java', 'C++', 'PHP',
+        'Laravel', 'Django', 'Flask', 'Spring Boot', 'PostgreSQL',
+        'Redis', 'GraphQL', 'REST API', 'Microservices', 'Kubernetes',
+        'TensorFlow', 'PyTorch', 'Machine Learning', 'Data Science',
+        'DevOps', 'CI/CD', 'Jenkins', 'GitLab', 'GitHub Actions'
       ],
       jobTitle: [
         'Software Engineer', 'Full Stack Developer', 'Frontend Developer',
-        'Backend Developer', 'DevOps Engineer'
+        'Backend Developer', 'DevOps Engineer', 'Data Scientist',
+        'Machine Learning Engineer', 'Product Manager', 'UI/UX Designer',
+        'Mobile App Developer', 'Cloud Engineer', 'Security Engineer',
+        'Solutions Architect', 'Technical Lead', 'Engineering Manager'
       ],
       location: [
         'Bangalore, India', 'Mumbai, India', 'Delhi, India',
-        'Hyderabad, India', 'Pune, India'
+        'Hyderabad, India', 'Pune, India', 'Chennai, India',
+        'Kolkata, India', 'Ahmedabad, India', 'Gurgaon, India',
+        'Noida, India', 'Remote', 'Hybrid', 'San Francisco, CA',
+        'New York, NY', 'London, UK', 'Singapore', 'Dubai, UAE'
       ],
       summary: [
-        'Experienced software developer with strong technical skills',
-        'Passionate developer with expertise in modern technologies',
-        'Results-driven professional with proven track record'
+        'Experienced software developer with strong technical skills and passion for creating innovative solutions.',
+        'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.',
+        'Passionate developer with excellent problem-solving abilities and strong communication skills.',
+        'Detail-oriented software engineer with experience in full-stack development and agile methodologies.',
+        'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.',
+        'Skilled professional with expertise in scalable web applications and cloud technologies.',
+        'Innovative developer with strong background in AI/ML and data-driven solutions.'
       ],
       expectedSalary: [
-        '8-12 LPA', '12-18 LPA', '18-25 LPA', '25-35 LPA', '35+ LPA'
+        '5-8 LPA', '8-12 LPA', '12-18 LPA', '18-25 LPA', 
+        '25-35 LPA', '35-50 LPA', '50+ LPA', 'Negotiable',
+        'As per industry standards', 'Based on experience'
+      ],
+      preferredJobType: [
+        'Full-time', 'Part-time', 'Contract', 'Freelance', 
+        'Internship', 'Remote', 'Hybrid', 'On-site'
+      ],
+      linkedin: [
+        'https://linkedin.com/in/yourname',
+        'https://linkedin.com/in/yourusername',
+        'https://www.linkedin.com/in/yourprofile'
+      ],
+      portfolio: [
+        'https://yourname.dev',
+        'https://yourname.github.io',
+        'https://yourname.vercel.app',
+        'https://yourname.netlify.app'
       ]
     };
 
+    // Filter suggestions based on current value and context
+    let suggestions = fallbackSuggestions[field] || ['Option 1', 'Option 2', 'Option 3'];
+    
+    // For skills, add context-aware suggestions
+    if (field === 'skills' && baseContext.skills.length > 0) {
+      const relatedSkills = this.getRelatedSkills(baseContext.skills);
+      suggestions = [...new Set([...suggestions, ...relatedSkills])].slice(0, 15);
+    }
+
+    // For job titles, add context-aware suggestions
+    if (field === 'jobTitle' && baseContext.skills.length > 0) {
+      const skillBasedTitles = this.getSkillBasedJobTitles(baseContext.skills);
+      suggestions = [...new Set([...suggestions, ...skillBasedTitles])].slice(0, 12);
+    }
+
     return {
-      suggestions: fallbackSuggestions[field] || ['Option 1', 'Option 2', 'Option 3'],
-      confidence: 30,
+      suggestions: suggestions,
+      confidence: 40,
       aiProvider: 'fallback'
     };
+  }
+
+  /**
+   * Get related skills based on existing skills
+   */
+  private getRelatedSkills(existingSkills: string[]): string[] {
+    const skillMap: { [key: string]: string[] } = {
+      'JavaScript': ['TypeScript', 'Node.js', 'React', 'Vue.js', 'Angular', 'Express.js'],
+      'Python': ['Django', 'Flask', 'FastAPI', 'Pandas', 'NumPy', 'TensorFlow', 'PyTorch'],
+      'React': ['Next.js', 'Redux', 'Context API', 'Hooks', 'JSX', 'Styled Components'],
+      'Node.js': ['Express.js', 'Socket.io', 'MongoDB', 'PostgreSQL', 'Redis'],
+      'AWS': ['Docker', 'Kubernetes', 'Terraform', 'CloudFormation', 'Lambda'],
+      'Java': ['Spring Boot', 'Spring MVC', 'Hibernate', 'Maven', 'Gradle'],
+      'SQL': ['PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'Elasticsearch']
+    };
+
+    const relatedSkills: string[] = [];
+    existingSkills.forEach(skill => {
+      const related = skillMap[skill] || [];
+      relatedSkills.push(...related);
+    });
+
+    return [...new Set(relatedSkills)];
+  }
+
+  /**
+   * Get job titles based on skills
+   */
+  private getSkillBasedJobTitles(skills: string[]): string[] {
+    const skillToTitleMap: { [key: string]: string[] } = {
+      'React': ['Frontend Developer', 'React Developer', 'UI Developer'],
+      'Node.js': ['Backend Developer', 'Node.js Developer', 'API Developer'],
+      'Python': ['Python Developer', 'Data Scientist', 'ML Engineer'],
+      'AWS': ['Cloud Engineer', 'DevOps Engineer', 'Solutions Architect'],
+      'Java': ['Java Developer', 'Backend Developer', 'Enterprise Developer'],
+      'Docker': ['DevOps Engineer', 'Platform Engineer', 'Infrastructure Engineer']
+    };
+
+    const titles: string[] = [];
+    skills.forEach(skill => {
+      const relatedTitles = skillToTitleMap[skill] || [];
+      titles.push(...relatedTitles);
+    });
+
+    return [...new Set(titles)];
+  }
+
+  /**
+   * Get fallback suggestions when AI is not available (legacy method)
+   */
+  private getFallbackSuggestions(field: string, value: string): FormSuggestion {
+    return this.getEnhancedFallbackSuggestions(field, value, {});
   }
 }

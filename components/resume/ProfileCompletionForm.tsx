@@ -107,6 +107,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		setLoadingSuggestions(prev => ({ ...prev, [field]: true }));
 		
 		try {
+			console.log(`🔮 Fetching AI suggestions for ${field}: ${value}`);
+			
 			const response = await fetch('/api/ai/form-suggestions', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -117,20 +119,52 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					context: {
 						skills: profileData.skills,
 						jobTitle: profileData.jobTitle,
-						location: profileData.location
+						location: profileData.location,
+						experience: profileData.experience,
+						education: profileData.education
 					}
 				})
 			});
 
 			if (response.ok) {
 				const result = await response.json();
-				if (result.success) {
+				console.log(`✅ AI suggestions response:`, result);
+				
+				if (result.success && result.suggestions && result.suggestions.length > 0) {
 					setSuggestions(prev => ({ ...prev, [field]: result.suggestions }));
 					setShowSuggestions(prev => ({ ...prev, [field]: true }));
+					
+					// Show success toast
+					toast({
+						title: 'AI Suggestions Ready',
+						description: `Found ${result.suggestions.length} suggestions for ${field}`,
+					});
+				} else {
+					console.warn(`⚠️ No suggestions received for ${field}`);
+					toast({
+						title: 'No Suggestions',
+						description: `No AI suggestions available for ${field}`,
+						variant: 'destructive'
+					});
 				}
+			} else {
+				console.error(`❌ API error: ${response.status} ${response.statusText}`);
+				const errorData = await response.json();
+				console.error('Error details:', errorData);
+				
+				toast({
+					title: 'Suggestion Error',
+					description: 'Failed to load AI suggestions. Using fallback options.',
+					variant: 'destructive'
+				});
 			}
 		} catch (error) {
 			console.error('Failed to fetch AI suggestions:', error);
+			toast({
+				title: 'Connection Error',
+				description: 'Unable to connect to suggestion service. Please try again.',
+				variant: 'destructive'
+			});
 		} finally {
 			setLoadingSuggestions(prev => ({ ...prev, [field]: false }));
 		}
