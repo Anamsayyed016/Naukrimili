@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { DynamicResumeAI } from '@/lib/dynamic-resume-ai';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import pdf from 'pdf-parse';
+import mammoth from 'mammoth';
 
 const dynamicResumeAI = new DynamicResumeAI();
 
@@ -223,68 +225,156 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Extract text from uploaded file (simplified version)
+ * Extract text from uploaded file using proper parsing libraries
  */
 async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<string> {
   try {
+    console.log('📄 Extracting text from file:', file.name, 'Type:', file.type);
+    
     if (file.type === 'text/plain') {
-      return new TextDecoder().decode(bytes);
+      const text = new TextDecoder().decode(bytes);
+      console.log('✅ Plain text extracted, length:', text.length);
+      return text;
     }
     
-    // For PDF and DOC files, we'll use a simplified approach
-    // In a real implementation, you'd use libraries like pdf-parse or mammoth
-    const text = new TextDecoder().decode(bytes);
+    if (file.type === 'application/pdf') {
+      console.log('📄 Processing PDF file...');
+      const pdfData = await pdf(Buffer.from(bytes));
+      const text = pdfData.text;
+      console.log('✅ PDF text extracted, length:', text.length);
+      console.log('📄 PDF preview:', text.substring(0, 200) + '...');
+      return text;
+    }
     
-    // Basic text extraction - look for readable text
+    if (file.type === 'application/msword' || 
+        file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      console.log('📄 Processing Word document...');
+      const result = await mammoth.extractRawText({ buffer: Buffer.from(bytes) });
+      const text = result.value;
+      console.log('✅ Word document text extracted, length:', text.length);
+      console.log('📄 Word preview:', text.substring(0, 200) + '...');
+      return text;
+    }
+    
+    // Fallback for unknown file types
+    console.log('⚠️ Unknown file type, attempting basic text extraction...');
+    const text = new TextDecoder().decode(bytes);
     const readableText = text.replace(/[^\x20-\x7E\s]/g, ' ').replace(/\s+/g, ' ').trim();
     
     if (readableText.length > 50) {
+      console.log('✅ Basic text extraction successful, length:', readableText.length);
       return readableText;
     }
     
-    // Fallback: return filename as text
+    // Final fallback: return filename as text
+    console.log('⚠️ Text extraction failed, using filename as fallback');
     return `Resume: ${file.name}`;
   } catch (error) {
-    console.error('Text extraction failed:', error);
+    console.error('❌ Text extraction failed:', error);
     return `Resume: ${file.name}`;
   }
 }
 
 /**
- * Create fallback data when AI parsing fails
+ * Create intelligent fallback data when AI parsing fails
  */
 function createFallbackData(resumeText: string) {
+  console.log('🔄 Creating intelligent fallback data from resume text...');
+  
+  // Extract basic information from resume text using regex patterns
+  const extractEmail = (text: string) => {
+    const emailMatch = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
+    return emailMatch ? emailMatch[0] : '';
+  };
+  
+  const extractPhone = (text: string) => {
+    const phoneMatch = text.match(/(\+?91[\s-]?)?[6-9]\d{9}/);
+    return phoneMatch ? phoneMatch[0] : '';
+  };
+  
+  const extractName = (text: string) => {
+    // Look for common name patterns at the beginning of the resume
+    const lines = text.split('\n').slice(0, 10); // Check first 10 lines
+    for (const line of lines) {
+      const cleanLine = line.trim();
+      if (cleanLine.length > 2 && cleanLine.length < 50 && 
+          !cleanLine.includes('@') && !cleanLine.includes('+') && 
+          !cleanLine.includes('http') && !cleanLine.includes('www')) {
+        return cleanLine;
+      }
+    }
+    return '';
+  };
+  
+  const extractSkills = (text: string) => {
+    const commonSkills = [
+      'JavaScript', 'Python', 'Java', 'React', 'Node.js', 'Angular', 'Vue.js',
+      'HTML', 'CSS', 'SQL', 'MongoDB', 'PostgreSQL', 'AWS', 'Docker',
+      'Git', 'Linux', 'Agile', 'Scrum', 'Machine Learning', 'Data Analysis'
+    ];
+    
+    const foundSkills = commonSkills.filter(skill => 
+      text.toLowerCase().includes(skill.toLowerCase())
+    );
+    
+    return foundSkills.length > 0 ? foundSkills : ['JavaScript', 'React', 'Node.js'];
+  };
+  
+  const extractJobTitle = (text: string) => {
+    const commonTitles = [
+      'Software Engineer', 'Developer', 'Programmer', 'Analyst', 'Manager',
+      'Designer', 'Consultant', 'Specialist', 'Lead', 'Senior', 'Junior'
+    ];
+    
+    for (const title of commonTitles) {
+      if (text.toLowerCase().includes(title.toLowerCase())) {
+        return title;
+      }
+    }
+    return 'Software Developer';
+  };
+  
+  // Extract information
+  const email = extractEmail(resumeText);
+  const phone = extractPhone(resumeText);
+  const name = extractName(resumeText);
+  const skills = extractSkills(resumeText);
+  const jobTitle = extractJobTitle(resumeText);
+  
+  console.log('📊 Extracted fallback data:', { email, phone, name, skills: skills.length, jobTitle });
+  
   return {
     personalInformation: {
-      fullName: 'John Doe',
-      email: 'john.doe@example.com',
-      phone: '+91 98765 43210',
-      location: 'Bangalore, India'
+      fullName: name || 'Resume Uploaded',
+      email: email || '',
+      phone: phone || '',
+      location: 'Location not specified'
     },
     professionalInformation: {
-      jobTitle: 'Software Developer',
-      expectedSalary: '15-25 LPA'
+      jobTitle: jobTitle,
+      expectedSalary: 'Salary not specified'
     },
-    skills: ['JavaScript', 'React', 'Node.js', 'Python', 'Git'],
+    skills: skills,
     education: [
       {
-        degree: 'Bachelor of Technology',
-        institution: 'University',
-        year: '2023'
+        degree: 'Education details not extracted',
+        institution: 'Institution not specified',
+        year: 'Year not specified'
       }
     ],
     experience: [
       {
-        role: 'Software Developer',
-        company: 'Tech Company',
-        duration: '2022 - Present',
-        achievements: ['Developed web applications', 'Improved system performance']
+        role: 'Experience details not extracted',
+        company: 'Company not specified',
+        duration: 'Duration not specified',
+        achievements: ['Please review and update your experience details']
       }
     ],
     certifications: [],
-    recommendedJobTitles: ['Software Engineer', 'Full-Stack Developer', 'Frontend Developer'],
-    atsScore: 50,
+    recommendedJobTitles: [jobTitle, 'Software Engineer', 'Developer'],
+    atsScore: 30, // Lower score for fallback data
     improvementTips: [
+      'AI parsing was unavailable. Please review and update your information manually.',
       'Add more specific technical skills',
       'Include quantifiable achievements',
       'Optimize keywords for ATS systems'
