@@ -190,17 +190,23 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	};
 
 	// AI-Powered Input Component
-	const AIPoweredInput = ({ field, label, placeholder, type = "text", required = false, className = "" }: {
+	const AIPoweredInput = ({ field, label, placeholder, type = "text", required = false, className = "", value, onChange }: {
 		field: string;
 		label: string;
 		placeholder: string;
 		type?: string;
 		required?: boolean;
 		className?: string;
+		value?: string;
+		onChange?: (value: string) => void;
 	}) => {
 		const fieldSuggestions = suggestions[field] || [];
 		const showFieldSuggestions = showSuggestions[field] || false;
 		const loading = loadingSuggestions[field] || false;
+
+		// Use custom value and onChange if provided, otherwise use default behavior
+		const inputValue = value !== undefined ? value : (profileData[field as keyof typeof profileData] as string);
+		const handleChange = onChange || ((val: string) => handleInputChange(field, val));
 
 		return (
 			<div className="relative">
@@ -209,8 +215,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					<Input
 						id={field}
 						type={type}
-						value={profileData[field as keyof typeof profileData] as string}
-						onChange={(e) => handleInputChange(field, e.target.value)}
+						value={inputValue}
+						onChange={(e) => handleChange(e.target.value)}
 						placeholder={placeholder}
 						className={`mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 ${className}`}
 						required={required}
@@ -254,7 +260,10 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<button
 								key={index}
 								type="button"
-								onClick={() => applySuggestion(field, suggestion)}
+								onClick={() => {
+									handleChange(suggestion);
+									setShowSuggestions(prev => ({ ...prev, [field]: false }));
+								}}
 								className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-100 last:border-b-0"
 							>
 								<div className="flex items-center gap-2">
@@ -562,60 +571,289 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						</p>
 					</div>
 
-					{/* Experience Section - NEW */}
-					{profileData.experience && profileData.experience.length > 0 && (
-						<div className="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-xl border border-orange-100">
-							<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+					{/* Experience Section - Enhanced with Add Button */}
+					<div className="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-xl border border-orange-100">
+						<div className="flex justify-between items-center mb-4">
+							<h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
 								<Briefcase className="h-5 w-5 text-orange-600" />
 								Work Experience ({profileData.experience.length})
 							</h3>
-							<div className="space-y-4">
-								{profileData.experience.map((exp: any, index: number) => (
-									<div key={index} className="bg-white p-4 rounded-lg border border-orange-200">
-										<div className="flex justify-between items-start mb-2">
-											<h4 className="font-semibold text-gray-800">{exp.position}</h4>
-											<span className="text-sm text-gray-600">{exp.company}</span>
-										</div>
-										<p className="text-sm text-gray-600 mb-2">{exp.location} • {exp.startDate} - {exp.current ? 'Present' : exp.endDate}</p>
-										<p className="text-sm text-gray-700">{exp.description}</p>
-										{exp.achievements && exp.achievements.length > 0 && (
-											<ul className="mt-2 space-y-1">
-												{exp.achievements.map((achievement: string, idx: number) => (
-													<li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
-														<span className="text-orange-500 mt-1">•</span>
-														{achievement}
-													</li>
-												))}
-											</ul>
-										)}
-									</div>
-								))}
-							</div>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={() => {
+									const newExp = {
+										position: '',
+										company: '',
+										location: '',
+										startDate: '',
+										endDate: '',
+										current: false,
+										description: '',
+										achievements: []
+									};
+									setProfileData(prev => ({
+										...prev,
+										experience: [...prev.experience, newExp]
+									}));
+								}}
+								className="border-orange-300 text-orange-700 hover:bg-orange-50"
+							>
+								<Plus className="h-4 w-4 mr-1" />
+								Add Experience
+							</Button>
 						</div>
-					)}
+						<div className="space-y-4">
+							{profileData.experience.length > 0 ? (
+								profileData.experience.map((exp: any, index: number) => (
+									<div key={index} className="bg-white p-4 rounded-lg border border-orange-200">
+										<div className="flex justify-between items-start mb-4">
+											<h4 className="font-semibold text-gray-800">Experience #{index + 1}</h4>
+											<Button
+												type="button"
+												variant="ghost"
+												size="sm"
+												onClick={() => {
+													setProfileData(prev => ({
+														...prev,
+														experience: prev.experience.filter((_, i) => i !== index)
+													}));
+												}}
+												className="text-red-600 hover:text-red-800 hover:bg-red-50"
+											>
+												<X className="h-4 w-4" />
+											</Button>
+										</div>
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<AIPoweredInput
+												field={`experience.${index}.position`}
+												label="Position/Job Title"
+												placeholder="e.g., Senior Software Engineer"
+												value={exp.position || ''}
+												onChange={(value) => {
+													const newExp = [...profileData.experience];
+													newExp[index] = { ...newExp[index], position: value };
+													setProfileData(prev => ({ ...prev, experience: newExp }));
+												}}
+											/>
+											<AIPoweredInput
+												field={`experience.${index}.company`}
+												label="Company"
+												placeholder="e.g., Google, Microsoft"
+												value={exp.company || ''}
+												onChange={(value) => {
+													const newExp = [...profileData.experience];
+													newExp[index] = { ...newExp[index], company: value };
+													setProfileData(prev => ({ ...prev, experience: newExp }));
+												}}
+											/>
+											<AIPoweredInput
+												field={`experience.${index}.location`}
+												label="Location"
+												placeholder="e.g., San Francisco, CA"
+												value={exp.location || ''}
+												onChange={(value) => {
+													const newExp = [...profileData.experience];
+													newExp[index] = { ...newExp[index], location: value };
+													setProfileData(prev => ({ ...prev, experience: newExp }));
+												}}
+											/>
+											<div className="flex gap-2">
+												<AIPoweredInput
+													field={`experience.${index}.startDate`}
+													label="Start Date"
+													placeholder="e.g., Jan 2020"
+													value={exp.startDate || ''}
+													onChange={(value) => {
+														const newExp = [...profileData.experience];
+														newExp[index] = { ...newExp[index], startDate: value };
+														setProfileData(prev => ({ ...prev, experience: newExp }));
+													}}
+												/>
+												<AIPoweredInput
+													field={`experience.${index}.endDate`}
+													label="End Date"
+													placeholder="e.g., Dec 2023"
+													value={exp.endDate || ''}
+													onChange={(value) => {
+														const newExp = [...profileData.experience];
+														newExp[index] = { ...newExp[index], endDate: value };
+														setProfileData(prev => ({ ...prev, experience: newExp }));
+													}}
+												/>
+											</div>
+										</div>
+										<div className="mt-4">
+											<label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+											<textarea
+												value={exp.description || ''}
+												onChange={(e) => {
+													const newExp = [...profileData.experience];
+													newExp[index] = { ...newExp[index], description: e.target.value };
+													setProfileData(prev => ({ ...prev, experience: newExp }));
+												}}
+												placeholder="Describe your role and key responsibilities..."
+												className="w-full h-20 p-3 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-orange-500 focus:ring-orange-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 rounded-lg resize-none"
+											/>
+										</div>
+									</div>
+								))
+							) : (
+								<div className="text-center py-8 text-gray-500">
+									<Briefcase className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+									<p>No work experience added yet. Click "Add Experience" to get started!</p>
+								</div>
+							)}
+						</div>
+					</div>
 
-					{/* Education Section - NEW */}
-					{profileData.education && profileData.education.length > 0 && (
-						<div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
-							<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+					{/* Education Section - Enhanced with Add Button */}
+					<div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
+						<div className="flex justify-between items-center mb-4">
+							<h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
 								<GraduationCap className="h-5 w-5 text-indigo-600" />
 								Education ({profileData.education.length})
 							</h3>
-							<div className="space-y-4">
-								{profileData.education.map((edu: any, index: number) => (
-									<div key={index} className="bg-white p-4 rounded-lg border border-indigo-200">
-										<div className="flex justify-between items-start mb-2">
-											<h4 className="font-semibold text-gray-800">{edu.degree}</h4>
-											<span className="text-sm text-gray-600">{edu.institution}</span>
-										</div>
-										<p className="text-sm text-gray-600 mb-2">{edu.field} • {edu.startDate} - {edu.endDate}</p>
-										{edu.gpa && <p className="text-sm text-gray-600">GPA: {edu.gpa}</p>}
-										{edu.description && <p className="text-sm text-gray-700">{edu.description}</p>}
-									</div>
-								))}
-							</div>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={() => {
+									const newEdu = {
+										degree: '',
+										institution: '',
+										field: '',
+										startDate: '',
+										endDate: '',
+										gpa: '',
+										description: ''
+									};
+									setProfileData(prev => ({
+										...prev,
+										education: [...prev.education, newEdu]
+									}));
+								}}
+								className="border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+							>
+								<Plus className="h-4 w-4 mr-1" />
+								Add Education
+							</Button>
 						</div>
-					)}
+						<div className="space-y-4">
+							{profileData.education.length > 0 ? (
+								profileData.education.map((edu: any, index: number) => (
+									<div key={index} className="bg-white p-4 rounded-lg border border-indigo-200">
+										<div className="flex justify-between items-start mb-4">
+											<h4 className="font-semibold text-gray-800">Education #{index + 1}</h4>
+											<Button
+												type="button"
+												variant="ghost"
+												size="sm"
+												onClick={() => {
+													setProfileData(prev => ({
+														...prev,
+														education: prev.education.filter((_, i) => i !== index)
+													}));
+												}}
+												className="text-red-600 hover:text-red-800 hover:bg-red-50"
+											>
+												<X className="h-4 w-4" />
+											</Button>
+										</div>
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<AIPoweredInput
+												field={`education.${index}.degree`}
+												label="Degree"
+												placeholder="e.g., Bachelor of Technology"
+												value={edu.degree || ''}
+												onChange={(value) => {
+													const newEdu = [...profileData.education];
+													newEdu[index] = { ...newEdu[index], degree: value };
+													setProfileData(prev => ({ ...prev, education: newEdu }));
+												}}
+											/>
+											<AIPoweredInput
+												field={`education.${index}.institution`}
+												label="Institution"
+												placeholder="e.g., Stanford University"
+												value={edu.institution || ''}
+												onChange={(value) => {
+													const newEdu = [...profileData.education];
+													newEdu[index] = { ...newEdu[index], institution: value };
+													setProfileData(prev => ({ ...prev, education: newEdu }));
+												}}
+											/>
+											<AIPoweredInput
+												field={`education.${index}.field`}
+												label="Field of Study"
+												placeholder="e.g., Computer Science"
+												value={edu.field || ''}
+												onChange={(value) => {
+													const newEdu = [...profileData.education];
+													newEdu[index] = { ...newEdu[index], field: value };
+													setProfileData(prev => ({ ...prev, education: newEdu }));
+												}}
+											/>
+											<AIPoweredInput
+												field={`education.${index}.gpa`}
+												label="GPA (Optional)"
+												placeholder="e.g., 3.8/4.0"
+												value={edu.gpa || ''}
+												onChange={(value) => {
+													const newEdu = [...profileData.education];
+													newEdu[index] = { ...newEdu[index], gpa: value };
+													setProfileData(prev => ({ ...prev, education: newEdu }));
+												}}
+											/>
+											<div className="flex gap-2">
+												<AIPoweredInput
+													field={`education.${index}.startDate`}
+													label="Start Date"
+													placeholder="e.g., Aug 2018"
+													value={edu.startDate || ''}
+													onChange={(value) => {
+														const newEdu = [...profileData.education];
+														newEdu[index] = { ...newEdu[index], startDate: value };
+														setProfileData(prev => ({ ...prev, education: newEdu }));
+													}}
+												/>
+												<AIPoweredInput
+													field={`education.${index}.endDate`}
+													label="End Date"
+													placeholder="e.g., May 2022"
+													value={edu.endDate || ''}
+													onChange={(value) => {
+														const newEdu = [...profileData.education];
+														newEdu[index] = { ...newEdu[index], endDate: value };
+														setProfileData(prev => ({ ...prev, education: newEdu }));
+													}}
+												/>
+											</div>
+										</div>
+										<div className="mt-4">
+											<label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+											<textarea
+												value={edu.description || ''}
+												onChange={(e) => {
+													const newEdu = [...profileData.education];
+													newEdu[index] = { ...newEdu[index], description: e.target.value };
+													setProfileData(prev => ({ ...prev, education: newEdu }));
+												}}
+												placeholder="Additional details about your education..."
+												className="w-full h-16 p-3 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 rounded-lg resize-none"
+											/>
+										</div>
+									</div>
+								))
+							) : (
+								<div className="text-center py-8 text-gray-500">
+									<GraduationCap className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+									<p>No education added yet. Click "Add Education" to get started!</p>
+								</div>
+							)}
+						</div>
+					</div>
 
 					{/* Summary Section - Enhanced with AI */}
 					<div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl border border-teal-100">
@@ -669,6 +907,122 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<Lightbulb className="h-3 w-3" />
 							AI will suggest professional summaries based on your skills and experience!
 						</p>
+					</div>
+
+					{/* Additional Information */}
+					<div className="bg-gradient-to-r from-slate-50 to-gray-50 p-6 rounded-xl border border-slate-100">
+						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<Briefcase className="h-5 w-5 text-slate-600" />
+							Additional Information
+						</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<AIPoweredInput
+								field="linkedin"
+								label="LinkedIn Profile"
+								placeholder="https://linkedin.com/in/yourname"
+								type="url"
+								className="focus:border-slate-500 focus:ring-slate-500"
+							/>
+							<AIPoweredInput
+								field="portfolio"
+								label="Portfolio/Website"
+								placeholder="https://yourname.dev"
+								type="url"
+								className="focus:border-slate-500 focus:ring-slate-500"
+							/>
+							<AIPoweredInput
+								field="preferredJobType"
+								label="Preferred Job Type"
+								placeholder="e.g., Full-time, Remote, Hybrid"
+								className="focus:border-slate-500 focus:ring-slate-500"
+							/>
+						</div>
+					</div>
+
+					{/* Projects Section */}
+					<div className="bg-gradient-to-r from-violet-50 to-purple-50 p-6 rounded-xl border border-violet-100">
+						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<Star className="h-5 w-5 text-violet-600" />
+							Projects & Portfolio
+						</h3>
+						<div className="space-y-4">
+							{profileData.projects && profileData.projects.length > 0 ? (
+								profileData.projects.map((project: any, index: number) => (
+									<div key={index} className="bg-white p-4 rounded-lg border border-violet-200">
+										<div className="flex justify-between items-start mb-2">
+											<h4 className="font-semibold text-gray-800">{project.name}</h4>
+											{project.url && (
+												<a href={project.url} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:text-violet-800 text-sm">
+													View Project →
+												</a>
+											)}
+										</div>
+										<p className="text-sm text-gray-600 mb-2">{project.technologies?.join(', ')}</p>
+										<p className="text-sm text-gray-700">{project.description}</p>
+									</div>
+								))
+							) : (
+								<div className="text-center py-8 text-gray-500">
+									<Star className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+									<p>No projects added yet. Projects will appear here when extracted from your resume.</p>
+								</div>
+							)}
+						</div>
+					</div>
+
+					{/* Certifications Section */}
+					<div className="bg-gradient-to-r from-emerald-50 to-green-50 p-6 rounded-xl border border-emerald-100">
+						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<GraduationCap className="h-5 w-5 text-emerald-600" />
+							Certifications
+						</h3>
+						<div className="space-y-4">
+							{profileData.certifications && profileData.certifications.length > 0 ? (
+								profileData.certifications.map((cert: any, index: number) => (
+									<div key={index} className="bg-white p-4 rounded-lg border border-emerald-200">
+										<div className="flex justify-between items-start mb-2">
+											<h4 className="font-semibold text-gray-800">{cert.name}</h4>
+											<span className="text-sm text-gray-600">{cert.issuer}</span>
+										</div>
+										<p className="text-sm text-gray-600">{cert.date}</p>
+										{cert.url && (
+											<a href={cert.url} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-800 text-sm">
+												View Certificate →
+											</a>
+										)}
+									</div>
+								))
+							) : (
+								<div className="text-center py-8 text-gray-500">
+									<GraduationCap className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+									<p>No certifications added yet. Certifications will appear here when extracted from your resume.</p>
+								</div>
+							)}
+						</div>
+					</div>
+
+					{/* Languages Section */}
+					<div className="bg-gradient-to-r from-rose-50 to-pink-50 p-6 rounded-xl border border-rose-100">
+						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<User className="h-5 w-5 text-rose-600" />
+							Languages
+						</h3>
+						<div className="space-y-4">
+							{profileData.languages && profileData.languages.length > 0 ? (
+								<div className="flex flex-wrap gap-3">
+									{profileData.languages.map((lang: any, index: number) => (
+										<span key={index} className="inline-flex items-center rounded-full border-2 px-3 py-1.5 text-sm font-semibold text-rose-700 bg-rose-100 border-rose-300">
+											{typeof lang === 'string' ? lang : `${lang.language} (${lang.proficiency})`}
+										</span>
+									))}
+								</div>
+							) : (
+								<div className="text-center py-8 text-gray-500">
+									<User className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+									<p>No languages added yet. Languages will appear here when extracted from your resume.</p>
+								</div>
+							)}
+						</div>
 					</div>
 
 					{/* Action Buttons */}
