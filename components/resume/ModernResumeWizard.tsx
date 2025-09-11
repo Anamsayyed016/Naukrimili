@@ -15,7 +15,11 @@ import {
   Target,
   FileText,
   Eye,
-  Download
+  Download,
+  Settings,
+  CheckCircle,
+  Loader2,
+  Briefcase
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
