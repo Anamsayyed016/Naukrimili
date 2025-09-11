@@ -170,7 +170,6 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
-}
 
 export async function OPTIONS() {
   return new NextResponse(null, { status: 200 });
