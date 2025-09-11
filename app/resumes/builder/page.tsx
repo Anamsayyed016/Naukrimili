@@ -275,6 +275,136 @@ export default function ResumeBuilderPage() {
     }));
   };
 
+  // Project handlers
+  const addProject = () => {
+    const newProject = {
+      id: ResumeDataFactory.createId(),
+      name: '',
+      description: '',
+      technologies: [],
+      url: '',
+      startDate: '',
+      endDate: '',
+      isCurrent: false,
+      achievements: []
+    };
+    setResumeData(prev => ({
+      ...prev,
+      projects: [...prev.projects, newProject]
+    }));
+  };
+
+  const updateProject = (id: string, field: string, value: string | string[]) => {
+    setResumeData(prev => ({
+      ...prev,
+      projects: prev.projects.map(project => 
+        project.id === id ? { ...project, [field]: value } : project
+      )
+    }));
+  };
+
+  const removeProject = (id: string) => {
+    setResumeData(prev => ({
+      ...prev,
+      projects: prev.projects.filter(project => project.id !== id)
+    }));
+  };
+
+  // Certification handlers
+  const addCertification = () => {
+    const newCertification = {
+      id: ResumeDataFactory.createId(),
+      name: '',
+      issuer: '',
+      date: '',
+      validUntil: '',
+      credentialId: '',
+      url: ''
+    };
+    setResumeData(prev => ({
+      ...prev,
+      certifications: [...prev.certifications, newCertification]
+    }));
+  };
+
+  const updateCertification = (id: string, field: string, value: string) => {
+    setResumeData(prev => ({
+      ...prev,
+      certifications: prev.certifications.map(cert => 
+        cert.id === id ? { ...cert, [field]: value } : cert
+      )
+    }));
+  };
+
+  const removeCertification = (id: string) => {
+    setResumeData(prev => ({
+      ...prev,
+      certifications: prev.certifications.filter(cert => cert.id !== id)
+    }));
+  };
+
+  // Language handlers
+  const addLanguage = () => {
+    const newLanguage = {
+      id: ResumeDataFactory.createId(),
+      language: '',
+      proficiency: 'conversational' as const,
+      isNative: false
+    };
+    setResumeData(prev => ({
+      ...prev,
+      languages: [...prev.languages, newLanguage]
+    }));
+  };
+
+  const updateLanguage = (id: string, field: string, value: string) => {
+    setResumeData(prev => ({
+      ...prev,
+      languages: prev.languages.map(lang => 
+        lang.id === id ? { ...lang, [field]: value } : lang
+      )
+    }));
+  };
+
+  const removeLanguage = (id: string) => {
+    setResumeData(prev => ({
+      ...prev,
+      languages: prev.languages.filter(lang => lang.id !== id)
+    }));
+  };
+
+  // Reference handlers
+  const addReference = () => {
+    const newReference = {
+      id: ResumeDataFactory.createId(),
+      name: '',
+      position: '',
+      company: '',
+      email: '',
+      phone: ''
+    };
+    setResumeData(prev => ({
+      ...prev,
+      references: [...prev.references, newReference]
+    }));
+  };
+
+  const updateReference = (id: string, field: string, value: string) => {
+    setResumeData(prev => ({
+      ...prev,
+      references: prev.references.map(ref => 
+        ref.id === id ? { ...ref, [field]: value } : ref
+      )
+    }));
+  };
+
+  const removeReference = (id: string) => {
+    setResumeData(prev => ({
+      ...prev,
+      references: prev.references.filter(ref => ref.id !== id)
+    }));
+  };
+
   // ATS score now calculated by AI analysis
 
   const saveResume = async () => {
@@ -464,12 +594,15 @@ export default function ResumeBuilderPage() {
           {/* Builder Form */}
           <div className="space-y-6">
             <Tabs defaultValue="personal" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-8">
                 <TabsTrigger value="personal">Personal</TabsTrigger>
                 <TabsTrigger value="education">Education</TabsTrigger>
                 <TabsTrigger value="experience">Experience</TabsTrigger>
                 <TabsTrigger value="skills">Skills</TabsTrigger>
                 <TabsTrigger value="projects">Projects</TabsTrigger>
+                <TabsTrigger value="certifications">Certifications</TabsTrigger>
+                <TabsTrigger value="languages">Languages</TabsTrigger>
+                <TabsTrigger value="references">References</TabsTrigger>
               </TabsList>
 
               {/* Personal Information */}
@@ -796,20 +929,414 @@ export default function ResumeBuilderPage() {
               <TabsContent value="projects" className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="w-5 h-5" />
-                      Projects
+                    <CardTitle className="flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <FileText className="w-5 h-5" />
+                        Projects
+                      </span>
+                      <Button onClick={addProject} size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Project
+                      </Button>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8 text-gray-500">
-                      <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                      <p>Project management coming soon!</p>
-                    </div>
+                  <CardContent className="space-y-4">
+                    {resumeData.projects.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p>No projects added yet. Click "Add Project" to get started.</p>
+                      </div>
+                    ) : (
+                      resumeData.projects.map((project, index) => (
+                        <Card key={project.id} className="border-l-4 border-l-blue-500">
+                          <CardContent className="pt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Project Name *
+                                </label>
+                                <Input
+                                  value={project.name}
+                                  onChange={(e) => updateProject(project.id, 'name', e.target.value)}
+                                  placeholder="E-commerce Website"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Technologies
+                                </label>
+                                <Input
+                                  value={project.technologies.join(', ')}
+                                  onChange={(e) => updateProject(project.id, 'technologies', e.target.value.split(',').map(t => t.trim()))}
+                                  placeholder="React, Node.js, MongoDB"
+                                />
+                              </div>
+                            </div>
+                            <div className="mt-4">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Description
+                              </label>
+                              <Textarea
+                                value={project.description}
+                                onChange={(e) => updateProject(project.id, 'description', e.target.value)}
+                                placeholder="Describe your project and your role..."
+                                rows={3}
+                              />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Project URL
+                                </label>
+                                <Input
+                                  value={project.url}
+                                  onChange={(e) => updateProject(project.id, 'url', e.target.value)}
+                                  placeholder="https://yourproject.com"
+                                />
+                              </div>
+                              <div className="flex items-end">
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => removeProject(project.id)}
+                                  className="w-full"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Remove
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Certifications */}
+              <TabsContent value="certifications" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <Award className="w-5 h-5" />
+                        Certifications
+                      </span>
+                      <Button onClick={addCertification} size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Certification
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {resumeData.certifications.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <Award className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p>No certifications added yet. Click "Add Certification" to get started.</p>
+                      </div>
+                    ) : (
+                      resumeData.certifications.map((cert) => (
+                        <Card key={cert.id} className="border-l-4 border-l-green-500">
+                          <CardContent className="pt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Certification Name *
+                                </label>
+                                <Input
+                                  value={cert.name}
+                                  onChange={(e) => updateCertification(cert.id, 'name', e.target.value)}
+                                  placeholder="AWS Certified Solutions Architect"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Issuing Organization
+                                </label>
+                                <Input
+                                  value={cert.issuer}
+                                  onChange={(e) => updateCertification(cert.id, 'issuer', e.target.value)}
+                                  placeholder="Amazon Web Services"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Issue Date
+                                </label>
+                                <Input
+                                  type="date"
+                                  value={cert.date}
+                                  onChange={(e) => updateCertification(cert.id, 'date', e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Expiry Date
+                                </label>
+                                <Input
+                                  type="date"
+                                  value={cert.validUntil}
+                                  onChange={(e) => updateCertification(cert.id, 'validUntil', e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <div className="mt-4">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Credential ID
+                              </label>
+                              <Input
+                                value={cert.credentialId}
+                                onChange={(e) => updateCertification(cert.id, 'credentialId', e.target.value)}
+                                placeholder="AWS-123456"
+                              />
+                            </div>
+                            <div className="mt-4 flex justify-end">
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeCertification(cert.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Languages */}
+              <TabsContent value="languages" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <FileText className="w-5 h-5" />
+                        Languages
+                      </span>
+                      <Button onClick={addLanguage} size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Language
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {resumeData.languages.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p>No languages added yet. Click "Add Language" to get started.</p>
+                      </div>
+                    ) : (
+                      resumeData.languages.map((lang) => (
+                        <Card key={lang.id} className="border-l-4 border-l-purple-500">
+                          <CardContent className="pt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Language *
+                                </label>
+                                <Input
+                                  value={lang.language}
+                                  onChange={(e) => updateLanguage(lang.id, 'language', e.target.value)}
+                                  placeholder="Spanish"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Proficiency Level
+                                </label>
+                                <Select value={lang.proficiency} onValueChange={(value) => updateLanguage(lang.id, 'proficiency', value)}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select proficiency" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="basic">Basic</SelectItem>
+                                    <SelectItem value="conversational">Conversational</SelectItem>
+                                    <SelectItem value="fluent">Fluent</SelectItem>
+                                    <SelectItem value="native">Native</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                            <div className="mt-4 flex justify-end">
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeLanguage(lang.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* References */}
+              <TabsContent value="references" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <User className="w-5 h-5" />
+                        References
+                      </span>
+                      <Button onClick={addReference} size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Reference
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {resumeData.references.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <User className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                        <p>No references added yet. Click "Add Reference" to get started.</p>
+                      </div>
+                    ) : (
+                      resumeData.references.map((ref) => (
+                        <Card key={ref.id} className="border-l-4 border-l-orange-500">
+                          <CardContent className="pt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Name *
+                                </label>
+                                <Input
+                                  value={ref.name}
+                                  onChange={(e) => updateReference(ref.id, 'name', e.target.value)}
+                                  placeholder="John Smith"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Position
+                                </label>
+                                <Input
+                                  value={ref.position}
+                                  onChange={(e) => updateReference(ref.id, 'position', e.target.value)}
+                                  placeholder="Senior Developer"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Company
+                                </label>
+                                <Input
+                                  value={ref.company}
+                                  onChange={(e) => updateReference(ref.id, 'company', e.target.value)}
+                                  placeholder="Tech Corp"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Email
+                                </label>
+                                <Input
+                                  type="email"
+                                  value={ref.email}
+                                  onChange={(e) => updateReference(ref.id, 'email', e.target.value)}
+                                  placeholder="john@techcorp.com"
+                                />
+                              </div>
+                            </div>
+                            <div className="mt-4">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Phone
+                              </label>
+                              <Input
+                                value={ref.phone}
+                                onChange={(e) => updateReference(ref.id, 'phone', e.target.value)}
+                                placeholder="+1 (555) 123-4567"
+                              />
+                            </div>
+                            <div className="mt-4 flex justify-end">
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeReference(ref.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Remove
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
             </Tabs>
+
+            {/* AI Suggestions Panel */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="w-5 h-5" />
+                  AI Suggestions
+                  {isAnalyzing && (
+                    <div className="flex items-center gap-2 text-blue-600">
+                      <Brain className="w-4 h-4 animate-spin" />
+                      <span className="text-sm">Analyzing...</span>
+                    </div>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {suggestions.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Lightbulb className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p>Start filling out your resume to get AI-powered suggestions!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {suggestions.map((suggestion) => (
+                      <Alert key={suggestion.id} className={`border-l-4 ${
+                        suggestion.priority === 'high' ? 'border-l-red-500' :
+                        suggestion.priority === 'medium' ? 'border-l-yellow-500' :
+                        'border-l-green-500'
+                      }`}>
+                        <Lightbulb className="h-4 w-4" />
+                        <AlertDescription>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-semibold">{suggestion.title}</h4>
+                              <Badge variant={
+                                suggestion.priority === 'high' ? 'destructive' :
+                                suggestion.priority === 'medium' ? 'default' : 'secondary'
+                              }>
+                                {suggestion.priority}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{suggestion.description}</p>
+                            <p className="text-sm font-medium">{suggestion.suggestion}</p>
+                            {suggestion.example && (
+                              <div className="bg-gray-50 p-3 rounded-md">
+                                <p className="text-xs text-gray-500 mb-1">Example:</p>
+                                <p className="text-sm italic">{suggestion.example}</p>
+                              </div>
+                            )}
+                          </div>
+                        </AlertDescription>
+                      </Alert>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Live Preview */}
@@ -910,6 +1437,90 @@ export default function ResumeBuilderPage() {
                             <Badge key={skill.id} variant="outline">
                               {skill.name} ({skill.level})
                             </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Projects */}
+                    {resumeData.projects.length > 0 && (
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Projects</h2>
+                        <div className="space-y-3">
+                          {resumeData.projects.map((project) => (
+                            <div key={project.id}>
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-medium text-gray-900">{project.name}</h3>
+                                  {project.technologies && project.technologies.length > 0 && (
+                                    <p className="text-sm text-gray-600">{project.technologies.join(', ')}</p>
+                                  )}
+                                </div>
+                                {project.url && (
+                                  <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
+                                    View Project
+                                  </a>
+                                )}
+                              </div>
+                              {project.description && (
+                                <p className="text-gray-700 mt-2 text-sm">{project.description}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Certifications */}
+                    {resumeData.certifications.length > 0 && (
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Certifications</h2>
+                        <div className="space-y-3">
+                          {resumeData.certifications.map((cert) => (
+                            <div key={cert.id}>
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-medium text-gray-900">{cert.name}</h3>
+                                  <p className="text-sm text-gray-600">{cert.issuer}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm text-gray-500">{cert.date}</p>
+                                  {cert.validUntil && (
+                                    <p className="text-xs text-gray-400">Expires: {cert.validUntil}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Languages */}
+                    {resumeData.languages.length > 0 && (
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Languages</h2>
+                        <div className="flex flex-wrap gap-2">
+                          {resumeData.languages.map((lang) => (
+                            <Badge key={lang.id} variant="secondary">
+                              {lang.language} ({lang.proficiency})
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* References */}
+                    {resumeData.references.length > 0 && (
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-900 mb-3">References</h2>
+                        <div className="space-y-3">
+                          {resumeData.references.map((ref) => (
+                            <div key={ref.id}>
+                              <h3 className="font-medium text-gray-900">{ref.name}</h3>
+                              <p className="text-sm text-gray-600">{ref.position} at {ref.company}</p>
+                              <p className="text-sm text-gray-500">{ref.email} • {ref.phone}</p>
+                            </div>
                           ))}
                         </div>
                       </div>
