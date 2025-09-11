@@ -143,21 +143,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
   // If user already has a role, show role change options
   if (user.role) {
     return (
-      <div className="min-h-screen bg-white">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                <h1 className="text-2xl font-bold text-blue-600">NaukriMili</h1>
-              </div>
-              <div className="flex items-center space-x-4">
-                <span className="text-gray-600">Welcome, {user.name || user.email}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-[calc(100vh-4rem)]">
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center mb-16">
@@ -180,7 +166,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
           {/* Role Selection Cards */}
           <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
             {/* Job Seeker Card */}
-            <Card className={`border-2 ${user.role === 'jobseeker' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-500'} transition-all duration-300 hover:shadow-xl`}>
+            <Card className={`border-2 ${user.role === 'jobseeker' ? 'border-blue-500 bg-blue-50/80' : 'border-gray-200 hover:border-blue-500 bg-white/95'} transition-all duration-300 hover:shadow-xl backdrop-blur-sm`}>
               <CardContent className="p-8">
                 <div className="text-center mb-6">
                   <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl ${user.role === 'jobseeker' ? 'bg-blue-200' : 'bg-blue-100'}`}>
@@ -215,14 +201,14 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                 {user.role === 'jobseeker' ? (
                   <Button
                     onClick={() => router.push('/jobseeker/options')}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                   >
                     Continue as Job Seeker →
                   </Button>
                 ) : (
                   <Button
                     onClick={() => handleRoleSelection('jobseeker')}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                     disabled={isLoading}
                   >
                     {isLoading && selectedRole === 'jobseeker' ? (
@@ -235,7 +221,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
             </Card>
 
             {/* Employer Card */}
-            <Card className={`border-2 ${user.role === 'employer' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-500'} transition-all duration-300 hover:shadow-xl`}>
+            <Card className={`border-2 ${user.role === 'employer' ? 'border-green-500 bg-green-50/80' : 'border-gray-200 hover:border-green-500 bg-white/95'} transition-all duration-300 hover:shadow-xl backdrop-blur-sm`}>
               <CardContent className="p-8">
                 <div className="text-center mb-6">
                   <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl ${user.role === 'employer' ? 'bg-green-200' : 'bg-green-100'}`}>
@@ -270,14 +256,14 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                 {user.role === 'employer' ? (
                   <Button
                     onClick={() => router.push('/employer/options')}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                   >
                     Continue as Employer →
                   </Button>
                 ) : (
                   <Button
                     onClick={() => handleRoleSelection('employer')}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                     disabled={isLoading}
                   >
                     {isLoading && selectedRole === 'employer' ? (
@@ -296,21 +282,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
 
   // Role selection for new users - Modern Design
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-blue-600">NaukriMili</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-600">Welcome, {user.name || user.email}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-[calc(100vh-4rem)]">
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
@@ -333,7 +305,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         {/* Role Selection Cards */}
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
           {/* Job Seeker Card */}
-          <Card className="border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-xl">
+          <Card className="border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-xl bg-white/95 backdrop-blur-sm">
             <CardContent className="p-8">
               <div className="text-center mb-6">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100">
@@ -362,19 +334,19 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
 
               <Button
                 onClick={() => handleRoleSelection('jobseeker')}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                 disabled={isLoading}
               >
                 {isLoading && selectedRole === 'jobseeker' ? (
                   <Loader2 className="h-5 w-5 animate-spin mr-2" />
                 ) : null}
-                Get Started →
+                Get Started as Job Seeker →
               </Button>
             </CardContent>
           </Card>
 
           {/* Employer Card */}
-          <Card className="border-2 border-gray-200 hover:border-green-500 transition-all duration-300 hover:shadow-xl">
+          <Card className="border-2 border-gray-200 hover:border-green-500 transition-all duration-300 hover:shadow-xl bg-white/95 backdrop-blur-sm">
             <CardContent className="p-8">
               <div className="text-center mb-6">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-green-100">
@@ -403,13 +375,13 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
 
               <Button
                 onClick={() => handleRoleSelection('employer')}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                 disabled={isLoading}
               >
                 {isLoading && selectedRole === 'employer' ? (
                   <Loader2 className="h-5 w-5 animate-spin mr-2" />
                 ) : null}
-                Get Started →
+                Get Started as Employer →
               </Button>
             </CardContent>
           </Card>
