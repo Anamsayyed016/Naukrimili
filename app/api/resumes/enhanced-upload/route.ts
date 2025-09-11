@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
     let fileName = '';
     let fileSize = 0;
     let mimeType = '';
+    let timestamp = Date.now();
+    let safeName = '';
 
     // Handle file upload
     if (file) {
@@ -66,9 +68,8 @@ export async function POST(request: NextRequest) {
       const uploadsDir = join(process.cwd(), 'uploads', 'resumes');
       await mkdir(uploadsDir, { recursive: true }).catch(() => {});
 
-      const timestamp = Date.now();
       const originalName = file.name;
-      const safeName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
+      safeName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
       const filename = `${timestamp}_${safeName}`;
       const filepath = join(uploadsDir, filename);
 
