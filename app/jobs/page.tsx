@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -180,28 +180,42 @@ export default function JobsPage() {
       console.log('📊 API Response:', data);
       
       if (data.success && data.jobs) {
-        // Ensure all jobs have required properties
-        const jobs = (data.jobs || []).map((job: any) => ({
-          id: job.id || `job-${Math.random()}`,
-          title: job.title || 'Job Title',
-          company: job.company || 'Company',
-          location: job.location || 'Location',
-          description: job.description || 'No description available',
-          jobType: job.jobType || 'full-time',
-          experienceLevel: job.experienceLevel || 'mid',
-          salary: job.salary || null,
-          isRemote: job.isRemote || false,
-          isHybrid: job.isHybrid || false,
-          isUrgent: job.isUrgent || false,
-          isFeatured: job.isFeatured || false,
-          createdAt: job.createdAt || job.postedAt || new Date().toISOString(),
-          skills: job.skills || [],
-          distance: job.distance || null,
-          _count: job._count || {
-            applications: job.applicationsCount || 0,
-            bookmarks: 0
-          }
-        }));
+        // Ensure all jobs have required properties with proper validation
+        const jobs = (data.jobs || [])
+          .filter((job: any) => job && typeof job === 'object') // Filter out invalid jobs
+          .map((job: any) => {
+            // Validate and sanitize job data
+            const sanitizedJob = {
+              id: String(job.id || `job-${Math.random()}`),
+              title: String(job.title || 'Job Title'),
+              company: String(job.company || 'Company'),
+              location: String(job.location || 'Location'),
+              description: String(job.description || 'No description available'),
+              jobType: String(job.jobType || 'full-time'),
+              experienceLevel: String(job.experienceLevel || 'mid'),
+              salary: job.salary ? String(job.salary) : null,
+              isRemote: Boolean(job.isRemote),
+              isHybrid: Boolean(job.isHybrid),
+              isUrgent: Boolean(job.isUrgent),
+              isFeatured: Boolean(job.isFeatured),
+              createdAt: String(job.createdAt || job.postedAt || new Date().toISOString()),
+              skills: Array.isArray(job.skills) ? job.skills.map(String) : [],
+              distance: typeof job.distance === 'number' ? job.distance : null,
+              _count: {
+                applications: Number(job._count?.applications || job.applicationsCount || 0),
+                bookmarks: Number(job._count?.bookmarks || 0)
+              }
+            };
+            
+            // Validate required properties
+            if (!sanitizedJob.id || !sanitizedJob.title) {
+              console.warn('⚠️ Invalid job data:', job);
+              return null;
+            }
+            
+            return sanitizedJob;
+          })
+          .filter(Boolean); // Remove null entries
         
         setJobs(jobs);
         setTotalPages(data.pagination?.totalPages || 1);
@@ -394,11 +408,19 @@ export default function JobsPage() {
     }
   };
 
-  // Error boundary for job rendering
-  if (jobs.some(job => !job || !job.id)) {
-    console.error('❌ Invalid job data detected:', jobs);
-    setJobs(jobs.filter(job => job && job.id));
-  }
+  // Error boundary for job rendering - ensure all jobs are valid
+  React.useEffect(() => {
+    if (jobs.some(job => !job || !job.id || typeof job.id !== 'string')) {
+      console.error('❌ Invalid job data detected:', jobs);
+      const validJobs = jobs.filter(job => 
+        job && 
+        job.id && 
+        typeof job.id === 'string' && 
+        typeof job.title === 'string'
+      );
+      setJobs(validJobs);
+    }
+  }, [jobs]);
 
   return (
     /* AuthGuard temporarily disabled for testing */
@@ -909,9 +931,19 @@ export default function JobsPage() {
               isTablet ? 'grid-cols-1 sm:grid-cols-2' : 
               'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             }`}>
-              {jobs?.map((job) => {
-                if (!job || !job.id) return null;
-                return (
+              {jobs?.map((job, index) => {
+                try {
+                  // Enhanced validation for job object
+                  if (!job || 
+                      !job.id || 
+                      typeof job.id !== 'string' || 
+                      !job.title || 
+                      typeof job.title !== 'string') {
+                    console.warn(`⚠️ Skipping invalid job at index ${index}:`, job);
+                    return null;
+                  }
+                  
+                  return (
                 <Card key={job.id} className="group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 bg-white shadow-xl rounded-2xl overflow-hidden">
                   <CardContent className="p-0">
                     {/* Job Header with Gradient */}
@@ -1032,7 +1064,11 @@ export default function JobsPage() {
                     </div>
                   </CardContent>
                 </Card>
-                );
+                  );
+                } catch (error) {
+                  console.error(`❌ Error rendering job at index ${index}:`, error, job);
+                  return null;
+                }
               })}
             </div>
           )}
