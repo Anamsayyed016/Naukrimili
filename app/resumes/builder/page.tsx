@@ -39,6 +39,7 @@ import { AIResumeCoach, ResumeSuggestion, ATSAnalysis, ProfessionalCoaching } fr
 import { ResumeTemplateManager, TemplateCustomization } from '@/lib/resume-templates';
 import { ResumeExporter, ExportOptions } from '@/lib/resume-export';
 import ModernResumeWizard from '@/components/resume/ModernResumeWizard';
+import TemplateSelector from '@/components/resume/TemplateSelector';
 
 // Utility function for debouncing
 function debounce<T extends (...args: any[]) => any>(
@@ -136,6 +137,8 @@ export default function ResumeBuilderPage() {
   const [activeTab, setActiveTab] = useState('personal');
   const [showWizard, setShowWizard] = useState(true);
   const [isNewResume, setIsNewResume] = useState(true);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [templatePreviewMode, setTemplatePreviewMode] = useState(false);
   
   // AI State
   const [atsAnalysis, setAtsAnalysis] = useState<ATSAnalysis | null>(null);
@@ -251,6 +254,21 @@ export default function ResumeBuilderPage() {
   const handleWizardClose = () => {
     setShowWizard(false);
     setIsNewResume(false);
+  };
+
+  // Handle template selection
+  const handleTemplateSelect = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    setCustomization(prev => ({ ...prev, templateId }));
+  };
+
+  const handleTemplatePreview = (templateId: string) => {
+    setTemplatePreviewMode(true);
+    setSelectedTemplate(templateId);
+  };
+
+  const handleCustomizationChange = (newCustomization: TemplateCustomization) => {
+    setCustomization(newCustomization);
   };
 
   // Show loading while checking authentication
@@ -610,7 +628,7 @@ export default function ResumeBuilderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
         <div className="mb-6 lg:mb-8">
@@ -646,70 +664,105 @@ export default function ResumeBuilderPage() {
           </div>
         </div>
 
-        {/* Template & Color Selection */}
-        <Card className="mb-6 bg-white border-2 border-gray-300 shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Palette className="w-5 h-5 text-white" />
-              Template & Style
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="bg-gray-50 p-4 sm:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Template Style
-                </label>
-                <Select value={customization.templateId} onValueChange={(value) => setCustomization(prev => ({ ...prev, templateId: value }))}>
-                  <SelectTrigger className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ResumeTemplateManager.getAllTemplates().map(template => (
-                      <SelectItem key={template.id} value={template.id}>
-                        {template.name} - {template.description}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Color Scheme
-                </label>
-                <Select value={customization.colorScheme} onValueChange={(value) => setCustomization(prev => ({ ...prev, colorScheme: value as any }))}>
-                  <SelectTrigger className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ResumeTemplateManager.getTemplateById(customization.templateId)?.colorSchemes.map(scheme => (
-                      <SelectItem key={scheme} value={scheme}>
-                        {scheme.charAt(0).toUpperCase() + scheme.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Font Family
-                </label>
-                <Select value={customization.fontFamily} onValueChange={(value) => setCustomization(prev => ({ ...prev, fontFamily: value as any }))}>
-                  <SelectTrigger className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ResumeTemplateManager.getTemplateById(customization.templateId)?.fontOptions.map(font => (
-                      <SelectItem key={font} value={font}>
-                        {font.charAt(0).toUpperCase() + font.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Template Selection */}
+        {showTemplateSelector ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={() => setShowTemplateSelector(false)}
+                variant="outline"
+                size="sm"
+              >
+                ← Back to Builder
+              </Button>
+              <h2 className="text-2xl font-bold text-gray-900">Choose Your Template</h2>
             </div>
-          </CardContent>
-        </Card>
+            <TemplateSelector
+              selectedTemplate={selectedTemplate}
+              customization={customization}
+              onTemplateSelect={(templateId) => {
+                handleTemplateSelect(templateId);
+                setShowTemplateSelector(false);
+              }}
+              onCustomizationChange={handleCustomizationChange}
+              onPreview={handleTemplatePreview}
+            />
+          </div>
+        ) : (
+          <Card className="mb-6 bg-white border-2 border-gray-300 shadow-xl">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+              <CardTitle className="flex items-center justify-between text-white">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-white" />
+                  Template & Style
+                </div>
+                <Button
+                  onClick={() => setShowTemplateSelector(true)}
+                  variant="outline"
+                  size="sm"
+                  className="bg-white text-blue-600 hover:bg-gray-100"
+                >
+                  Choose Template
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="bg-gray-50 p-4 sm:p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Template Style
+                  </label>
+                  <Select value={customization.templateId} onValueChange={(value) => setCustomization(prev => ({ ...prev, templateId: value }))}>
+                    <SelectTrigger className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ResumeTemplateManager.getAllTemplates().map(template => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.name} - {template.description}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Color Scheme
+                  </label>
+                  <Select value={customization.colorScheme} onValueChange={(value) => setCustomization(prev => ({ ...prev, colorScheme: value as any }))}>
+                    <SelectTrigger className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ResumeTemplateManager.getTemplateById(customization.templateId)?.colorSchemes.map(scheme => (
+                        <SelectItem key={scheme} value={scheme}>
+                          {scheme.charAt(0).toUpperCase() + scheme.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Font Family
+                  </label>
+                  <Select value={customization.fontFamily} onValueChange={(value) => setCustomization(prev => ({ ...prev, fontFamily: value as any }))}>
+                    <SelectTrigger className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ResumeTemplateManager.getTemplateById(customization.templateId)?.fontOptions.map(font => (
+                        <SelectItem key={font} value={font}>
+                          {font.charAt(0).toUpperCase() + font.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* Builder Form */}
