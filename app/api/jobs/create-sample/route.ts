@@ -110,7 +110,11 @@ export async function POST(request: NextRequest) {
     
     // Create sample jobs
     const createdJobs = await prisma.job.createMany({
-      data: SAMPLE_JOBS
+      data: SAMPLE_JOBS.map(job => ({
+        ...job,
+        requirements: JSON.stringify(job.requirements),
+        skills: JSON.stringify(job.skills)
+      }))
     });
     
     console.log(`✅ Created ${createdJobs.count} sample jobs`);

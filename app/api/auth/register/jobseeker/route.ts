@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
         education: validatedData.education || null,
         locationPreference: validatedData.locationPreference || null,
         salaryExpectation: validatedData.salaryExpectation || null,
-        jobTypePreference: validatedData.jobTypePreference || null,
+        jobTypePreference: JSON.stringify(validatedData.jobTypePreference || []),
         remotePreference: validatedData.remotePreference,
         isActive: true,
         isVerified: false
