@@ -179,8 +179,30 @@ export default function JobsPage() {
       const data = await response.json();
       console.log('📊 API Response:', data);
       
-      if (data.success) {
-        const jobs = data.jobs || [];
+      if (data.success && data.jobs) {
+        // Ensure all jobs have required properties
+        const jobs = (data.jobs || []).map((job: any) => ({
+          id: job.id || `job-${Math.random()}`,
+          title: job.title || 'Job Title',
+          company: job.company || 'Company',
+          location: job.location || 'Location',
+          description: job.description || 'No description available',
+          jobType: job.jobType || 'full-time',
+          experienceLevel: job.experienceLevel || 'mid',
+          salary: job.salary || null,
+          isRemote: job.isRemote || false,
+          isHybrid: job.isHybrid || false,
+          isUrgent: job.isUrgent || false,
+          isFeatured: job.isFeatured || false,
+          createdAt: job.createdAt || job.postedAt || new Date().toISOString(),
+          skills: job.skills || [],
+          distance: job.distance || null,
+          _count: job._count || {
+            applications: job.applicationsCount || 0,
+            bookmarks: 0
+          }
+        }));
+        
         setJobs(jobs);
         setTotalPages(data.pagination?.totalPages || 1);
         console.log(`✅ Successfully loaded ${jobs.length} jobs`);
@@ -355,6 +377,7 @@ export default function JobsPage() {
   }, []);
 
   const getStatusBadge = (job: Job) => {
+    if (!job) return null;
     if (job.isFeatured) return <Badge className="bg-purple-100 text-purple-800 border-2 border-purple-200 font-bold">Featured</Badge>;
     if (job.isUrgent) return <Badge className="bg-red-100 text-red-800 border-2 border-red-200 font-bold">Urgent</Badge>;
     return null;
@@ -370,6 +393,12 @@ export default function JobsPage() {
       default: return 'bg-gray-100 text-gray-800 border-2 border-gray-200';
     }
   };
+
+  // Error boundary for job rendering
+  if (jobs.some(job => !job || !job.id)) {
+    console.error('❌ Invalid job data detected:', jobs);
+    setJobs(jobs.filter(job => job && job.id));
+  }
 
   return (
     /* AuthGuard temporarily disabled for testing */
@@ -880,7 +909,9 @@ export default function JobsPage() {
               isTablet ? 'grid-cols-1 sm:grid-cols-2' : 
               'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             }`}>
-              {jobs?.map((job) => (
+              {jobs?.map((job) => {
+                if (!job || !job.id) return null;
+                return (
                 <Card key={job.id} className="group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 bg-white shadow-xl rounded-2xl overflow-hidden">
                   <CardContent className="p-0">
                     {/* Job Header with Gradient */}
@@ -889,7 +920,7 @@ export default function JobsPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-3">
                             <h3 className="text-xl font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-300">
-                              {job.title}
+                              {job.title || 'Job Title'}
                             </h3>
                             {getStatusBadge(job)}
                           </div>
@@ -897,7 +928,7 @@ export default function JobsPage() {
                             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                               <Building2 className="h-4 w-4 text-white" />
                             </div>
-                            <p className="text-gray-700 font-semibold truncate">{job.company}</p>
+                            <p className="text-gray-700 font-semibold truncate">{job.company || 'Company'}</p>
                           </div>
                         </div>
                         <Button
@@ -921,7 +952,7 @@ export default function JobsPage() {
                         <div className="flex flex-wrap items-center gap-3 text-sm">
                           <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
                             <MapPin className="h-4 w-4 text-blue-600" />
-                            <span className="text-gray-700 font-medium truncate">{job.location}</span>
+                            <span className="text-gray-700 font-medium truncate">{job.location || 'Location'}</span>
                             {job.distance !== null && job.distance !== undefined && (
                               <Badge className="ml-2 bg-blue-100 text-blue-700 border-0 text-xs font-bold px-2 py-1">
                                 {job.distance.toFixed(1)} km
@@ -930,7 +961,7 @@ export default function JobsPage() {
                           </div>
                           <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
                             <Briefcase className="h-4 w-4 text-green-600" />
-                            <span className="text-gray-700 font-medium capitalize">{job.jobType}</span>
+                            <span className="text-gray-700 font-medium capitalize">{job.jobType || 'Full-time'}</span>
                           </div>
                         </div>
                         
@@ -943,7 +974,7 @@ export default function JobsPage() {
                         
                         <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
                           <Clock className="h-4 w-4 text-gray-500" />
-                          <span className="text-gray-600 text-sm">Posted {new Date(job.createdAt).toLocaleDateString()}</span>
+                          <span className="text-gray-600 text-sm">Posted {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'Recently'}</span>
                         </div>
                       </div>
 
@@ -960,10 +991,10 @@ export default function JobsPage() {
                       </div>
 
                       <p className="text-gray-700 text-sm line-clamp-3 leading-relaxed">
-                        {job.description}
+                        {job.description || 'No description available'}
                       </p>
 
-                      {job.skills.length > 0 && (
+                      {job.skills && job.skills.length > 0 && (
                         <div className="flex flex-wrap gap-2">
                           {job.skills.slice(0, 3).map((skill, index) => (
                             <Badge key={index} variant="outline" className="text-xs font-medium border-2 border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 px-3 py-1 rounded-lg">
@@ -1001,7 +1032,8 @@ export default function JobsPage() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           )}
 
