@@ -787,8 +787,8 @@ export default function ResumeBuilderPage() {
                   </TabsList>
                 </div>
 
-              {/* Personal Information */}
-              <TabsContent value="personal" className="space-y-4 p-4 sm:p-6">
+                {/* Personal Information */}
+                <TabsContent value="personal" className="space-y-4 p-4 sm:p-6">
                 <Card className="bg-white border-2 border-gray-300 shadow-xl">
                   <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                     <CardTitle className="flex items-center gap-2 text-white">
@@ -871,10 +871,10 @@ export default function ResumeBuilderPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </TabsContent>
 
-              {/* Education */}
-              <TabsContent value="education" className="space-y-4 p-4 sm:p-6">
+                {/* Education */}
+                <TabsContent value="education" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -905,6 +905,7 @@ export default function ResumeBuilderPage() {
                                 value={edu.institution}
                                 onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
                                 placeholder="University Name"
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                             <div>
@@ -915,6 +916,7 @@ export default function ResumeBuilderPage() {
                                 value={edu.degree}
                                 onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
                                 placeholder="Bachelor's"
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                           </div>
@@ -927,6 +929,7 @@ export default function ResumeBuilderPage() {
                                 value={edu.field}
                                 onChange={(e) => updateEducation(edu.id, 'field', e.target.value)}
                                 placeholder="Computer Science"
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                             <div>
@@ -937,6 +940,7 @@ export default function ResumeBuilderPage() {
                                 type="month"
                                 value={edu.startDate}
                                 onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                             <div>
@@ -947,6 +951,7 @@ export default function ResumeBuilderPage() {
                                 type="month"
                                 value={edu.endDate}
                                 onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                           </div>
@@ -959,10 +964,10 @@ export default function ResumeBuilderPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </TabsContent>
 
-              {/* Experience */}
-              <TabsContent value="experience" className="space-y-4 p-4 sm:p-6">
+                {/* Experience */}
+                <TabsContent value="experience" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -993,6 +998,7 @@ export default function ResumeBuilderPage() {
                                 value={exp.company}
                                 onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
                                 placeholder="Company Name"
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                             <div>
@@ -1003,6 +1009,7 @@ export default function ResumeBuilderPage() {
                                 value={exp.position}
                                 onChange={(e) => updateExperience(exp.id, 'position', e.target.value)}
                                 placeholder="Software Engineer"
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                           </div>
@@ -1015,6 +1022,7 @@ export default function ResumeBuilderPage() {
                                 value={exp.location}
                                 onChange={(e) => updateExperience(exp.id, 'location', e.target.value)}
                                 placeholder="New York, NY"
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                             <div>
@@ -1025,6 +1033,7 @@ export default function ResumeBuilderPage() {
                                 type="month"
                                 value={exp.startDate}
                                 onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                             <div>
@@ -1036,6 +1045,7 @@ export default function ResumeBuilderPage() {
                                 value={exp.endDate}
                                 onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
                                 disabled={exp.current}
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                           </div>
@@ -1048,6 +1058,7 @@ export default function ResumeBuilderPage() {
                               onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
                               placeholder="Describe your role and responsibilities..."
                               rows={3}
+                              className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base resize-none shadow-md text-gray-900"
                             />
                           </div>
                         </div>
@@ -1059,10 +1070,10 @@ export default function ResumeBuilderPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </TabsContent>
 
-              {/* Skills */}
-              <TabsContent value="skills" className="space-y-4 p-4 sm:p-6">
+                {/* Skills */}
+                <TabsContent value="skills" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -1079,13 +1090,14 @@ export default function ResumeBuilderPage() {
                               value={skill.name}
                               onChange={(e) => updateSkill(skill.id, 'name', e.target.value)}
                               placeholder="Skill name"
+                              className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                             />
                           </div>
                           <Select
                             value={skill.level}
                             onValueChange={(value) => updateSkill(skill.id, 'level', value)}
                           >
-                            <SelectTrigger className="w-32">
+                            <SelectTrigger className="w-32 bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -1111,10 +1123,10 @@ export default function ResumeBuilderPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </TabsContent>
 
-              {/* Projects */}
-              <TabsContent value="projects" className="space-y-4 p-4 sm:p-6">
+                {/* Projects */}
+                <TabsContent value="projects" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -1147,6 +1159,7 @@ export default function ResumeBuilderPage() {
                                   value={project.name}
                                   onChange={(e) => updateProject(project.id, 'name', e.target.value)}
                                   placeholder="E-commerce Website"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                               <div>
@@ -1157,6 +1170,7 @@ export default function ResumeBuilderPage() {
                                   value={project.technologies.join(', ')}
                                   onChange={(e) => updateProject(project.id, 'technologies', e.target.value.split(',').map(t => t.trim()))}
                                   placeholder="React, Node.js, MongoDB"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                             </div>
@@ -1169,6 +1183,7 @@ export default function ResumeBuilderPage() {
                                 onChange={(e) => updateProject(project.id, 'description', e.target.value)}
                                 placeholder="Describe your project and your role..."
                                 rows={3}
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base resize-none shadow-md text-gray-900"
                               />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -1180,6 +1195,7 @@ export default function ResumeBuilderPage() {
                                   value={project.url}
                                   onChange={(e) => updateProject(project.id, 'url', e.target.value)}
                                   placeholder="https://yourproject.com"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                               <div className="flex items-end">
@@ -1200,10 +1216,10 @@ export default function ResumeBuilderPage() {
                     )}
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </TabsContent>
 
-              {/* Certifications */}
-              <TabsContent value="certifications" className="space-y-4 p-4 sm:p-6">
+                {/* Certifications */}
+                <TabsContent value="certifications" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -1236,6 +1252,7 @@ export default function ResumeBuilderPage() {
                                   value={cert.name}
                                   onChange={(e) => updateCertification(cert.id, 'name', e.target.value)}
                                   placeholder="AWS Certified Solutions Architect"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                               <div>
@@ -1246,6 +1263,7 @@ export default function ResumeBuilderPage() {
                                   value={cert.issuer}
                                   onChange={(e) => updateCertification(cert.id, 'issuer', e.target.value)}
                                   placeholder="Amazon Web Services"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                             </div>
@@ -1258,6 +1276,7 @@ export default function ResumeBuilderPage() {
                                   type="date"
                                   value={cert.date}
                                   onChange={(e) => updateCertification(cert.id, 'date', e.target.value)}
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                               <div>
@@ -1268,6 +1287,7 @@ export default function ResumeBuilderPage() {
                                   type="date"
                                   value={cert.validUntil}
                                   onChange={(e) => updateCertification(cert.id, 'validUntil', e.target.value)}
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                             </div>
@@ -1279,6 +1299,7 @@ export default function ResumeBuilderPage() {
                                 value={cert.credentialId}
                                 onChange={(e) => updateCertification(cert.id, 'credentialId', e.target.value)}
                                 placeholder="AWS-123456"
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                             <div className="mt-4 flex justify-end">
@@ -1297,10 +1318,10 @@ export default function ResumeBuilderPage() {
                     )}
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </TabsContent>
 
-              {/* Languages */}
-              <TabsContent value="languages" className="space-y-4 p-4 sm:p-6">
+                {/* Languages */}
+                <TabsContent value="languages" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -1333,6 +1354,7 @@ export default function ResumeBuilderPage() {
                                   value={lang.language}
                                   onChange={(e) => updateLanguage(lang.id, 'language', e.target.value)}
                                   placeholder="Spanish"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                               <div>
@@ -1340,9 +1362,9 @@ export default function ResumeBuilderPage() {
                                   Proficiency Level
                                 </label>
                                 <Select value={lang.proficiency} onValueChange={(value) => updateLanguage(lang.id, 'proficiency', value)}>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select proficiency" />
-                                  </SelectTrigger>
+                                <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
+                                  <SelectValue placeholder="Select proficiency" />
+                                </SelectTrigger>
                                   <SelectContent>
                                     <SelectItem value="basic">Basic</SelectItem>
                                     <SelectItem value="conversational">Conversational</SelectItem>
@@ -1368,10 +1390,10 @@ export default function ResumeBuilderPage() {
                     )}
                   </CardContent>
                 </Card>
-              </TabsContent>
+                </TabsContent>
 
-              {/* References */}
-              <TabsContent value="references" className="space-y-4 p-4 sm:p-6">
+                {/* References */}
+                <TabsContent value="references" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -1404,6 +1426,7 @@ export default function ResumeBuilderPage() {
                                   value={ref.name}
                                   onChange={(e) => updateReference(ref.id, 'name', e.target.value)}
                                   placeholder="John Smith"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                               <div>
@@ -1414,6 +1437,7 @@ export default function ResumeBuilderPage() {
                                   value={ref.position}
                                   onChange={(e) => updateReference(ref.id, 'position', e.target.value)}
                                   placeholder="Senior Developer"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                             </div>
@@ -1426,6 +1450,7 @@ export default function ResumeBuilderPage() {
                                   value={ref.company}
                                   onChange={(e) => updateReference(ref.id, 'company', e.target.value)}
                                   placeholder="Tech Corp"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                               <div>
@@ -1437,6 +1462,7 @@ export default function ResumeBuilderPage() {
                                   value={ref.email}
                                   onChange={(e) => updateReference(ref.id, 'email', e.target.value)}
                                   placeholder="john@techcorp.com"
+                                  className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                                 />
                               </div>
                             </div>
@@ -1448,6 +1474,7 @@ export default function ResumeBuilderPage() {
                                 value={ref.phone}
                                 onChange={(e) => updateReference(ref.id, 'phone', e.target.value)}
                                 placeholder="+1 (555) 123-4567"
+                                className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
                             <div className="mt-4 flex justify-end">
@@ -1466,8 +1493,8 @@ export default function ResumeBuilderPage() {
                     )}
                   </CardContent>
                 </Card>
-              </TabsContent>
-            </Tabs>
+                </TabsContent>
+              </Tabs>
               </CardContent>
             </Card>
 
