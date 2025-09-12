@@ -143,6 +143,7 @@ export default function JobsPage() {
 
   const fetchJobs = useCallback(async () => {
     try {
+      console.log('🔄 Starting fetchJobs...');
       setLoading(true);
       const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -162,25 +163,38 @@ export default function JobsPage() {
         ...(sortByDistance && { includeDistance: 'true' })
       });
 
-      console.log('🔍 Fetching jobs with params:', params.toString());
+      const apiUrl = `/api/jobs/unified?${params}&includeExternal=true`;
+      console.log('🔍 Fetching jobs from:', apiUrl);
+      console.log('📋 Search params:', Object.fromEntries(params.entries()));
 
-      const response = await fetch(`/api/jobs/unified?${params}&includeExternal=true`);
-      if (!response.ok) throw new Error('Failed to fetch jobs');
+      const response = await fetch(apiUrl);
+      console.log('📡 Response status:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error Response:', errorText);
+        throw new Error(`Failed to fetch jobs: ${response.status} ${response.statusText}`);
+      }
 
       const data = await response.json();
+      console.log('📊 API Response:', data);
+      
       if (data.success) {
-        setJobs(data.jobs || []);
+        const jobs = data.jobs || [];
+        setJobs(jobs);
         setTotalPages(data.pagination?.totalPages || 1);
-        console.log(`✅ Found ${data.jobs?.length || 0} jobs`);
+        console.log(`✅ Successfully loaded ${jobs.length} jobs`);
+        console.log('📋 Jobs data:', jobs);
       } else {
         console.error('❌ API returned error:', data.error);
         setJobs([]);
       }
     } catch (error) {
-      console.error('Error fetching jobs:', error);
+      console.error('💥 Error fetching jobs:', error);
       setJobs([]);
     } finally {
       setLoading(false);
+      console.log('🏁 fetchJobs completed');
     }
   }, [filters, currentPage, userLocation, searchRadius, sortByDistance]);
 
@@ -189,10 +203,21 @@ export default function JobsPage() {
     fetchBookmarks();
   }, []);
 
+  // Initial load - fetch jobs on component mount
+  useEffect(() => {
+    console.log('🚀 Initial load - fetching jobs...');
+    fetchJobs();
+  }, []);
+
   // Debounced search effect
   useEffect(() => {
     const timeoutId = setTimeout(() => {
+      console.log('🔍 Search triggered with filters:', filters);
       if (filters.query || filters.location || filters.jobType !== 'all' || filters.experienceLevel !== 'all' || filters.isRemote || filters.salaryMin || filters.salaryMax) {
+        console.log('✅ Filters active, fetching jobs...');
+        fetchJobs();
+      } else {
+        console.log('⚠️ No active filters, fetching default jobs...');
         fetchJobs();
       }
     }, 500); // 500ms debounce
