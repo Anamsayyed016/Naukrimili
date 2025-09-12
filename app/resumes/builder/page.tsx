@@ -628,7 +628,7 @@ export default function ResumeBuilderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
         <div className="mb-6 lg:mb-8">
@@ -689,7 +689,7 @@ export default function ResumeBuilderPage() {
             />
           </div>
         ) : (
-          <Card className="mb-6 bg-white border-2 border-gray-300 shadow-xl">
+          <Card className="mb-6 bg-white border-2 border-blue-200 shadow-2xl">
             <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
               <CardTitle className="flex items-center justify-between text-white">
                 <div className="flex items-center gap-2">
@@ -700,20 +700,20 @@ export default function ResumeBuilderPage() {
                   onClick={() => setShowTemplateSelector(true)}
                   variant="outline"
                   size="sm"
-                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  className="bg-white text-blue-600 hover:bg-gray-100 border-white shadow-lg"
                 >
                   Choose Template
                 </Button>
               </CardTitle>
             </CardHeader>
-            <CardContent className="bg-gray-50 p-4 sm:p-6">
+            <CardContent className="bg-white p-4 sm:p-6 border-t border-gray-200">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Template Style
                   </label>
                   <Select value={customization.templateId} onValueChange={(value) => setCustomization(prev => ({ ...prev, templateId: value }))}>
-                    <SelectTrigger className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                    <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -730,7 +730,7 @@ export default function ResumeBuilderPage() {
                     Color Scheme
                   </label>
                   <Select value={customization.colorScheme} onValueChange={(value) => setCustomization(prev => ({ ...prev, colorScheme: value as any }))}>
-                    <SelectTrigger className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                    <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -747,7 +747,7 @@ export default function ResumeBuilderPage() {
                     Font Family
                   </label>
                   <Select value={customization.fontFamily} onValueChange={(value) => setCustomization(prev => ({ ...prev, fontFamily: value as any }))}>
-                    <SelectTrigger className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-sm">
+                    <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -766,24 +766,29 @@ export default function ResumeBuilderPage() {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* Builder Form */}
-          <div className="space-y-3 sm:space-y-4 lg:space-y-6 order-2 xl:order-1">
-            <Tabs defaultValue="personal" className="w-full">
+          <div className="space-y-3 sm:space-y-4 lg:space-y-6 order-2 xl:order-1 min-h-0">
+            <Card className="bg-white border-2 border-gray-200 shadow-xl">
+              <Tabs defaultValue="personal" className="w-full">
               {/* Mobile: Scrollable tabs, Desktop: Grid */}
-              <div className="overflow-x-auto pb-2">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 bg-white border-2 border-gray-300 shadow-lg min-w-max gap-1">
-                  <TabsTrigger value="personal" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">Personal</TabsTrigger>
-                  <TabsTrigger value="education" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">Education</TabsTrigger>
-                  <TabsTrigger value="experience" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">Experience</TabsTrigger>
-                  <TabsTrigger value="skills" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">Skills</TabsTrigger>
-                  <TabsTrigger value="projects" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">Projects</TabsTrigger>
-                  <TabsTrigger value="certifications" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">Certifications</TabsTrigger>
-                  <TabsTrigger value="languages" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">Languages</TabsTrigger>
-                  <TabsTrigger value="references" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors">References</TabsTrigger>
-                </TabsList>
-              </div>
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                <CardTitle className="text-white">Resume Builder</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto pb-2 px-4 sm:px-6 pt-4">
+                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 bg-gray-100 border-2 border-gray-300 shadow-lg min-w-max gap-1 h-auto">
+                    <TabsTrigger value="personal" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-white hover:bg-gray-200 transition-colors border border-gray-300">Personal</TabsTrigger>
+                    <TabsTrigger value="education" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-white hover:bg-gray-200 transition-colors border border-gray-300">Education</TabsTrigger>
+                    <TabsTrigger value="experience" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-white hover:bg-gray-200 transition-colors border border-gray-300">Experience</TabsTrigger>
+                    <TabsTrigger value="skills" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-white hover:bg-gray-200 transition-colors border border-gray-300">Skills</TabsTrigger>
+                    <TabsTrigger value="projects" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-white hover:bg-gray-200 transition-colors border border-gray-300">Projects</TabsTrigger>
+                    <TabsTrigger value="certifications" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-white hover:bg-gray-200 transition-colors border border-gray-300">Certifications</TabsTrigger>
+                    <TabsTrigger value="languages" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-white hover:bg-gray-200 transition-colors border border-gray-300">Languages</TabsTrigger>
+                    <TabsTrigger value="references" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-white hover:bg-gray-200 transition-colors border border-gray-300">References</TabsTrigger>
+                  </TabsList>
+                </div>
 
               {/* Personal Information */}
-              <TabsContent value="personal" className="space-y-4">
+              <TabsContent value="personal" className="space-y-4 p-4 sm:p-6">
                 <Card className="bg-white border-2 border-gray-300 shadow-xl">
                   <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                     <CardTitle className="flex items-center gap-2 text-white">
@@ -801,7 +806,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.fullName}
                           onChange={(e) => updatePersonalInfo('fullName', e.target.value)}
                           placeholder="John Doe"
-                          className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-sm"
+                          className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                         />
                       </div>
                       <div>
@@ -813,7 +818,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.email}
                           onChange={(e) => updatePersonalInfo('email', e.target.value)}
                           placeholder="john@example.com"
-                          className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-sm"
+                          className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                         />
                       </div>
                     </div>
@@ -826,7 +831,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.phone}
                           onChange={(e) => updatePersonalInfo('phone', e.target.value)}
                           placeholder="+1 (555) 123-4567"
-                          className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-sm"
+                          className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                         />
                       </div>
                       <div>
@@ -837,7 +842,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.location}
                           onChange={(e) => updatePersonalInfo('location', e.target.value)}
                           placeholder="New York, NY"
-                          className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-sm"
+                          className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                         />
                       </div>
                     </div>
@@ -849,7 +854,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.linkedin}
                           onChange={(e) => updatePersonalInfo('linkedin', e.target.value)}
                           placeholder="linkedin.com/in/johndoe"
-                          className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-sm"
+                          className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                         />
                     </div>
                     <div>
@@ -861,7 +866,7 @@ export default function ResumeBuilderPage() {
                         onChange={(e) => updatePersonalInfo('summary', e.target.value)}
                         placeholder="Experienced software developer with 5+ years..."
                         rows={3}
-                        className="bg-white border-2 border-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base resize-none shadow-sm"
+                        className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base resize-none shadow-md text-gray-900"
                       />
                     </div>
                   </CardContent>
@@ -869,7 +874,7 @@ export default function ResumeBuilderPage() {
               </TabsContent>
 
               {/* Education */}
-              <TabsContent value="education" className="space-y-4">
+              <TabsContent value="education" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -957,7 +962,7 @@ export default function ResumeBuilderPage() {
               </TabsContent>
 
               {/* Experience */}
-              <TabsContent value="experience" className="space-y-4">
+              <TabsContent value="experience" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -1057,7 +1062,7 @@ export default function ResumeBuilderPage() {
               </TabsContent>
 
               {/* Skills */}
-              <TabsContent value="skills" className="space-y-4">
+              <TabsContent value="skills" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -1109,7 +1114,7 @@ export default function ResumeBuilderPage() {
               </TabsContent>
 
               {/* Projects */}
-              <TabsContent value="projects" className="space-y-4">
+              <TabsContent value="projects" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -1198,7 +1203,7 @@ export default function ResumeBuilderPage() {
               </TabsContent>
 
               {/* Certifications */}
-              <TabsContent value="certifications" className="space-y-4">
+              <TabsContent value="certifications" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -1295,7 +1300,7 @@ export default function ResumeBuilderPage() {
               </TabsContent>
 
               {/* Languages */}
-              <TabsContent value="languages" className="space-y-4">
+              <TabsContent value="languages" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -1366,7 +1371,7 @@ export default function ResumeBuilderPage() {
               </TabsContent>
 
               {/* References */}
-              <TabsContent value="references" className="space-y-4">
+              <TabsContent value="references" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -1463,22 +1468,24 @@ export default function ResumeBuilderPage() {
                 </Card>
               </TabsContent>
             </Tabs>
+              </CardContent>
+            </Card>
 
             {/* AI Suggestions Panel */}
-            <Card className="mt-6 bg-white border-2 border-gray-300 shadow-xl">
+            <Card className="mt-6 bg-white border-2 border-purple-200 shadow-xl">
               <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
                 <CardTitle className="flex items-center gap-2 text-white">
                   <Brain className="w-5 h-5 text-white" />
                   AI Suggestions
                   {isAnalyzing && (
-                    <div className="flex items-center gap-2 text-blue-600">
+                    <div className="flex items-center gap-2 text-blue-200">
                       <Brain className="w-4 h-4 animate-spin" />
                       <span className="text-sm">Analyzing...</span>
                     </div>
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="bg-gray-50 p-4 sm:p-6">
+              <CardContent className="bg-white p-4 sm:p-6 border-t border-gray-200">
                 {suggestions.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <Lightbulb className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -1523,21 +1530,21 @@ export default function ResumeBuilderPage() {
           </div>
 
           {/* Live Preview */}
-          <div className="xl:sticky xl:top-8 order-1 xl:order-2">
-            <Card className="h-fit bg-white border-2 border-gray-300 shadow-xl">
+          <div className="xl:sticky xl:top-8 order-1 xl:order-2 h-fit">
+            <Card className="h-fit bg-white border-2 border-green-200 shadow-xl">
               <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
                 <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between text-white gap-2">
                   <span className="flex items-center gap-2">
                     <Eye className="w-5 h-5 text-white" />
                     Live Preview
                   </span>
-                  <Badge variant="secondary" className="bg-white text-green-600 text-xs sm:text-sm font-bold">
+                  <Badge variant="secondary" className="bg-white text-green-600 text-xs sm:text-sm font-bold border border-green-300">
                     ATS Score: {atsAnalysis?.score || 0}/100
                   </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="bg-gray-50 p-3 sm:p-6">
-                <div className="border-2 border-gray-400 rounded-lg p-3 sm:p-6 bg-white min-h-[400px] sm:min-h-[600px] shadow-lg">
+              <CardContent className="bg-white p-3 sm:p-6 border-t border-gray-200">
+                <div className="border-2 border-gray-300 rounded-lg p-3 sm:p-6 bg-white min-h-[300px] sm:min-h-[500px] lg:min-h-[600px] shadow-lg overflow-auto">
                   {/* Resume Preview Content */}
                   <div className={`space-y-4 sm:space-y-6 ${getFontClass(customization.fontFamily)}`}>
                     {/* Header */}
