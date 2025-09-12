@@ -113,22 +113,6 @@ export default function JobsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchDynamicConstants();
-    fetchBookmarks();
-  }, []);
-
-  // Debounced search effect
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (filters.query || filters.location || filters.jobType !== 'all' || filters.experienceLevel !== 'all' || filters.isRemote || filters.salaryMin || filters.salaryMax) {
-        fetchJobs();
-      }
-    }, 500); // 500ms debounce
-
-    return () => clearTimeout(timeoutId);
-  }, [fetchJobs]);
-
   const fetchDynamicConstants = async () => {
     try {
       const response = await fetch('/api/jobs/constants');
@@ -140,6 +124,20 @@ export default function JobsPage() {
       }
     } catch (error) {
       console.error('Error fetching dynamic constants:', error);
+    }
+  };
+
+  const fetchBookmarks = async () => {
+    try {
+      const response = await fetch('/api/jobs/bookmarks');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setBookmarkedJobs(data.bookmarks || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching bookmarks:', error);
     }
   };
 
@@ -186,19 +184,22 @@ export default function JobsPage() {
     }
   }, [filters, currentPage, userLocation, searchRadius, sortByDistance]);
 
-  const fetchBookmarks = async () => {
-    try {
-      const response = await fetch('/api/jobs/bookmarks');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setBookmarkedJobs(data.data.map((bookmark: any) => bookmark.job_id));
-        }
+  useEffect(() => {
+    fetchDynamicConstants();
+    fetchBookmarks();
+  }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (filters.query || filters.location || filters.jobType !== 'all' || filters.experienceLevel !== 'all' || filters.isRemote || filters.salaryMin || filters.salaryMax) {
+        fetchJobs();
       }
-    } catch (error) {
-      console.error('Error fetching bookmarks:', error);
-    }
-  };
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchJobs]);
+
 
   const handleBookmark = async (jobId: string) => {
     try {
