@@ -611,15 +611,15 @@ export default function ResumeBuilderPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 lg:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Resume Builder</h1>
-              <p className="text-gray-600">Create a professional, ATS-friendly resume with AI guidance</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Resume Builder</h1>
+              <p className="text-sm sm:text-base text-gray-600">Create a professional, ATS-friendly resume with AI guidance</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <Button 
                 onClick={() => {
                   setShowWizard(true);
@@ -632,14 +632,14 @@ export default function ResumeBuilderPage() {
               </Button>
               {atsAnalysis && (
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{atsAnalysis.score}/100</div>
-                  <div className="text-sm text-gray-600">ATS Score</div>
+                  <div className="text-xl sm:text-2xl font-bold text-blue-600">{atsAnalysis.score}/100</div>
+                  <div className="text-xs sm:text-sm text-gray-600">ATS Score</div>
                 </div>
               )}
               {isAnalyzing && (
                 <div className="flex items-center gap-2 text-blue-600">
                   <Brain className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">Analyzing...</span>
+                  <span className="text-xs sm:text-sm">Analyzing...</span>
                 </div>
               )}
             </div>
@@ -655,7 +655,7 @@ export default function ResumeBuilderPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="bg-white/80">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Template Style
@@ -711,20 +711,23 @@ export default function ResumeBuilderPage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
           {/* Builder Form */}
-          <div className="space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             <Tabs defaultValue="personal" className="w-full">
-              <TabsList className="grid w-full grid-cols-8 bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg">
-                <TabsTrigger value="personal" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Personal</TabsTrigger>
-                <TabsTrigger value="education" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Education</TabsTrigger>
-                <TabsTrigger value="experience" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Experience</TabsTrigger>
-                <TabsTrigger value="skills" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Skills</TabsTrigger>
-                <TabsTrigger value="projects" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Projects</TabsTrigger>
-                <TabsTrigger value="certifications" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Certifications</TabsTrigger>
-                <TabsTrigger value="languages" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Languages</TabsTrigger>
-                <TabsTrigger value="references" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">References</TabsTrigger>
-              </TabsList>
+              {/* Mobile: Scrollable tabs, Desktop: Grid */}
+              <div className="overflow-x-auto">
+                <TabsList className="grid w-full grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg min-w-max">
+                  <TabsTrigger value="personal" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3">Personal</TabsTrigger>
+                  <TabsTrigger value="education" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3">Education</TabsTrigger>
+                  <TabsTrigger value="experience" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3">Experience</TabsTrigger>
+                  <TabsTrigger value="skills" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3">Skills</TabsTrigger>
+                  <TabsTrigger value="projects" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3">Projects</TabsTrigger>
+                  <TabsTrigger value="certifications" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3">Certifications</TabsTrigger>
+                  <TabsTrigger value="languages" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3">Languages</TabsTrigger>
+                  <TabsTrigger value="references" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3">References</TabsTrigger>
+                </TabsList>
+              </div>
 
               {/* Personal Information */}
               <TabsContent value="personal" className="space-y-4">
@@ -736,7 +739,7 @@ export default function ResumeBuilderPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 bg-white/80">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Full Name *
@@ -745,7 +748,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.fullName}
                           onChange={(e) => updatePersonalInfo('fullName', e.target.value)}
                           placeholder="John Doe"
-                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
                         />
                       </div>
                       <div>
@@ -757,11 +760,11 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.email}
                           onChange={(e) => updatePersonalInfo('email', e.target.value)}
                           placeholder="john@example.com"
-                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Phone
@@ -770,7 +773,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.phone}
                           onChange={(e) => updatePersonalInfo('phone', e.target.value)}
                           placeholder="+1 (555) 123-4567"
-                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
                         />
                       </div>
                       <div>
@@ -781,7 +784,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.location}
                           onChange={(e) => updatePersonalInfo('location', e.target.value)}
                           placeholder="New York, NY"
-                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
                         />
                       </div>
                     </div>
@@ -793,7 +796,7 @@ export default function ResumeBuilderPage() {
                           value={resumeData.personalInfo.linkedin}
                           onChange={(e) => updatePersonalInfo('linkedin', e.target.value)}
                           placeholder="linkedin.com/in/johndoe"
-                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base"
                         />
                     </div>
                     <div>
@@ -804,8 +807,8 @@ export default function ResumeBuilderPage() {
                         value={resumeData.personalInfo.summary}
                         onChange={(e) => updatePersonalInfo('summary', e.target.value)}
                         placeholder="Experienced software developer with 5+ years..."
-                        rows={4}
-                        className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                        rows={3}
+                        className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm sm:text-base resize-none"
                       />
                     </div>
                   </CardContent>
@@ -1467,37 +1470,37 @@ export default function ResumeBuilderPage() {
           </div>
 
           {/* Live Preview */}
-          <div className="sticky top-8">
+          <div className="xl:sticky xl:top-8">
             <Card className="h-fit bg-white/95 backdrop-blur-sm border-gray-200 shadow-lg">
               <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
-                <CardTitle className="flex items-center justify-between text-gray-800">
+                <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between text-gray-800 gap-2">
                   <span className="flex items-center gap-2">
                     <Eye className="w-5 h-5 text-green-600" />
                     Live Preview
                   </span>
-                  <Badge variant="secondary" className="bg-white/80">
+                  <Badge variant="secondary" className="bg-white/80 text-xs sm:text-sm">
                     ATS Score: {atsAnalysis?.score || 0}/100
                   </Badge>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="bg-white/80">
-                <div className="border rounded-lg p-6 bg-white min-h-[600px] shadow-inner">
+              <CardContent className="bg-white/80 p-3 sm:p-6">
+                <div className="border rounded-lg p-3 sm:p-6 bg-white min-h-[400px] sm:min-h-[600px] shadow-inner">
                   {/* Resume Preview Content */}
-                  <div className={`space-y-6 ${getFontClass(customization.fontFamily)}`}>
+                  <div className={`space-y-4 sm:space-y-6 ${getFontClass(customization.fontFamily)}`}>
                     {/* Header */}
-                    <div className="text-center border-b pb-4">
-                      <h1 className={`text-2xl font-bold ${getColorClass(customization.colorScheme, 'text')}`}>
+                    <div className="text-center border-b pb-3 sm:pb-4">
+                      <h1 className={`text-lg sm:text-2xl font-bold ${getColorClass(customization.colorScheme, 'text')}`}>
                         {resumeData.personalInfo.fullName || 'Your Name'}
                       </h1>
-                      <p className="text-gray-600">
+                      <p className="text-sm sm:text-base text-gray-600">
                         {resumeData.personalInfo.email || 'email@example.com'}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-sm sm:text-base text-gray-600">
                         {resumeData.personalInfo.phone && `${resumeData.personalInfo.phone} • `}
                         {resumeData.personalInfo.location || 'Location'}
                       </p>
                       {resumeData.personalInfo.linkedin && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs sm:text-sm text-gray-500">
                           LinkedIn: {resumeData.personalInfo.linkedin}
                         </p>
                       )}
@@ -1506,15 +1509,15 @@ export default function ResumeBuilderPage() {
                     {/* Summary */}
                     {resumeData.personalInfo.summary && (
                       <div>
-                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-2`}>Summary</h2>
-                        <p className="text-gray-700">{resumeData.personalInfo.summary}</p>
+                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-2`}>Summary</h2>
+                        <p className="text-sm sm:text-base text-gray-700">{resumeData.personalInfo.summary}</p>
                       </div>
                     )}
 
                     {/* Experience */}
                     {resumeData.experience.length > 0 && (
                       <div>
-                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Experience</h2>
+                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Experience</h2>
                         <div className="space-y-4">
                           {resumeData.experience.map((exp) => (
                             <div key={exp.id}>
@@ -1539,7 +1542,7 @@ export default function ResumeBuilderPage() {
                     {/* Education */}
                     {resumeData.education.length > 0 && (
                       <div>
-                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Education</h2>
+                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Education</h2>
                         <div className="space-y-3">
                           {resumeData.education.map((edu) => (
                             <div key={edu.id}>
@@ -1563,7 +1566,7 @@ export default function ResumeBuilderPage() {
                     {/* Skills */}
                     {resumeData.skills.length > 0 && (
                       <div>
-                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Skills</h2>
+                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Skills</h2>
                         <div className="flex flex-wrap gap-2">
                           {resumeData.skills.map((skill) => (
                             <Badge key={skill.id} variant="outline">
@@ -1577,7 +1580,7 @@ export default function ResumeBuilderPage() {
                     {/* Projects */}
                     {resumeData.projects.length > 0 && (
                       <div>
-                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Projects</h2>
+                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Projects</h2>
                         <div className="space-y-3">
                           {resumeData.projects.map((project) => (
                             <div key={project.id}>
@@ -1606,7 +1609,7 @@ export default function ResumeBuilderPage() {
                     {/* Certifications */}
                     {resumeData.certifications.length > 0 && (
                       <div>
-                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Certifications</h2>
+                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Certifications</h2>
                         <div className="space-y-3">
                           {resumeData.certifications.map((cert) => (
                             <div key={cert.id}>
@@ -1631,7 +1634,7 @@ export default function ResumeBuilderPage() {
                     {/* Languages */}
                     {resumeData.languages.length > 0 && (
                       <div>
-                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Languages</h2>
+                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Languages</h2>
                         <div className="flex flex-wrap gap-2">
                           {resumeData.languages.map((lang) => (
                             <Badge key={lang.id} variant="secondary">
@@ -1645,7 +1648,7 @@ export default function ResumeBuilderPage() {
                     {/* References */}
                     {resumeData.references.length > 0 && (
                       <div>
-                        <h2 className={`text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>References</h2>
+                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>References</h2>
                         <div className="space-y-3">
                           {resumeData.references.map((ref) => (
                             <div key={ref.id}>
