@@ -87,12 +87,15 @@ export default function JobsPage() {
     salaryMax: ''
   });
   
-  // Geolocation state
+  // Enhanced Geolocation state
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
     city: string;
+    state?: string;
     country: string;
+    area?: string;
+    source: 'gps' | 'ip' | 'manual';
   } | null>(null);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -223,7 +226,7 @@ export default function JobsPage() {
     setLocationError(null);
   };
 
-  // Geolocation functions
+  // Enhanced Geolocation functions
   const detectCurrentLocation = useCallback(async () => {
     try {
       setIsDetectingLocation(true);
@@ -232,14 +235,24 @@ export default function JobsPage() {
       const result = await getSmartLocation();
       
       if (result.success && result.coordinates) {
-        setUserLocation({
+        const locationData = {
           lat: result.coordinates.lat,
           lng: result.coordinates.lng,
           city: result.city || 'Current Location',
-          country: result.country || 'Unknown'
-        });
-        setFilters(prev => ({ ...prev, location: result.city || 'Current Location' }));
-        console.log('✅ Location detected:', result);
+          state: result.state,
+          country: result.country || 'Unknown',
+          area: result.state ? `${result.city}, ${result.state}` : result.city,
+          source: result.source
+        };
+        
+        setUserLocation(locationData);
+        setFilters(prev => ({ 
+          ...prev, 
+          location: result.state 
+            ? `${result.city}, ${result.state}` 
+            : result.city || 'Current Location' 
+        }));
+        console.log('✅ Enhanced location detected:', locationData);
       } else {
         setLocationError(result.error || 'Failed to detect location');
         console.warn('❌ Location detection failed:', result.error);
@@ -284,12 +297,16 @@ export default function JobsPage() {
   ];
 
   const handleLocationSelect = useCallback((location: typeof popularLocations[0]) => {
-    setUserLocation({
+    const locationData = {
       lat: location.lat,
       lng: location.lng,
       city: location.name,
-      country: location.country
-    });
+      country: location.country,
+      area: location.name,
+      source: 'manual' as const
+    };
+    
+    setUserLocation(locationData);
     setFilters(prev => ({ ...prev, location: location.name }));
     setLocationError(null);
   }, []);
@@ -313,83 +330,130 @@ export default function JobsPage() {
 
   return (
     /* AuthGuard temporarily disabled for testing */
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700">
-          <div className="absolute inset-0 bg-black/10"></div>
-          <div className="relative container mx-auto px-4 py-12 sm:py-16 lg:py-20">
-            <div className="text-center max-w-4xl mx-auto">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6">
-                Find Your Dream Job
-              </h1>
-              <p className="text-lg sm:text-xl text-blue-100 mb-8 sm:mb-12 max-w-2xl mx-auto">
-                Discover opportunities from top companies worldwide with our AI-powered job matching platform
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        {/* Unified Hero Section with Enhanced Search */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+          {/* Animated background elements */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20"></div>
+          <div className="absolute inset-0 opacity-30">
+            <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
+          </div>
+          
+          <div className="relative container mx-auto px-4 py-16 sm:py-20 lg:py-24">
+            <div className="text-center max-w-6xl mx-auto">
+              {/* Enhanced Header */}
+              <div className="mb-8">
+                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+                  Discover the 
+                  <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent"> Career You Deserve</span>
+                </h1>
+                <p className="text-xl sm:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
+                  Connect with top companies worldwide through our AI-powered job matching platform
+                </p>
+              </div>
               
-              {/* Enhanced Search Bar with Geolocation */}
-              <div className="max-w-4xl mx-auto">
-                <div className="bg-white rounded-2xl shadow-2xl border-2 border-gray-200 p-3 sm:p-4">
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <div className="flex-1 relative">
-                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
-                      <input
-                        type="text"
-                        placeholder="Job title, keywords, or company"
-                        value={filters.query}
-                        onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
-                        className="w-full pl-12 pr-4 py-4 sm:py-5 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base sm:text-lg font-medium transition-all duration-200"
-                      />
+              {/* Unified Enhanced Search Interface */}
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-6 sm:p-8">
+                  {/* Search Header */}
+                  <div className="flex items-center justify-center gap-3 mb-6">
+                    <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
+                      <Search className="w-6 h-6 text-white" />
                     </div>
-                    <div className="flex-1 relative">
-                      <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
-                      <input
-                        type="text"
-                        placeholder="Location or remote"
-                        value={filters.location}
-                        onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                        className="w-full pl-12 pr-20 py-4 sm:py-5 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base sm:text-lg font-medium transition-all duration-200"
-                      />
-                      <Button
-                        type="button"
-                        onClick={detectCurrentLocation}
-                        disabled={isDetectingLocation}
-                        className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all duration-200"
+                    <div className="text-center">
+                      <h2 className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
+                        Smart Job Search
+                        <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-0 font-bold">
+                          AI Powered
+                        </Badge>
+                      </h2>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Find your perfect job with intelligent matching
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Main Search Form */}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {/* Job Title Search */}
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                        <input
+                          type="text"
+                          placeholder="Job title, keywords, or company name"
+                          value={filters.query}
+                          onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
+                          className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base font-medium transition-all duration-200 shadow-sm"
+                        />
+                      </div>
+
+                      {/* Location Search with Enhanced Geolocation */}
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                        <input
+                          type="text"
+                          placeholder="City, state, country, or remote"
+                          value={filters.location}
+                          onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                          className="w-full pl-12 pr-20 py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base font-medium transition-all duration-200 shadow-sm"
+                        />
+                        <Button
+                          type="button"
+                          onClick={detectCurrentLocation}
+                          disabled={isDetectingLocation}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                        >
+                          {isDetectingLocation ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <div className="flex items-center gap-1">
+                              <Navigation className="w-4 h-4" />
+                              <span className="hidden sm:inline">Live Location</span>
+                            </div>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Search Button */}
+                    <div className="flex justify-center">
+                      <Button 
+                        onClick={handleSearch} 
+                        className="inline-flex items-center justify-center px-12 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-lg min-w-[200px]"
                       >
-                        {isDetectingLocation ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Navigation className="w-4 h-4" />
-                        )}
+                        <Search className="w-5 h-5 mr-2" />
+                        Search Jobs
                       </Button>
                     </div>
-                    <Button 
-                      onClick={handleSearch} 
-                      className="inline-flex items-center justify-center px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-base sm:text-lg min-w-[140px]"
-                    >
-                      <Search className="w-5 h-5 mr-2" />
-                      Search Jobs
-                    </Button>
                   </div>
                   
-                  {/* Location Status and Error Display */}
+                  {/* Enhanced Location Status Display */}
                   {userLocation && (
-                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl shadow-sm">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-green-600" />
-                          <span className="text-sm font-medium text-green-800">
-                            Location: {userLocation.city}, {userLocation.country}
-                          </span>
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-100 rounded-lg">
+                            <MapPin className="w-5 h-5 text-green-600" />
+                          </div>
+                          <div>
+                            <div className="font-semibold text-green-800 text-sm">
+                              Current Location Detected
+                            </div>
+                            <div className="text-green-700 text-sm">
+                              {userLocation.city}, {userLocation.state || userLocation.country}
+                            </div>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            GPS: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                          <Badge variant="outline" className="text-xs bg-green-100 text-green-800 border-green-300">
+                            {userLocation.source === 'gps' ? 'GPS' : 'IP'} Location
                           </Badge>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setUserLocation(null)}
-                            className="text-green-600 hover:text-green-700 h-6 w-6 p-0"
+                            className="text-green-600 hover:text-green-700 hover:bg-green-100 h-8 w-8 p-0 rounded-lg"
                           >
                             <X className="w-4 h-4" />
                           </Button>
@@ -398,14 +462,54 @@ export default function JobsPage() {
                     </div>
                   )}
                   
+                  {/* Enhanced Error Display */}
                   {locationError && (
-                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 text-red-600" />
-                        <span className="text-sm text-red-700">{locationError}</span>
+                    <div className="mt-6 p-4 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-xl shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-red-100 rounded-lg">
+                          <AlertCircle className="w-5 h-5 text-red-600" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-red-800 text-sm">
+                            Location Detection Failed
+                          </div>
+                          <div className="text-red-700 text-sm">
+                            {locationError}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
+
+                  {/* Quick Location Suggestions */}
+                  <div className="mt-6">
+                    <div className="text-center mb-4">
+                      <span className="text-sm font-medium text-gray-600">Popular Locations</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                      {popularLocations.slice(0, 6).map((location) => (
+                        <Button
+                          key={`${location.name}-${location.country}`}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleLocationSelect(location)}
+                          className={`justify-start h-auto p-3 text-left transition-all duration-200 ${
+                            userLocation?.city === location.name 
+                              ? 'bg-blue-100 border-blue-500 text-blue-800 shadow-md' 
+                              : 'hover:bg-gray-50 border-gray-300 hover:border-blue-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 w-full">
+                            <span className="text-lg">{location.flag}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-xs truncate">{location.name}</div>
+                              <div className="text-xs text-gray-500 truncate">{location.country}</div>
+                            </div>
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -413,89 +517,30 @@ export default function JobsPage() {
         </div>
 
         <div className="container mx-auto px-4 py-8">
-          {/* Enhanced Job Search - Replaced CSE with internal search */}
-          <div className="mb-8">
-            <Card className="bg-gradient-to-r from-blue-50 via-white to-indigo-50 border-2 border-blue-200 shadow-xl">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
-                      <Search className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        Smart Job Search
-                        <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-0 font-bold">
-                          AI Powered
-                        </Badge>
-                      </CardTitle>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Find the perfect job from our comprehensive database
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border-0 font-bold flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      Enhanced
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="bg-white rounded-xl p-4 border-2 border-gray-100">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex-1 relative">
-                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
-                      <input
-                        type="text"
-                        placeholder="Search jobs (e.g., 'software engineer', 'marketing manager')"
-                        value={filters.query}
-                        onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
-                        className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base font-medium transition-all duration-200"
-                      />
-                    </div>
-                    <div className="flex-1 relative">
-                      <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
-                      <input
-                        type="text"
-                        placeholder="Location (optional)"
-                        value={filters.location}
-                        onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                        className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-base font-medium transition-all duration-200"
-                      />
-                    </div>
-                    <Button 
-                      onClick={handleSearch} 
-                      className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-base min-w-[140px]"
-                    >
-                      <Search className="w-5 h-5 mr-2" />
-                      Search Jobs
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
-          {/* Advanced Filters */}
-          <Card className="mb-8 shadow-xl border-2 border-gray-200 bg-white">
-            <CardContent className="p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                <div className="flex items-center gap-3 mb-3 sm:mb-0">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <SlidersHorizontal className="w-5 h-5 text-blue-600" />
+          {/* Enhanced Advanced Filters */}
+          <Card className="mb-8 shadow-2xl border-2 border-gray-200 bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+                <div className="flex items-center gap-4 mb-4 sm:mb-0">
+                  <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                    <SlidersHorizontal className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">Advanced Filters</h3>
-                    <p className="text-sm text-gray-600">Refine your search to find the perfect job</p>
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                      Advanced Filters
+                      <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-0 font-bold">
+                        Smart Search
+                      </Badge>
+                    </h3>
+                    <p className="text-gray-600 mt-1">Refine your search with intelligent filters</p>
                   </div>
                 </div>
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="w-full sm:w-auto border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50"
+                  className="w-full sm:w-auto border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   {showAdvancedFilters ? 'Hide Filters' : 'Show Filters'}
                   <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
@@ -504,58 +549,80 @@ export default function JobsPage() {
 
               {showAdvancedFilters && (
                 <div className="space-y-6">
-                  {/* Location Filters Section */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Map className="w-5 h-5 text-blue-600" />
+                  {/* Enhanced Location Filters Section */}
+                  <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 border-2 border-blue-200 shadow-lg">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                        <Map className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h4 className="text-lg font-bold text-gray-900">Location & Distance</h4>
-                        <p className="text-sm text-gray-600">Find jobs near you or in specific locations</p>
+                        <h4 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                          Location & Distance
+                          <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-0 font-bold">
+                            Smart Detection
+                          </Badge>
+                        </h4>
+                        <p className="text-gray-600 mt-1">Find jobs by area, state, country with intelligent location matching</p>
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Popular Locations */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-semibold text-gray-700">Popular Locations</Label>
-                        <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                      {/* Enhanced Popular Locations */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-lg font-bold text-gray-800">Popular Locations</Label>
+                          <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-0 font-bold">
+                            {popularLocations.length} Cities
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto pr-2">
                           {popularLocations.map((location) => (
                             <Button
                               key={`${location.name}-${location.country}`}
                               variant="outline"
                               size="sm"
                               onClick={() => handleLocationSelect(location)}
-                              className={`justify-start h-auto p-3 text-left transition-all duration-200 ${
+                              className={`justify-start h-auto p-4 text-left transition-all duration-200 shadow-sm hover:shadow-md ${
                                 userLocation?.city === location.name 
-                                  ? 'bg-blue-100 border-blue-500 text-blue-800' 
-                                  : 'hover:bg-gray-50 border-gray-300'
+                                  ? 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-500 text-blue-800 shadow-lg' 
+                                  : 'hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 border-gray-300 hover:border-blue-300'
                               }`}
                             >
-                              <div className="flex items-center gap-2 w-full">
-                                <span className="text-lg">{location.flag}</span>
+                              <div className="flex items-center gap-3 w-full">
+                                <span className="text-2xl">{location.flag}</span>
                                 <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-sm truncate">{location.name}</div>
-                                  <div className="text-xs text-gray-500">{location.country}</div>
+                                  <div className="font-semibold text-sm truncate">{location.name}</div>
+                                  <div className="text-xs text-gray-600 truncate">{location.country}</div>
                                 </div>
-                                <Badge variant="secondary" className="text-xs">
-                                  {location.jobCount}
-                                </Badge>
+                                <div className="flex flex-col items-end">
+                                  <Badge variant="secondary" className="text-xs mb-1">
+                                    {location.jobCount.toLocaleString()} jobs
+                                  </Badge>
+                                  {userLocation?.city === location.name && (
+                                    <Badge className="bg-green-100 text-green-800 border-0 text-xs">
+                                      Selected
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                             </Button>
                           ))}
                         </div>
                       </div>
                       
-                      {/* Distance Controls */}
-                      <div className="space-y-4">
-                        <div className="space-y-3">
-                          <Label className="text-sm font-semibold text-gray-700">Search Radius</Label>
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">5 km</span>
-                              <span className="text-sm text-gray-600">100 km</span>
+                      {/* Enhanced Distance Controls */}
+                      <div className="space-y-6">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-lg font-bold text-gray-800">Search Radius</Label>
+                            <Badge className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border-0 font-bold">
+                              {searchRadius} km
+                            </Badge>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between text-sm text-gray-600">
+                              <span>5 km</span>
+                              <span>100 km</span>
                             </div>
                             <Slider
                               value={[searchRadius]}
@@ -566,33 +633,52 @@ export default function JobsPage() {
                               className="w-full"
                             />
                             <div className="text-center">
-                              <Badge variant="outline" className="text-sm font-medium">
-                                {searchRadius} km radius
+                              <Badge variant="outline" className="text-sm font-medium bg-blue-50 text-blue-800 border-blue-300">
+                                {searchRadius} km search radius
                               </Badge>
                             </div>
                           </div>
                         </div>
                         
-                        <div className="space-y-3">
-                          <div className="flex items-center space-x-2">
+                        <div className="space-y-4">
+                          <div className="flex items-center space-x-3">
                             <Checkbox
                               id="sortByDistance"
                               checked={sortByDistance}
                               onCheckedChange={(checked) => setSortByDistance(!!checked)}
-                              className="w-4 h-4 border-2 border-gray-400 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white"
+                              className="w-5 h-5 border-2 border-gray-400 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white"
                             />
                             <Label htmlFor="sortByDistance" className="text-sm font-semibold text-gray-700 cursor-pointer">
                               Sort by distance (closest first)
                             </Label>
                           </div>
                           
+                          {/* Enhanced Location Status */}
                           {userLocation && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                              <div className="flex items-center gap-2">
-                                <Target className="w-4 h-4 text-green-600" />
-                                <span className="text-sm font-medium text-green-800">
-                                  Current: {userLocation.city}, {userLocation.country}
-                                </span>
+                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-4 shadow-sm">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-green-100 rounded-lg">
+                                  <Target className="w-5 h-5 text-green-600" />
+                                </div>
+                                <div className="flex-1">
+                                  <div className="font-semibold text-green-800 text-sm">
+                                    Current Location
+                                  </div>
+                                  <div className="text-green-700 text-sm">
+                                    {userLocation.area || userLocation.city}, {userLocation.country}
+                                  </div>
+                                  <div className="text-xs text-green-600 mt-1">
+                                    {userLocation.source === 'gps' ? 'GPS Location' : userLocation.source === 'ip' ? 'IP Location' : 'Manual Selection'}
+                                  </div>
+                                </div>
+                                <div className="flex flex-col items-end gap-1">
+                                  <Badge className="bg-green-100 text-green-800 border-0 text-xs">
+                                    Active
+                                  </Badge>
+                                  <div className="text-xs text-green-600">
+                                    {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           )}
@@ -601,87 +687,115 @@ export default function JobsPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-gray-700">Job Type</Label>
-                      <Select value={filters.jobType} onValueChange={(value) => setFilters(prev => ({ ...prev, jobType: value }))}>
-                        <SelectTrigger className="h-12 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium">
-                          <SelectValue placeholder="Select job type" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
-                          <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Types</SelectItem>
-                          <SelectItem value="full-time" className="text-gray-900 hover:bg-blue-50">Full-time</SelectItem>
-                          <SelectItem value="part-time" className="text-gray-900 hover:bg-blue-50">Part-time</SelectItem>
-                          <SelectItem value="contract" className="text-gray-900 hover:bg-blue-50">Contract</SelectItem>
-                          <SelectItem value="internship" className="text-gray-900 hover:bg-blue-50">Internship</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  {/* Enhanced Filter Grid */}
+                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="space-y-3">
+                        <Label className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                          Job Type
+                          <Badge className="bg-blue-100 text-blue-800 border-0 text-xs">Required</Badge>
+                        </Label>
+                        <Select value={filters.jobType} onValueChange={(value) => setFilters(prev => ({ ...prev, jobType: value }))}>
+                          <SelectTrigger className="h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200">
+                            <SelectValue placeholder="Select job type" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+                            <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Types</SelectItem>
+                            <SelectItem value="full-time" className="text-gray-900 hover:bg-blue-50">Full-time</SelectItem>
+                            <SelectItem value="part-time" className="text-gray-900 hover:bg-blue-50">Part-time</SelectItem>
+                            <SelectItem value="contract" className="text-gray-900 hover:bg-blue-50">Contract</SelectItem>
+                            <SelectItem value="internship" className="text-gray-900 hover:bg-blue-50">Internship</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-gray-700">Experience Level</Label>
-                      <Select value={filters.experienceLevel} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceLevel: value }))}>
-                        <SelectTrigger className="h-12 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium">
-                          <SelectValue placeholder="Select experience" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
-                          <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Levels</SelectItem>
-                          <SelectItem value="entry" className="text-gray-900 hover:bg-blue-50">Entry Level</SelectItem>
-                          <SelectItem value="mid" className="text-gray-900 hover:bg-blue-50">Mid Level</SelectItem>
-                          <SelectItem value="senior" className="text-gray-900 hover:bg-blue-50">Senior Level</SelectItem>
-                          <SelectItem value="lead" className="text-gray-900 hover:bg-blue-50">Lead</SelectItem>
-                          <SelectItem value="executive" className="text-gray-900 hover:bg-blue-50">Executive</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                      <div className="space-y-3">
+                        <Label className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                          Experience Level
+                          <Badge className="bg-purple-100 text-purple-800 border-0 text-xs">Smart</Badge>
+                        </Label>
+                        <Select value={filters.experienceLevel} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceLevel: value }))}>
+                          <SelectTrigger className="h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200">
+                            <SelectValue placeholder="Select experience" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
+                            <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Levels</SelectItem>
+                            <SelectItem value="entry" className="text-gray-900 hover:bg-blue-50">Entry Level (0-2 years)</SelectItem>
+                            <SelectItem value="mid" className="text-gray-900 hover:bg-blue-50">Mid Level (2-5 years)</SelectItem>
+                            <SelectItem value="senior" className="text-gray-900 hover:bg-blue-50">Senior Level (5-10 years)</SelectItem>
+                            <SelectItem value="lead" className="text-gray-900 hover:bg-blue-50">Lead (10+ years)</SelectItem>
+                            <SelectItem value="executive" className="text-gray-900 hover:bg-blue-50">Executive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-gray-700">Min Salary</Label>
-                      <Input
-                        placeholder="e.g., 50000"
-                        value={filters.salaryMin}
-                        onChange={(e) => setFilters(prev => ({ ...prev, salaryMin: e.target.value }))}
-                        type="number"
-                        className="h-12 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium"
-                      />
-                    </div>
+                      <div className="space-y-3">
+                        <Label className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                          Min Salary
+                          <Badge className="bg-green-100 text-green-800 border-0 text-xs">Optional</Badge>
+                        </Label>
+                        <Input
+                          placeholder="e.g., 50000"
+                          value={filters.salaryMin}
+                          onChange={(e) => setFilters(prev => ({ ...prev, salaryMin: e.target.value }))}
+                          type="number"
+                          className="h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                        />
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-gray-700">Max Salary</Label>
-                      <Input
-                        placeholder="e.g., 100000"
-                        value={filters.salaryMax}
-                        onChange={(e) => setFilters(prev => ({ ...prev, salaryMax: e.target.value }))}
-                        type="number"
-                        className="h-12 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium"
-                      />
+                      <div className="space-y-3">
+                        <Label className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                          Max Salary
+                          <Badge className="bg-green-100 text-green-800 border-0 text-xs">Optional</Badge>
+                        </Label>
+                        <Input
+                          placeholder="e.g., 100000"
+                          value={filters.salaryMax}
+                          onChange={(e) => setFilters(prev => ({ ...prev, salaryMax: e.target.value }))}
+                          type="number"
+                          className="h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t-2 border-gray-100">
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id="remote"
-                        checked={filters.isRemote}
-                        onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isRemote: !!checked }))}
-                        className="w-5 h-5 border-2 border-gray-400 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white"
-                      />
-                      <Label htmlFor="remote" className="text-sm font-semibold text-gray-700 cursor-pointer">Remote Work Only</Label>
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
-                        <TrendingUp className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-bold text-blue-800">{jobs.length} jobs found</span>
+                  {/* Enhanced Action Section */}
+                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-3">
+                          <Checkbox
+                            id="remote"
+                            checked={filters.isRemote}
+                            onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isRemote: !!checked }))}
+                            className="w-6 h-6 border-2 border-gray-400 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white"
+                          />
+                          <Label htmlFor="remote" className="text-lg font-bold text-gray-800 cursor-pointer flex items-center gap-2">
+                            Remote Work Only
+                            <Badge className="bg-orange-100 text-orange-800 border-0 text-xs">Popular</Badge>
+                          </Label>
+                        </div>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        onClick={clearFilters} 
-                        className="w-full sm:w-auto border-2 border-gray-300 hover:border-red-500 hover:bg-red-50 hover:text-red-600"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Clear All Filters
-                      </Button>
+                      
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 shadow-sm">
+                          <div className="p-2 bg-blue-100 rounded-lg">
+                            <TrendingUp className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-bold text-blue-800">{jobs.length.toLocaleString()} jobs found</div>
+                            <div className="text-xs text-blue-600">Based on your filters</div>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          onClick={clearFilters} 
+                          className="w-full sm:w-auto border-2 border-gray-300 hover:border-red-500 hover:bg-red-50 hover:text-red-600 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                        >
+                          <X className="h-5 w-5 mr-2" />
+                          Clear All Filters
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
