@@ -115,9 +115,19 @@ export default function JobsPage() {
 
   useEffect(() => {
     fetchDynamicConstants();
-    fetchJobs();
     fetchBookmarks();
-  }, [currentPage, filters]);
+  }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (filters.query || filters.location || filters.jobType !== 'all' || filters.experienceLevel !== 'all' || filters.isRemote || filters.salaryMin || filters.salaryMax) {
+        fetchJobs();
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchJobs]);
 
   const fetchDynamicConstants = async () => {
     try {
@@ -133,7 +143,7 @@ export default function JobsPage() {
     }
   };
 
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -154,20 +164,27 @@ export default function JobsPage() {
         ...(sortByDistance && { includeDistance: 'true' })
       });
 
+      console.log('🔍 Fetching jobs with params:', params.toString());
+
       const response = await fetch(`/api/jobs/unified?${params}&includeExternal=true`);
       if (!response.ok) throw new Error('Failed to fetch jobs');
 
       const data = await response.json();
       if (data.success) {
-        setJobs(data.jobs);
-        setTotalPages(data.pagination.totalPages);
+        setJobs(data.jobs || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+        console.log(`✅ Found ${data.jobs?.length || 0} jobs`);
+      } else {
+        console.error('❌ API returned error:', data.error);
+        setJobs([]);
       }
     } catch (error) {
       console.error('Error fetching jobs:', error);
+      setJobs([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, currentPage, userLocation, searchRadius, sortByDistance]);
 
   const fetchBookmarks = async () => {
     try {

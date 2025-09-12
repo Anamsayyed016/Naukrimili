@@ -21,6 +21,17 @@ export async function GET(request: NextRequest) {
     const country = searchParams.get('country') || 'IN';
     const source = searchParams.get('source') || 'all'; // 'db', 'external', 'all'
     
+    // Additional filter parameters
+    const jobType = searchParams.get('jobType') || '';
+    const experienceLevel = searchParams.get('experienceLevel') || '';
+    const isRemote = searchParams.get('isRemote') === 'true';
+    const salaryMin = searchParams.get('salaryMin') || '';
+    const salaryMax = searchParams.get('salaryMax') || '';
+    const lat = searchParams.get('lat') || '';
+    const lng = searchParams.get('lng') || '';
+    const radius = searchParams.get('radius') || '25';
+    const sortByDistance = searchParams.get('sortByDistance') === 'true';
+    
     // Validate numeric parameters
     let page = 1;
     let limit = 20;
@@ -38,27 +49,73 @@ export async function GET(request: NextRequest) {
     let totalJobs = 0;
     let externalJobsCount = 0;
 
-    console.log(`🔍 Unified Jobs API: Searching with filters:`, { query, location, country, source, page, limit, includeExternal });
+    console.log(`🔍 Unified Jobs API: Searching with filters:`, { 
+      query, location, country, source, page, limit, includeExternal,
+      jobType, experienceLevel, isRemote, salaryMin, salaryMax, lat, lng, radius, sortByDistance
+    });
 
     // 1. Fetch from Database
     if (source === 'db' || source === 'all') {
       try {
         const dbWhere: any = { isActive: true };
         
+        // Build OR conditions for query and location
+        const orConditions: any[] = [];
+        
         if (query && query.trim().length > 0) {
-          dbWhere.OR = [
+          orConditions.push(
             { title: { contains: query.trim(), mode: 'insensitive' } },
             { company: { contains: query.trim(), mode: 'insensitive' } },
             { description: { contains: query.trim(), mode: 'insensitive' } }
-          ];
+          );
         }
         
         if (location && location.trim().length > 0) {
-          dbWhere.location = { contains: location.trim(), mode: 'insensitive' };
+          // Enhanced location filtering with smart matching
+          const locationVariations = generateLocationVariations(location.trim());
+          orConditions.push(
+            { location: { contains: location.trim(), mode: 'insensitive' } },
+            ...locationVariations.map(loc => ({ location: { contains: loc, mode: 'insensitive' } }))
+          );
+        }
+        
+        if (orConditions.length > 0) {
+          dbWhere.OR = orConditions;
         }
         
         if (country && country.trim().length > 0) {
           dbWhere.country = country.trim();
+        }
+        
+        // Additional filters
+        if (jobType && jobType.trim().length > 0) {
+          dbWhere.jobType = { contains: jobType.trim(), mode: 'insensitive' };
+        }
+        
+        if (experienceLevel && experienceLevel.trim().length > 0) {
+          dbWhere.experienceLevel = { contains: experienceLevel.trim(), mode: 'insensitive' };
+        }
+        
+        if (isRemote) {
+          dbWhere.isRemote = true;
+        }
+        
+        if (salaryMin && salaryMin.trim().length > 0) {
+          const minSalary = parseInt(salaryMin);
+          if (!isNaN(minSalary)) {
+            dbWhere.salary = { gte: minSalary };
+          }
+        }
+        
+        if (salaryMax && salaryMax.trim().length > 0) {
+          const maxSalary = parseInt(salaryMax);
+          if (!isNaN(maxSalary)) {
+            if (dbWhere.salary) {
+              dbWhere.salary = { ...dbWhere.salary, lte: maxSalary };
+            } else {
+              dbWhere.salary = { lte: maxSalary };
+            }
+          }
         }
 
         const dbJobs = await prisma.job.findMany({
@@ -115,7 +172,9 @@ export async function GET(request: NextRequest) {
     // 2. Fetch External Jobs
     if (includeExternal && source !== 'db') {
       try {
-        const externalJobs = await fetchExternalJobs(query, location, country, page);
+        const externalJobs = await fetchExternalJobs(query, location, country, page, {
+          jobType, experienceLevel, isRemote, salaryMin, salaryMax
+        });
         
         // Process external jobs and add required fields
         const processedExternalJobs = externalJobs.map(job => ({
@@ -237,7 +296,81 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function fetchExternalJobs(query: string, location: string, country: string, page: number) {
+// Helper function to generate location variations for smart matching
+function generateLocationVariations(location: string): string[] {
+  try {
+    const variations: string[] = [];
+    const lowerLocation = location.toLowerCase().trim();
+    
+    // Common location patterns
+    const patterns = [
+      // City, State patterns
+      { regex: /^([^,]+),\s*([^,]+)$/, extract: (match: RegExpMatchArray) => [match[1].trim(), match[2].trim()] },
+      // City patterns
+      { regex: /^([^,]+)$/, extract: (match: RegExpMatchArray) => [match[1].trim()] }
+    ];
+    
+    for (const pattern of patterns) {
+      const match = lowerLocation.match(pattern.regex);
+      if (match) {
+        const parts = pattern.extract(match);
+        if (parts.length === 2) {
+          // City, State format
+          variations.push(parts[0]); // Just city
+          variations.push(parts[1]); // Just state
+          variations.push(`${parts[0]}, ${parts[1]}`); // Full format
+        } else if (parts.length === 1) {
+          // Just city
+          variations.push(parts[0]);
+        }
+        break;
+      }
+    }
+    
+    // Add common variations for major cities
+    if (lowerLocation.includes('dubai')) {
+      variations.push('dubai', 'dubai, uae', 'uae', 'united arab emirates');
+    }
+    if (lowerLocation.includes('mumbai')) {
+      variations.push('mumbai', 'mumbai, maharashtra', 'maharashtra', 'bombay');
+    }
+    if (lowerLocation.includes('delhi')) {
+      variations.push('delhi', 'new delhi', 'delhi, india', 'ncr');
+    }
+    if (lowerLocation.includes('bangalore')) {
+      variations.push('bangalore', 'bengaluru', 'bangalore, karnataka', 'karnataka');
+    }
+    if (lowerLocation.includes('hyderabad')) {
+      variations.push('hyderabad', 'hyderabad, telangana', 'telangana');
+    }
+    if (lowerLocation.includes('chennai')) {
+      variations.push('chennai', 'madras', 'chennai, tamil nadu', 'tamil nadu');
+    }
+    if (lowerLocation.includes('pune')) {
+      variations.push('pune', 'pune, maharashtra');
+    }
+    if (lowerLocation.includes('kolkata')) {
+      variations.push('kolkata', 'calcutta', 'kolkata, west bengal', 'west bengal');
+    }
+    if (lowerLocation.includes('ahmedabad')) {
+      variations.push('ahmedabad', 'ahmedabad, gujarat', 'gujarat');
+    }
+    
+    // Remove duplicates and return
+    return [...new Set(variations)].filter(v => v.length > 0);
+  } catch (error) {
+    console.warn('⚠️ Location variation generation failed:', error);
+    return [location]; // Fallback to original location
+  }
+}
+
+async function fetchExternalJobs(query: string, location: string, country: string, page: number, filters: {
+  jobType?: string;
+  experienceLevel?: string;
+  isRemote?: boolean;
+  salaryMin?: string;
+  salaryMax?: string;
+} = {}) {
   try {
     const allExternalJobs: any[] = [];
     
