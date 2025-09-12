@@ -18,6 +18,25 @@ export async function GET(
         { status: 400 }
       );
     }
+
+    // First, try to get the job from the unified API (which works without database)
+    try {
+      console.log('🔍 Fetching job from unified API...');
+      const unifiedResponse = await fetch(`${request.nextUrl.origin}/api/jobs/unified?includeExternal=true&limit=1000`);
+      
+      if (unifiedResponse.ok) {
+        const unifiedData = await unifiedResponse.json();
+        if (unifiedData.success && unifiedData.jobs) {
+          const job = unifiedData.jobs.find((j: any) => j.id === id);
+          if (job) {
+            console.log('✅ Job found in unified API:', job.title);
+            return NextResponse.json({ success: true, job });
+          }
+        }
+      }
+    } catch (unifiedError) {
+      console.warn('⚠️ Unified API fetch failed, trying database:', unifiedError);
+    }
     
     // Check if this is an external job ID first
     if (id.startsWith('ext-')) {
