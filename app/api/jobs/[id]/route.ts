@@ -10,6 +10,15 @@ export async function GET(
     const { id } = await params;
     console.log('🔍 Job API called with ID:', id);
     
+    // Add error handling for invalid IDs
+    if (!id || typeof id !== 'string') {
+      console.error('❌ Invalid job ID provided:', id);
+      return NextResponse.json(
+        { success: false, error: 'Invalid job ID' },
+        { status: 400 }
+      );
+    }
+    
     // Check if this is an external job ID first
     if (id.startsWith('ext-')) {
       // Enhanced ID parsing to handle different formats
@@ -120,20 +129,32 @@ export async function GET(
     }
     
     // Get job details with company information for database IDs
-    const job = await prisma.job.findUnique({
-      where: { id: id },
-      include: {
-        companyRelation: {
-          select: {
-            name: true,
-            logo: true,
-            location: true,
-            industry: true,
-            website: true
+    console.log('🔍 Searching for job in database with ID:', id);
+    
+    let job;
+    try {
+      job = await prisma.job.findUnique({
+        where: { id: id },
+        include: {
+          companyRelation: {
+            select: {
+              name: true,
+              logo: true,
+              location: true,
+              industry: true,
+              website: true
+            }
           }
         }
-      }
-    });
+      });
+      console.log('🔍 Database query result:', job ? 'Found' : 'Not found');
+    } catch (dbError) {
+      console.error('❌ Database error:', dbError);
+      return NextResponse.json(
+        { success: false, error: 'Database error' },
+        { status: 500 }
+      );
+    }
     
     if (!job) {
       return NextResponse.json(

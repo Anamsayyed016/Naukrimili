@@ -1,42 +1,48 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('🔍 Testing database connection...');
     
     // Test basic database connection
-    const result = await prisma.$queryRaw`SELECT 1 as test`;
-    console.log('✅ Database connection successful:', result);
+    const jobCount = await prisma.job.count();
+    console.log('✅ Database connection successful. Job count:', jobCount);
     
-    // Test User table
-    const userCount = await prisma.user.count();
-    console.log('👤 User count:', userCount);
-    
-    // Test Resume table
-    const resumeCount = await prisma.resume.count();
-    console.log('📄 Resume count:', resumeCount);
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Database connection successful',
-      data: {
-        connection: 'OK',
-        userCount,
-        resumeCount,
-        testQuery: result
+    // Test specific job query
+    const job = await prisma.job.findUnique({
+      where: { id: '4' },
+      include: {
+        companyRelation: {
+          select: {
+            name: true,
+            logo: true,
+            location: true,
+            industry: true,
+            website: true
+          }
+        }
       }
     });
     
-  } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    console.log('✅ Job query result:', job ? 'Found' : 'Not found');
     
     return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Database connection failed',
-      details: error
-    }, { status: 500 });
+      success: true,
+      jobCount,
+      jobFound: !!job,
+      job: job || null
+    });
+    
+  } catch (error) {
+    console.error('❌ Database test error:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Database test failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
   }
 }
-
-export const dynamic = 'force-dynamic';
