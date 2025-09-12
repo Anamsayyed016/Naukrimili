@@ -276,20 +276,18 @@ export default function ResumeBuilderPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-      </div>
-    );
+      </div> );
   }
 
   // Show access denied if not authenticated
   if (status === 'unauthenticated' && !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+ <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Authentication Required</h2>
           <p className="text-gray-600 mb-4">Please log in to access the resume builder.</p>
-          <Button onClick={() => router.push('/auth/login?redirect=/resumes/builder')}>
-            Go to Login
-          </Button>
+          <Button onClick={() => router.push('/auth/login?redirect=/resumes/builder')}> Go to Login
+ </Button>
         </div>
       </div>
     );
@@ -329,8 +327,7 @@ export default function ResumeBuilderPage() {
   const updateEducation = (id: string, field: string, value: string) => {
     setResumeData(prev => ({
       ...prev,
-      education: prev.education.map(edu => 
-        edu.id === id ? { ...edu, [field]: value } : edu
+      education: prev.education.map(edu => edu.id === id ? { ...edu, [field]: value } : edu
       )
     }));
   };
@@ -628,10 +625,9 @@ export default function ResumeBuilderPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
-        {/* Header */}
-        <div className="mb-6 lg:mb-8">
+ <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8"> {/* Header */}
+ <div className="mb-6 lg:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Resume Builder</h1>
@@ -645,36 +641,29 @@ export default function ResumeBuilderPage() {
                 }}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Create New Resume
-              </Button>
-              {atsAnalysis && (
-                <div className="text-center">
+                <Plus className="w-4 h-4 mr-2" /> Create New Resume
+ </Button> {atsAnalysis && (
+ <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold text-blue-600">{atsAnalysis.score}/100</div>
                   <div className="text-xs sm:text-sm text-gray-600">ATS Score</div>
-                </div>
-              )}
+                </div> )}
               {isAnalyzing && (
-                <div className="flex items-center gap-2 text-blue-600">
+ <div className="flex items-center gap-2 text-blue-600">
                   <Brain className="w-4 h-4 animate-spin" />
                   <span className="text-xs sm:text-sm">Analyzing...</span>
-                </div>
-              )}
-            </div>
+                </div> )}
+ </div>
           </div>
-        </div>
-
-        {/* Template Selection */}
+        </div> {/* Template Selection */}
         {showTemplateSelector ? (
-          <div className="space-y-4">
+ <div className="space-y-4">
             <div className="flex items-center gap-4">
               <Button
                 onClick={() => setShowTemplateSelector(false)}
                 variant="outline"
                 size="sm"
-              >
-                ← Back to Builder
-              </Button>
+              > ← Back to Builder
+ </Button>
               <h2 className="text-2xl font-bold text-gray-900">Choose Your Template</h2>
             </div>
             <TemplateSelector
@@ -687,90 +676,73 @@ export default function ResumeBuilderPage() {
               onCustomizationChange={handleCustomizationChange}
               onPreview={handleTemplatePreview}
             />
-          </div>
-        ) : (
-          <Card className="mb-6 bg-white border-2 border-blue-200 shadow-2xl">
+          </div> ) : (
+ <Card className="mb-6 bg-white border-2 border-blue-200 shadow-2xl">
             <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
               <CardTitle className="flex items-center justify-between text-white">
                 <div className="flex items-center gap-2">
                   <Palette className="w-5 h-5 text-white" />
                   Template & Style
-                </div>
+ </div>
                 <Button
                   onClick={() => setShowTemplateSelector(true)}
                   variant="outline"
                   size="sm"
                   className="bg-white text-blue-600 hover:bg-gray-100 border-white shadow-lg"
-                >
-                  Choose Template
-                </Button>
+                > Choose Template
+ </Button>
               </CardTitle>
             </CardHeader>
             <CardContent className="bg-white p-4 sm:p-6 border-t border-gray-200">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Template Style
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2"> Template Style
+ </label>
                   <Select value={customization.templateId} onValueChange={(value) => setCustomization(prev => ({ ...prev, templateId: value }))}>
                     <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      {ResumeTemplateManager.getAllTemplates().map(template => (
-                        <SelectItem key={template.id} value={template.id}>
-                          {template.name} - {template.description}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                    <SelectContent> {ResumeTemplateManager.getAllTemplates().map(template => (
+ <SelectItem key={template.id} value={template.id}> {template.name} - {template.description}
+ </SelectItem> ))}
+ </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Color Scheme
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2"> Color Scheme
+ </label>
                   <Select value={customization.colorScheme} onValueChange={(value) => setCustomization(prev => ({ ...prev, colorScheme: value as any }))}>
                     <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      {ResumeTemplateManager.getTemplateById(customization.templateId)?.colorSchemes.map(scheme => (
-                        <SelectItem key={scheme} value={scheme}>
-                          {scheme.charAt(0).toUpperCase() + scheme.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                    <SelectContent> {ResumeTemplateManager.getTemplateById(customization.templateId)?.colorSchemes.map(scheme => (
+ <SelectItem key={scheme} value={scheme}> {scheme.charAt(0).toUpperCase() + scheme.slice(1)}
+ </SelectItem> ))}
+ </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Font Family
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2"> Font Family
+ </label>
                   <Select value={customization.fontFamily} onValueChange={(value) => setCustomization(prev => ({ ...prev, fontFamily: value as any }))}>
                     <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      {ResumeTemplateManager.getTemplateById(customization.templateId)?.fontOptions.map(font => (
-                        <SelectItem key={font} value={font}>
-                          {font.charAt(0).toUpperCase() + font.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                    <SelectContent> {ResumeTemplateManager.getTemplateById(customization.templateId)?.fontOptions.map(font => (
+ <SelectItem key={font} value={font}> {font.charAt(0).toUpperCase() + font.slice(1)}
+ </SelectItem> ))}
+ </SelectContent>
                   </Select>
                 </div>
               </div>
             </CardContent>
-          </Card>
-        )}
+          </Card> )}
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-          {/* Builder Form */}
-          <div className="space-y-3 sm:space-y-4 lg:space-y-6 order-2 xl:order-1 min-h-0">
+ <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8"> {/* Builder Form */}
+ <div className="space-y-3 sm:space-y-4 lg:space-y-6 order-2 xl:order-1 min-h-0">
             <Card className="bg-white border-2 border-gray-200 shadow-xl">
-              <Tabs defaultValue="personal" className="w-full">
-              {/* Mobile: Scrollable tabs, Desktop: Grid */}
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+              <Tabs defaultValue="personal" className="w-full"> {/* Mobile: Scrollable tabs, Desktop: Grid */}
+ <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                 <CardTitle className="text-white">Resume Builder</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
@@ -786,22 +758,21 @@ export default function ResumeBuilderPage() {
                     <TabsTrigger value="references" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-3 py-2 bg-white hover:bg-gray-200 transition-colors border border-gray-300">References</TabsTrigger>
                   </TabsList>
                 </div>
-
-                {/* Personal Information */}
-                <TabsContent value="personal" className="space-y-4 p-4 sm:p-6">
+              </CardContent>
+              {/* Personal Information */}
+              <TabsContent value="personal" className="space-y-4 p-4 sm:p-6">
                 <Card className="bg-white border-2 border-gray-300 shadow-xl">
                   <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                     <CardTitle className="flex items-center gap-2 text-white">
                       <User className="w-5 h-5 text-white" />
                       Personal Information
-                    </CardTitle>
+ </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 bg-gray-50 p-4 sm:p-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Full Name *
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1"> Full Name *
+ </label>
                         <Input
                           value={resumeData.personalInfo.fullName}
                           onChange={(e) => updatePersonalInfo('fullName', e.target.value)}
@@ -810,9 +781,8 @@ export default function ResumeBuilderPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Email *
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1"> Email *
+ </label>
                         <Input
                           type="email"
                           value={resumeData.personalInfo.email}
@@ -824,9 +794,8 @@ export default function ResumeBuilderPage() {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Phone
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1"> Phone
+ </label>
                         <Input
                           value={resumeData.personalInfo.phone}
                           onChange={(e) => updatePersonalInfo('phone', e.target.value)}
@@ -835,9 +804,8 @@ export default function ResumeBuilderPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Location
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1"> Location
+ </label>
                         <Input
                           value={resumeData.personalInfo.location}
                           onChange={(e) => updatePersonalInfo('location', e.target.value)}
@@ -847,9 +815,8 @@ export default function ResumeBuilderPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        LinkedIn
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1"> LinkedIn
+ </label>
                         <Input
                           value={resumeData.personalInfo.linkedin}
                           onChange={(e) => updatePersonalInfo('linkedin', e.target.value)}
@@ -858,9 +825,8 @@ export default function ResumeBuilderPage() {
                         />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Professional Summary
-                      </label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1"> Professional Summary
+ </label>
                       <Textarea
                         value={resumeData.personalInfo.summary}
                         onChange={(e) => updatePersonalInfo('summary', e.target.value)}
@@ -871,21 +837,18 @@ export default function ResumeBuilderPage() {
                     </div>
                   </CardContent>
                 </Card>
-                </TabsContent>
-
-                {/* Education */}
-                <TabsContent value="education" className="space-y-4 p-4 sm:p-6">
+                </TabsContent> {/* Education */}
+              <TabsContent value="education" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <GraduationCap className="w-5 h-5" />
                       Education
-                    </CardTitle>
+ </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {resumeData.education.map((edu, index) => (
-                        <div key={edu.id} className="border rounded-lg p-4 space-y-4">
+                    <div className="space-y-4"> {resumeData.education.map((edu, index) => (
+ <div key={edu.id} className="border rounded-lg p-4 space-y-4">
                           <div className="flex justify-between items-center">
                             <h4 className="font-medium">Education #{index + 1}</h4>
                             <Button
@@ -898,9 +861,8 @@ export default function ResumeBuilderPage() {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Institution
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Institution
+ </label>
                               <Input
                                 value={edu.institution}
                                 onChange={(e) => updateEducation(edu.id, 'institution', e.target.value)}
@@ -909,9 +871,8 @@ export default function ResumeBuilderPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Degree
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Degree
+ </label>
                               <Input
                                 value={edu.degree}
                                 onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
@@ -922,9 +883,8 @@ export default function ResumeBuilderPage() {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Field of Study
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Field of Study
+ </label>
                               <Input
                                 value={edu.field}
                                 onChange={(e) => updateEducation(edu.id, 'field', e.target.value)}
@@ -932,10 +892,9 @@ export default function ResumeBuilderPage() {
                                 className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base shadow-md text-gray-900"
                               />
                             </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Start Date
-                              </label>
+                            <div> 
+ <label className="block text-sm font-medium text-gray-700 mb-1"> Start Date
+ </label>
                               <Input
                                 type="month"
                                 value={edu.startDate}
@@ -944,9 +903,8 @@ export default function ResumeBuilderPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                End Date
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> End Date
+ </label>
                               <Input
                                 type="month"
                                 value={edu.endDate}
@@ -955,30 +913,26 @@ export default function ResumeBuilderPage() {
                               />
                             </div>
                           </div>
-                        </div>
-                      ))}
-                      <Button onClick={addEducation} variant="outline" className="w-full">
+                        </div> ))}
+ <Button onClick={addEducation} variant="outline" className="w-full">
                         <Plus className="w-4 h-4 mr-2" />
                         Add Education
-                      </Button>
+ </Button>
                     </div>
                   </CardContent>
                 </Card>
-                </TabsContent>
-
-                {/* Experience */}
-                <TabsContent value="experience" className="space-y-4 p-4 sm:p-6">
+                </TabsContent> {/* Experience */}
+              <TabsContent value="experience" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Briefcase className="w-5 h-5" />
                       Work Experience
-                    </CardTitle>
+ </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {resumeData.experience.map((exp, index) => (
-                        <div key={exp.id} className="border rounded-lg p-4 space-y-4">
+                    <div className="space-y-4"> {resumeData.experience.map((exp, index) => (
+ <div key={exp.id} className="border rounded-lg p-4 space-y-4">
                           <div className="flex justify-between items-center">
                             <h4 className="font-medium">Experience #{index + 1}</h4>
                             <Button
@@ -991,9 +945,8 @@ export default function ResumeBuilderPage() {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Company
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Company
+ </label>
                               <Input
                                 value={exp.company}
                                 onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
@@ -1002,9 +955,8 @@ export default function ResumeBuilderPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Position
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Position
+ </label>
                               <Input
                                 value={exp.position}
                                 onChange={(e) => updateExperience(exp.id, 'position', e.target.value)}
@@ -1015,9 +967,8 @@ export default function ResumeBuilderPage() {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Location
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Location
+ </label>
                               <Input
                                 value={exp.location}
                                 onChange={(e) => updateExperience(exp.id, 'location', e.target.value)}
@@ -1026,9 +977,8 @@ export default function ResumeBuilderPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Start Date
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Start Date
+ </label>
                               <Input
                                 type="month"
                                 value={exp.startDate}
@@ -1037,9 +987,8 @@ export default function ResumeBuilderPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                End Date
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> End Date
+ </label>
                               <Input
                                 type="month"
                                 value={exp.endDate}
@@ -1050,9 +999,8 @@ export default function ResumeBuilderPage() {
                             </div>
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Description
-                            </label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1"> Description
+ </label>
                             <Textarea
                               value={exp.description}
                               onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
@@ -1061,30 +1009,26 @@ export default function ResumeBuilderPage() {
                               className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 text-sm sm:text-base resize-none shadow-md text-gray-900"
                             />
                           </div>
-                        </div>
-                      ))}
-                      <Button onClick={addExperience} variant="outline" className="w-full">
+                        </div> ))}
+ <Button onClick={addExperience} variant="outline" className="w-full">
                         <Plus className="w-4 h-4 mr-2" />
                         Add Experience
-                      </Button>
+ </Button>
                     </div>
                   </CardContent>
                 </Card>
-                </TabsContent>
-
-                {/* Skills */}
-                <TabsContent value="skills" className="space-y-4 p-4 sm:p-6">
+                </TabsContent> {/* Skills */}
+              <TabsContent value="skills" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Award className="w-5 h-5" />
                       Skills
-                    </CardTitle>
+ </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {resumeData.skills.map((skill, index) => (
-                        <div key={skill.id} className="flex items-center gap-4">
+                    <div className="space-y-4"> {resumeData.skills.map((skill, index) => (
+ <div key={skill.id} className="flex items-center gap-4">
                           <div className="flex-1">
                             <Input
                               value={skill.name}
@@ -1114,47 +1058,41 @@ export default function ResumeBuilderPage() {
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
-                        </div>
-                      ))}
-                      <Button onClick={addSkill} variant="outline" className="w-full">
+                        </div> ))}
+ <Button onClick={addSkill} variant="outline" className="w-full">
                         <Plus className="w-4 h-4 mr-2" />
                         Add Skill
-                      </Button>
+ </Button>
                     </div>
                   </CardContent>
                 </Card>
-                </TabsContent>
-
-                {/* Projects */}
-                <TabsContent value="projects" className="space-y-4 p-4 sm:p-6">
+                </TabsContent> {/* Projects */}
+              <TabsContent value="projects" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span className="flex items-center gap-2">
                         <FileText className="w-5 h-5" />
                         Projects
-                      </span>
+ </span>
                       <Button onClick={addProject} size="sm">
                         <Plus className="w-4 h-4 mr-2" />
                         Add Project
-                      </Button>
+ </Button>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {resumeData.projects.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
+                  <CardContent className="space-y-4"> {resumeData.projects.length === 0 ? (
+ <div className="text-center py-8 text-gray-500">
                         <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                         <p>No projects added yet. Click "Add Project" to get started.</p>
-                      </div>
-                    ) : (
+                      </div> ) : (
                       resumeData.projects.map((project, index) => (
-                        <Card key={project.id} className="border-l-4 border-l-blue-500">
+ <Card key={project.id} className="border-l-4 border-l-blue-500">
                           <CardContent className="pt-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Project Name *
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Project Name *
+ </label>
                                 <Input
                                   value={project.name}
                                   onChange={(e) => updateProject(project.id, 'name', e.target.value)}
@@ -1163,9 +1101,8 @@ export default function ResumeBuilderPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Technologies
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Technologies
+ </label>
                                 <Input
                                   value={project.technologies.join(', ')}
                                   onChange={(e) => updateProject(project.id, 'technologies', e.target.value.split(',').map(t => t.trim()))}
@@ -1175,9 +1112,8 @@ export default function ResumeBuilderPage() {
                               </div>
                             </div>
                             <div className="mt-4">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Description
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Description
+ </label>
                               <Textarea
                                 value={project.description}
                                 onChange={(e) => updateProject(project.id, 'description', e.target.value)}
@@ -1188,9 +1124,8 @@ export default function ResumeBuilderPage() {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Project URL
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Project URL
+ </label>
                                 <Input
                                   value={project.url}
                                   onChange={(e) => updateProject(project.id, 'url', e.target.value)}
@@ -1207,47 +1142,41 @@ export default function ResumeBuilderPage() {
                                 >
                                   <Trash2 className="w-4 h-4 mr-2" />
                                   Remove
-                                </Button>
+ </Button>
                               </div>
                             </div>
                           </CardContent>
-                        </Card>
-                      ))
+                        </Card> ))
                     )}
-                  </CardContent>
+                </CardContent>
                 </Card>
-                </TabsContent>
-
-                {/* Certifications */}
-                <TabsContent value="certifications" className="space-y-4 p-4 sm:p-6">
+                </TabsContent> {/* Certifications */}
+              <TabsContent value="certifications" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span className="flex items-center gap-2">
                         <Award className="w-5 h-5" />
                         Certifications
-                      </span>
+ </span>
                       <Button onClick={addCertification} size="sm">
                         <Plus className="w-4 h-4 mr-2" />
                         Add Certification
-                      </Button>
+ </Button>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {resumeData.certifications.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
+                  <CardContent className="space-y-4"> {resumeData.certifications.length === 0 ? (
+ <div className="text-center py-8 text-gray-500">
                         <Award className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                         <p>No certifications added yet. Click "Add Certification" to get started.</p>
-                      </div>
-                    ) : (
+                      </div> ) : (
                       resumeData.certifications.map((cert) => (
-                        <Card key={cert.id} className="border-l-4 border-l-green-500">
+ <Card key={cert.id} className="border-l-4 border-l-green-500">
                           <CardContent className="pt-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Certification Name *
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Certification Name *
+ </label>
                                 <Input
                                   value={cert.name}
                                   onChange={(e) => updateCertification(cert.id, 'name', e.target.value)}
@@ -1256,9 +1185,8 @@ export default function ResumeBuilderPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Issuing Organization
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Issuing Organization
+ </label>
                                 <Input
                                   value={cert.issuer}
                                   onChange={(e) => updateCertification(cert.id, 'issuer', e.target.value)}
@@ -1269,9 +1197,8 @@ export default function ResumeBuilderPage() {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Issue Date
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Issue Date
+ </label>
                                 <Input
                                   type="date"
                                   value={cert.date}
@@ -1280,9 +1207,8 @@ export default function ResumeBuilderPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Expiry Date
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Expiry Date
+ </label>
                                 <Input
                                   type="date"
                                   value={cert.validUntil}
@@ -1292,9 +1218,8 @@ export default function ResumeBuilderPage() {
                               </div>
                             </div>
                             <div className="mt-4">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Credential ID
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Credential ID
+ </label>
                               <Input
                                 value={cert.credentialId}
                                 onChange={(e) => updateCertification(cert.id, 'credentialId', e.target.value)}
@@ -1308,48 +1233,41 @@ export default function ResumeBuilderPage() {
                                 size="sm"
                                 onClick={() => removeCertification(cert.id)}
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Remove
-                              </Button>
+                                <Trash2 className="w-4 h-4 mr-2" /> Remove
+ </Button>
                             </div>
                           </CardContent>
-                        </Card>
-                      ))
+                        </Card> ))
                     )}
-                  </CardContent>
+                </CardContent>
                 </Card>
-                </TabsContent>
-
-                {/* Languages */}
-                <TabsContent value="languages" className="space-y-4 p-4 sm:p-6">
+                </TabsContent> {/* Languages */}
+              <TabsContent value="languages" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span className="flex items-center gap-2">
                         <FileText className="w-5 h-5" />
                         Languages
-                      </span>
+ </span>
                       <Button onClick={addLanguage} size="sm">
                         <Plus className="w-4 h-4 mr-2" />
                         Add Language
-                      </Button>
+ </Button>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {resumeData.languages.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
+                  <CardContent className="space-y-4"> {resumeData.languages.length === 0 ? (
+ <div className="text-center py-8 text-gray-500">
                         <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                         <p>No languages added yet. Click "Add Language" to get started.</p>
-                      </div>
-                    ) : (
+                      </div> ) : (
                       resumeData.languages.map((lang) => (
-                        <Card key={lang.id} className="border-l-4 border-l-purple-500">
+ <Card key={lang.id} className="border-l-4 border-l-purple-500">
                           <CardContent className="pt-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Language *
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Language *
+ </label>
                                 <Input
                                   value={lang.language}
                                   onChange={(e) => updateLanguage(lang.id, 'language', e.target.value)}
@@ -1358,9 +1276,8 @@ export default function ResumeBuilderPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Proficiency Level
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Proficiency Level
+ </label>
                                 <Select value={lang.proficiency} onValueChange={(value) => updateLanguage(lang.id, 'proficiency', value)}>
                                 <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                                   <SelectValue placeholder="Select proficiency" />
@@ -1380,48 +1297,41 @@ export default function ResumeBuilderPage() {
                                 size="sm"
                                 onClick={() => removeLanguage(lang.id)}
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Remove
-                              </Button>
+                                <Trash2 className="w-4 h-4 mr-2" /> Remove
+ </Button>
                             </div>
                           </CardContent>
-                        </Card>
-                      ))
+                        </Card> ))
                     )}
-                  </CardContent>
+                </CardContent>
                 </Card>
-                </TabsContent>
-
-                {/* References */}
-                <TabsContent value="references" className="space-y-4 p-4 sm:p-6">
+                </TabsContent> {/* References */}
+              <TabsContent value="references" className="space-y-4 p-4 sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span className="flex items-center gap-2">
                         <User className="w-5 h-5" />
                         References
-                      </span>
+ </span>
                       <Button onClick={addReference} size="sm">
                         <Plus className="w-4 h-4 mr-2" />
                         Add Reference
-                      </Button>
+ </Button>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {resumeData.references.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
+                  <CardContent className="space-y-4"> {resumeData.references.length === 0 ? (
+ <div className="text-center py-8 text-gray-500">
                         <User className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                         <p>No references added yet. Click "Add Reference" to get started.</p>
-                      </div>
-                    ) : (
+                      </div> ) : (
                       resumeData.references.map((ref) => (
-                        <Card key={ref.id} className="border-l-4 border-l-orange-500">
+ <Card key={ref.id} className="border-l-4 border-l-orange-500">
                           <CardContent className="pt-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Name *
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Name *
+ </label>
                                 <Input
                                   value={ref.name}
                                   onChange={(e) => updateReference(ref.id, 'name', e.target.value)}
@@ -1430,9 +1340,8 @@ export default function ResumeBuilderPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Position
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Position
+ </label>
                                 <Input
                                   value={ref.position}
                                   onChange={(e) => updateReference(ref.id, 'position', e.target.value)}
@@ -1443,9 +1352,8 @@ export default function ResumeBuilderPage() {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Company
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Company
+ </label>
                                 <Input
                                   value={ref.company}
                                   onChange={(e) => updateReference(ref.id, 'company', e.target.value)}
@@ -1454,9 +1362,8 @@ export default function ResumeBuilderPage() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Email
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1"> Email
+ </label>
                                 <Input
                                   type="email"
                                   value={ref.email}
@@ -1467,9 +1374,8 @@ export default function ResumeBuilderPage() {
                               </div>
                             </div>
                             <div className="mt-4">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Phone
-                              </label>
+                              <label className="block text-sm font-medium text-gray-700 mb-1"> Phone
+ </label>
                               <Input
                                 value={ref.phone}
                                 onChange={(e) => updateReference(ref.id, 'phone', e.target.value)}
@@ -1483,20 +1389,17 @@ export default function ResumeBuilderPage() {
                                 size="sm"
                                 onClick={() => removeReference(ref.id)}
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Remove
-                              </Button>
+                                <Trash2 className="w-4 h-4 mr-2" /> Remove
+ </Button>
                             </div>
                           </CardContent>
-                        </Card>
-                      ))
+                        </Card> ))
                     )}
-                  </CardContent>
+                </CardContent>
                 </Card>
                 </TabsContent>
               </Tabs>
-              </CardContent>
-            </Card>
+          </Card>
 
             {/* AI Suggestions Panel */}
             <Card className="mt-6 bg-white border-2 border-purple-200 shadow-xl">
@@ -1505,23 +1408,19 @@ export default function ResumeBuilderPage() {
                   <Brain className="w-5 h-5 text-white" />
                   AI Suggestions
                   {isAnalyzing && (
-                    <div className="flex items-center gap-2 text-blue-200">
+ <div className="flex items-center gap-2 text-blue-200">
                       <Brain className="w-4 h-4 animate-spin" />
                       <span className="text-sm">Analyzing...</span>
-                    </div>
-                  )}
-                </CardTitle>
+                    </div> )}
+ </CardTitle>
               </CardHeader>
-              <CardContent className="bg-white p-4 sm:p-6 border-t border-gray-200">
-                {suggestions.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+              <CardContent className="bg-white p-4 sm:p-6 border-t border-gray-200"> {suggestions.length === 0 ? (
+ <div className="text-center py-8 text-gray-500">
                     <Lightbulb className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     <p>Start filling out your resume to get AI-powered suggestions!</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {suggestions.map((suggestion) => (
-                      <Alert key={suggestion.id} className={`border-l-4 ${
+                  </div> ) : (
+ <div className="space-y-4"> {suggestions.map((suggestion) => (
+ <Alert key={suggestion.id} className={`border-l-4 ${
                         suggestion.priority === 'high' ? 'border-l-red-500' :
                         suggestion.priority === 'medium' ? 'border-l-yellow-500' :
                         'border-l-green-500'
@@ -1534,254 +1433,192 @@ export default function ResumeBuilderPage() {
                               <Badge variant={
                                 suggestion.priority === 'high' ? 'destructive' :
                                 suggestion.priority === 'medium' ? 'default' : 'secondary'
-                              }>
-                                {suggestion.priority}
-                              </Badge>
+                              }> {suggestion.priority}
+ </Badge>
                             </div>
                             <p className="text-sm text-gray-600">{suggestion.description}</p>
-                            <p className="text-sm font-medium">{suggestion.suggestion}</p>
-                            {suggestion.example && (
-                              <div className="bg-gray-50 p-3 rounded-md">
+                            <p className="text-sm font-medium">{suggestion.suggestion}</p> {suggestion.example && (
+ <div className="bg-gray-50 p-3 rounded-md">
                                 <p className="text-xs text-gray-500 mb-1">Example:</p>
                                 <p className="text-sm italic">{suggestion.example}</p>
-                              </div>
-                            )}
-                          </div>
+                              </div> )}
+ </div>
                         </AlertDescription>
-                      </Alert>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
+                      </Alert> ))}
+ </div> )}
+ </CardContent>
             </Card>
-          </div>
-
-          {/* Live Preview */}
-          <div className="xl:sticky xl:top-8 order-1 xl:order-2 h-fit">
+          </div> {/* Live Preview */}
+ <div className="xl:sticky xl:top-8 order-1 xl:order-2 h-fit">
             <Card className="h-fit bg-white border-2 border-green-200 shadow-xl">
               <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
                 <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between text-white gap-2">
                   <span className="flex items-center gap-2">
                     <Eye className="w-5 h-5 text-white" />
-                    Live Preview
-                  </span>
-                  <Badge variant="secondary" className="bg-white text-green-600 text-xs sm:text-sm font-bold border border-green-300">
-                    ATS Score: {atsAnalysis?.score || 0}/100
-                  </Badge>
+                  Live Preview
+ </span>
+                  <Badge variant="secondary" className="bg-white text-green-600 text-xs sm:text-sm font-bold border border-green-300"> ATS Score: {atsAnalysis?.score || 0}/100
+ </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="bg-white p-3 sm:p-6 border-t border-gray-200">
-                <div className="border-2 border-gray-300 rounded-lg p-3 sm:p-6 bg-white min-h-[300px] sm:min-h-[500px] lg:min-h-[600px] shadow-lg overflow-auto">
-                  {/* Resume Preview Content */}
-                  <div className={`space-y-4 sm:space-y-6 ${getFontClass(customization.fontFamily)}`}>
-                    {/* Header */}
-                    <div className="text-center border-b pb-3 sm:pb-4">
-                      <h1 className={`text-lg sm:text-2xl font-bold ${getColorClass(customization.colorScheme, 'text')}`}>
-                        {resumeData.personalInfo.fullName || 'Your Name'}
-                      </h1>
-                      <p className="text-sm sm:text-base text-gray-600">
-                        {resumeData.personalInfo.email || 'email@example.com'}
-                      </p>
-                      <p className="text-sm sm:text-base text-gray-600">
-                        {resumeData.personalInfo.phone && `${resumeData.personalInfo.phone} • `}
+                <div className="border-2 border-gray-300 rounded-lg p-3 sm:p-6 bg-white min-h-[300px] sm:min-h-[500px] lg:min-h-[600px] shadow-lg overflow-auto"> {/* Resume Preview Content */}
+ <div className={`space-y-4 sm:space-y-6 ${getFontClass(customization.fontFamily)}`}> {/* Header */}
+ <div className="text-center border-b pb-3 sm:pb-4">
+                      <h1 className={`text-lg sm:text-2xl font-bold ${getColorClass(customization.colorScheme, 'text')}`}> {resumeData.personalInfo.fullName || 'Your Name'}
+ </h1>
+                      <p className="text-sm sm:text-base text-gray-600"> {resumeData.personalInfo.email || 'email@example.com'}
+ </p>
+                      <p className="text-sm sm:text-base text-gray-600"> {resumeData.personalInfo.phone && `${resumeData.personalInfo.phone} • `}
                         {resumeData.personalInfo.location || 'Location'}
-                      </p>
-                      {resumeData.personalInfo.linkedin && (
-                        <p className="text-xs sm:text-sm text-gray-500">
-                          LinkedIn: {resumeData.personalInfo.linkedin}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Summary */}
+ </p> {resumeData.personalInfo.linkedin && (
+ <p className="text-xs sm:text-sm text-gray-500"> LinkedIn: {resumeData.personalInfo.linkedin}
+ </p> )}
+ </div> {/* Summary */}
                     {resumeData.personalInfo.summary && (
-                      <div>
+ <div>
                         <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-2`}>Summary</h2>
                         <p className="text-sm sm:text-base text-gray-700">{resumeData.personalInfo.summary}</p>
-                      </div>
-                    )}
+                      </div> )}
 
                     {/* Experience */}
                     {resumeData.experience.length > 0 && (
-                      <div>
+ <div>
                         <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Experience</h2>
-                        <div className="space-y-4">
-                          {resumeData.experience.map((exp) => (
-                            <div key={exp.id}>
+                        <div className="space-y-4"> {resumeData.experience.map((exp) => (
+ <div key={exp.id}>
                               <div className="flex justify-between items-start">
                                 <div>
                                   <h3 className="font-medium text-gray-900">{exp.position}</h3>
                                   <p className="text-gray-600">{exp.company}</p>
                                 </div>
-                                <p className="text-sm text-gray-500">
-                                  {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
-                                </p>
-                              </div>
-                              {exp.description && (
-                                <p className="text-gray-700 mt-2">{exp.description}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                                <p className="text-sm text-gray-500"> {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+ </p>
+                              </div> {exp.description && (
+ <p className="text-gray-700 mt-2">{exp.description}</p> )}
+ </div> ))}
+ </div>
+                      </div> )}
 
                     {/* Education */}
                     {resumeData.education.length > 0 && (
-                      <div>
+ <div>
                         <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Education</h2>
-                        <div className="space-y-3">
-                          {resumeData.education.map((edu) => (
-                            <div key={edu.id}>
+                        <div className="space-y-3"> {resumeData.education.map((edu) => (
+ <div key={edu.id}>
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h3 className="font-medium text-gray-900">
-                                    {edu.degree} in {edu.field}
-                                  </h3>
+                                  <h3 className="font-medium text-gray-900"> {edu.degree} in {edu.field}
+ </h3>
                                   <p className="text-gray-600">{edu.institution}</p>
                                 </div>
-                                <p className="text-sm text-gray-500">
-                                  {edu.startDate} - {edu.endDate}
-                                </p>
+                                <p className="text-sm text-gray-500"> {edu.startDate} - {edu.endDate}
+ </p>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                            </div> ))}
+ </div>
+                      </div> )}
 
                     {/* Skills */}
                     {resumeData.skills.length > 0 && (
-                      <div>
+ <div>
                         <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Skills</h2>
-                        <div className="flex flex-wrap gap-2">
-                          {resumeData.skills.map((skill) => (
-                            <Badge key={skill.id} variant="outline">
-                              {skill.name} ({skill.level})
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                        <div className="flex flex-wrap gap-2"> {resumeData.skills.map((skill) => (
+ <Badge key={skill.id} variant="outline"> {skill.name} ({skill.level})
+ </Badge> ))}
+ </div>
+                      </div> )}
 
                     {/* Projects */}
                     {resumeData.projects.length > 0 && (
-                      <div>
+ <div>
                         <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Projects</h2>
-                        <div className="space-y-3">
-                          {resumeData.projects.map((project) => (
-                            <div key={project.id}>
+                        <div className="space-y-3"> {resumeData.projects.map((project) => (
+ <div key={project.id}>
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h3 className="font-medium text-gray-900">{project.name}</h3>
-                                  {project.technologies && project.technologies.length > 0 && (
-                                    <p className="text-sm text-gray-600">{project.technologies.join(', ')}</p>
-                                  )}
-                                </div>
-                                {project.url && (
-                                  <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm">
-                                    View Project
-                                  </a>
-                                )}
-                              </div>
-                              {project.description && (
-                                <p className="text-gray-700 mt-2 text-sm">{project.description}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                                  <h3 className="font-medium text-gray-900">{project.name}</h3> {project.technologies && project.technologies.length > 0 && (
+ <p className="text-sm text-gray-600">{project.technologies.join(', ')}</p> )}
+ </div> {project.url && (
+ <a href={project.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm"> View Project
+ </a> )}
+ </div> {project.description && (
+ <p className="text-gray-700 mt-2 text-sm">{project.description}</p> )}
+ </div> ))}
+ </div>
+                      </div> )}
 
                     {/* Certifications */}
                     {resumeData.certifications.length > 0 && (
-                      <div>
+ <div>
                         <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Certifications</h2>
-                        <div className="space-y-3">
-                          {resumeData.certifications.map((cert) => (
-                            <div key={cert.id}>
+                        <div className="space-y-3"> {resumeData.certifications.map((cert) => (
+ <div key={cert.id}>
                               <div className="flex justify-between items-start">
                                 <div>
                                   <h3 className="font-medium text-gray-900">{cert.name}</h3>
                                   <p className="text-sm text-gray-600">{cert.issuer}</p>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-sm text-gray-500">{cert.date}</p>
-                                  {cert.validUntil && (
-                                    <p className="text-xs text-gray-400">Expires: {cert.validUntil}</p>
-                                  )}
-                                </div>
+                                  <p className="text-sm text-gray-500">{cert.date}</p> {cert.validUntil && (
+ <p className="text-xs text-gray-400">Expires: {cert.validUntil}</p> )}
+ </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                            </div> ))}
+ </div>
+                      </div> )}
 
                     {/* Languages */}
                     {resumeData.languages.length > 0 && (
-                      <div>
-                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Languages</h2>
-                        
-                        <div className="flex flex-wrap gap-2">
-                          {resumeData.languages.map((lang) => (
-                            <Badge key={lang.id} variant="secondary">
-                              {lang.language} ({lang.proficiency})
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+ <div>
+                        <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>Languages</h2> 
+ <div className="flex flex-wrap gap-2"> {resumeData.languages.map((lang) => (
+ <Badge key={lang.id} variant="secondary"> {lang.language} ({lang.proficiency})
+ </Badge> ))}
+ </div>
+                      </div> )}
 
                     {/* References */}
                     {resumeData.references.length > 0 && (
-                      <div>
+ <div>
                         <h2 className={`text-base sm:text-lg font-semibold ${getColorClass(customization.colorScheme, 'text')} mb-3`}>References</h2>
-                        <div className="space-y-3">
-                          {resumeData.references.map((ref) => (
-                            <div key={ref.id}>
+                        <div className="space-y-3"> {resumeData.references.map((ref) => (
+ <div key={ref.id}>
                               <h3 className="font-medium text-gray-900">{ref.name}</h3>
                               <p className="text-sm text-gray-600">{ref.position} at {ref.company}</p>
                               <p className="text-sm text-gray-500">{ref.email} • {ref.phone}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                            </div> ))}
+ </div>
+                      </div> )}
+ </div>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        {/* AI Suggestions Panel */}
+        </div> {/* AI Suggestions Panel */}
         {suggestions.length > 0 && (
-          <Card className="mb-6 border-blue-200 bg-blue-50">
+ <Card className="mb-6 border-blue-200 bg-blue-50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-800">
                 <Lightbulb className="w-5 h-5" />
                 AI Suggestions
-              </CardTitle>
+ </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {suggestions.slice(0, 3).map((suggestion) => (
-                  <Alert key={suggestion.id} className="border-blue-200">
+              <div className="space-y-3"> {suggestions.slice(0, 3).map((suggestion) => (
+ <Alert key={suggestion.id} className="border-blue-200">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                       <div className="font-medium">{suggestion.title}</div>
                       <div className="text-sm text-gray-600">{suggestion.suggestion}</div>
                     </AlertDescription>
-                  </Alert>
-                ))}
-              </div>
+                  </Alert> ))}
+ </div>
             </CardContent>
-          </Card>
-        )}
+          </Card> )}
 
         {/* Action Buttons */}
-        <div className="fixed bottom-6 right-6 flex gap-3">
+ <div className="fixed bottom-6 right-6 flex gap-3">
           <Button
             onClick={() => handleExport('pdf')}
             disabled={isExporting}
@@ -1791,7 +1628,7 @@ export default function ResumeBuilderPage() {
           >
             <Download className="w-5 h-5 mr-2" />
             {isExporting ? 'Exporting...' : 'Download PDF'}
-          </Button>
+ </Button>
           <Button
             onClick={() => handleExport('docx')}
             disabled={isExporting}
@@ -1801,7 +1638,7 @@ export default function ResumeBuilderPage() {
           >
             <FileText className="w-5 h-5 mr-2" />
             {isExporting ? 'Exporting...' : 'Download DOCX'}
-          </Button>
+ </Button>
           <Button
             onClick={saveResume}
             disabled={isSaving}
@@ -1810,7 +1647,7 @@ export default function ResumeBuilderPage() {
           >
             <Save className="w-5 h-5 mr-2" />
             {isSaving ? 'Saving...' : 'Save Resume'}
-          </Button>
+ </Button>
         </div>
       </div>
     </div>
