@@ -49,18 +49,11 @@ export default function UnifiedAuthFlow({ onAuthSuccess }: UnifiedAuthFlowProps)
     }
   }, [searchParams]);
 
-  // Check if user is already authenticated
+  // Remove auto-redirect logic to prevent forced authentication
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
       console.log('User already authenticated:', session.user);
-      if (!session.user.role) {
-        // User authenticated but no role, redirect to role selection page
-        console.log('User authenticated but no role, redirecting to role selection');
-        window.location.href = '/auth/role-selection';
-      } else {
-        console.log('User has role:', session.user.role, '- staying on auth page');
-        // User has role, they can stay or be redirected elsewhere
-      }
+      // Don't auto-redirect - let user decide what to do
     }
   }, [session, status]);
 

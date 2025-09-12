@@ -15,7 +15,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children, session }: AuthProviderProps) {
   return (
-    <SessionProvider session={session} refetchInterval={5 * 60} refetchOnWindowFocus={true}>
+    <SessionProvider session={session} refetchInterval={0} refetchOnWindowFocus={false}>
       {children}
     </SessionProvider>
   );

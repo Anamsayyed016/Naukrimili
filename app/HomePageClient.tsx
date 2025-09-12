@@ -77,27 +77,21 @@ export default function HomePageClient({
     locations: []
   });
 
-  // Handle authenticated users without roles only
+  // Remove auto-redirect logic to prevent forced authentication
+  // Users can stay on homepage regardless of auth status
   useEffect(() => {
     console.log('HomePageClient - Session status:', status);
     console.log('HomePageClient - Session data:', session);
     
+    // Only log auth status, don't force redirects
     if (status === 'authenticated' && session?.user) {
       console.log('HomePageClient - User authenticated:', session.user);
-      if (!session.user.role) {
-        console.log('HomePageClient - User has no role, redirecting to role selection');
-        // Only redirect users without roles to role selection
-        router.push('/auth/role-selection');
-      } else {
-        console.log('HomePageClient - User has role:', session.user.role, '- staying on homepage');
-        // User has role, let them stay on homepage
-      }
     } else if (status === 'unauthenticated') {
       console.log('HomePageClient - User not authenticated');
     } else if (status === 'loading') {
       console.log('HomePageClient - Session loading...');
     }
-  }, [session, status, router]);
+  }, [session, status]);
 
 
 
