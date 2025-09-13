@@ -72,13 +72,21 @@ export default function MainNavigation({
       { title: "Companies", href: "/companies", icon: BuildingIcon }
     ];
 
-    // Add employer-specific links
-    if (isMounted && isAuthenticated && user?.role === 'employer') {
-      baseLinks.push(
-        { title: "Dashboard", href: "/employer/dashboard", icon: BarChartIcon },
-        { title: "Post Job", href: "/employer/jobs/create", icon: BriefcaseIcon },
-        { title: "Applications", href: "/employer/applications", icon: FileTextIcon }
-      );
+    // Add role-specific links
+    if (isMounted && isAuthenticated && user?.role) {
+      if (user.role === 'employer') {
+        baseLinks.push(
+          { title: "Dashboard", href: "/employer/dashboard", icon: BarChartIcon },
+          { title: "Post Job", href: "/employer/jobs/create", icon: BriefcaseIcon },
+          { title: "Applications", href: "/employer/applications", icon: FileTextIcon }
+        );
+      } else if (user.role === 'jobseeker') {
+        baseLinks.push(
+          { title: "Dashboard", href: "/dashboard/jobseeker", icon: BarChartIcon },
+          { title: "My Resumes", href: "/dashboard/jobseeker/resumes", icon: FileTextIcon },
+          { title: "Applications", href: "/dashboard/jobseeker/applications", icon: BriefcaseIcon }
+        );
+      }
     }
 
     return baseLinks;
@@ -222,12 +230,13 @@ export default function MainNavigation({
               </div>
             )}
 
-            {/* Mobile Menu Button - Enhanced */}
+            {/* Mobile Menu Button - Enhanced with Touch Targets */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300"
+              className="lg:hidden p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 touch-target-lg"
+              aria-label="Toggle mobile menu"
             >
-              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
@@ -260,7 +269,7 @@ export default function MainNavigation({
                   href={link.href}
                   onClick={closeMenu}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300",
+                    "flex items-center gap-3 px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 touch-target",
                     pathname === link.href && "text-blue-600 bg-blue-50 font-medium"
                   )}
                 >
@@ -271,39 +280,74 @@ export default function MainNavigation({
               
               {/* Mobile Authentication Section */}
               {isMounted && isAuthenticated && user ? (
-                // User is logged in - show user info and logout
+                // User is logged in - show user info and actions
                 <div className="px-4 py-3 space-y-3 border-t border-gray-200">
-                  <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="bg-gray-50 rounded-lg p-4">
                     <p className="text-sm font-medium text-gray-900">{user.name}</p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                     <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
                   </div>
                   
+                  {/* Mobile Profile Actions */}
+                  <div className="space-y-2">
+                    <Link
+                      href="/profile"
+                      onClick={closeMenu}
+                      className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                    </Link>
+                    
+                    {user.role === 'jobseeker' && (
+                      <Link
+                        href="/dashboard/jobseeker"
+                        onClick={closeMenu}
+                        className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
+                      >
+                        <BarChartIcon className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    )}
+                    
+                    {user.role === 'employer' && (
+                      <Link
+                        href="/employer/dashboard"
+                        onClick={closeMenu}
+                        className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
+                      >
+                        <BarChartIcon className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    )}
+                  </div>
                   
-                  <Link
-                    href="/profile"
-                    onClick={closeMenu}
-                    className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200"
+                  {/* Logout Button */}
+                  <button
+                    onClick={() => {
+                      closeMenu();
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center justify-center px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-300 font-medium border border-red-200 touch-target"
                   >
-                    <User className="w-4 h-4 mr-2" />
-                    Profile
-                  </Link>
-                  
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </button>
                 </div>
               ) : (
                 // User is not logged in - show auth buttons
-                <div className="px-4 py-3 space-y-2 border-t border-gray-200">
+                <div className="px-4 py-3 space-y-3 border-t border-gray-200">
                   <Link
                     href="/auth/unified"
                     onClick={closeMenu}
-                    className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200"
+                    className="w-full flex items-center justify-center px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/auth/unified"
                     onClick={closeMenu}
-                    className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                    className="w-full flex items-center justify-center px-4 py-4 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl touch-target"
                   >
                     Get Started
                   </Link>

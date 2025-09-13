@@ -421,6 +421,44 @@ input:-webkit-autofill:active {
 }
 
 /* Enhanced mobile-specific authentication styles */
+
+/* Mobile Navigation Improvements */
+@media (max-width: 1023px) {
+  .mobile-nav-item {
+    @apply min-h-[48px] flex items-center px-4 py-3 text-base;
+  }
+  
+  .mobile-nav-button {
+    @apply min-h-[48px] min-w-[48px] flex items-center justify-center;
+  }
+  
+  .mobile-nav-toggle {
+    @apply min-h-[48px] min-w-[48px] p-3;
+  }
+}
+
+/* Touch-friendly mobile interactions */
+@media (hover: none) and (pointer: coarse) {
+  .touch-hover:hover {
+    @apply bg-transparent;
+  }
+  
+  .touch-hover:active {
+    @apply bg-gray-100;
+  }
+}
+
+/* Mobile menu overlay improvements */
+.mobile-menu-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-25 z-40 lg:hidden;
+}
+
+/* Improved mobile menu positioning */
+@media (max-width: 1023px) {
+  .mobile-menu-container {
+    @apply relative z-50;
+  }
+}
 @media (max-width: 768px) {
   .auth-container {
     @apply p-2;
