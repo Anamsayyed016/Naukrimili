@@ -136,84 +136,87 @@ export default function MainNavigation({
 
           {/* Right Side - Enhanced User Actions */}
           <div className="flex items-center space-x-2 lg:space-x-4">
-            {/* Notifications - Enhanced */}
-            <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
-              <Bell className="w-5 h-5" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
+            {/* Desktop Only - Notifications and Messages */}
+            <div className="hidden lg:flex items-center space-x-2">
+              <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
+                <Bell className="w-5 h-5" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
 
-            {/* Messages - Enhanced */}
-            <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
-              <MessageSquare className="w-5 h-5" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
+              <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
+                <MessageSquare className="w-5 h-5" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </div>
 
-            {/* Authentication Section */}
+            {/* Desktop Authentication Section */}
             {isMounted && isAuthenticated && user ? (
-              // User is logged in - show user menu
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold text-sm">
-                        {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              // User is logged in - show user menu (Desktop only)
+              <div className="hidden lg:block">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 flex items-center gap-2">
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-semibold text-sm">
+                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        </span>
+                      </div>
+                      <span className="text-gray-700 font-medium">
+                        {user.name || 'User'}
                       </span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64 p-2 bg-white border border-gray-200 shadow-xl">
+                    <DropdownMenuLabel className="text-base font-semibold text-gray-900 px-3 py-2">
+                      My Account
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-gray-200" />
+                    
+                    {/* User Info */}
+                    <div className="px-3 py-2 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                      <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
                     </div>
-                    <span className="hidden lg:block text-gray-700 font-medium">
-                      {user.name || 'User'}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 p-2 bg-white border border-gray-200 shadow-xl">
-                  <DropdownMenuLabel className="text-base font-semibold text-gray-900 px-3 py-2">
-                    My Account
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-gray-200" />
-                  
-                  {/* User Info */}
-                  <div className="px-3 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                    <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
-                  </div>
-                  
-                  <DropdownMenuSeparator className="bg-gray-200" />
-                  
-                  {/* Menu Items */}
-                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <User className="w-4 h-4 text-gray-600" />
-                    <span className="text-gray-900 font-medium">Profile</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <Settings className="w-4 h-4 text-gray-600" />
-                    <span className="text-gray-900 font-medium">Settings</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <FileTextIcon className="w-4 h-4 text-gray-600" />
-                    <span className="text-gray-900 font-medium">My Resumes</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <BarChartIcon className="w-4 h-4 text-gray-600" />
-                    <span className="text-gray-900 font-medium">Dashboard</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuSeparator className="bg-gray-200" />
-                  
-                  {/* Logout */}
-                  <DropdownMenuItem 
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span className="font-medium">Sign Out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    
+                    <DropdownMenuSeparator className="bg-gray-200" />
+                    
+                    {/* Menu Items */}
+                    <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                      <User className="w-4 h-4 text-gray-600" />
+                      <span className="text-gray-900 font-medium">Profile</span>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                      <Settings className="w-4 h-4 text-gray-600" />
+                      <span className="text-gray-900 font-medium">Settings</span>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                      <FileTextIcon className="w-4 h-4 text-gray-600" />
+                      <span className="text-gray-900 font-medium">My Resumes</span>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                      <BarChartIcon className="w-4 h-4 text-gray-600" />
+                      <span className="text-gray-900 font-medium">Dashboard</span>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuSeparator className="bg-gray-200" />
+                    
+                    {/* Logout */}
+                    <DropdownMenuItem 
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="font-medium">Sign Out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
-              // User is not logged in - show auth buttons (always show for consistency)
+              // User is not logged in - show auth buttons (Desktop only)
               <div className="hidden lg:flex items-center space-x-2">
                 <Link
                   href="/auth/unified"
@@ -230,14 +233,31 @@ export default function MainNavigation({
               </div>
             )}
 
-            {/* Mobile Menu Button - Enhanced with Touch Targets */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 touch-target-lg"
-              aria-label="Toggle mobile menu"
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Mobile User Indicator and Menu Button */}
+            <div className="lg:hidden flex items-center space-x-2">
+              {/* Mobile User Indicator - Show when logged in */}
+              {isMounted && isAuthenticated && user && (
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold text-sm">
+                      {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 hidden sm:block">
+                    {user.name?.split(' ')[0] || 'User'}
+                  </span>
+                </div>
+              )}
+              
+              {/* Mobile Menu Button - Always visible on mobile */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="mobile-menu-button p-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 touch-target-lg flex-shrink-0"
+                aria-label="Toggle mobile menu"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
 
