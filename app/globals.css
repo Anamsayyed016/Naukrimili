@@ -422,7 +422,7 @@ input:-webkit-autofill:active {
 
 /* Enhanced mobile-specific authentication styles */
 
-/* Mobile Navigation Improvements */
+/* Mobile Navigation - SIMPLIFIED AND CLEAN */
 @media (max-width: 1023px) {
   .mobile-nav-item {
     @apply min-h-[48px] flex items-center px-4 py-3 text-base;
@@ -434,59 +434,6 @@ input:-webkit-autofill:active {
   
   .mobile-nav-toggle {
     @apply min-h-[48px] min-w-[48px] p-3;
-  }
-  
-  /* Ensure mobile menu button is always visible */
-  .mobile-menu-button {
-    @apply flex lg:hidden !important;
-    @apply relative z-50;
-  }
-  
-  /* Hide desktop elements on mobile */
-  .desktop-only {
-    @apply hidden lg:flex;
-  }
-  
-  /* Force mobile navigation visibility */
-  .mobile-nav-container {
-    @apply flex lg:hidden !important;
-    @apply items-center space-x-3;
-  }
-}
-
-/* CRITICAL: Force mobile menu button visibility on all mobile devices */
-@media (max-width: 1023px) {
-  /* Override any conflicting styles */
-  nav .mobile-nav-container {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
-  
-  nav .mobile-nav-container button,
-  nav .mobile-menu-toggle {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-  }
-  
-  /* Additional specificity to override any framework styles */
-  .mobile-menu-toggle {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-  }
-}
-
-/* Even more specific override for any potential conflicts */
-@media (max-width: 1023px) {
-  nav .mobile-nav-container .mobile-menu-toggle {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
   }
 }
 

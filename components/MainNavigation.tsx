@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from 'next/navigation';
@@ -45,7 +45,19 @@ export default function MainNavigation({
   const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { user, isAuthenticated, logout, isMounted } = useAuth();
+
+  // Check if screen is mobile size
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
@@ -229,11 +241,12 @@ export default function MainNavigation({
             )}
           </div>
 
-          {/* Mobile Right Side - User Indicator and Menu Button */}
-          <div className="mobile-nav-container flex lg:hidden items-center space-x-3">
+          {/* Mobile Navigation - REACT STATE APPROACH */}
+          {isMobile && (
+            <div className="flex items-center">
             {/* Mobile User Indicator - Show when logged in */}
             {isMounted && isAuthenticated && user && (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 mr-3">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-semibold text-sm">
                     {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -248,23 +261,33 @@ export default function MainNavigation({
             {/* Mobile Menu Button - ALWAYS VISIBLE ON MOBILE */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="mobile-menu-toggle flex items-center justify-center w-12 h-12 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300"
-              style={{ display: 'flex', visibility: 'visible', opacity: 1 }}
+              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300"
+              style={{ 
+                display: 'flex',
+                visibility: 'visible',
+                opacity: 1,
+                minWidth: '48px',
+                minHeight: '48px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer'
+              }}
               aria-label="Toggle mobile menu"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Enhanced Mobile Menu */}
-        {isMenuOpen && (
+        {isMobile && isMenuOpen && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden border-t border-gray-200/50 py-6 bg-white/95 backdrop-blur-md"
+            className="border-t border-gray-200/50 py-6 bg-white/95 backdrop-blur-md"
           >
             <div className="space-y-3">
               {/* Mobile Search Bar - Removed to avoid duplication with homepage */}
