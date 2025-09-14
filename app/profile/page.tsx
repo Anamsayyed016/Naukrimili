@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Briefcase, Building2, Calendar, Shield } from 'lucide-react';

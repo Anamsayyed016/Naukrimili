@@ -4,8 +4,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const auth = await requireAdminAuth();
     if ("error" in auth) {
@@ -13,15 +14,8 @@ export async function GET(
     }
 
     const company = await prisma.company.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
-        createdBy: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        },
         jobs: {
           include: {
             _count: {
@@ -62,8 +56,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const auth = await requireAdminAuth();
     if ("error" in auth) {
@@ -85,7 +80,7 @@ export async function PUT(
     if (founded) updateData.founded = founded;
 
     const updatedCompany = await prisma.company.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       select: {
         id: true,
@@ -119,8 +114,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const auth = await requireAdminAuth();
     if ("error" in auth) {
@@ -129,7 +125,7 @@ export async function DELETE(
 
     // Check if company exists
     const company = await prisma.company.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!company) {
@@ -141,7 +137,7 @@ export async function DELETE(
 
     // Delete company (this will cascade delete related records)
     await prisma.company.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({

@@ -32,11 +32,11 @@ export async function POST(request: NextRequest) {
         location: body.location,
         country: body.country || 'IN',
         description: body.description,
-        requirements: body.requirements ? [body.requirements] : [],
+        requirements: body.requirements ? JSON.stringify([body.requirements]) : JSON.stringify([]),
         salary: body.salary,
         jobType: body.jobType,
         experienceLevel: body.experienceLevel,
-        skills: body.skills || [],
+        skills: JSON.stringify(body.skills || []),
         isRemote: body.isRemote || false,
         isHybrid: body.isHybrid || false,
         isUrgent: body.isUrgent || false,
@@ -44,7 +44,6 @@ export async function POST(request: NextRequest) {
         sector: body.sector,
         source: 'manual',
         sourceId: `manual_${Date.now()}`,
-        createdBy: user.id,
         companyId: company.id,
         rawJson: body
       }

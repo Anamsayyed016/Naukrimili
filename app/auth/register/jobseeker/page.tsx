@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, User, Phone, AlertCircle, FileText, MapPin, Briefcase, GraduationCap, DollarSign } from 'lucide-react';
 import OAuthButtons from '@/components/auth/OAuthButtons';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { useSession } from 'next-auth/react';
 
 export default function JobSeekerRegisterPage() {

@@ -188,11 +188,12 @@ export const authApi = {
     if (!response.success || !response.data) {
       throw new Error(response.error || 'Failed to login');
     }
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem('auth_token', response.data.token);
-      } catch {}
-    }
+    // Disable localStorage persistence to prevent auto-login
+    // if (typeof window !== 'undefined') {
+    //   try {
+    //     window.localStorage.setItem('auth_token', response.data.token);
+    //   } catch {}
+    // }
     return response.data;
   },
 
@@ -205,11 +206,12 @@ export const authApi = {
     if (!response.success || !response.data) {
       throw new Error(response.error || 'Failed to register');
     }
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem('auth_token', response.data.token);
-      } catch {}
-    }
+    // Disable localStorage persistence to prevent auto-login
+    // if (typeof window !== 'undefined') {
+    //   try {
+    //     window.localStorage.setItem('auth_token', response.data.token);
+    //   } catch {}
+    // }
     return response.data;
   },
 
@@ -235,11 +237,12 @@ export const authApi = {
     if (!response.success || !response.data) {
       throw new Error(response.error || 'Failed to refresh token');
     }
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem('auth_token', response.data.token);
-      } catch {}
-    }
+    // Disable localStorage persistence to prevent auto-login
+    // if (typeof window !== 'undefined') {
+    //   try {
+    //     window.localStorage.setItem('auth_token', response.data.token);
+    //   } catch {}
+    // }
     return response.data;
   },
 };

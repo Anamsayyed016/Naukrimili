@@ -21,8 +21,20 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
+    // Get the user's company
+    const company = await prisma.company.findFirst({
+      where: { createdBy: user.id }
+    });
+
+    if (!company) {
+      return NextResponse.json(
+        { error: "Company not found. Please complete your company profile first." },
+        { status: 400 }
+      );
+    }
+
     const where: any = {
-      companyId: user.company.id
+      company: company.name
     };
 
     if (status && status !== "all") {
@@ -79,7 +91,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate statistics
     const stats = await prisma.job.aggregate({
-      where: { companyId: user.company.id },
+      where: { company: company.name },
       _count: {
         id: true
       }
@@ -88,7 +100,7 @@ export async function GET(request: NextRequest) {
     const totalApplications = await prisma.application.count({
       where: {
         job: {
-          companyId: user.company.id
+          company: company.name
         }
       }
     });
@@ -130,7 +142,7 @@ export async function POST(request: NextRequest) {
     
     const {
       title,
-      company,
+      company: companyName,
       location,
       country = "IN",
       description,
@@ -156,13 +168,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get the user's company for job creation
+    const company = await prisma.company.findFirst({
+      where: { createdBy: user.id }
+    });
+
+    if (!company) {
+      return NextResponse.json(
+        { error: "Company not found. Please complete your company profile first." },
+        { status: 400 }
+      );
+    }
+
     const job = await prisma.job.create({
       data: {
         title,
-        company: company || user.company.name,
+        company: companyName || company.name,
         location,
         country,
         description,
+        requirements: JSON.stringify([]),
         applyUrl,
         salary,
         salaryMin,
@@ -170,13 +195,11 @@ export async function POST(request: NextRequest) {
         salaryCurrency,
         jobType,
         experienceLevel,
-        skills,
+        skills: JSON.stringify(skills),
         isRemote,
         isHybrid,
         isUrgent,
         sector,
-        companyId: user.company.id,
-        createdBy: user.id,
         source: "manual",
         rawJson: body
       }

@@ -2,11 +2,11 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
-  const { user: authUser, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,15 +18,15 @@ export default function DashboardPage() {
     // Wait for authentication status to be determined
     if (status === "loading") return;
 
-    // Check if user is authenticated via either NextAuth or custom auth
-    if (status === "unauthenticated" && !isAuthenticated) {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
       // User is not authenticated, redirect to login
-      router.push("/auth/login");
+      router.push("/");
       return;
     }
 
     // User is authenticated, now check role and redirect appropriately
-    const userRole = session?.user?.role || authUser?.role;
+    const userRole = user?.role;
     
     setIsRedirecting(true);
     setIsLoading(false);
@@ -53,7 +53,7 @@ export default function DashboardPage() {
         router.push("/auth/role-selection");
         break;
     }
-  }, [session, status, authUser, isAuthenticated, router, isRedirecting]);
+  }, [session, status, user, isAuthenticated, router, isRedirecting]);
 
   // Show loading while checking authentication
   if (status === "loading" || isLoading) {

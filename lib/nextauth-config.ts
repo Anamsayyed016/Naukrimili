@@ -79,24 +79,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.email = user.email;
         token.name = user.name;
+        token.isActive = true;
         console.log('🔍 JWT callback - Initial user data:', user);
       }
 
-      // Always fetch the latest user data from database to ensure role is up-to-date
-      if (token.id) {
+      // Only fetch user data if this is a fresh login (not a token refresh)
+      if (user && token.id) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: token.id }
           });
           
-          if (dbUser) {
+          if (dbUser && dbUser.isActive) {
             token.role = dbUser.role;
             token.email = dbUser.email;
             token.name = dbUser.name;
+            token.isActive = dbUser.isActive;
             console.log('🔍 JWT callback - Updated token with latest DB data:', { id: token.id, role: token.role });
+          } else {
+            // User not found or inactive, invalidate token
+            return {};
           }
         } catch (error) {
           console.error('Error fetching user data in JWT callback:', error);
+          return {};
         }
       }
       
@@ -158,23 +164,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
+      // Only create session if token has valid user data
+      if (!token.id || !token.email || !token.isActive) {
+        console.log('🔍 Session callback - Invalid token, returning null session');
+        return null;
+      }
+
       // Ensure session.user exists and type it properly
       if (!session.user) {
         session.user = {} as any;
       }
       
       // Populate session.user with token data
-      (session.user as any).id = token.id || token.sub || '';
-      (session.user as any).email = token.email || '';
+      (session.user as any).id = token.id;
+      (session.user as any).email = token.email;
       (session.user as any).name = token.name || '';
       (session.user as any).role = token.role || null;
       (session.user as any).picture = token.picture || '';
+      (session.user as any).isActive = token.isActive;
       
-      console.log('🔍 Session callback - Token ID:', token.id);
-      console.log('🔍 Session callback - Token email:', token.email);
-      console.log('🔍 Session callback - Token name:', token.name);
-      console.log('🔍 Session callback - Token role:', token.role);
-      console.log('🔍 Session callback - Session user:', session.user);
+      console.log('🔍 Session callback - Valid session created:', { id: token.id, email: token.email, role: token.role });
       
       return session;
     },
@@ -226,10 +235,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 24 * 60 * 60, // 1 day (reduced from 30 days)
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key-change-in-production',
   trustHost: true,
-  debug: process.env.NODE_ENV === 'development',
+  debug: false,
 });

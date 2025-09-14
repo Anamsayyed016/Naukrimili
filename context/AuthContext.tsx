@@ -66,42 +66,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (status === 'authenticated' && session?.user) {
       const user = session.user as any;
       
-      // Check if user requires OTP verification for Google OAuth
-      if (user.requiresOTP && user.otpPurpose === 'gmail-oauth') {
-        // User is in Google OAuth OTP verification flow - don't set as authenticated yet
+      // Only authenticate if user has a valid role and is active
+      if (user.role && user.isActive !== false) {
+        // Check if user requires OTP verification for Google OAuth
+        if (user.requiresOTP && user.otpPurpose === 'gmail-oauth') {
+          // User is in Google OAuth OTP verification flow - don't set as authenticated yet
+          setUser(null);
+          setToken(null);
+          console.log('🔐 Google OAuth user requires OTP verification, not setting as authenticated');
+        } else {
+          // User is fully authenticated
+          const nextAuthUser: User = {
+            id: session.user.id || '',
+            name: session.user.name || '',
+            email: session.user.email || '',
+            role: user?.role || 'jobseeker',
+            isVerified: user?.isVerified !== false, // Use session verification status
+            isActive: true,
+            isNewUser: user?.isNewUser || false, // Track if user is new (OAuth registration)
+            // Add other fields as needed
+          };
+          
+          setUser(nextAuthUser);
+          setToken('nextauth-session'); // Use a placeholder for NextAuth sessions
+          
+          // Show welcome notification for new OAuth users (only once per session)
+          if (user?.isNewUser && !sessionStorage.getItem('welcome-shown')) {
+            toast({
+              title: "🎉 Welcome to Naukrimili!",
+              description: "You have successfully connected to Naukrimili! Start exploring job opportunities.",
+              duration: 5000,
+            });
+            // Mark welcome as shown for this session
+            sessionStorage.setItem('welcome-shown', 'true');
+          }
+          
+          // Clear stored data since we're using NextAuth
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+        }
+      } else {
+        // User doesn't have a role or is inactive, clear auth state
+        console.log('🔐 User has no role or is inactive, clearing auth state');
         setUser(null);
         setToken(null);
-        console.log('🔐 Google OAuth user requires OTP verification, not setting as authenticated');
-      } else {
-        // User is fully authenticated
-        const nextAuthUser: User = {
-          id: session.user.id || '',
-          name: session.user.name || '',
-          email: session.user.email || '',
-          role: user?.role || 'jobseeker',
-          isVerified: user?.isVerified !== false, // Use session verification status
-          isActive: true,
-          isNewUser: user?.isNewUser || false, // Track if user is new (OAuth registration)
-          // Add other fields as needed
-        };
-        
-        setUser(nextAuthUser);
-        setToken('nextauth-session'); // Use a placeholder for NextAuth sessions
-        
-        // Show welcome notification for new OAuth users (only once per session)
-        if (user?.isNewUser && !sessionStorage.getItem('welcome-shown')) {
-          toast({
-            title: "🎉 Welcome to Naukrimili!",
-            description: "You have successfully connected to Naukrimili! Start exploring job opportunities.",
-            duration: 5000,
-          });
-          // Mark welcome as shown for this session
-          sessionStorage.setItem('welcome-shown', 'true');
-        }
-        
-        // Clear stored data since we're using NextAuth
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
       }
     } else if (status === 'unauthenticated') {
       // If NextAuth session is not available, clear auth state

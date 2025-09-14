@@ -105,7 +105,6 @@ export async function POST(request: NextRequest) {
           location: validatedData.jobLocation || null,
           company: validatedData.companyName,
           companyId: company.id,
-          createdBy: user.id,
           skills: JSON.stringify(validatedData.requiredSkills || []),
           salaryMin: validatedData.salaryMin || null,
           salaryMax: validatedData.salaryMax || null,
