@@ -79,6 +79,23 @@ export default function MainNavigation({
     }
   }, [isMenuOpen, isDropdownOpen]);
 
+  // Handle mobile menu close on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMobile && isMenuOpen) {
+        const target = event.target as Element;
+        if (!target.closest('[data-mobile-menu]') && !target.closest('[data-mobile-toggle]')) {
+          setIsMenuOpen(false);
+        }
+      }
+    };
+
+    if (isMobile && isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isMobile, isMenuOpen]);
+
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
   const closeDropdown = useCallback(() => setIsDropdownOpen(false), []);
 
@@ -125,7 +142,7 @@ export default function MainNavigation({
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="flex items-center justify-between h-16 lg:h-20 mobile-nav-header">
           {/* Brand - Clean Text Only */}
           <Link href="/" className="flex items-center hover:opacity-80 transition-all duration-300 group">
             <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
@@ -293,50 +310,51 @@ export default function MainNavigation({
 
           {/* Mobile Navigation - REACT STATE APPROACH */}
           {isMounted && isMobile && (
-            <div className="flex items-center">
-            {/* Mobile User Indicator - Show when logged in */}
-            {isMounted && isAuthenticated && user && (
-              <div className="flex items-center space-x-2 mr-3 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                  </span>
+            <div className="mobile-auth-container">
+              {/* Mobile User Indicator - Compact when logged in */}
+              {isMounted && isAuthenticated && user && (
+                <div className="mobile-auth-details flex items-center space-x-2 mr-2 px-2 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="mobile-auth-avatar bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold text-xs">
+                      {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="mobile-auth-text font-medium text-gray-700">
+                      {user.name?.split(' ')[0] || 'User'}
+                    </span>
+                    <span className="mobile-auth-text text-gray-500 capitalize">
+                      {user.role || 'User'}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-gray-700">
-                    {user.name?.split(' ')[0] || 'User'}
-                  </span>
-                  <span className="text-xs text-gray-500 capitalize">
-                    {user.role || 'User'}
-                  </span>
-                </div>
-              </div>
-            )}
-            
-            {/* Mobile Menu Button - ALWAYS VISIBLE ON MOBILE */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              style={{ 
-                display: 'flex',
-                visibility: 'visible',
-                opacity: 1,
-                minWidth: '48px',
-                minHeight: '48px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-              aria-label="Toggle mobile menu"
-              aria-expanded={isMenuOpen}
-            >
-              <motion.div
-                animate={{ rotate: isMenuOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
+              )}
+              
+              {/* Mobile Menu Button - ALWAYS VISIBLE ON MOBILE */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="mobile-menu-toggle mobile-menu-button flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                style={{ 
+                  display: 'flex',
+                  visibility: 'visible',
+                  opacity: 1,
+                  minWidth: '40px',
+                  minHeight: '40px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+                aria-label="Toggle mobile menu"
+                aria-expanded={isMenuOpen}
+                data-mobile-toggle
               >
-                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </motion.div>
-            </button>
+                <motion.div
+                  animate={{ rotate: isMenuOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {isMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+                </motion.div>
+              </button>
             </div>
           )}
         </div>
@@ -349,6 +367,7 @@ export default function MainNavigation({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
             className="border-t border-gray-200/50 py-6 bg-white/95 backdrop-blur-md"
+            data-mobile-menu
           >
             <div className="space-y-3">
               {/* Mobile Search Bar - Removed to avoid duplication with homepage */}
@@ -382,16 +401,16 @@ export default function MainNavigation({
               {isMounted && isAuthenticated && user ? (
                 // User is logged in - show user info and actions
                 <div className="px-4 py-3 space-y-3 border-t border-gray-200">
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-3 sm:p-4 border border-blue-100">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-semibold text-sm">
                           {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                         </span>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
                         <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
                       </div>
                     </div>

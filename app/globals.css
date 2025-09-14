@@ -435,6 +435,67 @@ input:-webkit-autofill:active {
   .mobile-nav-toggle {
     @apply min-h-[48px] min-w-[48px] p-3;
   }
+
+  /* Mobile authentication details responsive fixes */
+  .mobile-auth-container {
+    @apply flex items-center justify-end;
+  }
+
+  .mobile-auth-details {
+    @apply max-w-[140px] sm:max-w-[180px] flex-shrink-0;
+  }
+
+  .mobile-auth-avatar {
+    @apply w-7 h-7 flex-shrink-0;
+  }
+
+  .mobile-auth-text {
+    @apply text-xs truncate;
+  }
+
+  .mobile-menu-toggle {
+    @apply w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .mobile-auth-details {
+    @apply max-w-[120px] px-1.5 py-1;
+  }
+
+  .mobile-auth-avatar {
+    @apply w-6 h-6;
+  }
+
+  .mobile-auth-text {
+    @apply text-xs;
+  }
+
+  .mobile-menu-toggle {
+    @apply w-9 h-9;
+  }
+
+  /* Ensure mobile navigation header doesn't overflow */
+  .mobile-nav-header {
+    @apply min-h-[64px] flex items-center justify-between px-2;
+  }
+
+  /* Mobile menu button always visible */
+  .mobile-menu-button {
+    @apply flex-shrink-0 z-50;
+  }
+}
+
+/* Very small screens - hide auth details completely */
+@media (max-width: 360px) {
+  .mobile-auth-details {
+    @apply hidden;
+  }
+
+  .mobile-menu-toggle {
+    @apply w-10 h-10;
+  }
 }
 
 /* Touch-friendly mobile interactions */
