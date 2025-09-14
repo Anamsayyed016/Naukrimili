@@ -182,9 +182,10 @@ export default function MainNavigation({
               <DropdownMenu onOpenChange={setIsDropdownOpen}>
                 <DropdownMenuTrigger asChild>
                   <Button 
-                    variant="ghost" 
-                    className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 flex items-center gap-2 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    variant="outline" 
+                    className="px-4 py-2 hover:bg-gray-50 border border-gray-200 rounded-xl transition-all duration-300 hover:scale-105 flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-white shadow-sm hover:shadow-md cursor-pointer"
                     aria-label="User menu"
+                    title="Click to open user menu"
                   >
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-sm">
@@ -201,8 +202,8 @@ export default function MainNavigation({
                     </div>
                     <ChevronDown 
                       className={cn(
-                        "w-4 h-4 text-gray-500 transition-transform duration-200",
-                        isDropdownOpen && "rotate-180"
+                        "w-4 h-4 text-gray-500 transition-all duration-200 ml-1 group-hover:text-gray-700",
+                        isDropdownOpen && "rotate-180 text-blue-600"
                       )} 
                     />
                   </Button>
@@ -295,15 +296,20 @@ export default function MainNavigation({
             <div className="flex items-center">
             {/* Mobile User Indicator - Show when logged in */}
             {isMounted && isAuthenticated && user && (
-              <div className="flex items-center space-x-2 mr-3">
+              <div className="flex items-center space-x-2 mr-3 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-semibold text-sm">
                     {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </span>
                 </div>
-                <span className="text-sm font-medium text-gray-700 hidden sm:block">
-                  {user.name?.split(' ')[0] || 'User'}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-700">
+                    {user.name?.split(' ')[0] || 'User'}
+                  </span>
+                  <span className="text-xs text-gray-500 capitalize">
+                    {user.role || 'User'}
+                  </span>
+                </div>
               </div>
             )}
             
