@@ -133,6 +133,25 @@ export async function GET(
     
     let job;
     try {
+    // First, try to get the job from the unified API (which works without database)
+    try {
+      console.log("🔍 Fetching job from unified API...");
+      const unifiedResponse = await fetch("http://localhost:3000/api/jobs/unified?includeExternal=true&limit=1000");
+      
+      if (unifiedResponse.ok) {
+        const unifiedData = await unifiedResponse.json();
+        if (unifiedData.success && unifiedData.jobs) {
+          const job = unifiedData.jobs.find((j) => j.id === id);
+          if (job) {
+            console.log("✅ Job found in unified API:", job.title);
+            return NextResponse.json({ success: true, job });
+          }
+        }
+      }
+    } catch (unifiedError) {
+      console.warn("⚠️ Unified API fetch failed, trying database:", unifiedError);
+    }
+
       job = await prisma.job.findUnique({
         where: { id: id },
         include: {

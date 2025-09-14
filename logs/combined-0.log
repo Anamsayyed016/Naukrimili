@@ -5116,3 +5116,599 @@
 2025-09-10T00:41:13: 
 2025-09-10T00:41:13:  ✓ Starting...
 2025-09-10T00:41:13:  ✓ Ready in 280ms
+2025-09-11T16:26:59:    ▲ Next.js 15.5.2
+2025-09-11T16:26:59:    - Local:        http://localhost:3000
+2025-09-11T16:26:59:    - Network:      http://69.62.73.84:3000
+2025-09-11T16:26:59: 
+2025-09-11T16:26:59:  ✓ Starting...
+2025-09-11T16:26:59:  ✓ Ready in 276ms
+2025-09-11T16:30:34:    ▲ Next.js 15.5.2
+2025-09-11T16:30:34:    - Local:        http://localhost:3000
+2025-09-11T16:30:34:    - Network:      http://69.62.73.84:3000
+2025-09-11T16:30:34: 
+2025-09-11T16:30:34:  ✓ Starting...
+2025-09-11T16:30:34:  ✓ Ready in 282ms
+2025-09-11T17:41:24:    ▲ Next.js 15.5.2
+2025-09-11T17:41:24:    - Local:        http://localhost:3000
+2025-09-11T17:41:24:    - Network:      http://69.62.73.84:3000
+2025-09-11T17:41:24: 
+2025-09-11T17:41:24:  ✓ Starting...
+2025-09-11T17:41:24:  ✓ Ready in 293ms
+2025-09-11T17:42:32:    ▲ Next.js 15.5.2
+2025-09-11T17:42:32:    - Local:        http://localhost:3000
+2025-09-11T17:42:32:    - Network:      http://69.62.73.84:3000
+2025-09-11T17:42:32: 
+2025-09-11T17:42:32:  ✓ Starting...
+2025-09-11T17:42:32:  ✓ Ready in 306ms
+2025-09-11T17:44:50: [31m[auth][error][0m InvalidCheck: pkceCodeVerifier value could not be parsed. Read more at https://errors.authjs.dev#invalidcheck
+2025-09-11T17:44:50:     at e$ (/var/www/jobportal/.next/server/chunks/8258.js:404:24381)
+2025-09-11T17:44:50:     at Object.use (/var/www/jobportal/.next/server/chunks/8258.js:404:24789)
+2025-09-11T17:44:50:     at e8 (/var/www/jobportal/.next/server/chunks/8258.js:404:30818)
+2025-09-11T17:44:50:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-11T17:44:50:     at async fk (/var/www/jobportal/.next/server/chunks/8258.js:404:38002)
+2025-09-11T17:44:50:     at async ft (/var/www/jobportal/.next/server/chunks/8258.js:404:49833)
+2025-09-11T17:44:50:     at async fv (/var/www/jobportal/.next/server/chunks/8258.js:404:54516)
+2025-09-11T17:44:50:     at async rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21042)
+2025-09-11T17:44:50:     at async rN.handle (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:25860)
+2025-09-11T17:44:50:     at async k (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:3503)
+2025-09-11T18:12:19:    ▲ Next.js 15.5.2
+2025-09-11T18:12:19:    - Local:        http://localhost:3000
+2025-09-11T18:12:19:    - Network:      http://69.62.73.84:3000
+2025-09-11T18:12:19: 
+2025-09-11T18:12:19:  ✓ Starting...
+2025-09-11T18:12:19:  ✓ Ready in 295ms
+2025-09-11T18:17:30:    ▲ Next.js 15.5.2
+2025-09-11T18:17:30:    - Local:        http://localhost:3000
+2025-09-11T18:17:30:    - Network:      http://69.62.73.84:3000
+2025-09-11T18:17:30: 
+2025-09-11T18:17:30:  ✓ Starting...
+2025-09-11T18:17:30:  ✓ Ready in 313ms
+2025-09-11T18:25:41: [31m[auth][error][0m InvalidCheck: pkceCodeVerifier value could not be parsed. Read more at https://errors.authjs.dev#invalidcheck
+2025-09-11T18:25:41:     at e$ (/var/www/jobportal/.next/server/chunks/8258.js:404:24381)
+2025-09-11T18:25:41:     at Object.use (/var/www/jobportal/.next/server/chunks/8258.js:404:24789)
+2025-09-11T18:25:41:     at e8 (/var/www/jobportal/.next/server/chunks/8258.js:404:30818)
+2025-09-11T18:25:41:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-09-11T18:25:41:     at async fk (/var/www/jobportal/.next/server/chunks/8258.js:404:38002)
+2025-09-11T18:25:41:     at async ft (/var/www/jobportal/.next/server/chunks/8258.js:404:49833)
+2025-09-11T18:25:41:     at async fv (/var/www/jobportal/.next/server/chunks/8258.js:404:54516)
+2025-09-11T18:25:41:     at async rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21042)
+2025-09-11T18:25:41:     at async rN.handle (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:25860)
+2025-09-11T18:25:41:     at async k (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:3503)
+2025-09-11T18:42:21:    ▲ Next.js 15.5.2
+2025-09-11T18:42:21:    - Local:        http://localhost:3000
+2025-09-11T18:42:21:    - Network:      http://69.62.73.84:3000
+2025-09-11T18:42:21: 
+2025-09-11T18:42:21:  ✓ Starting...
+2025-09-11T18:42:21:  ✓ Ready in 285ms
+2025-09-11T18:43:27:    ▲ Next.js 15.5.2
+2025-09-11T18:43:27:    - Local:        http://localhost:3000
+2025-09-11T18:43:27:    - Network:      http://69.62.73.84:3000
+2025-09-11T18:43:27: 
+2025-09-11T18:43:27:  ✓ Starting...
+2025-09-11T18:43:27:  ✓ Ready in 275ms
+2025-09-11T18:59:02:    ▲ Next.js 15.5.2
+2025-09-11T18:59:02:    - Local:        http://localhost:3000
+2025-09-11T18:59:02:    - Network:      http://69.62.73.84:3000
+2025-09-11T18:59:02: 
+2025-09-11T18:59:02:  ✓ Starting...
+2025-09-11T18:59:02:  ✓ Ready in 324ms
+2025-09-11T19:01:00:    ▲ Next.js 15.5.2
+2025-09-11T19:01:00:    - Local:        http://localhost:3000
+2025-09-11T19:01:00:    - Network:      http://69.62.73.84:3000
+2025-09-11T19:01:00: 
+2025-09-11T19:01:00:  ✓ Starting...
+2025-09-11T19:01:00:  ✓ Ready in 340ms
+2025-09-11T19:10:11:    ▲ Next.js 15.5.2
+2025-09-11T19:10:11:    - Local:        http://localhost:3000
+2025-09-11T19:10:11:    - Network:      http://69.62.73.84:3000
+2025-09-11T19:10:11: 
+2025-09-11T19:10:11:  ✓ Starting...
+2025-09-11T19:10:11:  ✓ Ready in 297ms
+2025-09-11T19:10:56:    ▲ Next.js 15.5.2
+2025-09-11T19:10:56:    - Local:        http://localhost:3000
+2025-09-11T19:10:56:    - Network:      http://69.62.73.84:3000
+2025-09-11T19:10:56: 
+2025-09-11T19:10:56:  ✓ Starting...
+2025-09-11T19:10:56:  ✓ Ready in 292ms
+2025-09-11T20:46:56:    ▲ Next.js 15.5.2
+2025-09-11T20:46:56:    - Local:        http://localhost:3000
+2025-09-11T20:46:56:    - Network:      http://69.62.73.84:3000
+2025-09-11T20:46:56: 
+2025-09-11T20:46:56:  ✓ Starting...
+2025-09-11T20:46:56:  ✓ Ready in 292ms
+2025-09-11T20:48:09:    ▲ Next.js 15.5.2
+2025-09-11T20:48:09:    - Local:        http://localhost:3000
+2025-09-11T20:48:09:    - Network:      http://69.62.73.84:3000
+2025-09-11T20:48:09: 
+2025-09-11T20:48:09:  ✓ Starting...
+2025-09-11T20:48:09:  ✓ Ready in 288ms
+2025-09-11T20:54:10:    ▲ Next.js 15.5.2
+2025-09-11T20:54:10:    - Local:        http://localhost:3000
+2025-09-11T20:54:10:    - Network:      http://69.62.73.84:3000
+2025-09-11T20:54:10: 
+2025-09-11T20:54:10:  ✓ Starting...
+2025-09-11T20:54:10:  ✓ Ready in 302ms
+2025-09-11T21:28:48:    ▲ Next.js 15.5.2
+2025-09-11T21:28:48:    - Local:        http://localhost:3000
+2025-09-11T21:28:48:    - Network:      http://69.62.73.84:3000
+2025-09-11T21:28:48: 
+2025-09-11T21:28:48:  ✓ Starting...
+2025-09-11T21:28:48:  ✓ Ready in 311ms
+2025-09-11T21:29:57:    ▲ Next.js 15.5.2
+2025-09-11T21:29:57:    - Local:        http://localhost:3000
+2025-09-11T21:29:57:    - Network:      http://69.62.73.84:3000
+2025-09-11T21:29:57: 
+2025-09-11T21:29:57:  ✓ Starting...
+2025-09-11T21:29:57:  ✓ Ready in 316ms
+2025-09-11T22:11:57:    ▲ Next.js 15.5.2
+2025-09-11T22:11:57:    - Local:        http://localhost:3000
+2025-09-11T22:11:57:    - Network:      http://69.62.73.84:3000
+2025-09-11T22:11:57: 
+2025-09-11T22:11:57:  ✓ Starting...
+2025-09-11T22:11:57:  ✓ Ready in 284ms
+2025-09-11T22:13:04:    ▲ Next.js 15.5.2
+2025-09-11T22:13:04:    - Local:        http://localhost:3000
+2025-09-11T22:13:04:    - Network:      http://69.62.73.84:3000
+2025-09-11T22:13:04: 
+2025-09-11T22:13:04:  ✓ Starting...
+2025-09-11T22:13:05:  ✓ Ready in 293ms
+2025-09-11T22:45:58:    ▲ Next.js 15.5.2
+2025-09-11T22:45:58:    - Local:        http://localhost:3000
+2025-09-11T22:45:58:    - Network:      http://69.62.73.84:3000
+2025-09-11T22:45:58: 
+2025-09-11T22:45:58:  ✓ Starting...
+2025-09-11T22:45:58:  ✓ Ready in 281ms
+2025-09-11T22:47:00:    ▲ Next.js 15.5.2
+2025-09-11T22:47:00:    - Local:        http://localhost:3000
+2025-09-11T22:47:00:    - Network:      http://69.62.73.84:3000
+2025-09-11T22:47:00: 
+2025-09-11T22:47:00:  ✓ Starting...
+2025-09-11T22:47:00:  ✓ Ready in 288ms
+2025-09-11T22:53:59:    ▲ Next.js 15.5.2
+2025-09-11T22:53:59:    - Local:        http://localhost:3000
+2025-09-11T22:53:59:    - Network:      http://69.62.73.84:3000
+2025-09-11T22:53:59: 
+2025-09-11T22:53:59:  ✓ Starting...
+2025-09-11T22:53:59:  ✓ Ready in 292ms
+2025-09-11T22:54:46:    ▲ Next.js 15.5.2
+2025-09-11T22:54:46:    - Local:        http://localhost:3000
+2025-09-11T22:54:46:    - Network:      http://69.62.73.84:3000
+2025-09-11T22:54:46: 
+2025-09-11T22:54:46:  ✓ Starting...
+2025-09-11T22:54:46:  ✓ Ready in 298ms
+2025-09-11T23:05:22:    ▲ Next.js 15.5.2
+2025-09-11T23:05:22:    - Local:        http://localhost:3000
+2025-09-11T23:05:22:    - Network:      http://69.62.73.84:3000
+2025-09-11T23:05:22: 
+2025-09-11T23:05:22:  ✓ Starting...
+2025-09-11T23:05:22:  ✓ Ready in 324ms
+2025-09-11T23:06:15:    ▲ Next.js 15.5.2
+2025-09-11T23:06:15:    - Local:        http://localhost:3000
+2025-09-11T23:06:15:    - Network:      http://69.62.73.84:3000
+2025-09-11T23:06:15: 
+2025-09-11T23:06:15:  ✓ Starting...
+2025-09-11T23:06:16:  ✓ Ready in 320ms
+2025-09-11T23:27:44: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/jobportal/node_modules/.bin/next' imported from /root/.nvm/versions/node/v20.19.4/lib/node_modules/pm2/lib/ProcessContainerFork.js
+2025-09-11T23:27:44:     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2025-09-11T23:27:44:     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2025-09-11T23:27:44:     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-09-11T23:27:44:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-09-11T23:27:44:     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-09-11T23:27:44:     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-09-11T23:27:44:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-09-11T23:27:44:     at ModuleLoader.import (node:internal/modules/esm/loader:539:34)
+2025-09-11T23:27:44:     at defaultImportModuleDynamicallyForScript (node:internal/modules/esm/utils:234:31)
+2025-09-11T23:27:44:     at importModuleDynamicallyCallback (node:internal/modules/esm/utils:256:12) {
+2025-09-11T23:27:44:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-11T23:27:44:   url: 'file:///var/www/jobportal/node_modules/.bin/next'
+2025-09-11T23:27:44: }
+2025-09-11T23:28:54:    ▲ Next.js 15.5.2
+2025-09-11T23:28:54:    - Local:        http://localhost:3000
+2025-09-11T23:28:54:    - Network:      http://69.62.73.84:3000
+2025-09-11T23:28:54: 
+2025-09-11T23:28:54:  ✓ Starting...
+2025-09-11T23:28:54:  ✓ Ready in 292ms
+2025-09-11T23:50:59:    ▲ Next.js 15.5.2
+2025-09-11T23:50:59:    - Local:        http://localhost:3000
+2025-09-11T23:50:59:    - Network:      http://69.62.73.84:3000
+2025-09-11T23:50:59: 
+2025-09-11T23:50:59:  ✓ Starting...
+2025-09-11T23:50:59:  ✓ Ready in 300ms
+2025-09-11T23:52:10:    ▲ Next.js 15.5.2
+2025-09-11T23:52:10:    - Local:        http://localhost:3000
+2025-09-11T23:52:10:    - Network:      http://69.62.73.84:3000
+2025-09-11T23:52:10: 
+2025-09-11T23:52:10:  ✓ Starting...
+2025-09-11T23:52:10:  ✓ Ready in 288ms
+2025-09-12T00:14:59:    ▲ Next.js 15.5.2
+2025-09-12T00:14:59:    - Local:        http://localhost:3000
+2025-09-12T00:14:59:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:14:59: 
+2025-09-12T00:14:59:  ✓ Starting...
+2025-09-12T00:15:00:  ✓ Ready in 330ms
+2025-09-12T00:15:46:    ▲ Next.js 15.5.2
+2025-09-12T00:15:46:    - Local:        http://localhost:3000
+2025-09-12T00:15:46:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:15:46: 
+2025-09-12T00:15:46:  ✓ Starting...
+2025-09-12T00:15:46:  ✓ Ready in 295ms
+2025-09-12T00:36:50:    ▲ Next.js 15.5.2
+2025-09-12T00:36:50:    - Local:        http://localhost:3000
+2025-09-12T00:36:50:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:50: 
+2025-09-12T00:36:50:  ✓ Starting...
+2025-09-12T00:36:50: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:36:50:    ▲ Next.js 15.5.2
+2025-09-12T00:36:50:    - Local:        http://localhost:3000
+2025-09-12T00:36:50:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:50: 
+2025-09-12T00:36:50:  ✓ Starting...
+2025-09-12T00:36:50: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:36:50:    ▲ Next.js 15.5.2
+2025-09-12T00:36:50:    - Local:        http://localhost:3000
+2025-09-12T00:36:50:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:50: 
+2025-09-12T00:36:50:  ✓ Starting...
+2025-09-12T00:36:51: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:36:51:    ▲ Next.js 15.5.2
+2025-09-12T00:36:51:    - Local:        http://localhost:3000
+2025-09-12T00:36:51:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:51: 
+2025-09-12T00:36:51:  ✓ Starting...
+2025-09-12T00:36:51: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:36:51:    ▲ Next.js 15.5.2
+2025-09-12T00:36:51:    - Local:        http://localhost:3000
+2025-09-12T00:36:51:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:51: 
+2025-09-12T00:36:51:  ✓ Starting...
+2025-09-12T00:36:51: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:36:52:    ▲ Next.js 15.5.2
+2025-09-12T00:36:52:    - Local:        http://localhost:3000
+2025-09-12T00:36:52:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:52: 
+2025-09-12T00:36:52:  ✓ Starting...
+2025-09-12T00:36:52: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:36:52:    ▲ Next.js 15.5.2
+2025-09-12T00:36:52:    - Local:        http://localhost:3000
+2025-09-12T00:36:52:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:52: 
+2025-09-12T00:36:52:  ✓ Starting...
+2025-09-12T00:36:52: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:36:52:    ▲ Next.js 15.5.2
+2025-09-12T00:36:52:    - Local:        http://localhost:3000
+2025-09-12T00:36:52:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:52: 
+2025-09-12T00:36:52:  ✓ Starting...
+2025-09-12T00:36:53: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:36:53:    ▲ Next.js 15.5.2
+2025-09-12T00:36:53:    - Local:        http://localhost:3000
+2025-09-12T00:36:53:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:53: 
+2025-09-12T00:36:53:  ✓ Starting...
+2025-09-12T00:36:53: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:36:53:    ▲ Next.js 15.5.2
+2025-09-12T00:36:53:    - Local:        http://localhost:3000
+2025-09-12T00:36:53:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:36:53: 
+2025-09-12T00:36:53:  ✓ Starting...
+2025-09-12T00:36:53: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-12T00:37:16:    ▲ Next.js 15.5.2
+2025-09-12T00:37:16:    - Local:        http://localhost:3000
+2025-09-12T00:37:16:    - Network:      http://69.62.73.84:3000
+2025-09-12T00:37:16: 
+2025-09-12T00:37:16:  ✓ Starting...
+2025-09-12T00:37:16:  ✓ Ready in 285ms
+2025-09-12T01:27:22:    ▲ Next.js 15.5.2
+2025-09-12T01:27:22:    - Local:        http://localhost:3000
+2025-09-12T01:27:22:    - Network:      http://69.62.73.84:3000
+2025-09-12T01:27:22: 
+2025-09-12T01:27:22:  ✓ Starting...
+2025-09-12T01:27:22:  ✓ Ready in 312ms
+2025-09-12T01:29:03:    ▲ Next.js 15.5.2
+2025-09-12T01:29:03:    - Local:        http://localhost:3000
+2025-09-12T01:29:03:    - Network:      http://69.62.73.84:3000
+2025-09-12T01:29:03: 
+2025-09-12T01:29:03:  ✓ Starting...
+2025-09-12T01:29:03:  ✓ Ready in 299ms
+2025-09-12T08:52:03: prisma:error 
+2025-09-12T08:52:03: Invalid `prisma.user.create()` invocation:
+2025-09-12T08:52:03: 
+2025-09-12T08:52:03: 
+2025-09-12T08:52:03: Null constraint violation on the fields: (`jobTypePreference`)
+2025-09-12T14:42:11:    ▲ Next.js 15.5.2
+2025-09-12T14:42:11:    - Local:        http://localhost:3000
+2025-09-12T14:42:11:    - Network:      http://69.62.73.84:3000
+2025-09-12T14:42:11: 
+2025-09-12T14:42:11:  ✓ Starting...
+2025-09-12T14:42:11:  ✓ Ready in 298ms
+2025-09-12T14:43:05:    ▲ Next.js 15.5.2
+2025-09-12T14:43:05:    - Local:        http://localhost:3000
+2025-09-12T14:43:05:    - Network:      http://69.62.73.84:3000
+2025-09-12T14:43:05: 
+2025-09-12T14:43:05:  ✓ Starting...
+2025-09-12T14:43:06:  ✓ Ready in 273ms
+2025-09-12T15:37:39:    ▲ Next.js 15.5.2
+2025-09-12T15:37:39:    - Local:        http://localhost:3000
+2025-09-12T15:37:39:    - Network:      http://69.62.73.84:3000
+2025-09-12T15:37:39: 
+2025-09-12T15:37:39:  ✓ Starting...
+2025-09-12T15:37:39:  ✓ Ready in 311ms
+2025-09-12T15:39:22:    ▲ Next.js 15.5.2
+2025-09-12T15:39:22:    - Local:        http://localhost:3000
+2025-09-12T15:39:22:    - Network:      http://69.62.73.84:3000
+2025-09-12T15:39:22: 
+2025-09-12T15:39:22:  ✓ Starting...
+2025-09-12T15:39:23:  ✓ Ready in 299ms
+2025-09-12T16:17:28:    ▲ Next.js 15.5.2
+2025-09-12T16:17:28:    - Local:        http://localhost:3000
+2025-09-12T16:17:28:    - Network:      http://69.62.73.84:3000
+2025-09-12T16:17:28: 
+2025-09-12T16:17:28:  ✓ Starting...
+2025-09-12T16:17:28:  ✓ Ready in 324ms
+2025-09-12T16:26:43:    ▲ Next.js 15.5.2
+2025-09-12T16:26:43:    - Local:        http://localhost:3000
+2025-09-12T16:26:43:    - Network:      http://69.62.73.84:3000
+2025-09-12T16:26:43: 
+2025-09-12T16:26:43:  ✓ Starting...
+2025-09-12T16:26:43:  ✓ Ready in 277ms
+2025-09-12T16:36:20:    ▲ Next.js 15.5.2
+2025-09-12T16:36:20:    - Local:        http://localhost:3000
+2025-09-12T16:36:20:    - Network:      http://69.62.73.84:3000
+2025-09-12T16:36:20: 
+2025-09-12T16:36:20:  ✓ Starting...
+2025-09-12T16:36:20:  ✓ Ready in 297ms
+2025-09-12T16:37:04:    ▲ Next.js 15.5.2
+2025-09-12T16:37:04:    - Local:        http://localhost:3000
+2025-09-12T16:37:04:    - Network:      http://69.62.73.84:3000
+2025-09-12T16:37:04: 
+2025-09-12T16:37:04:  ✓ Starting...
+2025-09-12T16:37:04:  ✓ Ready in 295ms
+2025-09-12T17:11:01:    ▲ Next.js 15.5.2
+2025-09-12T17:11:01:    - Local:        http://localhost:3000
+2025-09-12T17:11:01:    - Network:      http://69.62.73.84:3000
+2025-09-12T17:11:01: 
+2025-09-12T17:11:01:  ✓ Starting...
+2025-09-12T17:11:01:  ✓ Ready in 394ms
+2025-09-12T20:27:00:    ▲ Next.js 15.5.2
+2025-09-12T20:27:00:    - Local:        http://localhost:3000
+2025-09-12T20:27:00:    - Network:      http://69.62.73.84:3000
+2025-09-12T20:27:00: 
+2025-09-12T20:27:00:  ✓ Starting...
+2025-09-12T20:27:00:  ✓ Ready in 300ms
+2025-09-12T20:28:07:    ▲ Next.js 15.5.2
+2025-09-12T20:28:07:    - Local:        http://localhost:3000
+2025-09-12T20:28:07:    - Network:      http://69.62.73.84:3000
+2025-09-12T20:28:07: 
+2025-09-12T20:28:07:  ✓ Starting...
+2025-09-12T20:28:07:  ✓ Ready in 342ms
+2025-09-12T20:36:22:    ▲ Next.js 15.5.2
+2025-09-12T20:36:22:    - Local:        http://localhost:3000
+2025-09-12T20:36:22:    - Network:      http://69.62.73.84:3000
+2025-09-12T20:36:22: 
+2025-09-12T20:36:22:  ✓ Starting...
+2025-09-12T20:36:22:  ✓ Ready in 288ms
+2025-09-12T20:36:33:    ▲ Next.js 15.5.2
+2025-09-12T20:36:33:    - Local:        http://localhost:3000
+2025-09-12T20:36:33:    - Network:      http://69.62.73.84:3000
+2025-09-12T20:36:33: 
+2025-09-12T20:36:33:  ✓ Starting...
+2025-09-12T20:36:33:  ✓ Ready in 281ms
+2025-09-12T20:37:27:    ▲ Next.js 15.5.2
+2025-09-12T20:37:27:    - Local:        http://localhost:3000
+2025-09-12T20:37:27:    - Network:      http://69.62.73.84:3000
+2025-09-12T20:37:27: 
+2025-09-12T20:37:27:  ✓ Starting...
+2025-09-12T20:37:27:  ✓ Ready in 286ms
+2025-09-12T20:44:50:    ▲ Next.js 15.5.2
+2025-09-12T20:44:50:    - Local:        http://localhost:3000
+2025-09-12T20:44:50:    - Network:      http://69.62.73.84:3000
+2025-09-12T20:44:50: 
+2025-09-12T20:44:50:  ✓ Starting...
+2025-09-12T20:44:50:  ✓ Ready in 277ms
+2025-09-12T20:45:42:    ▲ Next.js 15.5.2
+2025-09-12T20:45:42:    - Local:        http://localhost:3000
+2025-09-12T20:45:42:    - Network:      http://69.62.73.84:3000
+2025-09-12T20:45:42: 
+2025-09-12T20:45:42:  ✓ Starting...
+2025-09-12T20:45:42:  ✓ Ready in 299ms
+2025-09-12T20:56:16:    ▲ Next.js 15.5.2
+2025-09-12T20:56:16:    - Local:        http://localhost:3000
+2025-09-12T20:56:16:    - Network:      http://69.62.73.84:3000
+2025-09-12T20:56:16: 
+2025-09-12T20:56:16:  ✓ Starting...
+2025-09-12T20:56:16:  ✓ Ready in 293ms
+2025-09-12T20:58:44:    ▲ Next.js 15.5.2
+2025-09-12T20:58:44:    - Local:        http://localhost:3000
+2025-09-12T20:58:44:    - Network:      http://69.62.73.84:3000
+2025-09-12T20:58:44: 
+2025-09-12T20:58:44:  ✓ Starting...
+2025-09-12T20:58:45:  ✓ Ready in 309ms
+2025-09-12T21:23:54:    ▲ Next.js 15.5.2
+2025-09-12T21:23:54:    - Local:        http://localhost:3000
+2025-09-12T21:23:54:    - Network:      http://69.62.73.84:3000
+2025-09-12T21:23:54: 
+2025-09-12T21:23:54:  ✓ Starting...
+2025-09-12T21:23:54:  ✓ Ready in 384ms
+2025-09-12T21:27:37:    ▲ Next.js 15.5.2
+2025-09-12T21:27:37:    - Local:        http://localhost:3000
+2025-09-12T21:27:37:    - Network:      http://69.62.73.84:3000
+2025-09-12T21:27:37: 
+2025-09-12T21:27:37:  ✓ Starting...
+2025-09-12T21:27:37:  ✓ Ready in 319ms
+2025-09-12T21:28:43:    ▲ Next.js 15.5.2
+2025-09-12T21:28:43:    - Local:        http://localhost:3000
+2025-09-12T21:28:43:    - Network:      http://69.62.73.84:3000
+2025-09-12T21:28:43: 
+2025-09-12T21:28:43:  ✓ Starting...
+2025-09-12T21:28:44:  ✓ Ready in 301ms
+2025-09-12T21:56:51:    ▲ Next.js 15.5.2
+2025-09-12T21:56:51:    - Local:        http://localhost:3000
+2025-09-12T21:56:51:    - Network:      http://69.62.73.84:3000
+2025-09-12T21:56:51: 
+2025-09-12T21:56:51:  ✓ Starting...
+2025-09-12T21:56:51:  ✓ Ready in 329ms
+2025-09-12T21:57:51:    ▲ Next.js 15.5.2
+2025-09-12T21:57:51:    - Local:        http://localhost:3000
+2025-09-12T21:57:51:    - Network:      http://69.62.73.84:3000
+2025-09-12T21:57:51: 
+2025-09-12T21:57:51:  ✓ Starting...
+2025-09-12T21:57:51:  ✓ Ready in 285ms
+2025-09-12T23:46:00:    ▲ Next.js 15.5.2
+2025-09-12T23:46:00:    - Local:        http://localhost:3000
+2025-09-12T23:46:00:    - Network:      http://69.62.73.84:3000
+2025-09-12T23:46:00: 
+2025-09-12T23:46:00:  ✓ Starting...
+2025-09-12T23:46:00:  ✓ Ready in 280ms
+2025-09-13T00:10:40:    ▲ Next.js 15.5.2
+2025-09-13T00:10:40:    - Local:        http://localhost:3000
+2025-09-13T00:10:40:    - Network:      http://69.62.73.84:3000
+2025-09-13T00:10:40: 
+2025-09-13T00:10:40:  ✓ Starting...
+2025-09-13T00:10:41:  ✓ Ready in 282ms
+2025-09-13T00:13:05:    ▲ Next.js 15.5.2
+2025-09-13T00:13:05:    - Local:        http://localhost:3000
+2025-09-13T00:13:05:    - Network:      http://69.62.73.84:3000
+2025-09-13T00:13:05: 
+2025-09-13T00:13:05:  ✓ Starting...
+2025-09-13T00:13:05:  ✓ Ready in 295ms
+2025-09-13T00:25:25:    ▲ Next.js 15.5.2
+2025-09-13T00:25:25:    - Local:        http://localhost:3000
+2025-09-13T00:25:25:    - Network:      http://69.62.73.84:3000
+2025-09-13T00:25:25: 
+2025-09-13T00:25:25:  ✓ Starting...
+2025-09-13T00:25:25:  ✓ Ready in 320ms
+2025-09-13T00:27:53:    ▲ Next.js 15.5.2
+2025-09-13T00:27:53:    - Local:        http://localhost:3000
+2025-09-13T00:27:53:    - Network:      http://69.62.73.84:3000
+2025-09-13T00:27:53: 
+2025-09-13T00:27:53:  ✓ Starting...
+2025-09-13T00:27:53:  ✓ Ready in 295ms
+2025-09-13T00:37:04:    ▲ Next.js 15.5.2
+2025-09-13T00:37:04:    - Local:        http://localhost:3000
+2025-09-13T00:37:04:    - Network:      http://69.62.73.84:3000
+2025-09-13T00:37:04: 
+2025-09-13T00:37:04:  ✓ Starting...
+2025-09-13T00:37:04:  ✓ Ready in 323ms
+2025-09-13T00:38:12:    ▲ Next.js 15.5.2
+2025-09-13T00:38:12:    - Local:        http://localhost:3000
+2025-09-13T00:38:12:    - Network:      http://69.62.73.84:3000
+2025-09-13T00:38:12: 
+2025-09-13T00:38:12:  ✓ Starting...
+2025-09-13T00:38:12:  ✓ Ready in 300ms
+2025-09-13T00:48:22:    ▲ Next.js 15.5.2
+2025-09-13T00:48:22:    - Local:        http://localhost:3000
+2025-09-13T00:48:22:    - Network:      http://69.62.73.84:3000
+2025-09-13T00:48:22: 
+2025-09-13T00:48:22:  ✓ Starting...
+2025-09-13T00:48:22:  ✓ Ready in 287ms
+2025-09-13T00:49:09:    ▲ Next.js 15.5.2
+2025-09-13T00:49:09:    - Local:        http://localhost:3000
+2025-09-13T00:49:09:    - Network:      http://69.62.73.84:3000
+2025-09-13T00:49:09: 
+2025-09-13T00:49:09:  ✓ Starting...
+2025-09-13T00:49:09:  ✓ Ready in 303ms
+2025-09-13T01:25:43:    ▲ Next.js 15.5.2
+2025-09-13T01:25:43:    - Local:        http://localhost:3000
+2025-09-13T01:25:43:    - Network:      http://69.62.73.84:3000
+2025-09-13T01:25:43: 
+2025-09-13T01:25:43:  ✓ Starting...
+2025-09-13T01:25:43:  ✓ Ready in 290ms
+2025-09-13T01:26:31:    ▲ Next.js 15.5.2
+2025-09-13T01:26:31:    - Local:        http://localhost:3000
+2025-09-13T01:26:31:    - Network:      http://69.62.73.84:3000
+2025-09-13T01:26:31: 
+2025-09-13T01:26:31:  ✓ Starting...
+2025-09-13T01:26:31:  ✓ Ready in 323ms
+2025-09-14T18:40:19:    ▲ Next.js 15.5.2
+2025-09-14T18:40:19:    - Local:        http://localhost:3000
+2025-09-14T18:40:19:    - Network:      http://69.62.73.84:3000
+2025-09-14T18:40:19: 
+2025-09-14T18:40:19:  ✓ Starting...
+2025-09-14T18:40:19:  ✓ Ready in 306ms
+2025-09-14T18:41:11:    ▲ Next.js 15.5.2
+2025-09-14T18:41:11:    - Local:        http://localhost:3000
+2025-09-14T18:41:11:    - Network:      http://69.62.73.84:3000
+2025-09-14T18:41:11: 
+2025-09-14T18:41:11:  ✓ Starting...
+2025-09-14T18:41:11:  ✓ Ready in 294ms
+2025-09-14T18:58:17:    ▲ Next.js 15.5.2
+2025-09-14T18:58:17:    - Local:        http://localhost:3000
+2025-09-14T18:58:17:    - Network:      http://69.62.73.84:3000
+2025-09-14T18:58:17: 
+2025-09-14T18:58:17:  ✓ Starting...
+2025-09-14T18:58:18:  ✓ Ready in 310ms
+2025-09-14T18:59:03:    ▲ Next.js 15.5.2
+2025-09-14T18:59:03:    - Local:        http://localhost:3000
+2025-09-14T18:59:03:    - Network:      http://69.62.73.84:3000
+2025-09-14T18:59:03: 
+2025-09-14T18:59:03:  ✓ Starting...
+2025-09-14T18:59:03:  ✓ Ready in 300ms
+2025-09-14T19:03:19:  ⨯ [TypeError: controller[kState].transformAlgorithm is not a function] {
+2025-09-14T19:03:19:   digest: '568988467'
+2025-09-14T19:03:19: }
+2025-09-14T19:11:46:    ▲ Next.js 15.5.2
+2025-09-14T19:11:46:    - Local:        http://localhost:3000
+2025-09-14T19:11:46:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:11:46: 
+2025-09-14T19:11:46:  ✓ Starting...
+2025-09-14T19:11:46:  ✓ Ready in 332ms
+2025-09-14T19:12:52:    ▲ Next.js 15.5.2
+2025-09-14T19:12:52:    - Local:        http://localhost:3000
+2025-09-14T19:12:52:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:12:52: 
+2025-09-14T19:12:52:  ✓ Starting...
+2025-09-14T19:12:52:  ✓ Ready in 303ms
+2025-09-14T19:13:25:    ▲ Next.js 15.5.2
+2025-09-14T19:13:25:    - Local:        http://localhost:3000
+2025-09-14T19:13:25:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:13:25: 
+2025-09-14T19:13:25:  ✓ Starting...
+2025-09-14T19:13:25:  ✓ Ready in 298ms
+2025-09-14T19:21:39:    ▲ Next.js 15.5.2
+2025-09-14T19:21:39:    - Local:        http://localhost:3000
+2025-09-14T19:21:39:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:21:39: 
+2025-09-14T19:21:39:  ✓ Starting...
+2025-09-14T19:21:39:  ✓ Ready in 309ms
+2025-09-14T19:24:27:    ▲ Next.js 15.5.2
+2025-09-14T19:24:27:    - Local:        http://localhost:3000
+2025-09-14T19:24:27:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:24:27: 
+2025-09-14T19:24:27:  ✓ Starting...
+2025-09-14T19:24:27:  ✓ Ready in 319ms
+2025-09-14T19:40:17:    ▲ Next.js 15.5.2
+2025-09-14T19:40:17:    - Local:        http://localhost:3000
+2025-09-14T19:40:17:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:40:17: 
+2025-09-14T19:40:17:  ✓ Starting...
+2025-09-14T19:40:17:  ✓ Ready in 320ms
+2025-09-14T19:41:02:    ▲ Next.js 15.5.2
+2025-09-14T19:41:02:    - Local:        http://localhost:3000
+2025-09-14T19:41:02:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:41:02: 
+2025-09-14T19:41:02:  ✓ Starting...
+2025-09-14T19:41:02:  ✓ Ready in 329ms
+2025-09-14T19:48:02:    ▲ Next.js 15.5.2
+2025-09-14T19:48:02:    - Local:        http://localhost:3000
+2025-09-14T19:48:02:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:48:02: 
+2025-09-14T19:48:02:  ✓ Starting...
+2025-09-14T19:48:02:  ✓ Ready in 316ms
+2025-09-14T19:49:24:    ▲ Next.js 15.5.2
+2025-09-14T19:49:24:    - Local:        http://localhost:3000
+2025-09-14T19:49:24:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:49:24: 
+2025-09-14T19:49:24:  ✓ Starting...
+2025-09-14T19:49:24:  ✓ Ready in 302ms
+2025-09-14T19:58:28:    ▲ Next.js 15.5.2
+2025-09-14T19:58:28:    - Local:        http://localhost:3000
+2025-09-14T19:58:28:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:58:28: 
+2025-09-14T19:58:28:  ✓ Starting...
+2025-09-14T19:58:28:  ✓ Ready in 332ms
+2025-09-14T19:59:15:    ▲ Next.js 15.5.2
+2025-09-14T19:59:15:    - Local:        http://localhost:3000
+2025-09-14T19:59:15:    - Network:      http://69.62.73.84:3000
+2025-09-14T19:59:15: 
+2025-09-14T19:59:15:  ✓ Starting...
+2025-09-14T19:59:15:  ✓ Ready in 318ms
