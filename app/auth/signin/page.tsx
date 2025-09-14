@@ -84,6 +84,33 @@ export default function SignInPage() {
               </Alert>
             )}
 
+            {/* Gmail OAuth Section - Prioritized */}
+            <div className="space-y-4">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Quick Sign In with Gmail
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Sign in instantly with your Google account
+                </p>
+              </div>
+
+              <OAuthButtons 
+                callbackUrl="/auth/role-selection" 
+                disabled={loading}
+              />
+            </div>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or use email & password</span>
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -174,23 +201,6 @@ export default function SignInPage() {
                 )}
               </Button>
             </form>
-
-            {/* OAuth Section */}
-            <div className="space-y-4">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
-                </div>
-              </div>
-
-              <OAuthButtons 
-                callbackUrl="/auth/role-selection" 
-                disabled={loading}
-              />
-            </div>
 
             {/* Sign Up Links */}
             <div className="text-center space-y-3">
