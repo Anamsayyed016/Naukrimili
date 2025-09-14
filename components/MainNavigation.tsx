@@ -96,6 +96,38 @@ export default function MainNavigation({
     }
   }, [isMobile, isMenuOpen]);
 
+  // EMERGENCY: Force mobile toggle visibility
+  useEffect(() => {
+    if (isMobile && typeof window !== 'undefined') {
+      const forceToggleVisibility = () => {
+        const toggleButton = document.querySelector('[data-mobile-toggle]') as HTMLElement;
+        if (toggleButton) {
+          toggleButton.style.display = 'flex';
+          toggleButton.style.visibility = 'visible';
+          toggleButton.style.opacity = '1';
+          toggleButton.style.zIndex = '9999';
+          toggleButton.style.position = 'relative';
+          toggleButton.style.minWidth = '40px';
+          toggleButton.style.minHeight = '40px';
+        }
+      };
+
+      // Force visibility immediately
+      forceToggleVisibility();
+      
+      // Force visibility on resize
+      window.addEventListener('resize', forceToggleVisibility);
+      
+      // Force visibility periodically (fallback)
+      const interval = setInterval(forceToggleVisibility, 1000);
+      
+      return () => {
+        window.removeEventListener('resize', forceToggleVisibility);
+        clearInterval(interval);
+      };
+    }
+  }, [isMobile]);
+
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
   const closeDropdown = useCallback(() => setIsDropdownOpen(false), []);
 
@@ -308,32 +340,29 @@ export default function MainNavigation({
             )}
           </div>
 
-          {/* Mobile Navigation - REACT STATE APPROACH */}
+          {/* Mobile Navigation - PRIORITIZE TOGGLE VISIBILITY */}
           {isMounted && isMobile && (
-            <div className="mobile-auth-container">
-              {/* Mobile User Indicator - Compact when logged in */}
+            <div className="flex items-center justify-end gap-2">
+              {/* Mobile User Indicator - MINIMAL when logged in */}
               {isMounted && isAuthenticated && user && (
-                <div className="mobile-auth-details flex items-center space-x-2 mr-2 px-2 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="mobile-auth-avatar bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-lg border border-gray-200 max-w-[100px] sm:max-w-[120px]">
+                  <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-semibold text-xs">
                       {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </span>
                   </div>
-                  <div className="flex flex-col min-w-0 flex-1">
-                    <span className="mobile-auth-text font-medium text-gray-700">
+                  <div className="hidden sm:block min-w-0 flex-1">
+                    <span className="text-xs font-medium text-gray-700 truncate block">
                       {user.name?.split(' ')[0] || 'User'}
-                    </span>
-                    <span className="mobile-auth-text text-gray-500 capitalize">
-                      {user.role || 'User'}
                     </span>
                   </div>
                 </div>
               )}
               
-              {/* Mobile Menu Button - ALWAYS VISIBLE ON MOBILE */}
+              {/* Mobile Menu Button - ALWAYS VISIBLE AND PRIORITIZED */}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="mobile-menu-toggle mobile-menu-button flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex-shrink-0 z-50"
                 style={{ 
                   display: 'flex',
                   visibility: 'visible',
@@ -342,7 +371,9 @@ export default function MainNavigation({
                   minHeight: '40px',
                   backgroundColor: 'transparent',
                   border: 'none',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  position: 'relative',
+                  zIndex: 9999
                 }}
                 aria-label="Toggle mobile menu"
                 aria-expanded={isMenuOpen}
@@ -352,7 +383,7 @@ export default function MainNavigation({
                   animate={{ rotate: isMenuOpen ? 180 : 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {isMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+                  {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </motion.div>
               </button>
             </div>
