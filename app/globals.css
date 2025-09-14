@@ -420,9 +420,7 @@ input:-webkit-autofill:active {
   }
 }
 
-/* Enhanced mobile-specific authentication styles */
-
-/* Mobile Navigation - AGGRESSIVE RESPONSIVE FIXES */
+/* Mobile Navigation - Clean Professional Styles */
 @media (max-width: 1023px) {
   .mobile-nav-item {
     @apply min-h-[48px] flex items-center px-4 py-3 text-base;
@@ -436,141 +434,49 @@ input:-webkit-autofill:active {
     @apply min-h-[48px] min-w-[48px] p-3;
   }
 
-  /* FORCE mobile navigation layout */
+  /* Clean mobile navigation header */
   .mobile-nav-header {
-    @apply flex items-center justify-between min-h-[64px] px-2;
+    @apply flex items-center justify-between min-h-[64px] px-4;
   }
 
-  /* Mobile authentication details - MINIMAL */
-  .mobile-auth-container {
-    @apply flex items-center justify-end gap-2;
+  /* Mobile user profile container */
+  .mobile-user-profile-container {
+    @apply flex-1 max-w-[200px] mr-4;
   }
 
-  .mobile-auth-details {
-    @apply max-w-[100px] sm:max-w-[120px] flex-shrink-0;
-  }
-
-  .mobile-auth-avatar {
-    @apply w-6 h-6 flex-shrink-0;
-  }
-
-  .mobile-auth-text {
-    @apply text-xs truncate hidden sm:block;
-  }
-
+  /* Mobile menu toggle - always visible */
   .mobile-menu-toggle {
-    @apply w-10 h-10 flex-shrink-0 z-50;
-  }
-
-  /* FORCE mobile toggle visibility */
-  [data-mobile-toggle] {
-    @apply flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 9999 !important;
-    position: relative !important;
+    @apply w-12 h-12 flex-shrink-0;
   }
 }
 
-/* Extra small mobile devices - ULTRA COMPACT */
+/* Small mobile devices */
 @media (max-width: 480px) {
-  .mobile-auth-details {
-    @apply max-w-[80px] px-1 py-1;
+  .mobile-nav-header {
+    @apply min-h-[60px] px-2;
   }
 
-  .mobile-auth-avatar {
-    @apply w-5 h-5;
-  }
-
-  .mobile-auth-text {
-    @apply hidden;
+  .mobile-user-profile-container {
+    @apply max-w-[160px] mr-2;
   }
 
   .mobile-menu-toggle {
     @apply w-10 h-10;
   }
-
-  /* FORCE mobile navigation header layout */
-  .mobile-nav-header {
-    @apply min-h-[60px] flex items-center justify-between px-1;
-  }
-
-  /* Mobile menu button ALWAYS visible */
-  .mobile-menu-button {
-    @apply flex-shrink-0 z-50;
-  }
-
-  /* FORCE mobile toggle visibility on small screens */
-  [data-mobile-toggle] {
-    @apply flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 9999 !important;
-    position: relative !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-  }
 }
 
-/* Very small screens - HIDE AUTH COMPLETELY, PRIORITIZE TOGGLE */
+/* Very small screens */
 @media (max-width: 360px) {
-  .mobile-auth-details {
-    @apply hidden;
+  .mobile-nav-header {
+    @apply min-h-[56px] px-1;
+  }
+
+  .mobile-user-profile-container {
+    @apply max-w-[140px] mr-1;
   }
 
   .mobile-menu-toggle {
-    @apply w-10 h-10;
-  }
-
-  /* FORCE mobile toggle visibility on very small screens */
-  [data-mobile-toggle] {
-    @apply flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 9999 !important;
-    position: relative !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-  }
-
-  /* Ensure navigation header is compact */
-  .mobile-nav-header {
-    @apply min-h-[56px] flex items-center justify-between px-1;
-  }
-}
-
-/* EMERGENCY MOBILE TOGGLE FIXES */
-@media (max-width: 1023px) {
-  /* Force mobile toggle to always be visible */
-  button[data-mobile-toggle] {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 9999 !important;
-    position: relative !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    background: transparent !important;
-    border: none !important;
-    cursor: pointer !important;
-  }
-
-  /* Ensure mobile navigation container doesn't overflow */
-  .mobile-nav-header {
-    overflow: visible !important;
-    position: relative !important;
-  }
-
-  /* Mobile auth details should never interfere with toggle */
-  .mobile-auth-details {
-    max-width: 100px !important;
-    flex-shrink: 1 !important;
-  }
-
-  /* Mobile toggle should never shrink */
-  button[data-mobile-toggle] {
-    flex-shrink: 0 !important;
-    flex-grow: 0 !important;
+    @apply w-9 h-9;
   }
 }
 
