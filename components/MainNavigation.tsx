@@ -18,7 +18,8 @@ import {
   Brain,
   Home,
   Upload,
-  Search
+  Search,
+  ChevronDown
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -167,25 +168,31 @@ export default function MainNavigation({
             {isMounted && isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 flex items-center gap-2">
+                  <Button variant="ghost" className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 flex items-center gap-2 group">
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-sm">
                         {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                       </span>
                     </div>
-                    <span className="text-gray-700 font-medium">
-                      {user.name || 'User'}
-                    </span>
+                    <div className="flex flex-col items-start">
+                      <span className="text-gray-700 font-medium text-sm">
+                        {user.name || 'User'}
+                      </span>
+                      <span className="text-xs text-gray-500 capitalize">
+                        {user.role || 'User'}
+                      </span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-gray-500 group-data-[state=open]:rotate-180 transition-transform duration-200" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 p-2 bg-white border border-gray-200 shadow-xl">
-                  <DropdownMenuLabel className="text-base font-semibold text-gray-900 px-3 py-2">
+                <DropdownMenuContent align="end" className="w-72 p-3 bg-white border border-gray-200 shadow-xl rounded-xl">
+                  <DropdownMenuLabel className="text-base font-semibold text-gray-900 px-2 py-2">
                     My Account
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-gray-200" />
                   
                   {/* User Info */}
-                  <div className="px-3 py-2 border-b border-gray-100">
+                  <div className="px-2 py-3 border-b border-gray-100">
                     <p className="text-sm font-medium text-gray-900">{user.name}</p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                     <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
@@ -194,25 +201,37 @@ export default function MainNavigation({
                   <DropdownMenuSeparator className="bg-gray-200" />
                   
                   {/* Menu Items */}
-                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <User className="w-4 h-4 text-gray-600" />
-                    <span className="text-gray-900 font-medium">Profile</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <Settings className="w-4 h-4 text-gray-600" />
-                    <span className="text-gray-900 font-medium">Settings</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <FileTextIcon className="w-4 h-4 text-gray-600" />
-                    <span className="text-gray-900 font-medium">My Resumes</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                    <BarChartIcon className="w-4 h-4 text-gray-600" />
-                    <span className="text-gray-900 font-medium">Dashboard</span>
-                  </DropdownMenuItem>
+                  <div className="py-2">
+                    <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                      <Link href="/profile" className="flex items-center gap-3 w-full">
+                        <User className="w-4 h-4 text-gray-600" />
+                        <span className="text-gray-900 font-medium">Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                      <Link href="/settings" className="flex items-center gap-3 w-full">
+                        <Settings className="w-4 h-4 text-gray-600" />
+                        <span className="text-gray-900 font-medium">Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    
+                    {user.role === 'jobseeker' && (
+                      <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                        <Link href="/dashboard/jobseeker/resumes" className="flex items-center gap-3 w-full">
+                          <FileTextIcon className="w-4 h-4 text-gray-600" />
+                          <span className="text-gray-900 font-medium">My Resumes</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    
+                    <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                      <Link href={user.role === 'employer' ? '/employer/dashboard' : '/dashboard/jobseeker'} className="flex items-center gap-3 w-full">
+                        <BarChartIcon className="w-4 h-4 text-gray-600" />
+                        <span className="text-gray-900 font-medium">Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </div>
                   
                   <DropdownMenuSeparator className="bg-gray-200" />
                   
@@ -325,10 +344,19 @@ export default function MainNavigation({
               {isMounted && isAuthenticated && user ? (
                 // User is logged in - show user info and actions
                 <div className="px-4 py-3 space-y-3 border-t border-gray-200">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                    <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-semibold text-sm">
+                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                        <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
+                      </div>
+                    </div>
                   </div>
                   
                   {/* Mobile Profile Actions */}
