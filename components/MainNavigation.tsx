@@ -46,6 +46,7 @@ export default function MainNavigation({
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { data: session, status } = useSession();
   
   // Derived state from session
@@ -56,7 +57,18 @@ export default function MainNavigation({
   // Check if screen is mobile size - prevent hydration issues
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 1024);
+      const isMobileSize = window.innerWidth < 1024;
+      setIsMobile(isMobileSize);
+      
+      // Close mobile menu when switching to desktop
+      if (!isMobileSize && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+      
+      // Close dropdown when switching to mobile
+      if (isMobileSize && isDropdownOpen) {
+        setIsDropdownOpen(false);
+      }
     };
     
     // Only run on client side
@@ -65,9 +77,10 @@ export default function MainNavigation({
       window.addEventListener('resize', checkScreenSize);
       return () => window.removeEventListener('resize', checkScreenSize);
     }
-  }, []);
+  }, [isMenuOpen, isDropdownOpen]);
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+  const closeDropdown = useCallback(() => setIsDropdownOpen(false), []);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -166,9 +179,13 @@ export default function MainNavigation({
 
             {/* Desktop Authentication Section */}
             {isMounted && isAuthenticated && user ? (
-              <DropdownMenu>
+              <DropdownMenu onOpenChange={setIsDropdownOpen}>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 flex items-center gap-2 group">
+                  <Button 
+                    variant="ghost" 
+                    className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 flex items-center gap-2 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    aria-label="User menu"
+                  >
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-sm">
                         {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -182,10 +199,19 @@ export default function MainNavigation({
                         {user.role || 'User'}
                       </span>
                     </div>
-                    <ChevronDown className="w-4 h-4 text-gray-500 group-data-[state=open]:rotate-180 transition-transform duration-200" />
+                    <ChevronDown 
+                      className={cn(
+                        "w-4 h-4 text-gray-500 transition-transform duration-200",
+                        isDropdownOpen && "rotate-180"
+                      )} 
+                    />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-72 p-3 bg-white border border-gray-200 shadow-xl rounded-xl">
+                <DropdownMenuContent 
+                  align="end" 
+                  className="w-72 p-3 bg-white border border-gray-200 shadow-xl rounded-xl z-50"
+                  sideOffset={8}
+                >
                   <DropdownMenuLabel className="text-base font-semibold text-gray-900 px-2 py-2">
                     My Account
                   </DropdownMenuLabel>
@@ -284,7 +310,7 @@ export default function MainNavigation({
             {/* Mobile Menu Button - ALWAYS VISIBLE ON MOBILE */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300"
+              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               style={{ 
                 display: 'flex',
                 visibility: 'visible',
@@ -296,8 +322,14 @@ export default function MainNavigation({
                 cursor: 'pointer'
               }}
               aria-label="Toggle mobile menu"
+              aria-expanded={isMenuOpen}
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <motion.div
+                animate={{ rotate: isMenuOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </motion.div>
             </button>
             </div>
           )}
