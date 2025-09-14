@@ -1,8 +1,8 @@
 'use client';
 import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import {
   Bell,
   MessageSquare,
@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
 
 interface MainNavigationProps {
   brandName?: string;
@@ -46,36 +45,41 @@ export default function MainNavigation({
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const { user, isAuthenticated, logout, isMounted } = useAuth();
+  const { data: session, status } = useSession();
+  
+  // Derived state from session
+  const user = session?.user as any; // Type assertion for role property
+  const isAuthenticated = status === 'authenticated' && !!user;
+  const isMounted = status !== 'loading';
 
-  // Check if screen is mobile size
+  // Check if screen is mobile size - prevent hydration issues
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 1024);
     };
     
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      checkScreenSize();
+      window.addEventListener('resize', checkScreenSize);
+      return () => window.removeEventListener('resize', checkScreenSize);
+    }
   }, []);
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
   const handleLogout = useCallback(async () => {
     try {
-      // Use NextAuth signOut for proper session cleanup
-      const { signOut } = await import('next-auth/react');
       await signOut({ 
         callbackUrl: '/',
         redirect: true 
       });
     } catch (error) {
       console.error('Logout error:', error);
-      // Fallback to local logout
-      logout();
+      // Fallback to manual redirect
       router.push('/');
     }
-  }, [logout, router]);
+  }, [router]);
 
   const navLinks = useMemo(() => {
     const baseLinks = [
@@ -242,7 +246,7 @@ export default function MainNavigation({
           </div>
 
           {/* Mobile Navigation - REACT STATE APPROACH */}
-          {isMobile && (
+          {isMounted && isMobile && (
             <div className="flex items-center">
             {/* Mobile User Indicator - Show when logged in */}
             {isMounted && isAuthenticated && user && (
@@ -281,7 +285,7 @@ export default function MainNavigation({
         </div>
 
         {/* Enhanced Mobile Menu */}
-        {isMobile && isMenuOpen && (
+        {isMounted && isMobile && isMenuOpen && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
