@@ -81,7 +81,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = user.email;
         token.name = user.name;
         token.isActive = true;
-        console.log('🔍 JWT callback - Initial user data:', user);
+        console.log('�� JWT callback - Initial user data:', user);
       }
 
       // Only fetch user data if this is a fresh login (not a token refresh)
@@ -212,7 +212,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       // Only create session if token has valid user data
       if (!token.id || !token.email || !token.isActive) {
-        console.log('🔍 Session callback - Invalid token, returning null session');
+        console.log('�� Session callback - Invalid token, returning null session');
         return null;
       }
 
@@ -287,6 +287,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       
       return `${baseUrl}/auth/role-selection`;
     }
+  },
+  events: {
+    async linkAccount({ user, account, profile }) {
+      console.log('🔗 Account linked:', { userId: user.id, provider: account.provider });
+    },
   },
   pages: {
     signIn: '/auth/signin',

@@ -5712,3 +5712,167 @@
 2025-09-14T19:59:15: 
 2025-09-14T19:59:15:  ✓ Starting...
 2025-09-14T19:59:15:  ✓ Ready in 318ms
+2025-09-15T09:47:04:    ▲ Next.js 15.5.2
+2025-09-15T09:47:04:    - Local:        http://localhost:3000
+2025-09-15T09:47:04:    - Network:      http://69.62.73.84:3000
+2025-09-15T09:47:04: 
+2025-09-15T09:47:04:  ✓ Starting...
+2025-09-15T09:47:04:  ✓ Ready in 337ms
+2025-09-15T09:51:37:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-15T09:51:37: Require stack:
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/server/next.js
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/server/lib/start-server.js
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/cli/next-start.js] {
+2025-09-15T09:51:37:   code: 'MODULE_NOT_FOUND',
+2025-09-15T09:51:37:   requireStack: [Array]
+2025-09-15T09:51:37: }
+2025-09-15T09:51:37:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-15T09:51:37: Require stack:
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/server/next.js
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/server/lib/start-server.js
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/cli/next-start.js] {
+2025-09-15T09:51:37:   code: 'MODULE_NOT_FOUND',
+2025-09-15T09:51:37:   requireStack: [Array]
+2025-09-15T09:51:37: }
+2025-09-15T09:51:37:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-15T09:51:37: Require stack:
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/server/next.js
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/server/lib/start-server.js
+2025-09-15T09:51:37: - /var/www/jobportal/node_modules/next/dist/cli/next-start.js] {
+2025-09-15T09:51:37:   code: 'MODULE_NOT_FOUND',
+2025-09-15T09:51:37:   requireStack: [Array]
+2025-09-15T09:51:37: }
+2025-09-15T09:51:38:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-15T09:51:38: Require stack:
+2025-09-15T09:51:38: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-15T09:51:38: - /var/www/jobportal/node_modules/next/dist/server/next.js
+2025-09-15T09:51:38: - /var/www/jobportal/node_modules/next/dist/server/lib/start-server.js
+2025-09-15T09:51:38: - /var/www/jobportal/node_modules/next/dist/cli/next-start.js] {
+2025-09-15T09:51:38:   code: 'MODULE_NOT_FOUND',
+2025-09-15T09:51:38:   requireStack: [Array]
+2025-09-15T09:51:38: }
+2025-09-15T09:51:38:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-15T09:51:38: Require stack:
+2025-09-15T09:51:38: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-15T09:51:38: - /var/www/jobportal/node_modules/next/dist/server/next.js
+2025-09-15T09:51:38: - /var/www/jobportal/node_modules/next/dist/server/lib/start-server.js
+2025-09-15T09:51:38: - /var/www/jobportal/node_modules/next/dist/cli/next-start.js] {
+2025-09-15T09:51:38:   code: 'MODULE_NOT_FOUND',
+2025-09-15T09:51:38:   requireStack: [Array]
+2025-09-15T09:51:38: }
+2025-09-15T09:52:05:    ▲ Next.js 15.5.2
+2025-09-15T09:52:05:    - Local:        http://localhost:3000
+2025-09-15T09:52:05:    - Network:      http://69.62.73.84:3000
+2025-09-15T09:52:05: 
+2025-09-15T09:52:05:  ✓ Starting...
+2025-09-15T09:52:05:  ✓ Ready in 299ms
+2025-09-15T09:53:40: [31m[auth][error][0m UnknownAction: Only GET and POST requests are supported. Read more at https://errors.authjs.dev#unknownaction
+2025-09-15T09:53:40:     at b2 (/var/www/jobportal/.next/server/chunks/7659.js:1:70023)
+2025-09-15T09:53:40:     at fv (/var/www/jobportal/.next/server/chunks/7659.js:404:50996)
+2025-09-15T09:53:40:     at b (/var/www/jobportal/.next/server/chunks/7659.js:404:61256)
+2025-09-15T09:53:40:     at AsyncLocalStorage.run (node:async_hooks:335:14)
+2025-09-15T09:53:40:     at rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21072)
+2025-09-15T09:53:40:     at /var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:27868
+2025-09-15T09:53:40:     at /var/www/jobportal/node_modules/next/dist/server/lib/trace/tracer.js:170:36
+2025-09-15T09:53:40:     at NoopContextManager.with (/var/www/jobportal/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+2025-09-15T09:53:40:     at ContextAPI.with (/var/www/jobportal/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+2025-09-15T09:53:40:     at NoopTracer.startActiveSpan (/var/www/jobportal/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+2025-09-15T09:55:54:    ▲ Next.js 15.5.2
+2025-09-15T09:55:54:    - Local:        http://localhost:3000
+2025-09-15T09:55:54:    - Network:      http://69.62.73.84:3000
+2025-09-15T09:55:54: 
+2025-09-15T09:55:54:  ✓ Starting...
+2025-09-15T09:55:54:  ✓ Ready in 288ms
+2025-09-15T09:56:31: [31m[auth][error][0m UnknownAction: Only GET and POST requests are supported. Read more at https://errors.authjs.dev#unknownaction
+2025-09-15T09:56:31:     at b2 (/var/www/jobportal/.next/server/chunks/7659.js:1:70023)
+2025-09-15T09:56:31:     at fv (/var/www/jobportal/.next/server/chunks/7659.js:404:50996)
+2025-09-15T09:56:31:     at b (/var/www/jobportal/.next/server/chunks/7659.js:404:61256)
+2025-09-15T09:56:31:     at AsyncLocalStorage.run (node:async_hooks:335:14)
+2025-09-15T09:56:31:     at rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21072)
+2025-09-15T09:56:31:     at /var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:27868
+2025-09-15T09:56:31:     at /var/www/jobportal/node_modules/next/dist/server/lib/trace/tracer.js:170:36
+2025-09-15T09:56:31:     at NoopContextManager.with (/var/www/jobportal/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+2025-09-15T09:56:31:     at ContextAPI.with (/var/www/jobportal/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+2025-09-15T09:56:31:     at NoopTracer.startActiveSpan (/var/www/jobportal/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+2025-09-15T10:04:28:    ▲ Next.js 15.5.2
+2025-09-15T10:04:28:    - Local:        http://localhost:3000
+2025-09-15T10:04:28:    - Network:      http://69.62.73.84:3000
+2025-09-15T10:04:28: 
+2025-09-15T10:04:28:  ✓ Starting...
+2025-09-15T10:04:28:  ✓ Ready in 308ms
+2025-09-15T10:05:16: [31m[auth][error][0m OAuthAccountNotLinked: Another account already exists with the same e-mail address. Read more at https://errors.authjs.dev#oauthaccountnotlinked
+2025-09-15T10:05:16:     at dk (/var/www/jobportal/.next/server/chunks/7659.js:404:3047)
+2025-09-15T10:05:16:     at async fk (/var/www/jobportal/.next/server/chunks/7659.js:404:38403)
+2025-09-15T10:05:16:     at async ft (/var/www/jobportal/.next/server/chunks/7659.js:404:49833)
+2025-09-15T10:05:16:     at async fv (/var/www/jobportal/.next/server/chunks/7659.js:404:54516)
+2025-09-15T10:05:16:     at async rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21042)
+2025-09-15T10:05:16:     at async rN.handle (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:25860)
+2025-09-15T10:05:16:     at async k (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:3503)
+2025-09-15T10:05:16:     at async rN.handleResponse (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:1:105568)
+2025-09-15T10:05:16:     at async g (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:4506)
+2025-09-15T10:05:16:     at async B (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:5628)
+2025-09-15T10:05:20: [31m[auth][error][0m CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+2025-09-15T10:05:20:     at fk (/var/www/jobportal/.next/server/chunks/7659.js:404:40839)
+2025-09-15T10:05:20:     at async ft (/var/www/jobportal/.next/server/chunks/7659.js:404:50264)
+2025-09-15T10:05:20:     at async fv (/var/www/jobportal/.next/server/chunks/7659.js:404:54516)
+2025-09-15T10:05:20:     at async rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21042)
+2025-09-15T10:05:20:     at async rN.handle (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:25860)
+2025-09-15T10:05:20:     at async k (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:3503)
+2025-09-15T10:05:20:     at async rN.handleResponse (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:1:105568)
+2025-09-15T10:05:20:     at async g (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:4506)
+2025-09-15T10:05:20:     at async B (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:5628)
+2025-09-15T10:05:20:     at async NextNodeServer.renderToResponseWithComponentsImpl (/var/www/jobportal/node_modules/next/dist/server/base-server.js:1422:9)
+2025-09-15T10:51:29:    ▲ Next.js 15.5.2
+2025-09-15T10:51:29:    - Local:        http://localhost:3000
+2025-09-15T10:51:29:    - Network:      http://69.62.73.84:3000
+2025-09-15T10:51:29: 
+2025-09-15T10:51:29:  ✓ Starting...
+2025-09-15T10:51:29:  ✓ Ready in 300ms
+2025-09-15T10:52:12:    ▲ Next.js 15.5.2
+2025-09-15T10:52:12:    - Local:        http://localhost:3000
+2025-09-15T10:52:12:    - Network:      http://69.62.73.84:3000
+2025-09-15T10:52:12: 
+2025-09-15T10:52:12:  ✓ Starting...
+2025-09-15T10:52:12:  ✓ Ready in 317ms
+2025-09-15T10:52:58: [31m[auth][error][0m OAuthAccountNotLinked: Another account already exists with the same e-mail address. Read more at https://errors.authjs.dev#oauthaccountnotlinked
+2025-09-15T10:52:58:     at dk (/var/www/jobportal/.next/server/chunks/7659.js:404:3047)
+2025-09-15T10:52:58:     at async fk (/var/www/jobportal/.next/server/chunks/7659.js:404:38403)
+2025-09-15T10:52:58:     at async ft (/var/www/jobportal/.next/server/chunks/7659.js:404:49833)
+2025-09-15T10:52:58:     at async fv (/var/www/jobportal/.next/server/chunks/7659.js:404:54516)
+2025-09-15T10:52:58:     at async rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21042)
+2025-09-15T10:52:58:     at async rN.handle (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:25860)
+2025-09-15T10:52:58:     at async k (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:3503)
+2025-09-15T10:52:58:     at async rN.handleResponse (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:1:105568)
+2025-09-15T10:52:58:     at async g (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:4506)
+2025-09-15T10:52:58:     at async B (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:5628)
+2025-09-15T10:53:01: [31m[auth][error][0m CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+2025-09-15T10:53:01:     at fk (/var/www/jobportal/.next/server/chunks/7659.js:404:40839)
+2025-09-15T10:53:01:     at async ft (/var/www/jobportal/.next/server/chunks/7659.js:404:50264)
+2025-09-15T10:53:01:     at async fv (/var/www/jobportal/.next/server/chunks/7659.js:404:54516)
+2025-09-15T10:53:01:     at async rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21042)
+2025-09-15T10:53:01:     at async rN.handle (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:25860)
+2025-09-15T10:53:01:     at async k (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:3503)
+2025-09-15T10:53:01:     at async rN.handleResponse (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:1:105568)
+2025-09-15T10:53:01:     at async g (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:4506)
+2025-09-15T10:53:01:     at async B (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:5628)
+2025-09-15T10:53:01:     at async NextNodeServer.renderToResponseWithComponentsImpl (/var/www/jobportal/node_modules/next/dist/server/base-server.js:1422:9)
+2025-09-15T10:53:31: [31m[auth][error][0m CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+2025-09-15T10:53:31:     at fk (/var/www/jobportal/.next/server/chunks/7659.js:404:40839)
+2025-09-15T10:53:31:     at async ft (/var/www/jobportal/.next/server/chunks/7659.js:404:50264)
+2025-09-15T10:53:31:     at async fv (/var/www/jobportal/.next/server/chunks/7659.js:404:54516)
+2025-09-15T10:53:31:     at async rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21042)
+2025-09-15T10:53:31:     at async rN.handle (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:25860)
+2025-09-15T10:53:31:     at async k (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:3503)
+2025-09-15T10:53:31:     at async rN.handleResponse (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:1:105568)
+2025-09-15T10:53:31:     at async g (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:4506)
+2025-09-15T10:53:31:     at async B (/var/www/jobportal/.next/server/app/api/auth/[...nextauth]/route.js:1:5628)
+2025-09-15T10:53:31:     at async NextNodeServer.renderToResponseWithComponentsImpl (/var/www/jobportal/node_modules/next/dist/server/base-server.js:1422:9)
+2025-09-15T11:19:06:    ▲ Next.js 15.5.2
+2025-09-15T11:19:06:    - Local:        http://localhost:3000
+2025-09-15T11:19:06:    - Network:      http://69.62.73.84:3000
+2025-09-15T11:19:06: 
+2025-09-15T11:19:06:  ✓ Starting...
+2025-09-15T11:19:06:  ✓ Ready in 296ms
