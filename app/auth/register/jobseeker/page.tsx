@@ -32,7 +32,7 @@ export default function JobSeekerRegisterPage() {
   
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  // const { login } = useAuth(); // Removed - using NextAuth instead
   const { data: session, status } = useSession();
 
   // Check if this is setup mode (coming from role selection)
@@ -155,8 +155,7 @@ export default function JobSeekerRegisterPage() {
           // Profile updated successfully, redirect to dashboard
           router.push('/dashboard/jobseeker');
         } else {
-          // Use the AuthContext login function
-          login(data.user, data.token);
+          // User registered successfully - NextAuth will handle session
           
           // Redirect to jobseeker dashboard
           router.push('/dashboard/jobseeker');

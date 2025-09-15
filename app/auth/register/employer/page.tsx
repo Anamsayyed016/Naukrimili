@@ -41,7 +41,7 @@ export default function EmployerRegisterPage() {
   
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  // const { login } = useAuth(); // Removed - using NextAuth instead
   const { data: session, status } = useSession();
 
   // Check if this is setup mode (coming from role selection)
@@ -163,8 +163,7 @@ export default function EmployerRegisterPage() {
           // Profile updated successfully, redirect to dashboard
           router.push('/dashboard/company');
         } else {
-          // Use the AuthContext login function
-          login(data.user, data.token);
+          // User registered successfully - NextAuth will handle session
           
           // Redirect to employer dashboard
           router.push('/dashboard/company');
