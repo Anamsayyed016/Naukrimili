@@ -324,16 +324,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       console.log('🔗 Account linked:', { userId: user.id, provider: account.provider });
     },
   },
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error'
-  },
   session: {
     strategy: 'jwt',
     maxAge: 24 * 60 * 60, // 1 day (reduced from 30 days)
   },
-  useSecureCookies: process.env.NODE_ENV === 'production',
-  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-key-change-in-production',
-  trustHost: true,
-  debug: false,
+  useSecureCookies: process.env.NODE_ENV === 'production'
 });
