@@ -61,14 +61,14 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
-    setError('')
-  }
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setError('');
+  };
 
   const handleCredentialsAuth = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading('credentials')
-    setError('')
+    e.preventDefault();
+    setIsLoading('credentials');
+    setError('');
 
     try {
       const result = await signIn('credentials', {
@@ -78,43 +78,58 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
       })
 
       if (result?.error) {
-        setError('Invalid credentials')
-      } else {
-        window.location.href = '/'
+        setError('Invalid credentials');
+      } else if (result?.ok) {
+        // Success - redirect to role selection
+        window.location.href = '/auth/role-selection';
       }
     } catch (error) {
-      setError('Authentication failed')
+      setError('Authentication failed');
     } finally {
-      setIsLoading('')
+      setIsLoading('');
     }
   }
 
   const handleOAuthSignIn = async (provider: 'google' | 'linkedin') => {
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(provider);
+    setError('');
 
     try {
       // Get mobile-optimized authentication method
       const authMethod = getMobileAuthMethodWithFallback();
       console.log('🔐 Mobile auth method:', authMethod);
 
-      const result = await signIn(provider, {
-        callbackUrl: '/',
-        redirect: authMethod.method === 'redirect' || authMethod.method === 'fallback'
-      });
+      const shouldRedirect = authMethod.method === 'redirect' || authMethod.method === 'fallback';
+      
+      if (shouldRedirect) {
+        // Use redirect flow
+        await signIn(provider, {
+          callbackUrl: '/auth/role-selection',
+          redirect: true
+        });
+      } else {
+        // Use popup flow
+        const result = await signIn(provider, {
+          callbackUrl: '/auth/role-selection',
+          redirect: false
+        });
 
-      if (result?.error) {
-        // Get mobile-specific error message with solution
-        const mobileError = getMobileErrorMessageWithSolution(result.error, 'oauth');
-        setError(`${mobileError.message}. ${mobileError.solution}`);
-        console.error('❌ OAuth error:', mobileError);
+        if (result?.error) {
+          // Get mobile-specific error message with solution
+          const mobileError = getMobileErrorMessageWithSolution(result.error, 'oauth');
+          setError(`${mobileError.message}. ${mobileError.solution}`);
+          console.error('❌ OAuth error:', mobileError);
+        } else if (result?.ok) {
+          // Success - redirect to role selection
+          window.location.href = '/auth/role-selection';
+        }
       }
     } catch (err: any) {
       const mobileError = getMobileErrorMessageWithSolution(err, 'oauth');
       setError(`${mobileError.message}. ${mobileError.solution}`);
       console.error('❌ OAuth signin failed:', err);
     } finally {
-      setIsLoading(false);
+      setIsLoading('');
     }
   };
 
