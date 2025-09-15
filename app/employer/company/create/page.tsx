@@ -143,8 +143,13 @@ export default function CreateCompanyPage() {
 
   // AI-powered content generation
   const generateAIContent = async (type: 'description' | 'benefits' | 'specialties') => {
-    if (!formData.name || !formData.industry) {
-      toast.error('Please enter company name and industry first');
+    if (!formData.name) {
+      toast.error('Please enter company name first');
+      return;
+    }
+
+    if ((type === 'benefits' || type === 'specialties') && !formData.industry) {
+      toast.error('Please select an industry first for better suggestions');
       return;
     }
 
@@ -156,7 +161,7 @@ export default function CreateCompanyPage() {
         body: JSON.stringify({
           type,
           companyName: formData.name,
-          industry: formData.industry,
+          industry: formData.industry || 'Technology', // Default fallback
           existingData: formData
         })
       });
@@ -167,23 +172,24 @@ export default function CreateCompanyPage() {
         switch (type) {
           case 'description':
             setFormData(prev => ({ ...prev, description: data.suggestion }));
-            toast.success('AI-generated description added!');
+            toast.success('🎉 AI-generated description added!');
             break;
           case 'benefits':
             setFormData(prev => ({ ...prev, benefits: data.suggestions }));
-            toast.success('AI-suggested benefits added!');
+            toast.success('🎉 AI-suggested benefits added!');
             break;
           case 'specialties':
             setFormData(prev => ({ ...prev, specialties: data.suggestions }));
-            toast.success('AI-suggested specialties added!');
+            toast.success('🎉 AI-suggested specialties added!');
             break;
         }
       } else {
-        toast.error('Failed to generate AI content');
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Failed to generate AI content');
       }
     } catch (error) {
       console.error('AI generation error:', error);
-      toast.error('Failed to generate AI content');
+      toast.error('Network error: Failed to generate AI content');
     } finally {
       setAiGenerating(false);
     }
@@ -344,7 +350,7 @@ export default function CreateCompanyPage() {
 
                   <div className="space-y-6">
                     <div>
-                      <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
+                      <Label htmlFor="name" className="text-base font-bold text-gray-900">
                         Company Name *
                       </Label>
                       <Input
@@ -352,14 +358,14 @@ export default function CreateCompanyPage() {
                         value={formData.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
                         placeholder="e.g., TechCorp Solutions"
-                        className="mt-1 h-12 text-lg bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 h-12 text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                         required
                       />
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
+                      <div className="flex items-center justify-between mb-3">
+                        <Label htmlFor="description" className="text-base font-bold text-gray-900">
                           Company Description *
                         </Label>
                         <Button
@@ -367,18 +373,18 @@ export default function CreateCompanyPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => generateAIContent('description')}
-                          disabled={aiGenerating || !formData.name || !formData.industry}
-                          className="text-xs"
+                          disabled={aiGenerating || !formData.name.trim()}
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium"
                         >
                           {aiGenerating ? (
                             <>
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                               Generating...
                             </>
                           ) : (
                             <>
-                              <Brain className="h-3 w-3 mr-1" />
-                              AI Generate
+                              <Brain className="h-4 w-4 mr-2" />
+                              AI Generate Description
                             </>
                           )}
                         </Button>
@@ -389,16 +395,18 @@ export default function CreateCompanyPage() {
                         onChange={(e) => handleInputChange('description', e.target.value)}
                         placeholder="Describe your company, mission, and what makes you unique..."
                         rows={4}
-                        className="mt-1 text-lg bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">
-                        💡 {aiSuggestions.description}
-                      </p>
+                      <div className="mt-2 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                        <p className="text-sm text-blue-700 font-medium">
+                          💡 {aiSuggestions.description}
+                        </p>
+                      </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="website" className="text-sm font-semibold text-gray-700">
+                      <Label htmlFor="website" className="text-base font-bold text-gray-900">
                         Website
                       </Label>
                       <Input
@@ -407,7 +415,7 @@ export default function CreateCompanyPage() {
                         value={formData.website}
                         onChange={(e) => handleInputChange('website', e.target.value)}
                         placeholder="https://yourcompany.com"
-                        className="mt-1 h-12 text-lg"
+                        className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                       />
                     </div>
                   </div>
@@ -431,7 +439,7 @@ export default function CreateCompanyPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Label htmlFor="location" className="text-sm font-semibold text-gray-700">
+                      <Label htmlFor="location" className="text-base font-bold text-gray-900">
                         Location *
                       </Label>
                       <Input
@@ -439,23 +447,30 @@ export default function CreateCompanyPage() {
                         value={formData.location}
                         onChange={(e) => handleInputChange('location', e.target.value)}
                         placeholder="e.g., Bangalore, India"
-                        className="mt-1 h-12 text-lg"
+                        className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                         required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="industry" className="text-sm font-semibold text-gray-700">
+                      <Label htmlFor="industry" className="text-base font-bold text-gray-900">
                         Industry *
                       </Label>
                       <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
-                        <SelectTrigger className="mt-1 h-12 text-lg">
-                          <SelectValue placeholder="Select industry" />
+                        <SelectTrigger className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm">
+                          <SelectValue placeholder="Select your industry" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-60 overflow-y-auto">
                           {industries.map((industry) => (
-                            <SelectItem key={industry} value={industry}>
-                              {industry}
+                            <SelectItem 
+                              key={industry} 
+                              value={industry}
+                              className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Building2 className="h-4 w-4 text-blue-600" />
+                                {industry}
+                              </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -463,17 +478,24 @@ export default function CreateCompanyPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="size" className="text-sm font-semibold text-gray-700">
+                      <Label htmlFor="size" className="text-base font-bold text-gray-900">
                         Company Size *
                       </Label>
                       <Select value={formData.size} onValueChange={(value) => handleInputChange('size', value)}>
-                        <SelectTrigger className="mt-1 h-12 text-lg">
-                          <SelectValue placeholder="Select size" />
+                        <SelectTrigger className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm">
+                          <SelectValue placeholder="Select company size" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-60 overflow-y-auto">
                           {companySizes.map((size) => (
-                            <SelectItem key={size} value={size}>
-                              {size} employees
+                            <SelectItem 
+                              key={size} 
+                              value={size}
+                              className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Users className="h-4 w-4 text-green-600" />
+                                {size} employees
+                              </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -481,7 +503,7 @@ export default function CreateCompanyPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="founded" className="text-sm font-semibold text-gray-700">
+                      <Label htmlFor="founded" className="text-base font-bold text-gray-900">
                         Founded Year
                       </Label>
                       <Input
@@ -492,7 +514,7 @@ export default function CreateCompanyPage() {
                         placeholder="e.g., 2020"
                         min="1900"
                         max={new Date().getFullYear()}
-                        className="mt-1 h-12 text-lg"
+                        className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                       />
                     </div>
                   </div>
@@ -518,7 +540,7 @@ export default function CreateCompanyPage() {
                     {/* Mission & Vision */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="mission" className="text-sm font-semibold text-gray-700">
+                        <Label htmlFor="mission" className="text-base font-bold text-gray-900">
                           Mission Statement
                         </Label>
                         <Textarea
@@ -527,11 +549,11 @@ export default function CreateCompanyPage() {
                           onChange={(e) => handleInputChange('mission', e.target.value)}
                           placeholder="What is your company's purpose?"
                           rows={3}
-                          className="mt-1 text-lg"
+                          className="mt-1 text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="vision" className="text-sm font-semibold text-gray-700">
+                        <Label htmlFor="vision" className="text-base font-bold text-gray-900">
                           Vision Statement
                         </Label>
                         <Textarea
@@ -540,14 +562,14 @@ export default function CreateCompanyPage() {
                           onChange={(e) => handleInputChange('vision', e.target.value)}
                           placeholder="What does your company aspire to achieve?"
                           rows={3}
-                          className="mt-1 text-lg"
+                          className="mt-1 text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
                         />
                       </div>
                     </div>
 
                     {/* Company Culture */}
                     <div>
-                      <Label htmlFor="culture" className="text-sm font-semibold text-gray-700">
+                      <Label htmlFor="culture" className="text-base font-bold text-gray-900">
                         Company Culture
                       </Label>
                       <Textarea
@@ -556,14 +578,14 @@ export default function CreateCompanyPage() {
                         onChange={(e) => handleInputChange('culture', e.target.value)}
                         placeholder="Describe your company culture, values, and work environment..."
                         rows={3}
-                        className="mt-1 text-lg"
+                        className="mt-1 text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
                       />
                     </div>
 
                     {/* Employee Benefits */}
                     <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <Label className="text-sm font-semibold text-gray-700">
+                      <div className="flex items-center justify-between mb-4">
+                        <Label className="text-base font-bold text-gray-900">
                           Employee Benefits
                         </Label>
                         <Button
@@ -571,23 +593,23 @@ export default function CreateCompanyPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => generateAIContent('benefits')}
-                          disabled={aiGenerating}
-                          className="text-xs"
+                          disabled={aiGenerating || !formData.industry}
+                          className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 hover:from-green-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium"
                         >
                           {aiGenerating ? (
                             <>
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                               Generating...
                             </>
                           ) : (
                             <>
-                              <Brain className="h-3 w-3 mr-1" />
-                              AI Suggest
+                              <Brain className="h-4 w-4 mr-2" />
+                              AI Suggest Benefits
                             </>
                           )}
                         </Button>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {commonBenefits.map((benefit) => (
                           <Button
                             key={benefit}
@@ -595,26 +617,28 @@ export default function CreateCompanyPage() {
                             variant={formData.benefits?.includes(benefit) ? "default" : "outline"}
                             size="sm"
                             onClick={() => handleBenefitToggle(benefit)}
-                            className={`text-xs h-8 ${
+                            className={`h-10 text-sm font-medium transition-all duration-200 ${
                               formData.benefits?.includes(benefit)
-                                ? 'bg-blue-600 text-white'
-                                : 'hover:bg-blue-50'
+                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
+                                : 'hover:bg-blue-50 border-2 border-gray-300 hover:border-blue-400'
                             }`}
                           >
-                            {formData.benefits?.includes(benefit) && <CheckCircle className="h-3 w-3 mr-1" />}
+                            {formData.benefits?.includes(benefit) && <CheckCircle className="h-4 w-4 mr-2" />}
                             {benefit}
                           </Button>
                         ))}
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">
-                        💡 {aiSuggestions.benefits}
-                      </p>
+                      <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                        <p className="text-sm text-green-700 font-medium">
+                          💡 {aiSuggestions.benefits}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Company Specialties */}
                     <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <Label className="text-sm font-semibold text-gray-700">
+                      <div className="flex items-center justify-between mb-4">
+                        <Label className="text-base font-bold text-gray-900">
                           Company Specialties
                         </Label>
                         <Button
@@ -622,38 +646,53 @@ export default function CreateCompanyPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => generateAIContent('specialties')}
-                          disabled={aiGenerating}
-                          className="text-xs"
+                          disabled={aiGenerating || !formData.industry}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg px-4 py-2 text-sm font-medium"
                         >
                           {aiGenerating ? (
                             <>
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-1"></div>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                               Generating...
                             </>
                           ) : (
                             <>
-                              <Brain className="h-3 w-3 mr-1" />
-                              AI Suggest
+                              <Brain className="h-4 w-4 mr-2" />
+                              AI Suggest Specialties
                             </>
                           )}
                         </Button>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {formData.specialties?.map((specialty, index) => (
-                          <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                            {specialty}
-                            <button
-                              type="button"
-                              onClick={() => handleSpecialtyToggle(specialty)}
-                              className="ml-1 hover:text-red-600"
-                            >
-                              ×
-                            </button>
-                          </Badge>
-                        ))}
+                      
+                      {/* Selected Specialties */}
+                      {formData.specialties && formData.specialties.length > 0 && (
+                        <div className="mb-4">
+                          <div className="flex flex-wrap gap-2">
+                            {formData.specialties.map((specialty, index) => (
+                              <Badge 
+                                key={index} 
+                                variant="secondary" 
+                                className="flex items-center gap-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-300 px-3 py-2 text-sm font-medium"
+                              >
+                                <Target className="h-3 w-3" />
+                                {specialty}
+                                <button
+                                  type="button"
+                                  onClick={() => handleSpecialtyToggle(specialty)}
+                                  className="ml-1 hover:text-red-600 hover:bg-red-100 rounded-full p-0.5 transition-colors"
+                                >
+                                  ×
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Add New Specialty */}
+                      <div className="flex gap-2">
                         <Input
-                          placeholder="Add specialty..."
-                          className="w-32 h-8 text-xs"
+                          placeholder="Add a specialty..."
+                          className="flex-1 h-10 text-sm border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg"
                           onKeyPress={(e) => {
                             if (e.key === 'Enter') {
                               const input = e.target as HTMLInputElement;
@@ -664,10 +703,20 @@ export default function CreateCompanyPage() {
                             }
                           }}
                         />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-10 px-4 border-2 border-purple-300 text-purple-700 hover:bg-purple-50"
+                        >
+                          Add
+                        </Button>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">
-                        💡 {aiSuggestions.specialties}
-                      </p>
+                      
+                      <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                        <p className="text-sm text-purple-700 font-medium">
+                          💡 {aiSuggestions.specialties}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
