@@ -14,26 +14,33 @@ import bcrypt from "bcryptjs"
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-if (!googleClientId || !googleClientSecret || 
-    googleClientId.includes('your-') || googleClientSecret.includes('your-')) {
-  console.warn('⚠️ Google OAuth credentials not properly configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env.local');
+// Only add Google provider if credentials are properly configured
+const providers = [];
+
+if (googleClientId && googleClientSecret && 
+    !googleClientId.includes('your-') && !googleClientSecret.includes('your-') &&
+    googleClientId !== '' && googleClientSecret !== '') {
+  providers.push(Google({
+    clientId: googleClientId,
+    clientSecret: googleClientSecret,
+    authorization: {
+      params: {
+        scope: 'openid email profile',
+        prompt: 'select_account',
+        access_type: 'offline',
+        response_type: 'code'
+      }
+    }
+  }));
+  console.log('✅ Google OAuth provider configured successfully');
+} else {
+  console.warn('⚠️ Google OAuth credentials not properly configured. Google sign-in will be disabled.');
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      authorization: {
-        params: {
-          scope: 'openid email profile',
-          prompt: 'select_account',
-          access_type: 'offline',
-          response_type: 'code'
-        }
-      }
-    }),
+    ...providers,
     Credentials({
       name: 'credentials',
       credentials: {
