@@ -1,4 +1,3 @@
-// Minimal Prisma schema focusing on external job aggregation storage only.
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,47 +8,50 @@ datasource db {
 }
 
 model Job {
-  id              String    @id @default(cuid())
-  source          String    @default("manual")
-  sourceId        String    @default(cuid())
-  title           String
-  company         String?
-  companyLogo     String?   // Company logo URL
-  location        String?
-  country         String    @default("IN")
-  description     String
-  requirements    String   // JSON string of requirements array
-  applyUrl        String?   // @deprecated - use apply_url instead
-  apply_url       String?   // New field for internal application URL
-  source_url      String?   // New field for external source URL
-  postedAt        DateTime?
-  salary          String?
-  salaryMin       Int?      // Minimum salary in local currency
-  salaryMax       Int?      // Maximum salary in local currency  
-  salaryCurrency  String?   // Currency code (INR, USD, etc.)
-  jobType         String?   // full-time, part-time, contract, internship
-  experienceLevel String?   // entry, mid, senior, executive
-  skills          String   // JSON string of required skills array
-  isRemote        Boolean   @default(false)
-  isHybrid        Boolean   @default(false)
-  isUrgent        Boolean   @default(false)
-  isFeatured      Boolean   @default(false)
-  isActive        Boolean   @default(true)
-  sector          String?   // Technology, Finance, Healthcare, etc.
-  views           Int       @default(0)
-  applicationsCount Int     @default(0)
-  createdBy       String?   // User who created this job
-  companyId       String?   // Company this job belongs to
-  rawJson         Json?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  // Relations
-  bookmarks       JobBookmark[]
-  applications    Application[]
-  companyRelation Company?  @relation(fields: [companyId], references: [id])
-  creator         User?     @relation(fields: [createdBy], references: [id])
-  
+  id                String        @id @default(cuid())
+  source            String        @default("manual")
+  sourceId          String        @default(cuid())
+  title             String
+  company           String?
+  companyLogo       String?
+  location          String?
+  country           String        @default("IN")
+  description       String
+  requirements      String
+  applyUrl          String?
+  apply_url         String?
+  source_url        String?
+  postedAt          DateTime?
+  salary            String?
+  salaryMin         Int?
+  salaryMax         Int?
+  salaryCurrency    String?
+  jobType           String?
+  experienceLevel   String?
+  skills            String
+  isRemote          Boolean       @default(false)
+  isHybrid          Boolean       @default(false)
+  isUrgent          Boolean       @default(false)
+  isFeatured        Boolean       @default(false)
+  isActive          Boolean       @default(true)
+  sector            String?
+  views             Int           @default(0)
+  applicationsCount Int           @default(0)
+  createdBy         String?
+  companyId         String?
+  rawJson           Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
+  applications      Application[]
+  companyRelation   Company?      @relation(fields: [companyId], references: [id])
+  creator           User?         @relation(fields: [createdBy], references: [id])
+  bookmarks         JobBookmark[]
+
   @@unique([source, sourceId])
   @@index([isActive, createdAt])
   @@index([country, location, isActive])
@@ -67,82 +69,81 @@ model Job {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  emailVerified   DateTime?
-  name            String?
-  image           String?
-  password        String?   // Optional for OAuth users
-  firstName       String?
-  lastName        String?
-  role            String?   // jobseeker, employer, admin (null means role not selected yet)
-  phone           String?
-  location        String?
-  bio             String?   
-  skills          String   @default("[]") // JSON string of skills array
-  experience      String?   
-  education       String?   
-  profilePicture  String?
-  isVerified      Boolean   @default(false)
-  isActive        Boolean   @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  // Job Seeker specific fields
-  resumeUrl       String?   // Resume file URL
-  locationPreference String? // Preferred job locations
-  salaryExpectation Int?    // Expected salary
-  jobTypePreference String?  // full-time, part-time, contract, internship
-  remotePreference Boolean  @default(false) // Remote work preference
-  
-  // Employer specific fields
-  companyName     String?   // Company name
-  recruiterName  String?   // Recruiter's name
-  companyWebsite  String?   // Company website
-  companyIndustry String?   // Company industry
-  companySize     String?   // Company size (1-10, 11-50, etc.)
-  companyFounded  Int?      // Company founding year
-  
-  // OAuth Relations
-  accounts        Account[]
-  sessions        Session[]
-  
-  // Relations  
-  bookmarks       JobBookmark[]
-  createdJobs     Job[]
-  createdCompanies Company[]
-  resumes         Resume[]
-  applications    Application[]
-  sentMessages    Message[]   @relation("SentMessages")
-  receivedMessages Message[]  @relation("ReceivedMessages")
-  settings        Settings[]
-  notifications   Notification[]
+  id                 String         @id @default(cuid())
+  email              String         @unique
+  emailVerified      DateTime?
+  name               String?
+  image              String?
+  password           String?
+  firstName          String?
+  lastName           String?
+  role               String?
+  phone              String?
+  location           String?
+  bio                String?
+  skills             String         @default("[]")
+  experience         String?
+  education          String?
+  profilePicture     String?
+  isVerified         Boolean        @default(false)
+  isActive           Boolean        @default(true)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
+  resumeUrl          String?
+  locationPreference String?
+  salaryExpectation  Int?
+  jobTypePreference  String?
+  remotePreference   Boolean        @default(false)
+  companyName        String?
+  recruiterName      String?
+  companyWebsite     String?
+  companyIndustry    String?
+  companySize        String?
+  companyFounded     Int?
+  accounts           Account[]
+  applications       Application[]
+  createdCompanies   Company[]
+  createdJobs        Job[]
+  bookmarks          JobBookmark[]
+  receivedMessages   Message[]      @relation("ReceivedMessages")
+  sentMessages       Message[]      @relation("SentMessages")
+  notifications      Notification[]
+  resumes            Resume[]
+  sessions           Session[]
+  settings           Settings[]
 }
 
-// NextAuth.js OAuth Account Model
 model Account {
   id                String   @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  
-  access_token      String?  
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  
+  id_token          String?
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
 
-// NextAuth.js Session Model
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -150,12 +151,16 @@ model Session {
   expires      DateTime
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId])
 }
 
-// NextAuth.js Verification Token Model
 model VerificationToken {
   id         String   @id @default(cuid())
   identifier String
@@ -169,88 +174,94 @@ model JobBookmark {
   id        String   @id @default(cuid())
   userId    String
   jobId     String
-  notes     String?  
+  notes     String?
   createdAt DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, jobId])
   @@index([userId])
   @@index([jobId])
 }
 
 model Company {
-  id              String   @id @default(cuid())
-  name            String
-  description     String?  
-  logo            String?
-  website         String?
-  location        String?
-  industry        String?
-  size            String?  // e.g., "1-10", "11-50", "51-200", etc.
-  founded         Int?
-  isVerified      Boolean  @default(false)
-  isActive        Boolean  @default(true)
-  socialLinks     String?  // JSON string of social media links
-  createdBy       String?  // User who created this company
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  jobs            Job[]
-  creator         User?    @relation(fields: [createdBy], references: [id])
-  applications    Application[]
-  
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  logo         String?
+  website      String?
+  location     String?
+  industry     String?
+  size         String?
+  founded      Int?
+  isVerified   Boolean       @default(false)
+  isActive     Boolean       @default(true)
+  socialLinks  String?
+  createdBy    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
+  applications Application[]
+  creator      User?         @relation(fields: [createdBy], references: [id])
+  jobs         Job[]
+
   @@index([createdBy])
   @@index([industry])
   @@index([location])
 }
 
 model Resume {
-  id        String   @id @default(cuid())
-  userId    String
-  fileName  String
-  fileUrl   String
-  fileSize  Int?
-  mimeType  String?
-  parsedData Json?   // AI-extracted resume data
-  atsScore  Int?     // ATS compatibility score
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // NEW: Builder-specific fields
-  isBuilder     Boolean  @default(false) // Distinguish upload vs builder
-  templateStyle String?  // For builder resumes (e.g., "modern", "classic", "creative")
-  builderData   Json?    // Builder-generated content structure
-  colorScheme   String?  // Color theme for builder resumes
-  
-  // Relations
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  applications Application[]
-  
+  id            String        @id @default(cuid())
+  userId        String
+  fileName      String
+  fileUrl       String
+  fileSize      Int?
+  mimeType      String?
+  parsedData    Json?
+  atsScore      Int?
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
+  isBuilder     Boolean       @default(false)
+  templateStyle String?
+  builderData   Json?
+  colorScheme   String?
+  applications  Application[]
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
 
 model Application {
-  id        String   @id @default(cuid())
-  userId    String
-  jobId     String
-  companyId String?
-  resumeId  String?
-  status    String   @default("submitted") // submitted, reviewed, interview, rejected, hired
-  coverLetter String? 
-  notes     String?  
-  appliedAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relations
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  userId      String
+  jobId       String
+  companyId   String?
+  resumeId    String?
+  status      String   @default("submitted")
+  coverLetter String?
+  notes       String?
+  appliedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
   company     Company? @relation(fields: [companyId], references: [id])
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
   resume      Resume?  @relation(fields: [resumeId], references: [id])
-  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, jobId])
   @@index([userId])
   @@index([jobId])
@@ -258,18 +269,16 @@ model Application {
 }
 
 model Message {
-  id              String   @id @default(cuid())
-  senderId        String
-  receiverId      String
-  content         String   
-  isRead          Boolean  @default(false)
-  messageType     String   @default("text") // text, system, notification
-  createdAt       DateTime @default(now())
-  
-  // Relations
-  sender         User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver       User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
-  
+  id          String   @id @default(cuid())
+  senderId    String
+  receiverId  String
+  content     String
+  isRead      Boolean  @default(false)
+  messageType String   @default("text")
+  createdAt   DateTime @default(now())
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
   @@index([senderId])
   @@index([receiverId])
   @@index([createdAt])
@@ -282,6 +291,11 @@ model Category {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
 }
 
 model Settings {
@@ -291,43 +305,53 @@ model Settings {
   value     Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  // Relations
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, key])
   @@index([userId])
 }
 
 model StaticContent {
   id        String   @id @default(cuid())
-  key       String   @unique // e.g., "terms", "privacy", "about"
+  key       String   @unique
   title     String
-  content   String   
+  content   String
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
+
   @@index([key])
 }
 
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // WELCOME, JOB_MATCH, APPLICATION_UPDATE, SYSTEM, etc.
+  type      String
   title     String
-  message   String   
+  message   String
   isRead    Boolean  @default(false)
-  data      Json?    // Additional notification data
+  data      Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  // Relations
+  benefits     String?
+  specialties  String?
+  culture      String?
+  mission      String?
+  vision       String?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([userId])
   @@index([type])
   @@index([isRead])
   @@index([createdAt])
 }
-
