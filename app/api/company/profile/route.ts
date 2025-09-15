@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireEmployerAuth } from "@/lib/auth-utils";
+import { requireAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireEmployerAuth();
+    const auth = await requireAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { user } = auth;
+    
+    // Check if user is an employer
+    if (user.role !== 'employer') {
+      return NextResponse.json(
+        { error: "Access denied. Employer account required." },
+        { status: 403 }
+      );
+    }
     
     // Get company profile
     const company = await prisma.company.findFirst({
@@ -18,18 +26,27 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         description: true,
+        logo: true,
         website: true,
         location: true,
         industry: true,
         size: true,
         founded: true,
-        isVerified: true
+        isVerified: true,
+        socialLinks: true,
+        benefits: true,
+        specialties: true,
+        culture: true,
+        mission: true,
+        vision: true,
+        createdAt: true,
+        updatedAt: true
       }
     });
 
     if (!company) {
       return NextResponse.json(
-        { error: "Company not found" },
+        { error: "Company profile not found" },
         { status: 404 }
       );
     }
@@ -63,6 +80,7 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       );
     }
+    
     const body = await request.json();
     
     const {
@@ -111,12 +129,12 @@ export async function POST(request: NextRequest) {
         industry,
         size,
         founded: founded ? parseInt(founded) : null,
-        benefits: benefits || [],
-        specialties: specialties || [],
+        benefits: benefits ? JSON.stringify(benefits) : null,
+        specialties: specialties ? JSON.stringify(specialties) : null,
         culture: culture || '',
         mission: mission || '',
         vision: vision || '',
-        socialLinks: socialLinks || {},
+        socialLinks: socialLinks ? JSON.stringify(socialLinks) : null,
         isVerified: false,
         createdBy: user.id
       }
@@ -138,12 +156,21 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const auth = await requireEmployerAuth();
+    const auth = await requireAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { user } = auth;
+    
+    // Check if user is an employer
+    if (user.role !== 'employer') {
+      return NextResponse.json(
+        { error: "Access denied. Employer account required." },
+        { status: 403 }
+      );
+    }
+    
     const body = await request.json();
     
     const {
@@ -181,12 +208,12 @@ export async function PUT(request: NextRequest) {
         industry,
         size,
         founded: founded ? parseInt(founded) : null,
-        benefits: benefits || [],
-        specialties: specialties || [],
+        benefits: benefits ? JSON.stringify(benefits) : null,
+        specialties: specialties ? JSON.stringify(specialties) : null,
         culture: culture || '',
         mission: mission || '',
         vision: vision || '',
-        socialLinks: socialLinks || {}
+        socialLinks: socialLinks ? JSON.stringify(socialLinks) : null
       }
     });
 
@@ -205,12 +232,20 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const auth = await requireEmployerAuth();
+    const auth = await requireAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { user } = auth;
+    
+    // Check if user is an employer
+    if (user.role !== 'employer') {
+      return NextResponse.json(
+        { error: "Access denied. Employer account required." },
+        { status: 403 }
+      );
+    }
 
     // Check if company exists
     const existingCompany = await prisma.company.findFirst({
@@ -219,14 +254,14 @@ export async function DELETE(request: NextRequest) {
 
     if (!existingCompany) {
       return NextResponse.json(
-        { error: "Company not found" },
+        { error: "Company profile not found" },
         { status: 404 }
       );
     }
 
-    // Delete the company
-    await prisma.company.delete({
-      where: { id: existingCompany.id }
+    // Delete company profile
+    await prisma.company.deleteMany({
+      where: { createdBy: user.id }
     });
 
     return NextResponse.json({
@@ -240,8 +275,4 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200 });
 }
