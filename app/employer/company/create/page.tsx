@@ -111,13 +111,15 @@ export default function CreateCompanyPage() {
     vision: ''
   });
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or not an employer
   useEffect(() => {
     if (status === 'loading') return;
     if (status === 'unauthenticated') {
-      router.push('/auth/login?redirect=/employer/company/create');
+      router.push('/auth/signin?redirect=/employer/company/create');
+    } else if (session && session.user.role !== 'employer') {
+      router.push('/auth/role-selection');
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   const handleInputChange = (field: keyof CompanyFormData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -248,7 +250,7 @@ export default function CreateCompanyPage() {
         
         // Redirect to employer dashboard
         setTimeout(() => {
-          router.push('/employer/dashboard');
+          window.location.href = '/employer/dashboard';
         }, 2000);
       } else {
         throw new Error(data.error || 'Failed to create company');
@@ -273,7 +275,25 @@ export default function CreateCompanyPage() {
   }
 
   if (status === 'unauthenticated') {
-    return null;
+    return (
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (session && session.user.role !== 'employer') {
+    return (
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to role selection...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
