@@ -74,7 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, account, profile, trigger }) {
       // Handle initial user data from sign-in
       if (user) {
         token.id = user.id;
@@ -85,8 +85,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         console.log('�� JWT callback - Initial user data:', user);
       }
 
-      // Only fetch user data if this is a fresh login (not a token refresh)
-      if (user && token.id) {
+      // Fetch fresh user data from database if:
+      // 1. This is a fresh login (user exists)
+      // 2. This is a session update triggered by updateSession()
+      if ((user && token.id) || trigger === 'update') {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: token.id as string }
@@ -97,7 +99,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.email = dbUser.email;
             token.name = dbUser.name;
             token.isActive = dbUser.isActive;
-            console.log('🔍 JWT callback - Updated token with latest DB data:', { id: token.id, role: token.role });
+            console.log('🔍 JWT callback - Updated token with latest DB data:', { id: token.id, role: token.role, trigger });
           } else {
             // User not found or inactive, invalidate token
             return {};

@@ -96,19 +96,15 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         
         // Update the session to reflect the new role
         console.log('Updating session...');
-        const sessionResult = await updateSession();
-        console.log('Session update result:', sessionResult);
+        await updateSession();
+        console.log('Session updated');
         
-        // Add a small delay to ensure session is updated
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Force redirect immediately after successful role update
+        // Force a hard redirect with page reload to ensure fresh session data
         console.log('Redirecting to:', role === 'jobseeker' ? '/jobseeker/options' : '/employer/options');
-        if (role === 'jobseeker') {
-          window.location.href = '/jobseeker/options';
-        } else {
-          window.location.href = '/employer/options';
-        }
+        const targetUrl = role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
+        
+        // Use window.location.href to force a full page reload and fresh session
+        window.location.href = targetUrl;
         
         if (onComplete) {
           onComplete({ ...user, role });
