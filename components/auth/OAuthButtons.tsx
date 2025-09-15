@@ -47,6 +47,7 @@ export function OAuthButtons({
       setLoadingProvider(providerId);
       
       console.log(`🔐 OAuth sign-in: ${providerId}`);
+      console.log(`🔐 Callback URL: ${callbackUrl || '/auth/role-selection'}`);
       
       // Use NextAuth signIn with proper redirect
       const result = await signIn(providerId, {

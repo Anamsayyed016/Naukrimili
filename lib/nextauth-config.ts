@@ -232,7 +232,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }
   },
   pages: {
-    signIn: '/',
+    signIn: '/auth/signin',
     error: '/auth/error'
   },
   session: {
