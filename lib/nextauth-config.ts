@@ -277,7 +277,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // Always redirect to role selection after OAuth
+      // For OAuth callbacks, redirect to role selection
+      // The role selection page will handle redirecting existing users to their dashboards
       if (url.includes('/api/auth/callback/')) {
         return `${baseUrl}/auth/role-selection`;
       }
@@ -290,6 +291,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return url;
       }
       
+      // Default redirect to role selection for new users
       return `${baseUrl}/auth/role-selection`;
     }
   },

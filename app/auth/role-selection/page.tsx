@@ -35,11 +35,18 @@ export default function RoleSelectionPage() {
     if (status === 'authenticated' && session?.user) {
       console.log('User is authenticated:', session.user);
       
-      // Only redirect if user has no role - allow users with roles to stay on page
-      if (!session.user.role) {
-        console.log('User authenticated but no role assigned, showing role selection');
+      // If user has a role, redirect to appropriate dashboard
+      if (session.user.role) {
+        console.log('User has role:', session.user.role, '- redirecting to appropriate dashboard');
+        if (session.user.role === 'jobseeker') {
+          router.push('/jobseeker/options');
+        } else if (session.user.role === 'employer') {
+          router.push('/employer/options');
+        } else {
+          console.log('User authenticated but no role assigned, showing role selection');
+        }
       } else {
-        console.log('User has role:', session.user.role, '- allowing to stay on role selection page');
+        console.log('User authenticated but no role assigned, showing role selection');
       }
     }
   }, [session, status, router]);
