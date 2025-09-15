@@ -21,7 +21,6 @@ if (!googleClientId || !googleClientSecret ||
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  allowDangerousEmailAccountLinking: true,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -118,7 +117,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
           
           if (dbUser) {
-            // Update existing user with OAuth data
+            // Update existing user with OAuth data and link the account
             await prisma.user.update({
               where: { id: dbUser.id },
               data: {
@@ -127,6 +126,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 emailVerified: new Date()
               }
             });
+
+            // Ensure the OAuth account is linked to the user
+            const existingAccount = await prisma.account.findFirst({
+              where: {
+                userId: dbUser.id,
+                provider: 'google',
+                providerAccountId: account.providerAccountId
+              }
+            });
+
+            if (!existingAccount) {
+              await prisma.account.create({
+                data: {
+                  userId: dbUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  refresh_token: account.refresh_token as string,
+                  access_token: account.access_token as string,
+                  expires_at: account.expires_at as number,
+                  token_type: account.token_type as string,
+                  scope: account.scope as string,
+                  id_token: account.id_token as string,
+                  session_state: account.session_state as string
+                }
+              });
+              console.log('✅ JWT callback - Linked OAuth account to existing user');
+            }
             
             token.id = dbUser.id;
             token.role = dbUser.role;
@@ -149,6 +176,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 jobTypePreference: 'full-time'
               }
             });
+
+            // Create the OAuth account link
+            await prisma.account.create({
+              data: {
+                userId: newUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                refresh_token: account.refresh_token as string,
+                access_token: account.access_token as string,
+                expires_at: account.expires_at as number,
+                token_type: account.token_type as string,
+                scope: account.scope as string,
+                id_token: account.id_token as string,
+                session_state: account.session_state as string
+              }
+            });
             
             token.id = newUser.id;
             token.email = newUser.email;
@@ -156,7 +200,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.picture = (profile as any).picture || token.picture;
             token.role = null; // Will be set when user selects role
             
-            console.log('✅ JWT callback - Created new OAuth user:', { id: token.id, email: token.email, name: token.name, role: token.role });
+            console.log('✅ JWT callback - Created new OAuth user with account link:', { id: token.id, email: token.email, name: token.name, role: token.role });
           }
         } catch (error) {
           console.error('Error in JWT callback:', error);
@@ -200,6 +244,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
 
           console.log('✅ Google OAuth signIn callback - Profile:', profile.email);
+          
+          // Check if user exists with this email
+          const existingUser = await prisma.user.findUnique({
+            where: { email: profile.email }
+          });
+
+          if (existingUser) {
+            console.log('✅ Existing user found, allowing OAuth linking:', existingUser.email);
+            // Allow linking OAuth account to existing user
+            return true;
+          }
+
+          console.log('✅ New user, allowing OAuth signup:', profile.email);
           return true;
         } catch (error) {
           console.error('Error in Google OAuth signIn callback:', error);
@@ -234,6 +291,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error'
+  },
+  events: {
+    async linkAccount({ user, account, profile }) {
+      console.log('🔗 Account linked:', { userId: user.id, provider: account.provider });
+    },
   },
   session: {
     strategy: 'jwt',
