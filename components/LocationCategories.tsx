@@ -115,7 +115,7 @@ export default function LocationCategories({
       setCategories(newCategories);
       
       // Auto-expand first category on mobile for better UX
-      if (window.innerWidth < 768) {
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
         setExpandedCategory('areas');
       }
       
@@ -141,95 +141,94 @@ export default function LocationCategories({
 
   if (loading) {
     return (
-      <div className={`mt-4 sm:mt-6 ${className}`}>
-        <div className="text-center mb-3 sm:mb-4">
-          <span className="text-xs sm:text-sm font-medium text-gray-600 flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4" />
+      <div className={`mt-3 sm:mt-4 ${className}`}>
+        <div className="text-center mb-2 sm:mb-3">
+          <span className="text-xs sm:text-sm font-medium text-gray-700 flex items-center justify-center gap-2">
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
             AI-Powered Locations
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin text-blue-500" />
           </span>
         </div>
         <div className="flex justify-center">
-          <div className="animate-pulse bg-gray-200 rounded-xl h-12 w-full max-w-md"></div>
+          <div className="animate-pulse bg-gradient-to-r from-gray-800 to-blue-800 rounded-xl h-8 w-full max-w-sm"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`mt-4 sm:mt-6 ${className}`}>
-      {/* Header */}
-      <div className="text-center mb-3 sm:mb-4">
-        <span className="text-xs sm:text-sm font-medium text-gray-600 flex items-center justify-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-500" />
+    <div className={`mt-3 sm:mt-4 ${className}`}>
+      {/* Compact Header */}
+      <div className="text-center mb-2 sm:mb-3">
+        <span className="text-xs sm:text-sm font-medium text-gray-700 flex items-center justify-center gap-2">
+          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
           AI-Powered Locations
-          <Badge className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0 text-xs font-bold">
-            Smart Categories
+          <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 text-xs font-bold px-2 py-0.5">
+            Smart
           </Badge>
         </span>
       </div>
 
-      {/* Categories */}
-      <div className="space-y-3">
+      {/* Compact Categories */}
+      <div className="space-y-2">
         {categories.map((category) => (
-          <div key={category.id} className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 shadow-sm">
+          <div key={category.id} className="bg-gradient-to-r from-gray-900 to-blue-900 rounded-xl border-2 border-blue-500/20 shadow-lg">
             {/* Category Header */}
             <Button
               variant="ghost"
               onClick={() => toggleCategory(category.id)}
-              className="w-full justify-between p-3 sm:p-4 h-auto hover:bg-gray-50 transition-all duration-200"
+              className="w-full justify-between p-2 sm:p-3 h-auto hover:bg-blue-800/20 transition-all duration-200 text-white"
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-1.5 sm:p-2 bg-gradient-to-r from-blue-400 to-purple-500 rounded-lg">
                   {category.icon}
                 </div>
                 <div className="text-left">
-                  <div className="font-semibold text-gray-900 text-sm sm:text-base">
+                  <div className="font-semibold text-white text-xs sm:text-sm">
                     {category.name}
                   </div>
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-blue-200">
                     {category.locations.length} locations • {category.locations.reduce((sum, loc) => sum + loc.jobCount, 0).toLocaleString()} jobs
                   </div>
                 </div>
               </div>
               {expandedCategory === category.id ? (
-                <ChevronDown className="w-4 h-4 text-gray-500 transition-transform" />
+                <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-blue-300 transition-transform" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-gray-500 transition-transform" />
+                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-blue-300 transition-transform" />
               )}
             </Button>
 
-            {/* Category Locations */}
+            {/* Category Locations - Compact Grid */}
             {expandedCategory === category.id && (
-              <div className="px-3 sm:px-4 pb-3 sm:pb-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              <div className="px-2 sm:px-3 pb-2 sm:pb-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-2">
                   {category.locations.map((location) => (
                     <Button
                       key={location.id}
                       variant="outline"
                       size="sm"
                       onClick={() => handleLocationClick(location)}
-                      className={`justify-start h-auto p-2 sm:p-3 text-left transition-all duration-200 ${
+                      className={`justify-start h-auto p-1.5 sm:p-2 text-left transition-all duration-200 ${
                         selectedLocation?.id === location.id
-                          ? 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-500 text-blue-800 shadow-md' 
-                          : 'hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 border-gray-300 hover:border-blue-300'
+                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 border-blue-400 text-white shadow-md' 
+                          : 'bg-white/90 border-white/30 text-gray-800 hover:bg-blue-50 hover:border-blue-300'
                       }`}
                     >
-                      <div className="flex items-center gap-2 w-full">
-                        <span className="text-lg">{location.flag}</span>
+                      <div className="flex items-center gap-1 sm:gap-2 w-full">
+                        <span className="text-sm sm:text-base">{location.flag}</span>
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-xs sm:text-sm truncate">
+                          <div className="font-medium text-xs truncate">
                             {location.name}
                           </div>
-                          <div className="flex items-center gap-1 mt-1">
-                            <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-0 px-1 py-0">
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <Badge variant="secondary" className={`text-xs border-0 px-1 py-0 ${
+                              selectedLocation?.id === location.id
+                                ? 'bg-white/20 text-white'
+                                : 'bg-green-100 text-green-800'
+                            }`}>
                               {location.jobCount.toLocaleString()}
                             </Badge>
-                            {selectedLocation?.id === location.id && (
-                              <Badge className="bg-blue-100 text-blue-800 border-0 text-xs px-1 py-0">
-                                Selected
-                              </Badge>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -242,11 +241,11 @@ export default function LocationCategories({
         ))}
       </div>
 
-      {/* Quick Stats */}
-      <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
+      {/* Compact AI Info */}
+      <div className="mt-2 p-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-400/30">
         <div className="text-center">
-          <div className="text-xs text-blue-700 font-medium">
-            💡 AI analyzes job market data to show the most relevant locations
+          <div className="text-xs text-blue-200 font-medium">
+            💡 AI analyzes job market data for optimal results
           </div>
         </div>
       </div>
