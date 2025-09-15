@@ -301,10 +301,10 @@ export default function CreateCompanyPage() {
                 <div key={step.id} className="flex items-center">
                   <div className="flex items-center">
                     <div className={`
-                      w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300
+                      w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2
                       ${currentStep >= step.id 
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105' 
-                        : 'bg-gray-200 text-gray-600'
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl transform scale-110 border-blue-600' 
+                        : 'bg-white text-gray-600 border-gray-400 shadow-md'
                       }
                     `}>
                       {currentStep > step.id ? (
@@ -314,14 +314,14 @@ export default function CreateCompanyPage() {
                       )}
                     </div>
                     <div className="ml-3 hidden sm:block">
-                      <p className={`text-sm font-medium ${currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'}`}>
+                      <p className={`text-base font-bold ${currentStep >= step.id ? 'text-blue-700' : 'text-gray-600'}`}>
                         {step.title}
                       </p>
-                      <p className="text-xs text-gray-500">{step.description}</p>
+                      <p className={`text-sm font-medium ${currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'}`}>{step.description}</p>
                     </div>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className={`w-4 sm:w-8 h-0.5 mx-2 sm:mx-4 ${currentStep > step.id ? 'bg-gradient-to-r from-blue-600 to-purple-600' : 'bg-gray-200'}`} />
+                    <div className={`w-8 sm:w-12 h-1 mx-3 sm:mx-4 rounded-full ${currentStep > step.id ? 'bg-gradient-to-r from-blue-600 to-purple-600' : 'bg-gray-300'}`} />
                   )}
                 </div>
               );
@@ -330,8 +330,8 @@ export default function CreateCompanyPage() {
         </div>
 
         {/* Form Content */}
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
-          <CardContent className="p-8">
+        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm">
+          <CardContent className="p-8 sm:p-10">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <motion.div
@@ -865,13 +865,14 @@ export default function CreateCompanyPage() {
             </AnimatePresence>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
+            <div className="flex justify-between mt-10">
               <Button
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                className="px-6 py-3"
+                className="px-8 py-4 text-lg font-semibold border-2 border-gray-300 hover:border-gray-400 bg-white shadow-lg"
               >
+                <ArrowLeft className="mr-2 h-5 w-5" />
                 Previous
               </Button>
 
@@ -879,25 +880,25 @@ export default function CreateCompanyPage() {
                 <Button
                   onClick={nextStep}
                   disabled={!validateStep(currentStep)}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700"
+                  className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl transform hover:scale-105 transition-all duration-200"
                 >
                   Next
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               ) : (
                 <Button
                   onClick={handleSubmit}
                   disabled={loading || !validateStep(1) || !validateStep(2)}
-                  className="px-8 py-3 bg-green-600 hover:bg-green-700"
+                  className="px-10 py-4 text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-2xl transform hover:scale-105 transition-all duration-200"
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Creating...
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                      Creating Company...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="mr-2 h-4 w-4" />
+                      <Sparkles className="mr-3 h-6 w-6" />
                       Create Company
                     </>
                   )}

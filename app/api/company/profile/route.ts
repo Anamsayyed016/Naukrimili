@@ -64,7 +64,13 @@ export async function POST(request: NextRequest) {
       location,
       industry,
       size,
-      founded
+      founded,
+      benefits,
+      specialties,
+      culture,
+      mission,
+      vision,
+      socialLinks
     } = body;
 
     // Validate required fields
@@ -97,6 +103,12 @@ export async function POST(request: NextRequest) {
         industry,
         size,
         founded: founded ? parseInt(founded) : null,
+        benefits: benefits || [],
+        specialties: specialties || [],
+        culture: culture || '',
+        mission: mission || '',
+        vision: vision || '',
+        socialLinks: socialLinks || {},
         isVerified: false,
         createdBy: user.id
       }
@@ -133,7 +145,13 @@ export async function PUT(request: NextRequest) {
       location,
       industry,
       size,
-      founded
+      founded,
+      benefits,
+      specialties,
+      culture,
+      mission,
+      vision,
+      socialLinks
     } = body;
 
     // Validate required fields
@@ -154,7 +172,13 @@ export async function PUT(request: NextRequest) {
         location,
         industry,
         size,
-        founded: founded ? parseInt(founded) : null
+        founded: founded ? parseInt(founded) : null,
+        benefits: benefits || [],
+        specialties: specialties || [],
+        culture: culture || '',
+        mission: mission || '',
+        vision: vision || '',
+        socialLinks: socialLinks || {}
       }
     });
 
