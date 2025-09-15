@@ -96,15 +96,13 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         // Update the session to reflect the new role
         await updateSession();
         
-        // Small delay to ensure session is updated
-        setTimeout(() => {
-          // Redirect to appropriate options page based on role
-          if (role === 'jobseeker') {
-            router.push('/jobseeker/options');
-          } else {
-            router.push('/employer/options');
-          }
-        }, 500);
+        // Force redirect immediately after successful role update
+        console.log('Redirecting to:', role === 'jobseeker' ? '/jobseeker/options' : '/employer/options');
+        if (role === 'jobseeker') {
+          window.location.href = '/jobseeker/options';
+        } else {
+          window.location.href = '/employer/options';
+        }
         
         if (onComplete) {
           onComplete({ ...user, role });
@@ -122,7 +120,8 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       }
     } catch (error) {
       console.error('Role selection error:', error);
-      setError('Network error. Please check your connection and try again.');
+      console.error('Error details:', error);
+      setError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your connection and try again.`);
     } finally {
       setIsLoading(false);
     }
@@ -200,7 +199,10 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
 
                 {user.role === 'jobseeker' ? (
                   <Button
-                    onClick={() => router.push('/jobseeker/options')}
+                    onClick={() => {
+                      console.log('Direct redirect to jobseeker options');
+                      window.location.href = '/jobseeker/options';
+                    }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                   >
                     Continue as Job Seeker →
@@ -255,7 +257,10 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
 
                 {user.role === 'employer' ? (
                   <Button
-                    onClick={() => router.push('/employer/options')}
+                    onClick={() => {
+                      console.log('Direct redirect to employer options');
+                      window.location.href = '/employer/options';
+                    }}
                     className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                   >
                     Continue as Employer →
