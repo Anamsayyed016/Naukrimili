@@ -41,10 +41,12 @@ export default function CompaniesPage() {
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch('/api/companies');
+      const response = await fetch('/api/companies/public');
       if (response.ok) {
         const data = await response.json();
-        setCompanies(data);
+        if (data.success) {
+          setCompanies(data.data.companies);
+        }
       }
     } catch (error) {
       console.error('Error fetching companies:', error);

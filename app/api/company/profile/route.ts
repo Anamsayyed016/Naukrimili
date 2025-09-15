@@ -171,6 +171,45 @@ export async function PUT(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const auth = await requireEmployerAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { user } = auth;
+
+    // Check if company exists
+    const existingCompany = await prisma.company.findFirst({
+      where: { createdBy: user.id }
+    });
+
+    if (!existingCompany) {
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete the company
+    await prisma.company.delete({
+      where: { id: existingCompany.id }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Company profile deleted successfully"
+    });
+  } catch (error) {
+    console.error("Error deleting company profile:", error);
+    return NextResponse.json(
+      { error: "Failed to delete company profile" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 200 });
 }

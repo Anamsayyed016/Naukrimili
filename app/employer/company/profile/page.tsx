@@ -16,24 +16,33 @@ import {
   Globe, 
   Users, 
   Calendar,
+  Edit,
+  Trash2,
   Save,
   ArrowLeft,
+  Star,
+  Target,
+  TrendingUp,
   CheckCircle,
-  AlertCircle,
-  Sparkles
+  AlertTriangle,
+  ExternalLink
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
-interface CompanyProfileData {
+interface CompanyData {
+  id: string;
   name: string;
   description: string;
   website: string;
   location: string;
   industry: string;
   size: string;
-  founded: string;
+  founded: number | null;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const industries = [
@@ -52,111 +61,55 @@ const companySizes = [
 export default function CompanyProfilePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [formData, setFormData] = useState<CompanyProfileData>({
-    name: '',
-    description: '',
-    website: '',
-    location: '',
-    industry: '',
-    size: '',
-    founded: ''
-  });
+  const [company, setCompany] = useState<CompanyData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [formData, setFormData] = useState<Partial<CompanyData>>({});
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (status === 'loading') return;
     if (status === 'unauthenticated') {
-      router.push('/auth/login?redirect=/employer/company/profile');
+      router.push('/auth/signin?redirect=/employer/company/profile');
       return;
     }
-    if (session?.user?.role !== 'employer') {
-      router.push('/dashboard');
-      return;
-    }
-  }, [status, session, router]);
-
-  useEffect(() => {
+    
     fetchCompanyProfile();
-  }, []);
+  }, [status, router]);
 
   const fetchCompanyProfile = async () => {
     try {
-      setInitialLoading(true);
       const response = await fetch('/api/company/profile');
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setFormData({
-            name: data.data.name || '',
-            description: data.data.description || '',
-            website: data.data.website || '',
-            location: data.data.location || '',
-            industry: data.data.industry || '',
-            size: data.data.size || '',
-            founded: data.data.founded?.toString() || ''
-          });
+          setCompany(data.data);
+          setFormData(data.data);
+        } else if (response.status === 404) {
+          // No company profile found, redirect to create
+          router.push('/employer/company/create');
         }
       }
     } catch (error) {
       console.error('Error fetching company profile:', error);
+      toast.error('Failed to load company profile');
     } finally {
-      setInitialLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof CompanyProfileData, value: string) => {
+  const handleInputChange = (field: keyof CompanyData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    // Enhanced validation
-    if (!formData.name.trim()) {
-      toast.error('Company name is required');
-      setLoading(false);
+  const handleSave = async () => {
+    if (!formData.name || !formData.description || !formData.location || !formData.industry || !formData.size) {
+      toast.error('Please fill in all required fields');
       return;
     }
 
-    if (!formData.description.trim()) {
-      toast.error('Company description is required');
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.location.trim()) {
-      toast.error('Company location is required');
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.industry) {
-      toast.error('Please select an industry');
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.size) {
-      toast.error('Please select company size');
-      setLoading(false);
-      return;
-    }
-
-    if (formData.website && !formData.website.match(/^https?:\/\/.+/)) {
-      toast.error('Please enter a valid website URL (e.g., https://company.com)');
-      setLoading(false);
-      return;
-    }
-
-    if (formData.founded && (parseInt(formData.founded) < 1800 || parseInt(formData.founded) > new Date().getFullYear())) {
-      toast.error('Please enter a valid founding year');
-      setLoading(false);
-      return;
-    }
-
+    setSaving(true);
     try {
       const response = await fetch('/api/company/profile', {
         method: 'PUT',
@@ -169,141 +122,250 @@ export default function CompanyProfilePage() {
       const data = await response.json();
 
       if (data.success) {
-        toast.success('🎉 Company profile updated successfully!', {
-          description: 'Your company information is now current and attractive to job seekers.',
-          duration: 5000,
-        });
-        
-        // Redirect to dashboard
-        setTimeout(() => {
-          router.push('/employer/dashboard');
-        }, 2000);
+        toast.success('Company profile updated successfully!');
+        setCompany({ ...company!, ...formData });
+        setEditing(false);
+        await fetchCompanyProfile(); // Refresh data
       } else {
-        throw new Error(data.error || 'Failed to update company profile');
+        throw new Error(data.error || 'Failed to update company');
       }
     } catch (error) {
-      console.error('Error updating company profile:', error);
-      toast.error('Failed to update company profile. Please try again.');
+      console.error('Error updating company:', error);
+      toast.error('Failed to update company profile');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  const getCompletionPercentage = () => {
-    const fields = ['name', 'description', 'location', 'industry', 'size'];
-    const completed = fields.filter(field => formData[field as keyof CompanyProfileData].trim() !== '').length;
-    return Math.round((completed / fields.length) * 100);
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete your company profile? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const response = await fetch('/api/company/profile', {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Company profile deleted successfully');
+        router.push('/employer/company/create');
+      } else {
+        throw new Error(data.error || 'Failed to delete company');
+      }
+    } catch (error) {
+      console.error('Error deleting company:', error);
+      toast.error('Failed to delete company profile');
+    } finally {
+      setDeleting(false);
+    }
   };
 
-  if (status === 'loading' || initialLoading) {
+  if (status === 'loading' || loading) {
     return (
-      <div className="bg-gradient-to-br from-orange-50 to-red-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading company profile...</p>
         </div>
       </div>
     );
   }
 
-  if (status === 'unauthenticated' || session?.user?.role !== 'employer') {
-    return null;
+  if (!company) {
+    return (
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="text-center">
+          <Building2 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Company Profile Found</h2>
+          <p className="text-gray-600 mb-6">You need to create a company profile first.</p>
+          <Link href="/employer/company/create">
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              Create Company Profile
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-gradient-to-br from-orange-50 to-red-100 min-h-[calc(100vh-4rem)] py-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-[calc(100vh-4rem)] py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         {/* Header */}
-        <div className="mb-8">
-          <Link 
-            href="/employer/dashboard" 
-            className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-800 mb-4 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
-          </Link>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Company Profile</h1>
-          <p className="text-gray-600 text-lg">Complete your company profile to attract top talent</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Link 
+              href="/employer/options" 
+              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Options
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Company Profile</h1>
+              <p className="text-gray-600">Manage your company information</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            {editing ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setEditing(false);
+                    setFormData(company);
+                  }}
+                  disabled={saving}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {saving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setEditing(true)}
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Profile
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </>
+                  )}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Form */}
+          {/* Company Overview */}
           <div className="lg:col-span-2">
-            <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Building2 className="h-6 w-6 text-orange-600" />
-                  Company Information
-                </CardTitle>
+            <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl">
+                      <Building2 className="h-8 w-8 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl text-gray-900">
+                        {editing ? (
+                          <Input
+                            value={formData.name || ''}
+                            onChange={(e) => handleInputChange('name', e.target.value)}
+                            className="text-xl font-bold border-0 p-0 h-auto bg-transparent focus:ring-0"
+                            placeholder="Company Name"
+                          />
+                        ) : (
+                          company.name
+                        )}
+                      </CardTitle>
+                      <div className="flex items-center gap-2 mt-1">
+                        {company.isVerified ? (
+                          <Badge variant="secondary" className="bg-green-100 text-green-700">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Verified
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-yellow-300 text-yellow-700">
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            Pending Verification
+                          </Badge>
+                        )}
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                          {company.industry}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
-                      Company Name *
-                    </Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="e.g., TechCorp Solutions"
-                      className="mt-1 h-12 text-lg"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
-                      Company Description *
-                    </Label>
+              
+              <CardContent className="space-y-6">
+                {/* Description */}
+                <div>
+                  <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                    Company Description
+                  </Label>
+                  {editing ? (
                     <Textarea
-                      id="description"
-                      value={formData.description}
+                      value={formData.description || ''}
                       onChange={(e) => handleInputChange('description', e.target.value)}
-                      placeholder="Describe your company, mission, and culture..."
                       rows={4}
-                      className="mt-1 text-lg"
-                      required
+                      className="w-full"
+                      placeholder="Describe your company..."
                     />
-                  </div>
+                  ) : (
+                    <p className="text-gray-700 leading-relaxed">{company.description}</p>
+                  )}
+                </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="website" className="text-sm font-semibold text-gray-700">
-                        Website
-                      </Label>
+                {/* Company Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Location
+                    </Label>
+                    {editing ? (
                       <Input
-                        id="website"
-                        type="url"
-                        value={formData.website}
-                        onChange={(e) => handleInputChange('website', e.target.value)}
-                        placeholder="https://company.com"
-                        className="mt-1 h-12 text-lg"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="location" className="text-sm font-semibold text-gray-700">
-                        Location *
-                      </Label>
-                      <Input
-                        id="location"
-                        value={formData.location}
+                        value={formData.location || ''}
                         onChange={(e) => handleInputChange('location', e.target.value)}
-                        placeholder="e.g., Bangalore, India"
-                        className="mt-1 h-12 text-lg"
-                        required
+                        placeholder="Company Location"
                       />
-                    </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <MapPin className="h-4 w-4" />
+                        {company.location}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                      <Label htmlFor="industry" className="text-sm font-semibold text-gray-700">
-                        Industry *
-                      </Label>
-                      <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
-                        <SelectTrigger className="mt-1 h-12 text-lg">
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Industry
+                    </Label>
+                    {editing ? (
+                      <Select 
+                        value={formData.industry || ''} 
+                        onValueChange={(value) => handleInputChange('industry', value)}
+                      >
+                        <SelectTrigger>
                           <SelectValue placeholder="Select industry" />
                         </SelectTrigger>
                         <SelectContent>
@@ -314,14 +376,24 @@ export default function CompanyProfilePage() {
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Building2 className="h-4 w-4" />
+                        {company.industry}
+                      </div>
+                    )}
+                  </div>
 
-                    <div>
-                      <Label htmlFor="size" className="text-sm font-semibold text-gray-700">
-                        Company Size *
-                      </Label>
-                      <Select value={formData.size} onValueChange={(value) => handleInputChange('size', value)}>
-                        <SelectTrigger className="mt-1 h-12 text-lg">
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Company Size
+                    </Label>
+                    {editing ? (
+                      <Select 
+                        value={formData.size || ''} 
+                        onValueChange={(value) => handleInputChange('size', value)}
+                      >
+                        <SelectTrigger>
                           <SelectValue placeholder="Select size" />
                         </SelectTrigger>
                         <SelectContent>
@@ -332,146 +404,126 @@ export default function CompanyProfilePage() {
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Users className="h-4 w-4" />
+                        {company.size} employees
+                      </div>
+                    )}
+                  </div>
 
-                    <div>
-                      <Label htmlFor="founded" className="text-sm font-semibold text-gray-700">
-                        Founded Year
-                      </Label>
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Founded Year
+                    </Label>
+                    {editing ? (
                       <Input
-                        id="founded"
                         type="number"
-                        value={formData.founded}
-                        onChange={(e) => handleInputChange('founded', e.target.value)}
-                        placeholder="e.g., 2020"
+                        value={formData.founded || ''}
+                        onChange={(e) => handleInputChange('founded', parseInt(e.target.value))}
+                        placeholder="Founded Year"
                         min="1900"
                         max={new Date().getFullYear()}
-                        className="mt-1 h-12 text-lg"
                       />
-                    </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Calendar className="h-4 w-4" />
+                        {company.founded || 'Not specified'}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex justify-end">
-                    <Button 
-                      type="submit" 
-                      className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 text-lg"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-5 w-5 mr-2" />
-                          Save Profile
-                        </>
-                      )}
-                    </Button>
+                  <div className="md:col-span-2">
+                    <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Website
+                    </Label>
+                    {editing ? (
+                      <Input
+                        type="url"
+                        value={formData.website || ''}
+                        onChange={(e) => handleInputChange('website', e.target.value)}
+                        placeholder="https://yourcompany.com"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Globe className="h-4 w-4" />
+                        {company.website ? (
+                          <a 
+                            href={company.website} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            {company.website}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        ) : (
+                          'No website'
+                        )}
+                      </div>
+                    )}
                   </div>
-                </form>
+                </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Profile Completion */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            {/* Profile Status */}
+            <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  Profile Completion
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-500" />
+                  Profile Status
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Overall Progress</span>
-                    <span className="text-sm font-bold text-green-600">{getCompletionPercentage()}%</span>
-                  </div>
-                  
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${getCompletionPercentage()}%` }}
-                    ></div>
-                  </div>
-
-                  <div className="space-y-2">
-                    {[
-                      { field: 'name', label: 'Company Name' },
-                      { field: 'description', label: 'Description' },
-                      { field: 'location', label: 'Location' },
-                      { field: 'industry', label: 'Industry' },
-                      { field: 'size', label: 'Company Size' }
-                    ].map(({ field, label }) => (
-                      <div key={field} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{label}</span>
-                        <span className={formData[field as keyof CompanyProfileData] ? 'text-green-600' : 'text-gray-400'}>
-                          {formData[field as keyof CompanyProfileData] ? (
-                            <CheckCircle className="h-4 w-4" />
-                          ) : (
-                            <AlertCircle className="h-4 w-4" />
-                          )}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Verification Status</span>
+                  <Badge variant={company.isVerified ? "default" : "secondary"}>
+                    {company.isVerified ? 'Verified' : 'Pending'}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Created</span>
+                  <span className="text-sm text-gray-900">
+                    {new Date(company.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Last Updated</span>
+                  <span className="text-sm text-gray-900">
+                    {new Date(company.updatedAt).toLocaleDateString()}
+                  </span>
                 </div>
               </CardContent>
             </Card>
 
             {/* Quick Actions */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-blue-600" />
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-green-500" />
                   Quick Actions
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <Link href="/employer/jobs/create">
-                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
-                    <Building2 className="h-4 w-4 mr-2" />
-                    Post a Job
+              <CardContent className="space-y-3">
+                <Link href="/employer/jobs/create" className="block">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                    Post New Job
                   </Button>
                 </Link>
-                
-                <Link href="/employer/dashboard">
+                <Link href="/employer/jobs" className="block">
                   <Button variant="outline" className="w-full">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Dashboard
+                    Manage Jobs
                   </Button>
                 </Link>
-              </CardContent>
-            </Card>
-
-            {/* Tips */}
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Profile Tips</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-3 text-sm text-gray-600">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>Complete profiles get 3x more applications</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>Include your company culture and values</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>Add a professional website link</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>Keep information up to date</span>
-                  </div>
-                </div>
+                <Link href="/employer/applications" className="block">
+                  <Button variant="outline" className="w-full">
+                    View Applications
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
