@@ -63,7 +63,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             id: user.id,
             email: user.email,
             name: user.name,
-            role: user.role || 'jobseeker'
+            role: user.role || 'jobseeker',
+            isActive: user.isActive || true
           };
         } catch (error) {
           console.error('Credentials auth error:', error);
@@ -160,6 +161,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.email = dbUser.email;
             token.name = profile.name || dbUser.name;
             token.picture = (profile as any).picture || token.picture;
+            token.isActive = dbUser.isActive || true; // Ensure isActive is set
             
             console.log('✅ JWT callback - Updated existing user with OAuth data:', { id: token.id, email: token.email, name: token.name, role: token.role });
           } else {
@@ -199,6 +201,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.name = newUser.name;
             token.picture = (profile as any).picture || token.picture;
             token.role = null; // Will be set when user selects role
+            token.isActive = newUser.isActive || true; // Ensure isActive is set
             
             console.log('✅ JWT callback - Created new OAuth user with account link:', { id: token.id, email: token.email, name: token.name, role: token.role });
           }

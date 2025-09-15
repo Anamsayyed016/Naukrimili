@@ -55,6 +55,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies for session authentication
         body: JSON.stringify({
           role: role
         }),
@@ -94,7 +95,12 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         console.log('Role updated successfully:', data.user);
         
         // Update the session to reflect the new role
-        await updateSession();
+        console.log('Updating session...');
+        const sessionResult = await updateSession();
+        console.log('Session update result:', sessionResult);
+        
+        // Add a small delay to ensure session is updated
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         // Force redirect immediately after successful role update
         console.log('Redirecting to:', role === 'jobseeker' ? '/jobseeker/options' : '/employer/options');
