@@ -23,6 +23,7 @@ import {
   Target
 } from 'lucide-react';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
+import LocationCategories from './LocationCategories';
 
 interface JobSearchHeroProps {
   className?: string;
@@ -40,10 +41,14 @@ interface UserLocation {
 }
 
 interface LocationData {
+  id: string;
   name: string;
   country: string;
   flag: string;
   jobCount: number;
+  area?: string;
+  state?: string;
+  type: 'area' | 'state' | 'country' | 'city';
 }
 
 export default function JobSearchHero({ 
@@ -78,15 +83,6 @@ export default function JobSearchHero({
     locations: []
   });
 
-  // Popular locations data
-  const popularLocations: LocationData[] = [
-    { name: 'New York', country: 'USA', flag: '🇺🇸', jobCount: 15420 },
-    { name: 'San Francisco', country: 'USA', flag: '🇺🇸', jobCount: 12350 },
-    { name: 'Los Angeles', country: 'USA', flag: '🇺🇸', jobCount: 9870 },
-    { name: 'Chicago', country: 'USA', flag: '🇺🇸', jobCount: 8760 },
-    { name: 'Seattle', country: 'USA', flag: '🇺🇸', jobCount: 6540 },
-    { name: 'Dubai', country: 'UAE', flag: '🇦🇪', jobCount: 5430 }
-  ];
 
   // Fetch dynamic constants
   const fetchDynamicConstants = useCallback(async () => {
@@ -348,35 +344,18 @@ export default function JobSearchHero({
                 </div>
               )}
 
-              {/* Quick Location Suggestions */}
-              <div className="mt-4 sm:mt-6">
-                <div className="text-center mb-3 sm:mb-4">
-                  <span className="text-xs sm:text-sm font-medium text-gray-600">Popular Locations</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-                  {popularLocations.slice(0, 6).map((location) => (
-                    <Button
-                      key={`${location.name}-${location.country}`}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleLocationSelect(location)}
-                      className={`justify-start h-auto p-2 sm:p-3 text-left transition-all duration-200 ${
-                        userLocation?.city === location.name 
-                          ? 'bg-blue-100 border-blue-500 text-blue-800 shadow-md' 
-                          : 'hover:bg-gray-50 border-gray-300 hover:border-blue-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1 sm:gap-2 w-full">
-                        <span className="text-sm sm:text-lg">{location.flag}</span>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-xs truncate">{location.name}</div>
-                          <div className="text-xs text-gray-500 truncate">{location.country}</div>
-                        </div>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-              </div>
+              {/* AI-Powered Location Categories */}
+              <LocationCategories 
+                onLocationSelect={handleLocationSelect}
+                selectedLocation={userLocation ? {
+                  id: userLocation.city,
+                  name: userLocation.city,
+                  country: userLocation.country,
+                  flag: '📍',
+                  jobCount: 0,
+                  type: 'city'
+                } : null}
+              />
 
               {/* Advanced Filters Toggle */}
               {showAdvancedFilters && (
