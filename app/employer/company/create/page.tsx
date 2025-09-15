@@ -277,51 +277,56 @@ export default function CreateCompanyPage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-[calc(100vh-4rem)] py-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <Link 
-            href="/dashboard/company" 
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+            href="/employer/options" 
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-3 sm:mb-4 transition-colors text-sm sm:text-base"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+            <span className="hidden sm:inline">Back to Employer Options</span>
+            <span className="sm:hidden">Back</span>
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Create Your Company Profile</h1>
-          <p className="text-gray-600 text-lg">Build your company's presence and start attracting top talent</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 px-2">
+            Create Your Company Profile
+          </h1>
+          <p className="text-gray-600 text-base sm:text-lg px-4">
+            Build your company's presence and start attracting top talent
+          </p>
         </div>
 
         {/* Enhanced Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center space-x-2 sm:space-x-4">
+        <div className="mb-6 sm:mb-8 px-2">
+          <div className="flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 overflow-x-auto">
             {steps.map((step, index) => {
               const StepIcon = step.icon;
               return (
-                <div key={step.id} className="flex items-center">
+                <div key={step.id} className="flex items-center flex-shrink-0">
                   <div className="flex items-center">
                     <div className={`
-                      w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2
+                      w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-2
                       ${currentStep >= step.id 
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl transform scale-110 border-blue-600' 
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl transform scale-105 sm:scale-110 border-blue-600' 
                         : 'bg-white text-gray-600 border-gray-400 shadow-md'
                       }
                     `}>
                       {currentStep > step.id ? (
-                        <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+                        <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
                       ) : (
-                        <StepIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <StepIcon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
                       )}
                     </div>
-                    <div className="ml-3 hidden sm:block">
-                      <p className={`text-base font-bold ${currentStep >= step.id ? 'text-blue-700' : 'text-gray-600'}`}>
+                    <div className="ml-2 sm:ml-3 hidden md:block">
+                      <p className={`text-sm md:text-base font-bold ${currentStep >= step.id ? 'text-blue-700' : 'text-gray-600'}`}>
                         {step.title}
                       </p>
-                      <p className={`text-sm font-medium ${currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'}`}>{step.description}</p>
+                      <p className={`text-xs md:text-sm font-medium ${currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'}`}>{step.description}</p>
                     </div>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className={`w-8 sm:w-12 h-1 mx-3 sm:mx-4 rounded-full ${currentStep > step.id ? 'bg-gradient-to-r from-blue-600 to-purple-600' : 'bg-gray-300'}`} />
+                    <div className={`w-4 sm:w-6 md:w-8 lg:w-12 h-1 mx-2 sm:mx-3 md:mx-4 rounded-full ${currentStep > step.id ? 'bg-gradient-to-r from-blue-600 to-purple-600' : 'bg-gray-300'}`} />
                   )}
                 </div>
               );
@@ -330,8 +335,8 @@ export default function CreateCompanyPage() {
         </div>
 
         {/* Form Content */}
-        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm">
-          <CardContent className="p-8 sm:p-10">
+        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm mx-2 sm:mx-0">
+          <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <motion.div
@@ -343,9 +348,11 @@ export default function CreateCompanyPage() {
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
-                    <Building2 className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-gray-900">Basic Company Information</h2>
-                    <p className="text-gray-600">Tell us about your company</p>
+                    <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
+                      <Building2 className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Basic Company Information</h2>
+                    <p className="text-gray-600 text-sm sm:text-base">Tell us about your company</p>
                   </div>
 
                   <div className="space-y-6">
@@ -432,9 +439,11 @@ export default function CreateCompanyPage() {
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
-                    <MapPin className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-gray-900">Company Details</h2>
-                    <p className="text-gray-600">Help job seekers find you</p>
+                    <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
+                      <MapPin className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Company Details</h2>
+                    <p className="text-gray-600 text-sm sm:text-base">Help job seekers find you</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -531,9 +540,11 @@ export default function CreateCompanyPage() {
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
-                    <Target className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-gray-900">Company Culture & Values</h2>
-                    <p className="text-gray-600">Showcase what makes your company special</p>
+                    <div className="p-3 sm:p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
+                      <Target className="h-8 w-8 sm:h-10 sm:w-10 text-purple-600" />
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Company Culture & Values</h2>
+                    <p className="text-gray-600 text-sm sm:text-base">Showcase what makes your company special</p>
                   </div>
 
                   <div className="space-y-6">
@@ -731,29 +742,33 @@ export default function CreateCompanyPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-6"
                 >
-                  <div className="text-center mb-8">
-                    <div className="p-4 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                      <Eye className="h-10 w-10 text-green-600" />
+                  <div className="text-center mb-6 sm:mb-8">
+                    <div className="p-3 sm:p-4 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 flex items-center justify-center">
+                      <Eye className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />
                     </div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-3">Review Your Company</h2>
-                    <p className="text-lg text-gray-700 font-medium">Everything looks good? Let's create your company profile!</p>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 sm:mb-3 px-2">
+                      Review Your Company
+                    </h2>
+                    <p className="text-sm sm:text-base md:text-lg text-gray-700 font-medium px-4">
+                      Everything looks good? Let's create your company profile!
+                    </p>
                   </div>
 
                   <div className="space-y-6">
                     {/* Company Overview */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 border-2 border-blue-300 shadow-lg">
-                      <div className="flex items-start gap-6">
-                        <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg">
-                          <Building2 className="h-10 w-10 text-white" />
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 sm:p-6 md:p-8 border-2 border-blue-300 shadow-lg">
+                      <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
+                        <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg mx-auto sm:mx-0">
+                          <Building2 className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-bold text-2xl text-gray-900 mb-3">{formData.name}</h3>
-                          <p className="text-gray-800 leading-relaxed text-lg mb-4">{formData.description}</p>
-                          <div className="flex items-center gap-3">
-                            <Badge variant="secondary" className="bg-blue-200 text-blue-800 font-bold text-sm px-3 py-1">
+                        <div className="flex-1 text-center sm:text-left">
+                          <h3 className="font-bold text-lg sm:text-xl md:text-2xl text-gray-900 mb-2 sm:mb-3">{formData.name}</h3>
+                          <p className="text-gray-800 leading-relaxed text-sm sm:text-base md:text-lg mb-3 sm:mb-4">{formData.description}</p>
+                          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
+                            <Badge variant="secondary" className="bg-blue-200 text-blue-800 font-bold text-xs sm:text-sm px-2 sm:px-3 py-1">
                               {formData.industry}
                             </Badge>
-                            <Badge variant="outline" className="border-green-400 text-green-800 bg-green-50 font-bold text-sm px-3 py-1">
+                            <Badge variant="outline" className="border-green-400 text-green-800 bg-green-50 font-bold text-xs sm:text-sm px-2 sm:px-3 py-1">
                               {formData.size} employees
                             </Badge>
                           </div>
@@ -878,14 +893,14 @@ export default function CreateCompanyPage() {
             </AnimatePresence>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-10">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-8 sm:mt-10 px-2 sm:px-0">
               <Button
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                className="px-8 py-4 text-lg font-semibold border-2 border-gray-300 hover:border-gray-400 bg-white shadow-lg"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-gray-300 hover:border-gray-400 bg-white shadow-lg"
               >
-                <ArrowLeft className="mr-2 h-5 w-5" />
+                <ArrowLeft className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Previous
               </Button>
 
@@ -893,26 +908,28 @@ export default function CreateCompanyPage() {
                 <Button
                   onClick={nextStep}
                   disabled={!validateStep(currentStep)}
-                  className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl transform hover:scale-105 transition-all duration-200"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl transform hover:scale-105 transition-all duration-200"
                 >
                   Next
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               ) : (
                 <Button
                   onClick={handleSubmit}
                   disabled={loading || !validateStep(1) || !validateStep(2)}
-                  className="px-10 py-4 text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-2xl transform hover:scale-105 transition-all duration-200"
+                  className="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 text-lg sm:text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-2xl transform hover:scale-105 transition-all duration-200"
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                      Creating Company...
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2 sm:mr-3"></div>
+                      <span className="hidden sm:inline">Creating Company...</span>
+                      <span className="sm:hidden">Creating...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="mr-3 h-6 w-6" />
-                      Create Company
+                      <Sparkles className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
+                      <span className="hidden sm:inline">Create Company</span>
+                      <span className="sm:hidden">Create</span>
                     </>
                   )}
                 </Button>

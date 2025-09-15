@@ -49,12 +49,20 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireEmployerAuth();
+    const auth = await requireAuth();
     if ("error" in auth) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { user } = auth;
+    
+    // Check if user is an employer
+    if (user.role !== 'employer') {
+      return NextResponse.json(
+        { error: "Access denied. Employer account required." },
+        { status: 403 }
+      );
+    }
     const body = await request.json();
     
     const {
