@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import React, { useState, useEffect } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import Link from 'next/link';
 import OAuthButtons from '@/components/auth/OAuthButtons';
 
 export default function SignInPage() {
+  const { data: session, status } = useSession();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -21,6 +22,28 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  // Handle OAuth users who are already authenticated
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      console.log('User already authenticated:', session.user);
+      
+      // If user has no role, redirect to role selection
+      if (!session.user.role) {
+        console.log('User has no role, redirecting to role selection');
+        router.push('/auth/role-selection');
+      } else {
+        // User has a role, redirect to appropriate dashboard
+        if (session.user.role === 'jobseeker') {
+          router.push('/jobseeker/options');
+        } else if (session.user.role === 'employer') {
+          router.push('/employer/options');
+        } else {
+          router.push('/auth/role-selection');
+        }
+      }
+    }
+  }, [session, status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +74,18 @@ export default function SignInPage() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  // Show loading if session is being checked
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">

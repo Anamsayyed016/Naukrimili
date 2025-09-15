@@ -20,6 +20,7 @@ if (!googleClientId || !googleClientSecret ||
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -87,7 +88,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user && token.id) {
         try {
           const dbUser = await prisma.user.findUnique({
-            where: { id: token.id }
+            where: { id: token.id as string }
           });
           
           if (dbUser && dbUser.isActive) {
