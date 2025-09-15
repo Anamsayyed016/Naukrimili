@@ -246,9 +246,9 @@ export default function CreateCompanyPage() {
           duration: 5000,
         });
         
-        // Redirect to company dashboard
+        // Redirect to employer dashboard
         setTimeout(() => {
-          router.push('/dashboard/company');
+          router.push('/employer/dashboard');
         }, 2000);
       } else {
         throw new Error(data.error || 'Failed to create company');
@@ -731,27 +731,29 @@ export default function CreateCompanyPage() {
                   transition={{ duration: 0.3 }}
                   className="space-y-6"
                 >
-                  <div className="text-center mb-6">
-                    <Eye className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-gray-900">Review Your Company</h2>
-                    <p className="text-gray-600">Everything looks good? Let's create your company profile!</p>
+                  <div className="text-center mb-8">
+                    <div className="p-4 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                      <Eye className="h-10 w-10 text-green-600" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-3">Review Your Company</h2>
+                    <p className="text-lg text-gray-700 font-medium">Everything looks good? Let's create your company profile!</p>
                   </div>
 
                   <div className="space-y-6">
                     {/* Company Overview */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
-                      <div className="flex items-start gap-4">
-                        <div className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl">
-                          <Building2 className="h-8 w-8 text-white" />
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8 border-2 border-blue-300 shadow-lg">
+                      <div className="flex items-start gap-6">
+                        <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg">
+                          <Building2 className="h-10 w-10 text-white" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-bold text-xl text-gray-900 mb-2">{formData.name}</h3>
-                          <p className="text-gray-700 leading-relaxed">{formData.description}</p>
-                          <div className="flex items-center gap-2 mt-3">
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 font-semibold">
+                          <h3 className="font-bold text-2xl text-gray-900 mb-3">{formData.name}</h3>
+                          <p className="text-gray-800 leading-relaxed text-lg mb-4">{formData.description}</p>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="secondary" className="bg-blue-200 text-blue-800 font-bold text-sm px-3 py-1">
                               {formData.industry}
                             </Badge>
-                            <Badge variant="outline" className="border-green-300 text-green-700">
+                            <Badge variant="outline" className="border-green-400 text-green-800 bg-green-50 font-bold text-sm px-3 py-1">
                               {formData.size} employees
                             </Badge>
                           </div>
@@ -761,28 +763,30 @@ export default function CreateCompanyPage() {
 
                     {/* Company Details */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="bg-white rounded-lg p-4 border border-gray-200">
-                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-blue-600" />
+                      <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+                        <h4 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
+                          <div className="p-2 bg-blue-100 rounded-lg">
+                            <MapPin className="h-5 w-5 text-blue-600" />
+                          </div>
                           Location & Details
                         </h4>
-                        <div className="space-y-2 text-sm text-gray-600">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            <span>{formData.location}</span>
+                        <div className="space-y-3 text-base">
+                          <div className="flex items-center gap-3">
+                            <MapPin className="h-5 w-5 text-blue-600" />
+                            <span className="font-medium text-gray-800">{formData.location}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4" />
-                            <span>{formData.size} employees</span>
+                          <div className="flex items-center gap-3">
+                            <Users className="h-5 w-5 text-green-600" />
+                            <span className="font-medium text-gray-800">{formData.size} employees</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>Founded {formData.founded || 'Not specified'}</span>
+                          <div className="flex items-center gap-3">
+                            <Calendar className="h-5 w-5 text-purple-600" />
+                            <span className="font-medium text-gray-800">Founded {formData.founded || 'Not specified'}</span>
                           </div>
                           {formData.website && (
-                            <div className="flex items-center gap-2">
-                              <Globe className="h-4 w-4" />
-                              <a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                            <div className="flex items-center gap-3">
+                              <Globe className="h-5 w-5 text-blue-600" />
+                              <a href={formData.website} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-700 hover:text-blue-800 hover:underline">
                                 Visit Website
                               </a>
                             </div>
@@ -791,23 +795,28 @@ export default function CreateCompanyPage() {
                       </div>
 
                       {/* Mission & Vision */}
-                      <div className="bg-white rounded-lg p-4 border border-gray-200">
-                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                          <Target className="h-4 w-4 text-purple-600" />
+                      <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+                        <h4 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
+                          <div className="p-2 bg-purple-100 rounded-lg">
+                            <Target className="h-5 w-5 text-purple-600" />
+                          </div>
                           Mission & Vision
                         </h4>
-                        <div className="space-y-3 text-sm">
+                        <div className="space-y-4 text-base">
                           {formData.mission && (
                             <div>
-                              <p className="font-medium text-gray-700 mb-1">Mission:</p>
-                              <p className="text-gray-600">{formData.mission}</p>
+                              <p className="font-bold text-gray-800 mb-2">Mission:</p>
+                              <p className="text-gray-700 leading-relaxed">{formData.mission}</p>
                             </div>
                           )}
                           {formData.vision && (
                             <div>
-                              <p className="font-medium text-gray-700 mb-1">Vision:</p>
-                              <p className="text-gray-600">{formData.vision}</p>
+                              <p className="font-bold text-gray-800 mb-2">Vision:</p>
+                              <p className="text-gray-700 leading-relaxed">{formData.vision}</p>
                             </div>
+                          )}
+                          {!formData.mission && !formData.vision && (
+                            <p className="text-gray-500 italic">No mission or vision provided</p>
                           )}
                         </div>
                       </div>
@@ -815,18 +824,20 @@ export default function CreateCompanyPage() {
 
                     {/* Benefits & Specialties */}
                     {(formData.benefits?.length || formData.specialties?.length) && (
-                      <div className="bg-white rounded-lg p-4 border border-gray-200">
-                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                          <Star className="h-4 w-4 text-yellow-600" />
+                      <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+                        <h4 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
+                          <div className="p-2 bg-yellow-100 rounded-lg">
+                            <Star className="h-5 w-5 text-yellow-600" />
+                          </div>
                           Benefits & Specialties
                         </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {formData.benefits?.length && (
                             <div>
-                              <p className="font-medium text-gray-700 mb-2">Employee Benefits:</p>
-                              <div className="flex flex-wrap gap-1">
+                              <p className="font-bold text-gray-800 mb-3">Employee Benefits:</p>
+                              <div className="flex flex-wrap gap-2">
                                 {formData.benefits.map((benefit, index) => (
-                                  <Badge key={index} variant="secondary" className="text-xs">
+                                  <Badge key={index} variant="secondary" className="text-sm font-medium bg-blue-100 text-blue-800 px-3 py-1">
                                     {benefit}
                                   </Badge>
                                 ))}
@@ -835,10 +846,10 @@ export default function CreateCompanyPage() {
                           )}
                           {formData.specialties?.length && (
                             <div>
-                              <p className="font-medium text-gray-700 mb-2">Company Specialties:</p>
-                              <div className="flex flex-wrap gap-1">
+                              <p className="font-bold text-gray-800 mb-3">Company Specialties:</p>
+                              <div className="flex flex-wrap gap-2">
                                 {formData.specialties.map((specialty, index) => (
-                                  <Badge key={index} variant="outline" className="text-xs border-purple-300 text-purple-700">
+                                  <Badge key={index} variant="outline" className="text-sm font-medium border-purple-400 text-purple-800 bg-purple-50 px-3 py-1">
                                     {specialty}
                                   </Badge>
                                 ))}
@@ -851,12 +862,14 @@ export default function CreateCompanyPage() {
 
                     {/* Company Culture */}
                     {formData.culture && (
-                      <div className="bg-white rounded-lg p-4 border border-gray-200">
-                        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4 text-green-600" />
+                      <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+                        <h4 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
+                          <div className="p-2 bg-green-100 rounded-lg">
+                            <TrendingUp className="h-5 w-5 text-green-600" />
+                          </div>
                           Company Culture
                         </h4>
-                        <p className="text-gray-600">{formData.culture}</p>
+                        <p className="text-gray-700 leading-relaxed text-base">{formData.culture}</p>
                       </div>
                     )}
                   </div>
