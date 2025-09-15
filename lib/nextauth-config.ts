@@ -10,6 +10,16 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
+// Validate required NextAuth environment variables
+const nextAuthUrl = process.env.NEXTAUTH_URL || 'https://aftionix.in';
+const nextAuthSecret = process.env.NEXTAUTH_SECRET || 'fallback-secret-key-for-development-only-32-chars-min';
+
+// Log configuration status
+console.log('🔧 NextAuth Configuration:');
+console.log('   NEXTAUTH_URL:', nextAuthUrl);
+console.log('   NEXTAUTH_SECRET:', nextAuthSecret ? '✅ Set' : '❌ Missing');
+console.log('   Environment:', process.env.NODE_ENV || 'development');
+
 // Validate Google OAuth credentials
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -39,6 +49,13 @@ if (googleClientId && googleClientSecret &&
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  secret: nextAuthSecret,
+  trustHost: true,
+  debug: process.env.NODE_ENV === 'development',
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
+  },
   providers: [
     ...providers,
     Credentials({
