@@ -29,10 +29,9 @@ export default function JobSeekerOptionsPage() {
     if (status === 'authenticated' && session?.user) {
       // Check if user has jobseeker role
       if (session.user.role !== 'jobseeker') {
-        // Redirect to appropriate page based on role
-        if (session.user.role === 'employer') {
-          router.push('/employer/options');
-        } else {
+        // Only redirect to role selection if user has no role
+        // Don't redirect employers here to avoid redirect loops
+        if (!session.user.role) {
           router.push('/auth/role-selection');
         }
         return;
@@ -53,13 +52,35 @@ export default function JobSeekerOptionsPage() {
 
   if (!session?.user || session.user.role !== 'jobseeker') {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h2>
-          <p className="text-gray-600 mb-4">This page is only for job seekers.</p>
-          <Button onClick={() => router.push('/auth/role-selection')}>
-            Go to Role Selection
-          </Button>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Upload className="h-8 w-8 text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Job Seeker Access Required</h2>
+          <p className="text-gray-600 mb-6">
+            {session?.user?.role === 'employer' 
+              ? "You're currently registered as an employer. To access job seeker features, please change your role."
+              : "Please select your role as a job seeker to access this page."
+            }
+          </p>
+          <div className="space-y-3">
+            <Button 
+              onClick={() => router.push('/auth/role-selection')}
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            >
+              Go to Role Selection
+            </Button>
+            {session?.user?.role === 'employer' && (
+              <Button 
+                variant="outline" 
+                onClick={() => router.push('/employer/options')}
+                className="w-full"
+              >
+                Continue as Employer
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );
