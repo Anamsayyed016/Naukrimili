@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, MapPin, Building2, ExternalLink, Clock, DollarSign, Navigation } from 'lucide-react';
 import { getSmartLocation, getMobileGeolocationOptions, isMobileDevice, getGeolocationDiagnostics } from '@/lib/mobile-geolocation';
+import EnhancedJobCard from '@/components/EnhancedJobCard';
+import { JobResult } from '@/types/jobs';
 
 interface Job {
   id: string;
@@ -35,6 +37,9 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
   const [locationError, setLocationError] = useState<string | null>(null);
   // Add state to track if we should show CSE as fallback
   const [showCSEAsFallback, setShowCSEAsFallback] = useState(false);
+  // Add state for modern job features
+  const [bookmarkedJobs, setBookmarkedJobs] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('list');
 
   const searchParams = useSearchParams();
 
@@ -130,6 +135,26 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
     } else {
       window.open(`/jobs/${job.id}`, '_blank');
     }
+  };
+
+  // Handle bookmark
+  const handleBookmark = (jobId: string) => {
+    setBookmarkedJobs(prev => 
+      prev.includes(jobId) 
+        ? prev.filter(id => id !== jobId)
+        : [...prev, jobId]
+    );
+  };
+
+  // Handle quick view
+  const handleQuickView = (job: JobResult) => {
+    window.open(`/jobs/${job.id}`, '_blank');
+  };
+
+  // Handle share
+  const handleShare = (job: JobResult) => {
+    // The JobShare component will handle the actual sharing logic
+    console.log('Share triggered for job:', job.title);
   };
 
   // Detect user's current location
@@ -366,14 +391,31 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">View:</span>
-              <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="List View">
+              <button 
+                onClick={() => setViewMode('list')}
+                className={`p-2 transition-colors ${viewMode === 'list' ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'}`} 
+                title="List View"
+              >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                 </svg>
               </button>
-              <button className="p-2 text-blue-600 hover:text-blue-700 transition-colors" title="Grid View">
+              <button 
+                onClick={() => setViewMode('grid')}
+                className={`p-2 transition-colors ${viewMode === 'grid' ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'}`} 
+                title="Grid View"
+              >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+              </button>
+              <button 
+                onClick={() => setViewMode('compact')}
+                className={`p-2 transition-colors ${viewMode === 'compact' ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'}`} 
+                title="Compact View"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               </button>
             </div>
@@ -416,67 +458,25 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
           {/* Jobs List */}
           {!loading && jobs.length > 0 && (
-            <div className="space-y-4 sm:space-y-6">
+            <div className={
+              viewMode === 'grid' 
+                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+                : viewMode === 'compact'
+                ? 'space-y-2'
+                : 'space-y-4'
+            }>
               {jobs.map((job) => (
-                <div key={job.id} className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 line-clamp-2">{job.title}</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {job.is_featured && (
-                            <span className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 text-xs font-semibold px-2 sm:px-3 py-1 rounded-full shadow-sm">
-                              ⭐ Featured
-                            </span>
-                          )}
-                          {job.is_remote && (
-                            <span className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 text-xs font-semibold px-2 sm:px-3 py-1 rounded-full shadow-sm">
-                              🏠 Remote
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 text-sm text-gray-600 mb-3">
-                        <div className="flex items-center gap-1">
-                          <Building2 className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{job.company}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{job.location}</span>
-                        </div>
-                        {job.salary && (
-                          <div className="flex items-center gap-1">
-                            <DollarSign className="w-4 h-4 flex-shrink-0" />
-                            <span className="truncate">{job.salary}</span>
-                          </div>
-                        )}
-                        {job.postedAt && (
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4 flex-shrink-0" />
-                            <span className="truncate">{new Date(job.postedAt).toLocaleDateString()}</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <p className="text-gray-700 text-sm mb-4 line-clamp-2">
-                        {job.description}
-                      </p>
-                    </div>
-                    
-                    <div className="flex-shrink-0 w-full sm:w-auto">
-                      <button
-                        onClick={() => handleApply(job)}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base font-medium"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        <span className="hidden sm:inline">Apply Now</span>
-                        <span className="sm:hidden">Apply</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <EnhancedJobCard
+                  key={job.id}
+                  job={job as JobResult}
+                  isBookmarked={bookmarkedJobs.includes(job.id)}
+                  onBookmark={handleBookmark}
+                  onQuickView={handleQuickView}
+                  onShare={handleShare}
+                  viewMode={viewMode}
+                  showCompanyLogo={true}
+                  showSalaryInsights={true}
+                />
               ))}
             </div>
           )}
