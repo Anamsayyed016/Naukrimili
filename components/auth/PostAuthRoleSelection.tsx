@@ -108,8 +108,8 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         await updateSession();
         console.log('✅ Session updated');
         
-        // Add a small delay to ensure session is fully updated
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Add a longer delay to ensure session is fully updated and database changes are reflected
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Determine target URL based on role
         const targetUrl = role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';

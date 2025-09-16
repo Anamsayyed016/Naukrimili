@@ -250,15 +250,51 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user = {} as any;
       }
       
-      // Populate session.user with token data
-      (session.user as any).id = token.id;
-      (session.user as any).email = token.email;
-      (session.user as any).name = token.name || '';
-      (session.user as any).role = token.role || null;
-      (session.user as any).picture = token.picture || '';
-      (session.user as any).isActive = token.isActive;
-      
-      console.log('🔍 Session callback - Valid session created:', { id: token.id, email: token.email, role: token.role });
+      // Fetch the latest user data from database to get updated role
+      try {
+        const user = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            isActive: true,
+            picture: true
+          }
+        });
+
+        if (user) {
+          // Use fresh data from database
+          (session.user as any).id = user.id;
+          (session.user as any).email = user.email;
+          (session.user as any).name = user.name || '';
+          (session.user as any).role = user.role;
+          (session.user as any).picture = user.picture || token.picture || '';
+          (session.user as any).isActive = user.isActive;
+          
+          console.log('🔍 Session callback - Fresh data from DB:', { id: user.id, email: user.email, role: user.role });
+        } else {
+          // Fallback to token data if user not found
+          (session.user as any).id = token.id;
+          (session.user as any).email = token.email;
+          (session.user as any).name = token.name || '';
+          (session.user as any).role = token.role || null;
+          (session.user as any).picture = token.picture || '';
+          (session.user as any).isActive = token.isActive;
+          
+          console.log('🔍 Session callback - Using token data (user not found):', { id: token.id, email: token.email, role: token.role });
+        }
+      } catch (error) {
+        console.error('Error fetching user data in session callback:', error);
+        // Fallback to token data
+        (session.user as any).id = token.id;
+        (session.user as any).email = token.email;
+        (session.user as any).name = token.name || '';
+        (session.user as any).role = token.role || null;
+        (session.user as any).picture = token.picture || '';
+        (session.user as any).isActive = token.isActive;
+      }
       
       return session;
     },
