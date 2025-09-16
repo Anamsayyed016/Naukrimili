@@ -118,7 +118,60 @@ const popularLocations: LocationOption[] = [
 ];
 
 export default function AIJobPostingForm() {
-  const [currentStep, setCurrentStep] = useState(1);
+  // Initialize form data from localStorage or default values
+  const getInitialFormData = (): JobFormData => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('jobPostingFormData');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          console.log('Restored form data from localStorage:', parsed);
+          return parsed;
+        } catch (error) {
+          console.error('Error parsing saved form data:', error);
+        }
+      }
+    }
+    return {
+      title: '',
+      description: '',
+      requirements: '',
+      location: '',
+      city: '',
+      state: '',
+      country: 'IN',
+      jobType: 'Full-time',
+      experienceLevel: 'Entry Level (0-2 years)',
+      salary: '',
+      skills: [],
+      benefits: '',
+      isRemote: false,
+      isHybrid: false,
+      isUrgent: false,
+      isFeatured: false,
+      applicationDeadline: '',
+      openings: '1',
+      locationType: 'single',
+      multipleLocations: [],
+      radiusDistance: 25,
+      radiusCenter: ''
+    };
+  };
+
+  // Initialize current step from sessionStorage or default
+  const getInitialStep = (): number => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('jobPostingCurrentStep');
+      if (saved) {
+        const step = parseInt(saved, 10);
+        console.log('Restored current step from sessionStorage:', step);
+        return step;
+      }
+    }
+    return 1;
+  };
+
+  const [currentStep, setCurrentStep] = useState(getInitialStep);
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [skillsInput, setSkillsInput] = useState('');
@@ -132,41 +185,75 @@ export default function AIJobPostingForm() {
   const [fieldSuggestions, setFieldSuggestions] = useState<{[key: string]: AISuggestion}>({});
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
   
-  const [formData, setFormData] = useState<JobFormData>({
-    title: '',
-    description: '',
-    requirements: '',
-    location: '',
-    city: '',
-    state: '',
-    country: 'IN',
-    jobType: 'Full-time',
-    experienceLevel: 'Entry Level (0-2 years)',
-    salary: '',
-    skills: [],
-    benefits: '',
-    isRemote: false,
-    isHybrid: false,
-    isUrgent: false,
-    isFeatured: false,
-    applicationDeadline: '',
-    openings: '1',
-    locationType: 'single',
-    multipleLocations: [],
-    radiusDistance: 25,
-    radiusCenter: ''
-  });
+  const [formData, setFormData] = useState<JobFormData>(getInitialFormData);
 
-  // AI-powered suggestions with debouncing
+  // Instant fallback suggestions for professional feel
+  const getInstantSuggestions = (field: string, value: string): AISuggestion => {
+    const instantSuggestions: { [key: string]: string[] } = {
+      title: [
+        'Senior Software Engineer', 'Full Stack Developer', 'Frontend Developer',
+        'Backend Developer', 'DevOps Engineer', 'Data Scientist',
+        'Machine Learning Engineer', 'Product Manager', 'UI/UX Designer',
+        'Mobile App Developer', 'Cloud Engineer', 'Security Engineer'
+      ],
+      description: [
+        'We are looking for a passionate and skilled developer to join our dynamic team. You will be responsible for developing high-quality software solutions and collaborating with cross-functional teams.',
+        'Join our innovative company as we build cutting-edge products. You will work on challenging projects, contribute to architectural decisions, and mentor junior developers.',
+        'We seek a talented professional to drive our technical initiatives forward. You will be involved in the full software development lifecycle and work with modern technologies.',
+        'Come be part of our growing team and help us scale our platform. You will work on exciting projects, learn new technologies, and make a real impact on our product.'
+      ],
+      requirements: [
+        'Bachelor\'s degree in Computer Science or related field', '3+ years of experience in software development',
+        'Strong problem-solving and analytical skills', 'Excellent communication and teamwork abilities',
+        'Experience with modern development practices and tools', 'Knowledge of software design patterns and best practices',
+        'Ability to work in an agile development environment', 'Strong attention to detail and code quality'
+      ],
+      benefits: [
+        'Competitive salary and performance bonuses', 'Comprehensive health insurance coverage',
+        'Flexible working hours and remote work options', 'Professional development and training opportunities',
+        'Stock options and equity participation', 'Generous paid time off and vacation days',
+        'Modern office environment with latest technology', 'Team building activities and company events'
+      ],
+      skills: [
+        'JavaScript', 'Python', 'React', 'Node.js', 'TypeScript', 'AWS',
+        'Docker', 'Git', 'SQL', 'MongoDB', 'Express.js', 'Next.js',
+        'Vue.js', 'Angular', 'Java', 'C++', 'PHP', 'Laravel'
+      ]
+    };
+
+    const suggestions = instantSuggestions[field] || [];
+    const filteredSuggestions = suggestions.filter(suggestion => 
+      suggestion.toLowerCase().includes(value.toLowerCase()) ||
+      value.toLowerCase().includes(suggestion.toLowerCase())
+    ).slice(0, 5);
+
+    return {
+      field,
+      suggestions: filteredSuggestions.length > 0 ? filteredSuggestions : suggestions.slice(0, 5),
+      confidence: 85,
+      reasoning: 'Instant suggestions for professional experience'
+    };
+  };
+
+  // AI-powered suggestions with instant fallback
   const getAISuggestions = useCallback(async (field: string, value: string) => {
-    if (!value.trim() || value.length < 3) {
+    if (!value.trim() || value.length < 2) {
       setFieldSuggestions(prev => {
         const newSuggestions = { ...prev };
         delete newSuggestions[field];
         return newSuggestions;
       });
+      setActiveField(null);
       return;
     }
+    
+    // Show instant suggestions immediately for professional feel
+    const instantSuggestion = getInstantSuggestions(field, value);
+    setFieldSuggestions(prev => ({
+      ...prev,
+      [field]: instantSuggestion
+    }));
+    setActiveField(field);
     
     setAiLoading(true);
     try {
@@ -179,7 +266,8 @@ export default function AIJobPostingForm() {
           context: {
             jobType: formData.jobType,
             experienceLevel: formData.experienceLevel,
-            industry: 'Technology' // This could be dynamic based on company profile
+            industry: 'Technology',
+            skills: formData.skills
           }
         })
       });
@@ -193,6 +281,7 @@ export default function AIJobPostingForm() {
           reasoning: `AI confidence: ${data.confidence}%`
         };
         
+        // Update with AI suggestions (replace instant ones)
         setFieldSuggestions(prev => ({
           ...prev,
           [field]: suggestion
@@ -202,10 +291,11 @@ export default function AIJobPostingForm() {
       }
     } catch (error) {
       console.error('AI suggestions error:', error);
+      // Keep instant suggestions if AI fails
     } finally {
       setAiLoading(false);
     }
-  }, [formData.jobType, formData.experienceLevel]);
+  }, [formData.jobType, formData.experienceLevel, formData.skills]);
 
   // Debounced input handler for real-time suggestions
   const handleInputChangeWithSuggestions = useCallback((field: keyof JobFormData, value: any) => {
@@ -222,12 +312,12 @@ export default function AIJobPostingForm() {
       clearTimeout(typingTimeout);
     }
     
-    // Set new timeout for AI suggestions
+    // Set new timeout for AI suggestions - INSTANT for professional feel
     if (['title', 'description', 'requirements', 'benefits', 'skills'].includes(field) && typeof value === 'string') {
       const timeout = setTimeout(() => {
         console.log('Triggering AI suggestions for:', field, value);
         getAISuggestions(field, value);
-      }, 1000); // 1 second delay
+      }, 150); // 150ms delay for instant professional feel
       
       setTypingTimeout(timeout);
     }
@@ -330,10 +420,19 @@ export default function AIJobPostingForm() {
       }
     }
     
-    // Trigger AI suggestions for skills
+    // Trigger AI suggestions for skills with debouncing
     if (value.length > 2) {
-      console.log('Triggering AI suggestions for skills:', value);
-      getAISuggestions('skills', value);
+      // Clear existing timeout for skills
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+      
+      const timeout = setTimeout(() => {
+        console.log('Triggering AI suggestions for skills:', value);
+        getAISuggestions('skills', value);
+      }, 150); // 150ms delay for instant professional feel
+      
+      setTypingTimeout(timeout);
     }
   };
 
@@ -384,6 +483,22 @@ export default function AIJobPostingForm() {
     setActiveField(null);
   };
 
+  // Persist form data to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('jobPostingFormData', JSON.stringify(formData));
+      console.log('Saved form data to localStorage:', formData);
+    }
+  }, [formData]);
+
+  // Persist current step to sessionStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('jobPostingCurrentStep', currentStep.toString());
+      console.log('Saved current step to sessionStorage:', currentStep);
+    }
+  }, [currentStep]);
+
   // Cleanup typing timeout on unmount
   useEffect(() => {
     return () => {
@@ -410,6 +525,31 @@ export default function AIJobPostingForm() {
       setCurrentStep(currentStep + 1);
       toast.success('Step completed! Moving to next step.');
     }
+  };
+
+  // Function to clear form data and start fresh
+  const clearFormData = () => {
+    const resetFormData: JobFormData = {
+      title: '', description: '', requirements: '', location: '', city: '', state: '', country: 'IN',
+      jobType: 'Full-time', experienceLevel: 'Entry Level (0-2 years)', salary: '', skills: [], benefits: '',
+      isRemote: false, isHybrid: false, isUrgent: false, isFeatured: false, applicationDeadline: '', openings: '1',
+      locationType: 'single' as const, multipleLocations: [], radiusDistance: 25, radiusCenter: ''
+    };
+    setFormData(resetFormData);
+    setCurrentStep(1);
+    setSkillsInput('');
+    setLocationInput('');
+    setFieldSuggestions({});
+    setActiveField(null);
+    
+    // Clear localStorage and sessionStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('jobPostingFormData');
+      sessionStorage.removeItem('jobPostingCurrentStep');
+      console.log('Form data cleared and persistence removed');
+    }
+    
+    toast.success('Form cleared! Starting fresh.');
   };
 
   const prevStep = () => {
@@ -502,14 +642,22 @@ export default function AIJobPostingForm() {
           description: 'Job seekers can now find and apply to your position with enhanced visibility.',
           duration: 5000,
         });
-        // Reset form or redirect
-        setFormData({
+        // Reset form and clear persistence
+        const resetFormData: JobFormData = {
           title: '', description: '', requirements: '', location: '', city: '', state: '', country: 'IN',
           jobType: 'Full-time', experienceLevel: 'Entry Level (0-2 years)', salary: '', skills: [], benefits: '',
           isRemote: false, isHybrid: false, isUrgent: false, isFeatured: false, applicationDeadline: '', openings: '1',
-          locationType: 'single', multipleLocations: [], radiusDistance: 25, radiusCenter: ''
-        });
+          locationType: 'single' as const, multipleLocations: [], radiusDistance: 25, radiusCenter: ''
+        };
+        setFormData(resetFormData);
         setCurrentStep(1);
+        
+        // Clear localStorage and sessionStorage
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('jobPostingFormData');
+          sessionStorage.removeItem('jobPostingCurrentStep');
+          console.log('Cleared form persistence after successful submission');
+        }
       } else {
         toast.error(data.error || 'Failed to post job');
       }
@@ -576,8 +724,8 @@ export default function AIJobPostingForm() {
 
 
         {/* Main Form */}
-        <Card className="shadow-2xl border-0 bg-white/98 backdrop-blur-sm rounded-2xl overflow-hidden">
-          <CardContent className="p-8">
+        <Card className="shadow-2xl bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/50 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20">
+          <CardContent className="p-8 md:p-10">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <motion.div
@@ -587,21 +735,26 @@ export default function AIJobPostingForm() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-6"
                 >
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Job Details</h2>
-                    <p className="text-slate-600">Tell us about the position with AI-powered suggestions</p>
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-3 mb-4">
+                      <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
+                        <Briefcase className="h-6 w-6 text-white" />
+                      </div>
+                      <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Job Details</h2>
+                    </div>
+                    <p className="text-slate-600 text-lg">Tell us about the position with AI-powered suggestions</p>
                   </div>
 
                   <div className="space-y-6">
                     <div>
-                      <Label className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-3">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <Briefcase className="h-5 w-5 text-blue-600" />
+                      <Label className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-4">
+                        <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl shadow-lg">
+                          <Briefcase className="h-6 w-6 text-white" />
                         </div>
                         <div className="flex-1">
-                          <span>Job Title *</span>
+                          <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Job Title *</span>
                           {fieldSuggestions.title && (
-                            <Badge variant="default" className="ml-3 text-xs bg-green-100 text-green-800 border-green-200">
+                            <Badge variant="default" className="ml-4 text-sm bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300 shadow-sm px-3 py-1">
                               ✨ AI suggestions available
                             </Badge>
                           )}
@@ -612,7 +765,7 @@ export default function AIJobPostingForm() {
                           value={formData.title}
                           onChange={(e) => handleInputChange('title', e.target.value)}
                           placeholder="e.g., Senior Software Engineer"
-                          className="text-lg h-14 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 bg-white text-slate-900"
+                          className="text-lg h-16 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 pr-12 bg-white text-slate-900 font-medium"
                         />
                         {aiLoading && activeField === 'title' && (
                           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -626,7 +779,7 @@ export default function AIJobPostingForm() {
                           animate={{ opacity: 1, height: 'auto', y: 0 }}
                           exit={{ opacity: 0, height: 0, y: -10 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
-                          className="mt-4 p-4 bg-gradient-to-r from-blue-200 to-indigo-200 border-2 border-blue-400 rounded-xl shadow-xl backdrop-blur-sm"
+                          className="mt-6 p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-300 rounded-2xl shadow-2xl backdrop-blur-sm"
                         >
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
@@ -661,7 +814,7 @@ export default function AIJobPostingForm() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => applyAISuggestion('title', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 hover:bg-blue-100 hover:border-blue-500 hover:shadow-lg transition-all duration-200 group border-blue-400 bg-blue-100 text-slate-900 shadow-sm"
+                                  className="w-full text-left justify-start h-auto p-4 hover:bg-white hover:border-blue-400 hover:shadow-xl transition-all duration-300 group border-blue-300 bg-white/80 text-slate-900 shadow-lg rounded-xl"
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="p-2 bg-blue-300 rounded-full group-hover:bg-blue-400 transition-colors shadow-sm">
@@ -721,7 +874,7 @@ export default function AIJobPostingForm() {
                           animate={{ opacity: 1, height: 'auto', y: 0 }}
                           exit={{ opacity: 0, height: 0, y: -10 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
-                          className="mt-4 p-4 bg-gradient-to-r from-blue-200 to-indigo-200 border-2 border-blue-400 rounded-xl shadow-xl backdrop-blur-sm"
+                          className="mt-6 p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-300 rounded-2xl shadow-2xl backdrop-blur-sm"
                         >
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
@@ -756,7 +909,7 @@ export default function AIJobPostingForm() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => applyAISuggestion('description', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 hover:bg-blue-100 hover:border-blue-500 hover:shadow-lg transition-all duration-200 group border-blue-400 bg-blue-100 text-slate-900 shadow-sm"
+                                  className="w-full text-left justify-start h-auto p-4 hover:bg-white hover:border-blue-400 hover:shadow-xl transition-all duration-300 group border-blue-300 bg-white/80 text-slate-900 shadow-lg rounded-xl"
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="p-2 bg-blue-300 rounded-full group-hover:bg-blue-400 transition-colors shadow-sm">
@@ -869,7 +1022,7 @@ export default function AIJobPostingForm() {
                           animate={{ opacity: 1, height: 'auto', y: 0 }}
                           exit={{ opacity: 0, height: 0, y: -10 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
-                          className="mt-4 p-4 bg-gradient-to-r from-blue-200 to-indigo-200 border-2 border-blue-400 rounded-xl shadow-xl backdrop-blur-sm"
+                          className="mt-6 p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-300 rounded-2xl shadow-2xl backdrop-blur-sm"
                         >
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
@@ -904,7 +1057,7 @@ export default function AIJobPostingForm() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => applyAISuggestion('requirements', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 hover:bg-blue-100 hover:border-blue-500 hover:shadow-lg transition-all duration-200 group border-blue-400 bg-blue-100 text-slate-900 shadow-sm"
+                                  className="w-full text-left justify-start h-auto p-4 hover:bg-white hover:border-blue-400 hover:shadow-xl transition-all duration-300 group border-blue-300 bg-white/80 text-slate-900 shadow-lg rounded-xl"
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="p-2 bg-blue-300 rounded-full group-hover:bg-blue-400 transition-colors shadow-sm">
@@ -973,7 +1126,7 @@ export default function AIJobPostingForm() {
                             animate={{ opacity: 1, height: 'auto', y: 0 }}
                             exit={{ opacity: 0, height: 0, y: -10 }}
                             transition={{ duration: 0.3, ease: "easeOut" }}
-                            className="mt-4 p-4 bg-gradient-to-r from-blue-200 to-indigo-200 border-2 border-blue-400 rounded-xl shadow-xl backdrop-blur-sm"
+                            className="mt-6 p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-300 rounded-2xl shadow-2xl backdrop-blur-sm"
                           >
                             <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-2">
@@ -1019,7 +1172,7 @@ export default function AIJobPostingForm() {
                                         toast.success(`Added skill: ${suggestion}`);
                                       }
                                     }}
-                                    className="w-full text-left justify-start h-auto p-3 hover:bg-blue-100 hover:border-blue-500 hover:shadow-lg transition-all duration-200 group border-blue-400 bg-blue-100 text-slate-900 shadow-sm"
+                                    className="w-full text-left justify-start h-auto p-4 hover:bg-white hover:border-blue-400 hover:shadow-xl transition-all duration-300 group border-blue-300 bg-white/80 text-slate-900 shadow-lg rounded-xl"
                                   >
                                     <div className="flex items-center gap-3">
                                       <div className="p-2 bg-blue-300 rounded-full group-hover:bg-blue-400 transition-colors shadow-sm">
@@ -1097,7 +1250,7 @@ export default function AIJobPostingForm() {
                           animate={{ opacity: 1, height: 'auto', y: 0 }}
                           exit={{ opacity: 0, height: 0, y: -10 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
-                          className="mt-4 p-4 bg-gradient-to-r from-blue-200 to-indigo-200 border-2 border-blue-400 rounded-xl shadow-xl backdrop-blur-sm"
+                          className="mt-6 p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-300 rounded-2xl shadow-2xl backdrop-blur-sm"
                         >
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
@@ -1132,7 +1285,7 @@ export default function AIJobPostingForm() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => applyAISuggestion('benefits', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 hover:bg-blue-100 hover:border-blue-500 hover:shadow-lg transition-all duration-200 group border-blue-400 bg-blue-100 text-slate-900 shadow-sm"
+                                  className="w-full text-left justify-start h-auto p-4 hover:bg-white hover:border-blue-400 hover:shadow-xl transition-all duration-300 group border-blue-300 bg-white/80 text-slate-900 shadow-lg rounded-xl"
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="p-2 bg-blue-300 rounded-full group-hover:bg-blue-400 transition-colors shadow-sm">
@@ -1469,6 +1622,17 @@ export default function AIJobPostingForm() {
               </Button>
 
               <div className="flex gap-3">
+                {/* Clear Form Button */}
+                <Button
+                  variant="outline"
+                  onClick={clearFormData}
+                  className="px-4 py-2 text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400"
+                  title="Clear all form data and start fresh"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Clear
+                </Button>
+                
                 {currentStep < steps.length ? (
                   <Button
                     onClick={nextStep}
