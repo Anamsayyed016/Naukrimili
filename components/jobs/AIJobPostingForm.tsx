@@ -503,82 +503,6 @@ export default function AIJobPostingForm() {
           </div>
         </div>
 
-        {/* Inline AI Suggestions Component */}
-        {Object.keys(fieldSuggestions).length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="mb-6"
-          >
-            <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-blue-200 shadow-lg">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Bot className="h-5 w-5 text-blue-600" />
-                  AI Suggestions
-                  <Badge variant="secondary" className="ml-2">
-                    {Object.keys(fieldSuggestions).length} field{Object.keys(fieldSuggestions).length > 1 ? 's' : ''}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {Object.entries(fieldSuggestions).map(([field, suggestion]) => (
-                  <div key={field} className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-semibold capitalize text-slate-700">
-                        {field} suggestions
-                      </Label>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">
-                          {suggestion.confidence}% confidence
-                        </Badge>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => dismissFieldSuggestions(field)}
-                          className="h-6 w-6 p-0 hover:bg-red-100"
-                        >
-                          <X className="h-3 w-3 text-red-500" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {suggestion.suggestions.slice(0, 4).map((suggestionText, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: idx * 0.1 }}
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => applyAISuggestion(field, suggestionText)}
-                            className="w-full text-left justify-start h-auto p-4 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 group"
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
-                                <Lightbulb className="h-3 w-3 text-blue-600" />
-                              </div>
-                              <div className="flex-1">
-                                <span className="text-sm font-medium text-slate-800 block">
-                                  {suggestionText}
-                                </span>
-                                <span className="text-xs text-slate-500 mt-1 block">
-                                  Click to apply this suggestion
-                                </span>
-                              </div>
-                            </div>
-                          </Button>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
 
         {/* Main Form */}
         <Card className="shadow-2xl border-0 bg-white/98 backdrop-blur-sm rounded-2xl overflow-hidden">
@@ -599,21 +523,25 @@ export default function AIJobPostingForm() {
 
                   <div className="space-y-6">
                     <div>
-                      <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                        <Briefcase className="h-5 w-5 text-blue-600" />
-                        Job Title *
-                        {fieldSuggestions.title && (
-                          <Badge variant="outline" className="ml-2 text-xs">
-                            AI suggestions available
-                          </Badge>
-                        )}
+                      <Label className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <Briefcase className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <span>Job Title *</span>
+                          {fieldSuggestions.title && (
+                            <Badge variant="default" className="ml-3 text-xs bg-green-100 text-green-800 border-green-200">
+                              ✨ AI suggestions available
+                            </Badge>
+                          )}
+                        </div>
                       </Label>
                       <div className="relative">
                         <Input
                           value={formData.title}
                           onChange={(e) => handleInputChange('title', e.target.value)}
                           placeholder="e.g., Senior Software Engineer"
-                          className="text-lg h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 pr-10"
+                          className="text-lg h-14 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12"
                         />
                         {aiLoading && activeField === 'title' && (
                           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -623,30 +551,62 @@ export default function AIJobPostingForm() {
                       </div>
                       {fieldSuggestions.title && (
                         <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                          initial={{ opacity: 0, height: 0, y: -10 }}
+                          animate={{ opacity: 1, height: 'auto', y: 0 }}
+                          exit={{ opacity: 0, height: 0, y: -10 }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
+                          className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-lg"
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Bot className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm font-medium text-blue-800">AI Suggestions</span>
-                            <Badge variant="outline" className="text-xs">
-                              {fieldSuggestions.title.confidence}% confidence
-                            </Badge>
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="p-2 bg-blue-100 rounded-full">
+                                <Bot className="h-4 w-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <span className="text-sm font-semibold text-blue-900">AI Suggestions</span>
+                                <div className="text-xs text-blue-600">
+                                  {fieldSuggestions.title.confidence}% confidence
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => dismissFieldSuggestions('title')}
+                              className="h-6 w-6 p-0 hover:bg-red-100 rounded-full"
+                            >
+                              <X className="h-3 w-3 text-red-500" />
+                            </Button>
                           </div>
-                          <div className="grid grid-cols-1 gap-2">
+                          <div className="space-y-2">
                             {fieldSuggestions.title.suggestions.slice(0, 3).map((suggestion, idx) => (
-                              <Button
+                              <motion.div
                                 key={idx}
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => applyAISuggestion('title', suggestion)}
-                                className="w-full text-left justify-start h-auto p-2 hover:bg-blue-100 text-sm"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.1 }}
                               >
-                                <Lightbulb className="h-3 w-3 mr-2 text-blue-500" />
-                                {suggestion}
-                              </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyAISuggestion('title', suggestion)}
+                                  className="w-full text-left justify-start h-auto p-3 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 group border-blue-200 bg-white/50"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
+                                      <Lightbulb className="h-3 w-3 text-blue-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="text-sm font-medium text-slate-800 block">
+                                        {suggestion}
+                                      </span>
+                                      <span className="text-xs text-slate-500">
+                                        Click to apply
+                                      </span>
+                                    </div>
+                                  </div>
+                                </Button>
+                              </motion.div>
                             ))}
                           </div>
                         </motion.div>
@@ -654,14 +614,18 @@ export default function AIJobPostingForm() {
                     </div>
 
                     <div>
-                      <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-blue-600" />
-                        Job Description *
-                        {fieldSuggestions.description && (
-                          <Badge variant="outline" className="ml-2 text-xs">
-                            AI suggestions available
-                          </Badge>
-                        )}
+                      <Label className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <span>Job Description *</span>
+                          {fieldSuggestions.description && (
+                            <Badge variant="default" className="ml-3 text-xs bg-green-100 text-green-800 border-green-200">
+                              ✨ AI suggestions available
+                            </Badge>
+                          )}
+                        </div>
                       </Label>
                       <div className="relative">
                         <Textarea
@@ -669,7 +633,7 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('description', e.target.value)}
                           rows={6}
                           placeholder="Describe the role, responsibilities, and what makes this opportunity special..."
-                          className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 pr-10"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base"
                         />
                         {aiLoading && activeField === 'description' && (
                           <div className="absolute right-3 top-3">
@@ -679,30 +643,62 @@ export default function AIJobPostingForm() {
                       </div>
                       {fieldSuggestions.description && (
                         <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                          initial={{ opacity: 0, height: 0, y: -10 }}
+                          animate={{ opacity: 1, height: 'auto', y: 0 }}
+                          exit={{ opacity: 0, height: 0, y: -10 }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
+                          className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-lg"
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Bot className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm font-medium text-blue-800">AI Suggestions</span>
-                            <Badge variant="outline" className="text-xs">
-                              {fieldSuggestions.description.confidence}% confidence
-                            </Badge>
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="p-2 bg-blue-100 rounded-full">
+                                <Bot className="h-4 w-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <span className="text-sm font-semibold text-blue-900">AI Suggestions</span>
+                                <div className="text-xs text-blue-600">
+                                  {fieldSuggestions.description.confidence}% confidence
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => dismissFieldSuggestions('description')}
+                              className="h-6 w-6 p-0 hover:bg-red-100 rounded-full"
+                            >
+                              <X className="h-3 w-3 text-red-500" />
+                            </Button>
                           </div>
-                          <div className="grid grid-cols-1 gap-2">
+                          <div className="space-y-2">
                             {fieldSuggestions.description.suggestions.slice(0, 3).map((suggestion, idx) => (
-                              <Button
+                              <motion.div
                                 key={idx}
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => applyAISuggestion('description', suggestion)}
-                                className="w-full text-left justify-start h-auto p-2 hover:bg-blue-100 text-sm"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.1 }}
                               >
-                                <Lightbulb className="h-3 w-3 mr-2 text-blue-500" />
-                                {suggestion}
-                              </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyAISuggestion('description', suggestion)}
+                                  className="w-full text-left justify-start h-auto p-3 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 group border-blue-200 bg-white/50"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
+                                      <Lightbulb className="h-3 w-3 text-blue-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="text-sm font-medium text-slate-800 block">
+                                        {suggestion}
+                                      </span>
+                                      <span className="text-xs text-slate-500">
+                                        Click to apply
+                                      </span>
+                                    </div>
+                                  </div>
+                                </Button>
+                              </motion.div>
                             ))}
                           </div>
                         </motion.div>
@@ -763,14 +759,18 @@ export default function AIJobPostingForm() {
 
                   <div className="space-y-6">
                     <div>
-                      <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-blue-600" />
-                        Requirements *
-                        {fieldSuggestions.requirements && (
-                          <Badge variant="outline" className="ml-2 text-xs">
-                            AI suggestions available
-                          </Badge>
-                        )}
+                      <Label className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <span>Requirements *</span>
+                          {fieldSuggestions.requirements && (
+                            <Badge variant="default" className="ml-3 text-xs bg-green-100 text-green-800 border-green-200">
+                              ✨ AI suggestions available
+                            </Badge>
+                          )}
+                        </div>
                       </Label>
                       <div className="relative">
                         <Textarea
@@ -778,7 +778,7 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('requirements', e.target.value)}
                           rows={4}
                           placeholder="List the key requirements, qualifications, and experience needed..."
-                          className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 pr-10"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base"
                         />
                         {aiLoading && activeField === 'requirements' && (
                           <div className="absolute right-3 top-3">
@@ -788,30 +788,62 @@ export default function AIJobPostingForm() {
                       </div>
                       {fieldSuggestions.requirements && (
                         <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                          initial={{ opacity: 0, height: 0, y: -10 }}
+                          animate={{ opacity: 1, height: 'auto', y: 0 }}
+                          exit={{ opacity: 0, height: 0, y: -10 }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
+                          className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-lg"
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Bot className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm font-medium text-blue-800">AI Suggestions</span>
-                            <Badge variant="outline" className="text-xs">
-                              {fieldSuggestions.requirements.confidence}% confidence
-                            </Badge>
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="p-2 bg-blue-100 rounded-full">
+                                <Bot className="h-4 w-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <span className="text-sm font-semibold text-blue-900">AI Suggestions</span>
+                                <div className="text-xs text-blue-600">
+                                  {fieldSuggestions.requirements.confidence}% confidence
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => dismissFieldSuggestions('requirements')}
+                              className="h-6 w-6 p-0 hover:bg-red-100 rounded-full"
+                            >
+                              <X className="h-3 w-3 text-red-500" />
+                            </Button>
                           </div>
-                          <div className="grid grid-cols-1 gap-2">
+                          <div className="space-y-2">
                             {fieldSuggestions.requirements.suggestions.slice(0, 3).map((suggestion, idx) => (
-                              <Button
+                              <motion.div
                                 key={idx}
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => applyAISuggestion('requirements', suggestion)}
-                                className="w-full text-left justify-start h-auto p-2 hover:bg-blue-100 text-sm"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.1 }}
                               >
-                                <Lightbulb className="h-3 w-3 mr-2 text-blue-500" />
-                                {suggestion}
-                              </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyAISuggestion('requirements', suggestion)}
+                                  className="w-full text-left justify-start h-auto p-3 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 group border-blue-200 bg-white/50"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
+                                      <Lightbulb className="h-3 w-3 text-blue-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="text-sm font-medium text-slate-800 block">
+                                        {suggestion}
+                                      </span>
+                                      <span className="text-xs text-slate-500">
+                                        Click to apply
+                                      </span>
+                                    </div>
+                                  </div>
+                                </Button>
+                              </motion.div>
                             ))}
                           </div>
                         </motion.div>
@@ -850,14 +882,18 @@ export default function AIJobPostingForm() {
                     </div>
 
                     <div>
-                      <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-blue-600" />
-                        Benefits & Perks
-                        {fieldSuggestions.benefits && (
-                          <Badge variant="outline" className="ml-2 text-xs">
-                            AI suggestions available
-                          </Badge>
-                        )}
+                      <Label className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <Sparkles className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <span>Benefits & Perks</span>
+                          {fieldSuggestions.benefits && (
+                            <Badge variant="default" className="ml-3 text-xs bg-green-100 text-green-800 border-green-200">
+                              ✨ AI suggestions available
+                            </Badge>
+                          )}
+                        </div>
                       </Label>
                       <div className="relative">
                         <Textarea
@@ -865,7 +901,7 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('benefits', e.target.value)}
                           rows={3}
                           placeholder="What benefits and perks do you offer? (health insurance, flexible hours, etc.)"
-                          className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 pr-10"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base"
                         />
                         {aiLoading && activeField === 'benefits' && (
                           <div className="absolute right-3 top-3">
@@ -875,30 +911,62 @@ export default function AIJobPostingForm() {
                       </div>
                       {fieldSuggestions.benefits && (
                         <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                          initial={{ opacity: 0, height: 0, y: -10 }}
+                          animate={{ opacity: 1, height: 'auto', y: 0 }}
+                          exit={{ opacity: 0, height: 0, y: -10 }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
+                          className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-lg"
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Bot className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm font-medium text-blue-800">AI Suggestions</span>
-                            <Badge variant="outline" className="text-xs">
-                              {fieldSuggestions.benefits.confidence}% confidence
-                            </Badge>
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="p-2 bg-blue-100 rounded-full">
+                                <Bot className="h-4 w-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <span className="text-sm font-semibold text-blue-900">AI Suggestions</span>
+                                <div className="text-xs text-blue-600">
+                                  {fieldSuggestions.benefits.confidence}% confidence
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => dismissFieldSuggestions('benefits')}
+                              className="h-6 w-6 p-0 hover:bg-red-100 rounded-full"
+                            >
+                              <X className="h-3 w-3 text-red-500" />
+                            </Button>
                           </div>
-                          <div className="grid grid-cols-1 gap-2">
+                          <div className="space-y-2">
                             {fieldSuggestions.benefits.suggestions.slice(0, 3).map((suggestion, idx) => (
-                              <Button
+                              <motion.div
                                 key={idx}
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => applyAISuggestion('benefits', suggestion)}
-                                className="w-full text-left justify-start h-auto p-2 hover:bg-blue-100 text-sm"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.1 }}
                               >
-                                <Lightbulb className="h-3 w-3 mr-2 text-blue-500" />
-                                {suggestion}
-                              </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyAISuggestion('benefits', suggestion)}
+                                  className="w-full text-left justify-start h-auto p-3 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 group border-blue-200 bg-white/50"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
+                                      <Lightbulb className="h-3 w-3 text-blue-600" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <span className="text-sm font-medium text-slate-800 block">
+                                        {suggestion}
+                                      </span>
+                                      <span className="text-xs text-slate-500">
+                                        Click to apply
+                                      </span>
+                                    </div>
+                                  </div>
+                                </Button>
+                              </motion.div>
                             ))}
                           </div>
                         </motion.div>
