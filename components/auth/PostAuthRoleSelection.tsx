@@ -26,6 +26,16 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
   const [selectedRole, setSelectedRole] = useState<'jobseeker' | 'employer' | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
+  // Check if user already has a role and redirect immediately
+  React.useEffect(() => {
+    if (user?.role) {
+      console.log('User already has role:', user.role, '- redirecting immediately');
+      const targetUrl = user.role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
+      const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
+      window.location.href = finalUrl;
+    }
+  }, [user?.role]);
+
   const handleRoleSelection = async (role: 'jobseeker' | 'employer') => {
     setSelectedRole(role);
     setIsLoading(true);

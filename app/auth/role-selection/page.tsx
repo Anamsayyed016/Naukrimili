@@ -34,16 +34,10 @@ export default function RoleSelectionPage() {
 
     if (status === 'authenticated' && session?.user) {
       console.log('User is authenticated:', session.user);
+      console.log('User role:', session.user.role);
       
-      // Only redirect if user has a role and we're not in the middle of role selection
-      if (session.user.role && !window.location.search.includes('selecting=true')) {
-        console.log('User has role:', session.user.role, '- redirecting to appropriate dashboard');
-        const targetUrl = session.user.role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
-        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
-        router.push(finalUrl);
-      } else {
-        console.log('User authenticated but no role assigned, showing role selection');
-      }
+      // Let the PostAuthRoleSelection component handle role-based logic
+      // This page only shows the role selection interface
     }
   }, [session, status, router]);
 
