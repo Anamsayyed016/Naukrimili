@@ -555,7 +555,7 @@ export default function AIJobPostingForm() {
                           animate={{ opacity: 1, height: 'auto', y: 0 }}
                           exit={{ opacity: 0, height: 0, y: -10 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
-                          className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-lg"
+                          className="mt-4 p-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-2 border-blue-300 rounded-xl shadow-lg backdrop-blur-sm"
                         >
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
@@ -590,17 +590,17 @@ export default function AIJobPostingForm() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => applyAISuggestion('title', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 group border-blue-200 bg-white/50"
+                                  className="w-full text-left justify-start h-auto p-3 hover:bg-blue-50 hover:border-blue-400 hover:shadow-md transition-all duration-200 group border-blue-300 bg-blue-50/80 text-slate-800"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
-                                      <Lightbulb className="h-3 w-3 text-blue-600" />
+                                    <div className="p-1.5 bg-blue-200 rounded-full group-hover:bg-blue-300 transition-colors">
+                                      <Lightbulb className="h-3.5 w-3.5 text-blue-700" />
                                     </div>
                                     <div className="flex-1">
-                                      <span className="text-sm font-medium text-slate-800 block">
+                                      <span className="text-sm font-semibold text-slate-900 block">
                                         {suggestion}
                                       </span>
-                                      <span className="text-xs text-slate-500">
+                                      <span className="text-xs text-slate-600">
                                         Click to apply this suggestion
                                       </span>
                                     </div>
@@ -650,7 +650,7 @@ export default function AIJobPostingForm() {
                           animate={{ opacity: 1, height: 'auto', y: 0 }}
                           exit={{ opacity: 0, height: 0, y: -10 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
-                          className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-lg"
+                          className="mt-4 p-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-2 border-blue-300 rounded-xl shadow-lg backdrop-blur-sm"
                         >
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
@@ -685,17 +685,17 @@ export default function AIJobPostingForm() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => applyAISuggestion('description', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 group border-blue-200 bg-white/50"
+                                  className="w-full text-left justify-start h-auto p-3 hover:bg-blue-50 hover:border-blue-400 hover:shadow-md transition-all duration-200 group border-blue-300 bg-blue-50/80 text-slate-800"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
-                                      <Lightbulb className="h-3 w-3 text-blue-600" />
+                                    <div className="p-1.5 bg-blue-200 rounded-full group-hover:bg-blue-300 transition-colors">
+                                      <Lightbulb className="h-3.5 w-3.5 text-blue-700" />
                                     </div>
                                     <div className="flex-1">
-                                      <span className="text-sm font-medium text-slate-800 block">
+                                      <span className="text-sm font-semibold text-slate-900 block">
                                         {suggestion}
                                       </span>
-                                      <span className="text-xs text-slate-500">
+                                      <span className="text-xs text-slate-600">
                                         Click to apply this suggestion
                                       </span>
                                     </div>
@@ -798,7 +798,7 @@ export default function AIJobPostingForm() {
                           animate={{ opacity: 1, height: 'auto', y: 0 }}
                           exit={{ opacity: 0, height: 0, y: -10 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
-                          className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-lg"
+                          className="mt-4 p-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-2 border-blue-300 rounded-xl shadow-lg backdrop-blur-sm"
                         >
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
@@ -833,17 +833,17 @@ export default function AIJobPostingForm() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => applyAISuggestion('requirements', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 group border-blue-200 bg-white/50"
+                                  className="w-full text-left justify-start h-auto p-3 hover:bg-blue-50 hover:border-blue-400 hover:shadow-md transition-all duration-200 group border-blue-300 bg-blue-50/80 text-slate-800"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
-                                      <Lightbulb className="h-3 w-3 text-blue-600" />
+                                    <div className="p-1.5 bg-blue-200 rounded-full group-hover:bg-blue-300 transition-colors">
+                                      <Lightbulb className="h-3.5 w-3.5 text-blue-700" />
                                     </div>
                                     <div className="flex-1">
-                                      <span className="text-sm font-medium text-slate-800 block">
+                                      <span className="text-sm font-semibold text-slate-900 block">
                                         {suggestion}
                                       </span>
-                                      <span className="text-xs text-slate-500">
+                                      <span className="text-xs text-slate-600">
                                         Click to apply this suggestion
                                       </span>
                                     </div>
@@ -924,7 +924,7 @@ export default function AIJobPostingForm() {
                           animate={{ opacity: 1, height: 'auto', y: 0 }}
                           exit={{ opacity: 0, height: 0, y: -10 }}
                           transition={{ duration: 0.3, ease: "easeOut" }}
-                          className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-lg"
+                          className="mt-4 p-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-2 border-blue-300 rounded-xl shadow-lg backdrop-blur-sm"
                         >
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
@@ -959,17 +959,17 @@ export default function AIJobPostingForm() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => applyAISuggestion('benefits', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200 group border-blue-200 bg-white/50"
+                                  className="w-full text-left justify-start h-auto p-3 hover:bg-blue-50 hover:border-blue-400 hover:shadow-md transition-all duration-200 group border-blue-300 bg-blue-50/80 text-slate-800"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
-                                      <Lightbulb className="h-3 w-3 text-blue-600" />
+                                    <div className="p-1.5 bg-blue-200 rounded-full group-hover:bg-blue-300 transition-colors">
+                                      <Lightbulb className="h-3.5 w-3.5 text-blue-700" />
                                     </div>
                                     <div className="flex-1">
-                                      <span className="text-sm font-medium text-slate-800 block">
+                                      <span className="text-sm font-semibold text-slate-900 block">
                                         {suggestion}
                                       </span>
-                                      <span className="text-xs text-slate-500">
+                                      <span className="text-xs text-slate-600">
                                         Click to apply this suggestion
                                       </span>
                                     </div>
