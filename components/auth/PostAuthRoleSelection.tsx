@@ -26,16 +26,22 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
   const [selectedRole, setSelectedRole] = useState<'jobseeker' | 'employer' | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
+  // Debug logging
+  console.log('🔍 PostAuthRoleSelection - User object:', user);
+  console.log('🔍 PostAuthRoleSelection - User role:', user?.role);
+  console.log('🔍 PostAuthRoleSelection - User ID:', user?.id);
+
   // Check if user already has a role and redirect immediately
   React.useEffect(() => {
     if (user?.role) {
       console.log('User already has role:', user.role, '- redirecting immediately');
       const targetUrl = user.role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
       const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
-      // Use router.push instead of window.location.href for better Next.js handling
-      router.push(finalUrl);
+      console.log('🔄 Immediate redirect URL:', finalUrl);
+      // Use window.location.href to force a full page reload
+      window.location.href = finalUrl;
     }
-  }, [user?.role, router]);
+  }, [user?.role]);
 
   const handleRoleSelection = async (role: 'jobseeker' | 'employer') => {
     setSelectedRole(role);
@@ -102,6 +108,9 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         await updateSession();
         console.log('✅ Session updated');
         
+        // Add a small delay to ensure session is fully updated
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Determine target URL based on role
         const targetUrl = role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
         console.log('🚀 Redirecting to:', targetUrl);
@@ -109,8 +118,9 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         // Add URL parameter to prevent immediate redirect back
         const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
         
-        // Use router.push for better Next.js handling
-        router.push(finalUrl);
+        // Use window.location.href to force a full page reload and fresh session
+        console.log('🔄 Final redirect URL:', finalUrl);
+        window.location.href = finalUrl;
         
         if (onComplete) {
           onComplete({ ...user, role });

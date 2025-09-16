@@ -36,6 +36,16 @@ export default function RoleSelectionPage() {
       console.log('User is authenticated:', session.user);
       console.log('User role:', session.user.role);
       
+      // If user already has a role, redirect them to the appropriate page
+      if (session.user.role) {
+        console.log('User already has role:', session.user.role, '- redirecting from role selection page');
+        const targetUrl = session.user.role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
+        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
+        console.log('Redirecting to:', finalUrl);
+        window.location.href = finalUrl;
+        return;
+      }
+      
       // Let the PostAuthRoleSelection component handle role-based logic
       // This page only shows the role selection interface
     }
