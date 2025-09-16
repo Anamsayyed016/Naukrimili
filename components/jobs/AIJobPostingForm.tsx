@@ -209,7 +209,13 @@ export default function AIJobPostingForm() {
 
   // Debounced input handler for real-time suggestions
   const handleInputChangeWithSuggestions = useCallback((field: keyof JobFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    console.log('Input change:', { field, value });
+    
+    setFormData(prev => {
+      const updated = { ...prev, [field]: value };
+      console.log('Form data updated:', updated);
+      return updated;
+    });
     
     // Clear existing timeout
     if (typingTimeout) {
@@ -219,6 +225,7 @@ export default function AIJobPostingForm() {
     // Set new timeout for AI suggestions
     if (['title', 'description', 'requirements', 'benefits'].includes(field) && typeof value === 'string') {
       const timeout = setTimeout(() => {
+        console.log('Triggering AI suggestions for:', field, value);
         getAISuggestions(field, value);
       }, 1000); // 1 second delay
       
@@ -304,6 +311,7 @@ export default function AIJobPostingForm() {
   }, []);
 
   const handleInputChange = (field: keyof JobFormData, value: any) => {
+    console.log('Manual input change:', { field, value });
     handleInputChangeWithSuggestions(field, value);
   };
 
@@ -332,14 +340,28 @@ export default function AIJobPostingForm() {
   };
 
   const applyAISuggestion = (field: string, suggestion: string) => {
-    setFormData(prev => ({ ...prev, [field]: suggestion }));
+    console.log('Applying AI suggestion:', { field, suggestion });
+    
+    // Apply the suggestion to form data
+    setFormData(prev => {
+      const updated = { ...prev, [field]: suggestion };
+      console.log('Updated form data:', updated);
+      return updated;
+    });
+    
+    // Clear the suggestions for this field
     setFieldSuggestions(prev => {
       const newSuggestions = { ...prev };
       delete newSuggestions[field];
+      console.log('Cleared suggestions for field:', field);
       return newSuggestions;
     });
+    
+    // Clear active field
     setActiveField(null);
-    toast.success('AI suggestion applied!');
+    
+    // Show success message
+    toast.success(`AI suggestion applied to ${field}!`);
   };
 
   const dismissFieldSuggestions = (field: string) => {
@@ -361,8 +383,21 @@ export default function AIJobPostingForm() {
   }, [typingTimeout]);
 
   const nextStep = () => {
+    console.log('Next step clicked. Current step:', currentStep);
+    console.log('Form data before validation:', formData);
+    
+    const isValid = validateStep(currentStep);
+    console.log('Step validation result:', isValid);
+    
+    if (!isValid) {
+      toast.error('Please complete all required fields before proceeding');
+      return;
+    }
+    
     if (currentStep < steps.length) {
+      console.log('Moving to step:', currentStep + 1);
       setCurrentStep(currentStep + 1);
+      toast.success('Step completed! Moving to next step.');
     }
   };
 
@@ -373,18 +408,43 @@ export default function AIJobPostingForm() {
   };
 
   const validateStep = (step: number): boolean => {
+    console.log('Validating step:', step, 'Form data:', formData);
+    
+    let isValid = false;
+    
     switch (step) {
       case 1:
-        return formData.title.trim() !== '' && formData.description.trim() !== '';
+        isValid = formData.title.trim() !== '' && formData.description.trim() !== '';
+        console.log('Step 1 validation:', { 
+          title: formData.title.trim(), 
+          description: formData.description.trim(), 
+          isValid 
+        });
+        break;
       case 2:
-        return formData.requirements.trim() !== '' && formData.skills.length > 0;
+        isValid = formData.requirements.trim() !== '' && formData.skills.length > 0;
+        console.log('Step 2 validation:', { 
+          requirements: formData.requirements.trim(), 
+          skills: formData.skills.length, 
+          isValid 
+        });
+        break;
       case 3:
-        return formData.location.trim() !== '';
+        isValid = formData.location.trim() !== '';
+        console.log('Step 3 validation:', { 
+          location: formData.location.trim(), 
+          isValid 
+        });
+        break;
       case 4:
-        return true;
+        isValid = true;
+        break;
       default:
-        return false;
+        isValid = false;
     }
+    
+    console.log('Step validation result:', isValid);
+    return isValid;
   };
 
   const handleSubmit = async () => {
@@ -541,7 +601,7 @@ export default function AIJobPostingForm() {
                           value={formData.title}
                           onChange={(e) => handleInputChange('title', e.target.value)}
                           placeholder="e.g., Senior Software Engineer"
-                          className="text-lg h-14 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12"
+                          className="text-lg h-14 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 bg-white text-slate-900"
                         />
                         {aiLoading && activeField === 'title' && (
                           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -636,7 +696,7 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('description', e.target.value)}
                           rows={6}
                           placeholder="Describe the role, responsibilities, and what makes this opportunity special..."
-                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base bg-white text-slate-900"
                         />
                         {aiLoading && activeField === 'description' && (
                           <div className="absolute right-3 top-3">
@@ -784,7 +844,7 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('requirements', e.target.value)}
                           rows={4}
                           placeholder="List the key requirements, qualifications, and experience needed..."
-                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base bg-white text-slate-900"
                         />
                         {aiLoading && activeField === 'requirements' && (
                           <div className="absolute right-3 top-3">
@@ -910,7 +970,7 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('benefits', e.target.value)}
                           rows={3}
                           placeholder="What benefits and perks do you offer? (health insurance, flexible hours, etc.)"
-                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base bg-white text-slate-900"
                         />
                         {aiLoading && activeField === 'benefits' && (
                           <div className="absolute right-3 top-3">
