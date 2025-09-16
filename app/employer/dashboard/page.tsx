@@ -151,45 +151,47 @@ export default function EmployerDashboard() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-[calc(100vh-4rem)]">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Welcome back, {session?.user?.name?.split(' ')[0] || 'Employer'}! 👋
-          </h1>
-          <p className="text-gray-600 text-lg">
-            {hasCompany ? 'Manage your company and job postings' : 'Let\'s get your company set up'}
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-8">
+        {/* Enhanced Header */}
+        <div className="mb-10">
+          <div className="text-center mb-8">
+            <h1 className="text-5xl font-bold text-slate-900 mb-3">
+              Welcome back, {session?.user?.name?.split(' ')[0] || 'Employer'}! 👋
+            </h1>
+            <p className="text-slate-600 text-xl">
+              {hasCompany ? 'Manage your company and job postings' : 'Let\'s get your company set up'}
+            </p>
+          </div>
         </div>
 
-        {/* Company Setup Prompt */}
+        {/* Enhanced Company Setup Prompt */}
         {!hasCompany && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-10"
           >
-            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-lg">
-              <CardContent className="p-8">
+            <Card className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-0 shadow-2xl rounded-3xl overflow-hidden">
+              <CardContent className="p-12">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Building2 className="w-8 h-8 text-blue-600" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg">
+                    <Building2 className="w-10 h-10 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-blue-900 mb-4">Create Your Company Profile</h3>
-                  <p className="text-blue-700 mb-6 text-lg">
-                    Get started by creating your company profile. This helps job seekers learn about your company and builds trust.
+                  <h3 className="text-3xl font-bold text-slate-900 mb-6">Create Your Company Profile</h3>
+                  <p className="text-slate-600 mb-8 text-xl max-w-2xl mx-auto leading-relaxed">
+                    Get started by creating your company profile. This helps job seekers learn about your company and builds trust in your brand.
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <div className="flex flex-col sm:flex-row gap-6 justify-center">
                     <Link href="/employer/company/create">
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg">
-                        <Building2 className="h-5 w-5 mr-2" />
+                      <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-10 py-4 text-lg rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                        <Building2 className="h-6 w-6 mr-3" />
                         Create Company Profile
                       </Button>
                     </Link>
                     <Link href="/employer/jobs/create">
-                      <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50 px-8 py-3 text-lg">
-                        <Briefcase className="h-5 w-5 mr-2" />
+                      <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-50 px-10 py-4 text-lg rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200">
+                        <Briefcase className="h-6 w-6 mr-3" />
                         Post Job First
                       </Button>
                     </Link>
@@ -200,60 +202,76 @@ export default function EmployerDashboard() {
           </motion.div>
         )}
 
-        {/* Stats Cards */}
+        {/* Enhanced Stats Cards */}
         {hasCompany && stats && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10"
           >
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Total Jobs</CardTitle>
-                <Briefcase className="h-5 w-5 text-blue-600" />
+            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100/50 pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-slate-800">Total Jobs</CardTitle>
+                  <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                    <Briefcase className="h-6 w-6 text-white" />
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-gray-900">{stats.totalJobs}</div>
-                <p className="text-sm text-gray-600">
+              <CardContent className="p-6">
+                <div className="text-4xl font-bold text-slate-900 mb-2">{stats.totalJobs}</div>
+                <p className="text-slate-600 font-medium">
                   {stats.activeJobs} active
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Applications</CardTitle>
-                <Users className="h-5 w-5 text-green-600" />
+            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group">
+              <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-slate-800">Applications</CardTitle>
+                  <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                    <Users className="h-6 w-6 text-white" />
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-gray-900">{stats.totalApplications}</div>
-                <p className="text-sm text-gray-600">
+              <CardContent className="p-6">
+                <div className="text-4xl font-bold text-slate-900 mb-2">{stats.totalApplications}</div>
+                <p className="text-slate-600 font-medium">
                   {stats.pendingApplications} pending
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Profile Views</CardTitle>
-                <Eye className="h-5 w-5 text-purple-600" />
+            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100/50 pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-slate-800">Profile Views</CardTitle>
+                  <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                    <Eye className="h-6 w-6 text-white" />
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-gray-900">{stats.profileViews}</div>
-                <p className="text-sm text-gray-600">
+              <CardContent className="p-6">
+                <div className="text-4xl font-bold text-slate-900 mb-2">{stats.profileViews}</div>
+                <p className="text-slate-600 font-medium">
                   This month
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Company Rating</CardTitle>
-                <Star className="h-5 w-5 text-yellow-600" />
+            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group">
+              <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100/50 pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-slate-800">Company Rating</CardTitle>
+                  <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                    <Star className="h-6 w-6 text-white" />
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-gray-900">{stats.companyRating}</div>
-                <p className="text-sm text-gray-600">
+              <CardContent className="p-6">
+                <div className="text-4xl font-bold text-slate-900 mb-2">{stats.companyRating}</div>
+                <p className="text-slate-600 font-medium">
                   out of 5
                 </p>
               </CardContent>
