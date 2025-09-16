@@ -29,9 +29,8 @@ export default function JobSeekerOptionsPage() {
     if (status === 'authenticated' && session?.user) {
       // Check if user has jobseeker role
       if (session.user.role !== 'jobseeker') {
-        // Only redirect to role selection if user has no role
-        // Don't redirect employers here to avoid redirect loops
-        if (!session.user.role) {
+        // Only redirect to role selection if user has no role and not coming from role selection
+        if (!session.user.role && !window.location.search.includes('role_selected=true')) {
           router.push('/auth/role-selection');
         }
         return;

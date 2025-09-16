@@ -32,9 +32,10 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       console.log('User already has role:', user.role, '- redirecting immediately');
       const targetUrl = user.role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
       const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
-      window.location.href = finalUrl;
+      // Use router.push instead of window.location.href for better Next.js handling
+      router.push(finalUrl);
     }
-  }, [user?.role]);
+  }, [user?.role, router]);
 
   const handleRoleSelection = async (role: 'jobseeker' | 'employer') => {
     setSelectedRole(role);
@@ -108,8 +109,8 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         // Add URL parameter to prevent immediate redirect back
         const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
         
-        // Use window.location.href to force a full page reload and fresh session
-        window.location.href = finalUrl;
+        // Use router.push for better Next.js handling
+        router.push(finalUrl);
         
         if (onComplete) {
           onComplete({ ...user, role });
