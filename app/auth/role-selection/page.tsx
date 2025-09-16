@@ -35,36 +35,16 @@ export default function RoleSelectionPage() {
     if (status === 'authenticated' && session?.user) {
       console.log('User is authenticated:', session.user);
       
-      // If user has a role, redirect to appropriate dashboard
-      if (session.user.role) {
+      // Only redirect if user has a role and we're not in the middle of role selection
+      if (session.user.role && !window.location.search.includes('selecting=true')) {
         console.log('User has role:', session.user.role, '- redirecting to appropriate dashboard');
-        if (session.user.role === 'jobseeker') {
-          router.push('/jobseeker/options');
-        } else if (session.user.role === 'employer') {
-          router.push('/employer/options');
-        } else {
-          console.log('User authenticated but no role assigned, showing role selection');
-        }
+        const targetUrl = session.user.role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
+        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
+        router.push(finalUrl);
       } else {
         console.log('User authenticated but no role assigned, showing role selection');
       }
     }
-  }, [session, status, router]);
-
-  // Add a small delay to prevent immediate redirect after role selection
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (status === 'authenticated' && session?.user?.role) {
-        console.log('Delayed redirect check - User has role:', session.user.role);
-        if (session.user.role === 'jobseeker') {
-          router.push('/jobseeker/options');
-        } else if (session.user.role === 'employer') {
-          router.push('/employer/options');
-        }
-      }
-    }, 2000); // 2 second delay
-
-    return () => clearTimeout(timer);
   }, [session, status, router]);
 
   if (status === 'loading') {

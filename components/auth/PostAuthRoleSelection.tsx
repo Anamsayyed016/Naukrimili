@@ -24,111 +24,97 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedRole, setSelectedRole] = useState<'jobseeker' | 'employer' | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const handleRoleSelection = async (role: 'jobseeker' | 'employer') => {
     setSelectedRole(role);
     setIsLoading(true);
     setError('');
+    setIsRedirecting(true);
 
     try {
+      console.log('🎯 PostAuthRoleSelection - Starting role selection process');
       console.log('PostAuthRoleSelection - User data:', user);
       console.log('PostAuthRoleSelection - User ID:', user.id);
       console.log('PostAuthRoleSelection - Role to set:', role);
       
       // Check if user ID exists
       if (!user.id) {
-        console.error('PostAuthRoleSelection - No user ID available');
+        console.error('❌ PostAuthRoleSelection - No user ID available');
         setError('User session is invalid. Please sign in again.');
         setIsLoading(false);
+        setIsRedirecting(false);
         return;
       }
       
       // Update user role in database
       const apiUrl = '/api/auth/update-role';
-      console.log('PostAuthRoleSelection - Making API request to:', apiUrl);
-      console.log('PostAuthRoleSelection - Request body:', JSON.stringify({
-        role: role
-      }));
+      console.log('📡 PostAuthRoleSelection - Making API request to:', apiUrl);
       
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Include cookies for session authentication
-        body: JSON.stringify({
-          role: role
-        }),
+        credentials: 'include',
+        body: JSON.stringify({ role: role }),
       });
       
-      console.log('PostAuthRoleSelection - Response status:', response.status);
-      console.log('PostAuthRoleSelection - Response headers:', response.headers);
+      console.log('📊 PostAuthRoleSelection - Response status:', response.status);
 
       if (!response.ok) {
-        console.error('PostAuthRoleSelection - HTTP error:', response.status, response.statusText);
+        console.error('❌ PostAuthRoleSelection - HTTP error:', response.status, response.statusText);
         
+        let errorMessage = 'Failed to update role. Please try again.';
         if (response.status === 404) {
-          // Check if this is actually a user not found error from our API
-          try {
-            const errorData = await response.clone().json();
-            if (errorData.error === "User not found") {
-              setError('User session is invalid. Please sign in again.');
-            } else {
-              setError('API endpoint not found. Please contact support or try refreshing the page.');
-            }
-          } catch {
-            setError('API endpoint not found. Please contact support or try refreshing the page.');
-          }
+          errorMessage = 'API endpoint not found. Please contact support.';
         } else if (response.status === 500) {
-          setError('Server error. Please try again in a few moments.');
-        } else {
-          setError(`Server error: ${response.status}. Please try again.`);
+          errorMessage = 'Server error. Please try again in a few moments.';
+        } else if (response.status === 401) {
+          errorMessage = 'User session expired. Please sign in again.';
         }
+        
+        setError(errorMessage);
         setIsLoading(false);
+        setIsRedirecting(false);
         return;
       }
 
       const data = await response.json();
-      console.log('PostAuthRoleSelection - Response data:', data);
+      console.log('✅ PostAuthRoleSelection - Response data:', data);
 
       if (data.success) {
-        console.log('Role updated successfully:', data.user);
+        console.log('🎉 Role updated successfully:', data.user);
         
         // Update the session to reflect the new role
-        console.log('Updating session...');
+        console.log('🔄 Updating session...');
         await updateSession();
-        console.log('Session updated');
+        console.log('✅ Session updated');
         
-        // Add a small delay to ensure session is fully updated
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Force a hard redirect with page reload to ensure fresh session data
-        console.log('Redirecting to:', role === 'jobseeker' ? '/jobseeker/options' : '/employer/options');
+        // Determine target URL based on role
         const targetUrl = role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
+        console.log('🚀 Redirecting to:', targetUrl);
+        
+        // Add URL parameter to prevent immediate redirect back
+        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
         
         // Use window.location.href to force a full page reload and fresh session
-        window.location.href = targetUrl;
+        window.location.href = finalUrl;
         
         if (onComplete) {
           onComplete({ ...user, role });
         }
       } else {
-        console.error('Role update failed:', data);
-        // Handle specific error cases
-        if (data.error === 'User not found') {
-          setError('User session expired. Please sign in again.');
-        } else if (data.error === 'Validation failed') {
-          setError('Invalid data provided. Please try again.');
-        } else {
-          setError(data.error || data.message || 'Failed to update role. Please try again.');
-        }
+        console.error('❌ Role update failed:', data);
+        setError(data.error || data.message || 'Failed to update role. Please try again.');
+        setIsLoading(false);
+        setIsRedirecting(false);
       }
     } catch (error) {
-      console.error('Role selection error:', error);
-      console.error('Error details:', error);
+      console.error('💥 Role selection error:', error);
       setError(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your connection and try again.`);
-    } finally {
       setIsLoading(false);
+      setIsRedirecting(false);
     }
   };
 
@@ -285,6 +271,23 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
               </CardContent>
             </Card>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show redirecting state
+  if (isRedirecting) {
+    return (
+      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Setting up your {selectedRole === 'jobseeker' ? 'Job Seeker' : 'Employer'} account...
+          </h2>
+          <p className="text-gray-600">
+            Please wait while we redirect you to your dashboard.
+          </p>
         </div>
       </div>
     );
