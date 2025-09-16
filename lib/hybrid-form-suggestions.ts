@@ -8,7 +8,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 export interface FormSuggestion {
   suggestions: string[];
   confidence: number;
-  aiProvider: 'openai' | 'gemini' | 'fallback';
+  aiProvider: 'openai' | 'gemini' | 'fallback' | 'hybrid';
 }
 
 export class HybridFormSuggestions {
@@ -195,23 +195,36 @@ export class HybridFormSuggestions {
    */
   private getPromptForField(field: string, value: string, context: any): string {
     const baseContext = {
-      skills: context.skills || [],
-      experience: context.experience || [],
-      education: context.education || []
+      jobType: context.jobType || 'Full-time',
+      experienceLevel: context.experienceLevel || 'Mid-level',
+      industry: context.industry || 'Technology',
+      skills: context.skills || []
     };
 
     switch (field) {
+      case 'title':
+        return `Based on the current job title: "${value}", job type: ${baseContext.jobType}, experience level: ${baseContext.experienceLevel}, and industry: ${baseContext.industry}, suggest 5-8 alternative job titles that are relevant and professional. Return as JSON array.`;
+      
+      case 'description':
+        return `Based on the current job description: "${value}", job type: ${baseContext.jobType}, experience level: ${baseContext.experienceLevel}, and industry: ${baseContext.industry}, suggest 3-5 improved job descriptions that are engaging, professional, and attract top talent. Return as JSON array.`;
+      
+      case 'requirements':
+        return `Based on the current requirements: "${value}", job type: ${baseContext.jobType}, experience level: ${baseContext.experienceLevel}, and industry: ${baseContext.industry}, suggest 5-8 relevant job requirements that are specific, measurable, and realistic. Return as JSON array.`;
+      
+      case 'benefits':
+        return `Based on the current benefits: "${value}", job type: ${baseContext.jobType}, experience level: ${baseContext.experienceLevel}, and industry: ${baseContext.industry}, suggest 5-8 attractive benefits and perks that would appeal to candidates. Return as JSON array.`;
+      
       case 'skills':
-        return `Based on the current skills: ${value}, and existing skills: ${baseContext.skills.join(', ')}, suggest 5-8 additional relevant technical skills for a software developer. Return as JSON array.`;
+        return `Based on the current skills: ${value}, and existing skills: ${baseContext.skills?.join(', ') || ''}, suggest 5-8 additional relevant technical skills for a software developer. Return as JSON array.`;
       
       case 'jobTitle':
-        return `Based on the current job title: ${value}, and skills: ${baseContext.skills.join(', ')}, suggest 5 alternative job titles. Return as JSON array.`;
+        return `Based on the current job title: ${value}, and skills: ${baseContext.skills?.join(', ') || ''}, suggest 5 alternative job titles. Return as JSON array.`;
       
       case 'location':
         return `Based on the location: ${value}, suggest 5 similar cities or regions for job opportunities. Return as JSON array.`;
       
       case 'summary':
-        return `Based on the current summary: ${value}, and skills: ${baseContext.skills.join(', ')}, suggest 3 improved professional summary statements. Return as JSON array.`;
+        return `Based on the current summary: ${value}, and skills: ${baseContext.skills?.join(', ') || ''}, suggest 3 improved professional summary statements. Return as JSON array.`;
       
       case 'expectedSalary':
         return `Based on the current salary expectation: ${value}, and job title: ${context.jobTitle || 'Software Developer'}, suggest 3 salary ranges. Return as JSON array.`;
@@ -226,12 +239,63 @@ export class HybridFormSuggestions {
    */
   private getEnhancedFallbackSuggestions(field: string, value: string, context: any): FormSuggestion {
     const baseContext = {
-      skills: context.skills || [],
-      experience: context.experience || [],
-      education: context.education || []
+      jobType: context.jobType || 'Full-time',
+      experienceLevel: context.experienceLevel || 'Mid-level',
+      industry: context.industry || 'Technology',
+      skills: context.skills || []
     };
 
     const fallbackSuggestions: { [key: string]: string[] } = {
+      // Job posting specific fields
+      title: [
+        'Senior Software Engineer',
+        'Full Stack Developer',
+        'Frontend Developer',
+        'Backend Developer',
+        'DevOps Engineer',
+        'Data Scientist',
+        'Machine Learning Engineer',
+        'Product Manager',
+        'UI/UX Designer',
+        'Mobile App Developer',
+        'Cloud Engineer',
+        'Security Engineer',
+        'Solutions Architect',
+        'Technical Lead',
+        'Engineering Manager'
+      ],
+      description: [
+        'We are looking for a passionate and skilled developer to join our dynamic team. You will be responsible for developing high-quality software solutions and collaborating with cross-functional teams.',
+        'Join our innovative company as we build cutting-edge products. You will work on challenging projects, contribute to architectural decisions, and mentor junior developers.',
+        'We seek a talented professional to drive our technical initiatives forward. You will be involved in the full software development lifecycle and work with modern technologies.',
+        'Come be part of our growing team and help us scale our platform. You will work on exciting projects, learn new technologies, and make a real impact on our product.',
+        'We are hiring a skilled developer to help us build the next generation of our products. You will work in a collaborative environment with opportunities for growth and learning.'
+      ],
+      requirements: [
+        'Bachelor\'s degree in Computer Science or related field',
+        '3+ years of experience in software development',
+        'Strong problem-solving and analytical skills',
+        'Excellent communication and teamwork abilities',
+        'Experience with modern development practices and tools',
+        'Knowledge of software design patterns and best practices',
+        'Ability to work in an agile development environment',
+        'Strong attention to detail and code quality',
+        'Experience with version control systems (Git)',
+        'Understanding of database design and optimization'
+      ],
+      benefits: [
+        'Competitive salary and performance bonuses',
+        'Comprehensive health insurance coverage',
+        'Flexible working hours and remote work options',
+        'Professional development and training opportunities',
+        'Stock options and equity participation',
+        'Generous paid time off and vacation days',
+        'Modern office environment with latest technology',
+        'Team building activities and company events',
+        'Mentorship programs and career growth opportunities',
+        'Wellness programs and gym membership'
+      ],
+      // Legacy fields for backward compatibility
       skills: [
         'JavaScript', 'Python', 'React', 'Node.js', 'TypeScript',
         'AWS', 'Docker', 'Git', 'SQL', 'MongoDB', 'Express.js',
@@ -289,14 +353,33 @@ export class HybridFormSuggestions {
     // Filter suggestions based on current value and context
     let suggestions = fallbackSuggestions[field] || ['Option 1', 'Option 2', 'Option 3'];
     
+    // For job posting fields, filter based on current value
+    if (['title', 'description', 'requirements', 'benefits'].includes(field)) {
+      // Filter suggestions that are relevant to the current input
+      if (value && value.length > 2) {
+        const filteredSuggestions = suggestions.filter(suggestion => 
+          suggestion.toLowerCase().includes(value.toLowerCase()) ||
+          value.toLowerCase().includes(suggestion.toLowerCase()) ||
+          this.calculateSimilarity(suggestion, value) > 0.3
+        );
+        
+        if (filteredSuggestions.length > 0) {
+          suggestions = filteredSuggestions;
+        }
+      }
+      
+      // Limit suggestions for better UX
+      suggestions = suggestions.slice(0, 5);
+    }
+    
     // For skills, add context-aware suggestions
-    if (field === 'skills' && baseContext.skills.length > 0) {
+    if (field === 'skills' && baseContext.skills?.length > 0) {
       const relatedSkills = this.getRelatedSkills(baseContext.skills);
       suggestions = [...new Set([...suggestions, ...relatedSkills])].slice(0, 15);
     }
 
     // For job titles, add context-aware suggestions
-    if (field === 'jobTitle' && baseContext.skills.length > 0) {
+    if (field === 'jobTitle' && baseContext.skills?.length > 0) {
       const skillBasedTitles = this.getSkillBasedJobTitles(baseContext.skills);
       suggestions = [...new Set([...suggestions, ...skillBasedTitles])].slice(0, 12);
     }
@@ -351,6 +434,52 @@ export class HybridFormSuggestions {
     });
 
     return [...new Set(titles)];
+  }
+
+  /**
+   * Calculate similarity between two strings
+   */
+  private calculateSimilarity(str1: string, str2: string): number {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) {
+      return 1.0;
+    }
+    
+    const editDistance = this.levenshteinDistance(longer, shorter);
+    return (longer.length - editDistance) / longer.length;
+  }
+
+  /**
+   * Calculate Levenshtein distance between two strings
+   */
+  private levenshteinDistance(str1: string, str2: string): number {
+    const matrix = [];
+    
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+    
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+    
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+    
+    return matrix[str2.length][str1.length];
   }
 
   /**

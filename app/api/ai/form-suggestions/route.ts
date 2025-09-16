@@ -3,9 +3,59 @@ import { HybridFormSuggestions } from '@/lib/hybrid-form-suggestions';
 
 const hybridFormSuggestions = new HybridFormSuggestions();
 
-// Enhanced fallback suggestions
+// Enhanced fallback suggestions for job posting
 function getFallbackSuggestions(field: string, value: string): string[] {
   const fallbackSuggestions: { [key: string]: string[] } = {
+    // Job posting specific fields
+    title: [
+      'Senior Software Engineer',
+      'Full Stack Developer',
+      'Frontend Developer',
+      'Backend Developer',
+      'DevOps Engineer',
+      'Data Scientist',
+      'Machine Learning Engineer',
+      'Product Manager',
+      'UI/UX Designer',
+      'Mobile App Developer',
+      'Cloud Engineer',
+      'Security Engineer',
+      'Solutions Architect',
+      'Technical Lead',
+      'Engineering Manager'
+    ],
+    description: [
+      'We are looking for a passionate and skilled developer to join our dynamic team. You will be responsible for developing high-quality software solutions and collaborating with cross-functional teams.',
+      'Join our innovative company as we build cutting-edge products. You will work on challenging projects, contribute to architectural decisions, and mentor junior developers.',
+      'We seek a talented professional to drive our technical initiatives forward. You will be involved in the full software development lifecycle and work with modern technologies.',
+      'Come be part of our growing team and help us scale our platform. You will work on exciting projects, learn new technologies, and make a real impact on our product.',
+      'We are hiring a skilled developer to help us build the next generation of our products. You will work in a collaborative environment with opportunities for growth and learning.'
+    ],
+    requirements: [
+      'Bachelor\'s degree in Computer Science or related field',
+      '3+ years of experience in software development',
+      'Strong problem-solving and analytical skills',
+      'Excellent communication and teamwork abilities',
+      'Experience with modern development practices and tools',
+      'Knowledge of software design patterns and best practices',
+      'Ability to work in an agile development environment',
+      'Strong attention to detail and code quality',
+      'Experience with version control systems (Git)',
+      'Understanding of database design and optimization'
+    ],
+    benefits: [
+      'Competitive salary and performance bonuses',
+      'Comprehensive health insurance coverage',
+      'Flexible working hours and remote work options',
+      'Professional development and training opportunities',
+      'Stock options and equity participation',
+      'Generous paid time off and vacation days',
+      'Modern office environment with latest technology',
+      'Team building activities and company events',
+      'Mentorship programs and career growth opportunities',
+      'Wellness programs and gym membership'
+    ],
+    // Legacy fields for backward compatibility
     skills: [
       'JavaScript', 'Python', 'React', 'Node.js', 'TypeScript',
       'AWS', 'Docker', 'Git', 'SQL', 'MongoDB', 'Express.js',

@@ -579,7 +579,7 @@ export default function AIJobPostingForm() {
                             </Button>
                           </div>
                           <div className="space-y-2">
-                            {fieldSuggestions.title.suggestions.slice(0, 3).map((suggestion, idx) => (
+                            {fieldSuggestions.title.suggestions.slice(0, 5).map((suggestion, idx) => (
                               <motion.div
                                 key={idx}
                                 initial={{ opacity: 0, x: -20 }}
@@ -601,8 +601,11 @@ export default function AIJobPostingForm() {
                                         {suggestion}
                                       </span>
                                       <span className="text-xs text-slate-500">
-                                        Click to apply
+                                        Click to apply this suggestion
                                       </span>
+                                    </div>
+                                    <div className="text-xs text-slate-400">
+                                      #{idx + 1}
                                     </div>
                                   </div>
                                 </Button>
@@ -671,7 +674,7 @@ export default function AIJobPostingForm() {
                             </Button>
                           </div>
                           <div className="space-y-2">
-                            {fieldSuggestions.description.suggestions.slice(0, 3).map((suggestion, idx) => (
+                            {fieldSuggestions.description.suggestions.slice(0, 5).map((suggestion, idx) => (
                               <motion.div
                                 key={idx}
                                 initial={{ opacity: 0, x: -20 }}
@@ -693,8 +696,11 @@ export default function AIJobPostingForm() {
                                         {suggestion}
                                       </span>
                                       <span className="text-xs text-slate-500">
-                                        Click to apply
+                                        Click to apply this suggestion
                                       </span>
+                                    </div>
+                                    <div className="text-xs text-slate-400">
+                                      #{idx + 1}
                                     </div>
                                   </div>
                                 </Button>
@@ -816,7 +822,7 @@ export default function AIJobPostingForm() {
                             </Button>
                           </div>
                           <div className="space-y-2">
-                            {fieldSuggestions.requirements.suggestions.slice(0, 3).map((suggestion, idx) => (
+                            {fieldSuggestions.requirements.suggestions.slice(0, 5).map((suggestion, idx) => (
                               <motion.div
                                 key={idx}
                                 initial={{ opacity: 0, x: -20 }}
@@ -838,8 +844,11 @@ export default function AIJobPostingForm() {
                                         {suggestion}
                                       </span>
                                       <span className="text-xs text-slate-500">
-                                        Click to apply
+                                        Click to apply this suggestion
                                       </span>
+                                    </div>
+                                    <div className="text-xs text-slate-400">
+                                      #{idx + 1}
                                     </div>
                                   </div>
                                 </Button>
@@ -939,7 +948,7 @@ export default function AIJobPostingForm() {
                             </Button>
                           </div>
                           <div className="space-y-2">
-                            {fieldSuggestions.benefits.suggestions.slice(0, 3).map((suggestion, idx) => (
+                            {fieldSuggestions.benefits.suggestions.slice(0, 5).map((suggestion, idx) => (
                               <motion.div
                                 key={idx}
                                 initial={{ opacity: 0, x: -20 }}
@@ -961,8 +970,11 @@ export default function AIJobPostingForm() {
                                         {suggestion}
                                       </span>
                                       <span className="text-xs text-slate-500">
-                                        Click to apply
+                                        Click to apply this suggestion
                                       </span>
+                                    </div>
+                                    <div className="text-xs text-slate-400">
+                                      #{idx + 1}
                                     </div>
                                   </div>
                                 </Button>
