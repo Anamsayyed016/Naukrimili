@@ -128,6 +128,9 @@ export default function AIJobPostingForm() {
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [activeField, setActiveField] = useState<string | null>(null);
+  const [fieldSuggestions, setFieldSuggestions] = useState<{[key: string]: AISuggestion}>({});
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
   
   const [formData, setFormData] = useState<JobFormData>({
     title: '',
@@ -154,9 +157,16 @@ export default function AIJobPostingForm() {
     radiusCenter: ''
   });
 
-  // AI-powered suggestions
+  // AI-powered suggestions with debouncing
   const getAISuggestions = useCallback(async (field: string, value: string) => {
-    if (!value.trim()) return;
+    if (!value.trim() || value.length < 3) {
+      setFieldSuggestions(prev => {
+        const newSuggestions = { ...prev };
+        delete newSuggestions[field];
+        return newSuggestions;
+      });
+      return;
+    }
     
     setAiLoading(true);
     try {
@@ -176,16 +186,19 @@ export default function AIJobPostingForm() {
 
       const data = await response.json();
       if (data.success) {
-        setAiSuggestions(prev => [
-          ...prev.filter(s => s.field !== field),
-          {
-            field,
-            suggestions: data.suggestions,
-            confidence: data.confidence,
-            reasoning: `AI confidence: ${data.confidence}%`
-          }
-        ]);
-        setShowAISuggestions(true);
+        const suggestion: AISuggestion = {
+          field,
+          suggestions: data.suggestions,
+          confidence: data.confidence,
+          reasoning: `AI confidence: ${data.confidence}%`
+        };
+        
+        setFieldSuggestions(prev => ({
+          ...prev,
+          [field]: suggestion
+        }));
+        
+        setActiveField(field);
       }
     } catch (error) {
       console.error('AI suggestions error:', error);
@@ -193,6 +206,25 @@ export default function AIJobPostingForm() {
       setAiLoading(false);
     }
   }, [formData.jobType, formData.experienceLevel]);
+
+  // Debounced input handler for real-time suggestions
+  const handleInputChangeWithSuggestions = useCallback((field: keyof JobFormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear existing timeout
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+    
+    // Set new timeout for AI suggestions
+    if (['title', 'description', 'requirements', 'benefits'].includes(field) && typeof value === 'string') {
+      const timeout = setTimeout(() => {
+        getAISuggestions(field, value);
+      }, 1000); // 1 second delay
+      
+      setTypingTimeout(timeout);
+    }
+  }, [getAISuggestions, typingTimeout]);
 
   // Detect current location
   const detectCurrentLocation = useCallback(async () => {
@@ -272,12 +304,7 @@ export default function AIJobPostingForm() {
   }, []);
 
   const handleInputChange = (field: keyof JobFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Trigger AI suggestions for relevant fields
-    if (['title', 'description', 'requirements', 'benefits'].includes(field) && value.length > 10) {
-      getAISuggestions(field, value);
-    }
+    handleInputChangeWithSuggestions(field, value);
   };
 
   const handleSkillsChange = (value: string) => {
@@ -306,9 +333,32 @@ export default function AIJobPostingForm() {
 
   const applyAISuggestion = (field: string, suggestion: string) => {
     setFormData(prev => ({ ...prev, [field]: suggestion }));
-    setShowAISuggestions(false);
+    setFieldSuggestions(prev => {
+      const newSuggestions = { ...prev };
+      delete newSuggestions[field];
+      return newSuggestions;
+    });
+    setActiveField(null);
     toast.success('AI suggestion applied!');
   };
+
+  const dismissFieldSuggestions = (field: string) => {
+    setFieldSuggestions(prev => {
+      const newSuggestions = { ...prev };
+      delete newSuggestions[field];
+      return newSuggestions;
+    });
+    setActiveField(null);
+  };
+
+  // Cleanup typing timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+    };
+  }, [typingTimeout]);
 
   const nextStep = () => {
     if (currentStep < steps.length) {
@@ -453,72 +503,82 @@ export default function AIJobPostingForm() {
           </div>
         </div>
 
-        {/* AI Suggestions Panel */}
-        <AnimatePresence>
-          {showAISuggestions && aiSuggestions.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="mb-6"
-            >
-              <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Bot className="h-5 w-5 text-blue-600" />
-                    AI Suggestions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {aiSuggestions.map((suggestion, index) => (
-                    <div key={index} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-sm font-medium capitalize">
-                          {suggestion.field} suggestions
-                        </Label>
-                        <Badge variant="secondary" className="text-xs">
+        {/* Inline AI Suggestions Component */}
+        {Object.keys(fieldSuggestions).length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mb-6"
+          >
+            <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-blue-200 shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-blue-600" />
+                  AI Suggestions
+                  <Badge variant="secondary" className="ml-2">
+                    {Object.keys(fieldSuggestions).length} field{Object.keys(fieldSuggestions).length > 1 ? 's' : ''}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {Object.entries(fieldSuggestions).map(([field, suggestion]) => (
+                  <div key={field} className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-semibold capitalize text-slate-700">
+                        {field} suggestions
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
                           {suggestion.confidence}% confidence
                         </Badge>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {suggestion.suggestions.slice(0, 4).map((suggestionText, idx) => (
-                          <Button
-                            key={idx}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => applyAISuggestion(suggestion.field, suggestionText)}
-                            className="text-left justify-start h-auto p-3 hover:bg-blue-50"
-                          >
-                            <Lightbulb className="h-4 w-4 mr-2 text-blue-500" />
-                            <span className="text-sm">{suggestionText}</span>
-                          </Button>
-                        ))}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => dismissFieldSuggestions(field)}
+                          className="h-6 w-6 p-0 hover:bg-red-100"
+                        >
+                          <X className="h-3 w-3 text-red-500" />
+                        </Button>
                       </div>
                     </div>
-                  ))}
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowAISuggestions(false)}
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Dismiss
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setAiSuggestions([])}
-                    >
-                      <Zap className="h-4 w-4 mr-2" />
-                      Clear All
-                    </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {suggestion.suggestions.slice(0, 4).map((suggestionText, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: idx * 0.1 }}
+                        >
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => applyAISuggestion(field, suggestionText)}
+                            className="w-full text-left justify-start h-auto p-4 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 group"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="p-1 bg-blue-100 rounded-full group-hover:bg-blue-200 transition-colors">
+                                <Lightbulb className="h-3 w-3 text-blue-600" />
+                              </div>
+                              <div className="flex-1">
+                                <span className="text-sm font-medium text-slate-800 block">
+                                  {suggestionText}
+                                </span>
+                                <span className="text-xs text-slate-500 mt-1 block">
+                                  Click to apply this suggestion
+                                </span>
+                              </div>
+                            </div>
+                          </Button>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                ))}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Main Form */}
         <Card className="shadow-2xl border-0 bg-white/98 backdrop-blur-sm rounded-2xl overflow-hidden">
@@ -542,18 +602,54 @@ export default function AIJobPostingForm() {
                       <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
                         <Briefcase className="h-5 w-5 text-blue-600" />
                         Job Title *
+                        {fieldSuggestions.title && (
+                          <Badge variant="outline" className="ml-2 text-xs">
+                            AI suggestions available
+                          </Badge>
+                        )}
                       </Label>
-                      <Input
-                        value={formData.title}
-                        onChange={(e) => handleInputChange('title', e.target.value)}
-                        placeholder="e.g., Senior Software Engineer"
-                        className="text-lg h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
-                      />
-                      {aiLoading && (
-                        <div className="flex items-center gap-2 mt-2 text-sm text-blue-600">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                          AI is analyzing your job title...
-                        </div>
+                      <div className="relative">
+                        <Input
+                          value={formData.title}
+                          onChange={(e) => handleInputChange('title', e.target.value)}
+                          placeholder="e.g., Senior Software Engineer"
+                          className="text-lg h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 pr-10"
+                        />
+                        {aiLoading && activeField === 'title' && (
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          </div>
+                        )}
+                      </div>
+                      {fieldSuggestions.title && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Bot className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-800">AI Suggestions</span>
+                            <Badge variant="outline" className="text-xs">
+                              {fieldSuggestions.title.confidence}% confidence
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                            {fieldSuggestions.title.suggestions.slice(0, 3).map((suggestion, idx) => (
+                              <Button
+                                key={idx}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => applyAISuggestion('title', suggestion)}
+                                className="w-full text-left justify-start h-auto p-2 hover:bg-blue-100 text-sm"
+                              >
+                                <Lightbulb className="h-3 w-3 mr-2 text-blue-500" />
+                                {suggestion}
+                              </Button>
+                            ))}
+                          </div>
+                        </motion.div>
                       )}
                     </div>
 
@@ -561,14 +657,56 @@ export default function AIJobPostingForm() {
                       <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
                         <FileText className="h-5 w-5 text-blue-600" />
                         Job Description *
+                        {fieldSuggestions.description && (
+                          <Badge variant="outline" className="ml-2 text-xs">
+                            AI suggestions available
+                          </Badge>
+                        )}
                       </Label>
-                      <Textarea
-                        value={formData.description}
-                        onChange={(e) => handleInputChange('description', e.target.value)}
-                        rows={6}
-                        placeholder="Describe the role, responsibilities, and what makes this opportunity special..."
-                        className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
-                      />
+                      <div className="relative">
+                        <Textarea
+                          value={formData.description}
+                          onChange={(e) => handleInputChange('description', e.target.value)}
+                          rows={6}
+                          placeholder="Describe the role, responsibilities, and what makes this opportunity special..."
+                          className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 pr-10"
+                        />
+                        {aiLoading && activeField === 'description' && (
+                          <div className="absolute right-3 top-3">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          </div>
+                        )}
+                      </div>
+                      {fieldSuggestions.description && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Bot className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-800">AI Suggestions</span>
+                            <Badge variant="outline" className="text-xs">
+                              {fieldSuggestions.description.confidence}% confidence
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                            {fieldSuggestions.description.suggestions.slice(0, 3).map((suggestion, idx) => (
+                              <Button
+                                key={idx}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => applyAISuggestion('description', suggestion)}
+                                className="w-full text-left justify-start h-auto p-2 hover:bg-blue-100 text-sm"
+                              >
+                                <Lightbulb className="h-3 w-3 mr-2 text-blue-500" />
+                                {suggestion}
+                              </Button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -628,14 +766,56 @@ export default function AIJobPostingForm() {
                       <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
                         <FileText className="h-5 w-5 text-blue-600" />
                         Requirements *
+                        {fieldSuggestions.requirements && (
+                          <Badge variant="outline" className="ml-2 text-xs">
+                            AI suggestions available
+                          </Badge>
+                        )}
                       </Label>
-                      <Textarea
-                        value={formData.requirements}
-                        onChange={(e) => handleInputChange('requirements', e.target.value)}
-                        rows={4}
-                        placeholder="List the key requirements, qualifications, and experience needed..."
-                        className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
-                      />
+                      <div className="relative">
+                        <Textarea
+                          value={formData.requirements}
+                          onChange={(e) => handleInputChange('requirements', e.target.value)}
+                          rows={4}
+                          placeholder="List the key requirements, qualifications, and experience needed..."
+                          className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 pr-10"
+                        />
+                        {aiLoading && activeField === 'requirements' && (
+                          <div className="absolute right-3 top-3">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          </div>
+                        )}
+                      </div>
+                      {fieldSuggestions.requirements && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Bot className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-800">AI Suggestions</span>
+                            <Badge variant="outline" className="text-xs">
+                              {fieldSuggestions.requirements.confidence}% confidence
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                            {fieldSuggestions.requirements.suggestions.slice(0, 3).map((suggestion, idx) => (
+                              <Button
+                                key={idx}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => applyAISuggestion('requirements', suggestion)}
+                                className="w-full text-left justify-start h-auto p-2 hover:bg-blue-100 text-sm"
+                              >
+                                <Lightbulb className="h-3 w-3 mr-2 text-blue-500" />
+                                {suggestion}
+                              </Button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
                     </div>
 
                     <div>
@@ -673,14 +853,56 @@ export default function AIJobPostingForm() {
                       <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-blue-600" />
                         Benefits & Perks
+                        {fieldSuggestions.benefits && (
+                          <Badge variant="outline" className="ml-2 text-xs">
+                            AI suggestions available
+                          </Badge>
+                        )}
                       </Label>
-                      <Textarea
-                        value={formData.benefits}
-                        onChange={(e) => handleInputChange('benefits', e.target.value)}
-                        rows={3}
-                        placeholder="What benefits and perks do you offer? (health insurance, flexible hours, etc.)"
-                        className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
-                      />
+                      <div className="relative">
+                        <Textarea
+                          value={formData.benefits}
+                          onChange={(e) => handleInputChange('benefits', e.target.value)}
+                          rows={3}
+                          placeholder="What benefits and perks do you offer? (health insurance, flexible hours, etc.)"
+                          className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 pr-10"
+                        />
+                        {aiLoading && activeField === 'benefits' && (
+                          <div className="absolute right-3 top-3">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          </div>
+                        )}
+                      </div>
+                      {fieldSuggestions.benefits && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Bot className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-800">AI Suggestions</span>
+                            <Badge variant="outline" className="text-xs">
+                              {fieldSuggestions.benefits.confidence}% confidence
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                            {fieldSuggestions.benefits.suggestions.slice(0, 3).map((suggestion, idx) => (
+                              <Button
+                                key={idx}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => applyAISuggestion('benefits', suggestion)}
+                                className="w-full text-left justify-start h-auto p-2 hover:bg-blue-100 text-sm"
+                              >
+                                <Lightbulb className="h-3 w-3 mr-2 text-blue-500" />
+                                {suggestion}
+                              </Button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
