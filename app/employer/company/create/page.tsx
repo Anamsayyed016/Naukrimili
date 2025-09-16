@@ -199,6 +199,14 @@ export default function CreateCompanyPage() {
 
   const nextStep = () => {
     if (currentStep < steps.length) {
+      // Check if current step is valid before proceeding
+      if (!validateStep(currentStep)) {
+        toast.error('Please complete all required fields before proceeding', {
+          description: 'Fill out all required fields in the current step.',
+          duration: 3000,
+        });
+        return;
+      }
       setCurrentStep(currentStep + 1);
     }
   };
@@ -226,7 +234,10 @@ export default function CreateCompanyPage() {
 
   const handleSubmit = async () => {
     if (!validateStep(1) || !validateStep(2)) {
-      toast.error('Please complete all required fields');
+      toast.error('Please complete all required fields in steps 1 and 2', {
+        description: 'Company name, description, location, industry, and size are required.',
+        duration: 5000,
+      });
       return;
     }
 

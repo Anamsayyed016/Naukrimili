@@ -260,7 +260,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: true,
             role: true,
             isActive: true,
-            picture: true
+            image: true,
+            profilePicture: true
           }
         });
 
@@ -270,7 +271,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           (session.user as any).email = user.email;
           (session.user as any).name = user.name || '';
           (session.user as any).role = user.role;
-          (session.user as any).picture = user.picture || token.picture || '';
+          (session.user as any).picture = user.profilePicture || user.image || token.picture || '';
           (session.user as any).isActive = user.isActive;
           
           console.log('🔍 Session callback - Fresh data from DB:', { id: user.id, email: user.email, role: user.role });
