@@ -1375,7 +1375,7 @@ export default function AIJobPostingForm() {
                               getLocationSuggestions(e.target.value);
                             }}
                             placeholder="Search for a city or location..."
-                            className="h-12 pr-20 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                            className="h-12 pr-20 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
                           />
                           <Button
                             type="button"
@@ -1438,7 +1438,7 @@ export default function AIJobPostingForm() {
                             value={formData.radiusCenter}
                             onChange={(e) => handleInputChange('radiusCenter', e.target.value)}
                             placeholder="Enter center location for radius search..."
-                            className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                            className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
                           />
                         </div>
                         <div>
@@ -1472,7 +1472,7 @@ export default function AIJobPostingForm() {
                           value={formData.salary}
                           onChange={(e) => handleInputChange('salary', e.target.value)}
                           placeholder="e.g., $50,000 - $70,000"
-                          className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                          className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
                         />
                       </div>
 
@@ -1486,7 +1486,7 @@ export default function AIJobPostingForm() {
                           value={formData.openings}
                           onChange={(e) => handleInputChange('openings', e.target.value)}
                           min="1"
-                          className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                          className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
                         />
                       </div>
                     </div>
