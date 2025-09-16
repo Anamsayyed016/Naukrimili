@@ -107,9 +107,9 @@ export default function EmployerOptionsPage() {
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-green-100">
                   <Building2 className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Company Profile</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Create Company</h3>
                 <p className="text-gray-600 mb-6">
-                  Set up your company profile to attract the best talent and build your brand.
+                  Create your company profile to attract the best talent and build your brand.
                 </p>
               </div>
 
@@ -128,9 +128,9 @@ export default function EmployerOptionsPage() {
                 </div>
               </div>
 
-              <Link href="/employer/company/profile">
+              <Link href="/employer/company/create">
                 <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors">
-                  Set Up Company <ArrowRight className="ml-2 h-4 w-4" />
+                  Create Company <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </CardContent>

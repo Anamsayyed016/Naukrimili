@@ -95,13 +95,15 @@ export default function CreateJobPage() {
     openings: '1'
   });
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or not an employer
   useEffect(() => {
     if (status === 'loading') return;
     if (status === 'unauthenticated') {
-      router.push('/auth/login?redirect=/employer/jobs/create');
+      router.push('/auth/signin?redirect=/employer/jobs/create');
+    } else if (session && session.user.role !== 'employer') {
+      router.push('/auth/role-selection');
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   const handleInputChange = (field: keyof JobFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
