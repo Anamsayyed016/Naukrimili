@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs } from '@/lib/jobs/providers';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -230,6 +231,64 @@ export async function GET(request: NextRequest) {
       jobType, experienceLevel, isRemote, salaryMin, salaryMax, lat, lng, radius, sortByDistance
     });
 
+    // Fetch database jobs first
+    let databaseJobs: any[] = [];
+    let databaseJobsCount = 0;
+    
+    try {
+      console.log('🗄️ Fetching jobs from database...');
+      
+      // Build where clause for database query
+      const where: any = { isActive: true };
+      
+      if (query && query.trim().length > 0) {
+        where.OR = [
+          { title: { contains: query.trim(), mode: 'insensitive' } },
+          { company: { contains: query.trim(), mode: 'insensitive' } },
+          { description: { contains: query.trim(), mode: 'insensitive' } }
+        ];
+      }
+      
+      if (location && location.trim().length > 0) {
+        where.location = { contains: location.trim(), mode: 'insensitive' };
+      }
+      
+      if (jobType && jobType !== 'all') {
+        where.jobType = jobType;
+      }
+      
+      if (experienceLevel && experienceLevel !== 'all') {
+        where.experienceLevel = experienceLevel;
+      }
+      
+      if (isRemote) {
+        where.isRemote = true;
+      }
+      
+      // Fetch database jobs
+      databaseJobs = await prisma.job.findMany({
+        where,
+        take: 50, // Limit database jobs
+        orderBy: { createdAt: 'desc' },
+        include: {
+          companyRelation: {
+            select: {
+              name: true,
+              logo: true,
+              location: true,
+              industry: true
+            }
+          }
+        }
+      });
+      
+      databaseJobsCount = databaseJobs.length;
+      console.log(`✅ Database: Found ${databaseJobsCount} jobs`);
+      
+    } catch (dbError) {
+      console.warn('⚠️ Database fetch failed:', dbError);
+    }
+
     // Filter sample jobs based on search criteria
     let filteredJobs = sampleJobs;
     let externalJobs: any[] = [];
@@ -295,9 +354,30 @@ export async function GET(request: NextRequest) {
       return transformed;
     });
 
-    // Combine sample jobs with external jobs
-    console.log(`📊 Job counts: sample=${filteredJobs.length}, external=${externalJobs.length}, transformed=${transformedExternalJobs.length}`);
-    const allJobs = [...filteredJobs, ...transformedExternalJobs];
+    // Transform database jobs to match frontend expectations
+    const transformedDatabaseJobs = databaseJobs.map(job => {
+      const transformed = {
+        ...job,
+        id: job.id,
+        _count: {
+          applications: job.applicationsCount || 0,
+          bookmarks: 0
+        },
+        createdAt: job.createdAt,
+        isExternal: false,
+        source: job.source || 'manual',
+        company: job.company || job.companyRelation?.name,
+        companyLogo: job.companyLogo || job.companyRelation?.logo,
+        companyLocation: job.companyRelation?.location,
+        companyIndustry: job.companyRelation?.industry
+      };
+      console.log('🔄 Transformed database job:', { id: transformed.id, company: transformed.company });
+      return transformed;
+    });
+
+    // Combine database jobs with sample jobs and external jobs
+    console.log(`📊 Job counts: database=${transformedDatabaseJobs.length}, sample=${filteredJobs.length}, external=${externalJobs.length}, transformed=${transformedExternalJobs.length}`);
+    const allJobs = [...transformedDatabaseJobs, ...filteredJobs, ...transformedExternalJobs];
     console.log(`📊 Total jobs after combination: ${allJobs.length}`);
 
     // Apply filters to all jobs (sample + external)
@@ -392,7 +472,7 @@ export async function GET(request: NextRequest) {
     // Calculate total pages
     const totalPages = Math.ceil(finalFilteredJobs.length / limit);
 
-    console.log(`🎯 Final results: ${paginatedJobs.length} jobs (${filteredJobs.length} sample + ${externalJobsCount} external)`);
+    console.log(`🎯 Final results: ${paginatedJobs.length} jobs (${databaseJobsCount} database + ${filteredJobs.length} sample + ${externalJobsCount} external)`);
 
     return NextResponse.json({
       success: true,
@@ -408,7 +488,8 @@ export async function GET(request: NextRequest) {
       sources: {
         database: true,
         external: true,
-        databaseCount: filteredJobs.length,
+        databaseCount: databaseJobsCount,
+        sampleCount: filteredJobs.length,
         externalCount: externalJobsCount
       },
       search: {
@@ -423,7 +504,8 @@ export async function GET(request: NextRequest) {
         version: '1.0',
         totalJobsFound: finalFilteredJobs.length,
         breakdown: {
-          database: filteredJobs.length,
+          database: databaseJobsCount,
+          sample: filteredJobs.length,
           external: externalJobsCount
         }
       }

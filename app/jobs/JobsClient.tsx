@@ -32,64 +32,89 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
   const searchParams = useSearchParams();
 
-  // Initialize with search params
+  // Initialize with search params and load jobs
   useEffect(() => {
     const query = searchParams.get('q') || searchParams.get('query') || '';
     const loc = searchParams.get('location') || '';
 
-    // Convert initial jobs to simple format
-    const convertedJobs = initialJobs.map(convertToSimpleJob);
-    setJobs(convertedJobs);
+    console.log('🚀 JobsClient initializing with params:', { query, loc });
 
-    // Fetch jobs if there are search params
-    if (query || loc) {
-      fetchJobs(query, loc);
-    }
-  }, [searchParams, initialJobs]);
+    // Always fetch jobs (database + external) for dynamic display
+    fetchJobs(query, loc);
+  }, [searchParams]);
 
   // Convert any job format to simple Job format
   function convertToSimpleJob(job: any): Job {
+    console.log('🔄 Converting job:', { id: job.id, title: job.title, company: job.company });
+    
     return {
       id: job.id || `job-${Math.random()}`,
       title: job.title || 'Job Title',
-      company: job.company || job.company?.name || 'Company',
+      company: job.company || job.companyRelation?.name || 'Company',
       location: job.location || 'Location',
       description: job.description || 'Job description not available',
       salary: job.salary || job.salary_formatted,
-      postedAt: job.postedAt || job.created_at,
-      source_url: job.source_url || job.redirect_url,
-      source: job.source || 'external',
+      postedAt: job.postedAt || job.createdAt || job.created_at,
+      source_url: job.source_url || job.redirect_url || job.applyUrl,
+      source: job.source || (job.isExternal ? 'external' : 'database'),
       is_remote: job.is_remote || job.isRemote,
       is_featured: job.is_featured || job.isFeatured
     };
   }
 
-  // Fetch jobs using unified API
+  // Fetch jobs using database API with external fallback
   const fetchJobs = async (query: string = '', location: string = '') => {
     try {
       setLoading(true);
       setError(null);
 
-      const params = new URLSearchParams({
+      console.log('🔍 Fetching jobs with query:', query, 'location:', location);
+
+      // First try database API
+      const dbParams = new URLSearchParams({
+        ...(query && { query }),
+        ...(location && { location }),
+        country: 'IN',
+        limit: '50'
+      });
+
+      const dbResponse = await fetch(`/api/jobs?${dbParams.toString()}`);
+      
+      if (dbResponse.ok) {
+        const dbData = await dbResponse.json();
+        
+        if (dbData.success && dbData.jobs && dbData.jobs.length > 0) {
+          console.log(`✅ Database API: Found ${dbData.jobs.length} jobs`);
+          const newJobs = dbData.jobs.map(convertToSimpleJob);
+          setJobs(newJobs);
+          return;
+        }
+      }
+
+      console.log('⚠️ Database API returned no jobs, trying unified API...');
+
+      // Fallback to unified API for external jobs
+      const unifiedParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
         country: 'IN',
         includeExternal: 'true'
       });
 
-      const response = await fetch(`/api/jobs/unified?${params.toString()}`);
+      const unifiedResponse = await fetch(`/api/jobs/unified?${unifiedParams.toString()}`);
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch jobs: ${response.status}`);
+      if (!unifiedResponse.ok) {
+        throw new Error(`Failed to fetch jobs: ${unifiedResponse.status}`);
       }
 
-      const data = await response.json();
+      const unifiedData = await unifiedResponse.json();
       
-      if (data.success) {
-        const newJobs = (data.jobs || []).map(convertToSimpleJob);
+      if (unifiedData.success) {
+        console.log(`✅ Unified API: Found ${unifiedData.jobs?.length || 0} jobs`);
+        const newJobs = (unifiedData.jobs || []).map(convertToSimpleJob);
         setJobs(newJobs);
       } else {
-        throw new Error(data.error || 'Failed to fetch jobs');
+        throw new Error(unifiedData.error || 'Failed to fetch jobs');
       }
     } catch (err) {
       console.error('Error fetching jobs:', err);
