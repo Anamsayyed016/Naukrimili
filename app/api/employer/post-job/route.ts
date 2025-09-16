@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the job
+    // Create the job with enhanced location data
     const job = await prisma.job.create({
       data: {
         title: body.title,
@@ -45,7 +45,19 @@ export async function POST(request: NextRequest) {
         source: 'manual',
         sourceId: `manual_${Date.now()}`,
         companyId: company.id,
-        rawJson: body
+        rawJson: {
+          ...body,
+          // Enhanced location data
+          locationType: body.locationType || 'single',
+          multipleLocations: body.multipleLocations || [],
+          radiusDistance: body.radiusDistance || 25,
+          radiusCenter: body.radiusCenter || '',
+          city: body.city || '',
+          state: body.state || '',
+          // AI enhancement metadata
+          aiEnhanced: true,
+          enhancedAt: new Date().toISOString()
+        }
       }
     });
 
