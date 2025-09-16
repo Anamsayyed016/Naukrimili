@@ -223,7 +223,7 @@ export default function AIJobPostingForm() {
     }
     
     // Set new timeout for AI suggestions
-    if (['title', 'description', 'requirements', 'benefits'].includes(field) && typeof value === 'string') {
+    if (['title', 'description', 'requirements', 'benefits', 'skills'].includes(field) && typeof value === 'string') {
       const timeout = setTimeout(() => {
         console.log('Triggering AI suggestions for:', field, value);
         getAISuggestions(field, value);
@@ -316,13 +316,24 @@ export default function AIJobPostingForm() {
   };
 
   const handleSkillsChange = (value: string) => {
+    console.log('Skills input change:', value);
     setSkillsInput(value);
+    
+    // Add skill when comma is pressed
     if (value.endsWith(',')) {
       const skill = value.slice(0, -1).trim();
       if (skill && !formData.skills.includes(skill)) {
+        console.log('Adding skill:', skill);
         setFormData(prev => ({ ...prev, skills: [...prev.skills, skill] }));
         setSkillsInput('');
+        toast.success(`Added skill: ${skill}`);
       }
+    }
+    
+    // Trigger AI suggestions for skills
+    if (value.length > 2) {
+      console.log('Triggering AI suggestions for skills:', value);
+      getAISuggestions('skills', value);
     }
   };
 
@@ -920,17 +931,119 @@ export default function AIJobPostingForm() {
                     </div>
 
                     <div>
-                      <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                        <Zap className="h-5 w-5 text-blue-600" />
-                        Skills *
+                      <Label className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <Zap className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <span>Skills *</span>
+                          {fieldSuggestions.skills && (
+                            <Badge variant="default" className="ml-3 text-xs bg-green-100 text-green-800 border-green-200">
+                              ✨ AI suggestions available
+                            </Badge>
+                          )}
+                        </div>
                       </Label>
                       <div className="space-y-3">
-                        <Input
-                          value={skillsInput}
-                          onChange={(e) => handleSkillsChange(e.target.value)}
-                          placeholder="Type skills and press comma to add..."
-                          className="border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
-                        />
+                        <div className="relative">
+                          <Input
+                            value={skillsInput}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setSkillsInput(value);
+                              // Trigger AI suggestions for skills
+                              if (value.length > 2) {
+                                getAISuggestions('skills', value);
+                              }
+                            }}
+                            placeholder="Type skills and press comma to add..."
+                            className="h-12 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 bg-white text-slate-900"
+                          />
+                          {aiLoading && activeField === 'skills' && (
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* AI Suggestions for Skills */}
+                        {fieldSuggestions.skills && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0, y: -10 }}
+                            animate={{ opacity: 1, height: 'auto', y: 0 }}
+                            exit={{ opacity: 0, height: 0, y: -10 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                            className="mt-4 p-4 bg-gradient-to-r from-blue-200 to-indigo-200 border-2 border-blue-400 rounded-xl shadow-xl backdrop-blur-sm"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-blue-300 rounded-full">
+                                  <Lightbulb className="h-4 w-4 text-blue-800" />
+                                </div>
+                                <span className="text-sm font-semibold text-slate-900">AI Skills Suggestions</span>
+                                <div className="text-xs text-blue-600">
+                                  {fieldSuggestions.skills.confidence}% confidence
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => dismissFieldSuggestions('skills')}
+                                className="p-1 hover:bg-blue-300 rounded-full transition-colors"
+                              >
+                                <X className="h-4 w-4 text-slate-600" />
+                              </button>
+                            </div>
+                            <div className="space-y-2">
+                              {fieldSuggestions.skills.suggestions.slice(0, 8).map((suggestion, idx) => (
+                                <motion.div
+                                  key={idx}
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: idx * 0.1 }}
+                                >
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      // Add skill to the skills array
+                                      if (!formData.skills.includes(suggestion)) {
+                                        setFormData(prev => ({ 
+                                          ...prev, 
+                                          skills: [...prev.skills, suggestion] 
+                                        }));
+                                        setFieldSuggestions(prev => {
+                                          const newSuggestions = { ...prev };
+                                          delete newSuggestions.skills;
+                                          return newSuggestions;
+                                        });
+                                        setActiveField(null);
+                                        toast.success(`Added skill: ${suggestion}`);
+                                      }
+                                    }}
+                                    className="w-full text-left justify-start h-auto p-3 hover:bg-blue-100 hover:border-blue-500 hover:shadow-lg transition-all duration-200 group border-blue-400 bg-blue-100 text-slate-900 shadow-sm"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="p-2 bg-blue-300 rounded-full group-hover:bg-blue-400 transition-colors shadow-sm">
+                                        <Zap className="h-4 w-4 text-blue-800" />
+                                      </div>
+                                      <div className="flex-1">
+                                        <span className="text-sm font-bold text-slate-900 block">
+                                          {suggestion}
+                                        </span>
+                                        <span className="text-xs text-slate-700 font-medium">
+                                          Click to add this skill
+                                        </span>
+                                      </div>
+                                      <div className="text-xs text-slate-600 font-semibold bg-slate-200 px-2 py-1 rounded-full">
+                                        #{idx + 1}
+                                      </div>
+                                    </div>
+                                  </Button>
+                                </motion.div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                        
                         <div className="flex flex-wrap gap-2">
                           {formData.skills.map((skill, index) => (
                             <Badge key={index} variant="secondary" className="px-3 py-1">
