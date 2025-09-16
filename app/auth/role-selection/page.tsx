@@ -51,6 +51,22 @@ export default function RoleSelectionPage() {
     }
   }, [session, status, router]);
 
+  // Add a small delay to prevent immediate redirect after role selection
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (status === 'authenticated' && session?.user?.role) {
+        console.log('Delayed redirect check - User has role:', session.user.role);
+        if (session.user.role === 'jobseeker') {
+          router.push('/jobseeker/options');
+        } else if (session.user.role === 'employer') {
+          router.push('/employer/options');
+        }
+      }
+    }, 2000); // 2 second delay
+
+    return () => clearTimeout(timer);
+  }, [session, status, router]);
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
