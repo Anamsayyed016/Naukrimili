@@ -26,7 +26,8 @@ import {
   CheckCircle,
   AlertTriangle,
   ExternalLink,
-  FileText
+  FileText,
+  Briefcase
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
