@@ -84,86 +84,107 @@ export default function SignInPage() {
   // Show loading if session is being checked
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="text-center relative z-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg mb-6">
+            <span className="text-2xl font-bold text-white">N</span>
+          </div>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600 text-lg font-medium">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Header */}
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-purple-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="w-full max-w-md space-y-8 relative z-10">
+        {/* Header with enhanced branding */}
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg mb-4">
+            <span className="text-2xl font-bold text-white">N</span>
+          </div>
+          <h1 className="text-4xl font-bold font-heading gradient-text">
             Welcome Back
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-lg">
             Sign in to your NaukriMili account
           </p>
         </div>
 
-        {/* Main Sign In Card */}
-        <Card className="shadow-xl border-0">
-          <CardHeader className="text-center pb-6">
-            <CardTitle className="text-2xl font-bold text-gray-900">
+        {/* Enhanced Sign In Card with glass morphism */}
+        <Card className="auth-card shadow-2xl border-0 rounded-3xl overflow-hidden modern-card">
+          <CardHeader className="text-center pb-8 pt-8 px-8">
+            <CardTitle className="text-3xl font-bold font-heading text-gray-900 mb-2">
               Sign In
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-gray-600 text-base">
               Access your personalized job portal experience
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-6">
+          <CardContent className="px-8 pb-8 space-y-8">
             {error && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
+              <Alert className="alert-error border-0 rounded-xl">
+                <AlertCircle className="h-5 w-5" />
+                <AlertDescription className="text-base">{error}</AlertDescription>
               </Alert>
             )}
 
-            {/* Gmail OAuth Section - Only shown if Google OAuth is configured */}
-            <ConditionalOAuthButton loading={loading} />
+            {/* Enhanced Gmail OAuth Section */}
+            <div className="space-y-4">
+              <ConditionalOAuthButton loading={loading} />
+            </div>
 
-            {/* Divider */}
+            {/* Enhanced Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or use email & password</span>
+                <span className="px-4 bg-white text-gray-500 font-medium">Or use email & password</span>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-3">
+                <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
                   Email Address
                 </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                   <Input
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Enter your email address"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="pl-10 h-12 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="auth-input pl-12 h-14 text-base rounded-xl border-2 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
                     required
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <div className="space-y-3">
+                <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
                   Password
                 </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                   <Input
                     id="password"
                     name="password"
@@ -171,40 +192,40 @@ export default function SignInPage() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pl-10 pr-10 h-12 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="auth-input pl-12 pr-12 h-14 text-base rounded-xl border-2 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
                     required
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 hover:bg-gray-100 rounded-lg transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
+                      <EyeOff className="h-5 w-5 text-gray-400" />
                     ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
+                      <Eye className="h-5 w-5 text-gray-400" />
                     )}
                   </Button>
                 </div>
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center">
+                <div className="flex items-center space-x-3">
                   <input
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-lg"
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                  <label htmlFor="remember-me" className="text-sm font-medium text-gray-700">
                     Remember me
                   </label>
                 </div>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-500 hover:underline"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -212,63 +233,65 @@ export default function SignInPage() {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold transition-all duration-300"
+                className="btn-primary w-full h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                 disabled={loading}
               >
                 {loading ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                     Signing In...
                   </div>
                 ) : (
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     Sign In
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2" />
                   </div>
                 )}
               </Button>
             </form>
 
-            {/* Sign Up Links */}
-            <div className="text-center space-y-3">
-              <p className="text-sm text-gray-600">
+            {/* Enhanced Sign Up Links */}
+            <div className="text-center space-y-6">
+              <p className="text-base text-gray-600">
                 Don't have an account?{' '}
-                <Link href="/auth/signup" className="font-medium text-blue-600 hover:text-blue-500 hover:underline">
+                <Link href="/auth/signup" className="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition-colors">
                   Create account
                 </Link>
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Link
                   href="/auth/register/jobseeker"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-blue-200 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-300 transition-all duration-200"
+                  className="group inline-flex items-center justify-center px-6 py-4 border-2 border-blue-200 rounded-xl text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 active:scale-95"
                 >
-                  <UserCheck className="w-4 h-4 mr-2" />
-                  Job Seeker Sign Up
+                  <UserCheck className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                  Job Seeker
                 </Link>
                 <Link
                   href="/auth/register/employer"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-emerald-200 rounded-lg text-sm font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-200"
+                  className="group inline-flex items-center justify-center px-6 py-4 border-2 border-emerald-200 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-300 transform hover:scale-105 active:scale-95"
                 >
-                  <Building2 className="w-4 h-4 mr-2" />
-                  Employer Sign Up
+                  <Building2 className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                  Employer
                 </Link>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Footer */}
-        <div className="text-center">
-          <p className="text-xs text-gray-500">
-            By signing in, you agree to our{' '}
-            <Link href="/terms" className="text-blue-600 hover:underline">
+        {/* Enhanced Footer */}
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
+            <Link href="/terms" className="hover:text-blue-600 hover:underline transition-colors">
               Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link href="/privacy" className="text-blue-600 hover:underline">
+            </Link>
+            <span>•</span>
+            <Link href="/privacy" className="hover:text-blue-600 hover:underline transition-colors">
               Privacy Policy
             </Link>
+          </div>
+          <p className="text-xs text-gray-400">
+            © 2024 NaukriMili. All rights reserved.
           </p>
         </div>
       </div>
