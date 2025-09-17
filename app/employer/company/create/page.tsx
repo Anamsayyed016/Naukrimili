@@ -316,13 +316,18 @@ export default function CreateCompanyPage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
+    <>
+      <div id="select-portal" className="fixed inset-0 pointer-events-none z-[9998]" />
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
       <style jsx global>{`
         [data-radix-popper-content-wrapper] {
           z-index: 9999 !important;
+          position: fixed !important;
         }
         [data-radix-select-content] {
           z-index: 9999 !important;
+          position: relative !important;
+          transform: none !important;
         }
         [data-radix-select-viewport] {
           z-index: 9999 !important;
@@ -348,6 +353,49 @@ export default function CreateCompanyPage() {
         }
         /* Force dropdown visibility */
         [data-state="open"] {
+          z-index: 9999 !important;
+        }
+        /* Additional dropdown visibility fixes */
+        [data-radix-popper-content-wrapper][data-side="bottom"] {
+          z-index: 9999 !important;
+          position: fixed !important;
+        }
+        [data-radix-select-content][data-side="bottom"] {
+          z-index: 9999 !important;
+        }
+        /* Ensure dropdown appears above all other elements */
+        .radix-select-content {
+          z-index: 9999 !important;
+        }
+        /* Fix for mobile and tablet visibility */
+        @media (max-width: 768px) {
+          [data-radix-popper-content-wrapper] {
+            z-index: 9999 !important;
+            position: fixed !important;
+            max-width: calc(100vw - 32px) !important;
+          }
+        }
+        /* Additional specific fixes for Radix Select */
+        [data-radix-select-content][data-state="open"] {
+          z-index: 9999 !important;
+          position: fixed !important;
+        }
+        [data-radix-select-viewport] {
+          z-index: 9999 !important;
+        }
+        /* Ensure dropdown items are visible */
+        [data-radix-select-item] {
+          z-index: 9999 !important;
+        }
+        /* Fix for any parent container clipping */
+        .overflow-hidden {
+          overflow: visible !important;
+        }
+        /* Ensure proper stacking context for all dropdown elements */
+        [data-radix-popper-content-wrapper],
+        [data-radix-select-content],
+        [data-radix-select-viewport],
+        [data-radix-select-item] {
           z-index: 9999 !important;
         }
       `}</style>
@@ -408,8 +456,8 @@ export default function CreateCompanyPage() {
         </div>
 
         {/* Form Content */}
-        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm mx-2 sm:mx-0 relative z-10">
-          <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 relative z-10">
+        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm mx-2 sm:mx-0 relative z-10" style={{ overflow: 'visible' }}>
+          <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 relative z-10" style={{ overflow: 'visible' }}>
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <motion.div
@@ -548,10 +596,12 @@ export default function CreateCompanyPage() {
                           <SelectContent 
                             className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
                             position="popper"
-                            sideOffset={4}
+                            sideOffset={8}
                             align="start"
                             avoidCollisions={true}
-                            collisionPadding={8}
+                            collisionPadding={16}
+                            side="bottom"
+                            sticky="always"
                           >
                             {industries.map((industry) => (
                               <SelectItem 
@@ -582,10 +632,12 @@ export default function CreateCompanyPage() {
                           <SelectContent 
                             className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
                             position="popper"
-                            sideOffset={4}
+                            sideOffset={8}
                             align="start"
                             avoidCollisions={true}
-                            collisionPadding={8}
+                            collisionPadding={16}
+                            side="bottom"
+                            sticky="always"
                           >
                             {companySizes.map((size) => (
                               <SelectItem 
@@ -1081,5 +1133,6 @@ export default function CreateCompanyPage() {
         </Card>
         </div>
       </div>
+    </>
   );
 } // End of CreateCompanyPage component
