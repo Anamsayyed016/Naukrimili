@@ -317,7 +317,41 @@ export default function CreateCompanyPage() {
 
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
-      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl">
+      <style jsx global>{`
+        [data-radix-popper-content-wrapper] {
+          z-index: 9999 !important;
+        }
+        [data-radix-select-content] {
+          z-index: 9999 !important;
+        }
+        [data-radix-select-viewport] {
+          z-index: 9999 !important;
+        }
+        [data-radix-select-content] {
+          z-index: 9999 !important;
+          position: relative !important;
+        }
+        .select-content {
+          z-index: 9999 !important;
+        }
+        /* Ensure dropdowns are always visible */
+        [role="listbox"] {
+          z-index: 9999 !important;
+        }
+        /* Fix for any container overflow issues */
+        .overflow-hidden {
+          overflow: visible !important;
+        }
+        /* Ensure proper stacking context */
+        .relative {
+          z-index: 1;
+        }
+        /* Force dropdown visibility */
+        [data-state="open"] {
+          z-index: 9999 !important;
+        }
+      `}</style>
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative" style={{ overflow: 'visible' }}>
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
           <Link 
@@ -374,8 +408,8 @@ export default function CreateCompanyPage() {
         </div>
 
         {/* Form Content */}
-        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm mx-2 sm:mx-0">
-          <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10">
+        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm mx-2 sm:mx-0 relative z-10">
+          <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 relative z-10">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <motion.div
@@ -489,7 +523,7 @@ export default function CreateCompanyPage() {
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                     <div className="space-y-6">
-                      <div>
+                      <div className="relative">
                         <Label htmlFor="location" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
                           Location *
                         </Label>
@@ -503,7 +537,7 @@ export default function CreateCompanyPage() {
                         />
                       </div>
 
-                      <div>
+                      <div className="relative">
                         <Label htmlFor="industry" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
                           Industry *
                         </Label>
@@ -511,7 +545,14 @@ export default function CreateCompanyPage() {
                           <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
                             <SelectValue placeholder="Select your industry" />
                           </SelectTrigger>
-                          <SelectContent className="max-h-60 overflow-y-auto z-[100] relative bg-white border border-gray-200 rounded-xl shadow-lg">
+                          <SelectContent 
+                            className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
+                            position="popper"
+                            sideOffset={4}
+                            align="start"
+                            avoidCollisions={true}
+                            collisionPadding={8}
+                          >
                             {industries.map((industry) => (
                               <SelectItem 
                                 key={industry} 
@@ -530,7 +571,7 @@ export default function CreateCompanyPage() {
                     </div>
 
                     <div className="space-y-6">
-                      <div>
+                      <div className="relative">
                         <Label htmlFor="size" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
                           Company Size *
                         </Label>
@@ -538,7 +579,14 @@ export default function CreateCompanyPage() {
                           <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
                             <SelectValue placeholder="Select company size" />
                           </SelectTrigger>
-                          <SelectContent className="max-h-60 overflow-y-auto z-[100] relative bg-white border border-gray-200 rounded-xl shadow-lg">
+                          <SelectContent 
+                            className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
+                            position="popper"
+                            sideOffset={4}
+                            align="start"
+                            avoidCollisions={true}
+                            collisionPadding={8}
+                          >
                             {companySizes.map((size) => (
                               <SelectItem 
                                 key={size} 
@@ -555,7 +603,7 @@ export default function CreateCompanyPage() {
                         </Select>
                       </div>
 
-                      <div>
+                      <div className="relative">
                         <Label htmlFor="founded" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
                           Founded Year
                         </Label>
@@ -1031,7 +1079,7 @@ export default function CreateCompanyPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
-    </div>
   );
-}
+} // End of CreateCompanyPage component
