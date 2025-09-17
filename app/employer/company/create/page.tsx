@@ -122,7 +122,12 @@ export default function CreateCompanyPage() {
   }, [status, session, router]);
 
   const handleInputChange = (field: keyof CompanyFormData, value: string | string[]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    console.log(`Updating field ${field} with value:`, value);
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      console.log("Updated form data:", newData);
+      return newData;
+    });
   };
 
   const handleBenefitToggle = (benefit: string) => {
@@ -241,7 +246,13 @@ export default function CreateCompanyPage() {
   };
 
   const handleSubmit = async () => {
+    console.log("=== FORM SUBMISSION STARTED ===");
+    console.log("Form data:", formData);
+    console.log("Validation step 1:", validateStep(1));
+    console.log("Validation step 2:", validateStep(2));
+    
     if (!validateStep(1) || !validateStep(2)) {
+      console.log("Validation failed - showing error");
       toast.error('Please complete all required fields in steps 1 and 2', {
         description: 'Company name, description, location, industry, and size are required.',
         duration: 5000,
@@ -249,37 +260,62 @@ export default function CreateCompanyPage() {
       return;
     }
 
+    console.log("Validation passed - starting API call");
     setLoading(true);
+    
     try {
+      // Get session token from cookies
+      const token = document.cookie
+        .split("; ")
+        .find(row => row.startsWith("next-auth.session-token="))
+        ?.split("=")[1];
+      
+      console.log("Session token found:", !!token);
+      console.log("Making API call to /api/company/profile");
+      
       const response = await fetch("/api/company/profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` }),
         },
         credentials: "include",
         body: JSON.stringify(formData),
       });
 
+      console.log("Response received - Status:", response.status);
+      console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+      
       const data = await response.json();
+      console.log("Response data:", data);
 
       if (data.success) {
+        console.log("Company created successfully - showing success message");
         toast.success('🎉 Company created successfully! You can now start posting jobs.', {
           description: 'Your company profile is ready to attract top talent.',
           duration: 5000,
         });
         
+        console.log("Setting redirect timeout");
         // Redirect to employer dashboard
         setTimeout(() => {
+          console.log("Redirecting to /employer/dashboard");
           window.location.href = "/employer/dashboard";
         }, 2000);
       } else {
-        console.error("API Error:", data.error);
+        console.error("API returned error:", data.error);
         toast.error(`Failed to create company: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error creating company:", error);
+      console.error("Fetch error occurred:", error);
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       toast.error("Failed to create company. Please try again.");
     } finally {
+      console.log("Setting loading to false");
       setLoading(false);
     }
   };
@@ -1111,7 +1147,13 @@ export default function CreateCompanyPage() {
                 </Button>
               ) : (
                 <Button
-                  onClick={handleSubmit}
+                  onClick={() => {
+                    console.log("=== CREATE BUTTON CLICKED ===");
+                    console.log("Button disabled:", loading || !validateStep(1) || !validateStep(2));
+                    console.log("Loading state:", loading);
+                    console.log("Current form data:", formData);
+                    handleSubmit();
+                  }}
                   disabled={loading || !validateStep(1) || !validateStep(2)}
                   className="w-full sm:w-auto px-8 py-4 text-base font-bold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-2xl transform hover:scale-105 transition-all duration-200 rounded-xl"
                 >
