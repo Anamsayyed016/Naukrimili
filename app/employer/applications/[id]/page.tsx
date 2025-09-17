@@ -353,7 +353,7 @@ export default function ApplicationDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {application.skills.map((skill, index) => (
+                  {(Array.isArray(application.skills) ? application.skills : (typeof application.skills === 'string' ? application.skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
                     <span
                       key={index}
                       className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"

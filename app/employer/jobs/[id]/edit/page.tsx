@@ -95,7 +95,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
           isUrgent: job.isUrgent || false,
           isFeatured: job.isFeatured || false,
           sector: job.sector || '',
-          skills: job.skills || [],
+          skills: Array.isArray(job.skills) ? job.skills : (typeof job.skills === 'string' ? job.skills.split(',').map(s => s.trim()).filter(s => s) : []),
           applicationDeadline: job.applicationDeadline ? new Date(job.applicationDeadline).toISOString().split('T')[0] : ''
         });
       }

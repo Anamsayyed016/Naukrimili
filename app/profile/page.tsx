@@ -114,13 +114,13 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {user.role === 'jobseeker' && user.skills && user.skills.length > 0 && (
+              {user.role === 'jobseeker' && user.skills && (
                 <div className="flex items-center space-x-3">
                   <Briefcase className="w-5 h-5 text-gray-400" />
                   <div>
                     <p className="text-sm font-medium text-gray-500">Skills</p>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {user.skills.map((skill, index) => (
+                      {(Array.isArray(user.skills) ? user.skills : (typeof user.skills === 'string' ? user.skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
                         <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                           {skill}
                         </span>

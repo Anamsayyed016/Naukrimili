@@ -216,7 +216,7 @@ export default function UserResumesPage() {
                 <div className="md:col-span-2">
                   <p className="text-sm font-medium text-gray-500 mb-2">Skills</p>
                   <div className="flex flex-wrap gap-2">
-                    {userProfile.skills.map((skill, index) => (
+                    {(Array.isArray(userProfile.skills) ? userProfile.skills : (typeof userProfile.skills === 'string' ? userProfile.skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
                       <Badge key={index} variant="secondary">
                         {skill}
                       </Badge>

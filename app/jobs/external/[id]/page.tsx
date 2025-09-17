@@ -81,7 +81,7 @@ export default async function ExternalJobPage({ params }: ExternalJobPageProps) 
             <div className="mb-6">
               <h3 className="text-lg font-semibold mb-3">Required Skills</h3>
               <div className="flex flex-wrap gap-2">
-                {externalJob.skills.map((skill, index) => (
+                {(Array.isArray(externalJob.skills) ? externalJob.skills : (typeof externalJob.skills === 'string' ? externalJob.skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
                   <span
                     key={index}
                     className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"

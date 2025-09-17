@@ -311,9 +311,9 @@ export default function JobSeekerProfilePage() {
                     />
                   </div>
 
-                  {profile.skills.length > 0 && (
+                  {profile.skills && (Array.isArray(profile.skills) ? profile.skills : (typeof profile.skills === 'string' ? profile.skills.split(',').map(s => s.trim()).filter(s => s) : [])).length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {profile.skills.map((skill, index) => (
+                      {(Array.isArray(profile.skills) ? profile.skills : (typeof profile.skills === 'string' ? profile.skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
                         <div
                           key={index}
                           className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"

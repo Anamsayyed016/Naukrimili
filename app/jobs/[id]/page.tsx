@@ -481,7 +481,7 @@ export default function JobDetailsPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
-                  {skills.map((skill, index) => (
+                  {(Array.isArray(skills) ? skills : (typeof skills === 'string' ? skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
                     <Badge 
                       key={index}
                       className="px-4 py-3 text-sm font-bold border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-800 hover:bg-purple-200 hover:border-purple-300 transition-all duration-300 rounded-xl"

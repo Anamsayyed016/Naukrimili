@@ -173,7 +173,7 @@ export default function ExternalJobApplicationPage() {
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Required Skills</h3>
               <div className="flex flex-wrap gap-2">
-                {job.skills.map((skill, index) => (
+                {(Array.isArray(job.skills) ? job.skills : (typeof job.skills === 'string' ? job.skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
                   <span
                     key={index}
                     className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
