@@ -4,27 +4,38 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔍 Job posting API called');
+    
     const auth = await requireEmployerAuth();
     if ("error" in auth) {
+      console.log('❌ Auth error:', auth.error, 'Status:', auth.status);
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { user } = auth;
+    console.log('✅ User authenticated:', { id: user.id, email: user.email, role: user.role });
+    
     const body = await request.json();
+    console.log('📥 Request body received:', body);
 
     // Get the user's company
+    console.log('🔍 Looking for company for user:', user.id);
     const company = await prisma.company.findFirst({
       where: { createdBy: user.id }
     });
 
     if (!company) {
+      console.log('❌ No company found for user:', user.id);
       return NextResponse.json(
         { error: "Company not found. Please complete your company profile first." },
         { status: 400 }
       );
     }
+    
+    console.log('✅ Company found:', { id: company.id, name: company.name });
 
     // Create the job with enhanced location data
+    console.log('🔨 Creating job in database...');
     const job = await prisma.job.create({
       data: {
         title: body.title,
@@ -61,6 +72,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    console.log('✅ Job created successfully:', { id: job.id, title: job.title });
+
     return NextResponse.json({
       success: true,
       message: 'Job posted successfully',
@@ -73,9 +86,14 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error posting job:', error);
+    console.error('❌ Error posting job:', error);
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
     return NextResponse.json(
-      { error: 'Failed to post job' },
+      { error: 'Failed to post job', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

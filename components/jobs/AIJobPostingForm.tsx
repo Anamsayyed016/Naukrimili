@@ -599,43 +599,57 @@ export default function AIJobPostingForm() {
   };
 
   const handleSubmit = async () => {
+    console.log('🚀 Starting job submission process...');
+    console.log('Form data:', formData);
+    
     if (!validateStep(1) || !validateStep(2) || !validateStep(3)) {
+      console.log('❌ Validation failed');
       toast.error('Please complete all required fields');
       return;
     }
 
+    console.log('✅ Validation passed, proceeding with submission...');
     setLoading(true);
+    
     try {
+      const payload = {
+        title: formData.title,
+        description: formData.description,
+        requirements: formData.requirements,
+        location: formData.location,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        jobType: formData.jobType.toLowerCase().replace('-', '_'),
+        experienceLevel: formData.experienceLevel.toLowerCase().split(' ')[0],
+        salary: formData.salary,
+        skills: formData.skills,
+        benefits: formData.benefits,
+        isRemote: formData.isRemote,
+        isHybrid: formData.isHybrid,
+        isUrgent: formData.isUrgent,
+        isFeatured: formData.isFeatured,
+        applicationDeadline: formData.applicationDeadline,
+        openings: parseInt(formData.openings),
+        locationType: formData.locationType,
+        multipleLocations: formData.multipleLocations,
+        radiusDistance: formData.radiusDistance,
+        radiusCenter: formData.radiusCenter
+      };
+      
+      console.log('📤 Sending payload:', payload);
+      
       const response = await fetch('/api/employer/post-job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description,
-          requirements: formData.requirements,
-          location: formData.location,
-          city: formData.city,
-          state: formData.state,
-          country: formData.country,
-          jobType: formData.jobType.toLowerCase().replace('-', '_'),
-          experienceLevel: formData.experienceLevel.toLowerCase().split(' ')[0],
-          salary: formData.salary,
-          skills: formData.skills,
-          benefits: formData.benefits,
-          isRemote: formData.isRemote,
-          isHybrid: formData.isHybrid,
-          isUrgent: formData.isUrgent,
-          isFeatured: formData.isFeatured,
-          applicationDeadline: formData.applicationDeadline,
-          openings: parseInt(formData.openings),
-          locationType: formData.locationType,
-          multipleLocations: formData.multipleLocations,
-          radiusDistance: formData.radiusDistance,
-          radiusCenter: formData.radiusCenter
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log('📥 Response status:', response.status);
+      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
+      
       const data = await response.json();
+      console.log('📥 Response data:', data);
 
       if (data.success) {
         toast.success('🚀 Job posted successfully! Your AI-optimized listing is now live.', {
