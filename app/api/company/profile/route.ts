@@ -14,8 +14,6 @@ export async function GET(request: NextRequest) {
     const { user } = auth;
     console.log("GET /api/company/profile - User authenticated:", user.id, user.role);
     
-    
-    // Get company profile
     const company = await prisma.company.findFirst({
       where: { createdBy: user.id },
       select: {
@@ -27,7 +25,13 @@ export async function GET(request: NextRequest) {
         industry: true,
         size: true,
         founded: true,
-        isVerified: true
+        isVerified: true,
+        benefits: true,
+        specialties: true,
+        culture: true,
+        mission: true,
+        vision: true,
+        socialLinks: true
       }
     });
 
@@ -41,37 +45,40 @@ export async function GET(request: NextRequest) {
 
     console.log("GET /api/company/profile - Company found:", company.id, company.name);
 
+    const parsedCompany = {
+      ...company,
+      benefits: company.benefits ? JSON.parse(company.benefits) : null,
+      specialties: company.specialties ? JSON.parse(company.specialties) : null,
+      socialLinks: company.socialLinks ? JSON.parse(company.socialLinks) : null
+    };
+
     return NextResponse.json({
       success: true,
-      data: company
+      data: parsedCompany
     });
   } catch (error) {
     console.error("Error fetching company profile:", error);
-    console.error("Error details:", {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      name: error instanceof Error ? error.name : undefined
-    });
     return NextResponse.json(
-      { error: "Failed to fetch company profile", details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: "Failed to fetch company profile" },
       { status: 500 }
     );
   }
 }
 
 export async function POST(request: NextRequest) {
-    console.log("POST /api/company/profile - Starting");
+  console.log("POST /api/company/profile - Starting");
   try {
     const auth = await requireAuth();
     if ("error" in auth) {
+      console.log("POST /api/company/profile - Auth error:", auth.error, "Status:", auth.status);
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { user } = auth;
     console.log("POST /api/company/profile - User authenticated:", user.id, user.role);
     
-    
     const body = await request.json();
+    console.log("POST /api/company/profile - Request body:", JSON.stringify(body, null, 2));
     
     const {
       name,
@@ -89,27 +96,48 @@ export async function POST(request: NextRequest) {
       socialLinks
     } = body;
 
-    // Validate required fields
-    if (!name || !description || !location || !industry || !size) {
+    const missingFields = [];
+    if (!name) missingFields.push("name");
+    if (!description) missingFields.push("description");
+    if (!location) missingFields.push("location");
+    if (!industry) missingFields.push("industry");
+    if (!size) missingFields.push("size");
+
+    if (missingFields.length > 0) {
+      console.log("POST /api/company/profile - Missing required fields:", missingFields);
       return NextResponse.json(
-        { error: "Name, description, location, industry, and size are required" },
+        { error: `Missing required fields: ${missingFields.join(", ")}` },
         { status: 400 }
       );
     }
 
-    // Check if company already exists
     const existingCompany = await prisma.company.findFirst({
       where: { createdBy: user.id }
     });
 
     if (existingCompany) {
+      console.log("POST /api/company/profile - Company already exists for user:", user.id);
       return NextResponse.json(
         { error: "Company already exists. Use PUT to update." },
         { status: 400 }
       );
     }
 
-    // Create company profile
+    console.log("POST /api/company/profile - Creating company with data:", {
+      name,
+      description,
+      location,
+      industry,
+      size,
+      founded,
+      benefits,
+      specialties,
+      culture,
+      mission,
+      vision,
+      socialLinks
+    });
+
     const company = await prisma.company.create({
       data: {
         name,
@@ -121,15 +149,17 @@ export async function POST(request: NextRequest) {
         founded: founded ? parseInt(founded) : null,
         benefits: benefits ? JSON.stringify(benefits) : null,
         specialties: specialties ? JSON.stringify(specialties) : null,
-        culture: culture || '',
-        mission: mission || '',
-        vision: vision || '',
+        culture: culture || "",
+        mission: mission || "",
+        vision: vision || "",
         socialLinks: socialLinks ? JSON.stringify(socialLinks) : null,
         isVerified: false,
-        isActive: true, // Set company as active by default
+        isActive: true,
         createdBy: user.id
       }
     });
+
+    console.log("POST /api/company/profile - Company created successfully:", company.id);
 
     return NextResponse.json({
       success: true,
@@ -138,123 +168,8 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error creating company profile:", error);
-    console.error("Error details:", {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      name: error instanceof Error ? error.name : undefined
-    });
     return NextResponse.json(
-      { error: "Failed to create company profile", details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(request: NextRequest) {
-  try {
-    const auth = await requireAuth();
-    if ("error" in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
-    }
-
-    const { user } = auth;
-    console.log("PUT /api/company/profile - User authenticated:", user.id, user.role);
-    
-    const body = await request.json();
-    
-    const {
-      name,
-      description,
-      website,
-      location,
-      industry,
-      size,
-      founded,
-      benefits,
-      specialties,
-      culture,
-      mission,
-      vision,
-      socialLinks
-    } = body;
-
-    // Validate required fields
-    if (!name || !description || !location || !industry || !size) {
-      return NextResponse.json(
-        { error: "Name, description, location, industry, and size are required" },
-        { status: 400 }
-      );
-    }
-
-    // Update company profile
-    const company = await prisma.company.updateMany({
-      where: { createdBy: user.id },
-      data: {
-        name,
-        description,
-        website,
-        location,
-        industry,
-        size,
-        founded: founded ? parseInt(founded) : null,
-        benefits: benefits ? JSON.stringify(benefits) : null,
-        specialties: specialties ? JSON.stringify(specialties) : null,
-        culture: culture || '',
-        mission: mission || '',
-        vision: vision || '',
-        socialLinks: socialLinks ? JSON.stringify(socialLinks) : null
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: "Company profile updated successfully"
-    });
-  } catch (error) {
-    console.error("Error updating company profile:", error);
-    return NextResponse.json(
-      { error: "Failed to update company profile" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  try {
-    const auth = await requireAuth();
-    if ("error" in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
-    }
-
-    const { user } = auth;
-    console.log("DELETE /api/company/profile - User authenticated:", user.id, user.role);
-    
-
-    // Check if company exists
-    const existingCompany = await prisma.company.findFirst({
-      where: { createdBy: user.id }
-    });
-
-    if (!existingCompany) {
-      return NextResponse.json(
-        { error: "Company not found" },
-        { status: 404 }
-      );
-    }
-
-    // Delete the company
-    await prisma.company.delete({
-      where: { id: existingCompany.id }
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: "Company profile deleted successfully"
-    });
-  } catch (error) {
-    console.error("Error deleting company profile:", error);
-    return NextResponse.json(
-      { error: "Failed to delete company profile" },
+      { error: "Failed to create company profile" },
       { status: 500 }
     );
   }
@@ -264,9 +179,9 @@ export async function OPTIONS() {
   return new NextResponse(null, { 
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     }
   });
 }
