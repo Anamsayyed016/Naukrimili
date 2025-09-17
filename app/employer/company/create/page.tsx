@@ -144,13 +144,13 @@ export default function CreateCompanyPage() {
   };
 
   // AI-powered content generation
-  const generateAIContent = async (type: 'description' | 'benefits' | 'specialties') => {
+  const generateAIContent = async (type: 'description' | 'benefits' | 'specialties' | 'mission' | 'vision') => {
     if (!formData.name) {
       toast.error('Please enter company name first');
       return;
     }
 
-    if ((type === 'benefits' || type === 'specialties') && !formData.industry) {
+    if ((type === 'benefits' || type === 'specialties' || type === 'mission' || type === 'vision') && !formData.industry) {
       toast.error('Please select an industry first for better suggestions');
       return;
     }
@@ -183,6 +183,14 @@ export default function CreateCompanyPage() {
           case 'specialties':
             setFormData(prev => ({ ...prev, specialties: data.suggestions }));
             toast.success('🎉 AI-suggested specialties added!');
+            break;
+          case 'mission':
+            setFormData(prev => ({ ...prev, mission: data.suggestion }));
+            toast.success('🎉 AI-generated mission statement added!');
+            break;
+          case 'vision':
+            setFormData(prev => ({ ...prev, vision: data.suggestion }));
+            toast.success('🎉 AI-generated vision statement added!');
             break;
         }
       } else {
@@ -386,9 +394,9 @@ export default function CreateCompanyPage() {
                     <p className="text-gray-600 text-sm sm:text-base">Tell us about your company</p>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     <div>
-                      <Label htmlFor="name" className="text-base font-bold text-gray-900">
+                      <Label htmlFor="name" className="text-sm sm:text-base font-bold text-gray-900">
                         Company Name *
                       </Label>
                       <Input
@@ -396,14 +404,14 @@ export default function CreateCompanyPage() {
                         value={formData.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
                         placeholder="e.g., TechCorp Solutions"
-                        className="mt-1 h-12 text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                        className="mt-1 h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                         required
                       />
                     </div>
 
                     <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <Label htmlFor="description" className="text-base font-bold text-gray-900">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+                        <Label htmlFor="description" className="text-sm sm:text-base font-bold text-gray-900">
                           Company Description *
                         </Label>
                         <Button
@@ -412,17 +420,19 @@ export default function CreateCompanyPage() {
                           size="sm"
                           onClick={() => generateAIContent('description')}
                           disabled={aiGenerating || !formData.name.trim()}
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium"
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium w-full sm:w-auto"
                         >
                           {aiGenerating ? (
                             <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                              Generating...
+                              <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-1 sm:mr-2"></div>
+                              <span className="hidden sm:inline">Generating...</span>
+                              <span className="sm:hidden">AI Generate</span>
                             </>
                           ) : (
                             <>
-                              <Brain className="h-4 w-4 mr-2" />
-                              AI Generate Description
+                              <Brain className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                              <span className="hidden sm:inline">AI Generate Description</span>
+                              <span className="sm:hidden">AI Generate</span>
                             </>
                           )}
                         </Button>
@@ -432,19 +442,19 @@ export default function CreateCompanyPage() {
                         value={formData.description}
                         onChange={(e) => handleInputChange('description', e.target.value)}
                         placeholder="Describe your company, mission, and what makes you unique..."
-                        rows={4}
-                        className="mt-1 text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                        rows={3}
+                        className="mt-1 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                         required
                       />
-                      <div className="mt-2 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-                        <p className="text-sm text-blue-700 font-medium">
+                      <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                        <p className="text-xs sm:text-sm text-blue-700 font-medium">
                           💡 {aiSuggestions.description}
                         </p>
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="website" className="text-base font-bold text-gray-900">
+                      <Label htmlFor="website" className="text-sm sm:text-base font-bold text-gray-900">
                         Website
                       </Label>
                       <Input
@@ -453,7 +463,7 @@ export default function CreateCompanyPage() {
                         value={formData.website}
                         onChange={(e) => handleInputChange('website', e.target.value)}
                         placeholder="https://yourcompany.com"
-                        className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                        className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                       />
                     </div>
                   </div>
@@ -477,9 +487,9 @@ export default function CreateCompanyPage() {
                     <p className="text-gray-600 text-sm sm:text-base">Help job seekers find you</p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                      <Label htmlFor="location" className="text-base font-bold text-gray-900">
+                      <Label htmlFor="location" className="text-sm sm:text-base font-bold text-gray-900">
                         Location *
                       </Label>
                       <Input
@@ -487,17 +497,17 @@ export default function CreateCompanyPage() {
                         value={formData.location}
                         onChange={(e) => handleInputChange('location', e.target.value)}
                         placeholder="e.g., Bangalore, India"
-                        className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                        className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                         required
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="industry" className="text-base font-bold text-gray-900">
+                      <Label htmlFor="industry" className="text-sm sm:text-base font-bold text-gray-900">
                         Industry *
                       </Label>
                       <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
-                        <SelectTrigger className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm">
+                        <SelectTrigger className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm">
                           <SelectValue placeholder="Select your industry" />
                         </SelectTrigger>
                         <SelectContent className="max-h-60 overflow-y-auto">
@@ -505,10 +515,10 @@ export default function CreateCompanyPage() {
                             <SelectItem 
                               key={industry} 
                               value={industry}
-                              className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100"
+                              className="py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base hover:bg-blue-50 focus:bg-blue-100"
                             >
                               <div className="flex items-center gap-2">
-                                <Building2 className="h-4 w-4 text-blue-600" />
+                                <Building2 className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                                 {industry}
                               </div>
                             </SelectItem>
@@ -518,11 +528,11 @@ export default function CreateCompanyPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="size" className="text-base font-bold text-gray-900">
+                      <Label htmlFor="size" className="text-sm sm:text-base font-bold text-gray-900">
                         Company Size *
                       </Label>
                       <Select value={formData.size} onValueChange={(value) => handleInputChange('size', value)}>
-                        <SelectTrigger className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm">
+                        <SelectTrigger className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm">
                           <SelectValue placeholder="Select company size" />
                         </SelectTrigger>
                         <SelectContent className="max-h-60 overflow-y-auto">
@@ -530,10 +540,10 @@ export default function CreateCompanyPage() {
                             <SelectItem 
                               key={size} 
                               value={size}
-                              className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100"
+                              className="py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base hover:bg-blue-50 focus:bg-blue-100"
                             >
                               <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4 text-green-600" />
+                                <Users className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
                                 {size} employees
                               </div>
                             </SelectItem>
@@ -543,7 +553,7 @@ export default function CreateCompanyPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="founded" className="text-base font-bold text-gray-900">
+                      <Label htmlFor="founded" className="text-sm sm:text-base font-bold text-gray-900">
                         Founded Year
                       </Label>
                       <Input
@@ -554,7 +564,7 @@ export default function CreateCompanyPage() {
                         placeholder="e.g., 2020"
                         min="1900"
                         max={new Date().getFullYear()}
-                        className="mt-1 h-12 text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                        className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                       />
                     </div>
                   </div>
@@ -580,31 +590,79 @@ export default function CreateCompanyPage() {
 
                   <div className="space-y-6">
                     {/* Mission & Vision */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                       <div>
-                        <Label htmlFor="mission" className="text-base font-bold text-gray-900">
-                          Mission Statement
-                        </Label>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+                          <Label htmlFor="mission" className="text-sm sm:text-base font-bold text-gray-900">
+                            Mission Statement
+                          </Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => generateAIContent('mission')}
+                            disabled={aiGenerating || !formData.name.trim() || !formData.industry}
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium w-full sm:w-auto"
+                          >
+                            {aiGenerating ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-1 sm:mr-2"></div>
+                                <span className="hidden sm:inline">Generating...</span>
+                                <span className="sm:hidden">AI Generate</span>
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                                <span className="hidden sm:inline">AI Generate Mission</span>
+                                <span className="sm:hidden">AI Generate</span>
+                              </>
+                            )}
+                          </Button>
+                        </div>
                         <Textarea
                           id="mission"
                           value={formData.mission || ''}
                           onChange={(e) => handleInputChange('mission', e.target.value)}
                           placeholder="What is your company's purpose?"
                           rows={3}
-                          className="mt-1 text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
+                          className="mt-1 text-sm sm:text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="vision" className="text-base font-bold text-gray-900">
-                          Vision Statement
-                        </Label>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+                          <Label htmlFor="vision" className="text-sm sm:text-base font-bold text-gray-900">
+                            Vision Statement
+                          </Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => generateAIContent('vision')}
+                            disabled={aiGenerating || !formData.name.trim() || !formData.industry}
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium w-full sm:w-auto"
+                          >
+                            {aiGenerating ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-1 sm:mr-2"></div>
+                                <span className="hidden sm:inline">Generating...</span>
+                                <span className="sm:hidden">AI Generate</span>
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                                <span className="hidden sm:inline">AI Generate Vision</span>
+                                <span className="sm:hidden">AI Generate</span>
+                              </>
+                            )}
+                          </Button>
+                        </div>
                         <Textarea
                           id="vision"
                           value={formData.vision || ''}
                           onChange={(e) => handleInputChange('vision', e.target.value)}
                           placeholder="What does your company aspire to achieve?"
                           rows={3}
-                          className="mt-1 text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
+                          className="mt-1 text-sm sm:text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
                         />
                       </div>
                     </div>
