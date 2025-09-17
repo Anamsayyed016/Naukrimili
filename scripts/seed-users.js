@@ -7,6 +7,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -42,6 +43,7 @@ const users = [
     email: 'admin@jobportal.com',
     name: 'System Admin',
     role: 'admin',
+    password: 'admin123', // Will be hashed before saving
     phone: '+91-9876543212',
     location: 'Delhi, NCR',
     bio: 'System administrator for the job portal',
@@ -82,27 +84,41 @@ async function seedUsers() {
         
         if (existingUser) {
           // Update existing user
+          const updateData = {
+            name: userData.name,
+            role: userData.role,
+            phone: userData.phone,
+            location: userData.location,
+            bio: userData.bio,
+            skills: userData.skills,
+            experience: userData.experience,
+            education: userData.education,
+            isVerified: userData.isVerified,
+            isActive: userData.isActive
+          };
+          
+          // Add password if provided and user doesn't have one
+          if (userData.password && !existingUser.password) {
+            updateData.password = await bcrypt.hash(userData.password, 10);
+          }
+          
           await prisma.user.update({
             where: { email: userData.email },
-            data: {
-              name: userData.name,
-              role: userData.role,
-              phone: userData.phone,
-              location: userData.location,
-              bio: userData.bio,
-              skills: userData.skills,
-              experience: userData.experience,
-              education: userData.education,
-              isVerified: userData.isVerified,
-              isActive: userData.isActive
-            }
+            data: updateData
           });
           updatedCount++;
           console.log(`✅ Updated user: ${userData.email}`);
         } else {
           // Create new user
+          const createData = { ...userData };
+          
+          // Hash password if provided
+          if (userData.password) {
+            createData.password = await bcrypt.hash(userData.password, 10);
+          }
+          
           await prisma.user.create({
-            data: userData
+            data: createData
           });
           createdCount++;
           console.log(`✅ Created user: ${userData.email}`);

@@ -35,7 +35,22 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
   React.useEffect(() => {
     if (user?.role) {
       console.log('User already has role:', user.role, '- redirecting immediately');
-      const targetUrl = user.role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
+      let targetUrl = '/dashboard';
+      
+      switch (user.role) {
+        case 'admin':
+          targetUrl = '/dashboard/admin';
+          break;
+        case 'jobseeker':
+          targetUrl = '/dashboard/jobseeker';
+          break;
+        case 'employer':
+          targetUrl = '/dashboard/company';
+          break;
+        default:
+          targetUrl = '/dashboard';
+      }
+      
       const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
       console.log('🔄 Immediate redirect URL:', finalUrl);
       // Use window.location.href to force a full page reload
@@ -112,7 +127,19 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Determine target URL based on role
-        const targetUrl = role === 'jobseeker' ? '/jobseeker/options' : '/employer/options';
+        let targetUrl = '/dashboard';
+        
+        switch (role) {
+          case 'jobseeker':
+            targetUrl = '/dashboard/jobseeker';
+            break;
+          case 'employer':
+            targetUrl = '/dashboard/company';
+            break;
+          default:
+            targetUrl = '/dashboard';
+        }
+        
         console.log('🚀 Redirecting to:', targetUrl);
         
         // Add URL parameter to prevent immediate redirect back

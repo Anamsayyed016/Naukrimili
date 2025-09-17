@@ -34,12 +34,18 @@ export default function SignInPage() {
         router.push('/auth/role-selection');
       } else {
         // User has a role, redirect to appropriate dashboard
-        if (session.user.role === 'jobseeker') {
-          router.push('/jobseeker/options');
-        } else if (session.user.role === 'employer') {
-          router.push('/employer/options');
-        } else {
-          router.push('/auth/role-selection');
+        switch (session.user.role) {
+          case 'admin':
+            router.push('/dashboard/admin');
+            break;
+          case 'jobseeker':
+            router.push('/dashboard/jobseeker');
+            break;
+          case 'employer':
+            router.push('/dashboard/company');
+            break;
+          default:
+            router.push('/auth/role-selection');
         }
       }
     }
