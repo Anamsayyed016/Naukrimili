@@ -133,11 +133,6 @@ model Account {
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
