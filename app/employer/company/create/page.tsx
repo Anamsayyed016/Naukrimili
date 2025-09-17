@@ -255,6 +255,8 @@ export default function CreateCompanyPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+        },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 
@@ -265,29 +267,20 @@ export default function CreateCompanyPage() {
           description: 'Your company profile is ready to attract top talent.',
           duration: 5000,
         });
-      if (data.success) {
-        toast.success("�� Company created successfully! You can now start posting jobs.", {
-          description: "Your company profile is ready to attract top talent.",
-          duration: 5000,
-        });
         
         // Redirect to employer dashboard
         setTimeout(() => {
           window.location.href = "/employer/dashboard";
         }, 2000);
       } else {
-<<<<<<< Updated upstream
-        console.error('API Error:', data.error);
-        toast.error(`Failed to create company: ${data.error}`);
-      }
         console.error("API Error:", data.error);
         toast.error(`Failed to create company: ${data.error}`);
+      }
     } catch (error) {
       console.error("Error creating company:", error);
       toast.error("Failed to create company. Please try again.");
     } finally {
       setLoading(false);
-    }
     }
   };
 
