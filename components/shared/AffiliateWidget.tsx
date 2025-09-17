@@ -69,13 +69,13 @@ export function AffiliateWidget() {
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Total Earnings</p>
             <p className="text-xl font-semibold">
-              ₹{data.totalEarnings.toLocaleString()}
+              ₹{(data?.totalEarnings || 0).toLocaleString()}
             </p>
           </div>
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
             <p className="text-xl font-semibold">
-              ₹{data.pendingEarnings.toLocaleString()}
+              ₹{(data?.pendingEarnings || 0).toLocaleString()}
             </p>
           </div>
         </div>
@@ -104,7 +104,7 @@ export function AffiliateWidget() {
                 <div className="flex items-center gap-2">
                   {ref.amount && (
                     <span className="text-sm font-medium">
-                      ₹{ref.amount.toLocaleString()}
+                      ₹{(ref.amount || 0).toLocaleString()}
                     </span>
                   )}
                   <Badge

@@ -237,7 +237,7 @@ export default function OptimizedJobSearch({
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center space-x-4">
             <span className="text-blue-700 dark:text-blue-300">
-              <strong>{searchStats.totalJobs.toLocaleString()}</strong> jobs found
+              <strong>{(searchStats?.totalJobs || 0).toLocaleString()}</strong> jobs found
             </span>
             <span className="text-blue-600 dark:text-blue-400">
               Search time: <strong>{searchStats.searchTime}ms</strong>
@@ -471,8 +471,8 @@ export default function OptimizedJobSearch({
               className="w-full"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>₹{salaryRange[0].toLocaleString()}</span>
-              <span>₹{salaryRange[1].toLocaleString()}</span>
+              <span>₹{(salaryRange[0] || 0).toLocaleString()}</span>
+              <span>₹{(salaryRange[1] || 0).toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -648,7 +648,7 @@ export default function OptimizedJobSearch({
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                 {pagination.total > 0 
-                  ? `Found ${pagination.total.toLocaleString()} Jobs`
+                  ? `Found ${(pagination.total || 0).toLocaleString()} Jobs`
                   : 'No Jobs Found'
                 }
               </h3>

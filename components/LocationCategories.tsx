@@ -188,7 +188,7 @@ export default function LocationCategories({
                     {category.name}
                   </div>
                   <div className="text-xs text-blue-200">
-                    {category.locations.length} locations • {category.locations.reduce((sum, loc) => sum + loc.jobCount, 0).toLocaleString()} jobs
+                    {category.locations.length} locations • {(category.locations.reduce((sum, loc) => sum + (loc.jobCount || 0), 0)).toLocaleString()} jobs
                   </div>
                 </div>
               </div>
@@ -227,7 +227,7 @@ export default function LocationCategories({
                                 ? 'bg-white/20 text-white'
                                 : 'bg-green-100 text-green-800'
                             }`}>
-                              {location.jobCount.toLocaleString()}
+                              {(location.jobCount || 0).toLocaleString()}
                             </Badge>
                           </div>
                         </div>

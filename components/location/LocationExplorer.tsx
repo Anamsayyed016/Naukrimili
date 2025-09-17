@@ -126,8 +126,8 @@ export default function LocationExplorer() {
                   </div>
                   {loc.salary_stats?.average_max ? (
                     <Badge variant="secondary">
-                      Avg. {loc.salary_stats.currency || ''} {loc.salary_stats.average_min ? loc.salary_stats.average_min.toLocaleString() : ''}
-                      {loc.salary_stats.average_max ? ` - ${loc.salary_stats.average_max.toLocaleString()}` : ''}
+                      Avg. {loc.salary_stats.currency || ''} {loc.salary_stats.average_min ? (loc.salary_stats.average_min || 0).toLocaleString() : ''}
+                      {loc.salary_stats.average_max ? ` - ${(loc.salary_stats.average_max || 0).toLocaleString()}` : ''}
                     </Badge>
                   ) : null}
                 </div>

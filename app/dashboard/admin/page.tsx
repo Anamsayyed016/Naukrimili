@@ -126,9 +126,9 @@ export default function AdminDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
+            <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.activeUsers} active
+              {stats?.activeUsers || 0} active
             </p>
           </CardContent>
         </Card>
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalJobs}</div>
+            <div className="text-2xl font-bold">{stats?.totalJobs || 0}</div>
             <p className="text-xs text-muted-foreground">
               Across all companies
             </p>
@@ -152,9 +152,9 @@ export default function AdminDashboard() {
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCompanies}</div>
+            <div className="text-2xl font-bold">{stats?.totalCompanies || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.pendingVerifications} pending verification
+              {stats?.pendingVerifications || 0} pending verification
             </p>
           </CardContent>
         </Card>
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalApplications}</div>
+            <div className="text-2xl font-bold">{stats?.totalApplications || 0}</div>
             <p className="text-xs text-muted-foreground">
               Total submissions
             </p>
@@ -183,7 +183,7 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.totalViews.toLocaleString()}</div>
+            <div className="text-3xl font-bold">{(stats?.totalViews || 0).toLocaleString()}</div>
             <p className="text-sm text-muted-foreground">Total job views</p>
           </CardContent>
         </Card>
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">₹{stats.averageSalary.toLocaleString()}</div>
+            <div className="text-3xl font-bold">₹{(stats?.averageSalary || 0).toLocaleString()}</div>
             <p className="text-sm text-muted-foreground">Per annum</p>
           </CardContent>
         </Card>
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.recentSignups.length}</div>
+            <div className="text-3xl font-bold">{stats?.recentSignups?.length || 0}</div>
             <p className="text-sm text-muted-foreground">New users this week</p>
           </CardContent>
         </Card>
@@ -301,12 +301,12 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {stats.userRoleDistribution.map((item) => (
+              {stats?.userRoleDistribution?.map((item) => (
                 <div key={item.role} className="flex items-center justify-between">
                   <span className="capitalize">{item.role}</span>
                   <Badge variant="secondary">{item._count.role}</Badge>
                 </div>
-              ))}
+              )) || []}
             </div>
           </CardContent>
         </Card>
@@ -317,12 +317,12 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {stats.jobTypeDistribution.map((item) => (
+              {stats?.jobTypeDistribution?.map((item) => (
                 <div key={item.jobType} className="flex items-center justify-between">
                   <span className="capitalize">{item.jobType || 'Not specified'}</span>
                   <Badge variant="secondary">{item._count.jobType}</Badge>
                 </div>
-              ))}
+              )) || []}
             </div>
           </CardContent>
         </Card>
@@ -333,12 +333,12 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {stats.applicationStatusDistribution.map((item) => (
+              {stats?.applicationStatusDistribution?.map((item) => (
                 <div key={item.status} className="flex items-center justify-between">
                   <span className="capitalize">{item.status}</span>
                   <Badge variant="secondary">{item._count.status}</Badge>
                 </div>
-              ))}
+              )) || []}
             </div>
           </CardContent>
         </Card>
