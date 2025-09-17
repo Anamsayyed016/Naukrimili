@@ -33,19 +33,13 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
 
   // Check if user already has a role and redirect immediately
   React.useEffect(() => {
-    if (user?.role) {
+    if (user?.role && user.role !== 'jobseeker' && user.role !== 'employer') {
       console.log('User already has role:', user.role, '- redirecting immediately');
       let targetUrl = '/dashboard';
       
       switch (user.role) {
         case 'admin':
           targetUrl = '/dashboard/admin';
-          break;
-        case 'jobseeker':
-          targetUrl = '/dashboard/jobseeker';
-          break;
-        case 'employer':
-          targetUrl = '/dashboard/company';
           break;
         default:
           targetUrl = '/dashboard';
@@ -124,7 +118,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         console.log('✅ Session updated');
         
         // Add a longer delay to ensure session is fully updated and database changes are reflected
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Determine target URL based on role
         let targetUrl = '/dashboard';

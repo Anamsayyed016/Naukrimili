@@ -37,19 +37,13 @@ export default function RoleSelectionPage() {
       console.log('User role:', session.user.role);
       
       // If user already has a role, redirect them to the appropriate page
-      if (session.user.role) {
+      if (session.user.role && session.user.role !== 'jobseeker' && session.user.role !== 'employer') {
         console.log('User already has role:', session.user.role, '- redirecting from role selection page');
         let targetUrl = '/dashboard';
         
         switch (session.user.role) {
           case 'admin':
             targetUrl = '/dashboard/admin';
-            break;
-          case 'jobseeker':
-            targetUrl = '/dashboard/jobseeker';
-            break;
-          case 'employer':
-            targetUrl = '/dashboard/company';
             break;
           default:
             targetUrl = '/dashboard';

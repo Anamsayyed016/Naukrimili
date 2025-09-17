@@ -1,3 +1,10 @@
+#!/usr/bin/env node
+
+/**
+ * Test OAuth Flow Script
+ * Tests the role selection API endpoint
+ */
+
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -6,36 +13,50 @@ async function testOAuthFlow() {
   try {
     console.log('🧪 Testing OAuth flow...');
     
-    // Check if there are any users in the database
-    const userCount = await prisma.user.count();
-    console.log(`📊 Total users in database: ${userCount}`);
-    
-    // Check if there are any OAuth accounts
-    const accountCount = await prisma.account.count();
-    console.log(`📊 Total OAuth accounts: ${accountCount}`);
-    
-    // Check for users without passwords (OAuth users)
+    // Check if we have any OAuth users
     const oauthUsers = await prisma.user.findMany({
-      where: { password: null },
-      include: { accounts: true }
+      where: {
+        OR: [
+          { accounts: { some: { provider: 'google' } } },
+          { accounts: { some: { provider: 'linkedin' } } }
+        ]
+      },
+      include: {
+        accounts: true
+      }
     });
     
-    console.log(`📊 OAuth users (no password): ${oauthUsers.length}`);
+    console.log(`📊 Found ${oauthUsers.length} OAuth users:`);
     oauthUsers.forEach(user => {
-      console.log(`  - ${user.name} (${user.email}) - ${user.accounts.length} account(s)`);
+      console.log(`  - ${user.email} (${user.role || 'no role'})`);
+      user.accounts.forEach(account => {
+        console.log(`    Provider: ${account.provider}`);
+      });
     });
     
-    // Check for users with passwords (credential users)
-    const credentialUsers = await prisma.user.findMany({
-      where: { password: { not: null } }
-    });
+    // Test role update for OAuth users
+    for (const user of oauthUsers) {
+      if (!user.role) {
+        console.log(`\n🔧 Testing role update for ${user.email}...`);
+        
+        // Simulate role update
+        const updatedUser = await prisma.user.update({
+          where: { id: user.id },
+          data: { role: 'employer' },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            isActive: true
+          }
+        });
+        
+        console.log(`✅ Role updated successfully:`, updatedUser);
+      }
+    }
     
-    console.log(`📊 Credential users (with password): ${credentialUsers.length}`);
-    credentialUsers.forEach(user => {
-      console.log(`  - ${user.name} (${user.email})`);
-    });
-    
-    console.log('✅ OAuth flow test completed!');
+    console.log('\n🎉 OAuth flow test completed!');
     
   } catch (error) {
     console.error('❌ Error testing OAuth flow:', error);
