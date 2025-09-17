@@ -1137,4 +1137,4 @@ export default function CreateCompanyPage() {
       </div>
     </>
   );
-} // End of CreateCompanyPage component
+}
