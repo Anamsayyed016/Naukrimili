@@ -256,6 +256,7 @@ export default function CreateCompanyPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 
@@ -272,7 +273,8 @@ export default function CreateCompanyPage() {
           window.location.href = '/employer/dashboard';
         }, 2000);
       } else {
-        throw new Error(data.error || 'Failed to create company');
+        console.error('API Error:', data.error);
+        toast.error(`Failed to create company: ${data.error}`);
       }
     } catch (error) {
       console.error('Error creating company:', error);
