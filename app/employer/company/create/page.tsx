@@ -251,6 +251,7 @@ export default function CreateCompanyPage() {
 
     setLoading(true);
     try {
+      console.log("Form submission started with data:", formData);
       const response = await fetch("/api/company/profile", {
         method: "POST",
         headers: {
@@ -260,16 +261,20 @@ export default function CreateCompanyPage() {
         body: JSON.stringify(formData),
       });
 
+      console.log("Response status:", response.status);
       const data = await response.json();
+      console.log("Response data:", data);
 
       if (data.success) {
-        toast.success('🎉 Company created successfully! You can now start posting jobs.', {
-          description: 'Your company profile is ready to attract top talent.',
+        console.log("Company created successfully, redirecting...");
+        toast.success(" Company created successfully! You can now start posting jobs.", {
+          description: "Your company profile is ready to attract top talent.",
           duration: 5000,
         });
         
         // Redirect to employer dashboard
         setTimeout(() => {
+          console.log("Redirecting to /employer/dashboard");
           window.location.href = "/employer/dashboard";
         }, 2000);
       } else {
@@ -282,7 +287,6 @@ export default function CreateCompanyPage() {
     } finally {
       setLoading(false);
     }
-  };
 
   if (status === 'loading') {
     return (
