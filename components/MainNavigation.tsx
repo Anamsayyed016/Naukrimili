@@ -152,7 +152,7 @@ export default function MainNavigation({
           </div>
 
           {/* Desktop Right Side - Enhanced User Actions */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
             {/* Desktop Notifications and Messages */}
             <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
               <Bell className="w-5 h-5" />

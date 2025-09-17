@@ -245,26 +245,26 @@ export default function UnifiedUserProfile({
       {/* Desktop User Profile Trigger */}
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-3 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-w-0 max-w-xs"
         aria-label="User profile menu"
         aria-expanded={isDropdownOpen}
       >
-        <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-          <span className="text-white font-semibold text-sm">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+          <span className="text-white font-semibold text-xs sm:text-sm">
             {userInitials}
           </span>
         </div>
-        <div className="flex flex-col items-start min-w-0">
-          <span className="text-sm font-medium text-gray-900 truncate">
+        <div className="flex flex-col items-start min-w-0 flex-1">
+          <span className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-[150px]">
             {displayName}
           </span>
-          <span className="text-xs text-gray-500 capitalize truncate">
+          <span className="text-xs text-gray-500 capitalize truncate max-w-[120px] sm:max-w-[150px]">
             {userRole}
           </span>
         </div>
         <ChevronDown 
           className={cn(
-            "w-4 h-4 text-gray-500 transition-transform duration-200",
+            "w-3 h-3 sm:w-4 sm:h-4 text-gray-500 transition-transform duration-200 flex-shrink-0",
             isDropdownOpen && "rotate-180"
           )}
         />
@@ -278,19 +278,19 @@ export default function UnifiedUserProfile({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-50"
+            className="absolute top-full right-0 mt-2 w-72 sm:w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50"
           >
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-semibold text-sm">
                     {userInitials}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
-                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                  <p className="text-sm font-medium text-gray-900 truncate max-w-[200px] sm:max-w-none">{displayName}</p>
+                  <p className="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-none">{user.email}</p>
                   <p className="text-xs text-blue-600 font-medium capitalize">{userRole}</p>
                 </div>
               </div>
@@ -303,10 +303,10 @@ export default function UnifiedUserProfile({
                   router.push('/profile');
                   closeDropdown();
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left"
               >
-                <User className="w-4 h-4" />
-                <span className="text-sm">Profile</span>
+                <User className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm truncate">Profile</span>
               </button>
 
               <button
@@ -314,10 +314,10 @@ export default function UnifiedUserProfile({
                   router.push('/settings');
                   closeDropdown();
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left"
               >
-                <Settings className="w-4 h-4" />
-                <span className="text-sm">Settings</span>
+                <Settings className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm truncate">Settings</span>
               </button>
 
               {userRole === 'jobseeker' && (
@@ -326,10 +326,10 @@ export default function UnifiedUserProfile({
                     router.push('/dashboard/jobseeker');
                     closeDropdown();
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left"
                 >
-                  <BarChartIcon className="w-4 h-4" />
-                  <span className="text-sm">Dashboard</span>
+                  <BarChartIcon className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm truncate">Dashboard</span>
                 </button>
               )}
 
@@ -339,10 +339,10 @@ export default function UnifiedUserProfile({
                     router.push('/dashboard/company');
                     closeDropdown();
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left"
                 >
-                  <BarChartIcon className="w-4 h-4" />
-                  <span className="text-sm">Dashboard</span>
+                  <BarChartIcon className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm truncate">Dashboard</span>
                 </button>
               )}
 
@@ -352,10 +352,10 @@ export default function UnifiedUserProfile({
                     router.push('/dashboard/admin');
                     closeDropdown();
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left"
                 >
-                  <BarChartIcon className="w-4 h-4" />
-                  <span className="text-sm">Admin Dashboard</span>
+                  <BarChartIcon className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm truncate">Admin Dashboard</span>
                 </button>
               )}
 
@@ -363,10 +363,10 @@ export default function UnifiedUserProfile({
 
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors text-left"
               >
-                <LogOut className="w-4 h-4" />
-                <span className="text-sm">Sign Out</span>
+                <LogOut className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm truncate">Sign Out</span>
               </button>
             </div>
           </motion.div>
