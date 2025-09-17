@@ -487,85 +487,89 @@ export default function CreateCompanyPage() {
                     <p className="text-gray-600 text-sm sm:text-base">Help job seekers find you</p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    <div>
-                      <Label htmlFor="location" className="text-sm sm:text-base font-bold text-gray-900">
-                        Location *
-                      </Label>
-                      <Input
-                        id="location"
-                        value={formData.location}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
-                        placeholder="e.g., Bangalore, India"
-                        className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
-                        required
-                      />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                    <div className="space-y-6">
+                      <div>
+                        <Label htmlFor="location" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
+                          Location *
+                        </Label>
+                        <Input
+                          id="location"
+                          value={formData.location}
+                          onChange={(e) => handleInputChange('location', e.target.value)}
+                          placeholder="e.g., Bangalore, India"
+                          className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="industry" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
+                          Industry *
+                        </Label>
+                        <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
+                          <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
+                            <SelectValue placeholder="Select your industry" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-60 overflow-y-auto z-[100] relative bg-white border border-gray-200 rounded-xl shadow-lg">
+                            {industries.map((industry) => (
+                              <SelectItem 
+                                key={industry} 
+                                value={industry}
+                                className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100 cursor-pointer transition-colors duration-150"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Building2 className="h-4 w-4 text-blue-600" />
+                                  <span className="font-medium">{industry}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
-                    <div>
-                      <Label htmlFor="industry" className="text-sm sm:text-base font-bold text-gray-900">
-                        Industry *
-                      </Label>
-                      <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
-                        <SelectTrigger className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm">
-                          <SelectValue placeholder="Select your industry" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60 overflow-y-auto">
-                          {industries.map((industry) => (
-                            <SelectItem 
-                              key={industry} 
-                              value={industry}
-                              className="py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base hover:bg-blue-50 focus:bg-blue-100"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Building2 className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
-                                {industry}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <div className="space-y-6">
+                      <div>
+                        <Label htmlFor="size" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
+                          Company Size *
+                        </Label>
+                        <Select value={formData.size} onValueChange={(value) => handleInputChange('size', value)}>
+                          <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
+                            <SelectValue placeholder="Select company size" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-60 overflow-y-auto z-[100] relative bg-white border border-gray-200 rounded-xl shadow-lg">
+                            {companySizes.map((size) => (
+                              <SelectItem 
+                                key={size} 
+                                value={size}
+                                className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100 cursor-pointer transition-colors duration-150"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Users className="h-4 w-4 text-green-600" />
+                                  <span className="font-medium">{size} employees</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                    <div>
-                      <Label htmlFor="size" className="text-sm sm:text-base font-bold text-gray-900">
-                        Company Size *
-                      </Label>
-                      <Select value={formData.size} onValueChange={(value) => handleInputChange('size', value)}>
-                        <SelectTrigger className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm">
-                          <SelectValue placeholder="Select company size" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60 overflow-y-auto">
-                          {companySizes.map((size) => (
-                            <SelectItem 
-                              key={size} 
-                              value={size}
-                              className="py-2 sm:py-3 px-3 sm:px-4 text-sm sm:text-base hover:bg-blue-50 focus:bg-blue-100"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Users className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-                                {size} employees
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="founded" className="text-sm sm:text-base font-bold text-gray-900">
-                        Founded Year
-                      </Label>
-                      <Input
-                        id="founded"
-                        type="number"
-                        value={formData.founded}
-                        onChange={(e) => handleInputChange('founded', e.target.value)}
-                        placeholder="e.g., 2020"
-                        min="1900"
-                        max={new Date().getFullYear()}
-                        className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
-                      />
+                      <div>
+                        <Label htmlFor="founded" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
+                          Founded Year
+                        </Label>
+                        <Input
+                          id="founded"
+                          type="number"
+                          value={formData.founded}
+                          onChange={(e) => handleInputChange('founded', e.target.value)}
+                          placeholder="e.g., 2020"
+                          min="1900"
+                          max={new Date().getFullYear()}
+                          className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
+                        />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -588,12 +592,12 @@ export default function CreateCompanyPage() {
                     <p className="text-gray-600 text-sm sm:text-base">Showcase what makes your company special</p>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     {/* Mission & Vision */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                      <div>
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
-                          <Label htmlFor="mission" className="text-sm sm:text-base font-bold text-gray-900">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      <div className="space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <Label htmlFor="mission" className="text-base font-bold text-gray-900">
                             Mission Statement
                           </Label>
                           <Button
@@ -602,17 +606,17 @@ export default function CreateCompanyPage() {
                             size="sm"
                             onClick={() => generateAIContent('mission')}
                             disabled={aiGenerating || !formData.name.trim() || !formData.industry}
-                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium w-full sm:w-auto"
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                           >
                             {aiGenerating ? (
                               <>
-                                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-1 sm:mr-2"></div>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                                 <span className="hidden sm:inline">Generating...</span>
                                 <span className="sm:hidden">AI Generate</span>
                               </>
                             ) : (
                               <>
-                                <Brain className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                                <Brain className="h-4 w-4 mr-2" />
                                 <span className="hidden sm:inline">AI Generate Mission</span>
                                 <span className="sm:hidden">AI Generate</span>
                               </>
@@ -624,13 +628,13 @@ export default function CreateCompanyPage() {
                           value={formData.mission || ''}
                           onChange={(e) => handleInputChange('mission', e.target.value)}
                           placeholder="What is your company's purpose?"
-                          rows={3}
-                          className="mt-1 text-sm sm:text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
+                          rows={4}
+                          className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
                         />
                       </div>
-                      <div>
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
-                          <Label htmlFor="vision" className="text-sm sm:text-base font-bold text-gray-900">
+                      <div className="space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <Label htmlFor="vision" className="text-base font-bold text-gray-900">
                             Vision Statement
                           </Label>
                           <Button
@@ -639,17 +643,17 @@ export default function CreateCompanyPage() {
                             size="sm"
                             onClick={() => generateAIContent('vision')}
                             disabled={aiGenerating || !formData.name.trim() || !formData.industry}
-                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium w-full sm:w-auto"
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                           >
                             {aiGenerating ? (
                               <>
-                                <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-1 sm:mr-2"></div>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                                 <span className="hidden sm:inline">Generating...</span>
                                 <span className="sm:hidden">AI Generate</span>
                               </>
                             ) : (
                               <>
-                                <Brain className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                                <Brain className="h-4 w-4 mr-2" />
                                 <span className="hidden sm:inline">AI Generate Vision</span>
                                 <span className="sm:hidden">AI Generate</span>
                               </>
@@ -661,15 +665,15 @@ export default function CreateCompanyPage() {
                           value={formData.vision || ''}
                           onChange={(e) => handleInputChange('vision', e.target.value)}
                           placeholder="What does your company aspire to achieve?"
-                          rows={3}
-                          className="mt-1 text-sm sm:text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
+                          rows={4}
+                          className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
                         />
                       </div>
                     </div>
 
                     {/* Company Culture */}
-                    <div>
-                      <Label htmlFor="culture" className="text-base font-bold text-gray-900">
+                    <div className="space-y-4">
+                      <Label htmlFor="culture" className="text-base font-bold text-gray-900 block">
                         Company Culture
                       </Label>
                       <Textarea
@@ -677,14 +681,14 @@ export default function CreateCompanyPage() {
                         value={formData.culture || ''}
                         onChange={(e) => handleInputChange('culture', e.target.value)}
                         placeholder="Describe your company culture, values, and work environment..."
-                        rows={3}
-                        className="mt-1 text-lg border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg shadow-sm"
+                        rows={4}
+                        className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
                       />
                     </div>
 
                     {/* Employee Benefits */}
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
+                    <div className="space-y-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <Label className="text-base font-bold text-gray-900">
                           Employee Benefits
                         </Label>
@@ -694,7 +698,7 @@ export default function CreateCompanyPage() {
                           size="sm"
                           onClick={() => generateAIContent('benefits')}
                           disabled={aiGenerating || !formData.industry}
-                          className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 hover:from-green-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium"
+                          className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 hover:from-green-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                         >
                           {aiGenerating ? (
                             <>
@@ -709,7 +713,7 @@ export default function CreateCompanyPage() {
                           )}
                         </Button>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                         {commonBenefits.map((benefit) => (
                           <Button
                             key={benefit}
@@ -717,18 +721,18 @@ export default function CreateCompanyPage() {
                             variant={formData.benefits?.includes(benefit) ? "default" : "outline"}
                             size="sm"
                             onClick={() => handleBenefitToggle(benefit)}
-                            className={`h-10 text-sm font-medium transition-all duration-200 ${
+                            className={`h-12 text-sm font-medium transition-all duration-200 rounded-xl ${
                               formData.benefits?.includes(benefit)
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
-                                : 'hover:bg-blue-50 border-2 border-gray-300 hover:border-blue-400'
+                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105 hover:scale-110'
+                                : 'hover:bg-blue-50 border-2 border-gray-300 hover:border-blue-400 hover:shadow-md'
                             }`}
                           >
                             {formData.benefits?.includes(benefit) && <CheckCircle className="h-4 w-4 mr-2" />}
-                            {benefit}
+                            <span className="truncate">{benefit}</span>
                           </Button>
                         ))}
                       </div>
-                      <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                      <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
                         <p className="text-sm text-green-700 font-medium">
                           💡 {aiSuggestions.benefits}
                         </p>
@@ -736,8 +740,8 @@ export default function CreateCompanyPage() {
                     </div>
 
                     {/* Company Specialties */}
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
+                    <div className="space-y-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <Label className="text-base font-bold text-gray-900">
                           Company Specialties
                         </Label>
@@ -747,7 +751,7 @@ export default function CreateCompanyPage() {
                           size="sm"
                           onClick={() => generateAIContent('specialties')}
                           disabled={aiGenerating || !formData.industry}
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg px-4 py-2 text-sm font-medium"
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                         >
                           {aiGenerating ? (
                             <>
@@ -765,20 +769,21 @@ export default function CreateCompanyPage() {
                       
                       {/* Selected Specialties */}
                       {formData.specialties && formData.specialties.length > 0 && (
-                        <div className="mb-4">
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-semibold text-gray-700">Selected Specialties:</h4>
                           <div className="flex flex-wrap gap-2">
                             {formData.specialties.map((specialty, index) => (
                               <Badge 
                                 key={index} 
                                 variant="secondary" 
-                                className="flex items-center gap-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-300 px-3 py-2 text-sm font-medium"
+                                className="flex items-center gap-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-300 px-3 py-2 text-sm font-medium rounded-full"
                               >
                                 <Target className="h-3 w-3" />
-                                {specialty}
+                                <span className="truncate max-w-[200px]">{specialty}</span>
                                 <button
                                   type="button"
                                   onClick={() => handleSpecialtyToggle(specialty)}
-                                  className="ml-1 hover:text-red-600 hover:bg-red-100 rounded-full p-0.5 transition-colors"
+                                  className="ml-1 hover:text-red-600 hover:bg-red-100 rounded-full p-0.5 transition-colors duration-150"
                                 >
                                   ×
                                 </button>
@@ -982,14 +987,14 @@ export default function CreateCompanyPage() {
             </AnimatePresence>
 
             {/* Navigation Buttons */}
-            <div className="flex flex-col sm:flex-row justify-between gap-4 sm:gap-0 mt-8 sm:mt-10 px-2 sm:px-0">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8 sm:mt-10">
               <Button
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold border-2 border-gray-300 hover:border-gray-400 bg-white shadow-lg"
+                className="w-full sm:w-auto px-8 py-4 text-base font-semibold border-2 border-gray-300 hover:border-gray-400 bg-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
               >
-                <ArrowLeft className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <ArrowLeft className="mr-2 h-5 w-5" />
                 Previous
               </Button>
 
@@ -997,26 +1002,26 @@ export default function CreateCompanyPage() {
                 <Button
                   onClick={nextStep}
                   disabled={!validateStep(currentStep)}
-                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl transform hover:scale-105 transition-all duration-200"
+                  className="w-full sm:w-auto px-8 py-4 text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl transform hover:scale-105 transition-all duration-200 rounded-xl"
                 >
                   Next
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               ) : (
                 <Button
                   onClick={handleSubmit}
                   disabled={loading || !validateStep(1) || !validateStep(2)}
-                  className="w-full sm:w-auto px-8 sm:px-10 py-3 sm:py-4 text-lg sm:text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-2xl transform hover:scale-105 transition-all duration-200"
+                  className="w-full sm:w-auto px-8 py-4 text-base font-bold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-2xl transform hover:scale-105 transition-all duration-200 rounded-xl"
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2 sm:mr-3"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                       <span className="hidden sm:inline">Creating Company...</span>
                       <span className="sm:hidden">Creating...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
+                      <Sparkles className="mr-2 h-5 w-5" />
                       <span className="hidden sm:inline">Create Company</span>
                       <span className="sm:hidden">Create</span>
                     </>
