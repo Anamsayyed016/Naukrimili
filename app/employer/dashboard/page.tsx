@@ -113,18 +113,33 @@ export default function EmployerDashboard() {
       // Check if company exists
       const companyResponse = await fetch('/api/company/profile');
       if (companyResponse.ok) {
-        setHasCompany(true);
-        
-        // Fetch stats if company exists
-        const statsResponse = await fetch('/api/company/stats');
-        if (statsResponse.ok) {
-          const statsData = await statsResponse.json();
-          setStats(statsData.data);
+        const companyData = await companyResponse.json();
+        if (companyData.success) {
+          setHasCompany(true);
+          
+          // Fetch stats if company exists
+          const statsResponse = await fetch('/api/company/stats');
+          if (statsResponse.ok) {
+            const statsData = await statsResponse.json();
+            setStats(statsData.data);
+          }
+        } else {
+          setHasCompany(false);
         }
+      } else if (companyResponse.status === 401) {
+        // User not authenticated, redirect to login
+        router.push('/auth/signin');
+        return;
+      } else if (companyResponse.status === 404) {
+        // Company not found
+        setHasCompany(false);
       } else {
+        // Other error
+        console.error('Error fetching company profile:', companyResponse.status, companyResponse.statusText);
         setHasCompany(false);
       }
     } catch (err) {
+      console.error('Error in fetchDashboardData:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);

@@ -4,13 +4,15 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
+    console.log("GET /api/company/profile - Starting request");
     const auth = await requireAuth();
     if ("error" in auth) {
+      console.log("GET /api/company/profile - Auth error:", auth.error, "Status:", auth.status);
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { user } = auth;
-    console.log("POST /api/company/profile - User authenticated:", user.id, user.role);
+    console.log("GET /api/company/profile - User authenticated:", user.id, user.role);
     
     
     // Get company profile
@@ -30,11 +32,14 @@ export async function GET(request: NextRequest) {
     });
 
     if (!company) {
+      console.log("GET /api/company/profile - Company not found for user:", user.id);
       return NextResponse.json(
         { error: "Company not found" },
         { status: 404 }
       );
     }
+
+    console.log("GET /api/company/profile - Company found:", company.id, company.name);
 
     return NextResponse.json({
       success: true,
@@ -42,8 +47,13 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching company profile:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
     return NextResponse.json(
-      { error: "Failed to fetch company profile" },
+      { error: "Failed to fetch company profile", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -128,8 +138,13 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error creating company profile:", error);
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
     return NextResponse.json(
-      { error: "Failed to create company profile" },
+      { error: "Failed to create company profile", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
@@ -143,7 +158,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const { user } = auth;
-    console.log("POST /api/company/profile - User authenticated:", user.id, user.role);
+    console.log("PUT /api/company/profile - User authenticated:", user.id, user.role);
     
     const body = await request.json();
     
@@ -187,7 +202,7 @@ export async function PUT(request: NextRequest) {
         culture: culture || '',
         mission: mission || '',
         vision: vision || '',
-        socialLinks: socialLinks || {}
+        socialLinks: socialLinks ? JSON.stringify(socialLinks) : null
       }
     });
 
@@ -212,7 +227,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { user } = auth;
-    console.log("POST /api/company/profile - User authenticated:", user.id, user.role);
+    console.log("DELETE /api/company/profile - User authenticated:", user.id, user.role);
     
 
     // Check if company exists
@@ -246,5 +261,12 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 200 });
+  return new NextResponse(null, { 
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    }
+  });
 }

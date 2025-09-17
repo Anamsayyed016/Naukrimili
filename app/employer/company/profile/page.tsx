@@ -88,10 +88,22 @@ export default function CompanyProfilePage() {
         if (data.success) {
           setCompany(data.data);
           setFormData(data.data);
-        } else if (response.status === 404) {
-          // No company profile found, redirect to create
-          router.push('/employer/company/create');
+        } else {
+          console.error('API returned error:', data.error);
+          toast.error(data.error || 'Failed to load company profile');
         }
+      } else if (response.status === 401) {
+        // User not authenticated, redirect to login
+        router.push('/auth/signin');
+        return;
+      } else if (response.status === 404) {
+        // No company profile found, redirect to create
+        router.push('/employer/company/create');
+      } else {
+        // Other error
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error fetching company profile:', response.status, response.statusText, errorData);
+        toast.error(errorData.error || 'Failed to load company profile');
       }
     } catch (error) {
       console.error('Error fetching company profile:', error);
