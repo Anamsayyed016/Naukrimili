@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import UnifiedUserProfile from "./UnifiedUserProfile";
 
 interface MainNavigationProps {
   brandName?: string;
@@ -165,98 +166,7 @@ export default function MainNavigation({
 
             {/* Desktop Authentication Section */}
             {isMounted && isAuthenticated && user ? (
-              <DropdownMenu onOpenChange={setIsDropdownOpen}>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 flex items-center gap-2 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    aria-label="User menu"
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold text-sm">
-                        {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                      </span>
-                    </div>
-                    <div className="flex flex-col items-start">
-                      <span className="text-gray-700 font-medium text-sm">
-                        {user.name || 'User'}
-                      </span>
-                      <span className="text-xs text-gray-500 capitalize">
-                        {user.role || 'User'}
-                      </span>
-                    </div>
-                    <ChevronDown 
-                      className={cn(
-                        "w-4 h-4 text-gray-500 transition-transform duration-200",
-                        isDropdownOpen && "rotate-180"
-                      )} 
-                    />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  align="end" 
-                  className="w-72 p-3 bg-white border border-gray-200 shadow-xl rounded-xl z-50"
-                  sideOffset={8}
-                >
-                  <DropdownMenuLabel className="text-base font-semibold text-gray-900 px-2 py-2">
-                    My Account
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-gray-200" />
-                  
-                  {/* User Info */}
-                  <div className="px-2 py-3 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                    <p className="text-xs text-blue-600 font-medium capitalize">{user.role}</p>
-                  </div>
-                  
-                  <DropdownMenuSeparator className="bg-gray-200" />
-                  
-                  {/* Menu Items */}
-                  <div className="py-2">
-                    <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                      <Link href="/profile" className="flex items-center gap-3 w-full">
-                        <User className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-900 font-medium">Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                      <Link href="/settings" className="flex items-center gap-3 w-full">
-                        <Settings className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-900 font-medium">Settings</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    
-                    {user.role === 'jobseeker' && (
-                      <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                        <Link href="/dashboard/jobseeker/resumes" className="flex items-center gap-3 w-full">
-                          <FileTextIcon className="w-4 h-4 text-gray-600" />
-                          <span className="text-gray-900 font-medium">My Resumes</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    
-                    <DropdownMenuItem asChild className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                      <Link href={user.role === 'employer' ? '/employer/dashboard' : '/dashboard/jobseeker'} className="flex items-center gap-3 w-full">
-                        <BarChartIcon className="w-4 h-4 text-gray-600" />
-                        <span className="text-gray-900 font-medium">Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </div>
-                  
-                  <DropdownMenuSeparator className="bg-gray-200" />
-                  
-                  {/* Logout */}
-                  <DropdownMenuItem 
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors cursor-pointer"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span className="font-medium">Sign Out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <UnifiedUserProfile variant="desktop" />
             ) : (
               // Desktop Auth Buttons
               <>
@@ -279,17 +189,10 @@ export default function MainNavigation({
           {/* Mobile Navigation - REACT STATE APPROACH */}
           {isMounted && isMobile && (
             <div className="flex items-center">
-            {/* Mobile User Indicator - Show when logged in */}
+            {/* Mobile User Profile - Show when logged in */}
             {isMounted && isAuthenticated && user && (
-              <div className="flex items-center space-x-2 mr-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                  </span>
-                </div>
-                <span className="text-sm font-medium text-gray-700 hidden sm:block">
-                  {user.name?.split(' ')[0] || 'User'}
-                </span>
+              <div className="mr-3">
+                <UnifiedUserProfile variant="mobile" />
               </div>
             )}
             
@@ -389,12 +292,23 @@ export default function MainNavigation({
                     
                     {user.role === 'employer' && (
                       <Link
-                        href="/employer/dashboard"
+                        href="/dashboard/company"
                         onClick={closeMenu}
                         className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
                       >
                         <BarChartIcon className="w-4 h-4 mr-2" />
                         Dashboard
+                      </Link>
+                    )}
+
+                    {user.role === 'admin' && (
+                      <Link
+                        href="/dashboard/admin"
+                        onClick={closeMenu}
+                        className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
+                      >
+                        <BarChartIcon className="w-4 h-4 mr-2" />
+                        Admin Dashboard
                       </Link>
                     )}
                   </div>
