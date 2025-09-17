@@ -58,6 +58,8 @@ export default function AdminDashboard() {
   const fetchAdminData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const [statsRes, activitiesRes] = await Promise.all([
         fetch('/api/admin/stats'),
         fetch('/api/admin/activity')
@@ -66,18 +68,51 @@ export default function AdminDashboard() {
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         if (statsData.success) {
-          setStats(statsData.data);
+          const apiData = statsData.data;
+          // Transform API response to match AdminStats interface
+          const transformedStats: AdminStats = {
+            totalUsers: apiData.overview?.totalUsers || 0,
+            totalJobs: apiData.overview?.totalJobs || 0,
+            totalCompanies: apiData.overview?.totalCompanies || 0,
+            totalApplications: apiData.overview?.totalApplications || 0,
+            activeUsers: apiData.overview?.totalUsers || 0, // Using total users as active users
+            pendingVerifications: (apiData.overview?.totalCompanies || 0) - (apiData.overview?.verifiedCompanies || 0),
+            recentSignups: apiData.recent?.users || [],
+            jobTypeDistribution: Object.entries(apiData.distributions?.jobTypes || {}).map(([jobType, count]) => ({
+              jobType,
+              _count: { jobType: count }
+            })),
+            userRoleDistribution: Object.entries(apiData.distributions?.userRoles || {}).map(([role, count]) => ({
+              role,
+              _count: { role: count }
+            })),
+            applicationStatusDistribution: [], // Not provided by API
+            totalViews: 0, // Not provided by API
+            averageSalary: 0 // Not provided by API
+          };
+          setStats(transformedStats);
+        } else {
+          console.error('Stats API returned error:', statsData.error);
+          setError('Failed to load statistics');
         }
+      } else {
+        console.error('Stats API request failed:', statsRes.status, statsRes.statusText);
+        setError('Failed to connect to statistics service');
       }
 
       if (activitiesRes.ok) {
         const activitiesData = await activitiesRes.json();
         if (activitiesData.success) {
-          setActivities(activitiesData.data);
+          setActivities(activitiesData.data.activities || []);
+        } else {
+          console.error('Activities API returned error:', activitiesData.error);
         }
+      } else {
+        console.error('Activities API request failed:', activitiesRes.status, activitiesRes.statusText);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error('Admin data fetch error:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred while loading admin data');
     } finally {
       setLoading(false);
     }
@@ -266,7 +301,7 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {activities.slice(0, 10).map((activity) => (
+            {(activities || []).slice(0, 10).map((activity) => (
               <div key={activity.id} className="flex items-center gap-4 p-3 border rounded-lg">
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">

@@ -45,11 +45,18 @@ export default function CompaniesPage() {
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setCompanies(data.data.companies);
+          setCompanies(data.data.companies || []);
+        } else {
+          console.error('API returned error:', data.error);
+          setCompanies([]);
         }
+      } else {
+        console.error('API request failed:', response.status, response.statusText);
+        setCompanies([]);
       }
     } catch (error) {
       console.error('Error fetching companies:', error);
+      setCompanies([]);
     } finally {
       setLoading(false);
     }
