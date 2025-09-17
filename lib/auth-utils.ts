@@ -28,17 +28,29 @@ export interface CompanyUser extends AuthUser {
  */
 export async function getAuthenticatedUser(): Promise<AuthUser | null> {
   try {
+    console.log('🔍 Getting authenticated user...');
     const session = await auth();
+    console.log('📋 Session data:', { 
+      hasSession: !!session, 
+      hasUser: !!session?.user, 
+      userId: session?.user?.id,
+      userEmail: session?.user?.email,
+      userRole: session?.user?.role
+    });
+    
     if (!session?.user?.id) {
+      console.log('❌ No session or user ID found');
       return null;
     }
 
     // Use string ID directly
     const userId = session.user.id as string;
     if (!userId) {
+      console.log('❌ User ID is not a string');
       return null;
     }
 
+    console.log('🔍 Looking up user in database:', userId);
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -49,9 +61,10 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
       }
     });
 
+    console.log('👤 User found:', user);
     return user;
   } catch (error) {
-    console.error('Error getting authenticated user:', error);
+    console.error('❌ Error getting authenticated user:', error);
     return null;
   }
 }
@@ -61,11 +74,21 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
  */
 export async function getAuthenticatedEmployer(): Promise<CompanyUser | null> {
   try {
+    console.log('🔍 Getting authenticated employer...');
     const user = await getAuthenticatedUser();
-    if (!user || user.role !== "employer") {
+    console.log('👤 Base user:', user);
+    
+    if (!user) {
+      console.log('❌ No authenticated user found');
+      return null;
+    }
+    
+    if (user.role !== "employer") {
+      console.log('❌ User is not an employer, role:', user.role);
       return null;
     }
 
+    console.log('🔍 Looking up employer with company for user:', user.id);
     const employerWithCompany = await prisma.user.findUnique({
       where: { id: user.id },
       include: {
@@ -86,16 +109,22 @@ export async function getAuthenticatedEmployer(): Promise<CompanyUser | null> {
       }
     });
 
+    console.log('🏢 Employer with company data:', employerWithCompany);
+
     if (!employerWithCompany || !employerWithCompany.createdCompanies.length) {
+      console.log('❌ No company found for employer');
       return null;
     }
 
-    return {
+    const result = {
       ...user,
       company: employerWithCompany.createdCompanies[0]
     };
+    
+    console.log('✅ Authenticated employer with company:', result);
+    return result;
   } catch (error) {
-    console.error('Error getting authenticated employer:', error);
+    console.error('❌ Error getting authenticated employer:', error);
     return null;
   }
 }
@@ -115,10 +144,16 @@ export async function requireAuth(): Promise<{ user: AuthUser } | { error: strin
  * Require employer authentication and return user with company or error
  */
 export async function requireEmployerAuth(): Promise<{ user: CompanyUser } | { error: string; status: number }> {
+  console.log('🔐 Requiring employer authentication...');
   const user = await getAuthenticatedEmployer();
+  console.log('👤 Employer auth result:', user);
+  
   if (!user) {
+    console.log('❌ Employer authentication failed - returning 403');
     return { error: "Access denied. Employer account required.", status: 403 };
   }
+  
+  console.log('✅ Employer authentication successful');
   return { user };
 }
 

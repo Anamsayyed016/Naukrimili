@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
         vision: vision || '',
         socialLinks: socialLinks ? JSON.stringify(socialLinks) : null,
         isVerified: false,
+        isActive: true, // Set company as active by default
         createdBy: user.id
       }
     });
