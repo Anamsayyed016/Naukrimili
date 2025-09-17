@@ -242,8 +242,8 @@ export default function CreateCompanyPage() {
 
   const handleSubmit = async () => {
     if (!validateStep(1) || !validateStep(2)) {
-      toast.error('Please complete all required fields in steps 1 and 2', {
-        description: 'Company name, description, location, industry, and size are required.',
+      toast.error("Please complete all required fields in steps 1 and 2", {
+        description: "Company name, description, location, industry, and size are required.",
         duration: 5000,
       });
       return;
@@ -252,10 +252,20 @@ export default function CreateCompanyPage() {
     setLoading(true);
     try {
       console.log("Form submission started with data:", formData);
+      
+      // Get the session token from cookies
+      const token = document.cookie
+        .split("; ")
+        .find(row => row.startsWith("next-auth.session-token="))
+        ?.split("=")[1];
+      
+      console.log("Session token found:", !!token);
+      
       const response = await fetch("/api/company/profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : "",
         },
         credentials: "include",
         body: JSON.stringify(formData),
@@ -287,7 +297,7 @@ export default function CreateCompanyPage() {
     } finally {
       setLoading(false);
     }
-
+  };
   if (status === 'loading') {
     return (
       <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
