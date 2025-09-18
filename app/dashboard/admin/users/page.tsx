@@ -283,37 +283,41 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Filters */}
-        <Card className="bg-white border-gray-200 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-gray-900">
-              <Filter className="h-5 w-5 text-blue-600" />
+        <Card className="bg-white border-2 border-gray-200 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+            <CardTitle className="flex items-center gap-2 text-gray-900 text-xl font-bold">
+              <div className="p-2 bg-gray-200 rounded-lg">
+                <Filter className="h-5 w-5 text-gray-700" />
+              </div>
               Filters & Search
             </CardTitle>
+            <p className="text-sm text-gray-600 mt-1">Filter and search through all users on your platform</p>
           </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Search</label>
+              <label className="text-sm font-semibold text-gray-700 mb-2 block">Search Users</label>
               <div className="flex gap-2">
                 <Input
-                  placeholder="Search users..."
+                  placeholder="Search users by name, email..."
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   onKeyPress={(e) => e.key === 'Enter' && fetchUsers()}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 />
-                <Button onClick={fetchUsers} size="sm">
+                <Button onClick={fetchUsers} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
                   <Search className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Role</label>
+              <label className="text-sm font-semibold text-gray-700 mb-2 block">Filter by Role</label>
               <Select value={filters.role} onValueChange={(value) => setFilters(prev => ({ ...prev, role: value }))}>
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white shadow-lg rounded-md">
                   <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="employer">Employer</SelectItem>
@@ -323,12 +327,12 @@ export default function AdminUsersPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Status</label>
+              <label className="text-sm font-semibold text-gray-700 mb-2 block">Filter by Status</label>
               <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white shadow-lg rounded-md">
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
@@ -337,7 +341,7 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="flex items-end">
-              <Button onClick={() => setFilters({ role: 'all', status: 'all', search: '' })} variant="outline" className="w-full">
+              <Button onClick={() => setFilters({ role: 'all', status: 'all', search: '' })} variant="outline" className="w-full bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold">
                 Clear Filters
               </Button>
             </div>
@@ -386,27 +390,34 @@ export default function AdminUsersPage() {
       )}
 
       {/* Users List */}
-      <Card>
-        <CardHeader>
+      <Card className="bg-white border-2 border-gray-200 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <CardTitle>Users ({pagination.total})</CardTitle>
+            <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+              Users ({pagination.total})
+            </CardTitle>
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={selectedUsers.length === users.length && users.length > 0}
                 onCheckedChange={toggleSelectAll}
+                className="border-gray-400"
               />
-              <span className="text-sm text-muted-foreground">Select All</span>
+              <span className="text-sm font-semibold text-gray-700">Select All</span>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {users.map((user) => (
-              <div key={user.id} className="border rounded-lg p-4 hover:bg-gray-50">
+              <div key={user.id} className="border-2 border-gray-100 rounded-xl p-6 bg-white hover:bg-gray-50 hover:border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
                 <div className="flex items-start gap-4">
                   <Checkbox
                     checked={selectedUsers.includes(user.id)}
                     onCheckedChange={() => toggleUserSelection(user.id)}
+                    className="border-gray-400 mt-1"
                   />
                   
                   <div className="flex-1">
@@ -479,23 +490,37 @@ export default function AdminUsersPage() {
                       </span>
                     </div>
                     
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between pt-4 border-t-2 border-gray-100">
                       <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => updateUserStatus(user.id, !user.isActive)}
+                          className={`font-semibold ${
+                            user.isActive 
+                              ? 'bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300' 
+                              : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300'
+                          }`}
                         >
                           {user.isActive ? 'Deactivate' : 'Activate'}
                         </Button>
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 font-semibold"
+                        >
                           <Eye className="h-4 w-4 mr-2" />
                           View
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditUser(user)}
+                          className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-300 font-semibold"
+                        >
                           <Edit className="h-4 w-4 mr-2" />
                           Edit
                         </Button>
