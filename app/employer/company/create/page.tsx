@@ -251,6 +251,9 @@ export default function CreateCompanyPage() {
     console.log("Current step:", currentStep);
     console.log("Session status:", status);
     console.log("Session data:", session);
+    console.log("User role:", session?.user?.role);
+    console.log("User ID:", session?.user?.id);
+    console.log("All cookies:", document.cookie);
     console.log("Validation step 1:", validateStep(1));
     console.log("Validation step 2:", validateStep(2));
     
@@ -260,6 +263,22 @@ export default function CreateCompanyPage() {
         description: 'Company name, description, location, industry, and size are required.',
         duration: 5000,
       });
+      return;
+    }
+
+    // Check if user is authenticated
+    if (status !== 'authenticated' || !session?.user) {
+      console.log("User not authenticated - redirecting to sign in");
+      toast.error('Please sign in to create a company');
+      router.push('/auth/signin?redirect=/employer/company/create');
+      return;
+    }
+
+    // Check if user is an employer
+    if (session.user.role !== 'employer') {
+      console.log("User is not an employer - redirecting to role selection");
+      toast.error('Please select employer role to create a company');
+      router.push('/auth/role-selection');
       return;
     }
 
