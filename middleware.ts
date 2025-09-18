@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { requireAdminAuth, isAdminRoute } from "./middleware/admin";
 
 export default async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
@@ -55,6 +56,14 @@ export default async function middleware(req: NextRequest) {
     pathname.startsWith('/terms')
   ) {
     return NextResponse.next();
+  }
+
+  // Check admin routes
+  if (isAdminRoute(pathname)) {
+    const adminAuth = await requireAdminAuth(req);
+    if (adminAuth) {
+      return adminAuth;
+    }
   }
 
   // For protected routes, check for authentication via cookies

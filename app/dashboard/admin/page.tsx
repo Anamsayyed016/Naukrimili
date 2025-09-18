@@ -145,67 +145,72 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <Button onClick={fetchAdminData} variant="outline">
-          Refresh
-        </Button>
-      </div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1">Manage your job portal platform</p>
+          </div>
+          <Button onClick={fetchAdminData} variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
+            <Activity className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.activeUsers || 0} active
-            </p>
-          </CardContent>
-        </Card>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">{stats?.totalUsers || 0}</div>
+              <p className="text-xs text-gray-500">
+                {stats?.activeUsers || 0} active
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalJobs || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all companies
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Total Jobs</CardTitle>
+              <Briefcase className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">{stats?.totalJobs || 0}</div>
+              <p className="text-xs text-gray-500">
+                Across all companies
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Companies</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalCompanies || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats?.pendingVerifications || 0} pending verification
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Companies</CardTitle>
+              <Building2 className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">{stats?.totalCompanies || 0}</div>
+              <p className="text-xs text-gray-500">
+                {stats?.pendingVerifications || 0} pending verification
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Applications</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalApplications || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Total submissions
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Applications</CardTitle>
+              <FileText className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">{stats?.totalApplications || 0}</div>
+              <p className="text-xs text-gray-500">
+                Total submissions
+              </p>
+            </CardContent>
+          </Card>
       </div>
 
       {/* Additional Stats */}
@@ -250,46 +255,53 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/dashboard/admin/users">
-              <Button variant="outline">
-                <Users className="h-4 w-4 mr-2" />
-                Manage Users
-              </Button>
-            </Link>
-            <Link href="/dashboard/admin/jobs">
-              <Button variant="outline">
-                <Briefcase className="h-4 w-4 mr-2" />
-                Manage Jobs
-              </Button>
-            </Link>
-            <Link href="/dashboard/admin/companies">
-              <Button variant="outline">
-                <Building2 className="h-4 w-4 mr-2" />
-                Manage Companies
-              </Button>
-            </Link>
-            <Link href="/dashboard/admin/content">
-              <Button variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                Manage Content
-              </Button>
-            </Link>
-            <Link href="/admin/seed-jobs">
-              <Button variant="outline" className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100">
-                <Database className="h-4 w-4 mr-2" />
-                Seed Jobs
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Quick Actions */}
+        <Card className="bg-white border-gray-200 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
+            <p className="text-sm text-gray-600">Manage different aspects of your platform</p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Link href="/dashboard/admin/users">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300">
+                  <Users className="h-6 w-6" />
+                  <span className="font-medium">Manage Users</span>
+                </Button>
+              </Link>
+              <Link href="/dashboard/admin/jobs">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300">
+                  <Briefcase className="h-6 w-6" />
+                  <span className="font-medium">Manage Jobs</span>
+                </Button>
+              </Link>
+              <Link href="/dashboard/admin/companies">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-300">
+                  <Building2 className="h-6 w-6" />
+                  <span className="font-medium">Manage Companies</span>
+                </Button>
+              </Link>
+              <Link href="/dashboard/admin/content">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300">
+                  <FileText className="h-6 w-6" />
+                  <span className="font-medium">Manage Content</span>
+                </Button>
+              </Link>
+              <Link href="/admin/seed-jobs">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300">
+                  <Database className="h-6 w-6" />
+                  <span className="font-medium">Seed Jobs</span>
+                </Button>
+              </Link>
+              <Link href="/dashboard/admin/analytics">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300">
+                  <TrendingUp className="h-6 w-6" />
+                  <span className="font-medium">Analytics</span>
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
 
       {/* Recent Activity */}
       <Card>
@@ -377,6 +389,7 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

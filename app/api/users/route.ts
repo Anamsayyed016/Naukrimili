@@ -1,53 +1,63 @@
-/**
- * Enhanced User Management API - Real Database Integration
- * GET /api/users - Get user list (admin only)
- * POST /api/users - Create new user
- * GET /api/users/[id] - Get specific user
- * PUT /api/users/[id] - Update user
- * DELETE /api/users/[id] - Delete user
- */
+import { NextRequest, NextResponse } from 'next/server';
+import { requireAdminAuth } from '@/lib/auth-utils';
+import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 
-import { NextRequest, NextResponse } from "next/server";
-import { requireAdminAuth } from "@/lib/auth-utils";
-import { prisma } from "@/lib/prisma";
+const userActionSchema = z.object({
+  action: z.enum(['activate', 'deactivate', 'delete', 'changeRole']),
+  userIds: z.array(z.string()),
+  reason: z.string().optional(),
+  newRole: z.string().optional()
+});
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAdminAuth();
+  if ("error" in auth) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
   try {
-    const auth = await requireAdminAuth();
-    if ("error" in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
-    }
-
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "20");
-    const role = searchParams.get("role");
-    const search = searchParams.get("search");
-    const status = searchParams.get("status");
-
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const role = searchParams.get('role');
+    const status = searchParams.get('status');
+    const search = searchParams.get('search');
+    
     const skip = (page - 1) * limit;
 
+    // Build where clause
     const where: any = {};
-
-    if (role && role !== "all") {
+    
+    if (role && role !== 'all') {
       where.role = role;
     }
-
-    if (status && status !== "all") {
-      where.isActive = status === "active";
+    
+    if (status && status !== 'all') {
+      switch (status) {
+        case 'active':
+          where.isActive = true;
+          break;
+        case 'inactive':
+          where.isActive = false;
+          break;
+      }
     }
-
+    
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
-        { location: { contains: search, mode: "insensitive" } }
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } }
       ];
     }
 
+    // Get users with pagination and related data
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
         select: {
           id: true,
           name: true,
@@ -66,10 +76,7 @@ export async function GET(request: NextRequest) {
               createdCompanies: true
             }
           }
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit
+        }
       }),
       prisma.user.count({ where })
     ]);
@@ -86,29 +93,28 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.error('Admin users GET error:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch users" },
+      { success: false, error: 'Failed to fetch users' },
       { status: 500 }
     );
   }
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const auth = await requireAdminAuth();
-    if ("error" in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
-    }
+  const auth = await requireAdminAuth();
+  if ("error" in auth) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
 
+  try {
     const body = await request.json();
-    const { action, userIds } = body;
+    const { action, userIds, reason, newRole } = userActionSchema.parse(body);
 
     if (!userIds || userIds.length === 0) {
       return NextResponse.json(
-        { success: false, error: "No user IDs provided" },
+        { success: false, error: 'No user IDs provided' },
         { status: 400 }
       );
     }
@@ -125,6 +131,25 @@ export async function POST(request: NextRequest) {
         updateData = { isActive: false };
         message = 'Users deactivated successfully';
         break;
+      case 'changeRole':
+        if (!newRole) {
+          return NextResponse.json(
+            { success: false, error: 'New role is required for role change' },
+            { status: 400 }
+          );
+        }
+        updateData = { role: newRole };
+        message = 'User roles updated successfully';
+        break;
+      case 'delete':
+        // Delete users
+        await prisma.user.deleteMany({
+          where: { id: { in: userIds } }
+        });
+        return NextResponse.json({
+          success: true,
+          message: 'Users deleted successfully'
+        });
       default:
         return NextResponse.json(
           { success: false, error: 'Invalid action' },
@@ -141,14 +166,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message,
-      data: { updatedCount: updatedUsers.count }
+      data: {
+        updatedCount: updatedUsers.count
+      }
     });
-
   } catch (error) {
-    console.error("Error performing bulk action:", error);
+    console.error('Admin users POST error:', error);
     return NextResponse.json(
-      { success: false, error: "Failed to perform action" },
+      { success: false, error: 'Failed to perform user action' },
       { status: 500 }
     );
   }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 200 });
 }

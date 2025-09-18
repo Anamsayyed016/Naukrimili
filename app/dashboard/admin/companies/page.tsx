@@ -25,6 +25,7 @@ import {
   Mail
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import CompanyEditModal from "./components/CompanyEditModal";
 
 interface Company {
   id: string;
@@ -67,6 +68,8 @@ export default function AdminCompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [filters, setFilters] = useState({
     status: 'all',
     industry: 'all',
@@ -187,6 +190,46 @@ export default function AdminCompaniesPage() {
       toast({
         title: 'Error',
         description: 'Failed to update company status',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleEditCompany = (company: Company) => {
+    setEditingCompany(company);
+    setShowEditModal(true);
+  };
+
+  const handleSaveCompany = (updatedCompany: Company) => {
+    setCompanies(prev => prev.map(company => 
+      company.id === updatedCompany.id ? updatedCompany : company
+    ));
+    setShowEditModal(false);
+    setEditingCompany(null);
+  };
+
+  const handleDeleteCompany = async (companyId: string) => {
+    if (!confirm('Are you sure you want to delete this company? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/companies/${companyId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: 'Company deleted successfully'
+        });
+        fetchCompanies();
+      }
+    } catch (error) {
+      console.error('Error deleting company:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete company',
         variant: 'destructive'
       });
     }
@@ -397,8 +440,21 @@ export default function AdminCompaniesPage() {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditCompany(company)}
+                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteCompany(company.id)}
+                          className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -489,6 +545,17 @@ export default function AdminCompaniesPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Company Modal */}
+      <CompanyEditModal
+        company={editingCompany}
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingCompany(null);
+        }}
+        onSave={handleSaveCompany}
+      />
     </div>
   );
 }

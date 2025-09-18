@@ -26,6 +26,7 @@ import {
   Eye
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import UserEditModal from "./components/UserEditModal";
 
 interface User {
   id: string;
@@ -62,6 +63,8 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [filters, setFilters] = useState({
     role: 'all',
     status: 'all',
@@ -187,6 +190,46 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setShowEditModal(true);
+  };
+
+  const handleSaveUser = (updatedUser: User) => {
+    setUsers(prev => prev.map(user => 
+      user.id === updatedUser.id ? updatedUser : user
+    ));
+    setShowEditModal(false);
+    setEditingUser(null);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: 'User deleted successfully'
+        });
+        fetchUsers();
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete user',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'admin':
@@ -226,25 +269,27 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">Manage and moderate all users</p>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+            <p className="text-gray-600 mt-1">Manage and moderate all users on your platform</p>
+          </div>
+          <Button onClick={fetchUsers} variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
+            <Users className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
         </div>
-        <Button onClick={fetchUsers} variant="outline">
-          Refresh
-        </Button>
-      </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filters & Search
-          </CardTitle>
-        </CardHeader>
+        {/* Filters */}
+        <Card className="bg-white border-gray-200 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <Filter className="h-5 w-5 text-blue-600" />
+              Filters & Search
+            </CardTitle>
+          </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -400,8 +445,21 @@ export default function AdminUsersPage() {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditUser(user)}
+                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -477,6 +535,18 @@ export default function AdminUsersPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit User Modal */}
+      <UserEditModal
+        user={editingUser}
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingUser(null);
+        }}
+        onSave={handleSaveUser}
+      />
+      </div>
     </div>
   );
 }
