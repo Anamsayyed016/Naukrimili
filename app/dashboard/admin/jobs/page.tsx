@@ -76,7 +76,7 @@ export default function AdminJobsPage() {
     status: 'all',
     company: '',
     location: '',
-    jobType: '',
+    jobType: 'all',
     isRemote: false,
     isFeatured: false,
     isUrgent: false
@@ -104,7 +104,7 @@ export default function AdminJobsPage() {
         ...(filters.status !== 'all' && { status: filters.status }),
         ...(filters.company && { company: filters.company }),
         ...(filters.location && { location: filters.location }),
-        ...(filters.jobType && { jobType: filters.jobType }),
+        ...(filters.jobType && filters.jobType !== 'all' && { jobType: filters.jobType }),
         ...(filters.isRemote && { isRemote: 'true' }),
         ...(filters.isFeatured && { isFeatured: 'true' }),
         ...(filters.isUrgent && { isUrgent: 'true' })
@@ -192,7 +192,7 @@ export default function AdminJobsPage() {
       status: 'all',
       company: '',
       location: '',
-      jobType: '',
+      jobType: 'all',
       isRemote: false,
       isFeatured: false,
       isUrgent: false
@@ -288,7 +288,7 @@ export default function AdminJobsPage() {
                     <SelectValue placeholder="All Types" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Types</SelectItem>
+                    <SelectItem value="all">All Types</SelectItem>
                     <SelectItem value="full-time">Full Time</SelectItem>
                     <SelectItem value="part-time">Part Time</SelectItem>
                     <SelectItem value="contract">Contract</SelectItem>
