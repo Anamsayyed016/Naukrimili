@@ -52,33 +52,33 @@ export default function CreateJobPage() {
   if (showIntro) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl py-4 sm:py-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="p-4 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl">
                 <Brain className="h-10 w-10 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-slate-900">AI-Powered Job Posting</h1>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">AI-Powered Job Posting</h1>
             </div>
-            <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto px-4">
               Create compelling job postings with AI suggestions and reach the right candidates with location-based targeting
             </p>
           </div>
 
           {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="text-center p-6 border-0 shadow-lg bg-white/95 backdrop-blur-sm rounded-xl">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Brain className="h-8 w-8 text-white" />
+              <Card className="text-center p-4 sm:p-6 border-0 shadow-lg bg-white/95 backdrop-blur-sm rounded-xl">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">AI Suggestions</h3>
-                <p className="text-slate-600 text-sm">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">AI Suggestions</h3>
+                <p className="text-slate-600 text-xs sm:text-sm">
                   Get intelligent suggestions for job titles, descriptions, and requirements using advanced AI
                 </p>
               </Card>
@@ -89,12 +89,12 @@ export default function CreateJobPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="text-center p-6 border-0 shadow-lg bg-white/95 backdrop-blur-sm rounded-xl">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Target className="h-8 w-8 text-white" />
+              <Card className="text-center p-4 sm:p-6 border-0 shadow-lg bg-white/95 backdrop-blur-sm rounded-xl">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Target className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Location Targeting</h3>
-                <p className="text-slate-600 text-sm">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">Location Targeting</h3>
+                <p className="text-slate-600 text-xs sm:text-sm">
                   Post jobs in specific cities, multiple locations, or within a radius to reach the right candidates
                 </p>
               </Card>
@@ -105,12 +105,12 @@ export default function CreateJobPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <Card className="text-center p-6 border-0 shadow-lg bg-white/95 backdrop-blur-sm rounded-xl">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Zap className="h-8 w-8 text-white" />
+              <Card className="text-center p-4 sm:p-6 border-0 shadow-lg bg-white/95 backdrop-blur-sm rounded-xl">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Smart Optimization</h3>
-                <p className="text-slate-600 text-sm">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">Smart Optimization</h3>
+                <p className="text-slate-600 text-xs sm:text-sm">
                   Automatically optimize your job posting for better visibility and candidate attraction
                 </p>
               </Card>
@@ -118,20 +118,20 @@ export default function CreateJobPage() {
           </div>
 
           {/* Benefits List */}
-          <Card className="mb-8 border-0 shadow-xl bg-white/95 backdrop-blur-sm rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold text-slate-900 text-center">
+          <Card className="mb-6 sm:mb-8 border-0 shadow-xl bg-white/95 backdrop-blur-sm rounded-2xl">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-xl sm:text-2xl font-bold text-slate-900 text-center">
                 Why Use AI-Powered Job Posting?
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="p-4 sm:p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-slate-900">Better Job Descriptions</h4>
-                      <p className="text-sm text-slate-600">AI helps create compelling, ATS-friendly job descriptions</p>
+                      <h4 className="font-semibold text-slate-900 text-sm sm:text-base">Better Job Descriptions</h4>
+                      <p className="text-xs sm:text-sm text-slate-600">AI helps create compelling, ATS-friendly job descriptions</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">

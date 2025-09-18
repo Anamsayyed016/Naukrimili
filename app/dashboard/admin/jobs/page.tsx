@@ -44,6 +44,7 @@ interface Job {
   sector?: string;
   views: number;
   applicationsCount: number;
+  bookmarksCount: number;
   createdAt: string;
   updatedAt: string;
   companyVerified: boolean;
@@ -53,8 +54,6 @@ interface Job {
     email: string;
     role: string;
   };
-  applicationsCount: number;
-  bookmarksCount: number;
 }
 
 interface JobFilters {
@@ -240,16 +239,16 @@ export default function AdminJobsPage() {
     <AuthGuard allowedRoles={['admin']}>
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Job Management</h1>
-            <p className="text-gray-600 mt-2">Manage and moderate all job postings</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Job Management</h1>
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage and moderate all job postings</p>
           </div>
           <Button 
             onClick={refreshJobs} 
             disabled={refreshing}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -265,7 +264,7 @@ export default function AdminJobsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Status</label>
                 <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
@@ -316,35 +315,37 @@ export default function AdminJobsPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="remote"
-                  checked={filters.isRemote}
-                  onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isRemote: !!checked }))}
-                />
-                <label htmlFor="remote" className="text-sm">Remote Only</label>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remote"
+                    checked={filters.isRemote}
+                    onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isRemote: !!checked }))}
+                  />
+                  <label htmlFor="remote" className="text-sm">Remote Only</label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="featured"
+                    checked={filters.isFeatured}
+                    onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isFeatured: !!checked }))}
+                  />
+                  <label htmlFor="featured" className="text-sm">Featured Only</label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="urgent"
+                    checked={filters.isUrgent}
+                    onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isUrgent: !!checked }))}
+                  />
+                  <label htmlFor="urgent" className="text-sm">Urgent Only</label>
+                </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="featured"
-                  checked={filters.isFeatured}
-                  onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isFeatured: !!checked }))}
-                />
-                <label htmlFor="featured" className="text-sm">Featured Only</label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="urgent"
-                  checked={filters.isUrgent}
-                  onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isUrgent: !!checked }))}
-                />
-                <label htmlFor="urgent" className="text-sm">Urgent Only</label>
-              </div>
-
-              <Button onClick={clearFilters} variant="outline" size="sm">
+              <Button onClick={clearFilters} variant="outline" size="sm" className="w-full sm:w-auto">
                 Clear Filters
               </Button>
             </div>
@@ -355,7 +356,7 @@ export default function AdminJobsPage() {
         {selectedJobs.length > 0 && (
           <Card className="mb-6 border-blue-200 bg-blue-50">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-medium text-blue-900">
                     {selectedJobs.length} job(s) selected
@@ -368,7 +369,7 @@ export default function AdminJobsPage() {
                     Clear Selection
                   </Button>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     onClick={() => handleBulkAction('approve')}
                     size="sm"
@@ -410,7 +411,7 @@ export default function AdminJobsPage() {
         {/* Jobs List */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <CardTitle>Jobs ({totalJobs})</CardTitle>
               <div className="flex items-center gap-4">
                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -445,24 +446,25 @@ export default function AdminJobsPage() {
                 </div>
               ) : (
                 jobs.map((job) => (
-                <div key={job.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                <div key={job.id} className="border-2 border-gray-100 rounded-xl p-4 sm:p-6 bg-white hover:bg-gray-50 hover:border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
                   <div className="flex items-start gap-4">
                     <Checkbox
                       checked={selectedJobs.includes(job.id)}
                       onCheckedChange={() => toggleJobSelection(job.id)}
+                      className="mt-1"
                     />
                     
                     <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2 gap-2">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                             <h3 className="font-semibold text-lg text-gray-900">
                               {job.title}
                             </h3>
                             {getStatusBadge(job)}
                           </div>
                           
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-2">
                             <span className="flex items-center gap-1">
                               <Building2 className="h-4 w-4" />
                               {job.company}
@@ -490,7 +492,7 @@ export default function AdminJobsPage() {
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 text-sm text-gray-600 mb-3">
                         {job.jobType && (
                           <span className="flex items-center gap-1">
                             <Briefcase className="h-4 w-4" />
@@ -516,8 +518,8 @@ export default function AdminJobsPage() {
                         )}
                       </div>
                       
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-3 border-t border-gray-100 gap-4">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Eye className="h-4 w-4" />
                             {job.views} views
@@ -534,12 +536,12 @@ export default function AdminJobsPage() {
                         
                         <div className="flex items-center gap-2">
                           <Link href={`/jobs/${job.id}`}>
-                            <Button variant="outline" size="sm">
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto">
                               <Eye className="h-4 w-4 mr-2" />
                               View
                             </Button>
                           </Link>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </Button>
@@ -554,16 +556,17 @@ export default function AdminJobsPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6 pt-6 border-t">
-                <div className="text-sm text-gray-700">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6 pt-6 border-t gap-4">
+                <div className="text-sm text-gray-700 text-center sm:text-left">
                   Page {currentPage} of {totalPages} ({totalJobs} total jobs)
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2">
                   <Button
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
                     variant="outline"
                     size="sm"
+                    className="w-full sm:w-auto"
                   >
                     Previous
                   </Button>
@@ -572,6 +575,7 @@ export default function AdminJobsPage() {
                     disabled={currentPage === totalPages}
                     variant="outline"
                     size="sm"
+                    className="w-full sm:w-auto"
                   >
                     Next
                   </Button>

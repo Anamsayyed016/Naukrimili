@@ -684,45 +684,45 @@ export default function AIJobPostingForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl py-8">
+      <div className="container mx-auto px-2 sm:px-4 lg:px-8 max-w-6xl py-4 sm:py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl">
-              <Brain className="h-8 w-8 text-white" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4">
+            <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl">
+              <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-slate-900">AI-Powered Job Posting</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">AI-Powered Job Posting</h1>
           </div>
-          <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+          <p className="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto px-4">
             Create compelling job postings with AI suggestions and reach the right candidates with location-based targeting
           </p>
         </div>
 
         {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
             {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+              <div key={step.id} className="flex items-center w-full sm:w-auto">
+                <div className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 ${
                   currentStep >= step.id 
                     ? 'bg-blue-600 border-blue-600 text-white' 
                     : 'bg-white border-slate-300 text-slate-500'
                 }`}>
                   {currentStep > step.id ? (
-                    <CheckCircle className="h-5 w-5" />
+                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                   ) : (
-                    <span className="text-sm font-semibold">{step.id}</span>
+                    <span className="text-xs sm:text-sm font-semibold">{step.id}</span>
                   )}
                 </div>
-                <div className="ml-3 hidden sm:block">
-                  <p className={`text-sm font-medium ${
+                <div className="ml-2 sm:ml-3 flex-1 sm:flex-none">
+                  <p className={`text-xs sm:text-sm font-medium ${
                     currentStep >= step.id ? 'text-slate-900' : 'text-slate-500'
                   }`}>
                     {step.title}
                   </p>
                   <p className={`text-xs ${
                     currentStep >= step.id ? 'text-slate-600' : 'text-slate-400'
-                  }`}>
+                  } hidden sm:block`}>
                     {step.description}
                   </p>
                 </div>
@@ -738,8 +738,8 @@ export default function AIJobPostingForm() {
 
 
         {/* Main Form */}
-        <Card className="shadow-2xl bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/50 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20">
-          <CardContent className="p-8 md:p-10">
+        <Card className="shadow-2xl bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/50 backdrop-blur-sm rounded-2xl sm:rounded-3xl overflow-hidden border border-white/20">
+          <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <motion.div
@@ -749,26 +749,26 @@ export default function AIJobPostingForm() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-6"
                 >
-                  <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-3 mb-4">
-                      <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
-                        <Briefcase className="h-6 w-6 text-white" />
+                  <div className="text-center mb-6 sm:mb-8">
+                    <div className="inline-flex flex-col sm:flex-row items-center gap-2 sm:gap-3 mb-4">
+                      <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
+                        <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                       </div>
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Job Details</h2>
+                      <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Job Details</h2>
                     </div>
-                    <p className="text-slate-600 text-lg">Tell us about the position with AI-powered suggestions</p>
+                    <p className="text-slate-600 text-base sm:text-lg px-4">Tell us about the position with AI-powered suggestions</p>
                   </div>
 
                   <div className="space-y-6">
                     <div>
-                      <Label className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-4">
-                        <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl shadow-lg">
-                          <Briefcase className="h-6 w-6 text-white" />
+                      <Label className="text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                        <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl shadow-lg">
+                          <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 w-full">
                           <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Job Title *</span>
                           {fieldSuggestions.title && (
-                            <Badge variant="default" className="ml-4 text-sm bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300 shadow-sm px-3 py-1">
+                            <Badge variant="default" className="ml-2 sm:ml-4 text-xs sm:text-sm bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300 shadow-sm px-2 sm:px-3 py-1">
                               ✨ AI suggestions available
                             </Badge>
                           )}
@@ -779,7 +779,7 @@ export default function AIJobPostingForm() {
                           value={formData.title}
                           onChange={(e) => handleInputChange('title', e.target.value)}
                           placeholder="e.g., Senior Software Engineer"
-                          className="text-lg h-16 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 pr-12 bg-white text-slate-900 font-medium"
+                          className="text-base sm:text-lg h-12 sm:h-16 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 pr-12 bg-white text-slate-900 font-medium"
                         />
                         {aiLoading && activeField === 'title' && (
                           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -949,14 +949,14 @@ export default function AIJobPostingForm() {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div>
-                        <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                          <Users className="h-5 w-5 text-blue-600" />
+                        <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
+                          <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                           Job Type
                         </Label>
                         <Select value={formData.jobType} onValueChange={(value) => handleInputChange('jobType', value)}>
-                          <SelectTrigger className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
+                          <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -968,12 +968,12 @@ export default function AIJobPostingForm() {
                       </div>
 
                       <div>
-                        <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                          <Target className="h-5 w-5 text-blue-600" />
+                        <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
+                          <Target className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                           Experience Level
                         </Label>
                         <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
-                          <SelectTrigger className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
+                          <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1347,29 +1347,29 @@ export default function AIJobPostingForm() {
                         <Map className="h-5 w-5 text-blue-600" />
                         Location Targeting
                       </Label>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
                         <Button
                           variant={formData.locationType === 'single' ? 'default' : 'outline'}
                           onClick={() => handleInputChange('locationType', 'single')}
-                          className="h-12"
+                          className="h-10 sm:h-12 text-xs sm:text-sm"
                         >
-                          <MapPin className="h-4 w-4 mr-2" />
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           Single Location
                         </Button>
                         <Button
                           variant={formData.locationType === 'multiple' ? 'default' : 'outline'}
                           onClick={() => handleInputChange('locationType', 'multiple')}
-                          className="h-12"
+                          className="h-10 sm:h-12 text-xs sm:text-sm"
                         >
-                          <Globe className="h-4 w-4 mr-2" />
+                          <Globe className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           Multiple Cities
                         </Button>
                         <Button
                           variant={formData.locationType === 'radius' ? 'default' : 'outline'}
                           onClick={() => handleInputChange('locationType', 'radius')}
-                          className="h-12"
+                          className="h-10 sm:h-12 text-xs sm:text-sm"
                         >
-                          <Target className="h-4 w-4 mr-2" />
+                          <Target className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           Radius Search
                         </Button>
                       </div>
@@ -1624,23 +1624,23 @@ export default function AIJobPostingForm() {
             </AnimatePresence>
 
             {/* Navigation */}
-            <div className="flex justify-between mt-8 pt-6 border-t border-slate-200">
+            <div className="flex flex-col sm:flex-row justify-between gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-200">
               <Button
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                className="px-6 py-2"
+                className="px-4 sm:px-6 py-2 w-full sm:w-auto order-2 sm:order-1"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Previous
               </Button>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 order-1 sm:order-2">
                 {/* Clear Form Button */}
                 <Button
                   variant="outline"
                   onClick={clearFormData}
-                  className="px-4 py-2 text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400"
+                  className="px-3 sm:px-4 py-2 text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400 w-full sm:w-auto"
                   title="Clear all form data and start fresh"
                 >
                   <X className="h-4 w-4 mr-2" />
@@ -1651,7 +1651,7 @@ export default function AIJobPostingForm() {
                   <Button
                     onClick={nextStep}
                     disabled={!validateStep(currentStep)}
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700"
+                    className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
                   >
                     Next
                     <ArrowRight className="h-4 w-4 ml-2" />
@@ -1660,7 +1660,7 @@ export default function AIJobPostingForm() {
                   <Button
                     onClick={handleSubmit}
                     disabled={loading || !validateStep(1) || !validateStep(2) || !validateStep(3)}
-                    className="px-8 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                    className="px-6 sm:px-8 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto"
                   >
                     {loading ? (
                       <>
