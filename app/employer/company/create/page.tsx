@@ -95,6 +95,7 @@ export default function CreateCompanyPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
+  const [checkingExistingCompany, setCheckingExistingCompany] = useState(true);
   const [formData, setFormData] = useState<CompanyFormData>({
     name: '',
     description: '',
@@ -119,6 +120,47 @@ export default function CreateCompanyPage() {
     } else if (session && session.user.role !== 'employer') {
       router.push('/auth/role-selection');
     }
+  }, [status, session, router]);
+
+  // Check if user already has a company
+  useEffect(() => {
+    const checkExistingCompany = async () => {
+      if (status === 'authenticated' && session?.user?.role === 'employer') {
+        try {
+          const response = await fetch('/api/company/profile', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data) {
+              // User already has a company, redirect to dashboard
+              toast.info('You already have a company profile!', {
+                description: 'Redirecting to your company dashboard...',
+                duration: 3000,
+              });
+              setTimeout(() => {
+                router.push('/employer/dashboard');
+              }, 2000);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking existing company:', error);
+          // If there's an error checking, we'll allow the form to proceed
+          // This handles cases where the API might be temporarily unavailable
+        } finally {
+          setCheckingExistingCompany(false);
+        }
+      } else {
+        setCheckingExistingCompany(false);
+      }
+    };
+
+    checkExistingCompany();
   }, [status, session, router]);
 
   const handleInputChange = (field: keyof CompanyFormData, value: string | string[]) => {
@@ -312,6 +354,26 @@ export default function CreateCompanyPage() {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("API Error Response:", errorText);
+        
+        // Handle specific error cases
+        if (response.status === 400) {
+          try {
+            const errorData = JSON.parse(errorText);
+            if (errorData.error && errorData.error.includes("Company already exists")) {
+              toast.error('You already have a company profile!', {
+                description: 'Redirecting to your company dashboard...',
+                duration: 5000,
+              });
+              setTimeout(() => {
+                router.push('/employer/dashboard');
+              }, 2000);
+              return;
+            }
+          } catch (parseError) {
+            console.error("Error parsing error response:", parseError);
+          }
+        }
+        
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
@@ -349,12 +411,14 @@ export default function CreateCompanyPage() {
     }
   };
 
-  if (status === 'loading') {
+  if (status === 'loading' || checkingExistingCompany) {
     return (
       <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading company creation form...</p>
+          <p className="text-gray-600">
+            {checkingExistingCompany ? 'Checking for existing company...' : 'Loading company creation form...'}
+          </p>
         </div>
       </div>
     );
