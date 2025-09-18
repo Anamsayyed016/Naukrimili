@@ -53,10 +53,8 @@ interface Job {
     email: string;
     role: string;
   };
-  stats: {
-    applications: number;
-    bookmarks: number;
-  };
+  applicationsCount: number;
+  bookmarksCount: number;
 }
 
 interface JobFilters {
@@ -115,14 +113,27 @@ export default function AdminJobsPage() {
       const response = await fetch(`/api/admin/jobs?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
-          setJobs(data.data.jobs);
-          setTotalPages(data.data.pagination.totalPages);
-          setTotalJobs(data.data.pagination.total);
+        if (data.success && data.data) {
+          setJobs(data.data.jobs || []);
+          setTotalPages(data.data.pagination?.totalPages || 1);
+          setTotalJobs(data.data.pagination?.total || 0);
+        } else {
+          console.error('API returned error:', data.error);
+          setJobs([]);
+          setTotalPages(1);
+          setTotalJobs(0);
         }
+      } else {
+        console.error('Failed to fetch jobs:', response.status, response.statusText);
+        setJobs([]);
+        setTotalPages(1);
+        setTotalJobs(0);
       }
     } catch (error) {
       console.error('Error fetching jobs:', error);
+      setJobs([]);
+      setTotalPages(1);
+      setTotalJobs(0);
     } finally {
       setLoading(false);
     }
@@ -209,11 +220,17 @@ export default function AdminJobsPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="animate-pulse space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
-          ))}
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="space-y-4 mt-8">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -221,7 +238,8 @@ export default function AdminJobsPage() {
 
   return (
     <AuthGuard allowedRoles={['admin']}>
-      <div className="container mx-auto p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Job Management</h1>
@@ -419,7 +437,14 @@ export default function AdminJobsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {jobs.map((job) => (
+              {jobs.length === 0 ? (
+                <div className="text-center py-12">
+                  <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
+                  <p className="text-gray-500">Try adjusting your filters or check back later.</p>
+                </div>
+              ) : (
+                jobs.map((job) => (
                 <div key={job.id} className="border rounded-lg p-4 hover:bg-gray-50">
                   <div className="flex items-start gap-4">
                     <Checkbox
@@ -503,7 +528,7 @@ export default function AdminJobsPage() {
                           </span>
                           <span className="flex items-center gap-1">
                             <Star className="h-4 w-4" />
-                            {job.stats.bookmarks} bookmarks
+                            {job.bookmarksCount || 0} bookmarks
                           </span>
                         </div>
                         
@@ -523,7 +548,8 @@ export default function AdminJobsPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* Pagination */}
@@ -554,6 +580,7 @@ export default function AdminJobsPage() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
     </AuthGuard>
   );
