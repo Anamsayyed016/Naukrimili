@@ -141,16 +141,28 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check if job exists
-    const job = await prisma.job.findUnique({
+    // Check if job exists in database first
+    let job = await prisma.job.findUnique({
       where: { id: jobId }
     });
 
+    // If not found in database, check if it's a sample job
     if (!job) {
-      return NextResponse.json({
-        success: false,
-        error: 'Job not found'
-      }, { status: 404 });
+      const sampleJobIds = ['1', '2', '3', '4', '5', '6', '7', '8'];
+      if (sampleJobIds.includes(jobId)) {
+        // For sample jobs, we'll create a mock job object
+        job = {
+          id: jobId,
+          title: `Sample Job ${jobId}`,
+          companyId: null, // Will be set to user's company below
+          isActive: true
+        } as any;
+      } else {
+        return NextResponse.json({
+          success: false,
+          error: 'Job not found'
+        }, { status: 404 });
+      }
     }
 
     // Check if user already applied for this job
@@ -176,6 +188,17 @@ export async function POST(request: NextRequest) {
       resumeUrl = `resumes/${user.id}/${Date.now()}-${resume.name}`;
     }
 
+    // For sample jobs, we need to find the employer's company to link the application
+    let companyId = job.companyId;
+    if (!companyId) {
+      // For sample jobs, we'll link to the first available company (or create a default one)
+      // In a real scenario, sample jobs would be linked to specific companies
+      const firstCompany = await prisma.company.findFirst({
+        orderBy: { createdAt: 'asc' }
+      });
+      companyId = firstCompany?.id || null;
+    }
+
     // Create application
     const application = await prisma.application.create({
       data: {
@@ -186,7 +209,7 @@ export async function POST(request: NextRequest) {
         appliedAt: new Date(),
         coverLetter: coverLetter || null,
         resumeId: resumeUrl || '',
-        companyId: job.companyId || null
+        companyId: companyId
       },
       include: {
         job: {

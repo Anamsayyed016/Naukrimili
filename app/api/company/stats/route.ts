@@ -46,16 +46,29 @@ export async function GET(request: NextRequest) {
         }
       }),
       
-      // Total applications
-      prisma.application.count({
-        where: { companyId: company.id }
-      }),
-      
-      // Pending applications
+      // Total applications (including sample job applications)
       prisma.application.count({
         where: { 
-          companyId: company.id,
-          status: 'submitted'
+          OR: [
+            { companyId: company.id },
+            { companyId: { startsWith: 'sample-company-' } }
+          ]
+        }
+      }),
+      
+      // Pending applications (including sample job applications)
+      prisma.application.count({
+        where: { 
+          OR: [
+            { 
+              companyId: company.id,
+              status: 'submitted'
+            },
+            { 
+              companyId: { startsWith: 'sample-company-' },
+              status: 'submitted'
+            }
+          ]
         }
       }),
       

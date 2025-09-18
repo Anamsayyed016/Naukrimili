@@ -153,12 +153,26 @@ export async function GET(
         }
       }
     }
+    // Get the first company ID to link sample jobs to a real company
+    let sampleCompanyId = null;
+    try {
+      const firstCompany = await prisma.company.findFirst({
+        orderBy: { createdAt: 'asc' },
+        select: { id: true }
+      });
+      sampleCompanyId = firstCompany?.id || 'sample-company-default';
+    } catch (error) {
+      console.log('No company found, using default sample company ID');
+      sampleCompanyId = 'sample-company-default';
+    }
+
     // If not found in database, try sample jobs as fallback
     const sampleJobs = [
       {
         id: '1',
         title: 'Senior Software Engineer',
         company: 'TechCorp India',
+        companyId: sampleCompanyId,
         location: 'Bangalore, India',
         country: 'IN',
         description: 'We are looking for a Senior Software Engineer to join our growing team. You will be responsible for developing and maintaining high-quality software solutions.',
@@ -181,6 +195,7 @@ export async function GET(
         id: '2',
         title: 'Frontend Developer',
         company: 'Digital Solutions Ltd',
+        companyId: sampleCompanyId,
         location: 'Mumbai, India',
         country: 'IN',
         description: 'Join our frontend team to build beautiful and responsive user interfaces. Experience with modern JavaScript frameworks required.',
@@ -203,6 +218,7 @@ export async function GET(
         id: '3',
         title: 'Data Analyst',
         company: 'Analytics Pro',
+        companyId: sampleCompanyId,
         location: 'Delhi, India',
         country: 'IN',
         description: 'We need a Data Analyst to help us make sense of large datasets and provide insights to drive business decisions.',
@@ -225,6 +241,7 @@ export async function GET(
         id: '4',
         title: 'Product Manager',
         company: 'InnovateTech',
+        companyId: sampleCompanyId,
         location: 'Hyderabad, India',
         country: 'IN',
         description: 'Lead product development from concept to launch. Work with cross-functional teams to deliver exceptional user experiences.',
@@ -247,6 +264,7 @@ export async function GET(
         id: '5',
         title: 'DevOps Engineer',
         company: 'Cloud Systems',
+        companyId: sampleCompanyId,
         location: 'Pune, India',
         country: 'IN',
         description: 'Build and maintain our cloud infrastructure. Automate deployment processes and ensure system reliability.',
@@ -269,6 +287,7 @@ export async function GET(
         id: '6',
         title: 'UX Designer',
         company: 'Creative Studio',
+        companyId: sampleCompanyId,
         location: 'Chennai, India',
         country: 'IN',
         description: 'Create intuitive and engaging user experiences. Work closely with product and engineering teams.',
@@ -291,6 +310,7 @@ export async function GET(
         id: '7',
         title: 'Software Engineer - Dubai',
         company: 'Global Tech Solutions',
+        companyId: sampleCompanyId,
         location: 'Dubai, UAE',
         country: 'AE',
         description: 'Join our Dubai office as a Software Engineer. Work on cutting-edge projects with international teams.',
@@ -313,6 +333,7 @@ export async function GET(
         id: '8',
         title: 'Marketing Manager',
         company: 'Growth Marketing Co',
+        companyId: sampleCompanyId,
         location: 'Bangalore, India',
         country: 'IN',
         description: 'Drive marketing strategies and campaigns. Lead a team of marketing professionals.',
