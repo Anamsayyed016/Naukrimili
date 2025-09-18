@@ -29,6 +29,13 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
   const [error, setError] = useState<string | null>(null);
   const [bookmarkedJobs, setBookmarkedJobs] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('list');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalJobs, setTotalJobs] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPrevPage, setHasPrevPage] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -39,8 +46,11 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
     console.log('🚀 JobsClient initializing with params:', { query, loc });
 
+    // Reset pagination when search params change
+    setCurrentPage(1);
+    
     // Always fetch jobs (database + external) for dynamic display
-    fetchJobs(query, loc);
+    fetchJobs(query, loc, 1)
   }, [searchParams]);
 
   // Convert any job format to simple Job format
@@ -62,43 +72,22 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
     };
   }
 
-  // Fetch jobs using database API with external fallback
-  const fetchJobs = async (query: string = '', location: string = '') => {
+  // Fetch jobs using unified API (database + external jobs)
+  const fetchJobs = async (query: string = '', location: string = '', page: number = 1) => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Fetching jobs with query:', query, 'location:', location);
+      console.log('🔍 Fetching jobs with query:', query, 'location:', location, 'page:', page);
 
-      // First try database API
-      const dbParams = new URLSearchParams({
-        ...(query && { query }),
-        ...(location && { location }),
-        country: 'IN',
-        limit: '50'
-      });
-
-      const dbResponse = await fetch(`/api/jobs?${dbParams.toString()}`);
-      
-      if (dbResponse.ok) {
-        const dbData = await dbResponse.json();
-        
-        if (dbData.success && dbData.jobs && dbData.jobs.length > 0) {
-          console.log(`✅ Database API: Found ${dbData.jobs.length} jobs`);
-          const newJobs = dbData.jobs.map(convertToSimpleJob);
-          setJobs(newJobs);
-          return;
-        }
-      }
-
-      console.log('⚠️ Database API returned no jobs, trying unified API...');
-
-      // Fallback to unified API for external jobs
+      // Use unified API to get both database and external jobs
       const unifiedParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
         country: 'IN',
-        includeExternal: 'true'
+        includeExternal: 'true',
+        page: page.toString(),
+        limit: '50' // 50 jobs per page
       });
 
       const unifiedResponse = await fetch(`/api/jobs/unified?${unifiedParams.toString()}`);
@@ -110,9 +99,18 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
       const unifiedData = await unifiedResponse.json();
       
       if (unifiedData.success) {
-        console.log(`✅ Unified API: Found ${unifiedData.jobs?.length || 0} jobs`);
+        console.log(`✅ Unified API: Found ${unifiedData.jobs?.length || 0} jobs on page ${page}`);
+        console.log(`📊 Total jobs available: ${unifiedData.pagination?.total || 0}`);
+        
         const newJobs = (unifiedData.jobs || []).map(convertToSimpleJob);
         setJobs(newJobs);
+        
+        // Update pagination state
+        setTotalPages(unifiedData.pagination?.totalPages || 1);
+        setTotalJobs(unifiedData.pagination?.total || 0);
+        setHasNextPage(unifiedData.pagination?.hasNext || false);
+        setHasPrevPage(unifiedData.pagination?.hasPrev || false);
+        setCurrentPage(page);
       } else {
         throw new Error(unifiedData.error || 'Failed to fetch jobs');
       }
@@ -143,6 +141,26 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
     console.log('Share triggered for job:', job.title);
   };
 
+  // Pagination handlers
+  const handlePageChange = (newPage: number) => {
+    const query = searchParams.get('q') || searchParams.get('query') || '';
+    const loc = searchParams.get('location') || '';
+    fetchJobs(query, loc, newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNextPage = () => {
+    if (hasNextPage) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (hasPrevPage) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -150,10 +168,15 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              {loading ? 'Loading Jobs...' : `${jobs.length} Jobs Found`}
+              {loading ? 'Loading Jobs...' : `${totalJobs.toLocaleString()} Jobs Found`}
             </h2>
             {searchParams.get('q') && (
               <p className="text-gray-600 mt-1">Results for "{searchParams.get('q')}"</p>
+            )}
+            {totalPages > 1 && (
+              <p className="text-sm text-gray-500 mt-1">
+                Page {currentPage} of {totalPages} • Showing {jobs.length} jobs
+              </p>
             )}
           </div>
           
@@ -250,6 +273,78 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
           </div>
         )}
 
+        {/* Pagination */}
+        {!loading && jobs.length > 0 && totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="flex items-center space-x-2">
+                {/* Previous Button */}
+                <button
+                  onClick={handlePrevPage}
+                  disabled={!hasPrevPage}
+                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    hasPrevPage
+                      ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                      : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
+                  }`}
+                >
+                  Previous
+                </button>
+
+                {/* Page Numbers */}
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                          currentPage === pageNum
+                            ? 'bg-blue-600 text-white border border-blue-600'
+                            : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Next Button */}
+                <button
+                  onClick={handleNextPage}
+                  disabled={!hasNextPage}
+                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    hasNextPage
+                      ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                      : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+
+              {/* Page Info */}
+              <div className="mt-2 text-center">
+                <p className="text-xs text-gray-500">
+                  Page {currentPage} of {totalPages} • {totalJobs.toLocaleString()} total jobs
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* No Results */}
         {!loading && jobs.length === 0 && !error && (
           <div className="text-center py-16">
@@ -265,8 +360,10 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               </p>
               <button
                 onClick={() => {
-                  setJobs([]);
-                  fetchJobs();
+                  const query = searchParams.get('q') || searchParams.get('query') || '';
+                  const loc = searchParams.get('location') || '';
+                  setCurrentPage(1);
+                  fetchJobs(query, loc, 1);
                 }}
                 className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
