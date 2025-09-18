@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import { 
   Briefcase, 
   MapPin, 
@@ -101,7 +102,10 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       }
     } catch (error) {
       console.error('Error fetching job:', error);
-      alert('Failed to fetch job details');
+      toast.error('Failed to fetch job details', {
+        description: 'Please try refreshing the page or contact support if the issue persists.',
+        duration: 5000,
+      });
     } finally {
       setFetching(false);
     }
@@ -135,43 +139,64 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
 
     // Enhanced validation
     if (!formData.title.trim()) {
-      alert('Job title is required');
+      toast.error('Job title is required', {
+        description: 'Please enter a job title to continue.',
+        duration: 3000,
+      });
       setLoading(false);
       return;
     }
 
     if (!formData.description.trim()) {
-      alert('Job description is required');
+      toast.error('Job description is required', {
+        description: 'Please enter a job description to continue.',
+        duration: 3000,
+      });
       setLoading(false);
       return;
     }
 
     if (!formData.location.trim()) {
-      alert('Job location is required');
+      toast.error('Job location is required', {
+        description: 'Please enter a job location to continue.',
+        duration: 3000,
+      });
       setLoading(false);
       return;
     }
 
     if (!formData.jobType) {
-      alert('Please select a job type');
+      toast.error('Please select a job type', {
+        description: 'Job type is required to continue.',
+        duration: 3000,
+      });
       setLoading(false);
       return;
     }
 
     if (!formData.experienceLevel) {
-      alert('Please select experience level');
+      toast.error('Please select experience level', {
+        description: 'Experience level is required to continue.',
+        duration: 3000,
+      });
       setLoading(false);
       return;
     }
 
     if (!formData.sector) {
-      alert('Please select a sector');
+      toast.error('Please select a sector', {
+        description: 'Sector is required to continue.',
+        duration: 3000,
+      });
       setLoading(false);
       return;
     }
 
     if (formData.skills.length === 0) {
-      alert('Please add at least one required skill');
+      toast.error('Please add at least one required skill', {
+        description: 'Skills are required to help candidates understand the job requirements.',
+        duration: 3000,
+      });
       setLoading(false);
       return;
     }
@@ -193,14 +218,20 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       const result = await response.json();
       
       if (result.success) {
-        alert('Job updated successfully!');
+        toast.success('✅ Job updated successfully!', {
+          description: 'Your job posting has been updated and is now live.',
+          duration: 5000,
+        });
         router.push('/employer/jobs');
       } else {
         throw new Error(result.error || 'Failed to update job');
       }
     } catch (error) {
       console.error('Error updating job:', error);
-      alert(error instanceof Error ? error.message : 'Failed to update job');
+      toast.error('Failed to update job', {
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }
