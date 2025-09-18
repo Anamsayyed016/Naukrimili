@@ -371,6 +371,7 @@ export async function GET(request: NextRequest) {
 
       } catch (error: any) {
         console.error('❌ External APIs error:', error.message);
+        // Continue execution even if external APIs fail
       }
     }
 
