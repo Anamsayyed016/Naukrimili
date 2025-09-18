@@ -19,23 +19,30 @@ export async function GET(
       );
     }
 
-    // First, try to get the job from the unified API (which works without database)
+    // Try to get job from database first (more efficient)
+    let job;
     try {
-      console.log('🔍 Fetching job from unified API...');
-      const unifiedResponse = await fetch(`${request.nextUrl.origin}/api/jobs/unified?includeExternal=true&limit=1000`);
-      
-      if (unifiedResponse.ok) {
-        const unifiedData = await unifiedResponse.json();
-        if (unifiedData.success && unifiedData.jobs) {
-          const job = unifiedData.jobs.find((j: any) => j.id === id);
-          if (job) {
-            console.log('✅ Job found in unified API:', job.title);
-            return NextResponse.json({ success: true, job });
+      job = await prisma.job.findUnique({
+        where: { id: id },
+        include: {
+          companyRelation: {
+            select: {
+              name: true,
+              logo: true,
+              location: true,
+              industry: true,
+              website: true
+            }
           }
         }
+      });
+      
+      if (job) {
+        console.log('✅ Job found in database:', job.title);
+        return NextResponse.json({ success: true, job });
       }
-    } catch (unifiedError) {
-      console.warn('⚠️ Unified API fetch failed, trying database:', unifiedError);
+    } catch (dbError) {
+      console.warn('⚠️ Database query failed:', dbError);
     }
     
     // Check if this is an external job ID first
@@ -146,79 +153,42 @@ export async function GET(
         }
       }
     }
-    
-    // Get job details with company information for database IDs
-    console.log('🔍 Searching for job in database with ID:', id);
-    
-    let job;
-    try {
-    // First, try to get the job from the unified API (which works without database)
-    try {
-      console.log("🔍 Fetching job from unified API...");
-      const unifiedResponse = await fetch("http://localhost:3000/api/jobs/unified?includeExternal=true&limit=1000");
-      
-      if (unifiedResponse.ok) {
-        const unifiedData = await unifiedResponse.json();
-        if (unifiedData.success && unifiedData.jobs) {
-          const job = unifiedData.jobs.find((j) => j.id === id);
-          if (job) {
-            console.log("✅ Job found in unified API:", job.title);
-            return NextResponse.json({ success: true, job });
-          }
-        }
+    // If not found in database, try sample jobs as fallback
+    const sampleJobs = [
+      {
+        id: '1',
+        title: 'Senior Software Engineer',
+        company: 'TechCorp India',
+        location: 'Bangalore, India',
+        country: 'IN',
+        description: 'We are looking for a Senior Software Engineer to join our growing team.',
+        requirements: ['React', 'Node.js', 'TypeScript', 'PostgreSQL'],
+        skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS', 'Docker'],
+        jobType: 'full-time',
+        experienceLevel: 'senior',
+        salary: '₹15,00,000 - ₹25,00,000',
+        isRemote: false,
+        isFeatured: true,
+        isActive: true,
+        source: 'manual',
+        sourceId: 'sample-1',
+        postedAt: new Date().toISOString(),
+        applyUrl: '#',
+        views: 150,
+        applicationsCount: 25
       }
-    } catch (unifiedError) {
-      console.warn("⚠️ Unified API fetch failed, trying database:", unifiedError);
-    }
-
-      job = await prisma.job.findUnique({
-        where: { id: id },
-        include: {
-          companyRelation: {
-            select: {
-              name: true,
-              logo: true,
-              location: true,
-              industry: true,
-              website: true
-            }
-          }
-        }
-      });
-      console.log('🔍 Database query result:', job ? 'Found' : 'Not found');
-    } catch (dbError) {
-      console.error('❌ Database error:', dbError);
-      return NextResponse.json(
-        { success: false, error: 'Database error' },
-        { status: 500 }
-      );
+    ];
+    
+    const sampleJob = sampleJobs.find(j => j.id === id);
+    if (sampleJob) {
+      console.log('✅ Job found in sample data:', sampleJob.title);
+      return NextResponse.json({ success: true, job: sampleJob });
     }
     
-    if (!job) {
-      return NextResponse.json(
-        { success: false, error: 'Job not found' },
-        { status: 404 }
-      );
-    }
-    
-    // Format job data
-    const formattedJob = {
-      ...job,
-      company: job.company || job.companyRelation?.name,
-      companyLogo: job.companyLogo || job.companyRelation?.logo,
-      companyLocation: job.companyRelation?.location,
-      companyIndustry: job.companyRelation?.industry,
-      companyWebsite: job.companyRelation?.website,
-      // Add new fields for internal/external handling
-      apply_url: job.apply_url || null,
-      source_url: job.source_url || null,
-      isExternal: job.source !== 'manual'
-    };
-    
-    return NextResponse.json({
-      success: true,
-      job: formattedJob
-    });
+    return NextResponse.json(
+      { success: false, error: 'Job not found' },
+      { status: 404 }
+    );
     
   } catch (error) {
     console.error('Error fetching job details:', error);

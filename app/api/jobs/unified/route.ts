@@ -3,6 +3,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs } from '@/lib/jobs/providers';
 import { prisma } from '@/lib/prisma';
 
+// Cache for external API responses (5 minutes)
+const externalCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Helper function to get cached data or fetch new data
+async function getCachedOrFetch(key: string, fetchFn: () => Promise<any>) {
+  const cached = externalCache.get(key);
+  const now = Date.now();
+  
+  if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+    console.log(`📦 Using cached data for ${key}`);
+    return cached.data;
+  }
+  
+  try {
+    const data = await fetchFn();
+    externalCache.set(key, { data, timestamp: now });
+    console.log(`💾 Cached data for ${key}`);
+    return data;
+  } catch (error) {
+    console.warn(`⚠️ Failed to fetch ${key}:`, error);
+    return cached?.data || [];
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Validate request
@@ -299,35 +324,47 @@ export async function GET(request: NextRequest) {
       try {
         console.log('🌐 Fetching jobs from external APIs...');
         
-        // Fetch from Adzuna
-        try {
-          const adzunaJobs = await fetchFromAdzuna(query || 'software engineer', 'in', page, {
-            location: location || undefined,
-            distanceKm: radius ? parseInt(radius) : undefined
-          });
-          externalJobs.push(...adzunaJobs);
-          console.log(`✅ Adzuna: Found ${adzunaJobs.length} jobs`);
-        } catch (adzunaError: any) {
-          console.warn('⚠️ Adzuna API error:', adzunaError.message);
-        }
+        // Create cache key based on search parameters
+        const cacheKey = `external-${query}-${location}-${country}-${page}`;
+        
+        // Fetch from Adzuna with caching
+        const adzunaJobs = await getCachedOrFetch(`${cacheKey}-adzuna`, async () => {
+          try {
+            return await fetchFromAdzuna(query || 'software engineer', 'in', page, {
+              location: location || undefined,
+              distanceKm: radius ? parseInt(radius) : undefined
+            });
+          } catch (error) {
+            console.warn('⚠️ Adzuna API error:', error);
+            return [];
+          }
+        });
+        externalJobs.push(...adzunaJobs);
+        console.log(`✅ Adzuna: Found ${adzunaJobs.length} jobs`);
 
-        // Fetch from JSearch
-        try {
-          const jsearchJobs = await fetchFromJSearch(query || 'software engineer', 'IN', page);
-          externalJobs.push(...jsearchJobs);
-          console.log(`✅ JSearch: Found ${jsearchJobs.length} jobs`);
-        } catch (jsearchError: any) {
-          console.warn('⚠️ JSearch API error:', jsearchError.message);
-        }
+        // Fetch from JSearch with caching
+        const jsearchJobs = await getCachedOrFetch(`${cacheKey}-jsearch`, async () => {
+          try {
+            return await fetchFromJSearch(query || 'software engineer', 'IN', page);
+          } catch (error) {
+            console.warn('⚠️ JSearch API error:', error);
+            return [];
+          }
+        });
+        externalJobs.push(...jsearchJobs);
+        console.log(`✅ JSearch: Found ${jsearchJobs.length} jobs`);
 
-        // Fetch from Google Jobs
-        try {
-          const googleJobs = await fetchFromGoogleJobs(query || 'software engineer', location || 'India', page);
-          externalJobs.push(...googleJobs);
-          console.log(`✅ Google Jobs: Found ${googleJobs.length} jobs`);
-        } catch (googleError: any) {
-          console.warn('⚠️ Google Jobs API error:', googleError.message);
-        }
+        // Fetch from Google Jobs with caching
+        const googleJobs = await getCachedOrFetch(`${cacheKey}-google`, async () => {
+          try {
+            return await fetchFromGoogleJobs(query || 'software engineer', location || 'India', page);
+          } catch (error) {
+            console.warn('⚠️ Google Jobs API error:', error);
+            return [];
+          }
+        });
+        externalJobs.push(...googleJobs);
+        console.log(`✅ Google Jobs: Found ${googleJobs.length} jobs`);
 
         externalJobsCount = externalJobs.length;
         console.log(`🌐 Total external jobs found: ${externalJobsCount}`);

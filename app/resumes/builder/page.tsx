@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
@@ -29,17 +29,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-// import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useSession } from 'next-auth/react';
 import { toast } from '@/components/ui/use-toast';
 import { UnifiedResumeData, ResumeDataFactory, ResumeValidator } from '@/types/unified-resume';
-import { AIResumeCoach, ResumeSuggestion, ATSAnalysis, ProfessionalCoaching } from '@/lib/ai-resume-coach';
-import { ResumeTemplateManager, TemplateCustomization } from '@/lib/resume-templates';
-import { ResumeExporter, ExportOptions } from '@/lib/resume-export';
-import ModernResumeWizard from '@/components/resume/ModernResumeWizard';
-import TemplateSelector from '@/components/resume/TemplateSelector';
+
+// Lazy load heavy components
+const ModernResumeWizard = lazy(() => import('@/components/resume/ModernResumeWizard'));
+const TemplateSelector = lazy(() => import('@/components/resume/TemplateSelector'));
+
+// Import types for utility classes
+import type { ResumeSuggestion, ATSAnalysis, ProfessionalCoaching } from '@/lib/ai-resume-coach';
+import type { TemplateCustomization } from '@/lib/resume-templates';
+import type { ExportOptions } from '@/lib/resume-export';
 
 // Utility function for debouncing
 function debounce<T extends (...args: any[]) => any>(
@@ -146,12 +149,30 @@ export default function ResumeBuilderPage() {
   const [coachingSteps, setCoachingSteps] = useState<ProfessionalCoaching[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
-  // AI Coach instance
-  const [aiCoach] = useState(() => new AIResumeCoach());
+  // AI Coach instance - lazy loaded
+  const [aiCoach, setAiCoach] = useState<any>(null);
+
+  // Load AI Coach lazily
+  useEffect(() => {
+    const loadAiCoach = async () => {
+      try {
+        const { AIResumeCoach } = await import('@/lib/ai-resume-coach');
+        setAiCoach(new AIResumeCoach());
+      } catch (error) {
+        console.error('Failed to load AI Coach:', error);
+      }
+    };
+    
+    if (!aiCoach) {
+      loadAiCoach();
+    }
+  }, [aiCoach]);
 
   // Load coaching steps and analyze resume
   useEffect(() => {
     const loadCoachingData = async () => {
+      if (!aiCoach) return;
+      
       try {
         const steps = await aiCoach.getCoachingSteps(resumeData);
         setCoachingSteps(steps);
@@ -213,8 +234,9 @@ export default function ResumeBuilderPage() {
   const handleWizardComplete = async (wizardResumeData: UnifiedResumeData, templateId: string, wizardCustomization: any) => {
     try {
       // Generate AI-powered resume data based on selections
-      const aiCoach = new AIResumeCoach();
-      const enhancedResumeData = await aiCoach.generateResumeFromField(
+      const { AIResumeCoach } = await import('@/lib/ai-resume-coach');
+      const tempAiCoach = new AIResumeCoach();
+      const enhancedResumeData = await tempAiCoach.generateResumeFromField(
         wizardCustomization.selectedField || 'Software Development',
         wizardCustomization.selectedKeywords || []
       );
@@ -295,7 +317,18 @@ export default function ResumeBuilderPage() {
 
   // Show wizard for new resumes
   if (isNewResume && showWizard) {
-    return <ModernResumeWizard onComplete={handleWizardComplete} onClose={handleWizardClose} />;
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading Resume Wizard...</p>
+          </div>
+        </div>
+      }>
+        <ModernResumeWizard onComplete={handleWizardComplete} onClose={handleWizardClose} />
+      </Suspense>
+    );
   }
 
   const updatePersonalInfo = (field: keyof UnifiedResumeData['personalInfo'], value: string | boolean) => {
@@ -599,6 +632,7 @@ export default function ResumeBuilderPage() {
         filename: `${resumeData.personalInfo.fullName || 'Resume'}_${selectedTemplate}.${format}`
       };
 
+      const { ResumeExporter } = await import('@/lib/resume-export');
       const result = format === 'pdf' 
         ? await ResumeExporter.exportToPDF(resumeData, exportOptions)
         : await ResumeExporter.exportToDOCX(resumeData, exportOptions);
@@ -656,27 +690,48 @@ export default function ResumeBuilderPage() {
           </div>
         </div> {/* Template Selection */}
         {showTemplateSelector ? (
- <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={() => setShowTemplateSelector(false)}
-                variant="outline"
-                size="sm"
-              > ← Back to Builder
- </Button>
-              <h2 className="text-2xl font-bold text-gray-900">Choose Your Template</h2>
+          <Suspense fallback={
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Button
+                  onClick={() => setShowTemplateSelector(false)}
+                  variant="outline"
+                  size="sm"
+                > ← Back to Builder
+                </Button>
+                <h2 className="text-2xl font-bold text-gray-900">Choose Your Template</h2>
+              </div>
+              <div className="flex items-center justify-center py-8">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                  <p className="text-gray-600">Loading Templates...</p>
+                </div>
+              </div>
             </div>
-            <TemplateSelector
-              selectedTemplate={selectedTemplate}
-              customization={customization}
-              onTemplateSelect={(templateId) => {
-                handleTemplateSelect(templateId);
-                setShowTemplateSelector(false);
-              }}
-              onCustomizationChange={handleCustomizationChange}
-              onPreview={handleTemplatePreview}
-            />
-          </div> ) : (
+          }>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Button
+                  onClick={() => setShowTemplateSelector(false)}
+                  variant="outline"
+                  size="sm"
+                > ← Back to Builder
+                </Button>
+                <h2 className="text-2xl font-bold text-gray-900">Choose Your Template</h2>
+              </div>
+              <TemplateSelector
+                selectedTemplate={selectedTemplate}
+                customization={customization}
+                onTemplateSelect={(templateId) => {
+                  handleTemplateSelect(templateId);
+                  setShowTemplateSelector(false);
+                }}
+                onCustomizationChange={handleCustomizationChange}
+                onPreview={handleTemplatePreview}
+              />
+            </div>
+          </Suspense>
+        ) : (
  <Card className="mb-6 bg-white border-2 border-blue-200 shadow-2xl">
             <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
               <CardTitle className="flex items-center justify-between text-white">
@@ -702,10 +757,16 @@ export default function ResumeBuilderPage() {
                     <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent> {ResumeTemplateManager.getAllTemplates().map(template => (
- <SelectItem key={template.id} value={template.id}> {template.name} - {template.description}
- </SelectItem> ))}
- </SelectContent>
+                    <SelectContent>
+                      {(() => {
+                        const { ResumeTemplateManager } = require('@/lib/resume-templates');
+                        return ResumeTemplateManager.getAllTemplates().map(template => (
+                          <SelectItem key={template.id} value={template.id}>
+                            {template.name} - {template.description}
+                          </SelectItem>
+                        ));
+                      })()}
+                    </SelectContent>
                   </Select>
                 </div>
                 <div>
@@ -715,10 +776,16 @@ export default function ResumeBuilderPage() {
                     <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent> {ResumeTemplateManager.getTemplateById(customization.templateId)?.colorSchemes.map(scheme => (
- <SelectItem key={scheme} value={scheme}> {scheme.charAt(0).toUpperCase() + scheme.slice(1)}
- </SelectItem> ))}
- </SelectContent>
+                    <SelectContent>
+                      {(() => {
+                        const { ResumeTemplateManager } = require('@/lib/resume-templates');
+                        return ResumeTemplateManager.getTemplateById(customization.templateId)?.colorSchemes.map(scheme => (
+                          <SelectItem key={scheme} value={scheme}>
+                            {scheme.charAt(0).toUpperCase() + scheme.slice(1)}
+                          </SelectItem>
+                        ));
+                      })()}
+                    </SelectContent>
                   </Select>
                 </div>
                 <div>
@@ -728,10 +795,16 @@ export default function ResumeBuilderPage() {
                     <SelectTrigger className="bg-white border-2 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 shadow-md text-gray-900">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent> {ResumeTemplateManager.getTemplateById(customization.templateId)?.fontOptions.map(font => (
- <SelectItem key={font} value={font}> {font.charAt(0).toUpperCase() + font.slice(1)}
- </SelectItem> ))}
- </SelectContent>
+                    <SelectContent>
+                      {(() => {
+                        const { ResumeTemplateManager } = require('@/lib/resume-templates');
+                        return ResumeTemplateManager.getTemplateById(customization.templateId)?.fontOptions.map(font => (
+                          <SelectItem key={font} value={font}>
+                            {font.charAt(0).toUpperCase() + font.slice(1)}
+                          </SelectItem>
+                        ));
+                      })()}
+                    </SelectContent>
                   </Select>
                 </div>
               </div>

@@ -8,7 +8,6 @@ import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
-import bcrypt from "bcryptjs"
 
 // Validate required NextAuth environment variables
 const nextAuthUrl = process.env.NEXTAUTH_URL || 'https://aftionix.in';
@@ -70,6 +69,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         try {
+          // Dynamic import of bcrypt to avoid Edge Runtime issues
+          const bcrypt = (await import('bcryptjs')).default;
+          
           const user = await prisma.user.findUnique({
             where: { email: credentials.email as string }
           });
