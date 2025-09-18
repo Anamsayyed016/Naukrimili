@@ -552,16 +552,16 @@ export default function CompanyProfilePage() {
                     Post New Job
                   </Button>
                 </Link>
+                <Link href="/employer/applications" className="block">
+                  <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                    <Users className="h-5 w-5 mr-2" />
+                    View Applications
+                  </Button>
+                </Link>
                 <Link href="/employer/jobs" className="block">
                   <Button variant="outline" className="w-full border-slate-300 text-slate-700 hover:bg-slate-50 py-3 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200">
                     <FileText className="h-5 w-5 mr-2" />
                     Manage Jobs
-                  </Button>
-                </Link>
-                <Link href="/employer/applications" className="block">
-                  <Button variant="outline" className="w-full border-slate-300 text-slate-700 hover:bg-slate-50 py-3 rounded-xl font-semibold shadow-sm hover:shadow-md transition-all duration-200">
-                    <Users className="h-5 w-5 mr-2" />
-                    View Applications
                   </Button>
                 </Link>
               </CardContent>
