@@ -1153,6 +1153,21 @@ export default function CreateCompanyPage() {
               )}
             </AnimatePresence>
 
+            {/* Debug Test Button */}
+            <div className="mb-4">
+              <Button
+                onClick={() => {
+                  console.log("TEST BUTTON CLICKED");
+                  console.log("Form data:", formData);
+                  console.log("Session:", session);
+                  console.log("Status:", status);
+                }}
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
+              >
+                DEBUG TEST - Check Console
+              </Button>
+            </div>
+
             {/* Navigation Buttons */}
             <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8 sm:mt-10">
               <Button
