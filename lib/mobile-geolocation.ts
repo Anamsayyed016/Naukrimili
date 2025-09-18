@@ -195,11 +195,19 @@ export async function getLocationFromIP(): Promise<GeolocationResult> {
       })
     },
     {
-      url: 'https://api.ipify.org?format=json',
+      url: 'https://api.ipgeolocation.io/ipgeo?apiKey=free',
       parser: (data: any) => ({
-        city: 'Unknown',
-        country: 'Unknown',
-        state: 'Unknown'
+        city: data.city,
+        country: data.country_code2,
+        state: data.state_prov
+      })
+    },
+    {
+      url: 'https://ip-api.com/json/',
+      parser: (data: any) => ({
+        city: data.city,
+        country: data.countryCode,
+        state: data.regionName
       })
     }
   ];
@@ -328,6 +336,7 @@ export async function getSmartLocation(options: MobileGeolocationOptions = {}): 
     }
   } else {
     console.log('📍 Skipping GPS - mobile device requires HTTPS');
+    // For mobile devices on HTTP, we'll try IP-based location first
   }
 
   // Strategy 2: IP-based fallback

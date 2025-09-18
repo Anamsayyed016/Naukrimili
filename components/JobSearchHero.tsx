@@ -123,35 +123,53 @@ export default function JobSearchHero({
     router.push(searchUrl);
   }, [filters, userLocation, searchRadius, sortByDistance, router]);
 
-  // Location detection
+  // Location detection with improved error handling
   const detectCurrentLocation = useCallback(async () => {
     try {
       setIsDetectingLocation(true);
       setLocationError(null);
       
+      console.log('📍 Starting location detection...');
       const result = await getSmartLocation();
       
-      if (result.success && result.location) {
+      if (result.success && result.coordinates) {
         const locationData: UserLocation = {
-          lat: result.location.lat,
-          lng: result.location.lng,
-          city: result.location.city || 'Unknown',
-          state: result.location.state,
-          country: result.location.country || 'Unknown',
-          area: result.location.area,
-          source: result.location.source || 'gps'
+          lat: result.coordinates.lat,
+          lng: result.coordinates.lng,
+          city: result.city || 'Unknown',
+          state: result.state,
+          country: result.country || 'Unknown',
+          area: result.city,
+          source: result.source || 'gps'
         };
         
         setUserLocation(locationData);
         setFilters(prev => ({ ...prev, location: locationData.city }));
         console.log('✅ Enhanced location detected:', locationData);
       } else {
-        setLocationError(result.error || 'Failed to detect location');
-        console.warn('❌ Location detection failed:', result.error);
+        // Provide more helpful error messages
+        let errorMessage = result.error || 'Failed to detect location';
+        
+        // Check if it's an HTTPS issue
+        if (typeof window !== 'undefined') {
+          const isHTTPS = window.location.protocol === 'https:';
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          
+          if (isMobile && !isHTTPS) {
+            errorMessage = 'Location detection requires HTTPS on mobile devices. Please use HTTPS or select a location manually.';
+          } else if (errorMessage.includes('denied')) {
+            errorMessage = 'Location access denied. Please allow location access in your browser settings and try again.';
+          } else if (errorMessage.includes('timeout')) {
+            errorMessage = 'Location request timed out. Please check your internet connection and try again.';
+          }
+        }
+        
+        setLocationError(errorMessage);
+        console.warn('❌ Location detection failed:', errorMessage);
       }
     } catch (error) {
       console.error('Location detection error:', error);
-      setLocationError('An unexpected error occurred while detecting location');
+      setLocationError('An unexpected error occurred while detecting location. Please try again or select a location manually.');
     } finally {
       setIsDetectingLocation(false);
     }
@@ -325,21 +343,36 @@ export default function JobSearchHero({
                 </div>
               )}
               
-              {/* Enhanced Error Display */}
+              {/* Enhanced Error Display with Retry */}
               {locationError && (
                 <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-xl shadow-sm">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="p-1 sm:p-2 bg-red-100 rounded-lg">
-                      <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-red-800 text-xs sm:text-sm">
-                        Location Detection Failed
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="p-1 sm:p-2 bg-red-100 rounded-lg">
+                        <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                       </div>
-                      <div className="text-red-700 text-xs sm:text-sm">
-                        {locationError}
+                      <div>
+                        <div className="font-semibold text-red-800 text-xs sm:text-sm">
+                          Location Detection Failed
+                        </div>
+                        <div className="text-red-700 text-xs sm:text-sm">
+                          {locationError}
+                        </div>
                       </div>
                     </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={detectCurrentLocation}
+                      disabled={isDetectingLocation}
+                      className="text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400 text-xs px-2 py-1 h-6"
+                    >
+                      {isDetectingLocation ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        'Retry'
+                      )}
+                    </Button>
                   </div>
                 </div>
               )}
@@ -356,6 +389,15 @@ export default function JobSearchHero({
                   type: 'city'
                 } : null}
               />
+
+              {/* Manual Location Selection Help */}
+              {locationError && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="text-sm text-blue-800">
+                    <strong>💡 Tip:</strong> You can also type your city name in the location field above, or select from the popular locations below.
+                  </div>
+                </div>
+              )}
 
               {/* Advanced Filters Toggle */}
               {showAdvancedFilters && (
