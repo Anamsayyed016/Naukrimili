@@ -248,6 +248,9 @@ export default function CreateCompanyPage() {
   const handleSubmit = async () => {
     console.log("=== FORM SUBMISSION STARTED ===");
     console.log("Form data:", formData);
+    console.log("Current step:", currentStep);
+    console.log("Session status:", status);
+    console.log("Session data:", session);
     console.log("Validation step 1:", validateStep(1));
     console.log("Validation step 2:", validateStep(2));
     
@@ -272,6 +275,7 @@ export default function CreateCompanyPage() {
       
       console.log("Session token found:", !!token);
       console.log("Making API call to /api/company/profile");
+      console.log("Request body:", JSON.stringify(formData, null, 2));
       
       const response = await fetch("/api/company/profile", {
         method: "POST",
@@ -285,6 +289,12 @@ export default function CreateCompanyPage() {
 
       console.log("Response received - Status:", response.status);
       console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error Response:", errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
       
       const data = await response.json();
       console.log("Response data:", data);
