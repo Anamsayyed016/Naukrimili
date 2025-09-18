@@ -271,12 +271,12 @@ export default function AdminUsersPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
             <p className="text-gray-600 mt-1">Manage and moderate all users on your platform</p>
           </div>
-          <Button onClick={fetchUsers} variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
+          <Button onClick={fetchUsers} variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50 w-full sm:w-auto">
             <Users className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -294,19 +294,20 @@ export default function AdminUsersPage() {
             <p className="text-sm text-gray-600 mt-1">Filter and search through all users on your platform</p>
           </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="text-sm font-semibold text-gray-700 mb-2 block">Search Users</label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   placeholder="Search users by name, email..."
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   onKeyPress={(e) => e.key === 'Enter' && fetchUsers()}
-                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 flex-1"
                 />
-                <Button onClick={fetchUsers} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <Search className="h-4 w-4" />
+                <Button onClick={fetchUsers} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
+                  <Search className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Search</span>
                 </Button>
               </div>
             </div>
@@ -317,11 +318,11 @@ export default function AdminUsersPage() {
                 <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white shadow-lg rounded-md">
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="employer">Employer</SelectItem>
-                  <SelectItem value="jobseeker">Jobseeker</SelectItem>
+                <SelectContent className="bg-white shadow-xl rounded-md border border-gray-200 z-50">
+                  <SelectItem value="all" className="hover:bg-gray-100 cursor-pointer">All Roles</SelectItem>
+                  <SelectItem value="admin" className="hover:bg-gray-100 cursor-pointer">Admin</SelectItem>
+                  <SelectItem value="employer" className="hover:bg-gray-100 cursor-pointer">Employer</SelectItem>
+                  <SelectItem value="jobseeker" className="hover:bg-gray-100 cursor-pointer">Jobseeker</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -332,10 +333,10 @@ export default function AdminUsersPage() {
                 <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white shadow-lg rounded-md">
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectContent className="bg-white shadow-xl rounded-md border border-gray-200 z-50">
+                  <SelectItem value="all" className="hover:bg-gray-100 cursor-pointer">All Status</SelectItem>
+                  <SelectItem value="active" className="hover:bg-gray-100 cursor-pointer">Active</SelectItem>
+                  <SelectItem value="inactive" className="hover:bg-gray-100 cursor-pointer">Inactive</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -431,26 +432,26 @@ export default function AdminUsersPage() {
                           {getStatusBadge(user)}
                         </div>
                         
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-2">
                           <span className="flex items-center gap-1">
                             <Mail className="h-4 w-4" />
-                            {user.email}
+                            <span className="truncate">{user.email}</span>
                           </span>
                           {user.phone && (
                             <span className="flex items-center gap-1">
                               <Phone className="h-4 w-4" />
-                              {user.phone}
+                              <span className="truncate">{user.phone}</span>
                             </span>
                           )}
                           {user.location && (
                             <span className="flex items-center gap-1">
                               <MapPin className="h-4 w-4" />
-                              {user.location}
+                              <span className="truncate">{user.location}</span>
                             </span>
                           )}
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
-                            Joined {formatDate(user.createdAt)}
+                            <span className="truncate">Joined {formatDate(user.createdAt)}</span>
                           </span>
                         </div>
                       </div>
@@ -475,22 +476,22 @@ export default function AdminUsersPage() {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-3 gap-4 text-sm text-gray-600 mb-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm text-gray-600 mb-3">
                       <span className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
-                        {user._count.applications} applications
+                        <span className="truncate">{user._count.applications} applications</span>
                       </span>
                       <span className="flex items-center gap-1">
                         <Edit className="h-4 w-4" />
-                        {user._count.createdJobs} jobs
+                        <span className="truncate">{user._count.createdJobs} jobs</span>
                       </span>
                       <span className="flex items-center gap-1">
                         <Shield className="h-4 w-4" />
-                        {user._count.createdCompanies} companies
+                        <span className="truncate">{user._count.createdCompanies} companies</span>
                       </span>
                     </div>
                     
-                    <div className="flex items-center justify-between pt-4 border-t-2 border-gray-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t-2 border-gray-100">
                       <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
@@ -512,8 +513,8 @@ export default function AdminUsersPage() {
                           size="sm"
                           className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 font-semibold"
                         >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
+                          <Eye className="h-4 w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">View</span>
                         </Button>
                         <Button 
                           variant="outline" 
@@ -521,8 +522,8 @@ export default function AdminUsersPage() {
                           onClick={() => handleEditUser(user)}
                           className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-300 font-semibold"
                         >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
+                          <Edit className="h-4 w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">Edit</span>
                         </Button>
                       </div>
                     </div>
