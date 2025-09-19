@@ -45,7 +45,8 @@ export default function CompaniesPage() {
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setCompanies(data.data.companies || []);
+          console.log("🔍 Setting companies:", data.data);
+          setCompanies(data.data || []);
         } else {
           console.error('API returned error:', data.error);
           setCompanies([]);
@@ -58,6 +59,7 @@ export default function CompaniesPage() {
       console.error('Error fetching companies:', error);
       setCompanies([]);
     } finally {
+      console.log("�� Setting loading to false");
       setLoading(false);
     }
   };
