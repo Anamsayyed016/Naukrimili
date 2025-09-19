@@ -108,18 +108,13 @@ export default function UnifiedUserProfile({
         {/* Mobile User Profile Trigger */}
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 touch-target min-w-0 max-w-[200px]"
+          className="flex items-center gap-2 px-2 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 touch-target"
           aria-label="User profile menu"
           aria-expanded={isDropdownOpen}
         >
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
             <span className="text-white font-semibold text-sm">
               {userInitials}
-            </span>
-          </div>
-          <div className="flex flex-col items-start min-w-0 flex-1">
-            <span className="text-sm font-semibold text-gray-900 truncate max-w-[140px]">
-              {displayName}
             </span>
           </div>
           <ChevronDown 
@@ -242,18 +237,13 @@ export default function UnifiedUserProfile({
       {/* Desktop User Profile Trigger */}
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-w-0 max-w-sm"
+        className="flex items-center gap-2 px-2 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         aria-label="User profile menu"
         aria-expanded={isDropdownOpen}
       >
         <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
           <span className="text-white font-semibold text-xs sm:text-sm">
             {userInitials}
-          </span>
-        </div>
-        <div className="flex flex-col items-start min-w-0 flex-1">
-          <span className="text-xs sm:text-sm font-semibold text-gray-900 truncate max-w-[180px] sm:max-w-[200px]">
-            {displayName}
           </span>
         </div>
         <ChevronDown 
