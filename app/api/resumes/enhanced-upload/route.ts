@@ -21,6 +21,8 @@ const ALLOWED_TYPES = [
 export async function POST(request: NextRequest) {
   try {
     console.log('📤 Enhanced resume upload request received');
+    console.log('🔑 OPENAI_API_KEY exists:', !!process.env.OPENAI_API_KEY);
+    console.log('🔑 GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
     
     // Get user session for authentication
     const session = await auth();
@@ -101,6 +103,8 @@ export async function POST(request: NextRequest) {
     let aiProvider = 'fallback';
 
     try {
+      console.log('🤖 Starting AI parsing with extracted text length:', extractedText.length);
+      console.log('🤖 Extracted text preview:', extractedText.substring(0, 200) + '...');
       parsedData = await hybridResumeAI.parseResumeText(extractedText);
       aiSuccess = true;
       confidence = parsedData.confidence;
