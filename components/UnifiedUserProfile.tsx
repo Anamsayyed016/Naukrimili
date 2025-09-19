@@ -108,7 +108,7 @@ export default function UnifiedUserProfile({
         {/* Mobile User Profile Trigger */}
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 touch-target"
+          className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 touch-target min-w-0 max-w-[200px]"
           aria-label="User profile menu"
           aria-expanded={isDropdownOpen}
         >
@@ -118,10 +118,13 @@ export default function UnifiedUserProfile({
             </span>
           </div>
           <div className="flex flex-col items-start min-w-0 flex-1">
-            <span className="text-sm font-medium text-gray-900 truncate">
+            <span className="text-sm font-semibold text-gray-900 truncate max-w-[140px]">
               {displayName}
             </span>
-            <span className="text-xs text-gray-500 capitalize truncate">
+            <span className="text-xs text-gray-600 truncate max-w-[140px] mt-0.5">
+              {user.email}
+            </span>
+            <span className="text-xs text-gray-500 capitalize truncate max-w-[140px] mt-1 font-normal">
               {userRole}
             </span>
           </div>
@@ -152,9 +155,9 @@ export default function UnifiedUserProfile({
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
-                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                    <p className="text-xs text-blue-600 font-medium capitalize">{userRole}</p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+                    <p className="text-xs text-gray-600 truncate mt-0.5">{user.email}</p>
+                    <p className="text-xs text-gray-500 capitalize mt-1 font-normal">{userRole}</p>
                   </div>
                 </div>
               </div>
@@ -245,7 +248,7 @@ export default function UnifiedUserProfile({
       {/* Desktop User Profile Trigger */}
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-w-0 max-w-xs"
+        className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-w-0 max-w-sm"
         aria-label="User profile menu"
         aria-expanded={isDropdownOpen}
       >
@@ -255,10 +258,13 @@ export default function UnifiedUserProfile({
           </span>
         </div>
         <div className="flex flex-col items-start min-w-0 flex-1">
-          <span className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-[150px]">
+          <span className="text-xs sm:text-sm font-semibold text-gray-900 truncate max-w-[180px] sm:max-w-[200px]">
             {displayName}
           </span>
-          <span className="text-xs text-gray-500 capitalize truncate max-w-[120px] sm:max-w-[150px]">
+          <span className="text-xs text-gray-600 truncate max-w-[180px] sm:max-w-[200px] mt-0.5">
+            {user.email}
+          </span>
+          <span className="text-xs text-gray-500 capitalize truncate max-w-[180px] sm:max-w-[200px] mt-1 font-normal">
             {userRole}
           </span>
         </div>
@@ -289,9 +295,9 @@ export default function UnifiedUserProfile({
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate max-w-[200px] sm:max-w-none">{displayName}</p>
-                  <p className="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-none">{user.email}</p>
-                  <p className="text-xs text-blue-600 font-medium capitalize">{userRole}</p>
+                  <p className="text-sm font-semibold text-gray-900 truncate max-w-[200px] sm:max-w-none">{displayName}</p>
+                  <p className="text-xs text-gray-600 truncate max-w-[200px] sm:max-w-none mt-0.5">{user.email}</p>
+                  <p className="text-xs text-gray-500 capitalize mt-1 font-normal">{userRole}</p>
                 </div>
               </div>
             </div>
