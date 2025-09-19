@@ -146,54 +146,54 @@ export class HybridResumeAI {
 
     console.log('🤖 Parsing with OpenAI...');
 
-    const prompt = `
-You are an expert resume parser and ATS optimization assistant. Extract structured data from the resume text below and return valid JSON.
+    const prompt = `You are an intelligent assistant that extracts all relevant information from a resume to automatically autofill a web form.
 
-Rules:
-- Do not invent or guess information. Use empty strings "" or empty arrays [] if missing.
-- Use only the defined schema. No extra fields, no duplicates.
-- Calculate ATS score based on completeness and keyword optimization (0-100).
-- Suggest 3-5 relevant job titles based on skills and experience.
-- Provide 3-5 improvement tips for ATS optimization.
+Instructions:
 
-Schema:
+1. Extract all data from the resume text and map it exactly to these form fields:
+
 {
-  "personalInformation": {
-    "fullName": "",
-    "email": "",
-    "phone": "",
-    "location": ""
-  },
-  "professionalInformation": {
-    "jobTitle": "",
-    "expectedSalary": ""
-  },
-  "skills": [],
-  "education": [
+  "name": "",            // Full Name
+  "email": "",           // Email Address
+  "phone": "",           // Phone Number
+  "linkedin": "",        // LinkedIn Profile URL
+  "github": "",          // GitHub Profile URL
+  "skills": [],          // List of skills (programming languages, tools, frameworks)
+  "experience": [        // Work experience
+    {
+      "company": "",
+      "role": "",
+      "start_date": "",  // Format YYYY-MM
+      "end_date": "",    // Format YYYY-MM
+      "description": ""
+    }
+  ],
+  "education": [         // Education details
     {
       "degree": "",
-      "institution": "",
-      "year": ""
+      "institute": "",
+      "start_year": "",   // Format YYYY
+      "end_year": ""      // Format YYYY
     }
   ],
-  "experience": [
+  "certifications": [],   // List of certifications
+  "projects": [           // List of projects
     {
-      "role": "",
-      "company": "",
-      "duration": "",
-      "achievements": []
+      "title": "",
+      "description": "",
+      "technologies": []  // Technologies used in project
     }
-  ],
-  "certifications": [],
-  "recommendedJobTitles": [],
-  "atsScore": 0,
-  "improvementTips": []
+  ]
 }
 
-Resume text:
-${resumeText}
+2. Output must be **strict JSON only**. Do NOT add any explanation or extra text.  
+3. If any field is missing in the resume, return an empty string "" or empty array [].  
+4. Skills must be separated as individual items in an array, e.g., ["Python", "React", "Node.js"].  
+5. Dates in experience should be in YYYY-MM format; education years in YYYY.  
+6. Preserve all information accurately; if multiple experiences, projects, or degrees exist, include all as array items.  
 
-Return only the JSON response:`;
+Resume Text:
+${resumeText}`;
 
     const completion = await this.openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -240,54 +240,54 @@ Return only the JSON response:`;
 
     const model = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const prompt = `
-You are an expert resume parser and ATS optimization assistant. Extract structured data from the resume text below and return valid JSON.
+    const prompt = `You are an intelligent assistant that extracts all relevant information from a resume to automatically autofill a web form.
 
-Rules:
-- Do not invent or guess information. Use empty strings "" or empty arrays [] if missing.
-- Use only the defined schema. No extra fields, no duplicates.
-- Calculate ATS score based on completeness and keyword optimization (0-100).
-- Suggest 3-5 relevant job titles based on skills and experience.
-- Provide 3-5 improvement tips for ATS optimization.
+Instructions:
 
-Schema:
+1. Extract all data from the resume text and map it exactly to these form fields:
+
 {
-  "personalInformation": {
-    "fullName": "",
-    "email": "",
-    "phone": "",
-    "location": ""
-  },
-  "professionalInformation": {
-    "jobTitle": "",
-    "expectedSalary": ""
-  },
-  "skills": [],
-  "education": [
+  "name": "",            // Full Name
+  "email": "",           // Email Address
+  "phone": "",           // Phone Number
+  "linkedin": "",        // LinkedIn Profile URL
+  "github": "",          // GitHub Profile URL
+  "skills": [],          // List of skills (programming languages, tools, frameworks)
+  "experience": [        // Work experience
+    {
+      "company": "",
+      "role": "",
+      "start_date": "",  // Format YYYY-MM
+      "end_date": "",    // Format YYYY-MM
+      "description": ""
+    }
+  ],
+  "education": [         // Education details
     {
       "degree": "",
-      "institution": "",
-      "year": ""
+      "institute": "",
+      "start_year": "",   // Format YYYY
+      "end_year": ""      // Format YYYY
     }
   ],
-  "experience": [
+  "certifications": [],   // List of certifications
+  "projects": [           // List of projects
     {
-      "role": "",
-      "company": "",
-      "duration": "",
-      "achievements": []
+      "title": "",
+      "description": "",
+      "technologies": []  // Technologies used in project
     }
-  ],
-  "certifications": [],
-  "recommendedJobTitles": [],
-  "atsScore": 0,
-  "improvementTips": []
+  ]
 }
 
-Resume text:
-${resumeText}
+2. Output must be **strict JSON only**. Do NOT add any explanation or extra text.  
+3. If any field is missing in the resume, return an empty string "" or empty array [].  
+4. Skills must be separated as individual items in an array, e.g., ["Python", "React", "Node.js"].  
+5. Dates in experience should be in YYYY-MM format; education years in YYYY.  
+6. Preserve all information accurately; if multiple experiences, projects, or degrees exist, include all as array items.  
 
-Return only the JSON response:`;
+Resume Text:
+${resumeText}`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -386,28 +386,33 @@ Return only the JSON response:`;
    * Validate and enhance the parsed resume data
    */
   private validateAndEnhanceData(data: any): Omit<HybridResumeData, 'confidence' | 'aiProvider' | 'processingTime'> {
+    // Handle new JSON format from the updated prompt
+    const personalInfo = data.personalInformation || {};
+    const professionalInfo = data.professionalInformation || {};
+    
     return {
       personalInformation: {
-        fullName: data.personalInformation?.fullName || '',
-        email: data.personalInformation?.email || '',
-        phone: data.personalInformation?.phone || '',
-        location: data.personalInformation?.location || ''
+        fullName: data.name || personalInfo.fullName || '',
+        email: data.email || personalInfo.email || '',
+        phone: data.phone || personalInfo.phone || '',
+        location: personalInfo.location || ''
       },
       professionalInformation: {
-        jobTitle: data.professionalInformation?.jobTitle || '',
-        expectedSalary: data.professionalInformation?.expectedSalary || ''
+        jobTitle: professionalInfo.jobTitle || '',
+        expectedSalary: professionalInfo.expectedSalary || ''
       },
       skills: Array.isArray(data.skills) ? data.skills.filter((s: any) => typeof s === 'string') : [],
       education: Array.isArray(data.education) ? data.education.map((edu: any) => ({
         degree: edu.degree || '',
-        institution: edu.institution || '',
-        year: edu.year || ''
+        institution: edu.institute || edu.institution || '',
+        year: edu.end_year || edu.year || ''
       })) : [],
       experience: Array.isArray(data.experience) ? data.experience.map((exp: any) => ({
         role: exp.role || '',
         company: exp.company || '',
-        duration: exp.duration || '',
-        achievements: Array.isArray(exp.achievements) ? exp.achievements.filter((a: any) => typeof a === 'string') : []
+        duration: exp.start_date && exp.end_date ? `${exp.start_date} - ${exp.end_date}` : exp.duration || '',
+        achievements: Array.isArray(exp.achievements) ? exp.achievements.filter((a: any) => typeof a === 'string') : 
+                     exp.description ? [exp.description] : []
       })) : [],
       certifications: Array.isArray(data.certifications) ? data.certifications.filter((c: any) => typeof c === 'string') : [],
       recommendedJobTitles: Array.isArray(data.recommendedJobTitles) ? data.recommendedJobTitles.filter((t: any) => typeof t === 'string') : [],
