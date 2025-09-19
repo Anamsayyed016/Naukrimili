@@ -160,8 +160,8 @@ export default function CompaniesPage() {
                       {company.name}
                     </CardTitle>
                     {company.isVerified && (
-                      <Badge variant="secondary" className="text-xs">
-                        ✓ Verified
+                      <Badge variant="default" className="text-xs bg-green-100 text-green-800 border-green-200">
+                        ✓ Verified Company
                       </Badge>
                     )}
                   </div>
