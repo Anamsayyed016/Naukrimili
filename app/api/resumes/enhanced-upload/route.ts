@@ -118,57 +118,68 @@ export async function POST(request: NextRequest) {
 
     // Convert to the format expected by the frontend
     const profile = {
-      fullName: parsedData.personalInformation.fullName,
-      email: parsedData.personalInformation.email,
-      phone: parsedData.personalInformation.phone,
-      location: parsedData.personalInformation.location,
-      linkedin: '',
-      portfolio: '',
-      summary: `Experienced ${parsedData.professionalInformation.jobTitle || 'professional'} with expertise in ${parsedData.skills.slice(0, 3).join(', ')}.`,
-      skills: parsedData.skills,
-      experience: parsedData.experience.map(exp => ({
-        company: exp.company,
-        position: exp.role,
+      fullName: parsedData.name || parsedData.personalInformation?.fullName || '',
+      email: parsedData.email || parsedData.personalInformation?.email || '',
+      phone: parsedData.phone || parsedData.personalInformation?.phone || '',
+      location: parsedData.personalInformation?.location || '',
+      linkedin: parsedData.linkedin || '',
+      github: parsedData.github || '',
+      summary: `Experienced ${parsedData.professionalInformation?.jobTitle || 'professional'} with expertise in ${(parsedData.skills || []).slice(0, 3).join(', ')}.`,
+      skills: parsedData.skills || [],
+      experience: (parsedData.experience || []).map((exp: any) => ({
+        company: exp.company || '',
+        position: exp.role || '',
         location: '',
-        startDate: exp.duration.split(' - ')[0] || '',
-        endDate: exp.duration.split(' - ')[1] || 'Present',
-        current: exp.duration.includes('Present'),
-        description: exp.achievements.join('; '),
-        achievements: exp.achievements
+        startDate: exp.start_date || '',
+        endDate: exp.end_date || '',
+        current: !exp.end_date,
+        description: exp.description || '',
+        achievements: exp.description ? [exp.description] : []
       })),
-      education: parsedData.education.map(edu => ({
-        institution: edu.institution,
-        degree: edu.degree,
+      education: (parsedData.education || []).map((edu: any) => ({
+        institution: edu.institute || edu.institution || '',
+        degree: edu.degree || '',
         field: '',
-        startDate: '',
-        endDate: edu.year,
+        startDate: edu.start_year || '',
+        endDate: edu.end_year || '',
         gpa: '',
         description: ''
       })),
-      projects: [],
-      certifications: parsedData.certifications.map(cert => ({
-        name: cert,
+      projects: (parsedData.projects || []).map((proj: any) => ({
+        name: proj.title || '',
+        description: proj.description || '',
+        technologies: proj.technologies || [],
+        url: '',
+        startDate: '',
+        endDate: ''
+      })),
+      certifications: (parsedData.certifications || []).map((cert: any) => ({
+        name: typeof cert === 'string' ? cert : cert.name || '',
         issuer: '',
         date: '',
         url: ''
       })),
       languages: [],
-      expectedSalary: parsedData.professionalInformation.expectedSalary,
+      expectedSalary: parsedData.professionalInformation?.expectedSalary || '',
       preferredJobType: 'Full-time',
       confidence: confidence,
       rawText: extractedText,
-      atsSuggestions: parsedData.improvementTips,
-      jobSuggestions: parsedData.recommendedJobTitles.map(title => ({
+      atsSuggestions: parsedData.improvementTips || [],
+      jobSuggestions: (parsedData.recommendedJobTitles || []).map((title: string) => ({
         title: title,
         reason: `Based on skills and experience`
       }))
     };
 
+    console.log('🤖 Raw AI parsed data:', JSON.stringify(parsedData, null, 2));
     console.log('📊 Final profile data being sent to frontend:', JSON.stringify(profile, null, 2));
     console.log('🔍 Profile keys:', Object.keys(profile));
     console.log('📧 Email in profile:', profile.email);
     console.log('👤 FullName in profile:', profile.fullName);
     console.log('📱 Phone in profile:', profile.phone);
+    console.log('🏢 Location in profile:', profile.location);
+    console.log('🔗 LinkedIn in profile:', profile.linkedin);
+    console.log('💻 GitHub in profile:', profile.github);
 
     // Get or create user
     let user = await prisma.user.findUnique({
