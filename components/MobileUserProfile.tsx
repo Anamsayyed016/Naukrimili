@@ -46,10 +46,13 @@ export default function MobileUserProfile({ className }: MobileUserProfileProps)
           </span>
         </div>
         <div className="flex flex-col items-start min-w-0 flex-1">
-          <span className="text-sm font-medium text-gray-900 truncate max-w-[140px]">
+          <span className="text-sm font-semibold text-gray-900 truncate max-w-[140px]">
             {user.name || 'User'}
           </span>
-          <span className="text-xs text-gray-500 capitalize truncate max-w-[140px]">
+          <span className="text-xs text-gray-600 truncate max-w-[140px] mt-0.5">
+            {user.email}
+          </span>
+          <span className="text-xs text-gray-500 capitalize truncate max-w-[140px] mt-1 font-normal">
             {user.role || 'User'}
           </span>
         </div>
