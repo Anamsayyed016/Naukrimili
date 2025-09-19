@@ -121,12 +121,6 @@ export default function UnifiedUserProfile({
             <span className="text-sm font-semibold text-gray-900 truncate max-w-[140px]">
               {displayName}
             </span>
-            <span className="text-xs text-gray-600 truncate max-w-[140px] mt-0.5">
-              {user.email}
-            </span>
-            <span className="text-xs text-gray-500 capitalize truncate max-w-[140px] mt-1 font-normal">
-              {userRole}
-            </span>
           </div>
           <ChevronDown 
             className={cn(
@@ -260,12 +254,6 @@ export default function UnifiedUserProfile({
         <div className="flex flex-col items-start min-w-0 flex-1">
           <span className="text-xs sm:text-sm font-semibold text-gray-900 truncate max-w-[180px] sm:max-w-[200px]">
             {displayName}
-          </span>
-          <span className="text-xs text-gray-600 truncate max-w-[180px] sm:max-w-[200px] mt-0.5">
-            {user.email}
-          </span>
-          <span className="text-xs text-gray-500 capitalize truncate max-w-[180px] sm:max-w-[200px] mt-1 font-normal">
-            {userRole}
           </span>
         </div>
         <ChevronDown 
