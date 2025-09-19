@@ -152,9 +152,9 @@ export default function UnifiedUserProfile({
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{displayName}</p>
-                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                    <p className="text-xs text-blue-600 font-medium capitalize">{userRole}</p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+                    <p className="text-xs text-gray-600 truncate mt-0.5">{user.email}</p>
+                    <p className="text-xs text-gray-500 capitalize mt-1 font-normal">{userRole}</p>
                   </div>
                 </div>
               </div>
@@ -289,9 +289,9 @@ export default function UnifiedUserProfile({
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate max-w-[200px] sm:max-w-none">{displayName}</p>
-                  <p className="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-none">{user.email}</p>
-                  <p className="text-xs text-blue-600 font-medium capitalize">{userRole}</p>
+                  <p className="text-sm font-semibold text-gray-900 truncate max-w-[200px] sm:max-w-none">{displayName}</p>
+                  <p className="text-xs text-gray-600 truncate max-w-[200px] sm:max-w-none mt-0.5">{user.email}</p>
+                  <p className="text-xs text-gray-500 capitalize mt-1 font-normal">{userRole}</p>
                 </div>
               </div>
             </div>
