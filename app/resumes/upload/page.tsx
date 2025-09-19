@@ -61,16 +61,13 @@ export default function ResumeUploadPage() {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Upload Your Resume
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
             Upload your resume and we'll automatically fill your profile with AI-powered analysis
           </p>
-          <div className="mt-4">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-              Resume Upload & AI Analysis
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Upload your resume and let our AI analyze it to extract key information, calculate ATS scores, and provide personalized recommendations.
-            </p>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full text-lg font-semibold shadow-lg">
+            <span>🤖</span>
+            <span>AI-Powered Resume Analysis</span>
           </div>
         </div>
         
