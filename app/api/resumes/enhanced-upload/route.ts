@@ -164,6 +164,8 @@ export async function POST(request: NextRequest) {
       }))
     };
 
+    console.log('📊 Final profile data being sent to frontend:', JSON.stringify(profile, null, 2));
+
     // Get or create user
     let user = await prisma.user.findUnique({
       where: { email: session.user.email! }

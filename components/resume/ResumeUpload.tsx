@@ -122,6 +122,16 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       const result = await response.json();
       
       if (result.success) {
+        console.log('🎉 Resume analysis successful!');
+        console.log('📊 Extracted profile data:', JSON.stringify(result.profile, null, 2));
+        console.log('🔍 Profile keys:', Object.keys(result.profile));
+        console.log('📧 Email:', result.profile.email);
+        console.log('👤 Full Name:', result.profile.fullName);
+        console.log('📱 Phone:', result.profile.phone);
+        console.log('🏢 Location:', result.profile.location);
+        console.log('💼 Job Title:', result.profile.jobTitle);
+        console.log('🛠️ Skills:', result.profile.skills);
+        
         setExtractedProfile(result.profile);
         setResumeId(result.resumeId);
         setAiSuccess(result.aiSuccess);

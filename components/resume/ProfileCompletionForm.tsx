@@ -52,7 +52,14 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	// Auto-fill form when initialData changes
 	useEffect(() => {
 		if (initialData && Object.keys(initialData).length > 0) {
-			console.log('🔄 Updating form with initial data:', initialData);
+			console.log('🔄 ProfileCompletionForm received initial data:', initialData);
+			console.log('🔍 Initial data keys:', Object.keys(initialData));
+			console.log('📧 Email from initialData:', initialData.email);
+			console.log('👤 FullName from initialData:', initialData.fullName);
+			console.log('📱 Phone from initialData:', initialData.phone);
+			console.log('🏢 Location from initialData:', initialData.location);
+			console.log('💼 JobTitle from initialData:', initialData.jobTitle);
+			console.log('🛠️ Skills from initialData:', initialData.skills);
 			
 			// Enhanced data mapping with fallbacks
 			const mappedData = {
@@ -74,8 +81,11 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				preferredJobType: initialData.preferredJobType || '',
 			};
 			
-			console.log('📝 Mapped form data:', mappedData);
+			console.log('📝 Mapped form data for ProfileCompletionForm:', mappedData);
+			console.log('✅ Setting profile data state...');
 			setProfileData(mappedData);
+		} else {
+			console.log('⚠️ No initial data provided to ProfileCompletionForm');
 		}
 	}, [initialData]);
 
