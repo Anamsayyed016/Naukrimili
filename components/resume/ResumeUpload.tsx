@@ -276,16 +276,6 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-          Resume Upload & AI Analysis
-        </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Upload your resume and let our AI analyze it to extract key information, calculate ATS scores, and provide personalized recommendations.
-        </p>
-      </div>
-
       {/* Upload Section */}
       <Card className="border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors">
         <CardHeader>
