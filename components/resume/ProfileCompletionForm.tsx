@@ -216,12 +216,14 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				<div className="relative">
 					<Input
 						id={field}
+						name={field}
 						type={type}
 						value={inputValue}
 						onChange={(e) => handleChange(e.target.value)}
 						placeholder={placeholder}
 						className={`mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 ${className}`}
 						required={required}
+						autoComplete={field === 'email' ? 'email' : field === 'phone' ? 'tel' : field === 'fullName' ? 'name' : field === 'location' ? 'address-line1' : 'off'}
 						onFocus={() => {
 							if (fieldSuggestions.length > 0) {
 								setShowSuggestions(prev => ({ ...prev, [field]: true }));
@@ -550,10 +552,13 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						{/* Add New Skill */}
 						<div className="flex gap-3">
 							<Input
+								id="newSkill"
+								name="newSkill"
 								value={newSkill}
 								onChange={(e) => setNewSkill(e.target.value)}
 								placeholder="Add a skill (e.g., React, Python, Leadership)"
 								className="flex-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200"
+								autoComplete="off"
 								onKeyPress={(e) => e.key === 'Enter' && addSkill()}
 							/>
 							<Button 
@@ -689,6 +694,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 										<div className="mt-4">
 											<label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
 											<textarea
+												id={`experience.${index}.description`}
+												name={`experience.${index}.description`}
 												value={exp.description || ''}
 												onChange={(e) => {
 													const newExp = [...profileData.experience];
@@ -697,6 +704,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 												}}
 												placeholder="Describe your role and key responsibilities..."
 												className="w-full h-20 p-3 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-orange-500 focus:ring-orange-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 rounded-lg resize-none"
+												autoComplete="off"
 											/>
 										</div>
 									</div>
@@ -836,6 +844,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 										<div className="mt-4">
 											<label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
 											<textarea
+												id={`education.${index}.description`}
+												name={`education.${index}.description`}
 												value={edu.description || ''}
 												onChange={(e) => {
 													const newEdu = [...profileData.education];
@@ -844,6 +854,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 												}}
 												placeholder="Additional details about your education..."
 												className="w-full h-16 p-3 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-indigo-500 focus:ring-indigo-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 rounded-lg resize-none"
+												autoComplete="off"
 											/>
 										</div>
 									</div>
@@ -894,10 +905,13 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 
 						<div className="relative">
 							<textarea
+								id="summary"
+								name="summary"
 								value={profileData.summary}
 								onChange={(e) => handleInputChange('summary', e.target.value)}
 								placeholder="Write a compelling professional summary that highlights your key strengths and experience..."
 								className="w-full h-32 p-3 bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-teal-500 focus:ring-teal-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 rounded-lg resize-none"
+								autoComplete="off"
 							/>
 							{loadingSuggestions.summary && (
 								<div className="absolute right-3 top-3">
