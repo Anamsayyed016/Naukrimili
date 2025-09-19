@@ -108,7 +108,7 @@ export default function UnifiedUserProfile({
         {/* Mobile User Profile Trigger */}
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 touch-target"
+          className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 touch-target min-w-0 max-w-[200px]"
           aria-label="User profile menu"
           aria-expanded={isDropdownOpen}
         >
@@ -118,10 +118,10 @@ export default function UnifiedUserProfile({
             </span>
           </div>
           <div className="flex flex-col items-start min-w-0 flex-1">
-            <span className="text-sm font-medium text-gray-900 truncate">
+            <span className="text-sm font-medium text-gray-900 truncate max-w-[140px]">
               {displayName}
             </span>
-            <span className="text-xs text-gray-500 capitalize truncate">
+            <span className="text-xs text-gray-500 capitalize truncate max-w-[140px]">
               {userRole}
             </span>
           </div>
@@ -245,7 +245,7 @@ export default function UnifiedUserProfile({
       {/* Desktop User Profile Trigger */}
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-w-0 max-w-xs"
+        className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-w-0 max-w-sm"
         aria-label="User profile menu"
         aria-expanded={isDropdownOpen}
       >
@@ -255,10 +255,10 @@ export default function UnifiedUserProfile({
           </span>
         </div>
         <div className="flex flex-col items-start min-w-0 flex-1">
-          <span className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-[150px]">
+          <span className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[180px] sm:max-w-[200px]">
             {displayName}
           </span>
-          <span className="text-xs text-gray-500 capitalize truncate max-w-[120px] sm:max-w-[150px]">
+          <span className="text-xs text-gray-500 capitalize truncate max-w-[180px] sm:max-w-[200px]">
             {userRole}
           </span>
         </div>

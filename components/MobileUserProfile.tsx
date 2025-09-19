@@ -37,7 +37,7 @@ export default function MobileUserProfile({ className }: MobileUserProfileProps)
       {/* Mobile User Profile Trigger */}
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+        className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 min-w-0 max-w-[200px]"
         aria-label="User profile menu"
       >
         <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -46,10 +46,10 @@ export default function MobileUserProfile({ className }: MobileUserProfileProps)
           </span>
         </div>
         <div className="flex flex-col items-start min-w-0 flex-1">
-          <span className="text-sm font-medium text-gray-900 truncate">
+          <span className="text-sm font-medium text-gray-900 truncate max-w-[140px]">
             {user.name || 'User'}
           </span>
-          <span className="text-xs text-gray-500 capitalize truncate">
+          <span className="text-xs text-gray-500 capitalize truncate max-w-[140px]">
             {user.role || 'User'}
           </span>
         </div>
