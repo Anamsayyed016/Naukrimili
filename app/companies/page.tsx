@@ -23,7 +23,7 @@ export default function CompaniesPage() {
         console.log('🌐 Response data:', data);
         
         if (data.success) {
-          console.log('🔍 Setting companies:', data.data);
+          console.log('�� Setting companies:', data.data);
           setCompanies(data.data || []);
         } else {
           console.error('API returned error:', data.error);
