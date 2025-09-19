@@ -103,13 +103,13 @@ export async function POST(request: NextRequest) {
     let aiProvider = 'fallback';
 
     try {
-      console.log('🤖 Starting AI parsing with extracted text length:', extractedText.length);
-      console.log('🤖 Extracted text preview:', extractedText.substring(0, 200) + '...');
+      console.error('🤖 Starting AI parsing with extracted text length:', extractedText.length);
+      console.error('🤖 Extracted text preview:', extractedText.substring(0, 200) + '...');
       parsedData = await hybridResumeAI.parseResumeText(extractedText);
       aiSuccess = true;
       confidence = parsedData.confidence;
       aiProvider = parsedData.aiProvider;
-      console.log(`✅ Hybrid AI parsing successful with ${aiProvider}, confidence: ${confidence}%, ATS score: ${parsedData.atsScore}%`);
+      console.error(`✅ Hybrid AI parsing successful with ${aiProvider}, confidence: ${confidence}%, ATS score: ${parsedData.atsScore}%`);
     } catch (aiError) {
       console.error('❌ Hybrid AI parsing failed:', aiError);
       
@@ -175,15 +175,15 @@ export async function POST(request: NextRequest) {
       }))
     };
 
-    console.log('🤖 Raw AI parsed data:', JSON.stringify(parsedData, null, 2));
-    console.log('📊 Final profile data being sent to frontend:', JSON.stringify(profile, null, 2));
-    console.log('🔍 Profile keys:', Object.keys(profile));
-    console.log('📧 Email in profile:', profile.email);
-    console.log('👤 FullName in profile:', profile.fullName);
-    console.log('📱 Phone in profile:', profile.phone);
-    console.log('🏢 Location in profile:', profile.location);
-    console.log('🔗 LinkedIn in profile:', profile.linkedin);
-    console.log('💻 GitHub in profile:', profile.github);
+      console.error('🤖 Raw AI parsed data:', JSON.stringify(parsedData, null, 2));
+      console.error('📊 Final profile data being sent to frontend:', JSON.stringify(profile, null, 2));
+      console.error('🔍 Profile keys:', Object.keys(profile));
+      console.error('📧 Email in profile:', profile.email);
+      console.error('👤 FullName in profile:', profile.fullName);
+      console.error('📱 Phone in profile:', profile.phone);
+      console.error('🏢 Location in profile:', profile.location);
+      console.error('🔗 LinkedIn in profile:', profile.linkedin);
+      console.error('💻 GitHub in profile:', profile.github);
 
     // Get or create user
     let user = await prisma.user.findUnique({

@@ -53,7 +53,7 @@ export class HybridResumeAI {
       this.openai = new OpenAI({
         apiKey: openaiKey,
       });
-      console.log('✅ OpenAI client initialized');
+      console.error('✅ OpenAI client initialized');
     }
 
     // Initialize Gemini
@@ -63,7 +63,7 @@ export class HybridResumeAI {
       this.gemini = null;
     } else {
       this.gemini = new GoogleGenerativeAI(geminiKey);
-      console.log('✅ Gemini client initialized');
+      console.error('✅ Gemini client initialized');
     }
 
     if (!this.openai && !this.gemini) {
@@ -76,7 +76,7 @@ export class HybridResumeAI {
    */
   async parseResumeText(resumeText: string): Promise<HybridResumeData> {
     this.startTime = Date.now();
-    console.log('🚀 Starting hybrid resume parsing...');
+    console.error('🚀 Starting hybrid resume parsing...');
 
     // Try multiple approaches in parallel for best results
     const promises: Promise<HybridResumeData>[] = [];
