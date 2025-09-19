@@ -60,6 +60,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			console.log('🏢 Location from initialData:', initialData.location);
 			console.log('💼 JobTitle from initialData:', initialData.jobTitle);
 			console.log('🛠️ Skills from initialData:', initialData.skills);
+			console.log('🔍 Type of email:', typeof initialData.email);
+			console.log('🔍 Email value:', JSON.stringify(initialData.email));
 			
 			// Enhanced data mapping with fallbacks
 			const mappedData = {

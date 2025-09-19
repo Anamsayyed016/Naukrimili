@@ -165,6 +165,10 @@ export async function POST(request: NextRequest) {
     };
 
     console.log('📊 Final profile data being sent to frontend:', JSON.stringify(profile, null, 2));
+    console.log('🔍 Profile keys:', Object.keys(profile));
+    console.log('📧 Email in profile:', profile.email);
+    console.log('👤 FullName in profile:', profile.fullName);
+    console.log('📱 Phone in profile:', profile.phone);
 
     // Get or create user
     let user = await prisma.user.findUnique({
@@ -368,34 +372,30 @@ function createFallbackData(resumeText: string) {
   console.log('📊 Extracted fallback data:', { email, phone, name, skills: skills.length, jobTitle });
   
   return {
-    fullName: name || 'Resume Uploaded',
-    email: email || '',
-    phone: phone || '',
-    location: 'Location not specified',
-    jobTitle: jobTitle,
-    expectedSalary: 'Salary not specified',
+    personalInformation: {
+      fullName: name || 'Resume Uploaded',
+      email: email || '',
+      phone: phone || '',
+      location: 'Location not specified'
+    },
+    professionalInformation: {
+      jobTitle: jobTitle,
+      expectedSalary: 'Salary not specified'
+    },
     summary: 'Professional summary not extracted. Please review and update.',
     skills: skills,
     education: [
       {
         degree: 'Education details not extracted',
         institution: 'Institution not specified',
-        field: 'Field not specified',
-        startDate: 'Start date not specified',
-        endDate: 'End date not specified',
-        gpa: '',
-        description: 'Please review and update your education details'
+        year: 'Year not specified'
       }
     ],
     experience: [
       {
-        position: 'Experience details not extracted',
+        role: 'Experience details not extracted',
         company: 'Company not specified',
-        location: 'Location not specified',
-        startDate: 'Start date not specified',
-        endDate: 'End date not specified',
-        current: false,
-        description: 'Please review and update your experience details',
+        duration: 'Duration not specified',
         achievements: ['Please review and update your experience details']
       }
     ],
