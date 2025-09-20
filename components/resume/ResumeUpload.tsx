@@ -285,129 +285,125 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      {/* Upload Section */}
-      <Card className="border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors">
-        <CardHeader>
-          <CardTitle className="text-center flex items-center justify-center gap-2">
-            <Upload className="h-6 w-6 text-blue-600" />
-            Upload Your Resume
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* File Upload Area */}
-          <div className="text-center">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-blue-400 transition-colors">
-              <input
-                type="file"
-                id="resume-upload"
-                accept=".pdf,.doc,.docx,.txt"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <label
-                htmlFor="resume-upload"
-                className="cursor-pointer flex flex-col items-center space-y-4"
-              >
-                <div className="p-4 bg-blue-50 rounded-full">
-                  <FileText className="h-12 w-12 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-lg font-medium text-gray-900">
-                    {file ? file.name : 'Click to select your resume'}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Supports PDF, DOC, DOCX, and TXT files
-                  </p>
-                </div>
-              </label>
-            </div>
-
-            {file && (
-              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                    <div>
-                      <p className="font-medium text-green-800">{file.name}</p>
-                      <p className="text-sm text-green-600">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={removeFile}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
+    <div className="space-y-6">
+      {/* Professional Upload Area */}
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-blue-400 transition-colors bg-gray-50">
+        <input
+          type="file"
+          id="resume-upload"
+          accept=".pdf,.doc,.docx,.txt"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        <label
+          htmlFor="resume-upload"
+          className="cursor-pointer flex flex-col items-center space-y-4"
+        >
+          <div className="p-6 bg-white rounded-full shadow-sm border border-gray-200">
+            <FileText className="h-12 w-12 text-blue-600" />
           </div>
-
-          {/* Upload Button */}
           <div className="text-center">
+            <p className="text-lg font-semibold text-gray-900 mb-1">
+              {file ? file.name : 'Drop your resume here or click to browse'}
+            </p>
+            <p className="text-sm text-gray-500">
+              Supports PDF, DOC, DOCX files up to 2MB
+            </p>
+          </div>
+        </label>
+      </div>
+
+      {/* File Preview */}
+      {file && (
+        <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">{file.name}</p>
+                <p className="text-sm text-gray-500">
+                  {(file.size / 1024 / 1024).toFixed(2)} MB • Ready to upload
+                </p>
+              </div>
+            </div>
             <Button
-              onClick={handleUpload}
-              disabled={!file || uploading || analyzing}
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+              variant="ghost"
+              size="sm"
+              onClick={removeFile}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
             >
-              {analyzing ? (
-                <>
-                  <Brain className="h-5 w-5 mr-2 animate-pulse" />
-                  AI Analyzing...
-                </>
-              ) : uploading ? (
-                <>
-                  <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Upload className="h-5 w-5 mr-2" />
-                  Upload & Analyze with AI
-                </>
-              )}
+              <X className="h-4 w-4" />
             </Button>
           </div>
+        </div>
+      )}
 
-          {/* Error Display */}
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-red-600" />
-                <div>
-                  <p className="font-medium text-red-800">Error</p>
-                  <p className="text-red-600">{error}</p>
-                </div>
-              </div>
-            </div>
+      {/* Upload Button */}
+      <div className="flex justify-center">
+        <Button
+          onClick={handleUpload}
+          disabled={!file || uploading || analyzing}
+          size="lg"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-base font-medium shadow-sm hover:shadow-md transition-all duration-200 min-w-[200px]"
+        >
+          {analyzing ? (
+            <>
+              <Brain className="h-5 w-5 mr-2 animate-pulse" />
+              AI Analyzing...
+            </>
+          ) : uploading ? (
+            <>
+              <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            <>
+              <Upload className="h-5 w-5 mr-2" />
+              Upload & Analyze
+            </>
           )}
+        </Button>
+      </div>
 
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <Brain className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <h3 className="font-semibold text-gray-900">AI Analysis</h3>
-              <p className="text-sm text-gray-600">Extract skills, experience, and education</p>
-            </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
-              <h3 className="font-semibold text-gray-900">ATS Optimization</h3>
-              <p className="text-sm text-gray-600">Get ATS score and improvement tips</p>
-            </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <FileText className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-              <h3 className="font-semibold text-gray-900">Auto-Fill Form</h3>
-              <p className="text-sm text-gray-600">Automatically populate your profile</p>
+      {/* Error Display */}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+            <div>
+              <p className="font-medium text-red-800">Upload Error</p>
+              <p className="text-red-600 text-sm">{error}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      )}
+
+      {/* AI Features Info */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-100">
+          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <Brain className="h-4 w-4 text-blue-600" />
+          </div>
+          <h3 className="font-medium text-gray-900 text-sm">AI Analysis</h3>
+          <p className="text-xs text-gray-600 mt-1">Smart data extraction</p>
+        </div>
+        <div className="text-center p-4 bg-green-50 rounded-lg border border-green-100">
+          <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          </div>
+          <h3 className="font-medium text-gray-900 text-sm">ATS Score</h3>
+          <p className="text-xs text-gray-600 mt-1">Optimization tips</p>
+        </div>
+        <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-100">
+          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <FileText className="h-4 w-4 text-purple-600" />
+          </div>
+          <h3 className="font-medium text-gray-900 text-sm">Auto-Fill</h3>
+          <p className="text-xs text-gray-600 mt-1">Instant form completion</p>
+        </div>
+      </div>
     </div>
   );
 }

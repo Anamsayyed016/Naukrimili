@@ -91,6 +91,21 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		}
 	}, [initialData]);
 
+	// Load initial suggestions for common fields
+	useEffect(() => {
+		// Load suggestions for empty fields to help users
+		const fieldsToPreload = ['location', 'jobTitle'];
+		fieldsToPreload.forEach(field => {
+			const currentValue = profileData[field as keyof typeof profileData] as string;
+			if (!currentValue || currentValue.length === 0) {
+				// Load default suggestions for empty fields
+				setTimeout(() => {
+					fetchAISuggestions(field, '');
+				}, 1000);
+			}
+		});
+	}, [profileData]);
+
 	const handleInputChange = (field: string, value: string) => {
 		console.log(`📝 Updating ${field}:`, value);
 		setProfileData(prev => ({ ...prev, [field]: value }));
@@ -108,14 +123,15 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		}
 
 		// Only fetch suggestions for meaningful input
-		if (value.trim().length < 2) {
+		if (value.trim().length < 1) {
 			setSuggestions(prev => ({ ...prev, [field]: [] }));
+			setShowSuggestions(prev => ({ ...prev, [field]: false }));
 			return;
 		}
 
 		suggestionTimeoutRef.current = setTimeout(() => {
 			fetchAISuggestions(field, value);
-		}, 300); // Reduced debounce time for better responsiveness
+		}, 500); // Slightly increased debounce time for better performance
 	};
 
 	// Fetch AI suggestions
@@ -150,25 +166,16 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					setSuggestions(prev => ({ ...prev, [field]: result.suggestions }));
 					setShowSuggestions(prev => ({ ...prev, [field]: true }));
 					
-					// Only show toast for important fields to reduce noise
-					if (['skills', 'jobTitle', 'summary'].includes(field)) {
-						toast({
-							title: 'AI Suggestions Ready',
-							description: `Found ${result.suggestions.length} suggestions for ${field}`,
-							duration: 2000
-						});
-					}
+					// Show subtle notification for suggestions
+					console.log(`✨ ${result.suggestions.length} suggestions available for ${field}`);
 				} else {
 					console.warn(`⚠️ No suggestions received for ${field}`);
-					// Don't show toast for no suggestions to reduce noise
 				}
 			} else {
 				console.error(`❌ API error: ${response.status} ${response.statusText}`);
-				// Don't show error toast for every failed request to reduce noise
 			}
 		} catch (error) {
 			console.error('Failed to fetch AI suggestions:', error);
-			// Don't show error toast for every failed request to reduce noise
 		} finally {
 			setLoadingSuggestions(prev => ({ ...prev, [field]: false }));
 		}
@@ -255,11 +262,11 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				
 				{/* AI Suggestions Dropdown */}
 				{showFieldSuggestions && fieldSuggestions.length > 0 && (
-					<div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-						<div className="p-2 border-b border-gray-200 bg-blue-50">
+					<div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+						<div className="p-2 border-b border-gray-200 bg-blue-50 rounded-t-lg">
 							<div className="flex items-center gap-2 text-sm text-blue-700">
 								<Lightbulb className="h-4 w-4" />
-								AI Suggestions
+								AI Suggestions ({fieldSuggestions.length})
 							</div>
 						</div>
 						{fieldSuggestions.map((suggestion, index) => (
@@ -270,11 +277,11 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									handleChange(suggestion);
 									setShowSuggestions(prev => ({ ...prev, [field]: false }));
 								}}
-								className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-100 last:border-b-0"
+								className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-100 last:border-b-0 last:rounded-b-lg"
 							>
 								<div className="flex items-center gap-2">
-									<TrendingUp className="h-3 w-3 text-blue-500" />
-									{suggestion}
+									<TrendingUp className="h-3 w-3 text-blue-500 flex-shrink-0" />
+									<span className="truncate">{suggestion}</span>
 								</div>
 							</button>
 						))}
@@ -428,32 +435,39 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	};
 
 	return (
-		<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-			<Card className="shadow-lg border-0">
-				<CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50 border-b">
-					<CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-						<Star className="h-6 w-6 text-blue-600" />
-						Complete Your Profile
-					</CardTitle>
+		<div className="max-w-5xl mx-auto">
+			<Card className="shadow-sm border border-gray-200">
+				<CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white border-b border-gray-200 p-4 sm:p-6">
+					<div className="flex items-center gap-3">
+						<div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+							<Star className="h-5 w-5 text-blue-600" />
+						</div>
+						<div>
+							<CardTitle className="text-lg sm:text-xl font-semibold text-gray-900">
+								Complete Your Profile
+							</CardTitle>
+							<p className="text-sm text-gray-600 mt-1">Review and edit the extracted information</p>
+						</div>
+					</div>
 					{onClose && (
 						<Button
 							variant="ghost"
 							size="sm"
 							onClick={onClose}
-							className="h-8 w-8 p-0 hover:bg-white/50"
+							className="h-8 w-8 p-0 hover:bg-gray-100 self-end sm:self-auto"
 						>
 							<X className="h-4 w-4" />
 						</Button>
 					)}
 				</CardHeader>
-				<CardContent className="space-y-6 p-6">
+				<CardContent className="space-y-6 p-4 sm:p-6 bg-gray-50">
 					{/* Personal Information */}
-					<div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
-						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-							<Edit3 className="h-5 w-5 text-blue-600" />
+					<div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
+						<h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2">
+							<Edit3 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
 							Personal Information
 						</h3>
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<AIPoweredInput
 								field="fullName"
 								label="Full Name"
@@ -481,12 +495,12 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					</div>
 
 					{/* Professional Information */}
-					<div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
-						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-							<Edit3 className="h-5 w-5 text-green-600" />
+					<div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
+						<h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2">
+							<Edit3 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
 							Professional Information
 						</h3>
-						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<AIPoweredInput
 								field="jobTitle"
 								label="Job Title"
@@ -503,9 +517,9 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					</div>
 
 					{/* Skills - Enhanced UI with AI */}
-					<div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
-						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-							<Star className="h-5 w-5 text-purple-600" />
+					<div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
+						<h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2">
+							<Star className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
 							Skills & Expertise
 							{loadingSuggestions.skills && (
 								<div className="ml-2 animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
@@ -1044,12 +1058,12 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					</div>
 
 					{/* Action Buttons */}
-					<div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+					<div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200 bg-white p-4 sm:p-6 rounded-lg">
 						<Button
 							onClick={handleSubmit}
 							disabled={isSubmitting || saveStatus === 'saving'}
 							variant={getSaveButtonVariant()}
-							className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 shadow-lg hover:shadow-xl transition-all duration-200"
+							className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 shadow-sm hover:shadow-md transition-all duration-200"
 							size="lg"
 						>
 							{getSaveButtonContent()}
@@ -1068,9 +1082,9 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					</div>
 
 					{/* Additional Actions */}
-					<div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+					<div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
 						<div className="text-center">
-							<h3 className="text-sm font-medium text-gray-700 mb-2">Need to make changes?</h3>
+							<h3 className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Need to make changes?</h3>
 							<p className="text-xs text-gray-500 mb-3">
 								You can edit any field above or upload a new resume to replace this data.
 							</p>
@@ -1079,18 +1093,18 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									variant="outline"
 									size="sm"
 									onClick={() => window.location.reload()}
-									className="text-gray-600 hover:text-gray-800"
+									className="text-gray-600 hover:text-gray-800 text-xs sm:text-sm"
 								>
-									<RefreshCw className="h-4 w-4 mr-1" />
+									<RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
 									Refresh Form
 								</Button>
 								<Button
 									variant="outline"
 									size="sm"
 									onClick={() => window.location.href = '/resumes/upload'}
-									className="text-blue-600 hover:text-blue-800"
+									className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm"
 								>
-									<Upload className="h-4 w-4 mr-1" />
+									<Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
 									Upload New Resume
 								</Button>
 							</div>
