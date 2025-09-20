@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
 import { Button } from "@/components/ui/button";
 import JobSearchHero from '@/components/JobSearchHero';
+import UnifiedUserProfile from '@/components/UnifiedUserProfile';
 
 interface Job {
   id: number;
@@ -70,30 +71,7 @@ export default function HomePageClient({
       {/* User Profile Corner - Show if authenticated - Hidden on mobile to avoid conflicts */}
       {isAuthenticated && (
         <div className="hidden lg:block fixed top-4 right-4 z-50">
-          <div className="bg-white/95 border border-gray-200 rounded-lg shadow-sm p-2 max-w-[180px]">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <User className="w-3 h-3 text-white" />
-              </div>
-              <div className="text-xs min-w-0 flex-1">
-                <div className="font-medium text-gray-900 truncate">{session.user.name || 'User'}</div>
-                <div className="text-gray-500 text-xs truncate">{session.user.email}</div>
-                {session.user.role && (
-                  <div className="text-xs text-blue-600 font-medium capitalize">
-                    {session.user.role}
-                  </div>
-                )}
-              </div>
-              {!session.user.role && (
-                <button
-                  onClick={() => router.push('/auth/role-selection')}
-                  className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
-                >
-                  Choose Role
-                </button>
-              )}
-            </div>
-          </div>
+          <UnifiedUserProfile variant="desktop" />
         </div>
       )}
 
