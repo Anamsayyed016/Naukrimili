@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,13 +10,12 @@ import { toast } from '@/hooks/use-toast';
 import { useSession } from 'next-auth/react';
 
 interface Props {
-	resumeId?: string | null;
 	initialData?: any;
-	onComplete?: () => void;
+	onComplete?: (data?: any) => void;
 	onClose?: () => void;
 }
 
-export default function ProfileCompletionForm({ resumeId, initialData = {}, onComplete, onClose }: Props) {
+export default function ProfileCompletionForm({ initialData = {}, onComplete, onClose }: Props) {
 	const { data: session } = useSession();
 	const [profileData, setProfileData] = useState({
 		fullName: initialData.fullName || initialData.name || '',
@@ -38,7 +37,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		preferredJobType: initialData.preferredJobType || '',
 	});
 
-	const [isEditing, setIsEditing] = useState(true); // Start in edit mode
+	const [isEditing] = useState(true); // Start in edit mode
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 	const [newSkill, setNewSkill] = useState('');
@@ -283,10 +282,9 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									// Get current value from DOM element
 									const inputElement = document.getElementById(field) as HTMLInputElement;
 									const currentValue = inputElement?.value || '';
-									if (currentValue && currentValue.trim().length >= 2) {
-									// Fetch new suggestions manually
-									optionalAISuggestions(field, currentValue);
-									
+									if (currentValue && currentValue.trim().length >= 1) {
+										// Fetch new suggestions manually
+										optionalAISuggestions(field, currentValue);
 									}
 								}
 							}}
