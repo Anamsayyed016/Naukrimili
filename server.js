@@ -6,7 +6,7 @@
 import { createServer } from 'http';
 import { parse } from 'url';
 import next from 'next';
-import { initializeSocket } from './lib/socket-setup.js';
+import { Server as SocketIOServer } from 'socket.io';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOSTNAME || 'localhost';
@@ -37,8 +37,22 @@ app.prepare().then(() => {
   });
 
   // Initialize Socket.io with the HTTP server
-  console.log('🔌 Initializing Socket.io...');
-  const io = initializeSocket(server);
+  console.log('�� Initializing Socket.io...');
+  const io = new SocketIOServer(server, {
+    cors: {
+      origin: [
+        'http://localhost:3000',
+        'https://aftionix.in',
+        'https://www.aftionix.in'
+      ],
+      methods: ['GET', 'POST'],
+      credentials: true
+    },
+    transports: ['websocket', 'polling'],
+    allowEIO3: true
+  });
+
+  console.log('✅ Socket.io server initialized successfully');
 
   // Start the server
   server.listen(port, hostname, (err) => {
@@ -47,7 +61,7 @@ app.prepare().then(() => {
       process.exit(1);
     }
     console.log(`✅ Server ready on http://${hostname}:${port}`);
-    console.log(`🔌 Socket.io ready and listening for connections`);
+    console.log(`�� Socket.io ready and listening for connections`);
   });
 
   // Handle server shutdown
