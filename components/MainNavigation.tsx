@@ -34,6 +34,7 @@ import {
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import UnifiedUserProfile from "./UnifiedUserProfile";
+import { NotificationBell } from "./NotificationBell";
 
 interface MainNavigationProps {
   brandName?: string;
@@ -153,11 +154,8 @@ export default function MainNavigation({
 
           {/* Desktop Right Side - Enhanced User Actions */}
           <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
-            {/* Desktop Notifications and Messages */}
-            <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
-              <Bell className="w-5 h-5" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
+            {/* Desktop Notifications */}
+            <NotificationBell />
 
             <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
               <MessageSquare className="w-5 h-5" />

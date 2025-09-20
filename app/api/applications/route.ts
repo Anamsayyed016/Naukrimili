@@ -219,9 +219,59 @@ export async function POST(request: NextRequest) {
             company: true,
             location: true
           }
+        },
+        company: {
+          select: {
+            id: true,
+            name: true
+          }
         }
       }
     });
+
+    // Send real-time notification to employer
+    try {
+      const { getSocketService } = await import('@/lib/socket-server');
+      const socketService = getSocketService();
+      
+      if (socketService && companyId) {
+        // Get company users (employers) by finding users who created jobs for this company
+        const companyUsers = await prisma.user.findMany({
+          where: { 
+            role: 'employer',
+            // Find users who created jobs for this company
+            createdJobs: {
+              some: {
+                companyId: companyId
+              }
+            }
+          },
+          select: { id: true }
+        });
+
+        if (companyUsers.length > 0) {
+          const userIds = companyUsers.map(u => u.id);
+          
+          await socketService.sendNotificationToUsers(userIds, {
+            type: 'JOB_APPLICATION_RECEIVED',
+            title: 'New Job Application Received! 🎉',
+            message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
+            data: {
+              applicationId: application.id,
+              jobId: jobId,
+              applicantName: user.name,
+              applicantEmail: user.email,
+              jobTitle: application.job.title,
+              company: application.job.company,
+              actionUrl: `/employer/applications/${application.id}`
+            }
+          });
+        }
+      }
+    } catch (socketError) {
+      console.error('Failed to send socket notification:', socketError);
+      // Don't fail the application if socket notification fails
+    }
 
     return NextResponse.json({
       success: true,
