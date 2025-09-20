@@ -70,12 +70,12 @@ export default function HomePageClient({
       {/* User Profile Corner - Show if authenticated - Hidden on mobile to avoid conflicts */}
       {isAuthenticated && (
         <div className="hidden lg:block fixed top-4 right-4 z-50">
-          <div className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg p-3 max-w-[200px]">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 text-white" />
+          <div className="bg-white/95 border border-gray-200 rounded-lg shadow-sm p-2 max-w-[180px]">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="w-3 h-3 text-white" />
               </div>
-              <div className="text-sm min-w-0 flex-1">
+              <div className="text-xs min-w-0 flex-1">
                 <div className="font-medium text-gray-900 truncate">{session.user.name || 'User'}</div>
                 <div className="text-gray-500 text-xs truncate">{session.user.email}</div>
                 {session.user.role && (
@@ -87,7 +87,7 @@ export default function HomePageClient({
               {!session.user.role && (
                 <button
                   onClick={() => router.push('/auth/role-selection')}
-                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0"
+                  className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors flex-shrink-0"
                 >
                   Choose Role
                 </button>
