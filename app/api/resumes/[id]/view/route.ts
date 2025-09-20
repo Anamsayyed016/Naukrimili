@@ -3,6 +3,7 @@ import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
 import { readFile, stat } from 'fs/promises';
 import { join } from 'path';
+import { trackResumeView } from '@/lib/resume-view-tracker';
 
 /**
  * GET /api/resumes/[id]/view
@@ -71,6 +72,35 @@ export async function GET(
         success: false,
         error: 'File not found on server'
       }, { status: 404 });
+    }
+
+    // Track resume view if viewer is not the resume owner
+    if (user.id !== resume.userId) {
+      // Determine viewer type
+      let viewerType: 'employer' | 'admin' | 'other' = 'other';
+      let companyId: string | undefined = undefined;
+
+      if (user.role === 'employer') {
+        viewerType = 'employer';
+        // Get user's company ID
+        const userCompany = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { companyRelation: { select: { id: true } } }
+        });
+        companyId = userCompany?.companyRelation?.id;
+      } else if (user.role === 'admin') {
+        viewerType = 'admin';
+      }
+
+      // Track the view
+      await trackResumeView({
+        resumeId: resume.id,
+        viewerId: user.id,
+        viewerType,
+        companyId,
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
+        userAgent: request.headers.get('user-agent') || undefined
+      });
     }
 
     // Read file

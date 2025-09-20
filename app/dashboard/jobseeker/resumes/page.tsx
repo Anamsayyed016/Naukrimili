@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { toast } from "@/hooks/use-toast";
+import ResumeViewStats from "@/components/resume/ResumeViewStats";
 
 interface Resume {
   id: string;
@@ -51,6 +52,7 @@ interface Resume {
   }>;
   _count: {
     applications: number;
+    views: number;
   };
 }
 
@@ -282,6 +284,11 @@ export default function JobSeekerResumesPage() {
                             <span className="font-medium">{resume._count.applications}</span>
                             <span>applications</span>
                           </div>
+                          <div className="flex items-center gap-1">
+                            <Eye className="h-4 w-4" />
+                            <span className="font-medium">{resume._count.views || 0}</span>
+                            <span>views</span>
+                          </div>
                         </div>
 
                         {/* Recent Applications */}
@@ -386,6 +393,29 @@ export default function JobSeekerResumesPage() {
               </Card>
             )}
           </div>
+
+          {/* Resume View Statistics */}
+          {resumes.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Resume View Analytics</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {resumes.slice(0, 2).map((resume) => (
+                  <ResumeViewStats 
+                    key={resume.id} 
+                    resumeId={resume.id} 
+                    resumeName={resume.fileName}
+                  />
+                ))}
+              </div>
+              {resumes.length > 2 && (
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-gray-600">
+                    View statistics for all {resumes.length} resumes are available
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </AuthGuard>

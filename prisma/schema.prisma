@@ -114,6 +114,7 @@ model User {
   sentMessages       Message[]      @relation("SentMessages")
   notifications      Notification[]
   resumes            Resume[]
+  resumeViews        ResumeView[]
   sessions           Session[]
   settings           Settings[]
 }
@@ -201,6 +202,7 @@ model Company {
   mission      String?
   vision       String?
   applications Application[]
+  resumeViews  ResumeView[]
   creator      User?         @relation(fields: [createdBy], references: [id])
   jobs         Job[]
 
@@ -231,6 +233,7 @@ model Resume {
   builderData   Json?
   colorScheme   String?
   applications  Application[]
+  views         ResumeView[]
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -349,4 +352,27 @@ model Notification {
   @@index([type])
   @@index([isRead])
   @@index([createdAt])
+}
+
+model ResumeView {
+  id          String   @id @default(cuid())
+  resumeId    String
+  viewerId    String
+  viewerType  String   // 'employer', 'admin', 'other'
+  companyId   String?
+  viewedAt    DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  resume      Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  viewer      User     @relation(fields: [viewerId], references: [id], onDelete: Cascade)
+  company     Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  @@index([resumeId])
+  @@index([viewerId])
+  @@index([viewedAt])
+  @@index([companyId])
+  @@unique([resumeId, viewerId, viewedAt], name: "unique_view_per_hour")
 }
