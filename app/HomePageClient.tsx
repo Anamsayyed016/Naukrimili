@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
 import { Button } from "@/components/ui/button";
 import JobSearchHero from '@/components/JobSearchHero';
-import UnifiedUserProfile from '@/components/UnifiedUserProfile';
 
 interface Job {
   id: number;
@@ -68,12 +67,6 @@ export default function HomePageClient({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      {/* User Profile Corner - Show if authenticated - Hidden on mobile to avoid conflicts */}
-      {isAuthenticated && (
-        <div className="hidden lg:block fixed top-4 right-4 z-50">
-          <UnifiedUserProfile variant="desktop" />
-        </div>
-      )}
 
 
 
