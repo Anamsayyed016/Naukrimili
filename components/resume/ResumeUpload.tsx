@@ -11,6 +11,9 @@ import { Badge } from '@/components/ui/badge';
 
 interface ResumeUploadProps {
   onComplete?: () => void;
+  onUploadStart?: () => void;
+  onAnalyzingStart?: () => void;
+  onProfileFormShow?: (data: any) => void;
 }
 
 interface ExtractedProfile {
@@ -67,7 +70,7 @@ interface ExtractedProfile {
   }>;
 }
 
-export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
+export default function ResumeUpload({ onComplete, onUploadStart, onAnalyzingStart, onProfileFormShow }: ResumeUploadProps) {
   const { data: session, status } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -97,8 +100,14 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       setUploading(true);
       setAnalyzing(true);
       setError(null);
+      
+      // Notify parent components about state changes
+      onUploadStart?.();
 
       console.log('🔄 Processing resume with AI...');
+      
+      // Notify that AI analysis is starting
+      onAnalyzingStart?.();
       
       toast({
         title: 'Ultimate AI Processing',
@@ -137,6 +146,9 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         setAiSuccess(result.aiSuccess);
         setConfidence(result.confidence);
         setShowProfileForm(true);
+        
+        // Notify parent that profile form should be shown
+        onProfileFormShow?.(result.profile);
         
         toast({
           title: '🎉 Resume Analyzed Successfully!',

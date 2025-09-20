@@ -2,12 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ResumeUpload from '@/components/resume/ResumeUpload';
 
 export default function ResumeUploadPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'analyzing' | 'completed' | 'profile-form'>('idle');
+  const [resumeData, setResumeData] = useState<any>(null);
+  const [profileCompletion, setProfileCompletion] = useState(25); // Dynamic completion percentage
 
   // Redirect if not authenticated or not a jobseeker
   useEffect(() => {
@@ -20,10 +23,26 @@ export default function ResumeUploadPage() {
   }, [status, session, router]);
 
   const handleUploadComplete = () => {
+    setUploadState('completed');
+    setProfileCompletion(85); // Increase completion after upload
     // Show success message and redirect to jobseeker dashboard
     setTimeout(() => {
       router.push('/dashboard/jobseeker');
     }, 2000);
+  };
+
+  const handleUploadStart = () => {
+    setUploadState('uploading');
+  };
+
+  const handleAnalyzingStart = () => {
+    setUploadState('analyzing');
+  };
+
+  const handleProfileFormShow = (data: any) => {
+    setUploadState('profile-form');
+    setResumeData(data);
+    setProfileCompletion(75); // Partial completion when form is shown
   };
 
   if (status === 'loading') {
@@ -69,9 +88,9 @@ export default function ResumeUploadPage() {
                 <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
                   <span>Profile completion:</span>
                   <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{width: '75%'}}></div>
+                    <div className="bg-blue-600 h-2 rounded-full transition-all duration-500" style={{width: `${profileCompletion}%`}}></div>
                   </div>
-                  <span className="text-blue-600 font-medium">75%</span>
+                  <span className="text-blue-600 font-medium">{profileCompletion}%</span>
                 </div>
               </div>
             </div>
@@ -126,20 +145,64 @@ export default function ResumeUploadPage() {
 
               {/* Profile Stats */}
               <div className="mt-8 pt-6 border-t border-gray-200">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Profile Statistics</h4>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                  {uploadState === 'idle' ? 'Getting Started' : 'Profile Statistics'}
+                </h4>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Resume Views</span>
-                    <span className="text-sm font-medium text-gray-900">24</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Applications</span>
-                    <span className="text-sm font-medium text-gray-900">8</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">ATS Score</span>
-                    <span className="text-sm font-medium text-green-600">85%</span>
-                  </div>
+                  {uploadState === 'idle' ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Resume Status</span>
+                        <span className="text-sm font-medium text-orange-600">Not Uploaded</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Profile Status</span>
+                        <span className="text-sm font-medium text-gray-500">Incomplete</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Next Step</span>
+                        <span className="text-sm font-medium text-blue-600">Upload Resume</span>
+                      </div>
+                    </>
+                  ) : uploadState === 'uploading' || uploadState === 'analyzing' ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Resume Status</span>
+                        <span className="text-sm font-medium text-blue-600">
+                          {uploadState === 'uploading' ? 'Uploading...' : 'Analyzing...'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Progress</span>
+                        <span className="text-sm font-medium text-blue-600">In Progress</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">AI Processing</span>
+                        <span className="text-sm font-medium text-purple-600">Active</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Resume Views</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {resumeData?.views || Math.floor(Math.random() * 20) + 5}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Applications</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {resumeData?.applications || Math.floor(Math.random() * 10) + 2}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">ATS Score</span>
+                        <span className="text-sm font-medium text-green-600">
+                          {resumeData?.atsScore || Math.floor(Math.random() * 20) + 75}%
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -148,24 +211,86 @@ export default function ResumeUploadPage() {
           {/* Main Content Area */}
           <div className="lg:col-span-2">
             {/* AI Enhancement Banner */}
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
+            {uploadState === 'idle' && (
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Elevate your profile with AI-powered enhancements</h3>
+                      <p className="text-sm text-gray-600">Get personalized suggestions to improve your resume</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Elevate your profile with AI-powered enhancements</h3>
-                    <p className="text-sm text-gray-600">Get personalized suggestions to improve your resume</p>
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                    Upgrade now
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Processing Banner */}
+            {(uploadState === 'uploading' || uploadState === 'analyzing') && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      {uploadState === 'uploading' ? (
+                        <svg className="w-4 h-4 text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 text-blue-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {uploadState === 'uploading' ? 'Uploading your resume...' : 'AI is analyzing your resume...'}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {uploadState === 'uploading' 
+                          ? 'Please wait while we upload your file' 
+                          : 'Our AI is extracting and validating your information'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <span className="text-sm text-blue-600 font-medium">
+                      {uploadState === 'uploading' ? 'Uploading...' : 'Processing...'}
+                    </span>
                   </div>
                 </div>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                  Upgrade now
-                </button>
               </div>
-            </div>
+            )}
+
+            {/* Success Banner */}
+            {uploadState === 'completed' && (
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Resume uploaded successfully!</h3>
+                      <p className="text-sm text-gray-600">Your profile has been updated with AI-extracted information</p>
+                    </div>
+                  </div>
+                  <div className="text-green-600">
+                    <span className="text-sm font-medium">✓ Complete</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Resume Upload Section */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -180,65 +305,130 @@ export default function ResumeUploadPage() {
                   </div>
                 </div>
 
-                <ResumeUpload onComplete={handleUploadComplete} />
+                <ResumeUpload 
+                  onComplete={handleUploadComplete}
+                  onUploadStart={handleUploadStart}
+                  onAnalyzingStart={handleAnalyzingStart}
+                  onProfileFormShow={handleProfileFormShow}
+                />
               </div>
             </div>
 
             {/* Profile Enhancement Suggestions */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-6">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Enhancement Suggestions</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
+            {uploadState === 'idle' && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-6">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Enhancement Suggestions</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Upload your resume first</p>
+                          <p className="text-sm text-gray-600">Start by uploading your resume to get personalized suggestions</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-900">Verify mobile number</p>
-                        <p className="text-sm text-gray-600">Increase your profile visibility</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-blue-600">+25%</span>
+                        <button className="text-blue-600 hover:text-blue-700">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-blue-600">+10%</span>
-                      <button className="text-blue-600 hover:text-blue-700">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Complete your profile</p>
+                          <p className="text-sm text-gray-600">Fill in additional details to improve your visibility</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-900">Add job summary</p>
-                        <p className="text-sm text-gray-600">Help employers understand your background</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-green-600">+15%</span>
+                        <button className="text-green-600 hover:text-green-700">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-green-600">+8%</span>
-                      <button className="text-green-600 hover:text-green-700">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
 
-                  <button className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors">
-                    Add 2 missing details
-                  </button>
+                    <button className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                      Get Started - Upload Resume
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Post-Upload Suggestions */}
+            {(uploadState === 'completed' || uploadState === 'profile-form') && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-6">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Next Steps to Improve Your Profile</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Verify mobile number</p>
+                          <p className="text-sm text-gray-600">Increase your profile visibility</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-blue-600">+10%</span>
+                        <button className="text-blue-600 hover:text-blue-700">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Add job summary</p>
+                          <p className="text-sm text-gray-600">Help employers understand your background</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-green-600">+8%</span>
+                        <button className="text-green-600 hover:text-green-700">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <button className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors">
+                      Add 2 missing details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
