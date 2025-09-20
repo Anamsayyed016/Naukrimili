@@ -4,7 +4,8 @@ module.exports = {
   apps: [
     {
       name: 'jobportal',
-      script: 'server.js', // Use custom server with Socket.io
+      script: 'npm', // Use custom server with Socket.io
+      args: 'start',
       instances: 1,
       exec_mode: 'fork',
       env: {

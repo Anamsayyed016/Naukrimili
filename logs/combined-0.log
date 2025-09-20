@@ -6039,3 +6039,78 @@
 2025-09-15T17:12:34: 
 2025-09-15T17:12:34: Node.js v22.16.0
 >>>>>>> 1bb7f34b72974dfec8e52b2ad22568786853bb5e
+2025-09-20T11:01:36: 
+2025-09-20T11:01:36: > my-v0-project@0.1.0 start
+2025-09-20T11:01:36: > next start
+2025-09-20T11:01:36: 
+2025-09-20T11:01:36:    ▲ Next.js 15.5.2
+2025-09-20T11:01:36:    - Local:        http://localhost:3000
+2025-09-20T11:01:36:    - Network:      http://69.62.73.84:3000
+2025-09-20T11:01:36: 
+2025-09-20T11:01:36:  ✓ Starting...
+2025-09-20T11:01:36:  ✓ Ready in 414ms
+2025-09-20T11:04:03: ReferenceError: require is not defined in ES module scope, you can use import instead
+2025-09-20T11:04:03: This file is being treated as an ES module because it has a '.js' file extension and '/var/www/jobportal/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+2025-09-20T11:04:03:     at file:///var/www/jobportal/server.js:6:26
+2025-09-20T11:04:03:     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+2025-09-20T11:04:03:     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+2025-09-20T11:05:48: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/jobportal/lib/socket-setup.js' imported from /var/www/jobportal/server.js
+2025-09-20T11:05:48:     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2025-09-20T11:05:48:     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2025-09-20T11:05:48:     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-09-20T11:05:48:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-09-20T11:05:48:     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-09-20T11:05:48:     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-09-20T11:05:48:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-09-20T11:05:48:     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-09-20T11:05:48:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-20T11:05:48:   url: 'file:///var/www/jobportal/lib/socket-setup.js'
+2025-09-20T11:05:48: }
+2025-09-20T11:07:19: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/jobportal/lib/socket-setup' imported from /var/www/jobportal/server.js
+2025-09-20T11:07:19:     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2025-09-20T11:07:19:     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2025-09-20T11:07:19:     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-09-20T11:07:19:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-09-20T11:07:19:     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-09-20T11:07:19:     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-09-20T11:07:19:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-09-20T11:07:19:     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-09-20T11:07:19:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-20T11:07:19:   url: 'file:///var/www/jobportal/lib/socket-setup'
+2025-09-20T11:07:19: }
+2025-09-20T11:09:06: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/jobportal/lib/socket-setup' imported from /var/www/jobportal/server.js
+2025-09-20T11:09:06:     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2025-09-20T11:09:06:     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2025-09-20T11:09:06:     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-09-20T11:09:06:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-09-20T11:09:06:     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-09-20T11:09:06:     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-09-20T11:09:06:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-09-20T11:09:06:     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-09-20T11:09:06:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-20T11:09:06:   url: 'file:///var/www/jobportal/lib/socket-setup'
+2025-09-20T11:09:06: }
+2025-09-20T11:10:45: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/jobportal/server.js' imported from /root/.nvm/versions/node/v20.19.4/lib/node_modules/pm2/lib/ProcessContainerFork.js
+2025-09-20T11:10:45:     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2025-09-20T11:10:45:     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2025-09-20T11:10:45:     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-09-20T11:10:45:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-09-20T11:10:45:     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-09-20T11:10:45:     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-09-20T11:10:45:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-09-20T11:10:45:     at ModuleLoader.import (node:internal/modules/esm/loader:539:34)
+2025-09-20T11:10:45:     at defaultImportModuleDynamicallyForScript (node:internal/modules/esm/utils:234:31)
+2025-09-20T11:10:45:     at importModuleDynamicallyCallback (node:internal/modules/esm/utils:256:12) {
+2025-09-20T11:10:45:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-20T11:10:45:   url: 'file:///var/www/jobportal/server.js'
+2025-09-20T11:10:45: }
+2025-09-20T11:11:47: 
+2025-09-20T11:11:47: > my-v0-project@0.1.0 start
+2025-09-20T11:11:47: > next start
+2025-09-20T11:11:47: 
+2025-09-20T11:11:48:    ▲ Next.js 15.5.2
+2025-09-20T11:11:48:    - Local:        http://localhost:3000
+2025-09-20T11:11:48:    - Network:      http://69.62.73.84:3000
+2025-09-20T11:11:48: 
+2025-09-20T11:11:48:  ✓ Starting...
+2025-09-20T11:11:48:  ✓ Ready in 348ms
