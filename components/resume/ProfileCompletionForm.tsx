@@ -113,6 +113,39 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		}
 	};
 
+	// Calculate ATS score based on profile completeness
+	const calculateATSScore = (data: any) => {
+		let score = 0;
+		let totalFields = 0;
+
+		// Personal Information (30 points)
+		if (data.fullName) { score += 10; totalFields += 1; }
+		if (data.email) { score += 10; totalFields += 1; }
+		if (data.phone) { score += 5; totalFields += 1; }
+		if (data.location) { score += 5; totalFields += 1; }
+
+		// Professional Information (40 points)
+		if (data.jobTitle) { score += 15; totalFields += 1; }
+		if (data.summary) { score += 15; totalFields += 1; }
+		if (data.skills && data.skills.length > 0) { score += 10; totalFields += 1; }
+
+		// Experience & Education (20 points)
+		if (data.experience && data.experience.length > 0) { score += 15; totalFields += 1; }
+		if (data.education && data.education.length > 0) { score += 5; totalFields += 1; }
+
+		// Additional Sections (10 points)
+		if (data.projects && data.projects.length > 0) { score += 5; totalFields += 1; }
+		if (data.certifications && data.certifications.length > 0) { score += 3; totalFields += 1; }
+		if (data.languages && data.languages.length > 0) { score += 2; totalFields += 1; }
+
+		// Calculate percentage
+		const maxScore = 100;
+		const calculatedScore = Math.round((score / maxScore) * 100);
+		
+		// Ensure minimum score of 20 for basic profiles
+		return Math.max(calculatedScore, 20);
+	};
+
 	// Simple AI suggestions fetch
 	const fetchAISuggestions = async (field: string, value: string) => {
 		if (loadingSuggestions[field]) return;
@@ -443,24 +476,25 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		setSaveStatus('saving');
 
 		try {
-			// Save to database via API
-			const response = await fetch('/api/resumes', {
+			// Generate a proper resume filename
+			const timestamp = new Date().toISOString().split('T')[0];
+			const resumeFileName = `${profileData.fullName?.replace(/\s+/g, '_') || 'Resume'}_${timestamp}.json`;
+			
+			// Save to database via jobseeker API
+			const response = await fetch('/api/jobseeker/resumes', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 				credentials: 'include',
 				body: JSON.stringify({
-					action: 'create',
-					data: {
-						userId: session?.user?.id || 'temp', // Will be replaced with actual user ID from session
-						fileName: 'profile',
-						fileUrl: '',
-						fileSize: 0,
-						mimeType: 'application/json',
-						parsedData: profileData,
-						atsScore: 85, // Default ATS score
-					}
+					fileName: resumeFileName,
+					fileUrl: `/uploads/resumes/${resumeFileName}`, // Virtual URL for profile-based resume
+					fileSize: JSON.stringify(profileData).length,
+					mimeType: 'application/json',
+					parsedData: profileData,
+					atsScore: calculateATSScore(profileData),
+					isActive: true
 				}),
 			});
 
@@ -472,18 +506,50 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			
 			if (result.success) {
 				setSaveStatus('success');
+				
+				// Enhanced success message like other job portals
 				toast({
-					title: '🎉 Successfully Uploaded Resume!',
-					description: 'Your resume has been processed and profile saved successfully. Redirecting to dashboard...',
-					duration: 3000,
+					title: '🎉 Resume Successfully Uploaded!',
+					description: `Your resume "${result.data.fileName}" has been processed and saved. ATS Score: ${result.data.atsScore}%. Redirecting to dashboard...`,
+					duration: 4000,
 				});
 
-				if (onComplete) {
-					onComplete();
+				// Send Socket.io notification for resume upload
+				try {
+					const socketResponse = await fetch('/api/notifications/socket', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						credentials: 'include',
+						body: JSON.stringify({
+							type: 'RESUME_UPLOADED',
+							title: 'Resume Uploaded Successfully',
+							message: `Your resume "${result.data.fileName}" has been uploaded and is now visible to employers.`,
+							data: {
+								resumeId: result.data.id,
+								fileName: result.data.fileName,
+								atsScore: result.data.atsScore,
+								uploadedAt: new Date().toISOString()
+							}
+						}),
+					});
+					
+					if (socketResponse.ok) {
+						console.log('✅ Socket notification sent for resume upload');
+					}
+				} catch (socketError) {
+					console.log('⚠️ Socket notification failed (non-critical):', socketError);
 				}
 
-				// Reset to idle after 2 seconds
-				setTimeout(() => setSaveStatus('idle'), 2000);
+				if (onComplete) {
+					onComplete(result.data);
+				}
+
+				// Redirect to dashboard after a delay
+				setTimeout(() => {
+					window.location.href = '/dashboard/jobseeker/resumes';
+				}, 3000);
 			} else {
 				throw new Error(result.error?.message || 'Failed to save profile');
 			}

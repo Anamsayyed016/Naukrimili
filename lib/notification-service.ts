@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 
 export interface CreateNotificationData {
   userId: string;
-  type: 'WELCOME' | 'JOB_MATCH' | 'APPLICATION_UPDATE' | 'SYSTEM' | 'INTERVIEW_SCHEDULED' | 'JOB_APPLICATION_RECEIVED' | 'JOB_POSTED' | 'ADMIN_ACTION' | 'MESSAGE_RECEIVED' | 'RESUME_VIEWED';
+  type: 'WELCOME' | 'JOB_MATCH' | 'APPLICATION_UPDATE' | 'SYSTEM' | 'INTERVIEW_SCHEDULED' | 'JOB_APPLICATION_RECEIVED' | 'JOB_POSTED' | 'ADMIN_ACTION' | 'MESSAGE_RECEIVED' | 'RESUME_VIEWED' | 'RESUME_UPLOADED';
   title: string;
   message: string;
   data?: Record<string, unknown>;
