@@ -164,7 +164,7 @@ export default function ResumeViewStats({ resumeId, resumeName }: ResumeViewStat
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Summary Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="text-center p-3 bg-gray-50 rounded-lg">
             <div className="flex items-center justify-center gap-1 mb-1">
               <Eye className="h-4 w-4 text-gray-600" />
@@ -173,28 +173,12 @@ export default function ResumeViewStats({ resumeId, resumeName }: ResumeViewStat
             <p className="text-sm text-gray-600">Total Views</p>
           </div>
           
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Users className="h-4 w-4 text-gray-600" />
-              <span className="text-2xl font-bold text-gray-900">{stats.uniqueViewers}</span>
-            </div>
-            <p className="text-sm text-gray-600">Unique Viewers</p>
-          </div>
-          
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <div className="flex items-center justify-center gap-1 mb-1">
               <Building className="h-4 w-4 text-blue-600" />
               <span className="text-2xl font-bold text-blue-900">{stats.employerViews}</span>
             </div>
             <p className="text-sm text-blue-600">Employer Views</p>
-          </div>
-          
-          <div className="text-center p-3 bg-purple-50 rounded-lg">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <User className="h-4 w-4 text-purple-600" />
-              <span className="text-2xl font-bold text-purple-900">{stats.adminViews}</span>
-            </div>
-            <p className="text-sm text-purple-600">Admin Views</p>
           </div>
         </div>
 
@@ -206,9 +190,9 @@ export default function ResumeViewStats({ resumeId, resumeName }: ResumeViewStat
               Recent Views
             </h4>
             
-            {stats.recentViews.length > 0 ? (
+            {stats.recentViews.filter(view => view.viewerType === 'employer').length > 0 ? (
               <div className="space-y-3">
-                {stats.recentViews.map((view, index) => (
+                {stats.recentViews.filter(view => view.viewerType === 'employer').map((view, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
                       {getViewerTypeIcon(view.viewerType)}
@@ -229,7 +213,7 @@ export default function ResumeViewStats({ resumeId, resumeName }: ResumeViewStat
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">No recent views</p>
+              <p className="text-gray-500 text-sm">No employer views yet</p>
             )}
           </div>
         )}

@@ -398,16 +398,14 @@ export default function JobSeekerResumesPage() {
           {resumes.length > 0 && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-6">Resume View Analytics</h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {resumes.slice(0, 2).map((resume) => (
-                  <ResumeViewStats 
-                    key={resume.id} 
-                    resumeId={resume.id} 
-                    resumeName={resume.fileName}
-                  />
-                ))}
+              <div className="grid grid-cols-1 gap-6">
+                <ResumeViewStats 
+                  key={resumes[0].id} 
+                  resumeId={resumes[0].id} 
+                  resumeName={resumes[0].fileName}
+                />
               </div>
-              {resumes.length > 2 && (
+              {resumes.length > 1 && (
                 <div className="mt-4 text-center">
                   <p className="text-sm text-gray-600">
                     View statistics for all {resumes.length} resumes are available
