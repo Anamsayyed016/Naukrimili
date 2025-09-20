@@ -101,14 +101,14 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       console.log('🔄 Processing resume with AI...');
       
       toast({
-        title: 'AI Processing',
-        description: 'Our AI is analyzing your resume to extract comprehensive details...',
+        title: 'Ultimate AI Processing',
+        description: 'Using PyResparser + OpenAI + Gemini to extract and validate your resume data...',
       });
       
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch('/api/resumes/enhanced-upload', {
+      const response = await fetch('/api/resumes/ultimate-upload', {
         method: 'POST',
         body: formData,
         credentials: 'include'
