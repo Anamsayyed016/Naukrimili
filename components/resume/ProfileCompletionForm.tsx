@@ -122,16 +122,17 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			clearTimeout(suggestionTimeoutRef.current);
 		}
 
-		// Only fetch suggestions for meaningful input
-		if (value.trim().length < 1) {
+		// Only fetch suggestions for meaningful input and don't auto-show
+		if (value.trim().length < 2) { // Require at least 2 characters
 			setSuggestions(prev => ({ ...prev, [field]: [] }));
-			setShowSuggestions(prev => ({ ...prev, [field]: false }));
+			setShowSuggestions(prev => ({ ...prev, [field]: false })); // Hide suggestions if input is too short
 			return;
 		}
 
+		// Don't auto-show suggestions, let user manually trigger them
 		suggestionTimeoutRef.current = setTimeout(() => {
 			fetchAISuggestions(field, value);
-		}, 500); // Slightly increased debounce time for better performance
+		}, 800); // Increased debounce time to allow manual typing
 	};
 
 	// Fetch AI suggestions
@@ -164,7 +165,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				
 				if (result.success && result.suggestions && result.suggestions.length > 0) {
 					setSuggestions(prev => ({ ...prev, [field]: result.suggestions }));
-					setShowSuggestions(prev => ({ ...prev, [field]: true }));
+					// Don't auto-show suggestions - let user manually trigger them by clicking the sparkle icon
+					// setShowSuggestions(prev => ({ ...prev, [field]: true }));
 					
 					// Show subtle notification for suggestions
 					console.log(`✨ ${result.suggestions.length} suggestions available for ${field}`);
@@ -234,14 +236,12 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						required={required}
 						autoComplete={field === 'email' ? 'email' : field === 'phone' ? 'tel' : field === 'fullName' ? 'name' : field === 'location' ? 'address-line1' : 'off'}
 						onFocus={() => {
-							if (fieldSuggestions.length > 0) {
-								setShowSuggestions(prev => ({ ...prev, [field]: true }));
-							}
+							// Don't auto-show suggestions on focus - let user type first
 						}}
 						onBlur={() => {
 							setTimeout(() => {
 								setShowSuggestions(prev => ({ ...prev, [field]: false }));
-							}, 200);
+							}, 300);
 						}}
 					/>
 					{loading && (
@@ -253,9 +253,17 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						<button
 							type="button"
 							onClick={() => setShowSuggestions(prev => ({ ...prev, [field]: !prev[field] }))}
-							className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-600 hover:text-blue-800"
+							className={`absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full p-1 transition-all duration-200 ${
+								showFieldSuggestions 
+									? 'text-blue-700 bg-blue-100' 
+									: 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'
+							}`}
+							title={`${showFieldSuggestions ? 'Hide' : 'Show'} ${fieldSuggestions.length} AI suggestions`}
 						>
 							<Sparkles className="h-4 w-4" />
+							{!showFieldSuggestions && fieldSuggestions.length > 0 && (
+								<div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></div>
+							)}
 						</button>
 					)}
 				</div>
