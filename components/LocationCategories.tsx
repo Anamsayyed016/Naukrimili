@@ -245,7 +245,7 @@ export default function LocationCategories({
       <div className="mt-2 p-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-400/30">
         <div className="text-center">
           <div className="text-xs text-blue-200 font-medium">
-            💡 AI analyzes job market data for optimal results
+            AI analyzes job market data for optimal results
           </div>
         </div>
       </div>
