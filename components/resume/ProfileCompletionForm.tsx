@@ -172,8 +172,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		setShowSuggestions(prev => ({ ...prev, [field]: false }));
 	};
 
-	// AI-Powered Input Component
-	const AIPoweredInput = useCallback(({ field, label, placeholder, type = "text", required = false, className = "", value, onChange }: {
+	// Simple Input Component - No complex logic
+	const AIPoweredInput = ({ field, label, placeholder, type = "text", required = false, className = "", value, onChange }: {
 		field: string;
 		label: string;
 		placeholder: string;
@@ -187,37 +187,33 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		const showFieldSuggestions = showSuggestions[field] || false;
 		const loading = loadingSuggestions[field] || false;
 
-		// Use custom value and onChange if provided, otherwise use default behavior
-		const inputValue = useMemo(() => {
-			return value !== undefined ? value : (profileData[field as keyof typeof profileData] as string);
-		}, [value, field, profileData]);
-		const handleChange = useCallback((val: string) => {
-			// Simple, direct input handling - no AI interference
+		// Simple input value - no complex logic
+		const inputValue = value !== undefined ? value : (profileData[field as keyof typeof profileData] as string) || '';
+		
+		// Simple change handler - no complex callbacks
+		const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+			const val = e.target.value;
 			if (onChange) {
 				onChange(val);
 			} else {
 				setProfileData(prev => ({ ...prev, [field]: val }));
 			}
-		}, [field, onChange]);
+		};
 
 		return (
 			<div className="relative">
 				<Label htmlFor={field} className="text-gray-700 font-medium">{label} {required && '*'}</Label>
 				<div className="relative">
 					<Input
-						key={`input-${field}`}
 						id={field}
 						name={field}
 						type={type}
 						value={inputValue}
-						onChange={(e) => handleChange(e.target.value)}
+						onChange={handleChange}
 						placeholder={placeholder}
 						className={`mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 ${className}`}
 						required={required}
 						autoComplete={field === 'email' ? 'email' : field === 'phone' ? 'tel' : field === 'fullName' ? 'name' : field === 'location' ? 'address-line1' : 'off'}
-						onFocus={() => {
-							// Don't auto-show suggestions on focus - let user type first
-						}}
 						onBlur={() => {
 							setTimeout(() => {
 								setShowSuggestions(prev => ({ ...prev, [field]: false }));
@@ -264,7 +260,11 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 								key={index}
 								type="button"
 								onClick={() => {
-									handleChange(suggestion);
+									if (onChange) {
+										onChange(suggestion);
+									} else {
+										setProfileData(prev => ({ ...prev, [field]: suggestion }));
+									}
 									setShowSuggestions(prev => ({ ...prev, [field]: false }));
 								}}
 								className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-100 last:border-b-0 last:rounded-b-lg"
@@ -279,7 +279,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				)}
 			</div>
 		);
-	}, [suggestions, showSuggestions, loadingSuggestions, profileData, handleInputChange]);
+	};
 
 	const addSkill = () => {
 		if (newSkill.trim() && !profileData.skills.includes(newSkill.trim())) {
