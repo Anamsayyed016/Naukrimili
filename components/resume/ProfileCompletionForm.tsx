@@ -91,27 +91,15 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		}
 	}, [initialData]);
 
-	// Load initial suggestions for common fields
-	useEffect(() => {
-		// Load suggestions for empty fields to help users
-		const fieldsToPreload = ['location', 'jobTitle'];
-		fieldsToPreload.forEach(field => {
-			const currentValue = profileData[field as keyof typeof profileData] as string;
-			if (!currentValue || currentValue.length === 0) {
-				// Load default suggestions for empty fields
-				setTimeout(() => {
-					fetchAISuggestions(field, '');
-				}, 1000);
-			}
-		});
-	}, [profileData]);
+	// Disabled auto-loading of suggestions to prevent input blocking
+	// Users can manually trigger suggestions by clicking the sparkle icon
 
 	const handleInputChange = useCallback((field: string, value: string) => {
 		console.log(`📝 Updating ${field}:`, value);
 		setProfileData(prev => ({ ...prev, [field]: value }));
 		
-		// Trigger AI suggestions for relevant fields
-		if (['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field)) {
+		// Only trigger AI suggestions for relevant fields AND when user has typed at least 3 characters
+		if (['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field) && value.trim().length >= 3) {
 			debounceSuggestions(field, value);
 		}
 	}, []);
@@ -122,8 +110,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			clearTimeout(suggestionTimeoutRef.current);
 		}
 
-		// Only fetch suggestions for meaningful input and don't auto-show
-		if (value.trim().length < 2) { // Require at least 2 characters
+		// Only fetch suggestions for meaningful input - require at least 3 characters
+		if (value.trim().length < 3) { // Require at least 3 characters
 			setSuggestions(prev => ({ ...prev, [field]: [] }));
 			setShowSuggestions(prev => ({ ...prev, [field]: false })); // Hide suggestions if input is too short
 			return;
@@ -132,7 +120,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		// Don't auto-show suggestions, let user manually trigger them
 		suggestionTimeoutRef.current = setTimeout(() => {
 			fetchAISuggestions(field, value);
-		}, 1000); // Increased debounce time to allow smooth typing
+		}, 1500); // Increased debounce time to allow smooth typing
 	}, []);
 
 	// Fetch AI suggestions
@@ -140,6 +128,12 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		// Prevent multiple simultaneous calls for the same field
 		if (loadingSuggestions[field]) {
 			console.log(`⏳ Already loading suggestions for ${field}, skipping...`);
+			return;
+		}
+		
+		// Don't fetch suggestions for very short input
+		if (!value || value.trim().length < 2) {
+			console.log(`⚠️ Input too short for ${field}, skipping AI suggestions`);
 			return;
 		}
 		
@@ -228,12 +222,19 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			return value !== undefined ? value : (profileData[field as keyof typeof profileData] as string);
 		}, [value, field, profileData]);
 		const handleChange = useCallback((val: string) => {
+			// Immediate state update for smooth typing
 			if (onChange) {
 				onChange(val);
 			} else {
-				handleInputChange(field, val);
+				// Direct state update without AI processing for smooth typing
+				setProfileData(prev => ({ ...prev, [field]: val }));
+				
+				// Only trigger AI suggestions after user stops typing (3+ chars)
+				if (['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field) && val.trim().length >= 3) {
+					debounceSuggestions(field, val);
+				}
 			}
-		}, [field, onChange, handleInputChange]);
+		}, [field, onChange, profileData]);
 
 		return (
 			<div className="relative">
@@ -264,16 +265,28 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
 						</div>
 					)}
-					{!loading && fieldSuggestions.length > 0 && (
+					{/* Manual AI Suggestions Trigger */}
+					{['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field) && (
 						<button
 							type="button"
-							onClick={() => setShowSuggestions(prev => ({ ...prev, [field]: !prev[field] }))}
+							onClick={() => {
+								if (fieldSuggestions.length > 0) {
+									// Toggle existing suggestions
+									setShowSuggestions(prev => ({ ...prev, [field]: !prev[field] }));
+								} else if (inputValue && inputValue.trim().length >= 2) {
+									// Fetch new suggestions if none exist
+									fetchAISuggestions(field, inputValue);
+								}
+							}}
 							className={`absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full p-1 transition-all duration-200 ${
 								showFieldSuggestions 
 									? 'text-blue-700 bg-blue-100' 
 									: 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'
 							}`}
-							title={`${showFieldSuggestions ? 'Hide' : 'Show'} ${fieldSuggestions.length} AI suggestions`}
+							title={fieldSuggestions.length > 0 ? 
+								`${showFieldSuggestions ? 'Hide' : 'Show'} ${fieldSuggestions.length} AI suggestions` :
+								'Get AI suggestions (type at least 2 characters first)'
+							}
 						>
 							<Sparkles className="h-4 w-4" />
 							{!showFieldSuggestions && fieldSuggestions.length > 0 && (
