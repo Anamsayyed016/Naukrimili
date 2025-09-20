@@ -105,10 +105,10 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		// No automatic AI processing - let user decide when to use AI
 	};
 
-	// Simple manual AI suggestions - no automatic processing
-	const manualAISuggestions = (field: string, value: string) => {
-		// Only fetch if user explicitly requests it
-		if (value && value.trim().length >= 2) {
+	// Optional AI suggestions - completely user choice
+	const optionalAISuggestions = (field: string, value: string) => {
+		// Only fetch if user explicitly requests it and has enough input
+		if (value && value.trim().length >= 1) {
 			fetchAISuggestions(field, value);
 		}
 	};
@@ -134,7 +134,19 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						jobTitle: profileData.jobTitle,
 						location: profileData.location,
 						experience: profileData.experience,
-						education: profileData.education
+						education: profileData.education,
+						projects: profileData.projects,
+						certifications: profileData.certifications,
+						languages: profileData.languages,
+						summary: profileData.summary,
+						// Add resume content for better suggestions
+						resumeContent: {
+							fullName: profileData.fullName,
+							email: profileData.email,
+							phone: profileData.phone,
+							linkedin: profileData.linkedin,
+							portfolio: profileData.portfolio
+						}
 					}
 				})
 			});
@@ -227,7 +239,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						</div>
 					)}
 					{/* Simple AI Suggestions Button - Completely Manual */}
-					{['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field) && (
+					{['skills', 'jobTitle', 'location', 'summary', 'expectedSalary', 'project-name', 'project-technologies', 'cert-name', 'language-name'].includes(field) && (
 						<button
 							type="button"
 							onClick={() => {
@@ -239,8 +251,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									const inputElement = document.getElementById(field) as HTMLInputElement;
 									const currentValue = inputElement?.value || '';
 									if (currentValue && currentValue.trim().length >= 2) {
-										// Fetch new suggestions manually
-										manualAISuggestions(field, currentValue);
+									// Fetch new suggestions manually
+									optionalAISuggestions(field, currentValue);
 									}
 								}
 							}}
@@ -1115,15 +1127,29 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<div className="bg-white p-3 sm:p-4 rounded-lg border border-violet-200">
 								<h4 className="font-semibold text-gray-800 mb-3 text-sm sm:text-base">Add New Project</h4>
 								<div className="space-y-3">
-									<div>
+									<div className="relative">
 										<Label htmlFor="project-name" className="text-xs sm:text-sm text-gray-700 font-medium">Project Name *</Label>
 										<Input
 											id="project-name"
 											defaultValue={newProject.name}
 											onBlur={(e) => setNewProject(prev => ({ ...prev, name: e.target.value }))}
 											placeholder="e.g., E-commerce Website"
-											className="mt-1 text-xs sm:text-sm"
+											className="mt-1 text-xs sm:text-sm pr-8"
 										/>
+										<button
+											type="button"
+											onClick={() => {
+												const inputElement = document.getElementById('project-name') as HTMLInputElement;
+												const currentValue = inputElement?.value || '';
+												if (currentValue && currentValue.trim().length >= 1) {
+													optionalAISuggestions('project-name', currentValue);
+												}
+											}}
+											className="absolute right-2 top-7 text-gray-400 hover:text-violet-600 rounded-full p-1 transition-colors"
+											title="Get AI suggestions (optional)"
+										>
+											<Sparkles className="h-3 w-3" />
+										</button>
 									</div>
 									<div>
 										<Label htmlFor="project-description" className="text-xs sm:text-sm text-gray-700 font-medium">Description</Label>
@@ -1135,15 +1161,29 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 											className="mt-1 text-xs sm:text-sm"
 										/>
 									</div>
-									<div>
+									<div className="relative">
 										<Label htmlFor="project-technologies" className="text-xs sm:text-sm text-gray-700 font-medium">Technologies</Label>
 										<Input
 											id="project-technologies"
 											defaultValue={newProject.technologies}
 											onBlur={(e) => setNewProject(prev => ({ ...prev, technologies: e.target.value }))}
 											placeholder="e.g., React, Node.js, MongoDB"
-											className="mt-1 text-xs sm:text-sm"
+											className="mt-1 text-xs sm:text-sm pr-8"
 										/>
+										<button
+											type="button"
+											onClick={() => {
+												const inputElement = document.getElementById('project-technologies') as HTMLInputElement;
+												const currentValue = inputElement?.value || '';
+												if (currentValue && currentValue.trim().length >= 1) {
+													optionalAISuggestions('project-technologies', currentValue);
+												}
+											}}
+											className="absolute right-2 top-7 text-gray-400 hover:text-violet-600 rounded-full p-1 transition-colors"
+											title="Get AI suggestions (optional)"
+										>
+											<Sparkles className="h-3 w-3" />
+										</button>
 									</div>
 									<div>
 										<Label htmlFor="project-url" className="text-xs sm:text-sm text-gray-700 font-medium">Project URL</Label>
@@ -1210,15 +1250,29 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<div className="bg-white p-3 sm:p-4 rounded-lg border border-emerald-200">
 								<h4 className="font-semibold text-gray-800 mb-3 text-sm sm:text-base">Add New Certification</h4>
 								<div className="space-y-3">
-									<div>
+									<div className="relative">
 										<Label htmlFor="cert-name" className="text-xs sm:text-sm text-gray-700 font-medium">Certification Name *</Label>
 										<Input
 											id="cert-name"
 											defaultValue={newCertification.name}
 											onBlur={(e) => setNewCertification(prev => ({ ...prev, name: e.target.value }))}
 											placeholder="e.g., AWS Certified Solutions Architect"
-											className="mt-1 text-xs sm:text-sm"
+											className="mt-1 text-xs sm:text-sm pr-8"
 										/>
+										<button
+											type="button"
+											onClick={() => {
+												const inputElement = document.getElementById('cert-name') as HTMLInputElement;
+												const currentValue = inputElement?.value || '';
+												if (currentValue && currentValue.trim().length >= 1) {
+													optionalAISuggestions('cert-name', currentValue);
+												}
+											}}
+											className="absolute right-2 top-7 text-gray-400 hover:text-emerald-600 rounded-full p-1 transition-colors"
+											title="Get AI suggestions (optional)"
+										>
+											<Sparkles className="h-3 w-3" />
+										</button>
 									</div>
 									<div>
 										<Label htmlFor="cert-issuer" className="text-xs sm:text-sm text-gray-700 font-medium">Issuing Organization</Label>
@@ -1296,15 +1350,29 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<div className="bg-white p-3 sm:p-4 rounded-lg border border-rose-200">
 								<h4 className="font-semibold text-gray-800 mb-3 text-sm sm:text-base">Add New Language</h4>
 								<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-									<div>
+									<div className="relative">
 										<Label htmlFor="language-name" className="text-xs sm:text-sm text-gray-700 font-medium">Language *</Label>
 										<Input
 											id="language-name"
 											defaultValue={newLanguage.language}
 											onBlur={(e) => setNewLanguage(prev => ({ ...prev, language: e.target.value }))}
 											placeholder="e.g., English, Spanish"
-											className="mt-1 text-xs sm:text-sm"
+											className="mt-1 text-xs sm:text-sm pr-8"
 										/>
+										<button
+											type="button"
+											onClick={() => {
+												const inputElement = document.getElementById('language-name') as HTMLInputElement;
+												const currentValue = inputElement?.value || '';
+												if (currentValue && currentValue.trim().length >= 1) {
+													optionalAISuggestions('language-name', currentValue);
+												}
+											}}
+											className="absolute right-2 top-7 text-gray-400 hover:text-rose-600 rounded-full p-1 transition-colors"
+											title="Get AI suggestions (optional)"
+										>
+											<Sparkles className="h-3 w-3" />
+										</button>
 									</div>
 									<div>
 										<Label htmlFor="language-proficiency" className="text-xs sm:text-sm text-gray-700 font-medium">Proficiency</Label>
