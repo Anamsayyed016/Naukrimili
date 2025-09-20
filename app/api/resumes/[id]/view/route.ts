@@ -261,9 +261,20 @@ export async function GET(
 
     // Check if this is a profile-based resume (virtual file) or actual uploaded file
     const fileUrl = resume.fileUrl;
+    
+    // More robust detection logic for profile-based resumes
     const isProfileBasedResume = resume.mimeType === 'application/json' || 
                                  (fileUrl && fileUrl.includes('.json')) ||
-                                 !fileUrl;
+                                 !fileUrl ||
+                                 (fileUrl && fileUrl.startsWith('/uploads/resumes/') && fileUrl.includes('.json'));
+
+    console.log('Resume debug:', {
+      id: resume.id,
+      fileName: resume.fileName,
+      fileUrl: resume.fileUrl,
+      mimeType: resume.mimeType,
+      isProfileBasedResume
+    });
 
     if (isProfileBasedResume) {
       // For profile-based resumes, return the parsed data as HTML preview
