@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
   apps: [
     {
@@ -8,11 +10,15 @@ module.exports = {
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 3000,
+        // Load all environment variables from .env
+        ...process.env
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 3000,
+        // Load all environment variables from .env
+        ...process.env
       },
       error_file: './logs/err.log',
       out_file: './logs/out.log',
