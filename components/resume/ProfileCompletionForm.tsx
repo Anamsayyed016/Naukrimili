@@ -94,22 +94,22 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	// Disabled auto-loading of suggestions to prevent input blocking
 	// Users can manually trigger suggestions by clicking the sparkle icon
 
-	const handleInputChange = useCallback((field: string, value: string) => {
+	const handleInputChange = (field: string, value: string) => {
 		console.log(`📝 Updating ${field}:`, value);
 		setProfileData(prev => ({ ...prev, [field]: value }));
 		// No automatic AI processing - let user decide when to use AI
-	}, []);
+	};
 
 	// Simple manual AI suggestions - no automatic processing
-	const manualAISuggestions = useCallback((field: string, value: string) => {
+	const manualAISuggestions = (field: string, value: string) => {
 		// Only fetch if user explicitly requests it
 		if (value && value.trim().length >= 2) {
 			fetchAISuggestions(field, value);
 		}
-	}, []);
+	};
 
 	// Simple AI suggestions fetch
-	const fetchAISuggestions = useCallback(async (field: string, value: string) => {
+	const fetchAISuggestions = async (field: string, value: string) => {
 		if (loadingSuggestions[field]) return;
 		
 		setLoadingSuggestions(prev => ({ ...prev, [field]: true }));
@@ -151,7 +151,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		} finally {
 			setLoadingSuggestions(prev => ({ ...prev, [field]: false }));
 		}
-	}, [loadingSuggestions, profileData]);
+	};
 
 	// Apply suggestion
 	const applySuggestion = (field: string, suggestion: string) => {
@@ -215,9 +215,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						required={required}
 						autoComplete={field === 'email' ? 'email' : field === 'phone' ? 'tel' : field === 'fullName' ? 'name' : field === 'location' ? 'address-line1' : 'off'}
 						onBlur={() => {
-							setTimeout(() => {
-								setShowSuggestions(prev => ({ ...prev, [field]: false }));
-							}, 300);
+							setShowSuggestions(prev => ({ ...prev, [field]: false }));
 						}}
 					/>
 					{loading && (
