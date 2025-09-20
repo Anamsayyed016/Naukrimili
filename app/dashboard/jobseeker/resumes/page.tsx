@@ -312,7 +312,7 @@ export default function JobSeekerResumesPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(resume.fileUrl, '_blank')}
+                          onClick={() => window.open(`/api/resumes/${resume.id}/view`, '_blank')}
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           View
@@ -323,7 +323,7 @@ export default function JobSeekerResumesPage() {
                           size="sm"
                           onClick={() => {
                             const link = document.createElement('a');
-                            link.href = resume.fileUrl;
+                            link.href = `/api/resumes/${resume.id}/download`;
                             link.download = resume.fileName;
                             link.click();
                           }}
@@ -350,7 +350,7 @@ export default function JobSeekerResumesPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => window.open(resume.fileUrl, '_blank')}>
+                            <DropdownMenuItem onClick={() => window.open(`/api/resumes/${resume.id}/view`, '_blank')}>
                               <Eye className="h-4 w-4 mr-2" />
                               View Resume
                             </DropdownMenuItem>

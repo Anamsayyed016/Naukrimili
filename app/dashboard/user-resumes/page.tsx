@@ -315,11 +315,26 @@ export default function UserResumesPage() {
                   )}
 
                   <div className="flex gap-2 pt-2">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => window.open(`/api/resumes/${resume.id}/view`, '_blank')}
+                    >
                       <Eye className="h-4 w-4 mr-1" />
                       View
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = `/api/resumes/${resume.id}/download`;
+                        link.download = resume.fileName;
+                        link.click();
+                      }}
+                    >
                       <Download className="h-4 w-4 mr-1" />
                       Download
                     </Button>

@@ -259,7 +259,7 @@ export default function ResumesPage() {
                           </DialogHeader>
                           <div className="aspect-[8.5/11] w-full">
                             <iframe
-                              src={resume.fileUrl}
+                              src={`/api/resumes/${resume.id}/view`}
                               className="w-full h-full border rounded"
                               title={resume.fileName || resume.name || 'Resume'}
                             />
@@ -268,7 +268,7 @@ export default function ResumesPage() {
                       </Dialog>
 
                       <Button variant="outline" size="sm" asChild>
-                        <a href={resume.fileUrl} download>
+                        <a href={`/api/resumes/${resume.id}/download`} download>
                           <Download className="h-4 w-4 mr-1" />
                           Download
                         </a>
