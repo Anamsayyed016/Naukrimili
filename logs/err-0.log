@@ -5518,3 +5518,34 @@
 2025-09-20T18:03:16:   code: 'ERR_MODULE_NOT_FOUND',
 2025-09-20T18:03:16:   url: 'file:///E:/myprojects/jobportal/lib/socket-setup.js'
 2025-09-20T18:03:16: }
+2025-09-20T12:51:09: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/jobportal/lib/socket-setup.js' imported from /var/www/jobportal/server.js
+2025-09-20T12:51:09:     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2025-09-20T12:51:09:     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2025-09-20T12:51:09:     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-09-20T12:51:09:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-09-20T12:51:09:     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-09-20T12:51:09:     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-09-20T12:51:09:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-09-20T12:51:09:     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-09-20T12:51:09:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-20T12:51:09:   url: 'file:///var/www/jobportal/lib/socket-setup.js'
+2025-09-20T12:51:09: }
+2025-09-20T12:54:49: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/jobportal/lib/socket-setup' imported from /var/www/jobportal/server.js
+2025-09-20T12:54:49:     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2025-09-20T12:54:49:     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2025-09-20T12:54:49:     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-09-20T12:54:49:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-09-20T12:54:49:     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-09-20T12:54:49:     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-09-20T12:54:49:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-09-20T12:54:49:     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-09-20T12:54:49:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-20T12:54:49:   url: 'file:///var/www/jobportal/lib/socket-setup'
+2025-09-20T12:54:49: }
+2025-09-20T18:05:28:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-20T18:05:28: Require stack:
+2025-09-20T18:05:28: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-20T18:05:28: - /var/www/jobportal/node_modules/next/dist/server/next.js] {
+2025-09-20T18:05:28:   code: 'MODULE_NOT_FOUND',
+2025-09-20T18:05:28:   requireStack: [Array]
+2025-09-20T18:05:28: }

@@ -6286,3 +6286,249 @@
 2025-09-20T18:03:16:   code: 'ERR_MODULE_NOT_FOUND',
 2025-09-20T18:03:16:   url: 'file:///E:/myprojects/jobportal/lib/socket-setup.js'
 2025-09-20T18:03:16: }
+2025-09-20T12:50:27: 
+2025-09-20T12:50:27: > my-v0-project@0.1.0 start
+2025-09-20T12:50:27: > next start
+2025-09-20T12:50:27: 
+2025-09-20T12:50:28:    ▲ Next.js 15.5.2
+2025-09-20T12:50:28:    - Local:        http://localhost:3000
+2025-09-20T12:50:28:    - Network:      http://69.62.73.84:3000
+2025-09-20T12:50:28: 
+2025-09-20T12:50:28:  ✓ Starting...
+2025-09-20T12:50:28:  ✓ Ready in 322ms
+2025-09-20T12:51:09: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/jobportal/lib/socket-setup.js' imported from /var/www/jobportal/server.js
+2025-09-20T12:51:09:     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2025-09-20T12:51:09:     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2025-09-20T12:51:09:     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-09-20T12:51:09:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-09-20T12:51:09:     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-09-20T12:51:09:     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-09-20T12:51:09:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-09-20T12:51:09:     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-09-20T12:51:09:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-20T12:51:09:   url: 'file:///var/www/jobportal/lib/socket-setup.js'
+2025-09-20T12:51:09: }
+2025-09-20T12:54:49: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/www/jobportal/lib/socket-setup' imported from /var/www/jobportal/server.js
+2025-09-20T12:54:49:     at finalizeResolution (node:internal/modules/esm/resolve:283:11)
+2025-09-20T12:54:49:     at moduleResolve (node:internal/modules/esm/resolve:952:10)
+2025-09-20T12:54:49:     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-09-20T12:54:49:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-09-20T12:54:49:     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-09-20T12:54:49:     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-09-20T12:54:49:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-09-20T12:54:49:     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-09-20T12:54:49:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-20T12:54:49:   url: 'file:///var/www/jobportal/lib/socket-setup'
+2025-09-20T12:54:49: }
+2025-09-20T12:58:02: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T12:58:02: Environment: production
+2025-09-20T12:58:02: Port: 3000
+2025-09-20T12:58:02: Hostname: 0.0.0.0
+2025-09-20T12:58:02: ✅ Next.js app prepared
+2025-09-20T12:58:02: �� Initializing Socket.io...
+2025-09-20T12:58:02: ✅ Socket.io server initialized successfully
+2025-09-20T12:58:02: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T12:58:02: �� Socket.io ready and listening for connections
+2025-09-20T13:15:48: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T13:17:00: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T13:17:00: Environment: production
+2025-09-20T13:17:00: Port: 3000
+2025-09-20T13:17:00: Hostname: 0.0.0.0
+2025-09-20T13:17:00: ✅ Next.js app prepared
+2025-09-20T13:17:00: �� Initializing Socket.io...
+2025-09-20T13:17:00: ✅ Socket.io server initialized successfully
+2025-09-20T13:17:00: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T13:17:00: �� Socket.io ready and listening for connections
+2025-09-20T13:19:34: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T13:19:36: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T13:19:36: Environment: production
+2025-09-20T13:19:36: Port: 3000
+2025-09-20T13:19:36: Hostname: 0.0.0.0
+2025-09-20T13:19:36: ✅ Next.js app prepared
+2025-09-20T13:19:36: �� Initializing Socket.io...
+2025-09-20T13:19:36: ✅ Socket.io server initialized successfully
+2025-09-20T13:19:36: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T13:19:36: �� Socket.io ready and listening for connections
+2025-09-20T13:58:48: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T14:00:03: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T14:00:03: Environment: production
+2025-09-20T14:00:03: Port: 3000
+2025-09-20T14:00:03: Hostname: 0.0.0.0
+2025-09-20T14:00:04: ✅ Next.js app prepared
+2025-09-20T14:00:04: �� Initializing Socket.io...
+2025-09-20T14:00:04: ✅ Socket.io server initialized successfully
+2025-09-20T14:00:04: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T14:00:04: �� Socket.io ready and listening for connections
+2025-09-20T14:21:27: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T14:21:27: ✅ Server closed
+2025-09-20T14:22:36: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T14:22:36: Environment: production
+2025-09-20T14:22:36: Port: 3000
+2025-09-20T14:22:36: Hostname: 0.0.0.0
+2025-09-20T14:22:36: ✅ Next.js app prepared
+2025-09-20T14:22:36: �� Initializing Socket.io...
+2025-09-20T14:22:36: ✅ Socket.io server initialized successfully
+2025-09-20T14:22:36: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T14:22:36: �� Socket.io ready and listening for connections
+2025-09-20T17:04:28: prisma:error 
+2025-09-20T17:04:28: Invalid `prisma.resume.findMany()` invocation:
+2025-09-20T17:04:28: 
+2025-09-20T17:04:28: 
+2025-09-20T17:04:28: The table `public.ResumeView` does not exist in the current database.
+2025-09-20T17:04:42: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T17:04:44: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T17:04:44: Environment: production
+2025-09-20T17:04:44: Port: 3000
+2025-09-20T17:04:44: Hostname: 0.0.0.0
+2025-09-20T17:04:44: ✅ Next.js app prepared
+2025-09-20T17:04:44: �� Initializing Socket.io...
+2025-09-20T17:04:44: ✅ Socket.io server initialized successfully
+2025-09-20T17:04:44: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T17:04:44: �� Socket.io ready and listening for connections
+2025-09-20T17:05:12: prisma:error 
+2025-09-20T17:05:12: Invalid `prisma.resume.findMany()` invocation:
+2025-09-20T17:05:12: 
+2025-09-20T17:05:12: 
+2025-09-20T17:05:12: The table `public.ResumeView` does not exist in the current database.
+2025-09-20T17:05:26: prisma:error 
+2025-09-20T17:05:26: Invalid `prisma.resume.findMany()` invocation:
+2025-09-20T17:05:26: 
+2025-09-20T17:05:26: 
+2025-09-20T17:05:26: The table `public.ResumeView` does not exist in the current database.
+2025-09-20T17:05:39: prisma:error 
+2025-09-20T17:05:39: Invalid `prisma.resume.findMany()` invocation:
+2025-09-20T17:05:39: 
+2025-09-20T17:05:39: 
+2025-09-20T17:05:39: The table `public.ResumeView` does not exist in the current database.
+2025-09-20T17:39:54: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T17:41:03: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T17:41:03: Environment: production
+2025-09-20T17:41:03: Port: 3000
+2025-09-20T17:41:03: Hostname: 0.0.0.0
+2025-09-20T17:41:04: ✅ Next.js app prepared
+2025-09-20T17:41:04: �� Initializing Socket.io...
+2025-09-20T17:41:04: ✅ Socket.io server initialized successfully
+2025-09-20T17:41:04: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T17:41:04: �� Socket.io ready and listening for connections
+2025-09-20T17:42:07: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T17:42:09: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T17:42:09: Environment: production
+2025-09-20T17:42:09: Port: 3000
+2025-09-20T17:42:09: Hostname: 0.0.0.0
+2025-09-20T17:42:09: ✅ Next.js app prepared
+2025-09-20T17:42:09: �� Initializing Socket.io...
+2025-09-20T17:42:09: ✅ Socket.io server initialized successfully
+2025-09-20T17:42:09: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T17:42:09: �� Socket.io ready and listening for connections
+2025-09-20T18:04:09: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T18:05:16: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T18:05:16: Environment: production
+2025-09-20T18:05:16: Port: 3000
+2025-09-20T18:05:16: Hostname: 0.0.0.0
+2025-09-20T18:05:16: ✅ Next.js app prepared
+2025-09-20T18:05:16: �� Initializing Socket.io...
+2025-09-20T18:05:16: ✅ Socket.io server initialized successfully
+2025-09-20T18:05:16: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T18:05:16: �� Socket.io ready and listening for connections
+2025-09-20T18:05:28:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-20T18:05:28: Require stack:
+2025-09-20T18:05:28: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-20T18:05:28: - /var/www/jobportal/node_modules/next/dist/server/next.js] {
+2025-09-20T18:05:28:   code: 'MODULE_NOT_FOUND',
+2025-09-20T18:05:28:   requireStack: [Array]
+2025-09-20T18:05:28: }
+2025-09-20T18:06:02: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T18:06:04: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T18:06:04: Environment: production
+2025-09-20T18:06:04: Port: 3000
+2025-09-20T18:06:04: Hostname: 0.0.0.0
+2025-09-20T18:06:04: ✅ Next.js app prepared
+2025-09-20T18:06:04: �� Initializing Socket.io...
+2025-09-20T18:06:04: ✅ Socket.io server initialized successfully
+2025-09-20T18:06:04: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T18:06:04: �� Socket.io ready and listening for connections
+2025-09-20T18:06:23: prisma:error 
+2025-09-20T18:06:23: Invalid `prisma.resume.findMany()` invocation:
+2025-09-20T18:06:23: 
+2025-09-20T18:06:23: 
+2025-09-20T18:06:23: The table `public.ResumeView` does not exist in the current database.
+2025-09-20T18:27:07: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T18:28:15: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T18:28:15: Environment: production
+2025-09-20T18:28:15: Port: 3000
+2025-09-20T18:28:15: Hostname: 0.0.0.0
+2025-09-20T18:28:15: ✅ Next.js app prepared
+2025-09-20T18:28:15: �� Initializing Socket.io...
+2025-09-20T18:28:15: ✅ Socket.io server initialized successfully
+2025-09-20T18:28:15: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T18:28:15: �� Socket.io ready and listening for connections
+2025-09-20T18:30:55: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T18:30:57: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T18:30:57: Environment: production
+2025-09-20T18:30:57: Port: 3000
+2025-09-20T18:30:57: Hostname: 0.0.0.0
+2025-09-20T18:30:58: ✅ Next.js app prepared
+2025-09-20T18:30:58: �� Initializing Socket.io...
+2025-09-20T18:30:58: ✅ Socket.io server initialized successfully
+2025-09-20T18:30:58: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T18:30:58: �� Socket.io ready and listening for connections
+2025-09-20T18:41:22: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T18:42:28: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T18:42:28: Environment: production
+2025-09-20T18:42:28: Port: 3000
+2025-09-20T18:42:28: Hostname: 0.0.0.0
+2025-09-20T18:42:29: ✅ Next.js app prepared
+2025-09-20T18:42:29: �� Initializing Socket.io...
+2025-09-20T18:42:29: ✅ Socket.io server initialized successfully
+2025-09-20T18:42:29: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T18:42:29: �� Socket.io ready and listening for connections
+2025-09-20T18:44:44: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T18:44:46: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T18:44:46: Environment: production
+2025-09-20T18:44:46: Port: 3000
+2025-09-20T18:44:46: Hostname: 0.0.0.0
+2025-09-20T18:44:46: ✅ Next.js app prepared
+2025-09-20T18:44:46: �� Initializing Socket.io...
+2025-09-20T18:44:46: ✅ Socket.io server initialized successfully
+2025-09-20T18:44:46: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T18:44:46: �� Socket.io ready and listening for connections
+2025-09-20T18:57:20: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T18:58:27: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T18:58:27: Environment: production
+2025-09-20T18:58:27: Port: 3000
+2025-09-20T18:58:27: Hostname: 0.0.0.0
+2025-09-20T18:58:27: ✅ Next.js app prepared
+2025-09-20T18:58:27: �� Initializing Socket.io...
+2025-09-20T18:58:27: ✅ Socket.io server initialized successfully
+2025-09-20T18:58:27: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T18:58:27: �� Socket.io ready and listening for connections
+2025-09-20T19:09:03: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T19:09:05: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T19:09:05: Environment: production
+2025-09-20T19:09:05: Port: 3000
+2025-09-20T19:09:05: Hostname: 0.0.0.0
+2025-09-20T19:09:05: ✅ Next.js app prepared
+2025-09-20T19:09:05: �� Initializing Socket.io...
+2025-09-20T19:09:05: ✅ Socket.io server initialized successfully
+2025-09-20T19:09:05: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T19:09:05: �� Socket.io ready and listening for connections
+2025-09-20T19:18:50: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T19:19:57: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T19:19:57: Environment: production
+2025-09-20T19:19:57: Port: 3000
+2025-09-20T19:19:57: Hostname: 0.0.0.0
+2025-09-20T19:19:58: ✅ Next.js app prepared
+2025-09-20T19:19:58: �� Initializing Socket.io...
+2025-09-20T19:19:58: ✅ Socket.io server initialized successfully
+2025-09-20T19:19:58: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T19:19:58: �� Socket.io ready and listening for connections
+2025-09-20T19:21:19: 🛑 SIGINT received, shutting down gracefully
+2025-09-20T19:21:21: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-20T19:21:21: Environment: production
+2025-09-20T19:21:21: Port: 3000
+2025-09-20T19:21:21: Hostname: 0.0.0.0
+2025-09-20T19:21:21: ✅ Next.js app prepared
+2025-09-20T19:21:21: �� Initializing Socket.io...
+2025-09-20T19:21:21: ✅ Socket.io server initialized successfully
+2025-09-20T19:21:21: ✅ Server ready on http://0.0.0.0:3000
+2025-09-20T19:21:21: �� Socket.io ready and listening for connections
