@@ -5,8 +5,6 @@ import { HybridResumeAI } from '@/lib/hybrid-resume-ai';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
-const hybridResumeAI = new HybridResumeAI();
-
 const ALLOWED_TYPES = [
   'application/pdf',
   'application/msword',
@@ -105,6 +103,9 @@ export async function POST(request: NextRequest) {
     try {
       console.error('🤖 Starting AI parsing with extracted text length:', extractedText.length);
       console.error('🤖 Extracted text preview:', extractedText.substring(0, 200) + '...');
+      
+      // Initialize HybridResumeAI inside the function to ensure environment variables are loaded
+      const hybridResumeAI = new HybridResumeAI();
       parsedData = await hybridResumeAI.parseResumeText(extractedText);
       aiSuccess = true;
       confidence = parsedData.confidence;
