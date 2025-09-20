@@ -43,6 +43,11 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 	const [newSkill, setNewSkill] = useState('');
 	
+	// Additional sections state
+	const [newProject, setNewProject] = useState({ name: '', description: '', technologies: '', url: '' });
+	const [newCertification, setNewCertification] = useState({ name: '', issuer: '', date: '', url: '' });
+	const [newLanguage, setNewLanguage] = useState({ language: '', proficiency: '' });
+	
 	// AI Suggestions State
 	const [suggestions, setSuggestions] = useState<{ [key: string]: string[] }>({});
 	const [showSuggestions, setShowSuggestions] = useState<{ [key: string]: boolean }>({});
@@ -310,6 +315,104 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		toast({
 			title: 'Skill Removed',
 			description: `Removed "${skillToRemove}" from your skills`,
+		});
+	};
+
+	// Projects Management
+	const addProject = () => {
+		if (newProject.name.trim()) {
+			const project = {
+				name: newProject.name.trim(),
+				description: newProject.description.trim(),
+				technologies: newProject.technologies.split(',').map(t => t.trim()).filter(t => t),
+				url: newProject.url.trim() || undefined
+			};
+			setProfileData(prev => ({
+				...prev,
+				projects: [...prev.projects, project]
+			}));
+			setNewProject({ name: '', description: '', technologies: '', url: '' });
+			toast({
+				title: 'Project Added',
+				description: `Added "${project.name}" to your projects`,
+			});
+		}
+	};
+
+	const removeProject = (index: number) => {
+		const project = profileData.projects[index];
+		setProfileData(prev => ({
+			...prev,
+			projects: prev.projects.filter((_, i) => i !== index)
+		}));
+		toast({
+			title: 'Project Removed',
+			description: `Removed "${project.name}" from your projects`,
+		});
+	};
+
+	// Certifications Management
+	const addCertification = () => {
+		if (newCertification.name.trim()) {
+			const certification = {
+				name: newCertification.name.trim(),
+				issuer: newCertification.issuer.trim(),
+				date: newCertification.date.trim(),
+				url: newCertification.url.trim() || undefined
+			};
+			setProfileData(prev => ({
+				...prev,
+				certifications: [...prev.certifications, certification]
+			}));
+			setNewCertification({ name: '', issuer: '', date: '', url: '' });
+			toast({
+				title: 'Certification Added',
+				description: `Added "${certification.name}" to your certifications`,
+			});
+		}
+	};
+
+	const removeCertification = (index: number) => {
+		const certification = profileData.certifications[index];
+		setProfileData(prev => ({
+			...prev,
+			certifications: prev.certifications.filter((_, i) => i !== index)
+		}));
+		toast({
+			title: 'Certification Removed',
+			description: `Removed "${certification.name}" from your certifications`,
+		});
+	};
+
+	// Languages Management
+	const addLanguage = () => {
+		if (newLanguage.language.trim()) {
+			const language = {
+				language: newLanguage.language.trim(),
+				proficiency: newLanguage.proficiency.trim() || 'Native'
+			};
+			setProfileData(prev => ({
+				...prev,
+				languages: [...prev.languages, language]
+			}));
+			setNewLanguage({ language: '', proficiency: '' });
+			toast({
+				title: 'Language Added',
+				description: `Added "${language.language}" to your languages`,
+			});
+		}
+	};
+
+	const removeLanguage = (index: number) => {
+		const language = profileData.languages[index];
+		const languageName = typeof language === 'string' ? language : language.language;
+		setProfileData(prev => ({
+			...prev,
+			languages: prev.languages.filter((_, i) => i !== index)
+		}));
+		toast({
+			title: 'Language Removed',
+			description: `Removed "${languageName}" from your languages`,
 		});
 	};
 
@@ -969,88 +1072,266 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 					</div>
 
 					{/* Projects Section */}
-					<div className="bg-gradient-to-r from-violet-50 to-purple-50 p-6 rounded-xl border border-violet-100">
-						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-							<Star className="h-5 w-5 text-violet-600" />
+					<div className="bg-gradient-to-r from-violet-50 to-purple-50 p-4 sm:p-6 rounded-xl border border-violet-100">
+						<h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<Edit3 className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
 							Projects & Portfolio
 						</h3>
 						<div className="space-y-4">
 							{profileData.projects && profileData.projects.length > 0 ? (
 								profileData.projects.map((project: any, index: number) => (
-									<div key={index} className="bg-white p-4 rounded-lg border border-violet-200">
-										<div className="flex justify-between items-start mb-2">
-											<h4 className="font-semibold text-gray-800">{project.name}</h4>
-											{project.url && (
-												<a href={project.url} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:text-violet-800 text-sm">
-													View Project →
-												</a>
-											)}
+									<div key={index} className="bg-white p-3 sm:p-4 rounded-lg border border-violet-200">
+										<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+											<h4 className="font-semibold text-gray-800 text-sm sm:text-base">{project.name}</h4>
+											<div className="flex items-center gap-2">
+												{project.url && (
+													<a href={project.url} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:text-violet-800 text-xs sm:text-sm">
+														View Project →
+													</a>
+												)}
+												<button
+													onClick={() => removeProject(index)}
+													className="text-red-500 hover:text-red-700 p-1"
+													title="Remove project"
+												>
+													<X className="h-4 w-4" />
+												</button>
+											</div>
 										</div>
-										<p className="text-sm text-gray-600 mb-2">{project.technologies?.join(', ')}</p>
-										<p className="text-sm text-gray-700">{project.description}</p>
+										{project.technologies && project.technologies.length > 0 && (
+											<p className="text-xs sm:text-sm text-gray-600 mb-2">{project.technologies.join(', ')}</p>
+										)}
+										<p className="text-xs sm:text-sm text-gray-700">{project.description}</p>
 									</div>
 								))
 							) : (
-								<div className="text-center py-8 text-gray-500">
-									<Star className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-									<p>No projects added yet. Projects will appear here when extracted from your resume.</p>
+								<div className="text-center py-6 sm:py-8 text-gray-500">
+									<Star className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-gray-400" />
+									<p className="text-sm sm:text-base">No projects added yet. Add your projects below.</p>
 								</div>
 							)}
+							
+							{/* Add Project Form */}
+							<div className="bg-white p-3 sm:p-4 rounded-lg border border-violet-200">
+								<h4 className="font-semibold text-gray-800 mb-3 text-sm sm:text-base">Add New Project</h4>
+								<div className="space-y-3">
+									<div>
+										<Label htmlFor="project-name" className="text-xs sm:text-sm text-gray-700 font-medium">Project Name *</Label>
+										<Input
+											id="project-name"
+											defaultValue={newProject.name}
+											onBlur={(e) => setNewProject(prev => ({ ...prev, name: e.target.value }))}
+											placeholder="e.g., E-commerce Website"
+											className="mt-1 text-xs sm:text-sm"
+										/>
+									</div>
+									<div>
+										<Label htmlFor="project-description" className="text-xs sm:text-sm text-gray-700 font-medium">Description</Label>
+										<Input
+											id="project-description"
+											defaultValue={newProject.description}
+											onBlur={(e) => setNewProject(prev => ({ ...prev, description: e.target.value }))}
+											placeholder="Brief description of the project"
+											className="mt-1 text-xs sm:text-sm"
+										/>
+									</div>
+									<div>
+										<Label htmlFor="project-technologies" className="text-xs sm:text-sm text-gray-700 font-medium">Technologies</Label>
+										<Input
+											id="project-technologies"
+											defaultValue={newProject.technologies}
+											onBlur={(e) => setNewProject(prev => ({ ...prev, technologies: e.target.value }))}
+											placeholder="e.g., React, Node.js, MongoDB"
+											className="mt-1 text-xs sm:text-sm"
+										/>
+									</div>
+									<div>
+										<Label htmlFor="project-url" className="text-xs sm:text-sm text-gray-700 font-medium">Project URL</Label>
+										<Input
+											id="project-url"
+											defaultValue={newProject.url}
+											onBlur={(e) => setNewProject(prev => ({ ...prev, url: e.target.value }))}
+											placeholder="https://your-project.com"
+											className="mt-1 text-xs sm:text-sm"
+										/>
+									</div>
+									<Button
+										onClick={addProject}
+										disabled={!newProject.name.trim()}
+										className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white text-xs sm:text-sm px-3 sm:px-4 py-2"
+									>
+										<Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+										Add Project
+									</Button>
+								</div>
+							</div>
 						</div>
 					</div>
 
 					{/* Certifications Section */}
-					<div className="bg-gradient-to-r from-emerald-50 to-green-50 p-6 rounded-xl border border-emerald-100">
-						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-							<GraduationCap className="h-5 w-5 text-emerald-600" />
+					<div className="bg-gradient-to-r from-emerald-50 to-green-50 p-4 sm:p-6 rounded-xl border border-emerald-100">
+						<h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<Edit3 className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
 							Certifications
 						</h3>
 						<div className="space-y-4">
 							{profileData.certifications && profileData.certifications.length > 0 ? (
 								profileData.certifications.map((cert: any, index: number) => (
-									<div key={index} className="bg-white p-4 rounded-lg border border-emerald-200">
-										<div className="flex justify-between items-start mb-2">
-											<h4 className="font-semibold text-gray-800">{cert.name}</h4>
-											<span className="text-sm text-gray-600">{cert.issuer}</span>
+									<div key={index} className="bg-white p-3 sm:p-4 rounded-lg border border-emerald-200">
+										<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+											<h4 className="font-semibold text-gray-800 text-sm sm:text-base">{cert.name}</h4>
+											<div className="flex items-center gap-2">
+												<span className="text-xs sm:text-sm text-gray-600">{cert.issuer}</span>
+												<button
+													onClick={() => removeCertification(index)}
+													className="text-red-500 hover:text-red-700 p-1"
+													title="Remove certification"
+												>
+													<X className="h-4 w-4" />
+												</button>
+											</div>
 										</div>
-										<p className="text-sm text-gray-600">{cert.date}</p>
+										<p className="text-xs sm:text-sm text-gray-600 mb-2">{cert.date}</p>
 										{cert.url && (
-											<a href={cert.url} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-800 text-sm">
+											<a href={cert.url} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-800 text-xs sm:text-sm">
 												View Certificate →
 											</a>
 										)}
 									</div>
 								))
 							) : (
-								<div className="text-center py-8 text-gray-500">
-									<GraduationCap className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-									<p>No certifications added yet. Certifications will appear here when extracted from your resume.</p>
+								<div className="text-center py-6 sm:py-8 text-gray-500">
+									<GraduationCap className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-gray-400" />
+									<p className="text-sm sm:text-base">No certifications added yet. Add your certifications below.</p>
 								</div>
 							)}
+							
+							{/* Add Certification Form */}
+							<div className="bg-white p-3 sm:p-4 rounded-lg border border-emerald-200">
+								<h4 className="font-semibold text-gray-800 mb-3 text-sm sm:text-base">Add New Certification</h4>
+								<div className="space-y-3">
+									<div>
+										<Label htmlFor="cert-name" className="text-xs sm:text-sm text-gray-700 font-medium">Certification Name *</Label>
+										<Input
+											id="cert-name"
+											defaultValue={newCertification.name}
+											onBlur={(e) => setNewCertification(prev => ({ ...prev, name: e.target.value }))}
+											placeholder="e.g., AWS Certified Solutions Architect"
+											className="mt-1 text-xs sm:text-sm"
+										/>
+									</div>
+									<div>
+										<Label htmlFor="cert-issuer" className="text-xs sm:text-sm text-gray-700 font-medium">Issuing Organization</Label>
+										<Input
+											id="cert-issuer"
+											defaultValue={newCertification.issuer}
+											onBlur={(e) => setNewCertification(prev => ({ ...prev, issuer: e.target.value }))}
+											placeholder="e.g., Amazon Web Services"
+											className="mt-1 text-xs sm:text-sm"
+										/>
+									</div>
+									<div>
+										<Label htmlFor="cert-date" className="text-xs sm:text-sm text-gray-700 font-medium">Date</Label>
+										<Input
+											id="cert-date"
+											defaultValue={newCertification.date}
+											onBlur={(e) => setNewCertification(prev => ({ ...prev, date: e.target.value }))}
+											placeholder="e.g., Jan 2024"
+											className="mt-1 text-xs sm:text-sm"
+										/>
+									</div>
+									<div>
+										<Label htmlFor="cert-url" className="text-xs sm:text-sm text-gray-700 font-medium">Certificate URL</Label>
+										<Input
+											id="cert-url"
+											defaultValue={newCertification.url}
+											onBlur={(e) => setNewCertification(prev => ({ ...prev, url: e.target.value }))}
+											placeholder="https://certificate-link.com"
+											className="mt-1 text-xs sm:text-sm"
+										/>
+									</div>
+									<Button
+										onClick={addCertification}
+										disabled={!newCertification.name.trim()}
+										className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm px-3 sm:px-4 py-2"
+									>
+										<Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+										Add Certification
+									</Button>
+								</div>
+							</div>
 						</div>
 					</div>
 
 					{/* Languages Section */}
-					<div className="bg-gradient-to-r from-rose-50 to-pink-50 p-6 rounded-xl border border-rose-100">
-						<h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-							<User className="h-5 w-5 text-rose-600" />
+					<div className="bg-gradient-to-r from-rose-50 to-pink-50 p-4 sm:p-6 rounded-xl border border-rose-100">
+						<h3 className="text-base sm:text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+							<Edit3 className="h-4 w-4 sm:h-5 sm:w-5 text-rose-600" />
 							Languages
 						</h3>
 						<div className="space-y-4">
 							{profileData.languages && profileData.languages.length > 0 ? (
-								<div className="flex flex-wrap gap-3">
+								<div className="flex flex-wrap gap-2 sm:gap-3">
 									{profileData.languages.map((lang: any, index: number) => (
-										<span key={index} className="inline-flex items-center rounded-full border-2 px-3 py-1.5 text-sm font-semibold text-rose-700 bg-rose-100 border-rose-300">
-											{typeof lang === 'string' ? lang : `${lang.language} (${lang.proficiency})`}
-										</span>
+										<div key={index} className="inline-flex items-center rounded-full border-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-rose-700 bg-rose-100 border-rose-300">
+											<span>{typeof lang === 'string' ? lang : `${lang.language} (${lang.proficiency})`}</span>
+											<button
+												onClick={() => removeLanguage(index)}
+												className="ml-1 sm:ml-2 text-rose-500 hover:text-rose-700"
+												title="Remove language"
+											>
+												<X className="h-3 w-3" />
+											</button>
+										</div>
 									))}
 								</div>
 							) : (
-								<div className="text-center py-8 text-gray-500">
-									<User className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-									<p>No languages added yet. Languages will appear here when extracted from your resume.</p>
+								<div className="text-center py-6 sm:py-8 text-gray-500">
+									<User className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-gray-400" />
+									<p className="text-sm sm:text-base">No languages added yet. Add your languages below.</p>
 								</div>
 							)}
+							
+							{/* Add Language Form */}
+							<div className="bg-white p-3 sm:p-4 rounded-lg border border-rose-200">
+								<h4 className="font-semibold text-gray-800 mb-3 text-sm sm:text-base">Add New Language</h4>
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+									<div>
+										<Label htmlFor="language-name" className="text-xs sm:text-sm text-gray-700 font-medium">Language *</Label>
+										<Input
+											id="language-name"
+											defaultValue={newLanguage.language}
+											onBlur={(e) => setNewLanguage(prev => ({ ...prev, language: e.target.value }))}
+											placeholder="e.g., English, Spanish"
+											className="mt-1 text-xs sm:text-sm"
+										/>
+									</div>
+									<div>
+										<Label htmlFor="language-proficiency" className="text-xs sm:text-sm text-gray-700 font-medium">Proficiency</Label>
+										<select
+											id="language-proficiency"
+											defaultValue={newLanguage.proficiency}
+											onChange={(e) => setNewLanguage(prev => ({ ...prev, proficiency: e.target.value }))}
+											className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 text-xs sm:text-sm"
+										>
+											<option value="">Select proficiency</option>
+											<option value="Native">Native</option>
+											<option value="Fluent">Fluent</option>
+											<option value="Advanced">Advanced</option>
+											<option value="Intermediate">Intermediate</option>
+											<option value="Basic">Basic</option>
+										</select>
+									</div>
+								</div>
+								<Button
+									onClick={addLanguage}
+									disabled={!newLanguage.language.trim()}
+									className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 mt-3"
+								>
+									<Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+									Add Language
+								</Button>
+							</div>
 						</div>
 					</div>
 
