@@ -47,7 +47,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	const [suggestions, setSuggestions] = useState<{ [key: string]: string[] }>({});
 	const [showSuggestions, setShowSuggestions] = useState<{ [key: string]: boolean }>({});
 	const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: string]: boolean }>({});
-	const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	// Removed suggestionTimeoutRef - no more debouncing needed
 
 	// Auto-fill form when initialData changes
 	useEffect(() => {
@@ -97,45 +97,20 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	const handleInputChange = useCallback((field: string, value: string) => {
 		console.log(`📝 Updating ${field}:`, value);
 		setProfileData(prev => ({ ...prev, [field]: value }));
-		
-		// Only trigger AI suggestions for relevant fields AND when user has typed at least 3 characters
-		if (['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field) && value.trim().length >= 3) {
-			debounceSuggestions(field, value);
-		}
+		// No automatic AI processing - let user decide when to use AI
 	}, []);
 
-	// Optimized debounced AI suggestions with better performance
-	const debounceSuggestions = useCallback((field: string, value: string) => {
-		if (suggestionTimeoutRef.current) {
-			clearTimeout(suggestionTimeoutRef.current);
-		}
-
-		// Only fetch suggestions for meaningful input - require at least 3 characters
-		if (value.trim().length < 3) { // Require at least 3 characters
-			setSuggestions(prev => ({ ...prev, [field]: [] }));
-			setShowSuggestions(prev => ({ ...prev, [field]: false })); // Hide suggestions if input is too short
-			return;
-		}
-
-		// Don't auto-show suggestions, let user manually trigger them
-		suggestionTimeoutRef.current = setTimeout(() => {
+	// Simple manual AI suggestions - no automatic processing
+	const manualAISuggestions = useCallback((field: string, value: string) => {
+		// Only fetch if user explicitly requests it
+		if (value && value.trim().length >= 2) {
 			fetchAISuggestions(field, value);
-		}, 1500); // Increased debounce time to allow smooth typing
+		}
 	}, []);
 
-	// Fetch AI suggestions
+	// Simple AI suggestions fetch
 	const fetchAISuggestions = useCallback(async (field: string, value: string) => {
-		// Prevent multiple simultaneous calls for the same field
-		if (loadingSuggestions[field]) {
-			console.log(`⏳ Already loading suggestions for ${field}, skipping...`);
-			return;
-		}
-		
-		// Don't fetch suggestions for very short input
-		if (!value || value.trim().length < 2) {
-			console.log(`⚠️ Input too short for ${field}, skipping AI suggestions`);
-			return;
-		}
+		if (loadingSuggestions[field]) return;
 		
 		setLoadingSuggestions(prev => ({ ...prev, [field]: true }));
 		
@@ -165,13 +140,8 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				
 				if (result.success && result.suggestions && result.suggestions.length > 0) {
 					setSuggestions(prev => ({ ...prev, [field]: result.suggestions }));
-					// Don't auto-show suggestions - let user manually trigger them by clicking the sparkle icon
-					// setShowSuggestions(prev => ({ ...prev, [field]: true }));
-					
-					// Show subtle notification for suggestions
+					// Don't auto-show - let user manually open
 					console.log(`✨ ${result.suggestions.length} suggestions available for ${field}`);
-				} else {
-					console.warn(`⚠️ No suggestions received for ${field}`);
 				}
 			} else {
 				console.error(`❌ API error: ${response.status} ${response.statusText}`);
@@ -222,19 +192,13 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 			return value !== undefined ? value : (profileData[field as keyof typeof profileData] as string);
 		}, [value, field, profileData]);
 		const handleChange = useCallback((val: string) => {
-			// Immediate state update for smooth typing
+			// Simple, direct input handling - no AI interference
 			if (onChange) {
 				onChange(val);
 			} else {
-				// Direct state update without AI processing for smooth typing
 				setProfileData(prev => ({ ...prev, [field]: val }));
-				
-				// Only trigger AI suggestions after user stops typing (3+ chars)
-				if (['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field) && val.trim().length >= 3) {
-					debounceSuggestions(field, val);
-				}
 			}
-		}, [field, onChange, profileData]);
+		}, [field, onChange]);
 
 		return (
 			<div className="relative">
@@ -265,7 +229,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
 						</div>
 					)}
-					{/* Manual AI Suggestions Trigger */}
+					{/* Simple AI Suggestions Button - Completely Manual */}
 					{['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field) && (
 						<button
 							type="button"
@@ -274,24 +238,14 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									// Toggle existing suggestions
 									setShowSuggestions(prev => ({ ...prev, [field]: !prev[field] }));
 								} else if (inputValue && inputValue.trim().length >= 2) {
-									// Fetch new suggestions if none exist
-									fetchAISuggestions(field, inputValue);
+									// Fetch new suggestions manually
+									manualAISuggestions(field, inputValue);
 								}
 							}}
-							className={`absolute right-3 top-1/2 transform -translate-y-1/2 rounded-full p-1 transition-all duration-200 ${
-								showFieldSuggestions 
-									? 'text-blue-700 bg-blue-100' 
-									: 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'
-							}`}
-							title={fieldSuggestions.length > 0 ? 
-								`${showFieldSuggestions ? 'Hide' : 'Show'} ${fieldSuggestions.length} AI suggestions` :
-								'Get AI suggestions (type at least 2 characters first)'
-							}
+							className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 rounded-full p-1 transition-colors"
+							title="Get AI suggestions (optional)"
 						>
 							<Sparkles className="h-4 w-4" />
-							{!showFieldSuggestions && fieldSuggestions.length > 0 && (
-								<div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></div>
-							)}
 						</button>
 					)}
 				</div>
