@@ -187,17 +187,18 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		const showFieldSuggestions = showSuggestions[field] || false;
 		const loading = loadingSuggestions[field] || false;
 
-		// Simple input value - no complex logic
-		const inputValue = value !== undefined ? value : (profileData[field as keyof typeof profileData] as string) || '';
+		// Get initial value for uncontrolled input
+		const initialValue = value !== undefined ? value : (profileData[field as keyof typeof profileData] as string) || '';
 		
-		// Simple change handler - no complex callbacks
-		const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		// Simple blur handler - only update state when user leaves field
+		const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
 			const val = e.target.value;
 			if (onChange) {
 				onChange(val);
 			} else {
 				setProfileData(prev => ({ ...prev, [field]: val }));
 			}
+			setShowSuggestions(prev => ({ ...prev, [field]: false }));
 		};
 
 		return (
@@ -208,15 +209,12 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						id={field}
 						name={field}
 						type={type}
-						value={inputValue}
-						onChange={handleChange}
+						defaultValue={initialValue}
+						onBlur={handleBlur}
 						placeholder={placeholder}
 						className={`mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-opacity-50 hover:border-gray-400 transition-all duration-200 ${className}`}
 						required={required}
 						autoComplete={field === 'email' ? 'email' : field === 'phone' ? 'tel' : field === 'fullName' ? 'name' : field === 'location' ? 'address-line1' : 'off'}
-						onBlur={() => {
-							setShowSuggestions(prev => ({ ...prev, [field]: false }));
-						}}
 					/>
 					{loading && (
 						<div className="absolute right-8 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -231,9 +229,14 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 								if (fieldSuggestions.length > 0) {
 									// Toggle existing suggestions
 									setShowSuggestions(prev => ({ ...prev, [field]: !prev[field] }));
-								} else if (inputValue && inputValue.trim().length >= 2) {
-									// Fetch new suggestions manually
-									manualAISuggestions(field, inputValue);
+								} else {
+									// Get current value from DOM element
+									const inputElement = document.getElementById(field) as HTMLInputElement;
+									const currentValue = inputElement?.value || '';
+									if (currentValue && currentValue.trim().length >= 2) {
+										// Fetch new suggestions manually
+										manualAISuggestions(field, currentValue);
+									}
 								}
 							}}
 							className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 rounded-full p-1 transition-colors"
@@ -258,6 +261,12 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 								key={index}
 								type="button"
 								onClick={() => {
+									// Set value directly on DOM element
+									const inputElement = document.getElementById(field) as HTMLInputElement;
+									if (inputElement) {
+										inputElement.value = suggestion;
+									}
+									// Update state
 									if (onChange) {
 										onChange(suggestion);
 									} else {
