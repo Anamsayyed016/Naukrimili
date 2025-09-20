@@ -5506,3 +5506,15 @@
 2025-09-20T17:48:16:     at node:internal/main/run_main_module:36:49
 2025-09-20T17:48:16: 
 2025-09-20T17:48:16: Node.js v22.16.0
+2025-09-20T18:03:16: Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'E:\myprojects\jobportal\lib\socket-setup.js' imported from E:\myprojects\jobportal\server.js
+2025-09-20T18:03:16:     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+2025-09-20T18:03:16:     at moduleResolve (node:internal/modules/esm/resolve:860:10)
+2025-09-20T18:03:16:     at defaultResolve (node:internal/modules/esm/resolve:984:11)
+2025-09-20T18:03:16:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+2025-09-20T18:03:16:     at #cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+2025-09-20T18:03:16:     at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+2025-09-20T18:03:16:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+2025-09-20T18:03:16:     at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {
+2025-09-20T18:03:16:   code: 'ERR_MODULE_NOT_FOUND',
+2025-09-20T18:03:16:   url: 'file:///E:/myprojects/jobportal/lib/socket-setup.js'
+2025-09-20T18:03:16: }
