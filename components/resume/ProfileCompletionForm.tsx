@@ -253,6 +253,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 									if (currentValue && currentValue.trim().length >= 2) {
 									// Fetch new suggestions manually
 									optionalAISuggestions(field, currentValue);
+									
 									}
 								}
 							}}
