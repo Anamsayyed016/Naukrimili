@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -106,7 +106,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		});
 	}, [profileData]);
 
-	const handleInputChange = (field: string, value: string) => {
+	const handleInputChange = useCallback((field: string, value: string) => {
 		console.log(`📝 Updating ${field}:`, value);
 		setProfileData(prev => ({ ...prev, [field]: value }));
 		
@@ -114,10 +114,10 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		if (['skills', 'jobTitle', 'location', 'summary', 'expectedSalary'].includes(field)) {
 			debounceSuggestions(field, value);
 		}
-	};
+	}, []);
 
 	// Optimized debounced AI suggestions with better performance
-	const debounceSuggestions = (field: string, value: string) => {
+	const debounceSuggestions = useCallback((field: string, value: string) => {
 		if (suggestionTimeoutRef.current) {
 			clearTimeout(suggestionTimeoutRef.current);
 		}
@@ -133,10 +133,10 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		suggestionTimeoutRef.current = setTimeout(() => {
 			fetchAISuggestions(field, value);
 		}, 1000); // Increased debounce time to allow smooth typing
-	};
+	}, []);
 
 	// Fetch AI suggestions
-	const fetchAISuggestions = async (field: string, value: string) => {
+	const fetchAISuggestions = useCallback(async (field: string, value: string) => {
 		// Prevent multiple simultaneous calls for the same field
 		if (loadingSuggestions[field]) {
 			console.log(`⏳ Already loading suggestions for ${field}, skipping...`);
@@ -187,7 +187,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		} finally {
 			setLoadingSuggestions(prev => ({ ...prev, [field]: false }));
 		}
-	};
+	}, [loadingSuggestions, profileData]);
 
 	// Apply suggestion
 	const applySuggestion = (field: string, suggestion: string) => {
@@ -209,7 +209,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 	};
 
 	// AI-Powered Input Component
-	const AIPoweredInput = ({ field, label, placeholder, type = "text", required = false, className = "", value, onChange }: {
+	const AIPoweredInput = useCallback(({ field, label, placeholder, type = "text", required = false, className = "", value, onChange }: {
 		field: string;
 		label: string;
 		placeholder: string;
@@ -224,14 +224,23 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		const loading = loadingSuggestions[field] || false;
 
 		// Use custom value and onChange if provided, otherwise use default behavior
-		const inputValue = value !== undefined ? value : (profileData[field as keyof typeof profileData] as string);
-		const handleChange = onChange || ((val: string) => handleInputChange(field, val));
+		const inputValue = useMemo(() => {
+			return value !== undefined ? value : (profileData[field as keyof typeof profileData] as string);
+		}, [value, field, profileData]);
+		const handleChange = useCallback((val: string) => {
+			if (onChange) {
+				onChange(val);
+			} else {
+				handleInputChange(field, val);
+			}
+		}, [field, onChange, handleInputChange]);
 
 		return (
 			<div className="relative">
 				<Label htmlFor={field} className="text-gray-700 font-medium">{label} {required && '*'}</Label>
 				<div className="relative">
 					<Input
+						key={`input-${field}`}
 						id={field}
 						name={field}
 						type={type}
@@ -303,7 +312,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 				)}
 			</div>
 		);
-	};
+	}, [suggestions, showSuggestions, loadingSuggestions, profileData, handleInputChange]);
 
 	const addSkill = () => {
 		if (newSkill.trim() && !profileData.skills.includes(newSkill.trim())) {
