@@ -132,11 +132,17 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 		// Don't auto-show suggestions, let user manually trigger them
 		suggestionTimeoutRef.current = setTimeout(() => {
 			fetchAISuggestions(field, value);
-		}, 800); // Increased debounce time to allow manual typing
+		}, 1000); // Increased debounce time to allow smooth typing
 	};
 
 	// Fetch AI suggestions
 	const fetchAISuggestions = async (field: string, value: string) => {
+		// Prevent multiple simultaneous calls for the same field
+		if (loadingSuggestions[field]) {
+			console.log(`⏳ Already loading suggestions for ${field}, skipping...`);
+			return;
+		}
+		
 		setLoadingSuggestions(prev => ({ ...prev, [field]: true }));
 		
 		try {
@@ -245,7 +251,7 @@ export default function ProfileCompletionForm({ resumeId, initialData = {}, onCo
 						}}
 					/>
 					{loading && (
-						<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+						<div className="absolute right-8 top-1/2 transform -translate-y-1/2 pointer-events-none">
 							<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
 						</div>
 					)}
