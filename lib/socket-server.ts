@@ -225,6 +225,26 @@ class SocketNotificationService {
   }
 
   /**
+   * Send an existing notification via Socket.io (without creating a new one in database)
+   */
+  sendExistingNotification(notification: any) {
+    try {
+      console.log(`📤 Sending existing notification via Socket.io:`, notification.title);
+
+      // Send real-time notification
+      this.io.to(`user_${notification.userId}`).emit('new_notification', {
+        ...notification,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log(`✅ Existing notification sent via Socket.io: ${notification.title}`);
+    } catch (error) {
+      console.error(`❌ Failed to send existing notification via Socket.io:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Send notification to multiple users
    */
   async sendNotificationToUsers(

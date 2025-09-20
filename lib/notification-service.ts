@@ -20,7 +20,7 @@ export interface NotificationData {
   title: string;
   message: string;
   isRead: boolean;
-  data?: Record<string, unknown>;
+  data?: any;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,13 +36,13 @@ export async function createNotification(data: CreateNotificationData): Promise<
         type: data.type,
         title: data.title,
         message: data.message,
-        data: data.data || null,
+        data: data.data as any || null,
         isRead: false
       }
     });
 
     console.log(`✅ Notification created: ${data.type} for user ${data.userId}`);
-    return notification;
+    return notification as NotificationData;
   } catch (error) {
     console.error('❌ Error creating notification:', error);
     throw new Error('Failed to create notification');
@@ -54,7 +54,7 @@ export async function createNotification(data: CreateNotificationData): Promise<
  */
 export async function createWelcomeNotification(userId: string, userName: string, provider: string): Promise<void> {
   try {
-    await createNotification({
+    const notification = await createNotification({
       userId,
       type: 'WELCOME',
       title: `Welcome to Naukrimili! 🎉`,
@@ -65,6 +65,21 @@ export async function createWelcomeNotification(userId: string, userName: string
         welcomeDate: new Date().toISOString()
       }
     });
+
+    // Send real-time notification via Socket.io
+    try {
+      const { getSocketService } = await import('./socket-server');
+      const socketService = getSocketService();
+      
+      if (socketService) {
+        // Send the existing notification via Socket.io without creating a duplicate
+        socketService.sendExistingNotification(notification);
+        console.log(`✅ Welcome notification sent via Socket.io to user ${userId}`);
+      }
+    } catch (socketError) {
+      console.error('❌ Failed to send welcome notification via Socket.io:', socketError);
+      // Don't fail the welcome notification if socket fails
+    }
 
     console.log(`✅ Welcome notification created for user ${userId} (${provider})`);
   } catch (error) {
@@ -108,7 +123,7 @@ export async function getUserNotifications(
       prisma.notification.count({ where })
     ]);
 
-    return { notifications, total };
+    return { notifications: notifications as NotificationData[], total };
   } catch (error) {
     console.error('❌ Error fetching notifications:', error);
     throw new Error('Failed to fetch notifications');
