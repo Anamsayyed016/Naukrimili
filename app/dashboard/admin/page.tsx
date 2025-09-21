@@ -348,6 +348,12 @@ export default function AdminDashboard() {
                   <span className="font-medium">Seed Jobs</span>
                 </Button>
               </Link>
+              <Link href="/admin/scrape-jobs">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 hover:border-amber-300">
+                  <Database className="h-6 w-6" />
+                  <span className="font-medium">Scrape Jobs</span>
+                </Button>
+              </Link>
               <Link href="/dashboard/admin/analytics">
                 <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300">
                   <TrendingUp className="h-6 w-6" />

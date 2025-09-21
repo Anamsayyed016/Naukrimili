@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import EnhancedJobCard from '@/components/EnhancedJobCard';
 import { JobResult } from '@/types/jobs';
+import EnhancedPagination from '@/components/ui/enhanced-pagination';
 
 interface Job {
   id: string;
@@ -276,83 +277,27 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
           </div>
         )}
 
-        {/* Pagination */}
-        {(() => {
-          console.log('🔍 Pagination visibility check:', {
-            loading,
-            jobsLength: jobs.length,
-            totalPages,
-            shouldShow: !loading && jobs.length > 0 && totalPages > 1
-          });
-          return !loading && jobs.length > 0 && totalPages > 1;
-        })() && (
-          <div className="mt-8 flex items-center justify-center">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 w-full max-w-2xl">
-              <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
-                {/* Previous Button */}
-                <button
-                  onClick={handlePrevPage}
-                  disabled={!hasPrevPage}
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    hasPrevPage
-                      ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-                      : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
-                  }`}
-                >
-                  Previous
-                </button>
-
-                {/* Page Numbers */}
-                <div className="flex items-center justify-center flex-wrap gap-1">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                          currentPage === pageNum
-                            ? 'bg-blue-600 text-white border border-blue-600'
-                            : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Next Button */}
-                <button
-                  onClick={handleNextPage}
-                  disabled={!hasNextPage}
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    hasNextPage
-                      ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400'
-                      : 'text-gray-400 bg-gray-100 border border-gray-200 cursor-not-allowed'
-                  }`}
-                >
-                  Next
-                </button>
-              </div>
-
-              {/* Page Info */}
-              <div className="mt-3 text-center">
-                <p className="text-xs sm:text-sm text-gray-500">
-                  Page {currentPage} of {totalPages} • {totalJobs.toLocaleString()} total jobs
-                </p>
-              </div>
-            </div>
+        {/* Enhanced Pagination */}
+        {!loading && jobs.length > 0 && totalPages > 1 && (
+          <div className="mt-8">
+            <EnhancedPagination
+              config={{
+                page: currentPage,
+                limit: 20,
+                total: totalJobs,
+                maxVisiblePages: 7,
+                showFirstLast: true,
+                showPrevNext: true,
+                showJumpToPage: totalPages > 10,
+                showItemsPerPage: true,
+                itemsPerPageOptions: [10, 20, 50, 100]
+              }}
+              onPageChange={handlePageChange}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+              showInfo={true}
+              showJumpToPage={totalPages > 10}
+              showItemsPerPage={true}
+            />
           </div>
         )}
 
