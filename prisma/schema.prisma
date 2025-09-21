@@ -376,3 +376,27 @@ model ResumeView {
   @@index([companyId])
   @@unique([resumeId, viewerId, viewedAt], name: "unique_view_per_hour")
 }
+
+model MobileError {
+  id                String    @id @default(cuid())
+  errorId           String    @unique
+  message           String
+  stack             String?
+  componentStack    String?
+  isMobile          Boolean   @default(false)
+  userAgent         String?
+  timestamp         DateTime
+  url               String?
+  screenSize        String?
+  viewport          String?
+  devicePixelRatio  Float?
+  touchSupport      Boolean   @default(false)
+  protocol          String?
+  hostname          String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([timestamp])
+  @@index([isMobile])
+  @@index([hostname])
+}
