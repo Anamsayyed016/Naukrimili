@@ -40,11 +40,11 @@ interface Company {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  createdBy: {
+  creator?: {
     id: string;
     name: string;
     email: string;
-  };
+  } | null;
   _count: {
     jobs: number;
     applications: number;
@@ -104,12 +104,26 @@ export default function AdminCompaniesPage() {
       }
 
       const data: CompaniesResponse = await response.json();
-      if (data.success) {
-        setCompanies(data.data.companies);
-        setPagination(data.data.pagination);
+      if (data.success && data.data) {
+        // Ensure companies is always an array and validate data
+        const validCompanies = Array.isArray(data.data.companies) 
+          ? data.data.companies.filter(company => company && company.id && company.name)
+          : [];
+        setCompanies(validCompanies);
+        setPagination(data.data.pagination || {
+          page: 1,
+          limit: 20,
+          total: 0,
+          totalPages: 0
+        });
+        console.log(`✅ Loaded ${validCompanies.length} companies`);
+      } else {
+        console.error('Invalid API response:', data);
+        setCompanies([]);
       }
     } catch (error) {
       console.error('Error fetching companies:', error);
+      setCompanies([]); // Set empty array on error
       toast({
         title: 'Error',
         description: 'Failed to fetch companies',
@@ -490,7 +504,7 @@ export default function AdminCompaniesPage() {
                     
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <div className="text-sm text-gray-600">
-                        <span className="font-medium">Owner:</span> {company.createdBy.name} ({company.createdBy.email})
+                        <span className="font-medium">Owner:</span> {company.creator?.name || 'Unknown'} ({company.creator?.email || 'N/A'})
                       </div>
                       
                       <div className="flex items-center gap-2">

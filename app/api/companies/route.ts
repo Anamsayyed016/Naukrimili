@@ -50,6 +50,13 @@ export async function GET(request: NextRequest) {
       prisma.company.findMany({
         where,
         include: {
+          creator: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          },
           _count: {
             select: {
               jobs: true,
