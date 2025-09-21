@@ -66,20 +66,9 @@ export async function createWelcomeNotification(userId: string, userName: string
       }
     });
 
-    // Send real-time notification via Socket.io
-    try {
-      const { getSocketService } = await import('./socket-server');
-      const socketService = getSocketService();
-      
-      if (socketService) {
-        // Send the existing notification via Socket.io without creating a duplicate
-        socketService.sendExistingNotification(notification);
-        console.log(`✅ Welcome notification sent via Socket.io to user ${userId}`);
-      }
-    } catch (socketError) {
-      console.error('❌ Failed to send welcome notification via Socket.io:', socketError);
-      // Don't fail the welcome notification if socket fails
-    }
+    // Real-time notifications are handled by the socket server in server.js
+    // The notification is already created in the database and will be sent via socket when the user connects
+    console.log(`✅ Welcome notification created for user ${userId} - will be sent via socket when user connects`);
 
     console.log(`✅ Welcome notification created for user ${userId} (${provider})`);
   } catch (error) {

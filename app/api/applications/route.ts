@@ -269,69 +269,9 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Application created successfully:', application.id);
 
-    // Send real-time notification to employers
-    try {
-      console.log('🔔 Attempting to send notification to employers for company:', companyId);
-      
-      const { getSocketService } = await import('@/lib/socket-server');
-      const socketService = getSocketService();
-
-      if (socketService) {
-        // Send to individual company users
-        const companyUsers = await prisma.user.findMany({
-          where: { 
-            role: 'employer',
-            createdCompanies: {
-              some: {
-                id: companyId
-              }
-            }
-          },
-          select: { id: true, name: true, email: true }
-        });
-
-        console.log('👥 Found company users:', companyUsers.length);
-
-        for (const companyUser of companyUsers) {
-          await socketService.sendNotificationToUser(companyUser.id, {
-            type: 'JOB_APPLICATION_RECEIVED',
-            title: 'New Job Application Received! 🎉',
-            message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
-            data: {
-              applicationId: application.id,
-              jobId: jobId,
-              applicantName: user.name,
-              applicantEmail: user.email,
-              jobTitle: application.job.title,
-              company: application.job.company,
-              actionUrl: `/employer/applications/${application.id}`
-            }
-          });
-        }
-
-        // ALSO send to company room for broader reach
-        if (companyId) {
-          await socketService.sendNotificationToRoom(`company:${companyId}`, {
-            type: 'JOB_APPLICATION_RECEIVED',
-            title: 'New Job Application Received! 🎉',
-            message: `${user.name} applied for the position "${application.job.title}"`,
-            data: {
-              applicationId: application.id,
-              jobId: jobId,
-              applicantName: user.name,
-              jobTitle: application.job.title,
-              actionUrl: `/employer/applications/${application.id}`
-            }
-          });
-        }
-
-        console.log('✅ Socket notifications sent successfully');
-      } else {
-        console.log('⚠️ Socket service not available');
-      }
-    } catch (socketError) {
-      console.error('❌ Socket notification failed:', socketError);
-    }
+    // Real-time notifications are handled by the socket server in server.js
+    // The notification is already created in the database and will be sent via socket when employers connect
+    console.log(`✅ Application notification created for company ${companyId} - will be sent via socket when employers connect`);
 
     return NextResponse.json({
       success: true,

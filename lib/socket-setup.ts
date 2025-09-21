@@ -5,7 +5,7 @@
 
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
-import { initializeSocketService } from './socket-server';
+// Note: Socket service initialization is handled in server.js
 
 let io: SocketIOServer | null = null;
 
@@ -30,8 +30,8 @@ export function initializeSocket(httpServer: HTTPServer): SocketIOServer {
     allowEIO3: true
   });
 
-  // Initialize our notification service
-  initializeSocketService(io);
+  // Socket service initialization is handled in server.js
+  // This function just creates the Socket.io server instance
 
   console.log('✅ Socket.io server initialized successfully');
   return io;
