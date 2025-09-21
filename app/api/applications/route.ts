@@ -116,14 +116,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔍 POST /api/applications called');
     const session = await auth();
     
     if (!session?.user?.email) {
+      console.log('❌ No session or email found');
       return NextResponse.json({
         success: false,
         error: 'Authentication required'
       }, { status: 401 });
     }
+    
+    console.log('👤 Session user:', { email: session.user.email });
 
     // Find user
     const user = await prisma.user.findUnique({
@@ -131,11 +135,14 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
+      console.log('❌ User not found for email:', session.user.email);
       return NextResponse.json({
         success: false,
         error: 'User not found'
       }, { status: 404 });
     }
+    
+    console.log('✅ User found:', { userId: user.id, email: user.email, role: user.role });
 
     const formData = await request.formData();
     const jobId = formData.get('jobId') as string;
@@ -147,6 +154,15 @@ export async function POST(request: NextRequest) {
     const expectedSalary = formData.get('expectedSalary') as string;
     const availability = formData.get('availability') as string;
     const resume = formData.get('resume') as File;
+
+    console.log('📝 Form data received:', {
+      jobId,
+      fullName,
+      email,
+      phone,
+      coverLetter: coverLetter?.substring(0, 50) + '...',
+      resumeSize: resume?.size || 0
+    });
 
     // Validate required fields
     if (!jobId || !fullName || !email) {
@@ -255,49 +271,87 @@ export async function POST(request: NextRequest) {
 
     // Send real-time notification to employer
     try {
-      const { getSocketService } = await import('@/lib/socket-server');
-      const socketService = getSocketService();
+      console.log('🔔 Attempting to send notification to employers for company:', companyId);
       
-      if (socketService && companyId) {
-        // Get company users (employers) by finding users who own this company
-        const companyUsers = await prisma.user.findMany({
-          where: { 
-            role: 'employer',
-            // Find users who own this company
-            createdCompanies: {
-              some: {
-                id: companyId
-              }
+      // Get company users (employers) by finding users who own this company
+      const companyUsers = await prisma.user.findMany({
+        where: { 
+          role: 'employer',
+          // Find users who own this company
+          createdCompanies: {
+            some: {
+              id: companyId
             }
-          },
-          select: { id: true }
-        });
+          }
+        },
+        select: { id: true, name: true, email: true }
+      });
 
-        if (companyUsers.length > 0) {
-          const userIds = companyUsers.map(u => u.id);
+      console.log('👥 Found company users:', companyUsers.length);
+
+      if (companyUsers.length > 0) {
+        // Try to send socket notification if available
+        try {
+          const { getSocketService } = await import('@/lib/socket-server');
+          const socketService = getSocketService();
           
-          // Send notification to each employer individually
-          for (const userId of userIds) {
-            await socketService.sendNotificationToUser(userId, {
-              type: 'JOB_APPLICATION_RECEIVED',
-              title: 'New Job Application Received! 🎉',
-              message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
+          if (socketService) {
+            for (const companyUser of companyUsers) {
+              await socketService.sendNotificationToUser(companyUser.id, {
+                type: 'JOB_APPLICATION_RECEIVED',
+                title: 'New Job Application Received! 🎉',
+                message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
+                data: {
+                  applicationId: application.id,
+                  jobId: jobId,
+                  applicantName: user.name,
+                  applicantEmail: user.email,
+                  jobTitle: application.job.title,
+                  company: application.job.company,
+                  actionUrl: `/employer/applications/${application.id}`
+                }
+              });
+              console.log('✅ Socket notification sent to user:', companyUser.id);
+            }
+          } else {
+            console.log('⚠️ Socket service not available');
+          }
+        } catch (socketError) {
+          console.error('❌ Socket notification failed:', socketError);
+        }
+
+        // Also create database notification as backup
+        try {
+          for (const companyUser of companyUsers) {
+            await prisma.notification.create({
               data: {
-                applicationId: application.id,
-                jobId: jobId,
-                applicantName: user.name,
-                applicantEmail: user.email,
-                jobTitle: application.job.title,
-                company: application.job.company,
-                actionUrl: `/employer/applications/${application.id}`
+                userId: companyUser.id,
+                type: 'JOB_APPLICATION_RECEIVED',
+                title: 'New Job Application Received! 🎉',
+                message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
+                data: {
+                  applicationId: application.id,
+                  jobId: jobId,
+                  applicantName: user.name,
+                  applicantEmail: user.email,
+                  jobTitle: application.job.title,
+                  company: application.job.company,
+                  actionUrl: `/employer/applications/${application.id}`
+                },
+                isRead: false
               }
             });
+            console.log('✅ Database notification created for user:', companyUser.id);
           }
+        } catch (dbNotificationError) {
+          console.error('❌ Database notification failed:', dbNotificationError);
         }
+      } else {
+        console.log('⚠️ No company users found for company:', companyId);
       }
-    } catch (socketError) {
-      console.error('Failed to send socket notification:', socketError);
-      // Don't fail the application if socket notification fails
+    } catch (notificationError) {
+      console.error('❌ Notification system error:', notificationError);
+      // Don't fail the application if notification fails
     }
 
     return NextResponse.json({
@@ -312,10 +366,13 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Error creating application:', error);
+    console.error('❌ Error creating application:', error);
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    
     return NextResponse.json({
       success: false,
-      error: 'Failed to submit application'
+      error: error instanceof Error ? error.message : 'Failed to submit application',
+      details: process.env.NODE_ENV === 'development' ? error : undefined
     }, { status: 500 });
   }
 }
