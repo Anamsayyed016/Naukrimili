@@ -246,7 +246,7 @@ export async function POST(request: NextRequest) {
         status: 'submitted',
         appliedAt: new Date(),
         coverLetter: coverLetter || null,
-        resumeId: resumeUrl || '',
+        resumeId: resumeUrl || null,
         companyId: companyId
       },
       include: {
