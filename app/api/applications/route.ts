@@ -4,14 +4,18 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 GET /api/applications called');
     const session = await auth();
     
     if (!session?.user?.email) {
+      console.log('❌ No session or email found');
       return NextResponse.json({
         success: false,
         error: 'Authentication required'
       }, { status: 401 });
     }
+    
+    console.log('👤 Session user:', { email: session.user.email });
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -27,11 +31,14 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
+      console.log('❌ User not found for email:', session.user.email);
       return NextResponse.json({
         success: false,
         error: 'User not found'
       }, { status: 404 });
     }
+    
+    console.log('✅ User found:', { userId: user.id, email: user.email, role: user.role });
 
     const where: any = { userId: user.id };
 
@@ -46,6 +53,8 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    console.log('🔍 Querying applications with where clause:', where);
+    
     const [applications, total] = await Promise.all([
       prisma.application.findMany({
         where,
@@ -76,6 +85,12 @@ export async function GET(request: NextRequest) {
       }),
       prisma.application.count({ where })
     ]);
+    
+    console.log('📊 Applications query results:', { 
+      applicationsCount: applications.length, 
+      total, 
+      where 
+    });
 
     return NextResponse.json({
       success: true,
