@@ -55,8 +55,34 @@ export default function JobApplicationModal({
     setIsSubmitting(true);
 
     try {
-      // For now, simulate a successful application
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('🔍 Submitting application for job:', jobId);
+      
+      // Prepare form data
+      const applicationData = new FormData();
+      applicationData.append('jobId', jobId);
+      applicationData.append('fullName', formData.fullName);
+      applicationData.append('email', formData.email);
+      applicationData.append('phone', formData.phone || '');
+      applicationData.append('coverLetter', formData.coverLetter || '');
+      applicationData.append('notes', formData.coverLetter || ''); // Using cover letter as notes too
+      
+      if (formData.resume) {
+        applicationData.append('resume', formData.resume);
+      }
+
+      // Submit application to API
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        body: applicationData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit application');
+      }
+
+      const result = await response.json();
+      console.log('✅ Application submitted successfully:', result);
       
       setIsSubmitted(true);
       toast({
@@ -79,9 +105,10 @@ export default function JobApplicationModal({
       }, 2000);
 
     } catch (error) {
+      console.error('❌ Error submitting application:', error);
       toast({
         title: "Application Failed",
-        description: "There was an error submitting your application. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error submitting your application. Please try again.",
         variant: "destructive"
       });
     } finally {
