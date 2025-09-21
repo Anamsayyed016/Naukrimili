@@ -342,12 +342,6 @@ export default function AdminDashboard() {
                   <span className="font-medium">Manage Companies</span>
                 </Button>
               </Link>
-              <Link href="/dashboard/admin/content">
-                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300">
-                  <FileText className="h-6 w-6" />
-                  <span className="font-medium">Manage Content</span>
-                </Button>
-              </Link>
               <Link href="/admin/seed-jobs">
                 <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300">
                   <Database className="h-6 w-6" />
