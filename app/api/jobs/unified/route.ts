@@ -532,6 +532,8 @@ export async function GET(request: NextRequest) {
     const totalPages = Math.ceil(finalFilteredJobs.length / limit);
 
     console.log(`🎯 Final results: ${paginatedJobs.length} jobs (${databaseJobsCount} database + ${filteredJobs.length} sample + ${externalJobsCount} external)`);
+    console.log(`📊 Pagination calculation: ${finalFilteredJobs.length} total jobs, ${limit} per page, ${totalPages} total pages`);
+    console.log(`📊 Current page: ${page}, showing jobs ${startIndex + 1} to ${Math.min(endIndex, finalFilteredJobs.length)}`);
 
     return NextResponse.json({
       success: true,

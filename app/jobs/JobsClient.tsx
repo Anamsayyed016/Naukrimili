@@ -87,7 +87,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         country: 'IN',
         includeExternal: 'true',
         page: page.toString(),
-        limit: '50' // 50 jobs per page
+        limit: '15' // 15 jobs per page for better pagination
       });
 
       const unifiedResponse = await fetch(`/api/jobs/unified?${unifiedParams.toString()}`);
@@ -106,11 +106,19 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         setJobs(newJobs);
         
         // Update pagination state
+        console.log('📊 Pagination data from API:', unifiedData.pagination);
         setTotalPages(unifiedData.pagination?.totalPages || 1);
         setTotalJobs(unifiedData.pagination?.total || 0);
         setHasNextPage(unifiedData.pagination?.hasNext || false);
         setHasPrevPage(unifiedData.pagination?.hasPrev || false);
         setCurrentPage(page);
+        console.log('📊 Updated pagination state:', {
+          totalPages: unifiedData.pagination?.totalPages || 1,
+          totalJobs: unifiedData.pagination?.total || 0,
+          hasNext: unifiedData.pagination?.hasNext || false,
+          hasPrev: unifiedData.pagination?.hasPrev || false,
+          currentPage: page
+        });
       } else {
         throw new Error(unifiedData.error || 'Failed to fetch jobs');
       }
@@ -269,10 +277,18 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         )}
 
         {/* Pagination */}
-        {!loading && jobs.length > 0 && totalPages > 1 && (
+        {(() => {
+          console.log('🔍 Pagination visibility check:', {
+            loading,
+            jobsLength: jobs.length,
+            totalPages,
+            shouldShow: !loading && jobs.length > 0 && totalPages > 1
+          });
+          return !loading && jobs.length > 0 && totalPages > 1;
+        })() && (
           <div className="mt-8 flex items-center justify-center">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <div className="flex items-center space-x-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 w-full max-w-2xl">
+              <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
                 {/* Previous Button */}
                 <button
                   onClick={handlePrevPage}
@@ -287,7 +303,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
                 </button>
 
                 {/* Page Numbers */}
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center justify-center flex-wrap gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum;
                     if (totalPages <= 5) {
@@ -331,8 +347,8 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
               </div>
 
               {/* Page Info */}
-              <div className="mt-2 text-center">
-                <p className="text-xs text-gray-500">
+              <div className="mt-3 text-center">
+                <p className="text-xs sm:text-sm text-gray-500">
                   Page {currentPage} of {totalPages} • {totalJobs.toLocaleString()} total jobs
                 </p>
               </div>
