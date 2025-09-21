@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs } from '@/lib/jobs/providers';
+import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from '@/lib/jobs/providers';
 import { prisma } from '@/lib/prisma';
 
 // Cache for external API responses (5 minutes)
@@ -386,6 +386,21 @@ export async function GET(request: NextRequest) {
         });
         externalJobs.push(...googleJobs);
         console.log(`✅ Google Jobs: Found ${googleJobs.length} jobs`);
+
+        // Fetch from Jooble with caching
+        const joobleJobs = await getCachedOrFetch(`${cacheKey}-jooble`, async () => {
+          try {
+            return await fetchFromJooble(query || 'software engineer', location || 'India', page, {
+              radius: radius ? parseInt(radius) : undefined,
+              countryCode: country || 'in'
+            });
+          } catch (error) {
+            console.warn('⚠️ Jooble API error:', error);
+            return [];
+          }
+        });
+        externalJobs.push(...joobleJobs);
+        console.log(`✅ Jooble: Found ${joobleJobs.length} jobs`);
 
         externalJobsCount = externalJobs.length;
         console.log(`🌐 Total external jobs found: ${externalJobsCount}`);

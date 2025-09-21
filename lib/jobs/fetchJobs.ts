@@ -1,4 +1,4 @@
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, checkJobProvidersHealth } from './providers';
+import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble, checkJobProvidersHealth } from './providers';
 import { upsertNormalizedJobs } from './upsertJob';
 import { GoogleSearchService } from '../google-search-service';
 
@@ -83,6 +83,17 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
     all.push(...google);
   } catch (e: any) {
     console.error('❌ External provider 3 fetch failed:', e?.message || e);
+  }
+
+  // 4. Fetch from Jooble
+  try {
+    const jooble = await withRetry(() => fetchFromJooble(query, location || 'India', page, {
+      radius: radiusKm,
+      countryCode: options.countryCode || 'in'
+    }));
+    all.push(...jooble);
+  } catch (e: any) {
+    console.error('❌ Jooble fetch failed:', e?.message || e);
   }
 
   // 4. Fallback: Google Jobs redirect (if no results from APIs)

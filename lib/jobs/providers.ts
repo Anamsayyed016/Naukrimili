@@ -227,58 +227,170 @@ export async function fetchFromGoogleJobs(
 }
 
 /**
+ * Jooble REST API fetcher for real jobs
+ * API Documentation: https://help.jooble.org/en/support/solutions/articles/60001448238-rest-api-documentation
+ */
+export async function fetchFromJooble(
+  query: string,
+  location: string = 'India',
+  page = 1,
+  options?: { radius?: number; salary?: string; countryCode?: string }
+) {
+  const apiKey = process.env.JOOBLE_API_KEY;
+  
+  if (!apiKey) {
+    console.warn('Jooble API key not configured, skipping Jooble fetch');
+    return [] as NormalizedJob[];
+  }
+
+  try {
+    const url = `https://jooble.org/api/${apiKey}`;
+    
+    const requestBody: any = {
+      keywords: query || 'software engineer',
+      location: location || 'India',
+      page: page.toString(),
+      ResultOnPage: '20',
+      SearchMode: '1', // 1 = Job search mode
+      companysearch: 'false'
+    };
+
+    // Add optional parameters
+    if (options?.radius) {
+      requestBody.radius = options.radius.toString();
+    }
+    if (options?.salary) {
+      requestBody.salary = options.salary;
+    }
+
+    const { data } = await axios.post(url, requestBody, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 15000,
+    });
+
+    console.log(`🔍 Jooble API response status: ${data.status || 'success'}, jobs found: ${data.jobs?.length || 0}`);
+
+    const jobs = (data.jobs || []).map((r: any): NormalizedJob => ({
+      source: 'jooble',
+      sourceId: r.id || `jooble-${Date.now()}-${Math.random()}`,
+      title: r.title || '',
+      company: r.company || '',
+      location: r.location || location,
+      country: safeUpper(options?.countryCode || 'IN'),
+      description: r.snippet || r.description || '',
+      requirements: extractRequirements(r.snippet || r.description || ''),
+      applyUrl: r.link || '',  // @deprecated - keep for backward compatibility
+      apply_url: null,         // External jobs don't have internal apply URL
+      source_url: r.link || '', // External source URL
+      postedAt: r.updated ? new Date(r.updated).toISOString() : undefined,
+      salary: r.salary || undefined,
+      salaryMin: extractSalaryMin(r.salary),
+      salaryMax: extractSalaryMax(r.salary),
+      salaryCurrency: getCurrency(options?.countryCode || 'in'),
+      jobType: mapJobType(r.type),
+      experienceLevel: extractExperienceLevel(r.title || '', r.snippet || ''),
+      skills: SkillsExtractionService.extractSkills(
+        r.snippet || r.description || '', 
+        r.title || '', 
+        r.company || ''
+      ).map(s => s.skill),
+      isRemote: checkIfRemote(r.title || '', r.snippet || '', r.location || ''),
+      isHybrid: checkIfHybrid(r.title || '', r.snippet || ''),
+      isUrgent: checkIfUrgent(r.title || '', r.snippet || ''),
+      isFeatured: false,
+      isActive: true,
+      sector: 'Technology',
+      views: 0,
+      applicationsCount: 0,
+      raw: r,
+    }));
+
+    console.log(`✅ Jooble: Found ${jobs.length} jobs for "${query}" in "${location}"`);
+    return jobs;
+
+  } catch (error: any) {
+    console.error(`❌ Jooble API error:`, error.message);
+    if (error.response?.status === 401) {
+      console.warn('⚠️ Jooble API key invalid or expired');
+    } else if (error.response?.status === 429) {
+      console.warn('⚠️ Jooble API rate limit reached');
+    } else if (error.response?.status === 400) {
+      console.warn('⚠️ Jooble API request parameters invalid');
+    }
+    return [] as NormalizedJob[];
+  }
+}
+
+/**
  * Health check for all job providers
  */
 export async function checkJobProvidersHealth(): Promise<{
-  externalProvider1: boolean;
-  externalProvider2: boolean;
-  externalProvider3: boolean;
+  adzuna: boolean;
+  jsearch: boolean;
+  googleJobs: boolean;
+  jooble: boolean;
   details: Record<string, any>;
 }> {
   const health = {
-    externalProvider1: false,
-    externalProvider2: false,
-    externalProvider3: false,
+    adzuna: false,
+    jsearch: false,
+    googleJobs: false,
+    jooble: false,
     details: {} as Record<string, any>
   };
 
-  // Check External Provider 1
+  // Check Adzuna Provider
   if (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) {
     try {
       const testJobs = await fetchFromAdzuna('test', 'gb', 1);
-      health.externalProvider1 = testJobs.length >= 0; // Success if no error
-      health.details.externalProvider1 = { status: 'healthy', jobsFound: testJobs.length };
+      health.adzuna = testJobs.length >= 0; // Success if no error
+      health.details.adzuna = { status: 'healthy', jobsFound: testJobs.length };
     } catch (error: any) {
-      health.details.externalProvider1 = { status: 'error', message: error.message };
+      health.details.adzuna = { status: 'error', message: error.message };
     }
   } else {
-    health.details.externalProvider1 = { status: 'not_configured' };
+    health.details.adzuna = { status: 'not_configured' };
   }
 
-  // Check External Provider 2
+  // Check JSearch Provider
   if (process.env.RAPIDAPI_KEY) {
     try {
       const testJobs = await fetchFromJSearch('test', 'US', 1);
-      health.externalProvider2 = testJobs.length >= 0; // Success if no error
-      health.details.externalProvider2 = { status: 'healthy', jobsFound: testJobs.length };
+      health.jsearch = testJobs.length >= 0; // Success if no error
+      health.details.jsearch = { status: 'healthy', jobsFound: testJobs.length };
     } catch (error: any) {
-      health.details.externalProvider2 = { status: 'error', message: error.message };
+      health.details.jsearch = { status: 'error', message: error.message };
     }
   } else {
-    health.details.externalProvider2 = { status: 'not_configured' };
+    health.details.jsearch = { status: 'not_configured' };
   }
 
-  // Check External Provider 3
+  // Check Google Jobs Provider
   if (process.env.RAPIDAPI_KEY) {
     try {
       const testJobs = await fetchFromGoogleJobs('test', 'India', 1);
-      health.externalProvider3 = testJobs.length >= 0; // Success if no error
-      health.details.externalProvider3 = { status: 'healthy', jobsFound: testJobs.length };
+      health.googleJobs = testJobs.length >= 0; // Success if no error
+      health.details.googleJobs = { status: 'healthy', jobsFound: testJobs.length };
     } catch (error: any) {
-      health.details.externalProvider3 = { status: 'error', message: error.message };
+      health.details.googleJobs = { status: 'error', message: error.message };
     }
   } else {
-    health.details.externalProvider3 = { status: 'not_configured' };
+    health.details.googleJobs = { status: 'not_configured' };
+  }
+
+  // Check Jooble Provider
+  if (process.env.JOOBLE_API_KEY) {
+    try {
+      const testJobs = await fetchFromJooble('test', 'India', 1);
+      health.jooble = testJobs.length >= 0; // Success if no error
+      health.details.jooble = { status: 'healthy', jobsFound: testJobs.length };
+    } catch (error: any) {
+      health.details.jooble = { status: 'error', message: error.message };
+    }
+  } else {
+    health.details.jooble = { status: 'not_configured' };
   }
 
   return health;
@@ -299,4 +411,67 @@ function getCurrency(countryCode: string): string {
     'ae': 'AED'
   };
   return currencies[countryCode.toLowerCase()] || 'USD';
+}
+
+// Jooble-specific helper functions
+function extractSalaryMin(salary: string): number | undefined {
+  if (!salary) return undefined;
+  const match = salary.match(/(\d+(?:,\d{3})*(?:\.\d{2})?)/);
+  return match ? parseFloat(match[1].replace(/,/g, '')) : undefined;
+}
+
+function extractSalaryMax(salary: string): number | undefined {
+  if (!salary) return undefined;
+  const matches = salary.match(/(\d+(?:,\d{3})*(?:\.\d{2})?)/g);
+  if (matches && matches.length > 1) {
+    return parseFloat(matches[1].replace(/,/g, ''));
+  }
+  return undefined;
+}
+
+function mapJobType(type: string): string {
+  const typeMap: Record<string, string> = {
+    'full-time': 'full-time',
+    'full time': 'full-time',
+    'part-time': 'part-time',
+    'part time': 'part-time',
+    'contract': 'contract',
+    'temporary': 'temporary',
+    'internship': 'internship',
+    'freelance': 'freelance',
+    'remote': 'full-time',
+    'hybrid': 'full-time'
+  };
+  return typeMap[type?.toLowerCase() || ''] || 'full-time';
+}
+
+function extractExperienceLevel(title: string, description: string): string {
+  const text = `${title} ${description}`.toLowerCase();
+  
+  if (text.includes('senior') || text.includes('lead') || text.includes('principal') || text.includes('5+') || text.includes('10+')) {
+    return 'senior';
+  }
+  if (text.includes('junior') || text.includes('entry') || text.includes('graduate') || text.includes('0-2') || text.includes('1-3')) {
+    return 'junior';
+  }
+  if (text.includes('mid') || text.includes('intermediate') || text.includes('3-5') || text.includes('2-4')) {
+    return 'mid';
+  }
+  
+  return 'mid'; // Default
+}
+
+function checkIfRemote(title: string, description: string, location: string): boolean {
+  const text = `${title} ${description} ${location}`.toLowerCase();
+  return text.includes('remote') || text.includes('work from home') || text.includes('wfh') || location.toLowerCase().includes('remote');
+}
+
+function checkIfHybrid(title: string, description: string): boolean {
+  const text = `${title} ${description}`.toLowerCase();
+  return text.includes('hybrid') || text.includes('flexible') || text.includes('part remote');
+}
+
+function checkIfUrgent(title: string, description: string): boolean {
+  const text = `${title} ${description}`.toLowerCase();
+  return text.includes('urgent') || text.includes('immediate') || text.includes('asap') || text.includes('hiring now');
 }

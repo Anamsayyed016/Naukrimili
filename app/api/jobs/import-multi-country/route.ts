@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs } from '@/lib/jobs/providers';
+import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from '@/lib/jobs/providers';
 import { upsertNormalizedJobs } from '@/lib/jobs/upsertJob';
 
 // Supported countries with their configurations
 const SUPPORTED_COUNTRIES = {
-  IN: { name: 'India', adzuna: 'in', jsearch: 'IN', google: 'India' },
-  US: { name: 'United States', adzuna: 'us', jsearch: 'US', google: 'United States' },
-  UK: { name: 'United Kingdom', adzuna: 'gb', jsearch: 'GB', google: 'United Kingdom' },
-  AE: { name: 'United Arab Emirates', adzuna: 'ae', jsearch: 'AE', google: 'UAE' },
-  CA: { name: 'Canada', adzuna: 'ca', jsearch: 'CA', google: 'Canada' },
-  AU: { name: 'Australia', adzuna: 'au', jsearch: 'AU', google: 'Australia' },
-  DE: { name: 'Germany', adzuna: 'de', jsearch: 'DE', google: 'Germany' },
-  FR: { name: 'France', adzuna: 'fr', jsearch: 'FR', google: 'France' },
-  IT: { name: 'Italy', adzuna: 'it', jsearch: 'IT', google: 'Italy' },
-  ES: { name: 'Spain', adzuna: 'es', jsearch: 'ES', google: 'Spain' },
-  NL: { name: 'Netherlands', adzuna: 'nl', jsearch: 'NL', google: 'Netherlands' },
-  BE: { name: 'Belgium', adzuna: 'be', jsearch: 'BE', google: 'Belgium' },
-  AT: { name: 'Austria', adzuna: 'at', jsearch: 'AT', google: 'Austria' },
-  PL: { name: 'Poland', adzuna: 'pl', jsearch: 'PL', google: 'Poland' },
-  SG: { name: 'Singapore', adzuna: 'sg', jsearch: 'SG', google: 'Singapore' },
-  MX: { name: 'Mexico', adzuna: 'mx', jsearch: 'MX', google: 'Mexico' },
-  NZ: { name: 'New Zealand', adzuna: 'nz', jsearch: 'NZ', google: 'New Zealand' },
-  ZA: { name: 'South Africa', adzuna: 'za', jsearch: 'ZA', google: 'South Africa' },
-  BR: { name: 'Brazil', adzuna: 'br', jsearch: 'BR', google: 'Brazil' }
+  IN: { name: 'India', adzuna: 'in', jsearch: 'IN', google: 'India', jooble: 'India' },
+  US: { name: 'United States', adzuna: 'us', jsearch: 'US', google: 'United States', jooble: 'United States' },
+  UK: { name: 'United Kingdom', adzuna: 'gb', jsearch: 'GB', google: 'United Kingdom', jooble: 'United Kingdom' },
+  AE: { name: 'United Arab Emirates', adzuna: 'ae', jsearch: 'AE', google: 'UAE', jooble: 'United Arab Emirates' },
+  CA: { name: 'Canada', adzuna: 'ca', jsearch: 'CA', google: 'Canada', jooble: 'Canada' },
+  AU: { name: 'Australia', adzuna: 'au', jsearch: 'AU', google: 'Australia', jooble: 'Australia' },
+  DE: { name: 'Germany', adzuna: 'de', jsearch: 'DE', google: 'Germany', jooble: 'Germany' },
+  FR: { name: 'France', adzuna: 'fr', jsearch: 'FR', google: 'France', jooble: 'France' },
+  IT: { name: 'Italy', adzuna: 'it', jsearch: 'IT', google: 'Italy', jooble: 'Italy' },
+  ES: { name: 'Spain', adzuna: 'es', jsearch: 'ES', google: 'Spain', jooble: 'Spain' },
+  NL: { name: 'Netherlands', adzuna: 'nl', jsearch: 'NL', google: 'Netherlands', jooble: 'Netherlands' },
+  BE: { name: 'Belgium', adzuna: 'be', jsearch: 'BE', google: 'Belgium', jooble: 'Belgium' },
+  AT: { name: 'Austria', adzuna: 'at', jsearch: 'AT', google: 'Austria', jooble: 'Austria' },
+  PL: { name: 'Poland', adzuna: 'pl', jsearch: 'PL', google: 'Poland', jooble: 'Poland' },
+  SG: { name: 'Singapore', adzuna: 'sg', jsearch: 'SG', google: 'Singapore', jooble: 'Singapore' },
+  MX: { name: 'Mexico', adzuna: 'mx', jsearch: 'MX', google: 'Mexico', jooble: 'Mexico' },
+  NZ: { name: 'New Zealand', adzuna: 'nz', jsearch: 'NZ', google: 'New Zealand', jooble: 'New Zealand' },
+  ZA: { name: 'South Africa', adzuna: 'za', jsearch: 'ZA', google: 'South Africa', jooble: 'South Africa' },
+  BR: { name: 'Brazil', adzuna: 'br', jsearch: 'BR', google: 'Brazil', jooble: 'Brazil' }
 };
 
 // Popular job queries for each country
@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
       let adzunaCount = 0;
       let jsearchCount = 0;
       let googleCount = 0;
+      let joobleCount = 0;
 
       // Fetch jobs for each query in this country
       for (const query of countryQueries) {
@@ -89,6 +90,14 @@ export async function POST(request: NextRequest) {
           const googleJobs = await fetchFromGoogleJobs(query, countryConfig.google, page);
           countryJobs.push(...googleJobs);
           googleCount += googleJobs.length;
+
+          // Fetch from Jooble
+          const joobleJobs = await fetchFromJooble(query, countryConfig.jooble, page, {
+            radius: radiusKm,
+            countryCode: countryCode.toLowerCase()
+          });
+          countryJobs.push(...joobleJobs);
+          joobleCount += joobleJobs.length;
 
         } catch (error) {
           console.error(`❌ Error fetching jobs for "${query}" in ${countryCode}:`, error);
@@ -114,13 +123,14 @@ export async function POST(request: NextRequest) {
         name: countryConfig.name,
         totalJobs: countryJobs.length,
         providers: {
-          externalProvider1: adzunaCount,
-          externalProvider2: jsearchCount,
-          externalProvider3: googleCount
+          adzuna: adzunaCount,
+          jsearch: jsearchCount,
+          googleJobs: googleCount,
+          jooble: joobleCount
         }
       };
 
-      console.log(`✅ ${countryConfig.name}: Found ${countryJobs.length} jobs (External Provider 1: ${adzunaCount}, External Provider 2: ${jsearchCount}, External Provider 3: ${googleCount})`);
+      console.log(`✅ ${countryConfig.name}: Found ${countryJobs.length} jobs (Adzuna: ${adzunaCount}, JSearch: ${jsearchCount}, Google: ${googleCount}, Jooble: ${joobleCount})`);
     }
 
     // Upsert all jobs to database
