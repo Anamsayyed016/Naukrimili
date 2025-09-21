@@ -9,7 +9,7 @@ import next from 'next';
 import { Server as SocketIOServer } from 'socket.io';
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = process.env.HOSTNAME || 'localhost';
+const hostname = process.env.HOSTNAME || (dev ? 'localhost' : '0.0.0.0');
 const port = parseInt(process.env.PORT || '3000', 10);
 
 console.log('🚀 Starting custom Next.js server with Socket.io...');
@@ -27,6 +27,19 @@ app.prepare().then(async () => {
   // Create HTTP server
   const server = createServer(async (req, res) => {
     try {
+      // Simple health check endpoint
+      if (req.url === '/api/health' && req.method === 'GET') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          status: 'healthy',
+          timestamp: new Date().toISOString(),
+          uptime: process.uptime(),
+          version: '1.0.0',
+          environment: process.env.NODE_ENV || 'development'
+        }));
+        return;
+      }
+      
       const parsedUrl = parse(req.url, true);
       await handle(req, res, parsedUrl);
     } catch (err) {
