@@ -6,6 +6,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
+import { showNotification, initializeNotifications } from '@/lib/mobile-notifications';
 
 interface SocketUser {
   userId: string;
@@ -105,13 +106,13 @@ export function useSocket(): UseSocketReturn {
         });
         
         // Show browser notification if permission granted
-        if (Notification.permission === 'granted') {
-          new Notification(notification.title, {
-            body: notification.message,
-            icon: '/favicon.ico',
-            tag: notification.id
-          });
-        }
+        // Show notification with mobile compatibility
+        showNotification({
+          title: notification.title,
+          body: notification.message,
+          icon: '/favicon.ico',
+          tag: notification.id
+        });
       });
 
       // Handle unread count updates
@@ -141,13 +142,13 @@ export function useSocket(): UseSocketReturn {
         });
         
         // Show browser notification if permission granted
-        if (Notification.permission === 'granted') {
-          new Notification(notification.title, {
-            body: notification.message,
-            icon: '/favicon.ico',
-            tag: notification.id
-          });
-        }
+        // Show notification with mobile compatibility
+        showNotification({
+          title: notification.title,
+          body: notification.message,
+          icon: '/favicon.ico',
+          tag: notification.id
+        });
       });
 
       // Typing indicators
@@ -175,10 +176,12 @@ export function useSocket(): UseSocketReturn {
     }
   }, [status, session?.user?.email, session?.user?.id]);
 
-  // Request notification permission
+  // Initialize notifications with mobile compatibility
   useEffect(() => {
-    if (isConnected && Notification.permission === 'default') {
-      Notification.requestPermission();
+    if (isConnected) {
+      initializeNotifications().catch(error => {
+        console.warn('Failed to initialize notifications:', error);
+      });
     }
   }, [isConnected]);
 
