@@ -33,22 +33,42 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
+        timeout: 10m
         script: |
-          echo "Starting deployment to Hostinger VPS..."
+          echo "🚀 Starting deployment to Hostinger VPS..."
+          
           # Navigate to project directory
           cd /var/www/jobportal
           
           # Stop PM2 process
-          pm2 stop jobportal
+          echo "⏹️ Stopping PM2 process..."
+          pm2 stop jobportal || true
+          pm2 delete jobportal || true
           
           # Pull latest changes
+          echo "📥 Pulling latest changes..."
           git pull origin main
           
-          # Install dependencies and build
-          npm ci
+          # Install dependencies
+          echo "📦 Installing dependencies..."
+          npm ci --production
+          
+          # Build with increased memory
+          echo "🔨 Building application..."
+          export NODE_OPTIONS="--max-old-space-size=4096"
           npm run build:fast
           
           # Start PM2 process with production environment
+          echo "▶️ Starting application..."
           pm2 start ecosystem.config.cjs --env production
           
-          echo "Deployment completed successfully!"
+          # Check status
+          echo "📊 Checking application status..."
+          pm2 status
+          
+          # Test application
+          echo "🧪 Testing application..."
+          sleep 5
+          curl -f http://localhost:3000/api/health || echo "Health check failed"
+          
+          echo "✅ Deployment completed successfully!"
