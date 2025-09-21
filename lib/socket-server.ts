@@ -66,33 +66,61 @@ class SocketNotificationService {
 
   private async verifyToken(token: string) {
     try {
-      // This should match your NextAuth.js JWT verification
-      // For now, we'll use a simple approach - in production, use proper JWT verification
-      const jwt = require('jsonwebtoken');
-      const secret = process.env.NEXTAUTH_SECRET || 'fallback_secret';
+      console.log('🔐 Verifying token:', token.substring(0, 20) + '...');
       
-      const decoded = jwt.verify(token, secret);
-      
-      // Get user from database
-      const user = await prisma.user.findUnique({
-        where: { id: decoded.userId },
-        select: { id: true, email: true, name: true, role: true }
-      });
+      // For development, accept user ID directly
+      if (token.length > 20 && !token.includes('.')) {
+        // Likely a user ID, verify it exists
+        const user = await prisma.user.findUnique({
+          where: { id: token },
+          select: { id: true, email: true, name: true, role: true }
+        });
 
-      if (!user) {
-        return null;
+        if (user) {
+          console.log('✅ Token verified as user ID:', user.email);
+          return {
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role
+            }
+          };
+        }
       }
 
-      return {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role
+      // Try JWT verification
+      try {
+        const jwt = require('jsonwebtoken');
+        const secret = process.env.NEXTAUTH_SECRET || 'fallback_secret';
+        
+        const decoded = jwt.verify(token, secret);
+        
+        // Get user from database
+        const user = await prisma.user.findUnique({
+          where: { id: decoded.userId || decoded.sub || decoded.id },
+          select: { id: true, email: true, name: true, role: true }
+        });
+
+        if (user) {
+          console.log('✅ JWT token verified:', user.email);
+          return {
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role
+            }
+          };
         }
-      };
+      } catch (jwtError) {
+        console.log('⚠️ JWT verification failed, trying alternative methods');
+      }
+
+      console.log('❌ Token verification failed for all methods');
+      return null;
     } catch (error) {
-      console.error('Token verification failed:', error);
+      console.error('❌ Token verification error:', error);
       return null;
     }
   }
@@ -101,7 +129,7 @@ class SocketNotificationService {
     this.io.on('connection', (socket) => {
       const user = socket.data.user;
       const userId = user.id;
-      const userRoom = `user_${userId}`;
+      const userRoom = `user:${userId}`;
 
       console.log(`🔌 User connected: ${user.email} (${userId}) - Socket: ${socket.id}`);
 
@@ -125,6 +153,15 @@ class SocketNotificationService {
       // Join user-specific room
       socket.join(userRoom);
       console.log(`📱 User ${user.email} joined room: ${userRoom}`);
+
+      // Join role-based rooms
+      if (user.role === 'employer') {
+        // Get user's company ID and join company room
+        this.joinCompanyRoom(socket, userId);
+      } else if (user.role === 'admin') {
+        socket.join('admin:global');
+        console.log(`👑 Admin ${user.email} joined admin:global room`);
+      }
 
       // Send connection confirmation
       socket.emit('connected', {
@@ -166,7 +203,7 @@ class SocketNotificationService {
       // Handle typing indicators for messages (future feature)
       socket.on('typing_start', (data) => {
         const { receiverId } = data;
-        socket.to(`user_${receiverId}`).emit('user_typing', {
+        socket.to(`user:${receiverId}`).emit('user_typing', {
           userId,
           userName: user.name,
           isTyping: true
@@ -175,13 +212,31 @@ class SocketNotificationService {
 
       socket.on('typing_stop', (data) => {
         const { receiverId } = data;
-        socket.to(`user_${receiverId}`).emit('user_typing', {
+        socket.to(`user:${receiverId}`).emit('user_typing', {
           userId,
           userName: user.name,
           isTyping: false
         });
       });
     });
+  }
+
+  // Private helper methods
+  private async joinCompanyRoom(socket: any, userId: string) {
+    try {
+      const companies = await prisma.company.findMany({
+        where: { createdBy: userId },
+        select: { id: true }
+      });
+
+      for (const company of companies) {
+        const companyRoom = `company:${company.id}`;
+        socket.join(companyRoom);
+        console.log(`🏢 User ${userId} joined company room: ${companyRoom}`);
+      }
+    } catch (error) {
+      console.error('❌ Failed to join company room:', error);
+    }
   }
 
   // Public methods for sending notifications
@@ -211,7 +266,7 @@ class SocketNotificationService {
       });
 
       // Send real-time notification
-      this.io.to(`user_${userId}`).emit('new_notification', {
+      this.io.to(`user:${userId}`).emit('new_notification', {
         ...dbNotification,
         timestamp: new Date().toISOString()
       });
@@ -232,7 +287,7 @@ class SocketNotificationService {
       console.log(`📤 Sending existing notification via Socket.io:`, notification.title);
 
       // Send real-time notification
-      this.io.to(`user_${notification.userId}`).emit('new_notification', {
+      this.io.to(`user:${notification.userId}`).emit('new_notification', {
         ...notification,
         timestamp: new Date().toISOString()
       });

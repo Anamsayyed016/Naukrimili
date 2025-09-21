@@ -54,6 +54,15 @@ app.prepare().then(() => {
 
   console.log('✅ Socket.io server initialized successfully');
 
+  // Initialize the notification service
+  try {
+    const { initializeSocketService } = await import('./lib/socket-server');
+    initializeSocketService(io);
+    console.log('✅ Socket notification service initialized');
+  } catch (error) {
+    console.error('❌ Failed to initialize socket service:', error);
+  }
+
   // Start the server
   server.listen(port, hostname, (err) => {
     if (err) {
