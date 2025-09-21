@@ -5,6 +5,44 @@
 
 import { prisma } from '@/lib/prisma';
 
+// Global socket service instance (will be set by server.js)
+let globalSocketService: any = null;
+
+/**
+ * Set the global socket service instance
+ */
+export function setSocketService(socketService: any) {
+  globalSocketService = socketService;
+}
+
+/**
+ * Send real-time notification via socket
+ */
+async function sendRealTimeNotification(notification: any): Promise<void> {
+  if (!globalSocketService) {
+    console.warn('⚠️ Socket service not available, notification will be sent when user connects');
+    return;
+  }
+
+  try {
+    const notificationData = {
+      id: notification.id,
+      type: notification.type,
+      title: notification.title,
+      message: notification.message,
+      data: notification.data,
+      createdAt: notification.createdAt.toISOString(),
+      isRead: notification.isRead
+    };
+
+    await globalSocketService.sendNotificationToUser(notification.userId, notificationData);
+    console.log(`📤 Real-time notification sent to user ${notification.userId}: ${notification.title}`);
+  } catch (error) {
+    console.error('❌ Error sending real-time notification:', error);
+    throw error;
+  }
+}
+
 export interface CreateNotificationData {
   userId: string;
   type: 'WELCOME' | 'JOB_MATCH' | 'APPLICATION_UPDATE' | 'SYSTEM' | 'INTERVIEW_SCHEDULED' | 'JOB_APPLICATION_RECEIVED' | 'JOB_POSTED' | 'ADMIN_ACTION' | 'MESSAGE_RECEIVED' | 'RESUME_VIEWED' | 'RESUME_UPLOADED';
@@ -42,6 +80,15 @@ export async function createNotification(data: CreateNotificationData): Promise<
     });
 
     console.log(`✅ Notification created: ${data.type} for user ${data.userId}`);
+    
+    // Send real-time notification via socket
+    try {
+      await sendRealTimeNotification(notification);
+    } catch (socketError) {
+      console.warn('⚠️ Failed to send real-time notification:', socketError);
+      // Don't fail the notification creation if socket fails
+    }
+    
     return notification as NotificationData;
   } catch (error) {
     console.error('❌ Error creating notification:', error);

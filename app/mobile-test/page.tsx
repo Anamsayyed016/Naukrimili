@@ -88,6 +88,37 @@ export default function MobileTestPage() {
     }
   };
 
+  const testServerNotification = async () => {
+    try {
+      console.log('🧪 Testing server notification...');
+      
+      const response = await fetch('/api/test-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'SYSTEM',
+          title: '🔔 Server Test Notification',
+          message: 'This notification was sent from the server to test the complete notification flow!'
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('✅ Server notification test successful:', result);
+        alert('✅ Server notification sent successfully! Check your notifications.');
+      } else {
+        console.error('❌ Server notification test failed:', result);
+        alert('❌ Server notification test failed: ' + result.error);
+      }
+    } catch (error) {
+      console.error('❌ Server notification test error:', error);
+      alert('❌ Server notification test error: ' + error.message);
+    }
+  };
+
   const getStatusIcon = (condition: boolean) => {
     return condition ? (
       <CheckCircle className="w-5 h-5 text-green-500" />
@@ -142,7 +173,17 @@ export default function MobileTestPage() {
               size="lg"
             >
               <Bell className="w-4 h-4 mr-2" />
-              Test Notification
+              Test Browser Notification
+            </Button>
+            
+            <Button 
+              onClick={testServerNotification} 
+              variant="outline"
+              className="w-full"
+              size="lg"
+            >
+              <Bell className="w-4 h-4 mr-2" />
+              Test Server Notification
             </Button>
           </CardContent>
         </Card>
