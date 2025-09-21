@@ -173,7 +173,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              {loading ? 'Loading Jobs...' : `${totalJobs.toLocaleString()} Jobs Found`}
+              {loading ? 'Loading Jobs...' : 'Jobs Found'}
             </h2>
             {searchParams.get('q') && (
               <p className="text-gray-600 mt-1">Results for "{searchParams.get('q')}"</p>
