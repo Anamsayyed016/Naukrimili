@@ -37,7 +37,7 @@ app.prepare().then(() => {
   });
 
   // Initialize Socket.io with the HTTP server
-  console.log('�� Initializing Socket.io...');
+  console.log('🔌 Initializing Socket.io...');
   const io = new SocketIOServer(server, {
     cors: {
       origin: [
@@ -70,7 +70,7 @@ app.prepare().then(() => {
       process.exit(1);
     }
     console.log(`✅ Server ready on http://${hostname}:${port}`);
-    console.log(`�� Socket.io ready and listening for connections`);
+    console.log(`🔌 Socket.io ready and listening for connections`);
   });
 
   // Handle server shutdown
