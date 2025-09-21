@@ -1,11 +1,9 @@
-#!/usr/bin/env node
-
 /**
  * Safe User Cleanup Script
  * Removes test users and their related data for notification testing
  */
 
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
