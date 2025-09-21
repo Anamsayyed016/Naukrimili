@@ -87,6 +87,13 @@ export function useSocket(): UseSocketReturn {
       // Notification events
       newSocket.on('new_notification', (notification: Notification) => {
         console.log('🔔 New notification received:', notification);
+        
+        // Validate notification data
+        if (!notification || !notification.id || !notification.title || !notification.message) {
+          console.error('❌ Invalid notification received:', notification);
+          return;
+        }
+        
         setNotifications(prev => {
           // Prevent duplicate notifications
           const exists = prev.some(n => n.id === notification.id);
@@ -116,6 +123,13 @@ export function useSocket(): UseSocketReturn {
 
       newSocket.on('broadcast_notification', (notification: Notification) => {
         console.log('📢 Broadcast notification received:', notification);
+        
+        // Validate notification data
+        if (!notification || !notification.id || !notification.title || !notification.message) {
+          console.error('❌ Invalid broadcast notification received:', notification);
+          return;
+        }
+        
         setNotifications(prev => {
           // Prevent duplicate notifications
           const exists = prev.some(n => n.id === notification.id);
@@ -176,11 +190,25 @@ export function useSocket(): UseSocketReturn {
           const response = await fetch('/api/notifications?limit=50');
           const data = await response.json();
           
-          if (data.success && data.data) {
-            setNotifications(data.data);
+          console.log('📊 Fetched initial notifications:', data);
+          
+          if (data.success && Array.isArray(data.data)) {
+            // Ensure all notifications have required properties
+            const validNotifications = data.data.filter(notification => 
+              notification && 
+              notification.id && 
+              notification.title && 
+              notification.message
+            );
+            setNotifications(validNotifications);
+            console.log('✅ Set initial notifications:', validNotifications.length);
+          } else {
+            console.log('⚠️ Invalid notification data structure:', data);
+            setNotifications([]);
           }
         } catch (error) {
-          console.error('Failed to fetch initial notifications:', error);
+          console.error('❌ Failed to fetch initial notifications:', error);
+          setNotifications([]);
         }
       };
 

@@ -36,23 +36,30 @@ export async function GET(request: NextRequest) {
       type
     });
 
+    // Ensure notifications is always an array
+    const notifications = Array.isArray(result.notifications) ? result.notifications : [];
+    const total = typeof result.total === 'number' ? result.total : 0;
+
+    console.log(`📊 Returning ${notifications.length} notifications for user ${session.user.id}`);
+
     return NextResponse.json({
       success: true,
-      data: result.notifications,
+      data: notifications,
       pagination: {
-        total: result.total,
+        total,
         limit,
         offset,
-        hasMore: offset + limit < result.total
+        hasMore: offset + limit < total
       }
     });
 
   } catch (error) {
     console.error('Error fetching notifications:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch notifications' },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: false,
+      error: 'Failed to fetch notifications',
+      data: [] // Always return empty array on error
+    }, { status: 500 });
   }
 }
 
