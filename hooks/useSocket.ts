@@ -54,7 +54,10 @@ export function useSocket(): UseSocketReturn {
       // Create socket connection with authentication
       const newSocket = io(process.env.NEXT_PUBLIC_BASE_URL || 'https://aftionix.in', {
         auth: {
-          token: session.accessToken || session.user.id, // Use NextAuth token
+          // Try multiple token sources for better compatibility
+          token: (session as any).accessToken || 
+                 (session as any).jwt || 
+                 session.user.id
         },
         transports: ['websocket', 'polling'],
         autoConnect: true,
@@ -88,6 +91,13 @@ export function useSocket(): UseSocketReturn {
             tag: notification.id
           });
         }
+      });
+
+      // Handle unread count updates
+      newSocket.on('notification_count', (data: { count: number; userId: string }) => {
+        console.log('📊 Unread count updated:', data);
+        // Trigger a re-render to update unread count display
+        setNotifications(prev => [...prev]);
       });
 
       newSocket.on('broadcast_notification', (notification: Notification) => {
