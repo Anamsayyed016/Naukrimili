@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
     
-    console.log('👤 Session user:', { email: session.user.email });
+    console.log('�� Session user:', { email: session.user.email });
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
     
-    console.log('👤 Session user:', { email: session.user.email });
+    console.log('�� Session user:', { email: session.user.email });
 
     // Find user
     const user = await prisma.user.findUnique({
@@ -269,89 +269,68 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Application created successfully:', application.id);
 
-    // Send real-time notification to employer
+    // Send real-time notification to employers
     try {
       console.log('🔔 Attempting to send notification to employers for company:', companyId);
       
-      // Get company users (employers) by finding users who own this company
-      const companyUsers = await prisma.user.findMany({
-        where: { 
-          role: 'employer',
-          // Find users who own this company
-          createdCompanies: {
-            some: {
-              id: companyId
-            }
-          }
-        },
-        select: { id: true, name: true, email: true }
-      });
+      const { getSocketService } = await import('@/lib/socket-server');
+      const socketService = getSocketService();
 
-      console.log('👥 Found company users:', companyUsers.length);
-
-      if (companyUsers.length > 0) {
-        // Try to send socket notification if available
-        try {
-          const { getSocketService } = await import('@/lib/socket-server');
-          const socketService = getSocketService();
-          
-          if (socketService) {
-            for (const companyUser of companyUsers) {
-              await socketService.sendNotificationToUser(companyUser.id, {
-                type: 'JOB_APPLICATION_RECEIVED',
-                title: 'New Job Application Received! 🎉',
-                message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
-                data: {
-                  applicationId: application.id,
-                  jobId: jobId,
-                  applicantName: user.name,
-                  applicantEmail: user.email,
-                  jobTitle: application.job.title,
-                  company: application.job.company,
-                  actionUrl: `/employer/applications/${application.id}`
-                }
-              });
-              console.log('✅ Socket notification sent to user:', companyUser.id);
-            }
-          } else {
-            console.log('⚠️ Socket service not available');
-          }
-        } catch (socketError) {
-          console.error('❌ Socket notification failed:', socketError);
-        }
-
-        // Also create database notification as backup
-        try {
-          for (const companyUser of companyUsers) {
-            await prisma.notification.create({
-              data: {
-                userId: companyUser.id,
-                type: 'JOB_APPLICATION_RECEIVED',
-                title: 'New Job Application Received! 🎉',
-                message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
-                data: {
-                  applicationId: application.id,
-                  jobId: jobId,
-                  applicantName: user.name,
-                  applicantEmail: user.email,
-                  jobTitle: application.job.title,
-                  company: application.job.company,
-                  actionUrl: `/employer/applications/${application.id}`
-                },
-                isRead: false
+      if (socketService) {
+        // Send to individual company users
+        const companyUsers = await prisma.user.findMany({
+          where: { 
+            role: 'employer',
+            createdCompanies: {
+              some: {
+                id: companyId
               }
-            });
-            console.log('✅ Database notification created for user:', companyUser.id);
-          }
-        } catch (dbNotificationError) {
-          console.error('❌ Database notification failed:', dbNotificationError);
+            }
+          },
+          select: { id: true, name: true, email: true }
+        });
+
+        console.log('👥 Found company users:', companyUsers.length);
+
+        for (const companyUser of companyUsers) {
+          await socketService.sendNotificationToUser(companyUser.id, {
+            type: 'JOB_APPLICATION_RECEIVED',
+            title: 'New Job Application Received! 🎉',
+            message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
+            data: {
+              applicationId: application.id,
+              jobId: jobId,
+              applicantName: user.name,
+              applicantEmail: user.email,
+              jobTitle: application.job.title,
+              company: application.job.company,
+              actionUrl: `/employer/applications/${application.id}`
+            }
+          });
         }
+
+        // ALSO send to company room for broader reach
+        if (companyId) {
+          await socketService.sendNotificationToRoom(`company:${companyId}`, {
+            type: 'JOB_APPLICATION_RECEIVED',
+            title: 'New Job Application Received! 🎉',
+            message: `${user.name} applied for the position "${application.job.title}"`,
+            data: {
+              applicationId: application.id,
+              jobId: jobId,
+              applicantName: user.name,
+              jobTitle: application.job.title,
+              actionUrl: `/employer/applications/${application.id}`
+            }
+          });
+        }
+
+        console.log('✅ Socket notifications sent successfully');
       } else {
-        console.log('⚠️ No company users found for company:', companyId);
+        console.log('⚠️ Socket service not available');
       }
-    } catch (notificationError) {
-      console.error('❌ Notification system error:', notificationError);
-      // Don't fail the application if notification fails
+    } catch (socketError) {
+      console.error('❌ Socket notification failed:', socketError);
     }
 
     return NextResponse.json({

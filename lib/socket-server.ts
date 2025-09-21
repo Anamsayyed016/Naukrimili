@@ -101,16 +101,16 @@ class SocketNotificationService {
     this.io.on('connection', (socket) => {
       const user = socket.data.user;
       const userId = user.id;
-      const userRoom = `user_${userId}`;
+      const userRole = user.role;
 
-      console.log(`🔌 User connected: ${user.email} (${userId}) - Socket: ${socket.id}`);
+      console.log(`�� User connected: ${user.email} (${userId}) - Role: ${userRole} - Socket: ${socket.id}`);
 
       // Store user connection
       const socketUser: SocketUser = {
         userId,
         email: user.email,
         name: user.name,
-        role: user.role,
+        role: userRole,
         socketId: socket.id
       };
 
@@ -122,15 +122,26 @@ class SocketNotificationService {
       }
       this.userRooms.get(userId)!.add(socket.id);
 
-      // Join user-specific room
+      // Join user-specific room (FIXED: use colon format)
+      const userRoom = `user:${userId}`;
       socket.join(userRoom);
       console.log(`📱 User ${user.email} joined room: ${userRoom}`);
+
+      // Join role-based rooms
+      if (userRole === 'employer') {
+        // Get user's company ID and join company room
+        this.joinCompanyRoom(socket, userId);
+      } else if (userRole === 'admin') {
+        socket.join('admin:global');
+        console.log(`👑 Admin ${user.email} joined admin:global room`);
+      }
 
       // Send connection confirmation
       socket.emit('connected', {
         message: 'Connected to real-time notifications',
         userId,
         userRoom,
+        role: userRole,
         timestamp: new Date().toISOString()
       });
 
@@ -157,6 +168,9 @@ class SocketNotificationService {
           if (notificationId) {
             await this.markNotificationAsRead(notificationId, userId);
             console.log(`✅ Notification ${notificationId} marked as read by ${user.email}`);
+            
+            // Update unread count
+            await this.updateUnreadCount(userId);
           }
         } catch (error) {
           console.error('Error marking notification as read:', error);
@@ -166,7 +180,7 @@ class SocketNotificationService {
       // Handle typing indicators for messages (future feature)
       socket.on('typing_start', (data) => {
         const { receiverId } = data;
-        socket.to(`user_${receiverId}`).emit('user_typing', {
+        socket.to(`user:${receiverId}`).emit('user_typing', {
           userId,
           userName: user.name,
           isTyping: true
@@ -175,13 +189,33 @@ class SocketNotificationService {
 
       socket.on('typing_stop', (data) => {
         const { receiverId } = data;
-        socket.to(`user_${receiverId}`).emit('user_typing', {
+        socket.to(`user:${receiverId}`).emit('user_typing', {
           userId,
           userName: user.name,
           isTyping: false
         });
       });
     });
+  }
+
+  // Add this new method
+  private async joinCompanyRoom(socket: any, userId: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { createdCompanies: { select: { id: true } } }
+      });
+
+      if (user?.createdCompanies?.length > 0) {
+        for (const company of user.createdCompanies) {
+          const companyRoom = `company:${company.id}`;
+          socket.join(companyRoom);
+          console.log(`🏢 Employer ${userId} joined company room: ${companyRoom}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error joining company room:', error);
+    }
   }
 
   // Public methods for sending notifications
@@ -201,7 +235,7 @@ class SocketNotificationService {
     try {
       console.log(`📤 Sending notification to user ${userId}:`, notification);
 
-      // Save to database using existing service
+      // 1. Save to database FIRST
       const dbNotification = await createNotification({
         userId,
         type: notification.type,
@@ -210,18 +244,110 @@ class SocketNotificationService {
         data: notification.data
       });
 
-      // Send real-time notification
-      this.io.to(`user_${userId}`).emit('new_notification', {
+      // 2. Get fresh unread count from database
+      const unreadCount = await prisma.notification.count({
+        where: { userId, isRead: false }
+      });
+
+      // 3. Send real-time notification (FIXED: use colon format)
+      this.io.to(`user:${userId}`).emit('new_notification', {
         ...dbNotification,
         timestamp: new Date().toISOString()
       });
 
-      console.log(`✅ Notification sent to user ${userId}: ${notification.title}`);
+      // 4. Send updated unread count
+      this.io.to(`user:${userId}`).emit('notification_count', {
+        count: unreadCount,
+        userId
+      });
+
+      console.log(`✅ Notification sent to user ${userId}: ${notification.title} (Unread: ${unreadCount})`);
       return dbNotification;
     } catch (error) {
       console.error(`❌ Failed to send notification to user ${userId}:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Send notification to a specific room
+   */
+  async sendNotificationToRoom(
+    room: string,
+    notification: {
+      type: NotificationType;
+      title: string;
+      message: string;
+      data?: Record<string, unknown>;
+    }
+  ) {
+    try {
+      console.log(`📤 Sending notification to room ${room}:`, notification);
+
+      // Get all users in this room (for database storage)
+      const roomUsers = await this.getUsersInRoom(room);
+      
+      // Create notifications for all users in the room
+      const dbNotifications = [];
+      for (const userId of roomUsers) {
+        const dbNotification = await createNotification({
+          userId,
+          type: notification.type,
+          title: notification.title,
+          message: notification.message,
+          data: notification.data
+        });
+        dbNotifications.push(dbNotification);
+      }
+
+      // Send to room
+      this.io.to(room).emit('new_notification', {
+        ...notification,
+        timestamp: new Date().toISOString()
+      });
+
+      // Update unread counts for all users in room
+      for (const userId of roomUsers) {
+        const unreadCount = await prisma.notification.count({
+          where: { userId, isRead: false }
+        });
+        this.io.to(`user:${userId}`).emit('notification_count', {
+          count: unreadCount,
+          userId
+        });
+      }
+
+      console.log(`✅ Notification sent to room ${room}: ${notification.title}`);
+      return dbNotifications;
+    } catch (error) {
+      console.error(`❌ Failed to send notification to room ${room}:`, error);
+      throw error;
+    }
+  }
+
+  // Add helper method
+  private async getUsersInRoom(room: string): Promise<string[]> {
+    if (room === 'admin:global') {
+      const adminUsers = await prisma.user.findMany({
+        where: { role: 'admin' },
+        select: { id: true }
+      });
+      return adminUsers.map(user => user.id);
+    }
+    
+    if (room.startsWith('company:')) {
+      const companyId = room.replace('company:', '');
+      const companyUsers = await prisma.user.findMany({
+        where: { 
+          role: 'employer',
+          createdCompanies: { some: { id: companyId } }
+        },
+        select: { id: true }
+      });
+      return companyUsers.map(user => user.id);
+    }
+    
+    return [];
   }
 
   /**
@@ -232,7 +358,7 @@ class SocketNotificationService {
       console.log(`📤 Sending existing notification via Socket.io:`, notification.title);
 
       // Send real-time notification
-      this.io.to(`user_${notification.userId}`).emit('new_notification', {
+      this.io.to(`user:${notification.userId}`).emit('new_notification', {
         ...notification,
         timestamp: new Date().toISOString()
       });
@@ -352,6 +478,21 @@ class SocketNotificationService {
       });
     } catch (error) {
       console.error('Error marking notification as read:', error);
+    }
+  }
+
+  private async updateUnreadCount(userId: string) {
+    try {
+      const unreadCount = await prisma.notification.count({
+        where: { userId, isRead: false }
+      });
+      
+      this.io.to(`user:${userId}`).emit('notification_count', {
+        count: unreadCount,
+        userId
+      });
+    } catch (error) {
+      console.error('Error updating unread count:', error);
     }
   }
 }
