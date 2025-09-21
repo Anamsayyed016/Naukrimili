@@ -21,7 +21,7 @@ console.log(`Hostname: ${hostname}`);
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
-app.prepare().then(() => {
+app.prepare().then(async () => {
   console.log('✅ Next.js app prepared');
 
   // Create HTTP server
@@ -56,7 +56,7 @@ app.prepare().then(() => {
 
   // Initialize the notification service
   try {
-    const { initializeSocketService } = require('./lib/socket-server');
+    const { initializeSocketService } = await import('./lib/socket-server.js');
     initializeSocketService(io);
     console.log('✅ Socket notification service initialized');
   } catch (error) {
