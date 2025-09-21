@@ -199,6 +199,13 @@ export async function POST(request: NextRequest) {
       companyId = firstCompany?.id || null;
     }
 
+    console.log('🔍 Creating application with data:', {
+      userId: user.id,
+      jobId: jobId,
+      companyId: companyId,
+      jobTitle: job.title
+    });
+
     // Create application
     const application = await prisma.application.create({
       data: {
@@ -229,20 +236,22 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    console.log('✅ Application created successfully:', application.id);
+
     // Send real-time notification to employer
     try {
       const { getSocketService } = await import('@/lib/socket-server');
       const socketService = getSocketService();
       
       if (socketService && companyId) {
-        // Get company users (employers) by finding users who created jobs for this company
+        // Get company users (employers) by finding users who own this company
         const companyUsers = await prisma.user.findMany({
           where: { 
             role: 'employer',
-            // Find users who created jobs for this company
-            createdJobs: {
+            // Find users who own this company
+            createdCompanies: {
               some: {
-                companyId: companyId
+                id: companyId
               }
             }
           },
@@ -252,20 +261,23 @@ export async function POST(request: NextRequest) {
         if (companyUsers.length > 0) {
           const userIds = companyUsers.map(u => u.id);
           
-          await socketService.sendNotificationToUsers(userIds, {
-            type: 'JOB_APPLICATION_RECEIVED',
-            title: 'New Job Application Received! 🎉',
-            message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
-            data: {
-              applicationId: application.id,
-              jobId: jobId,
-              applicantName: user.name,
-              applicantEmail: user.email,
-              jobTitle: application.job.title,
-              company: application.job.company,
-              actionUrl: `/employer/applications/${application.id}`
-            }
-          });
+          // Send notification to each employer individually
+          for (const userId of userIds) {
+            await socketService.sendNotificationToUser(userId, {
+              type: 'JOB_APPLICATION_RECEIVED',
+              title: 'New Job Application Received! 🎉',
+              message: `${user.name} applied for the position "${application.job.title}" at ${application.job.company}`,
+              data: {
+                applicationId: application.id,
+                jobId: jobId,
+                applicantName: user.name,
+                applicantEmail: user.email,
+                jobTitle: application.job.title,
+                company: application.job.company,
+                actionUrl: `/employer/applications/${application.id}`
+              }
+            });
+          }
         }
       }
     } catch (socketError) {

@@ -4,12 +4,15 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 Employer applications API called');
     const auth = await requireEmployerAuth();
     if ("error" in auth) {
+      console.log('❌ Employer auth failed:', auth.error);
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { user } = auth;
+    console.log('👤 Authenticated employer:', { userId: user.id, companyId: user.company.id, companyName: user.company.name });
     const { searchParams } = new URL(request.url);
     
     const page = parseInt(searchParams.get("page") || "1");
@@ -21,7 +24,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     const where: any = {
-      job: { companyId: user.company.id }
+      companyId: user.company.id
     };
 
     if (status && status !== "all") {
@@ -40,6 +43,7 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    console.log('🔍 Querying applications with where clause:', where);
     const [applications, total] = await Promise.all([
       prisma.application.findMany({
         where,
@@ -75,10 +79,12 @@ export async function GET(request: NextRequest) {
       prisma.application.count({ where })
     ]);
 
+    console.log(`📊 Found ${applications.length} applications out of ${total} total for company ${user.company.id}`);
+
     // Calculate statistics
     const stats = await prisma.application.aggregate({
       where: {
-        job: { companyId: user.company.id }
+        companyId: user.company.id
       },
       _count: {
         id: true
@@ -88,7 +94,7 @@ export async function GET(request: NextRequest) {
     const statusStats = await prisma.application.groupBy({
       by: ['status'],
       where: {
-        job: { companyId: user.company.id }
+        companyId: user.company.id
       },
       _count: {
         id: true
