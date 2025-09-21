@@ -136,10 +136,6 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
     window.open(`/jobs/${job.id}`, '_blank');
   };
 
-  // Handle share
-  const handleShare = (job: JobResult) => {
-    console.log('Share triggered for job:', job.title);
-  };
 
   // Pagination handlers
   const handlePageChange = (newPage: number) => {
@@ -264,7 +260,6 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
                 isBookmarked={bookmarkedJobs.includes(job.id)}
                 onBookmark={handleBookmark}
                 onQuickView={handleQuickView}
-                onShare={handleShare}
                 viewMode={viewMode}
                 showCompanyLogo={true}
                 showSalaryInsights={true}

@@ -10,7 +10,6 @@ import {
   StarIcon,
   ChevronRightIcon,
   EyeIcon,
-  ShareIcon,
   FireIcon,
   GlobeAltIcon,
   ClockIcon
@@ -25,7 +24,6 @@ interface EnhancedJobCardProps {
   isBookmarked?: boolean;
   onBookmark?: (jobId: string) => void;
   onQuickView?: (job: JobResult) => void;
-  onShare?: (job: JobResult) => void;
   viewMode?: 'list' | 'grid' | 'compact';
   showCompanyLogo?: boolean;
   showSalaryInsights?: boolean;
@@ -36,7 +34,6 @@ export default function EnhancedJobCard({
   isBookmarked = false,
   onBookmark,
   onQuickView,
-  onShare,
   viewMode = 'list',
   showCompanyLogo = true,
   showSalaryInsights = true
@@ -52,9 +49,6 @@ export default function EnhancedJobCard({
     onQuickView?.(job);
   };
 
-  const handleShare = () => {
-    onShare?.(job);
-  };
 
   // Get job type badge color
   const getJobTypeBadgeColor = (type?: string) => {
@@ -98,7 +92,7 @@ export default function EnhancedJobCard({
     return (
       <>
         <motion.div
-          className="group bg-white dark:bg-gray-900 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-700 p-3 sm:p-4"
+          className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 p-3 sm:p-4"
           whileHover={{ y: -2 }}
           layoutId={`job-card-${job.id}`}
         >
@@ -132,11 +126,11 @@ export default function EnhancedJobCard({
                 </div>
               </div>
               
-              <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+              <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
                 {job.title}
               </h3>
               
-              <div className="flex flex-col sm:flex-row sm:items-center text-xs text-gray-600 dark:text-gray-400 mb-2 gap-1 sm:gap-0">
+              <div className="flex flex-col sm:flex-row sm:items-center text-xs text-gray-600 mb-2 gap-1 sm:gap-0">
                 <div className="flex items-center">
                   <BuildingOffice2Icon className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">{job.company}</span>
@@ -161,7 +155,7 @@ export default function EnhancedJobCard({
                 className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                   isBookmarked
                     ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                    : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-500'
+                    : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                 }`}
                 title={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
               >
@@ -210,7 +204,7 @@ export default function EnhancedJobCard({
   return (
     <>
       <motion.div
-        className={`group bg-white dark:bg-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden ${
+        className={`group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden ${
           viewMode === 'grid' ? 'h-full' : ''
         }`}
         whileHover={{ y: -4, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
@@ -265,10 +259,10 @@ export default function EnhancedJobCard({
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
                     {job.title}
                   </h3>
-                  <div className="flex items-center text-gray-600 dark:text-gray-300 mb-2">
+                  <div className="flex items-center text-gray-600 mb-2">
                     <BuildingOffice2Icon className="w-4 h-4 mr-2 flex-shrink-0" />
                     <span className="font-medium truncate">{job.company}</span>
                   </div>
@@ -276,7 +270,7 @@ export default function EnhancedJobCard({
               </div>
 
               {/* Location and job details */}
-              <div className="flex items-center text-gray-500 dark:text-gray-400 mb-3 flex-wrap gap-2">
+              <div className="flex items-center text-gray-500 mb-3 flex-wrap gap-2">
                 <div className="flex items-center">
                   <MapPinIcon className="w-4 h-4 mr-1" />
                   <span>{job.location}</span>
@@ -308,7 +302,7 @@ export default function EnhancedJobCard({
               className={`p-3 rounded-full transition-all duration-200 ${
                 isBookmarked
                   ? 'bg-blue-100 text-blue-600 hover:bg-blue-200 scale-110'
-                  : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700'
+                  : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
               }`}
               title={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
             >
@@ -322,7 +316,7 @@ export default function EnhancedJobCard({
 
           {/* Salary */}
           {job.salary_formatted && (
-            <div className="flex items-center text-green-600 dark:text-green-400 font-semibold mb-4">
+            <div className="flex items-center text-green-600 font-semibold mb-4">
               <CurrencyDollarIcon className="w-5 h-5 mr-1" />
               <span className="text-lg">{job.salary_formatted}</span>
               {showSalaryInsights && (
@@ -340,13 +334,13 @@ export default function EnhancedJobCard({
                 {job.skills.slice(0, 6).map((skill, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded-md"
+                    className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md"
                   >
                     {skill}
                   </span>
                 ))}
                 {job.skills.length > 6 && (
-                  <span className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-500 text-xs rounded-md">
+                  <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-md">
                     +{job.skills.length - 6} more
                   </span>
                 )}
@@ -356,20 +350,20 @@ export default function EnhancedJobCard({
 
           {/* Description */}
           {job.description && (
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+            <p className="text-gray-600 text-sm mb-4 line-clamp-2">
               {job.description}
             </p>
           )}
 
           {/* Footer info */}
-          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex items-center justify-between text-sm text-gray-500">
             <div className="flex items-center">
               <CalendarIcon className="w-4 h-4 mr-1" />
               <span>Posted {job.time_ago}</span>
             </div>
             
             {job.sector && (
-              <span className="px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-md text-xs">
+              <span className="px-2 py-1 bg-gray-50 rounded-md text-xs">
                 {job.sector}
               </span>
             )}
@@ -377,7 +371,7 @@ export default function EnhancedJobCard({
         </div>
 
         {/* Card Footer Actions */}
-        <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 flex gap-3">
+        <div className="px-6 py-4 bg-gray-50 flex gap-3">
           {job.source !== 'manual' && job.source_url ? (
             // External job - redirect directly to company website
             <button
@@ -404,19 +398,12 @@ export default function EnhancedJobCard({
           
           <button 
             onClick={handleQuickView}
-            className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+            className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2"
             title="Quick view"
           >
             <EyeIcon className="w-4 h-4" />
           </button>
           
-          <button 
-            onClick={handleShare}
-            className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-            title="Share job"
-          >
-            <ShareIcon className="w-4 h-4" />
-          </button>
         </div>
       </motion.div>
       

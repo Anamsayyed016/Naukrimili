@@ -104,10 +104,10 @@ export function JobList({
       {jobs.map((job) => {
         const badgeClass =
           job.matchScore >= 80
-            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+            ? "bg-green-100 text-green-700"
             : job.matchScore >= 50
-            ? "bg-secondary/20 text-secondary dark:bg-secondary/30 dark:text-secondary-foreground"
-            : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400";
+            ? "bg-secondary/20 text-secondary"
+            : "bg-gray-100 text-gray-600";
         return (
           <Card key={job.id} className="p-6 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start">
@@ -133,7 +133,7 @@ export function JobList({
                   ? new Date(job.postedAt).toLocaleDateString()
                   : "Recent"}
               </div>
-              <div className="font-medium text-gray-900 dark:text-gray-100">
+              <div className="font-medium text-gray-900">
                 {job.salary}
               </div>
             </div>
