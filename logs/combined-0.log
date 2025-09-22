@@ -6532,3 +6532,58 @@
 2025-09-20T19:21:21: ✅ Socket.io server initialized successfully
 2025-09-20T19:21:21: ✅ Server ready on http://0.0.0.0:3000
 2025-09-20T19:21:21: �� Socket.io ready and listening for connections
+2025-09-22T16:32:51: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:32:52: Environment: production
+2025-09-22T16:32:52: Port: 3000
+2025-09-22T16:32:52: Hostname: 0.0.0.0
+2025-09-22T16:33:15: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:33:19: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:33:19: Environment: production
+2025-09-22T16:33:19: Port: 3000
+2025-09-22T16:33:19: Hostname: 0.0.0.0
+2025-09-22T16:33:22: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:33:26: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:33:26: Environment: production
+2025-09-22T16:33:26: Port: 3000
+2025-09-22T16:33:26: Hostname: 0.0.0.0
+2025-09-22T16:33:28: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:33:31: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:33:31: Environment: production
+2025-09-22T16:33:31: Port: 3000
+2025-09-22T16:33:31: Hostname: 0.0.0.0
+2025-09-22T16:33:33: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:33:36: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:33:36: Environment: production
+2025-09-22T16:33:36: Port: 3000
+2025-09-22T16:33:36: Hostname: 0.0.0.0
+2025-09-22T16:33:38: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:33:41: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:33:41: Environment: production
+2025-09-22T16:33:41: Port: 3000
+2025-09-22T16:33:41: Hostname: 0.0.0.0
+2025-09-22T16:33:43: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:33:46: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:33:46: Environment: production
+2025-09-22T16:33:46: Port: 3000
+2025-09-22T16:33:46: Hostname: 0.0.0.0
+2025-09-22T16:33:48: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:33:50: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:33:50: Environment: production
+2025-09-22T16:33:50: Port: 3000
+2025-09-22T16:33:50: Hostname: 0.0.0.0
+2025-09-22T16:33:52: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:33:55: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:33:55: Environment: production
+2025-09-22T16:33:55: Port: 3000
+2025-09-22T16:33:55: Hostname: 0.0.0.0
+2025-09-22T16:33:57: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:33:59: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:33:59: Environment: production
+2025-09-22T16:33:59: Port: 3000
+2025-09-22T16:33:59: Hostname: 0.0.0.0
+2025-09-22T16:34:00: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T16:34:01: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T16:34:01: Environment: production
+2025-09-22T16:34:01: Port: 3000
+2025-09-22T16:34:01: Hostname: 0.0.0.0
+2025-09-22T16:34:02: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]

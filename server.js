@@ -75,7 +75,7 @@ app.prepare().then(async () => {
     
     // Set the socket service in the notification service
     try {
-      const { setSocketService } = await import('./lib/notification-service.js');
+      const { setSocketService } = await import('./lib/notification-service.ts');
       setSocketService(socketService);
       console.log('✅ Socket service linked to notification service');
     } catch (linkError) {
