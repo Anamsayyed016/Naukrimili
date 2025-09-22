@@ -447,7 +447,7 @@ export async function POST(request: NextRequest) {
         status: 'submitted',
         appliedAt: new Date(),
         coverLetter: coverLetter || null,
-        resumeId: resumeUrl || null,
+        resumeId: null,
         companyId: companyId
       },
       include: {
