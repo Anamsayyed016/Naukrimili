@@ -1,9 +1,11 @@
 /**
  * Notification Service for User Notifications
  * Handles creation and management of user notifications
+ * Now supports both real-time Socket.io notifications AND email notifications
  */
 
 import { prisma } from '@/lib/prisma';
+import { mailerService } from '@/lib/mailer';
 
 // Global socket service instance (will be set by server.js)
 let globalSocketService: any = null;
@@ -43,6 +45,112 @@ async function sendRealTimeNotification(notification: any): Promise<void> {
   }
 }
 
+/**
+ * Send email notification based on notification type
+ */
+async function sendEmailNotification(notification: any): Promise<void> {
+  if (!mailerService.isReady()) {
+    console.warn('⚠️ Email service not ready, email notification skipped');
+    return;
+  }
+
+  try {
+    // Get user details for email
+    const user = await prisma.user.findUnique({
+      where: { id: notification.userId },
+      select: { email: true, name: true }
+    });
+
+    if (!user?.email) {
+      console.warn(`⚠️ User ${notification.userId} has no email address, email notification skipped`);
+      return;
+    }
+
+    let emailSent = false;
+
+    // Send different email types based on notification type
+    switch (notification.type) {
+      case 'WELCOME':
+        emailSent = await mailerService.sendWelcomeEmail(
+          user.email,
+          user.name || 'User',
+          notification.data?.provider || 'account'
+        );
+        break;
+
+      case 'JOB_APPLICATION_RECEIVED':
+        // This is for employers receiving applications
+        if (notification.data?.jobTitle && notification.data?.applicantName) {
+          emailSent = await mailerService.sendApplicationNotificationEmail(
+            user.email,
+            user.name || 'Employer',
+            notification.data.jobTitle,
+            notification.data.applicantName
+          );
+        }
+        break;
+
+      case 'APPLICATION_UPDATE':
+        // This is for job seekers getting status updates
+        if (notification.data?.jobTitle && notification.data?.status && notification.data?.companyName) {
+          emailSent = await mailerService.sendApplicationStatusEmail(
+            user.email,
+            user.name || 'Applicant',
+            notification.data.jobTitle,
+            notification.data.status,
+            notification.data.companyName
+          );
+        }
+        break;
+
+      case 'INTERVIEW_SCHEDULED':
+        // Send custom email for interview scheduling
+        emailSent = await mailerService.sendEmail({
+          to: user.email,
+          subject: `Interview Scheduled: ${notification.data?.jobTitle || 'Job Position'}`,
+          text: notification.message,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2>📅 Interview Scheduled</h2>
+              <p>${notification.message}</p>
+              <p><strong>Job:</strong> ${notification.data?.jobTitle || 'N/A'}</p>
+              <p><strong>Company:</strong> ${notification.data?.companyName || 'N/A'}</p>
+              <p><strong>Date:</strong> ${notification.data?.interviewDate || 'N/A'}</p>
+              <p><strong>Time:</strong> ${notification.data?.interviewTime || 'N/A'}</p>
+            </div>
+          `
+        });
+        break;
+
+      default:
+        // Send generic notification email for other types
+        emailSent = await mailerService.sendEmail({
+          to: user.email,
+          subject: notification.title,
+          text: notification.message,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2>${notification.title}</h2>
+              <p>${notification.message}</p>
+              <p><a href="${process.env.NEXTAUTH_URL}/dashboard">View Dashboard</a></p>
+            </div>
+          `
+        });
+        break;
+    }
+
+    if (emailSent) {
+      console.log(`📧 Email notification sent to ${user.email}: ${notification.title}`);
+    } else {
+      console.warn(`⚠️ Failed to send email notification to ${user.email}`);
+    }
+
+  } catch (error) {
+    console.error('❌ Error sending email notification:', error);
+    // Don't throw error to avoid breaking the notification creation
+  }
+}
+
 export interface CreateNotificationData {
   userId: string;
   type: 'WELCOME' | 'JOB_MATCH' | 'APPLICATION_UPDATE' | 'SYSTEM' | 'INTERVIEW_SCHEDULED' | 'JOB_APPLICATION_RECEIVED' | 'JOB_POSTED' | 'ADMIN_ACTION' | 'MESSAGE_RECEIVED' | 'RESUME_VIEWED' | 'RESUME_UPLOADED';
@@ -65,6 +173,7 @@ export interface NotificationData {
 
 /**
  * Create a new notification for a user
+ * Sends both real-time Socket.io notification AND email notification
  */
 export async function createNotification(data: CreateNotificationData): Promise<NotificationData> {
   try {
@@ -87,6 +196,14 @@ export async function createNotification(data: CreateNotificationData): Promise<
     } catch (socketError) {
       console.warn('⚠️ Failed to send real-time notification:', socketError);
       // Don't fail the notification creation if socket fails
+    }
+
+    // Send email notification (non-blocking)
+    try {
+      await sendEmailNotification(notification);
+    } catch (emailError) {
+      console.warn('⚠️ Failed to send email notification:', emailError);
+      // Don't fail the notification creation if email fails
     }
     
     return notification as NotificationData;

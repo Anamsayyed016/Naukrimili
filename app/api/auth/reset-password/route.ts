@@ -42,9 +42,21 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // TODO: Send email with reset link
-    // For now, return the token (in production, send via email)
-    console.log('Password reset token:', resetToken);
+    // Send password reset email
+    try {
+      const { sendPasswordResetEmail } = await import('@/lib/mailer');
+      const emailSent = await sendPasswordResetEmail(email, resetToken);
+      
+      if (emailSent) {
+        console.log(`✅ Password reset email sent to ${email}`);
+      } else {
+        console.warn(`⚠️ Failed to send password reset email to ${email}`);
+        // Still return success to avoid revealing if email exists
+      }
+    } catch (emailError) {
+      console.error('❌ Error sending password reset email:', emailError);
+      // Still return success to avoid revealing if email exists
+    }
 
     return NextResponse.json({
       success: true,

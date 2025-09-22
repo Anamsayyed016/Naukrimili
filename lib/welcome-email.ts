@@ -1,15 +1,10 @@
 /**
  * Welcome Email Service for New OAuth Users
  * 
- * This is a placeholder implementation for sending welcome emails to new users.
- * Currently, no email service is configured in the project, so this function
- * only logs the welcome email details.
- * 
- * To implement actual email sending, you would need to:
- * 1. Install an email service (Nodemailer, SendGrid, Resend, etc.)
- * 2. Configure SMTP settings or API keys
- * 3. Replace the console.log with actual email sending logic
+ * Now integrated with Gmail SMTP and the notification system
  */
+
+import { mailerService } from '@/lib/mailer';
 
 interface WelcomeEmailData {
   email: string;
@@ -19,36 +14,25 @@ interface WelcomeEmailData {
 
 export async function sendWelcomeEmail(data: WelcomeEmailData): Promise<void> {
   try {
-    // Log the welcome email details (replace with actual email sending)
-    console.log('📧 Welcome Email (Placeholder):', {
+    console.log('📧 Sending Welcome Email:', {
       to: data.email,
-      subject: 'Welcome to Naukrimili! 🎉',
-      template: 'welcome-oauth',
-      data: {
-        name: data.name,
-        provider: data.provider,
-        loginUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000',
-      }
+      name: data.name,
+      provider: data.provider,
     });
 
-    // TODO: Implement actual email sending
-    // Example with Nodemailer:
-    // await transporter.sendMail({
-    //   from: process.env.FROM_EMAIL,
-    //   to: data.email,
-    //   subject: 'Welcome to Naukrimili! 🎉',
-    //   html: generateWelcomeEmailHTML(data)
-    // });
+    // Send actual welcome email using our mailer service
+    const emailSent = await mailerService.sendWelcomeEmail(
+      data.email,
+      data.name || 'User',
+      data.provider
+    );
 
-    // Example with SendGrid:
-    // await sgMail.send({
-    //   to: data.email,
-    //   from: process.env.FROM_EMAIL,
-    //   subject: 'Welcome to Naukrimili! 🎉',
-    //   html: generateWelcomeEmailHTML(data)
-    // });
+    if (emailSent) {
+      console.log(`✅ Welcome email sent successfully to ${data.email} (${data.provider})`);
+    } else {
+      console.warn(`⚠️ Failed to send welcome email to ${data.email}`);
+    }
 
-    console.log(`✅ Welcome email logged for ${data.email} (${data.provider})`);
   } catch (error) {
     console.error('❌ Error sending welcome email:', error);
     // Don't throw error to avoid breaking the OAuth flow
