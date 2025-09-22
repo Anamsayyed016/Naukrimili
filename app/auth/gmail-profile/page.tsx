@@ -12,13 +12,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CheckCircle, Mail, User, Shield, ArrowRight, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Mail, User, Shield, ArrowRight, ArrowLeft, Bell } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useSocket } from '@/hooks/useSocket';
+import { toast } from 'sonner';
 
 export default function GmailProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { socket, isConnected, notifications, unreadCount } = useSocket();
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     console.log('🔍 Gmail Profile Page - Status:', status);
@@ -41,8 +45,37 @@ export default function GmailProfilePage() {
       console.log('Gmail Profile Page - User email:', user.email);
       console.log('Gmail Profile Page - User name:', user.name);
       console.log('Gmail Profile Page - User picture:', user.picture);
+      
+      // Check if user already has a role and redirect them after showing profile
+      if (user.role && user.role !== 'jobseeker' && user.role !== 'employer') {
+        console.log('User already has role:', user.role, '- will redirect after profile display');
+        // Don't redirect immediately, let the user see their profile first
+        // The continue button will handle the redirect
+      }
+      
+      // Show welcome notification for new OAuth users
+      if (user.isNewUser) {
+        console.log('🎉 New OAuth user detected - showing welcome notification');
+        toast.success("🎉 Welcome to Naukrimili!", {
+          description: "You've successfully connected with Google! Start exploring job opportunities.",
+          duration: 5000,
+        });
+      }
     }
   }, [session, status, router]);
+
+  // Debug socket connection and notifications
+  useEffect(() => {
+    console.log('🔌 Socket Debug - Connected:', isConnected);
+    console.log('🔌 Socket Debug - Socket:', socket);
+    console.log('🔔 Notifications Debug - Count:', notifications.length);
+    console.log('🔔 Notifications Debug - Unread:', unreadCount);
+    console.log('🔔 Notifications Debug - List:', notifications);
+    
+    if (notifications.length > 0) {
+      console.log('🔔 Latest notification:', notifications[0]);
+    }
+  }, [socket, isConnected, notifications, unreadCount]);
 
   const handleContinue = async () => {
     setIsLoading(true);
@@ -50,8 +83,29 @@ export default function GmailProfilePage() {
     // Add a small delay for better UX
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Redirect to role selection
-    router.push('/auth/role-selection');
+    const user = session?.user as any;
+    
+    // Check if user already has a role
+    if (user?.role && user.role !== 'jobseeker' && user.role !== 'employer') {
+      console.log('User already has role:', user.role, '- redirecting to dashboard');
+      let targetUrl = '/dashboard';
+      
+      switch (user.role) {
+        case 'admin':
+          targetUrl = '/dashboard/admin';
+          break;
+        default:
+          targetUrl = '/dashboard';
+      }
+      
+      const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
+      console.log('🔄 Redirecting to dashboard:', finalUrl);
+      window.location.href = finalUrl;
+    } else {
+      // New user or no role - go to role selection
+      console.log('New user or no role - redirecting to role selection');
+      router.push('/auth/role-selection');
+    }
   };
 
   const handleGoBack = () => {
@@ -101,6 +155,78 @@ export default function GmailProfilePage() {
             <CardDescription className="text-gray-600 mt-2">
               You've successfully signed in with Google. Please review your account details below.
             </CardDescription>
+            
+            {/* Show notification for Gmail details */}
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <p className="text-sm text-green-800 font-medium">
+                  Gmail Account Connected Successfully!
+                </p>
+              </div>
+              <p className="text-xs text-green-700 mt-1">
+                Your Google account information is displayed below for verification.
+              </p>
+            </div>
+
+            {/* Socket and Notification Status */}
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Bell className="w-4 h-4 text-blue-600" />
+                  <p className="text-sm text-blue-800 font-medium">
+                    Real-time Notifications
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                  <span className="text-xs text-blue-700">
+                    {isConnected ? 'Connected' : 'Disconnected'}
+                  </span>
+                </div>
+              </div>
+              <p className="text-xs text-blue-700 mt-1">
+                {notifications.length > 0 
+                  ? `${notifications.length} notifications received` 
+                  : 'No notifications yet'
+                }
+              </p>
+              <div className="flex space-x-2 mt-2">
+                {notifications.length > 0 && (
+                  <button
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    {showNotifications ? 'Hide' : 'Show'} Notifications
+                  </button>
+                )}
+                <button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/notifications', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          type: 'TEST',
+                          title: 'Test Notification',
+                          message: 'This is a test notification to verify the system is working!',
+                          data: { test: true }
+                        })
+                      });
+                      const result = await response.json();
+                      console.log('Test notification result:', result);
+                      toast.success('Test notification sent!');
+                    } catch (error) {
+                      console.error('Test notification error:', error);
+                      toast.error('Failed to send test notification');
+                    }
+                  }}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Test Notification
+                </button>
+              </div>
+            </div>
           </CardHeader>
 
           <CardContent className="space-y-6">
@@ -171,7 +297,7 @@ export default function GmailProfilePage() {
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
-                    <span>Continue to Role Selection</span>
+                    <span>{user?.role && user.role !== 'jobseeker' && user.role !== 'employer' ? 'Continue to Dashboard' : 'Continue to Role Selection'}</span>
                     <ArrowRight className="w-4 h-4" />
                   </div>
                 )}
@@ -204,6 +330,27 @@ export default function GmailProfilePage() {
                 .
               </p>
             </div>
+
+            {/* Notifications Display */}
+            {showNotifications && notifications.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Recent Notifications</h3>
+                {notifications.slice(0, 3).map((notification, index) => (
+                  <div key={notification.id || index} className="bg-white p-3 rounded border">
+                    <div className="flex items-start space-x-2">
+                      <Bell className="w-4 h-4 text-blue-500 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+                        <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {new Date(notification.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
