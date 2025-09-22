@@ -366,7 +366,7 @@ export default function JobApplicationPage() {
               <CheckCircle className="h-12 w-12 text-green-600" />
             </div>
             <h2 className="text-3xl font-bold text-green-800 mb-3">Application Submitted!</h2>
-            <p className="text-green-700 mb-6 text-lg">Your application for <strong>{job.title}</strong> at <strong>{job.company}</strong> has been submitted successfully.</p>
+            <p className="text-green-700 mb-6 text-lg">Your application for <strong>{job?.title || 'this position'}</strong> at <strong>{job?.company || 'the company'}</strong> has been submitted successfully.</p>
             <div className="space-y-3">
               <Link
                 href="/jobs"
@@ -383,6 +383,19 @@ export default function JobApplicationPage() {
             </div>
             <p className="text-sm text-gray-500 mt-4">You will be redirected to the job details page in a moment...</p>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Safety check to prevent errors
+  if (!job && !loading && !error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading job details...</p>
+          <p className="text-gray-500 text-sm mt-2">Please wait while we fetch the job information</p>
         </div>
       </div>
     );
@@ -418,8 +431,8 @@ export default function JobApplicationPage() {
               <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 -m-8 mb-8 p-8 text-white">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h1 className="text-3xl sm:text-4xl font-bold mb-4">Apply for {job.title}</h1>
-                    <p className="text-blue-100 text-lg">Join {job.company || 'this company'} and advance your career</p>
+                    <h1 className="text-3xl sm:text-4xl font-bold mb-4">Apply for {job?.title || 'this position'}</h1>
+                    <p className="text-blue-100 text-lg">Join {job?.company || 'this company'} and advance your career</p>
                   </div>
                   {isExternalJob && (
                     <div className="bg-yellow-500 text-yellow-900 px-4 py-2 rounded-lg text-sm font-bold">
@@ -436,7 +449,7 @@ export default function JobApplicationPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">Company</p>
-                    <p className="text-lg font-bold text-gray-900 truncate">{job.company || 'Company'}</p>
+                    <p className="text-lg font-bold text-gray-900 truncate">{job?.company || 'Company'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-4 bg-green-50 rounded-xl">
@@ -445,7 +458,7 @@ export default function JobApplicationPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">Location</p>
-                    <p className="text-lg font-bold text-gray-900 truncate">{job.location || 'Remote'}</p>
+                    <p className="text-lg font-bold text-gray-900 truncate">{job?.location || 'Remote'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-xl">
@@ -454,7 +467,7 @@ export default function JobApplicationPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">Job Type</p>
-                    <p className="text-lg font-bold text-gray-900 truncate">{job.jobType || 'Full-time'}</p>
+                    <p className="text-lg font-bold text-gray-900 truncate">{job?.jobType || 'Full-time'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-4 bg-emerald-50 rounded-xl">
@@ -463,19 +476,19 @@ export default function JobApplicationPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">Salary</p>
-                    <p className="text-lg font-bold text-gray-900 truncate">{job.salary || 'Competitive'}</p>
+                    <p className="text-lg font-bold text-gray-900 truncate">{job?.salary || 'Competitive'}</p>
                   </div>
                 </div>
               </div>
               
-              {job.skills && job.skills.length > 0 && (
+              {job?.skills && Array.isArray(job.skills) && job.skills.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <Star className="h-5 w-5 text-yellow-500" />
                     Required Skills
                   </h3>
                   <div className="flex flex-wrap gap-3">
-                    {job.skills.slice(0, 6).map((skill, index) => (
+                    {job?.skills?.slice(0, 6).map((skill, index) => (
                       <span
                         key={index}
                         className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 text-sm font-bold px-4 py-2 rounded-xl border border-blue-200"
@@ -483,9 +496,9 @@ export default function JobApplicationPage() {
                         {skill}
                       </span>
                     ))}
-                    {job.skills.length > 6 && (
+                    {job?.skills && Array.isArray(job.skills) && job.skills.length > 6 && (
                       <span className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-sm font-bold px-4 py-2 rounded-xl border border-gray-300">
-                        +{job.skills.length - 6} more
+                        +{job?.skills?.length - 6} more
                       </span>
                     )}
                   </div>
@@ -507,7 +520,7 @@ export default function JobApplicationPage() {
                     </p>
                     <button
                       onClick={handleExternalApply}
-                      disabled={!job.source_url}
+                      disabled={!job?.source_url}
                       className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
                     >
                       <ExternalLink className="w-5 h-5" />
@@ -794,7 +807,7 @@ export default function JobApplicationPage() {
                   </h3>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-600 mb-3">
-                      Your resume matches {skillsMatch.length} of {job.skills?.length || 0} required skills
+                      Your resume matches {skillsMatch.length} of {job?.skills?.length || 0} required skills
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {skillsMatch.map((skill, index) => (
