@@ -18,8 +18,13 @@ import {
   FileText,
   User,
   Mail,
-  Phone
+  Phone,
+  ExternalLink,
+  AlertCircle,
+  Globe
 } from 'lucide-react';
+import { useSocket } from '@/hooks/useSocket';
+import { toast } from 'sonner';
 
 interface Job {
   id: string;
@@ -35,6 +40,7 @@ interface Job {
   isFeatured: boolean;
   source: string;
   source_url: string | null;
+  isExternal?: boolean;
 }
 
 interface ResumeProfile {
@@ -64,6 +70,7 @@ export default function JobApplicationPage() {
   const params = useParams();
   const router = useRouter();
   const jobId = params.id as string;
+  const { socket, isConnected, notifications } = useSocket();
   
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
@@ -96,6 +103,25 @@ export default function JobApplicationPage() {
     }
   }, [jobId]);
 
+  // Socket notification handling
+  useEffect(() => {
+    if (socket) {
+      const handleNewNotification = (notification: any) => {
+        console.log('🔔 New notification received:', notification);
+        toast.success(notification.title, {
+          description: notification.message,
+          duration: 5000,
+        });
+      };
+
+      socket.on('new_notification', handleNewNotification);
+      
+      return () => {
+        socket.off('new_notification', handleNewNotification);
+      };
+    }
+  }, [socket]);
+
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
@@ -104,7 +130,12 @@ export default function JobApplicationPage() {
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setJob(data.job);
+          // Ensure isExternal is properly set
+          const jobData = {
+            ...data.job,
+            isExternal: data.job.isExternal || data.job.source !== 'manual' || data.job.id?.startsWith('ext-')
+          };
+          setJob(jobData);
         } else {
           setError(data.error || 'Failed to load job details');
         }
@@ -254,47 +285,35 @@ export default function JobApplicationPage() {
       if (!res.ok) throw new Error(data?.error || "Failed to apply");
       
       setSubmitted(true);
+      
+      // Show success notification
+      toast.success('🎉 Application Submitted!', {
+        description: `Your application for ${job?.title} has been submitted successfully. You'll hear back from the employer soon!`,
+        duration: 5000,
+      });
+      
       setTimeout(() => router.push(`/jobs/${jobId}`), 2000);
       
     } catch (err: any) {
       console.error('Error submitting application:', err);
       setError(err?.message || "Failed to submit application");
+      toast.error('Application Failed', {
+        description: err?.message || "Failed to submit application",
+        duration: 5000,
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleExternalApply = () => {
+    if (job?.source_url) {
+      window.open(job.source_url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   // Check if this is an external job
-  if (jobId && jobId.toString().startsWith('ext-')) {
-    return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 mb-6">
-            <svg className="w-16 h-16 text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h1 className="text-3xl font-bold mb-4 text-blue-900">External Job Application</h1>
-            <p className="text-lg text-blue-700 mb-4">This job is posted on an external platform.</p>
-            <p className="text-blue-600 mb-6">To apply, please visit the original source or use the "Apply on External Site" button on the job details page.</p>
-          </div>
-          <div className="flex gap-4 justify-center">
-            <Link 
-              href={`/jobs/${jobId}`}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-            >
-              View Job Details
-            </Link>
-            <Link 
-              href="/jobs" 
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 text-gray-700"
-            >
-              Back to Jobs
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const isExternalJob = job?.isExternal || job?.source !== 'manual';
 
   if (loading) {
     return (
@@ -314,14 +333,12 @@ export default function JobApplicationPage() {
         <div className="text-center max-w-md mx-auto px-4">
           <div className="bg-red-50 border border-red-200 rounded-lg p-8">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
+              <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
             <h2 className="text-xl font-bold text-red-800 mb-2">Job Not Found</h2>
             <p className="text-red-600 mb-6">{error || 'The job you are looking for does not exist or may have been removed.'}</p>
             <div className="space-y-3">
-            image.pngsh              <Link
+              <Link
                 href="/jobs"
                 className="block w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
               >
@@ -399,8 +416,17 @@ export default function JobApplicationPage() {
             {/* Job Summary */}
             <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8 border-0 overflow-hidden">
               <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 -m-8 mb-8 p-8 text-white">
-                <h1 className="text-3xl sm:text-4xl font-bold mb-4">Apply for {job.title}</h1>
-                <p className="text-blue-100 text-lg">Join {job.company || 'this company'} and advance your career</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-3xl sm:text-4xl font-bold mb-4">Apply for {job.title}</h1>
+                    <p className="text-blue-100 text-lg">Join {job.company || 'this company'} and advance your career</p>
+                  </div>
+                  {isExternalJob && (
+                    <div className="bg-yellow-500 text-yellow-900 px-4 py-2 rounded-lg text-sm font-bold">
+                      External Job
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
@@ -467,320 +493,371 @@ export default function JobApplicationPage() {
               )}
             </div>
 
-            {/* Application Form */}
-            <div className="bg-white rounded-3xl shadow-2xl p-8 border-0">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-white" />
-                </div>
-                Application Form
-              </h2>
-              
-              {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-600 text-sm">{error}</p>
-                </div>
-              )}
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Personal Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Personal Information
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        id="fullName"
-                        required
-                        value={formData.fullName}
-                        onChange={handleInputChange('fullName')}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        required
-                        value={formData.email}
-                        onChange={handleInputChange('email')}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                        placeholder="Enter your email"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange('phone')}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                        placeholder="Enter your phone number"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-                        Location
-                      </label>
-                      <input
-                        type="text"
-                        id="location"
-                        value={formData.location}
-                        onChange={handleInputChange('location')}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                        placeholder="Enter your location"
-                      />
-                    </div>
+            {/* External Job Notice */}
+            {isExternalJob && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
+                <div className="flex items-start gap-4">
+                  <div className="bg-yellow-100 p-3 rounded-lg">
+                    <ExternalLink className="w-6 h-6 text-yellow-600" />
                   </div>
-                </div>
-
-                {/* Resume Upload */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <Upload className="h-5 w-5" />
-                    Resume Upload
-                  </h3>
-                  
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={(e) => handleResumeChange(e.target.files?.[0] || null)}
-                      className="hidden"
-                      id="resume-upload"
-                    />
-                    <label htmlFor="resume-upload" className="cursor-pointer">
-                      {isUploading ? (
-                        <div className="space-y-3">
-                          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
-                          <p className="text-sm text-gray-600">Analyzing resume...</p>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${uploadProgress}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      ) : formData.resume ? (
-                        <div className="space-y-2">
-                          <CheckCircle className="h-8 w-8 mx-auto text-green-600" />
-                          <p className="font-medium">{formData.resume.name}</p>
-                          <p className="text-sm text-gray-600">Click to change</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <Upload className="h-8 w-8 mx-auto text-gray-400" />
-                          <p className="font-medium">Upload your resume</p>
-                          <p className="text-sm text-gray-600">PDF, DOC, or DOCX (Max 10MB)</p>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                </div>
-
-                {/* Additional Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" />
-                    Additional Information
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="expectedSalary" className="block text-sm font-medium text-gray-700 mb-2">
-                        Expected Salary
-                      </label>
-                      <input
-                        type="text"
-                        id="expectedSalary"
-                        value={formData.expectedSalary}
-                        onChange={handleInputChange('expectedSalary')}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                        placeholder="e.g., ₹10 LPA"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="availability" className="block text-sm font-medium text-gray-700 mb-2">
-                        Availability
-                      </label>
-                      <select
-                        id="availability"
-                        value={formData.availability}
-                        onChange={handleInputChange('availability')}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                      >
-                        <option value="Immediate">Immediate</option>
-                        <option value="2 weeks">2 weeks</option>
-                        <option value="1 month">1 month</option>
-                        <option value="2 months">2 months</option>
-                        <option value="3 months">3 months</option>
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-700 mb-2">
-                      Cover Letter
-                    </label>
-                    <textarea
-                      id="coverLetter"
-                      rows={4}
-                      value={formData.coverLetter}
-                      onChange={handleInputChange('coverLetter')}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base resize-none"
-                      placeholder="Tell us why you're interested in this position and what makes you a great fit..."
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl transition-all duration-300 font-bold text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-xl hover:shadow-2xl"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="h-6 w-6 animate-spin" />
-                      <span>Submitting Application...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-6 w-6" />
-                      <span>Submit Application</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Resume Analysis Sidebar */}
-          <div className="space-y-6">
-            {/* ATS Score */}
-            {atsScore !== null && (
-              <div className="bg-white rounded-2xl shadow-2xl p-6 border-0">
-                <h3 className="text-xl font-bold flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
-                    <Star className="h-5 w-5 text-white" />
-                  </div>
-                  ATS Score
-                </h3>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-gray-900 mb-4">
-                    {atsScore}%
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
-                    <div 
-                      className={`h-4 rounded-full transition-all duration-500 ${
-                        atsScore >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 
-                        atsScore >= 60 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-red-500 to-pink-500'
-                      }`}
-                      style={{ width: `${atsScore}%` }}
-                    ></div>
-                  </div>
-                  <p className={`text-lg font-bold ${
-                    atsScore >= 80 ? 'text-green-600' : 
-                    atsScore >= 60 ? 'text-yellow-600' : 'text-red-600'
-                  }`}>
-                    {atsScore >= 80 ? 'Excellent' : 
-                     atsScore >= 60 ? 'Good' : 'Needs improvement'}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Skills Match */}
-            {skillsMatch.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  Skills Match
-                </h3>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600 mb-3">
-                    Your resume matches {skillsMatch.length} of {job.skills?.length || 0} required skills
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {skillsMatch.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-yellow-900 mb-2">External Job Application</h3>
+                    <p className="text-yellow-700 mb-4">
+                      This job is posted on an external platform. You will apply directly on the company's website.
+                    </p>
+                    <button
+                      onClick={handleExternalApply}
+                      disabled={!job.source_url}
+                      className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
+                    >
+                      <ExternalLink className="w-5 h-5" />
+                      Apply on Company Site
+                    </button>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Resume Profile Preview */}
-            {formData.resumeProfile && (
-              <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                  <FileText className="h-5 w-5" />
-                  Resume Summary
-                </h3>
-                <div className="space-y-3">
-                  {formData.resumeProfile.skills.length > 0 && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">Skills</label>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {formData.resumeProfile.skills.slice(0, 5).map((skill, index) => (
-                          <span
-                            key={index}
-                            className="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded-full"
-                          >
-                            {skill}
-                          </span>
-                        ))}
+            {/* Application Form - Only show for internal jobs */}
+            {!isExternalJob && (
+              <div className="bg-white rounded-3xl shadow-2xl p-8 border-0">
+                <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-white" />
+                  </div>
+                  Application Form
+                </h2>
+                
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-600 text-sm">{error}</p>
+                  </div>
+                )}
+                
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Personal Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Personal Information
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                          Full Name *
+                        </label>
+                        <input
+                          type="text"
+                          id="fullName"
+                          required
+                          value={formData.fullName}
+                          onChange={handleInputChange('fullName')}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                          placeholder="Enter your full name"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                          Email Address *
+                        </label>
+                        <input
+                          type="email"
+                          id="email"
+                          required
+                          value={formData.email}
+                          onChange={handleInputChange('email')}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                          placeholder="Enter your email"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          id="phone"
+                          value={formData.phone}
+                          onChange={handleInputChange('phone')}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                          placeholder="Enter your phone number"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                          Location
+                        </label>
+                        <input
+                          type="text"
+                          id="location"
+                          value={formData.location}
+                          onChange={handleInputChange('location')}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                          placeholder="Enter your location"
+                        />
                       </div>
                     </div>
-                  )}
-                  
-                  {formData.resumeProfile.experience.length > 0 && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">Experience</label>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {formData.resumeProfile.experience.length} positions found
-                      </p>
+                  </div>
+
+                  {/* Resume Upload */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Upload className="h-5 w-5" />
+                      Resume Upload
+                    </h3>
+                    
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => handleResumeChange(e.target.files?.[0] || null)}
+                        className="hidden"
+                        id="resume-upload"
+                      />
+                      <label htmlFor="resume-upload" className="cursor-pointer">
+                        {isUploading ? (
+                          <div className="space-y-3">
+                            <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600" />
+                            <p className="text-sm text-gray-600">Analyzing resume...</p>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${uploadProgress}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        ) : formData.resume ? (
+                          <div className="space-y-2">
+                            <CheckCircle className="h-8 w-8 mx-auto text-green-600" />
+                            <p className="font-medium">{formData.resume.name}</p>
+                            <p className="text-sm text-gray-600">Click to change</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <Upload className="h-8 w-8 mx-auto text-gray-400" />
+                            <p className="font-medium">Upload your resume</p>
+                            <p className="text-sm text-gray-600">PDF, DOC, or DOCX (Max 10MB)</p>
+                          </div>
+                        )}
+                      </label>
                     </div>
-                  )}
-                  
-                  {formData.resumeProfile.education.length > 0 && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">Education</label>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {formData.resumeProfile.education.length} degrees found
-                      </p>
+                  </div>
+
+                  {/* Additional Information */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Briefcase className="h-5 w-5" />
+                      Additional Information
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="expectedSalary" className="block text-sm font-medium text-gray-700 mb-2">
+                          Expected Salary
+                        </label>
+                        <input
+                          type="text"
+                          id="expectedSalary"
+                          value={formData.expectedSalary}
+                          onChange={handleInputChange('expectedSalary')}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                          placeholder="e.g., ₹10 LPA"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="availability" className="block text-sm font-medium text-gray-700 mb-2">
+                          Availability
+                        </label>
+                        <select
+                          id="availability"
+                          value={formData.availability}
+                          onChange={handleInputChange('availability')}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                        >
+                          <option value="Immediate">Immediate</option>
+                          <option value="2 weeks">2 weeks</option>
+                          <option value="1 month">1 month</option>
+                          <option value="2 months">2 months</option>
+                          <option value="3 months">3 months</option>
+                        </select>
+                      </div>
                     </div>
-                  )}
-                </div>
+                    
+                    <div>
+                      <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-700 mb-2">
+                        Cover Letter
+                      </label>
+                      <textarea
+                        id="coverLetter"
+                        rows={4}
+                        value={formData.coverLetter}
+                        onChange={handleInputChange('coverLetter')}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base resize-none"
+                        placeholder="Tell us why you're interested in this position and what makes you a great fit..."
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl transition-all duration-300 font-bold text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-xl hover:shadow-2xl"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <span>Submitting Application...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-6 w-6" />
+                        <span>Submit Application</span>
+                      </>
+                    )}
+                  </button>
+                </form>
               </div>
             )}
           </div>
+
+          {/* Resume Analysis Sidebar - Only show for internal jobs */}
+          {!isExternalJob && (
+            <div className="space-y-6">
+              {/* Socket Connection Status */}
+              <div className="bg-white rounded-2xl shadow-2xl p-6 border-0">
+                <h3 className="text-xl font-bold flex items-center gap-3 mb-4">
+                  <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                  Real-time Status
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {isConnected ? 'Connected to notifications' : 'Disconnected from notifications'}
+                </p>
+                {notifications.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Recent Notifications:</p>
+                    <div className="space-y-2">
+                      {notifications.slice(0, 3).map((notification, index) => (
+                        <div key={index} className="bg-blue-50 p-3 rounded-lg text-sm">
+                          <p className="font-medium text-blue-900">{notification.title}</p>
+                          <p className="text-blue-700">{notification.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ATS Score */}
+              {atsScore !== null && (
+                <div className="bg-white rounded-2xl shadow-2xl p-6 border-0">
+                  <h3 className="text-xl font-bold flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
+                      <Star className="h-5 w-5 text-white" />
+                    </div>
+                    ATS Score
+                  </h3>
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-gray-900 mb-4">
+                      {atsScore}%
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+                      <div 
+                        className={`h-4 rounded-full transition-all duration-500 ${
+                          atsScore >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 
+                          atsScore >= 60 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-red-500 to-pink-500'
+                        }`}
+                        style={{ width: `${atsScore}%` }}
+                      ></div>
+                    </div>
+                    <p className={`text-lg font-bold ${
+                      atsScore >= 80 ? 'text-green-600' : 
+                      atsScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                    }`}>
+                      {atsScore >= 80 ? 'Excellent' : 
+                       atsScore >= 60 ? 'Good' : 'Needs improvement'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Skills Match */}
+              {skillsMatch.length > 0 && (
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    Skills Match
+                  </h3>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600 mb-3">
+                      Your resume matches {skillsMatch.length} of {job.skills?.length || 0} required skills
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {skillsMatch.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Resume Profile Preview */}
+              {formData.resumeProfile && (
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                    <FileText className="h-5 w-5" />
+                    Resume Summary
+                  </h3>
+                  <div className="space-y-3">
+                    {formData.resumeProfile.skills.length > 0 && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Skills</label>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {formData.resumeProfile.skills.slice(0, 5).map((skill, index) => (
+                            <span
+                              key={index}
+                              className="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded-full"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {formData.resumeProfile.experience.length > 0 && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Experience</label>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {formData.resumeProfile.experience.length} positions found
+                        </p>
+                      </div>
+                    )}
+                    
+                    {formData.resumeProfile.education.length > 0 && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Education</label>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {formData.resumeProfile.education.length} degrees found
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
-

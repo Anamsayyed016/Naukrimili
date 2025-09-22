@@ -77,11 +77,16 @@ export default function JobDetailsPage() {
 
         const data = await response.json();
         if (data.success) {
-          setJob(data.job);
+          // Ensure isExternal is properly set
+          const jobData = {
+            ...data.job,
+            isExternal: data.job.isExternal || data.job.source !== 'manual' || data.job.id?.startsWith('ext-')
+          };
+          setJob(jobData);
           
           // Fetch AI-enhanced data for better job insights
-          if (data.job && data.job.title) {
-            fetchEnhancedJobData(data.job);
+          if (jobData && jobData.title) {
+            fetchEnhancedJobData(jobData);
           }
         } else {
           setError(data.error || 'Failed to load job');
@@ -580,22 +585,37 @@ export default function JobDetailsPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-            <Link 
-              href={`/jobs/${job.id}/apply-unified`}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-center flex items-center justify-center gap-3"
-            >
-              {job.isExternal ? (
-                <>
+            {job.isExternal ? (
+              <div className="flex-1 space-y-4">
+                <Button 
+                  onClick={() => {
+                    if (job.source_url) {
+                      window.open(job.source_url, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
+                >
                   <ExternalLink className="w-5 h-5" />
-                  Apply Now
-                </>
-              ) : (
-                <>
-                  <Briefcase className="w-5 h-5" />
-                  Apply Now
-                </>
-              )}
-            </Link>
+                  Apply on Company Website
+                </Button>
+                
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-gray-600">
+                    This job is posted on {job.source === 'external' ? 'external platform' : job.source}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    You'll be redirected to the company's official website
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <Link 
+                href={`/jobs/${job.id}/apply`}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-center"
+              >
+                Apply Now
+              </Link>
+            )}
             
             <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4 flex-1 sm:flex-none">
               <JobShare 

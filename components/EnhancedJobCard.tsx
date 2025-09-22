@@ -17,7 +17,7 @@ import {
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { JobResult, JobQuickView } from '@/types/jobs';
 import Image from 'next/image';
-import JobApplicationModal from '@/components/JobApplicationModal';
+import Link from 'next/link';
 
 interface EnhancedJobCardProps {
   job: JobResult;
@@ -39,7 +39,6 @@ export default function EnhancedJobCard({
   showSalaryInsights = true
 }: EnhancedJobCardProps) {
   const [imageError, setImageError] = useState(false);
-  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   const handleBookmark = () => {
     onBookmark?.(job.id);
@@ -166,36 +165,17 @@ export default function EnhancedJobCard({
                 )}
               </button>
               
-              <button
-                onClick={() => {
-                  const isExternal = job.source && job.source !== 'manual';
-                  if (isExternal && job.source_url) {
-                    // External job - redirect directly to company website
-                    window.open(job.source_url, '_blank', 'noopener,noreferrer');
-                  } else {
-                    // Internal job - open apply page
-                    const route = `/jobs/${job.id}/apply`;
-                    window.open(route, '_blank');
-                  }
-                }}
+              <Link
+                href={`/jobs/${job.id}/apply`}
                 className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
               >
-                <span className="hidden sm:inline">{job.source !== 'manual' && job.source_url ? 'Apply on Website' : 'Apply'}</span>
+                <span className="hidden sm:inline">Apply</span>
                 <span className="sm:hidden">Apply</span>
                 <ChevronRightIcon className="w-3 h-3" />
-              </button>
+              </Link>
             </div>
           </div>
         </motion.div>
-        
-        {/* Application Modal */}
-        <JobApplicationModal
-          isOpen={isApplicationModalOpen}
-          onClose={() => setIsApplicationModalOpen(false)}
-          jobId={job.id}
-          jobTitle={job.title}
-          companyName={job.company}
-        />
       </>
     );
   }
@@ -372,29 +352,13 @@ export default function EnhancedJobCard({
 
         {/* Card Footer Actions */}
         <div className="px-6 py-4 bg-gray-50 flex gap-3">
-          {job.source !== 'manual' && job.source_url ? (
-            // External job - redirect directly to company website
-            <button
-              onClick={() => {
-                if (job.source_url) {
-                  window.open(job.source_url, '_blank', 'noopener,noreferrer');
-                }
-              }}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
-            >
-              Apply on Company Website
-              <ChevronRightIcon className="w-4 h-4" />
-            </button>
-          ) : (
-            // Internal job - open application modal
-            <button
-              onClick={() => setIsApplicationModalOpen(true)}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
-            >
-              Apply Now
-              <ChevronRightIcon className="w-4 h-4" />
-            </button>
-          )}
+          <Link
+            href={`/jobs/${job.id}/apply`}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
+          >
+            Apply Now
+            <ChevronRightIcon className="w-4 h-4" />
+          </Link>
           
           <button 
             onClick={handleQuickView}
@@ -406,15 +370,6 @@ export default function EnhancedJobCard({
           
         </div>
       </motion.div>
-      
-      {/* Application Modal */}
-      <JobApplicationModal
-        isOpen={isApplicationModalOpen}
-        onClose={() => setIsApplicationModalOpen(false)}
-        jobId={job.id}
-        jobTitle={job.title}
-        companyName={job.company}
-      />
     </>
   );
 }
