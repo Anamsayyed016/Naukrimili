@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/nextauth-config";
 import { prisma } from "@/lib/prisma";
-import { getSocketService } from "@/lib/socket-server";
 
 // Helper function to get sample job data
 function getSampleJobData(jobId: string, companyId: string | null) {
@@ -30,14 +29,14 @@ function getSampleJobData(jobId: string, companyId: string | null) {
     },
     '2': {
       id: '2',
-      title: 'Frontend Developer',
-      company: 'Digital Solutions Ltd',
+      title: 'Full Stack Developer',
+      company: 'InnovateTech Solutions',
       companyId: companyId,
       location: 'Mumbai, India',
       country: 'IN',
-      description: 'Join our frontend team to build beautiful and responsive user interfaces. Experience with modern JavaScript frameworks required.',
-      requirements: 'JavaScript, React, CSS, HTML',
-      skills: 'JavaScript, React, Vue.js, CSS3, HTML5, Webpack',
+      description: 'Join our dynamic team as a Full Stack Developer. You will work on cutting-edge web applications and contribute to our product development.',
+      requirements: 'JavaScript, React, Node.js, MongoDB',
+      skills: 'JavaScript, React, Node.js, MongoDB, Express, Git',
       jobType: 'full-time',
       experienceLevel: 'mid',
       salary: '₹8,00,000 - ₹15,00,000',
@@ -52,19 +51,19 @@ function getSampleJobData(jobId: string, companyId: string | null) {
     },
     '3': {
       id: '3',
-      title: 'Data Analyst',
-      company: 'Analytics Pro',
+      title: 'DevOps Engineer',
+      company: 'CloudTech Systems',
       companyId: companyId,
-      location: 'Delhi, India',
+      location: 'Pune, India',
       country: 'IN',
-      description: 'We need a Data Analyst to help us make sense of large datasets and provide insights to drive business decisions.',
-      requirements: 'Python, SQL, Excel, Statistics',
-      skills: 'Python, SQL, Excel, Statistics, Tableau, Power BI',
+      description: 'We are seeking a skilled DevOps Engineer to manage our cloud infrastructure and deployment pipelines.',
+      requirements: 'AWS, Docker, Kubernetes, CI/CD',
+      skills: 'AWS, Docker, Kubernetes, Jenkins, Terraform, Linux',
       jobType: 'full-time',
-      experienceLevel: 'entry',
-      salary: '₹6,00,000 - ₹12,00,000',
+      experienceLevel: 'senior',
+      salary: '₹12,00,000 - ₹20,00,000',
       isRemote: false,
-      isFeatured: false,
+      isFeatured: true,
       isActive: true,
       source: 'manual',
       sourceId: 'sample-3',
@@ -74,68 +73,68 @@ function getSampleJobData(jobId: string, companyId: string | null) {
     },
     '4': {
       id: '4',
-      title: 'Product Manager',
-      company: 'InnovateTech',
+      title: 'Data Scientist',
+      company: 'AI Innovations Ltd',
       companyId: companyId,
-      location: 'Hyderabad, India',
+      location: 'Delhi, India',
       country: 'IN',
-      description: 'Lead product development from concept to launch. Work with cross-functional teams to deliver exceptional user experiences.',
-      requirements: 'Product Management, Agile, User Research, Analytics',
-      skills: 'Product Management, Agile, User Research, Analytics, Figma, JIRA',
+      description: 'Join our AI team as a Data Scientist and work on exciting machine learning projects that impact millions of users.',
+      requirements: 'Python, Machine Learning, Statistics, SQL',
+      skills: 'Python, Machine Learning, TensorFlow, Pandas, SQL, Statistics',
       jobType: 'full-time',
-      experienceLevel: 'senior',
-      salary: '₹20,00,000 - ₹35,00,000',
+      experienceLevel: 'mid',
+      salary: '₹10,00,000 - ₹18,00,000',
       isRemote: true,
       isFeatured: true,
       isActive: true,
       source: 'manual',
       sourceId: 'sample-4',
       postedAt: new Date(),
-      views: 203,
-      applicationsCount: 45
+      views: 134,
+      applicationsCount: 19
     },
     '5': {
       id: '5',
-      title: 'DevOps Engineer',
-      company: 'Cloud Systems',
+      title: 'UI/UX Designer',
+      company: 'Creative Design Studio',
       companyId: companyId,
-      location: 'Pune, India',
+      location: 'Chennai, India',
       country: 'IN',
-      description: 'Build and maintain our cloud infrastructure. Automate deployment processes and ensure system reliability.',
-      requirements: 'AWS, Docker, Kubernetes, Linux',
-      skills: 'AWS, Docker, Kubernetes, Linux, Terraform, Jenkins',
+      description: 'We are looking for a creative UI/UX Designer to join our design team and create amazing user experiences.',
+      requirements: 'Figma, Adobe Creative Suite, User Research',
+      skills: 'Figma, Adobe XD, Photoshop, Illustrator, User Research, Prototyping',
       jobType: 'full-time',
       experienceLevel: 'mid',
-      salary: '₹12,00,000 - ₹20,00,000',
+      salary: '₹6,00,000 - ₹12,00,000',
       isRemote: false,
       isFeatured: false,
       isActive: true,
       source: 'manual',
       sourceId: 'sample-5',
       postedAt: new Date(),
-      views: 134,
-      applicationsCount: 18
+      views: 45,
+      applicationsCount: 6
     },
     '6': {
       id: '6',
-      title: 'UX Designer',
-      company: 'Creative Studio',
+      title: 'Product Manager',
+      company: 'TechStart Inc',
       companyId: companyId,
-      location: 'Chennai, India',
+      location: 'Hyderabad, India',
       country: 'IN',
-      description: 'Create intuitive and engaging user experiences. Work closely with product and engineering teams.',
-      requirements: 'Figma, Adobe Creative Suite, User Research, Prototyping',
-      skills: 'Figma, Adobe Creative Suite, User Research, Prototyping, Sketch, InVision',
+      description: 'Lead product development initiatives and work closely with engineering teams to deliver exceptional products.',
+      requirements: 'Product Management, Agile, Analytics',
+      skills: 'Product Management, Agile, Jira, Analytics, User Stories, Roadmapping',
       jobType: 'full-time',
-      experienceLevel: 'mid',
-      salary: '₹10,00,000 - ₹18,00,000',
+      experienceLevel: 'senior',
+      salary: '₹18,00,000 - ₹30,00,000',
       isRemote: true,
-      isFeatured: false,
+      isFeatured: true,
       isActive: true,
       source: 'manual',
       sourceId: 'sample-6',
       postedAt: new Date(),
-      views: 92,
+      views: 78,
       applicationsCount: 15
     },
     '7': {
@@ -162,173 +161,49 @@ function getSampleJobData(jobId: string, companyId: string | null) {
     },
     '8': {
       id: '8',
-      title: 'Marketing Manager',
-      company: 'Growth Marketing Co',
+      title: 'Frontend Developer',
+      company: 'WebCraft Studios',
       companyId: companyId,
-      location: 'Bangalore, India',
+      location: 'Kolkata, India',
       country: 'IN',
-      description: 'Drive marketing strategies and campaigns. Lead a team of marketing professionals.',
-      requirements: 'Digital Marketing, Analytics, Team Management, Content Strategy',
-      skills: 'Digital Marketing, Google Analytics, Facebook Ads, Content Strategy, SEO, SEM',
+      description: 'Create beautiful and responsive web applications using modern frontend technologies.',
+      requirements: 'React, TypeScript, CSS, HTML',
+      skills: 'React, TypeScript, CSS3, HTML5, Redux, Webpack',
       jobType: 'full-time',
-      experienceLevel: 'senior',
-      salary: '₹12,00,000 - ₹20,00,000',
-      isRemote: true,
+      experienceLevel: 'junior',
+      salary: '₹4,00,000 - ₹8,00,000',
+      isRemote: false,
       isFeatured: false,
       isActive: true,
       source: 'manual',
       sourceId: 'sample-8',
       postedAt: new Date(),
-      views: 95,
-      applicationsCount: 14
+      views: 56,
+      applicationsCount: 9
     }
   };
 
   return sampleJobs[jobId as keyof typeof sampleJobs] || null;
 }
 
-export async function GET(request: NextRequest) {
-  try {
-    console.log('🔍 GET /api/applications called');
-    const session = await auth();
-    
-    if (!session?.user?.email) {
-      console.log('❌ No session or email found');
-      return NextResponse.json({
-        success: false,
-        error: 'Authentication required'
-      }, { status: 401 });
-    }
-    
-    console.log('�� Session user:', { email: session.user.email });
-
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const status = searchParams.get("status");
-    const search = searchParams.get("search");
-
-    const skip = (page - 1) * limit;
-
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    });
-
-    if (!user) {
-      console.log('❌ User not found for email:', session.user.email);
-      return NextResponse.json({
-        success: false,
-        error: 'User not found'
-      }, { status: 404 });
-    }
-    
-    console.log('✅ User found:', { userId: user.id, email: user.email, role: user.role });
-
-    const where: any = { userId: user.id };
-
-    if (status && status !== "all") {
-      where.status = status;
-    }
-
-    if (search) {
-      where.OR = [
-        { job: { title: { contains: search, mode: "insensitive" } } },
-        { job: { company: { contains: search, mode: "insensitive" } } }
-      ];
-    }
-
-    console.log('🔍 Querying applications with where clause:', where);
-    
-    const [applications, total] = await Promise.all([
-      prisma.application.findMany({
-        where,
-        include: {
-          job: {
-            select: {
-              id: true,
-              title: true,
-              company: true,
-              location: true,
-              jobType: true,
-              salary: true,
-              isRemote: true
-            }
-          },
-          company: {
-            select: {
-              id: true,
-              name: true,
-              logo: true,
-              website: true
-            }
-          }
-        },
-        orderBy: { appliedAt: 'desc' },
-        skip,
-        take: limit
-      }),
-      prisma.application.count({ where })
-    ]);
-    
-    console.log('📊 Applications query results:', { 
-      applicationsCount: applications.length, 
-      total, 
-      where 
-    });
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        applications,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
-      }
-    });
-
-  } catch (error) {
-    console.error('Error fetching applications:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch applications'
-    }, { status: 500 });
-  }
-}
-
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔍 POST /api/applications called');
-    const session = await auth();
+    console.log('🚀 Starting job application process...');
     
-    if (!session?.user?.email) {
-      console.log('❌ No session or email found');
+    // Get the authenticated user
+    const session = await auth();
+    if (!session?.user?.id) {
+      console.log('❌ No authenticated user found');
       return NextResponse.json({
         success: false,
         error: 'Authentication required'
       }, { status: 401 });
     }
-    
-    console.log('�� Session user:', { email: session.user.email });
 
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    });
+    const user = session.user;
+    console.log('✅ User authenticated:', user.id);
 
-    if (!user) {
-      console.log('❌ User not found for email:', session.user.email);
-      return NextResponse.json({
-        success: false,
-        error: 'User not found'
-      }, { status: 404 });
-    }
-    
-    console.log('✅ User found:', { userId: user.id, email: user.email, role: user.role });
-
+    // Parse form data
     const formData = await request.formData();
     const jobId = formData.get('jobId') as string;
     const fullName = formData.get('fullName') as string;
@@ -338,19 +213,23 @@ export async function POST(request: NextRequest) {
     const coverLetter = formData.get('coverLetter') as string;
     const expectedSalary = formData.get('expectedSalary') as string;
     const availability = formData.get('availability') as string;
-    const resume = formData.get('resume') as File;
+    const resumeFile = formData.get('resume') as File | null;
 
-    console.log('📝 Form data received:', {
+    console.log('📝 Application data received:', {
       jobId,
       fullName,
       email,
-      phone,
-      coverLetter: coverLetter?.substring(0, 50) + '...',
-      resumeSize: resume?.size || 0
+      phone: phone ? 'provided' : 'not provided',
+      location: location ? 'provided' : 'not provided',
+      coverLetter: coverLetter ? 'provided' : 'not provided',
+      expectedSalary: expectedSalary ? 'provided' : 'not provided',
+      availability: availability ? 'provided' : 'not provided',
+      resumeFile: resumeFile ? 'provided' : 'not provided'
     });
 
     // Validate required fields
     if (!jobId || !fullName || !email) {
+      console.log('❌ Missing required fields');
       return NextResponse.json({
         success: false,
         error: 'Missing required fields: jobId, fullName, and email are required'
@@ -403,40 +282,57 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('✅ Job found:', { jobId: job.id, title: job.title, companyId: job.companyId });
+    console.log('✅ Job found:', job.title);
 
-    // Check if user already applied for this job
-    const existingApplication = await prisma.application.findFirst({
-      where: {
-        userId: user.id,
-        jobId: jobId
+    // Get company ID
+    let companyId = job.companyId;
+    if (!companyId && job.company) {
+      // Try to find existing company or create a new one
+      try {
+        let company = await prisma.company.findFirst({
+          where: { name: job.company }
+        });
+        
+        if (!company) {
+          company = await prisma.company.create({
+            data: {
+              name: job.company,
+              description: `Company for ${job.title} position`,
+              website: null,
+              industry: 'Technology',
+              size: 'Medium',
+              location: job.location || 'India',
+              isActive: true
+            }
+          });
+          console.log('✅ Company created:', company.name);
+        }
+        companyId = company.id;
+      } catch (companyError) {
+        console.warn('⚠️ Failed to create/find company:', companyError);
+        // Continue without company ID
       }
-    });
-
-    if (existingApplication) {
-      return NextResponse.json({
-        success: false,
-        error: 'You have already applied for this job'
-      }, { status: 409 });
     }
 
     // Handle resume upload if provided
     let resumeUrl = null;
-    if (resume && resume.size > 0) {
-      // In a real application, you would upload to a file storage service
-      // For now, we'll store the filename
-      resumeUrl = `resumes/${user.id}/${Date.now()}-${resume.name}`;
+    if (resumeFile && resumeFile.size > 0) {
+      try {
+        console.log('📄 Processing resume upload...');
+        
+        // Create a simple file name
+        const fileName = `resume_${user.id}_${Date.now()}.pdf`;
+        
+        // For now, we'll just store the file info without actual upload
+        // In a real implementation, you'd upload to cloud storage
+        resumeUrl = `/uploads/resumes/${fileName}`;
+        
+        console.log('✅ Resume processed:', fileName);
+      } catch (resumeError) {
+        console.warn('⚠️ Failed to process resume:', resumeError);
+        // Continue without resume
+      }
     }
-
-    // Use the job's company ID
-    let companyId = job.companyId;
-
-    console.log('🔍 Creating application with data:', {
-      userId: user.id,
-      jobId: jobId,
-      companyId: companyId,
-      jobTitle: job.title
-    });
 
     // Create application
     const application = await prisma.application.create({
@@ -447,22 +343,16 @@ export async function POST(request: NextRequest) {
         status: 'submitted',
         appliedAt: new Date(),
         coverLetter: coverLetter || null,
-        resumeId: null,
+        resumeId: null, // Fixed: Ensure resumeId is null if no resume is uploaded
         companyId: companyId
       },
       include: {
-        job: {
+        job: true,
+        user: {
           select: {
             id: true,
-            title: true,
-            company: true,
-            location: true
-          }
-        },
-        company: {
-          select: {
-            id: true,
-            name: true
+            name: true,
+            email: true
           }
         }
       }
@@ -470,86 +360,48 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Application created successfully:', application.id);
 
-    // Send real-time notification via Socket.io
-    const socketService = getSocketService();
-    if (socketService) {
-      try {
-        // Notify the job seeker about successful application
-        await socketService.sendNotificationToUser(user.id, {
+    // Create database notification for persistence
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
           type: 'APPLICATION_UPDATE',
-          title: '🎉 Application Submitted Successfully!',
-          message: `Your application for "${application.job.title}" at ${application.job.company} has been submitted successfully. You'll hear back from the employer soon!`,
+          title: 'Application Submitted Successfully!',
+          message: `Your application for "${application.job.title}" at ${application.job.company} has been submitted successfully.`,
           data: {
             applicationId: application.id,
             jobId: application.jobId,
-            companyId: application.companyId,
-            jobTitle: application.job.title,
-            companyName: application.job.company
+            companyId: application.companyId
           }
-        });
+        }
+      });
 
-        // Also create a database notification for persistence
-        await prisma.notification.create({
-          data: {
-            userId: user.id,
-            type: 'APPLICATION_UPDATE',
-            title: 'Application Submitted Successfully!',
-            message: `Your application for "${application.job.title}" at ${application.job.company} has been submitted successfully.`,
-            data: {
-              applicationId: application.id,
-              jobId: application.jobId,
-              companyId: application.companyId
-            }
-          }
-        });
-
-        console.log('📤 Real-time notifications sent for new application');
-      } catch (socketError) {
-        console.warn('⚠️ Failed to send real-time notifications:', socketError);
-        // Don't fail the application creation if socket fails
-      }
-    } else {
-      // Fallback: Create database notification even if socket fails
-      try {
-        await prisma.notification.create({
-          data: {
-            userId: user.id,
-            type: 'APPLICATION_UPDATE',
-            title: 'Application Submitted Successfully!',
-            message: `Your application for "${application.job.title}" at ${application.job.company} has been submitted successfully.`,
-            data: {
-              applicationId: application.id,
-              jobId: application.jobId,
-              companyId: application.companyId
-            }
-          }
-        });
-        console.log('📝 Database notification created as fallback');
-      } catch (notificationError) {
-        console.warn('⚠️ Failed to create database notification:', notificationError);
-      }
+      console.log('✅ Database notification created for user:', user.id);
+    } catch (dbError) {
+      console.warn('⚠️ Failed to create database notification:', dbError);
     }
 
+    // Return success response
     return NextResponse.json({
       success: true,
-      message: 'Application submitted successfully',
-      data: {
-        applicationId: application.id,
+      message: 'Application submitted successfully!',
+      application: {
+        id: application.id,
         jobTitle: application.job.title,
-        company: application.job.company,
-        appliedAt: application.appliedAt,
-        application: application // Include full application for real-time updates
+        companyName: application.job.company,
+        status: application.status,
+        appliedAt: application.appliedAt
       }
-    }, { status: 201 });
+    });
 
-  } catch (error) {
-    console.error('❌ Error creating application:', error);
-    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+  } catch (error: any) {
+    console.error('❌ Error in job application:', error);
     
+    // Return detailed error information
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to submit application',
-      details: process.env.NODE_ENV === 'development' ? error : undefined
+      error: 'Failed to submit application. Please try again.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }, { status: 500 });
   }
 }
