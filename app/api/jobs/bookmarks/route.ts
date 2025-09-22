@@ -29,7 +29,16 @@ export async function GET(request: NextRequest) {
     const bookmarks = await prisma.jobBookmark.findMany({
       where: { userId: session.user.id },
       include: {
-        job: true
+        job: {
+          include: {
+            _count: {
+              select: {
+                applications: true,
+                bookmarks: true
+              }
+            }
+          }
+        }
       },
       skip: offset,
       take: limit,
@@ -43,27 +52,32 @@ export async function GET(request: NextRequest) {
     const data = bookmarks.map(bookmark => ({
       id: bookmark.id,
       job_id: bookmark.jobId,
+      bookmarked_at: bookmark.createdAt.toISOString(),
       job: {
         id: bookmark.job.id,
         title: bookmark.job.title,
         company: bookmark.job.company,
         location: bookmark.job.location,
+        jobType: bookmark.job.jobType,
+        experienceLevel: bookmark.job.experienceLevel || 'mid',
         salary: bookmark.job.salary,
-        job_type: bookmark.job.jobType,
-        remote: bookmark.job.isRemote,
-        featured: bookmark.job.isFeatured,
-        urgent: bookmark.job.isUrgent,
-        posted_at: bookmark.job.postedAt?.toISOString(),
-        redirect_url: `/jobs/${bookmark.job.id}`,
-        is_active: bookmark.job.isActive,
-      },
-      notes: bookmark.notes || '',
-      bookmarked_at: bookmark.createdAt.toISOString(),
+        isRemote: bookmark.job.isRemote || false,
+        isHybrid: bookmark.job.isHybrid || false,
+        isUrgent: bookmark.job.isUrgent || false,
+        isFeatured: bookmark.job.isFeatured || false,
+        createdAt: bookmark.job.createdAt?.toISOString() || bookmark.job.postedAt?.toISOString(),
+        description: bookmark.job.description || '',
+        skills: bookmark.job.skills || [],
+        _count: {
+          applications: bookmark.job._count?.applications || 0,
+          bookmarks: bookmark.job._count?.bookmarks || 0,
+        }
+      }
     }));
 
     return NextResponse.json({
       success: true,
-      bookmarks: data,
+      data: data,
       pagination: {
         current_page: page,
         total_pages: Math.ceil(total / limit),

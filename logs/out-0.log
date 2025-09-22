@@ -1029,3 +1029,15 @@
 2025-09-22T16:34:01: Environment: production
 2025-09-22T16:34:01: Port: 3000
 2025-09-22T16:34:01: Hostname: 0.0.0.0
+2025-09-22T18:37:23: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T18:37:23: Environment: production
+2025-09-22T18:37:23: Port: 3000
+2025-09-22T18:37:23: Hostname: 0.0.0.0
+2025-09-22T18:37:33: ✅ Next.js app prepared
+2025-09-22T18:37:33: 🔌 Initializing Socket.io...
+2025-09-22T18:37:33: ✅ Socket.io server initialized successfully
+2025-09-22T18:37:33: ✅ Simple Socket Service initialized
+2025-09-22T18:37:33: ✅ Socket Notification Service initialized successfully
+2025-09-22T18:37:33: ✅ Socket notification service initialized
+2025-09-22T18:37:33: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T18:37:33: 🔌 Socket.io ready and listening for connections

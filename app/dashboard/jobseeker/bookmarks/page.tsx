@@ -61,10 +61,16 @@ export default function JobSeekerBookmarksPage() {
 
       const data = await response.json();
       if (data.success) {
-        setBookmarks(data.data);
+        // Ensure data is an array and has proper structure
+        const bookmarksData = Array.isArray(data.data) ? data.data : [];
+        setBookmarks(bookmarksData);
+      } else {
+        console.error('Failed to fetch bookmarks:', data.error);
+        setBookmarks([]);
       }
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
+      setBookmarks([]);
     } finally {
       setLoading(false);
     }
@@ -167,11 +173,13 @@ export default function JobSeekerBookmarksPage() {
                           )}
                         </div>
 
-                        <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-                          {bookmark.job.description}
-                        </p>
+                        {bookmark.job.description && (
+                          <p className="text-gray-700 text-sm mb-3 line-clamp-2">
+                            {bookmark.job.description}
+                          </p>
+                        )}
 
-                        {bookmark.job.skills.length > 0 && (
+                        {bookmark.job.skills && Array.isArray(bookmark.job.skills) && bookmark.job.skills.length > 0 && (
                           <div className="flex flex-wrap gap-1 mb-3">
                             {bookmark.job.skills.slice(0, 5).map((skill, index) => (
                               <Badge key={index} variant="outline" className="text-xs">
@@ -191,7 +199,7 @@ export default function JobSeekerBookmarksPage() {
                             Saved {new Date(bookmark.bookmarked_at).toLocaleDateString()}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {bookmark.job._count.applications} applications
+                            {bookmark.job._count?.applications || 0} applications
                           </div>
                         </div>
                       </div>
