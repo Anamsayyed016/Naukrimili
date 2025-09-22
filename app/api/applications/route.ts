@@ -190,12 +190,15 @@ export async function POST(request: NextRequest) {
           isActive: true
         } as any;
       } else {
+        console.log('❌ Job not found for ID:', jobId);
         return NextResponse.json({
           success: false,
-          error: 'Job not found'
+          error: 'Job not found. Please check the job ID and try again.'
         }, { status: 404 });
       }
     }
+
+    console.log('✅ Job found:', { jobId: job.id, title: job.title, companyId: job.companyId });
 
     // Check if user already applied for this job
     const existingApplication = await prisma.application.findFirst({
@@ -276,23 +279,57 @@ export async function POST(request: NextRequest) {
       try {
         // Notify the job seeker about successful application
         await socketService.sendNotificationToUser(user.id, {
-          type: 'APPLICATION_UPDATE',
-          title: 'Application Submitted Successfully',
-          message: `Your application for ${application.job.title} at ${application.job.company} has been submitted`,
+          type: 'APPLICATION_SUBMITTED',
+          title: '🎉 Application Submitted Successfully!',
+          message: `Your application for "${application.job.title}" at ${application.job.company} has been submitted successfully. You'll hear back from the employer soon!`,
           data: {
             applicationId: application.id,
             jobId: application.jobId,
-            companyId: application.companyId
+            companyId: application.companyId,
+            jobTitle: application.job.title,
+            companyName: application.job.company
           }
         });
 
-        // Note: Real-time event emission would need to be handled by the socket service
-        // For now, we rely on the notification system for real-time updates
+        // Also create a database notification for persistence
+        await prisma.notification.create({
+          data: {
+            userId: user.id,
+            type: 'APPLICATION_SUBMITTED',
+            title: 'Application Submitted Successfully!',
+            message: `Your application for "${application.job.title}" at ${application.job.company} has been submitted successfully.`,
+            data: {
+              applicationId: application.id,
+              jobId: application.jobId,
+              companyId: application.companyId
+            }
+          }
+        });
 
         console.log('📤 Real-time notifications sent for new application');
       } catch (socketError) {
         console.warn('⚠️ Failed to send real-time notifications:', socketError);
         // Don't fail the application creation if socket fails
+      }
+    } else {
+      // Fallback: Create database notification even if socket fails
+      try {
+        await prisma.notification.create({
+          data: {
+            userId: user.id,
+            type: 'APPLICATION_SUBMITTED',
+            title: 'Application Submitted Successfully!',
+            message: `Your application for "${application.job.title}" at ${application.job.company} has been submitted successfully.`,
+            data: {
+              applicationId: application.id,
+              jobId: application.jobId,
+              companyId: application.companyId
+            }
+          }
+        });
+        console.log('📝 Database notification created as fallback');
+      } catch (notificationError) {
+        console.warn('⚠️ Failed to create database notification:', notificationError);
       }
     }
 
