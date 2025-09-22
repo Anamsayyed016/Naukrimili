@@ -6619,3 +6619,39 @@
 2025-09-22T18:44:54: }
 2025-09-22T18:44:54: ✅ Server ready on http://0.0.0.0:3000
 2025-09-22T18:44:54: 🔌 Socket.io ready and listening for connections
+2025-09-22T20:49:18: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T20:49:18: Environment: production
+2025-09-22T20:49:18: Port: 3000
+2025-09-22T20:49:18: Hostname: 0.0.0.0
+2025-09-22T20:49:18: ✅ Next.js app prepared
+2025-09-22T20:49:18: 🔌 Initializing Socket.io...
+2025-09-22T20:49:18: ✅ Socket.io server initialized successfully
+2025-09-22T20:49:19: ✅ Simple Socket Service initialized
+2025-09-22T20:49:19: ✅ Socket Notification Service initialized successfully
+2025-09-22T20:49:19: ✅ Socket notification service initialized
+2025-09-22T20:49:19: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T20:49:19:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T20:49:19:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T20:49:19: }
+2025-09-22T20:49:19: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T20:49:19: 🔌 Socket.io ready and listening for connections
+2025-09-22T20:50:12: 🔌 User connected: YG7GyQMe86vNzhKEAAAB
+2025-09-22T20:50:12: 🔌 User connected: XDMwjQlKNGwI9VbKAAAD
+2025-09-22T20:56:13: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T20:56:13: ✅ Server closed
+2025-09-22T20:57:14: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T20:57:14: Environment: production
+2025-09-22T20:57:14: Port: 3000
+2025-09-22T20:57:14: Hostname: 0.0.0.0
+2025-09-22T20:57:14: ✅ Next.js app prepared
+2025-09-22T20:57:14: 🔌 Initializing Socket.io...
+2025-09-22T20:57:15: ✅ Socket.io server initialized successfully
+2025-09-22T20:57:15: ✅ Simple Socket Service initialized
+2025-09-22T20:57:15: ✅ Socket Notification Service initialized successfully
+2025-09-22T20:57:15: ✅ Socket notification service initialized
+2025-09-22T20:57:15: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T20:57:15:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T20:57:15:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T20:57:15: }
+2025-09-22T20:57:15: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T20:57:15: 🔌 Socket.io ready and listening for connections
