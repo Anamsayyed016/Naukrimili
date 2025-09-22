@@ -35,7 +35,7 @@ interface Job {
   jobType: string | null;
   experienceLevel: string | null;
   description: string;
-  skills: string[] | string;
+  skills: string[];
   isRemote: boolean;
   isFeatured: boolean;
   source: string;
@@ -207,7 +207,7 @@ export default function JobApplicationPage() {
           
           // Calculate skills match using enhanced analysis
           const matchedSkills = profile.skills.filter(skill => 
-            jobSkills.some(required => 
+            (job?.skills || []).some(required => 
               required.toLowerCase().includes(skill.toLowerCase()) ||
               skill.toLowerCase().includes(required.toLowerCase())
             )
@@ -215,7 +215,7 @@ export default function JobApplicationPage() {
           setSkillsMatch(matchedSkills);
         } else {
           // Fallback to basic calculation
-          calculateATSAndSkills(profile, jobSkills);
+          calculateATSAndSkills(profile, job?.skills || []);
         }
         
         // Show success message
@@ -248,10 +248,9 @@ export default function JobApplicationPage() {
     
     setAtsScore(score);
 
-    // Calculate skills match - ensure requiredSkills is an array and handle empty cases
-    const skillsArray = Array.isArray(requiredSkills) ? requiredSkills.filter(s => s && s.trim()) : [];
+    // Calculate skills match
     const matchedSkills = profile.skills.filter(skill => 
-      skillsArray.some(required => 
+      requiredSkills.some(required => 
         required.toLowerCase().includes(skill.toLowerCase()) ||
         skill.toLowerCase().includes(required.toLowerCase())
       )
@@ -315,16 +314,6 @@ export default function JobApplicationPage() {
 
   // Check if this is an external job
   const isExternalJob = job?.isExternal || job?.source !== 'manual';
-  
-  // Ensure skills is always an array - handle both string and array formats
-  const jobSkills = React.useMemo(() => {
-    if (!job?.skills) return [];
-    if (Array.isArray(job.skills)) return job.skills;
-    if (typeof job.skills === 'string') {
-      return job.skills.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0);
-    }
-    return [];
-  }, [job?.skills]);
 
   if (loading) {
     return (
@@ -479,14 +468,14 @@ export default function JobApplicationPage() {
                 </div>
               </div>
               
-              {jobSkills && jobSkills.length > 0 && (
+              {job.skills && job.skills.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <Star className="h-5 w-5 text-yellow-500" />
                     Required Skills
                   </h3>
                   <div className="flex flex-wrap gap-3">
-                    {jobSkills.slice(0, 6).map((skill, index) => (
+                    {job.skills.slice(0, 6).map((skill, index) => (
                       <span
                         key={index}
                         className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 text-sm font-bold px-4 py-2 rounded-xl border border-blue-200"
@@ -494,9 +483,9 @@ export default function JobApplicationPage() {
                         {skill}
                       </span>
                     ))}
-                    {jobSkills.length > 6 && (
+                    {job.skills.length > 6 && (
                       <span className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-sm font-bold px-4 py-2 rounded-xl border border-gray-300">
-                        +{jobSkills.length - 6} more
+                        +{job.skills.length - 6} more
                       </span>
                     )}
                   </div>
@@ -805,7 +794,7 @@ export default function JobApplicationPage() {
                   </h3>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-600 mb-3">
-                      Your resume matches {skillsMatch.length} of {jobSkills.length} required skills
+                      Your resume matches {skillsMatch.length} of {job.skills?.length || 0} required skills
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {skillsMatch.map((skill, index) => (
