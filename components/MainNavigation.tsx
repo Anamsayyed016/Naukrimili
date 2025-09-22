@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import UnifiedUserProfile from "./UnifiedUserProfile";
 import { NotificationBell } from "./NotificationBell";
+import { MessageBell } from "./MessageBell";
 
 interface MainNavigationProps {
   brandName?: string;
@@ -157,10 +158,8 @@ export default function MainNavigation({
             {/* Desktop Notifications */}
             <NotificationBell />
 
-            <button className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 hover:scale-110 relative group">
-              <MessageSquare className="w-5 h-5" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
+            {/* Desktop Messages */}
+            <MessageBell />
 
             {/* Desktop Authentication Section */}
             {isMounted && isAuthenticated && user ? (

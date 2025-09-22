@@ -19,10 +19,13 @@ import {
   XCircle,
   AlertCircle,
   FileText,
-  Star
+  Star,
+  Wifi,
+  WifiOff
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
+import { useSocket } from "@/hooks/useSocket";
 
 interface Application {
   id: string;
@@ -61,6 +64,7 @@ interface ApplicationsResponse {
 }
 
 export default function JobSeekerApplicationsPage() {
+  const { socket, isConnected, notifications } = useSocket();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -74,10 +78,102 @@ export default function JobSeekerApplicationsPage() {
     total: 0,
     totalPages: 0
   });
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date | null>(null);
 
   useEffect(() => {
     fetchApplications();
   }, [currentPage, filters]);
+
+  // Real-time Socket.io integration
+  useEffect(() => {
+    if (!socket) return;
+
+    // Listen for application status updates
+    const handleApplicationStatusUpdate = (data: { applicationId: string; newStatus: string; application?: Application }) => {
+      console.log('📊 Real-time application status update:', data);
+      
+      setApplications(prev => {
+        const updated = prev.map(app => 
+          app.id === data.applicationId 
+            ? { ...app, status: data.newStatus }
+            : app
+        );
+        
+        // If we received the full application object, use it
+        if (data.application) {
+          const existingIndex = updated.findIndex(app => app.id === data.applicationId);
+          if (existingIndex !== -1) {
+            updated[existingIndex] = data.application;
+          }
+        }
+        
+        return updated;
+      });
+      
+      setLastUpdateTime(new Date());
+      
+      // Show toast notification
+      toast({
+        title: 'Application Updated',
+        description: `Your application status has been updated to ${data.newStatus}`,
+      });
+    };
+
+    // Listen for new applications (when user applies)
+    const handleNewApplication = (data: { application: Application }) => {
+      console.log('📝 Real-time new application:', data);
+      
+      setApplications(prev => [data.application, ...prev]);
+      setLastUpdateTime(new Date());
+      
+      // Update pagination total
+      setPagination(prev => ({
+        ...prev,
+        total: prev.total + 1
+      }));
+      
+      // Show toast notification
+      toast({
+        title: 'Application Submitted',
+        description: `Successfully applied for ${data.application.job.title}`,
+      });
+    };
+
+    // Listen for application-related notifications
+    const handleApplicationNotification = (notification: any) => {
+      if (notification.type === 'APPLICATION_UPDATE' || notification.type === 'INTERVIEW_SCHEDULED') {
+        // Refresh applications when receiving application-related notifications
+        fetchApplications();
+        setLastUpdateTime(new Date());
+      }
+    };
+
+    // Register event listeners
+    socket.on('application_status_updated', handleApplicationStatusUpdate);
+    socket.on('new_application', handleNewApplication);
+    socket.on('new_notification', handleApplicationNotification);
+
+    return () => {
+      socket.off('application_status_updated', handleApplicationStatusUpdate);
+      socket.off('new_application', handleNewApplication);
+      socket.off('new_notification', handleApplicationNotification);
+    };
+  }, [socket]);
+
+  // Listen for notifications that might affect applications
+  useEffect(() => {
+    const applicationNotifications = notifications.filter(
+      n => n.type === 'APPLICATION_UPDATE' || 
+           n.type === 'INTERVIEW_SCHEDULED' || 
+           n.type === 'JOB_APPLICATION_RECEIVED' && !n.isRead
+    );
+    
+    if (applicationNotifications.length > 0) {
+      // Refresh applications when we have new application-related notifications
+      fetchApplications();
+      setLastUpdateTime(new Date());
+    }
+  }, [notifications]);
 
   const fetchApplications = async () => {
     try {
@@ -168,8 +264,29 @@ export default function JobSeekerApplicationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Application Tracking</h1>
-          <p className="text-muted-foreground">Track your job applications and their status</p>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold">Application Tracking</h1>
+            {/* Real-time Connection Status */}
+            <div className="flex items-center gap-2">
+              {isConnected ? (
+                <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
+                  <Wifi className="h-3 w-3 mr-1" />
+                  Live
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+                  <WifiOff className="h-3 w-3 mr-1" />
+                  Offline
+                </Badge>
+              )}
+              {lastUpdateTime && (
+                <span className="text-xs text-gray-500">
+                  Last updated: {lastUpdateTime.toLocaleTimeString()}
+                </span>
+              )}
+            </div>
+          </div>
+          <p className="text-muted-foreground">Track your job applications and their status in real-time</p>
         </div>
         <Link href="/jobs">
           <Button>
@@ -179,63 +296,63 @@ export default function JobSeekerApplicationsPage() {
         </Link>
       </div>
 
-      {/* Application Stats */}
+      {/* Application Stats - Real-time Updates */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
+        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
           <CardContent className="p-6">
             <div className="flex items-center">
               <Clock className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Submitted</p>
-                <p className="text-2xl font-bold">{statusCounts.submitted}</p>
+                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.submitted}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
           <CardContent className="p-6">
             <div className="flex items-center">
               <Eye className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Reviewed</p>
-                <p className="text-2xl font-bold">{statusCounts.reviewed}</p>
+                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.reviewed}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
           <CardContent className="p-6">
             <div className="flex items-center">
               <CheckCircle className="h-8 w-8 text-indigo-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Interview</p>
-                <p className="text-2xl font-bold">{statusCounts.interview}</p>
+                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.interview}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
           <CardContent className="p-6">
             <div className="flex items-center">
               <Star className="h-8 w-8 text-green-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Hired</p>
-                <p className="text-2xl font-bold">{statusCounts.hired}</p>
+                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.hired}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
           <CardContent className="p-6">
             <div className="flex items-center">
               <XCircle className="h-8 w-8 text-red-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Rejected</p>
-                <p className="text-2xl font-bold">{statusCounts.rejected}</p>
+                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.rejected}</p>
               </div>
             </div>
           </CardContent>

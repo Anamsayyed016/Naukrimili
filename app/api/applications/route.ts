@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/nextauth-config";
 import { prisma } from "@/lib/prisma";
+import { getSocketService } from "@/lib/socket-server";
 
 export async function GET(request: NextRequest) {
   try {
@@ -269,9 +270,31 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Application created successfully:', application.id);
 
-    // Real-time notifications are handled by the socket server in server.js
-    // The notification is already created in the database and will be sent via socket when employers connect
-    console.log(`✅ Application notification created for company ${companyId} - will be sent via socket when employers connect`);
+    // Send real-time notification via Socket.io
+    const socketService = getSocketService();
+    if (socketService) {
+      try {
+        // Notify the job seeker about successful application
+        await socketService.sendNotificationToUser(user.id, {
+          type: 'APPLICATION_UPDATE',
+          title: 'Application Submitted Successfully',
+          message: `Your application for ${application.job.title} at ${application.job.company} has been submitted`,
+          data: {
+            applicationId: application.id,
+            jobId: application.jobId,
+            companyId: application.companyId
+          }
+        });
+
+        // Note: Real-time event emission would need to be handled by the socket service
+        // For now, we rely on the notification system for real-time updates
+
+        console.log('📤 Real-time notifications sent for new application');
+      } catch (socketError) {
+        console.warn('⚠️ Failed to send real-time notifications:', socketError);
+        // Don't fail the application creation if socket fails
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -280,7 +303,8 @@ export async function POST(request: NextRequest) {
         applicationId: application.id,
         jobTitle: application.job.title,
         company: application.job.company,
-        appliedAt: application.appliedAt
+        appliedAt: application.appliedAt,
+        application: application // Include full application for real-time updates
       }
     }, { status: 201 });
 

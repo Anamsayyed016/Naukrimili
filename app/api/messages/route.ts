@@ -1,79 +1,80 @@
+/**
+ * Messages API Endpoint
+ * Handles real-time messaging between users
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth-utils';
+import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
+import { getSocketService } from '@/lib/socket-server';
 
 export async function GET(request: NextRequest) {
-  const auth = await requireAuth();
-  if ("error" in auth) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
-
-  const { user } = auth;
-
   try {
-    const { searchParams } = new URL(request.url);
-    const conversationId = searchParams.get('conversationId');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const page = parseInt(searchParams.get('page') || '1');
+    const session = await auth();
     
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const page = parseInt(searchParams.get("page") || "1");
     const skip = (page - 1) * limit;
 
-    if (conversationId) {
-      // Get messages for a specific conversation
-      const messages = await prisma.message.findMany({
-        where: {
-          OR: [
-            { senderId: user.id, receiverId: parseInt(conversationId, 10) },
-            { senderId: parseInt(conversationId, 10), receiverId: user.id }
-          ]
+    // Get user's messages (both sent and received)
+    const messages = await prisma.message.findMany({
+      where: {
+        OR: [
+          { senderId: session.user.id },
+          { receiverId: session.user.id }
+        ]
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePicture: true
+          }
         },
-        orderBy: { createdAt: 'asc' },
-        take: limit,
-        skip
-      });
-
-      return NextResponse.json({
-        success: true,
-        data: messages
-      });
-    } else {
-      // Get all conversations for the user
-      const conversations = await prisma.message.findMany({
-        where: {
-          OR: [
-            { senderId: user.id },
-            { receiverId: user.id }
-          ]
-        },
-        orderBy: { createdAt: 'desc' },
-        distinct: ['senderId', 'receiverId'],
-        take: limit,
-        skip
-      });
-
-      // Get unique conversation partners
-      const conversationPartners = new Set<number>();
-      conversations.forEach(msg => {
-        if (msg.senderId !== user.id) conversationPartners.add(msg.senderId);
-        if (msg.receiverId !== user.id) conversationPartners.add(msg.receiverId);
-      });
-
-      const partnerIds = Array.from(conversationPartners);
-      
-      // Get user details for conversation partners
-      const partners = await prisma.user.findMany({
-        where: { id: { in: partnerIds } },
-        select: { id: true, name: true, email: true, profilePicture: true }
-      });
-
-      return NextResponse.json({
-        success: true,
-        data: {
-          conversations: partners,
-          total: partners.length
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePicture: true
+          }
         }
-      });
-    }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    });
+
+    const total = await prisma.message.count({
+      where: {
+        OR: [
+          { senderId: session.user.id },
+          { receiverId: session.user.id }
+        ]
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: messages,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+
   } catch (error) {
     console.error('Error fetching messages:', error);
     return NextResponse.json(
@@ -84,60 +85,77 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await requireAuth();
-  if ("error" in auth) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
-
-  const { user } = auth;
-
   try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const { receiverId, content, messageType = 'text' } = body;
+    const { receiverId, message, type = 'message' } = body;
 
-    if (!receiverId || !content) {
+    if (!receiverId || !message) {
       return NextResponse.json(
-        { error: 'Receiver ID and content are required' },
+        { error: 'Receiver ID and message are required' },
         { status: 400 }
       );
     }
 
-    // Validate receiver ID
-    const receiverIdNum = parseInt(receiverId, 10);
-    if (isNaN(receiverIdNum)) {
-      return NextResponse.json(
-        { error: 'Invalid receiver ID' },
-        { status: 400 }
-      );
-    }
-
-    // Check if receiver exists
-    const receiver = await prisma.user.findUnique({
-      where: { id: receiverIdNum }
-    });
-
-    if (!receiver) {
-      return NextResponse.json(
-        { error: 'Receiver not found' },
-        { status: 404 }
-      );
-    }
-
-    // Create message
-    const message = await prisma.message.create({
+    // Create message in database
+    const newMessage = await prisma.message.create({
       data: {
-        senderId: user.id,
-        receiverId: receiverIdNum,
-        content,
-        messageType,
+        senderId: session.user.id,
+        receiverId,
+        content: message,
+        messageType: type,
         isRead: false
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePicture: true
+          }
+        },
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePicture: true
+          }
+        }
       }
     });
 
+    // Send real-time notification via socket
+    const socketService = getSocketService();
+    if (socketService) {
+      await socketService.sendNotificationToUser(receiverId, {
+        type: 'MESSAGE_RECEIVED',
+        title: `New message from ${newMessage.sender.name}`,
+        message: message,
+        data: {
+          messageId: newMessage.id,
+          senderId: session.user.id,
+          type: type
+        }
+      });
+
+      // Also emit to socket for real-time messaging
+      // Note: Direct socket emission would need to be handled by the socket service
+      // For now, we'll rely on the notification system for real-time updates
+    }
+
     return NextResponse.json({
       success: true,
-      data: message,
-      message: 'Message sent successfully'
+      data: newMessage
     });
 
   } catch (error) {
@@ -147,8 +165,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 200 });
 }
