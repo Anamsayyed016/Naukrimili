@@ -308,25 +308,35 @@ export default function EnhancedJobCard({
           )}
 
           {/* Skills */}
-          {job.skills && job.skills.length > 0 && (
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-1">
-                {job.skills.slice(0, 6).map((skill, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md"
-                  >
-                    {skill}
-                  </span>
-                ))}
-                {job.skills.length > 6 && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-md">
-                    +{job.skills.length - 6} more
-                  </span>
-                )}
+          {(() => {
+            const skillsArray = (() => {
+              if (!job.skills) return [];
+              if (Array.isArray(job.skills)) return job.skills;
+              if (typeof job.skills === 'string') {
+                return job.skills.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+              }
+              return [];
+            })();
+            return skillsArray.length > 0 && (
+              <div className="mb-4">
+                <div className="flex flex-wrap gap-1">
+                  {skillsArray.slice(0, 6).map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-md"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                  {skillsArray.length > 6 && (
+                    <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-md">
+                      +{skillsArray.length - 6} more
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Description */}
           {job.description && (

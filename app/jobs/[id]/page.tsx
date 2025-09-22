@@ -223,10 +223,25 @@ export default function JobDetailsPage() {
   }
 
   // Parse skills properly - handle both array and string formats
-  const skills = Array.isArray(job.skills) ? job.skills : 
-    (typeof job.skills === 'string' ? 
-      (job.skills.startsWith('{') ? JSON.parse(job.skills) : job.skills.split(',').map(s => s.trim()).filter(Boolean)) : 
-      []);
+  const skills = React.useMemo(() => {
+    if (!job?.skills) return [];
+    if (Array.isArray(job.skills)) return job.skills;
+    if (typeof job.skills === 'string') {
+      try {
+        // Try to parse as JSON first
+        if (job.skills.startsWith('{') || job.skills.startsWith('[')) {
+          const parsed = JSON.parse(job.skills);
+          return Array.isArray(parsed) ? parsed : [];
+        }
+        // Otherwise split by comma
+        return job.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      } catch (error) {
+        console.warn('Failed to parse skills:', error);
+        return [];
+      }
+    }
+    return [];
+  }, [job?.skills]);
 
   // Format salary display
   const formatSalary = () => {
@@ -486,7 +501,7 @@ export default function JobDetailsPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
-                  {(Array.isArray(skills) ? skills : (typeof skills === 'string' ? skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
+                  {skills.map((skill, index) => (
                     <Badge 
                       key={index}
                       className="px-4 py-3 text-sm font-bold border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-800 hover:bg-purple-200 hover:border-purple-300 transition-all duration-300 rounded-xl"

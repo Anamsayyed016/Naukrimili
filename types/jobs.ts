@@ -14,7 +14,7 @@ export interface JobResult {
   is_featured?: boolean
   job_type?: string
   experience_level?: string
-  skills?: string[]
+  skills?: string[] | string
   sector?: string
   posted_at?: string
   created_at?: string
@@ -34,7 +34,7 @@ export interface JobSearchFilters {
   sector?: string
   country?: string
   date_posted?: string
-  skills?: string[]
+  skills?: string[] | string
   company?: string
   sort_by?: 'newest' | 'oldest' | 'salary_high' | 'salary_low' | 'relevance'
 }
@@ -112,7 +112,7 @@ export interface JobQuickView {
   salary_formatted?: string
   job_type?: string
   experience_level?: string
-  skills?: string[]
+  skills?: string[] | string
   posted_at?: string
   apply_url?: string
 }
