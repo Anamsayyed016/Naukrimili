@@ -48,6 +48,7 @@ export function OAuthButtons({
       
       console.log(`🔐 OAuth sign-in: ${providerId}`);
       console.log(`🔐 Callback URL: ${callbackUrl || '/auth/gmail-profile'}`);
+      console.log(`🔐 Current URL: ${window.location.href}`);
       
       // Use NextAuth signIn with proper redirect
       const result = await signIn(providerId, {

@@ -350,22 +350,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async redirect({ url, baseUrl }) {
+      console.log('🔍 NextAuth Redirect - URL:', url);
+      console.log('🔍 NextAuth Redirect - BaseURL:', baseUrl);
+      
       // For OAuth callbacks, redirect to Gmail profile confirmation first
       // This shows the user their Google account details before role selection
       if (url.includes('/api/auth/callback/')) {
-        return `${baseUrl}/auth/gmail-profile`;
+        const redirectUrl = `${baseUrl}/auth/gmail-profile`;
+        console.log('🔍 NextAuth Redirect - OAuth callback redirecting to:', redirectUrl);
+        return redirectUrl;
       }
       
       if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
+        const redirectUrl = `${baseUrl}${url}`;
+        console.log('🔍 NextAuth Redirect - Relative URL redirecting to:', redirectUrl);
+        return redirectUrl;
       }
       
       if (url.startsWith(baseUrl)) {
+        console.log('🔍 NextAuth Redirect - Full URL redirecting to:', url);
         return url;
       }
       
       // Default redirect to Gmail profile for OAuth users
-      return `${baseUrl}/auth/gmail-profile`;
+      const defaultRedirect = `${baseUrl}/auth/gmail-profile`;
+      console.log('🔍 NextAuth Redirect - Default redirecting to:', defaultRedirect);
+      return defaultRedirect;
     }
   },
   events: {

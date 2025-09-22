@@ -21,6 +21,9 @@ export default function GmailProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    console.log('🔍 Gmail Profile Page - Status:', status);
+    console.log('🔍 Gmail Profile Page - Session:', session);
+    
     if (status === 'loading') {
       console.log('Session is loading...');
       return;
