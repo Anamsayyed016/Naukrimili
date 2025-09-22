@@ -104,13 +104,13 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
       if (shouldRedirect) {
         // Use redirect flow
         await signIn(provider, {
-          callbackUrl: '/auth/role-selection',
+          callbackUrl: '/auth/gmail-profile',
           redirect: true
         });
       } else {
         // Use popup flow
         const result = await signIn(provider, {
-          callbackUrl: '/auth/role-selection',
+          callbackUrl: '/auth/gmail-profile',
           redirect: false
         });
 
@@ -120,8 +120,8 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
           setError(`${mobileError.message}. ${mobileError.solution}`);
           console.error('❌ OAuth error:', mobileError);
         } else if (result?.ok) {
-          // Success - redirect to role selection
-          window.location.href = '/auth/role-selection';
+          // Success - redirect to Gmail profile
+          window.location.href = '/auth/gmail-profile';
         }
       }
     } catch (err: any) {

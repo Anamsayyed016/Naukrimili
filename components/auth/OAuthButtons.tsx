@@ -47,11 +47,11 @@ export function OAuthButtons({
       setLoadingProvider(providerId);
       
       console.log(`🔐 OAuth sign-in: ${providerId}`);
-      console.log(`🔐 Callback URL: ${callbackUrl || '/auth/role-selection'}`);
+      console.log(`🔐 Callback URL: ${callbackUrl || '/auth/gmail-profile'}`);
       
       // Use NextAuth signIn with proper redirect
       const result = await signIn(providerId, {
-        callbackUrl: callbackUrl || '/auth/role-selection',
+        callbackUrl: callbackUrl || '/auth/gmail-profile',
         redirect: true
       });
       

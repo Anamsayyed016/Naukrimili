@@ -350,10 +350,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async redirect({ url, baseUrl }) {
-      // For OAuth callbacks, redirect to role selection
-      // The role selection page will handle redirecting existing users to their dashboards
+      // For OAuth callbacks, redirect to Gmail profile confirmation first
+      // This shows the user their Google account details before role selection
       if (url.includes('/api/auth/callback/')) {
-        return `${baseUrl}/auth/role-selection`;
+        return `${baseUrl}/auth/gmail-profile`;
       }
       
       if (url.startsWith('/')) {
@@ -364,8 +364,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return url;
       }
       
-      // Default redirect to role selection for new users
-      return `${baseUrl}/auth/role-selection`;
+      // Default redirect to Gmail profile for OAuth users
+      return `${baseUrl}/auth/gmail-profile`;
     }
   },
   events: {
