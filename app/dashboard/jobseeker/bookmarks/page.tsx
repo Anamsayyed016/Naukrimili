@@ -57,15 +57,29 @@ export default function JobSeekerBookmarksPage() {
     try {
       setLoading(true);
       const response = await fetch('/api/jobs/bookmarks');
-      if (!response.ok) throw new Error('Failed to fetch bookmarks');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
-      if (data.success) {
+      console.log('API Response:', data); // Debug log
+      
+      if (data.success && data.data) {
         // Ensure data is an array and has proper structure
         const bookmarksData = Array.isArray(data.data) ? data.data : [];
-        setBookmarks(bookmarksData);
+        console.log('Processed bookmarks:', bookmarksData); // Debug log
+        
+        // Validate each bookmark has required structure
+        const validBookmarks = bookmarksData.filter(bookmark => 
+          bookmark && 
+          bookmark.job && 
+          typeof bookmark.job === 'object' &&
+          bookmark.id
+        );
+        
+        setBookmarks(validBookmarks);
       } else {
-        console.error('Failed to fetch bookmarks:', data.error);
+        console.error('Failed to fetch bookmarks:', data.error || 'No data received');
         setBookmarks([]);
       }
     } catch (error) {
@@ -126,9 +140,14 @@ export default function JobSeekerBookmarksPage() {
           </div>
 
           {/* Bookmarks List */}
-          {bookmarks.length > 0 ? (
+          {bookmarks && Array.isArray(bookmarks) && bookmarks.length > 0 ? (
             <div className="space-y-6">
-              {bookmarks.map((bookmark) => (
+              {bookmarks.map((bookmark) => {
+                if (!bookmark || !bookmark.job) {
+                  console.warn('Invalid bookmark data:', bookmark);
+                  return null;
+                }
+                return (
                 <Card key={bookmark.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start">
@@ -157,14 +176,16 @@ export default function JobSeekerBookmarksPage() {
                           )}
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
-                            {new Date(bookmark.job.createdAt).toLocaleDateString()}
+                            {bookmark.job.createdAt ? new Date(bookmark.job.createdAt).toLocaleDateString() : 'N/A'}
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2 mb-3">
-                          <Badge className={getExperienceColor(bookmark.job.experienceLevel)}>
-                            {bookmark.job.experienceLevel.charAt(0).toUpperCase() + bookmark.job.experienceLevel.slice(1)}
-                          </Badge>
+                          {bookmark.job.experienceLevel && (
+                            <Badge className={getExperienceColor(bookmark.job.experienceLevel)}>
+                              {bookmark.job.experienceLevel.charAt(0).toUpperCase() + bookmark.job.experienceLevel.slice(1)}
+                            </Badge>
+                          )}
                           {bookmark.job.isRemote && (
                             <Badge className="bg-green-100 text-green-800">Remote</Badge>
                           )}
@@ -196,7 +217,7 @@ export default function JobSeekerBookmarksPage() {
 
                         <div className="flex items-center justify-between">
                           <div className="text-xs text-gray-500">
-                            Saved {new Date(bookmark.bookmarked_at).toLocaleDateString()}
+                            Saved {bookmark.bookmarked_at ? new Date(bookmark.bookmarked_at).toLocaleDateString() : 'Unknown'}
                           </div>
                           <div className="text-xs text-gray-500">
                             {bookmark.job._count?.applications || 0} applications
@@ -231,7 +252,8 @@ export default function JobSeekerBookmarksPage() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <Card>

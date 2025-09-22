@@ -6610,3 +6610,12 @@
 2025-09-22T18:44:43: ✅ Next.js app prepared
 2025-09-22T18:44:43: 🔌 Initializing Socket.io...
 2025-09-22T18:44:43: ✅ Socket.io server initialized successfully
+2025-09-22T18:44:54: ✅ Simple Socket Service initialized
+2025-09-22T18:44:54: ✅ Socket Notification Service initialized successfully
+2025-09-22T18:44:54: ✅ Socket notification service initialized
+2025-09-22T18:44:54: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for E:\myprojects\jobportal\lib\notification-service.ts
+2025-09-22T18:44:54:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:219:9) {
+2025-09-22T18:44:54:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T18:44:54: }
+2025-09-22T18:44:54: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T18:44:54: 🔌 Socket.io ready and listening for connections

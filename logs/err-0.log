@@ -5564,3 +5564,7 @@
 2025-09-22T18:37:33:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:219:9) {
 2025-09-22T18:37:33:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
 2025-09-22T18:37:33: }
+2025-09-22T18:44:54: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for E:\myprojects\jobportal\lib\notification-service.ts
+2025-09-22T18:44:54:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:219:9) {
+2025-09-22T18:44:54:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T18:44:54: }
