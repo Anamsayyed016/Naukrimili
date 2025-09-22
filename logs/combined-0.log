@@ -6603,3 +6603,10 @@
 2025-09-22T18:37:33: }
 2025-09-22T18:37:33: ✅ Server ready on http://0.0.0.0:3000
 2025-09-22T18:37:33: 🔌 Socket.io ready and listening for connections
+2025-09-22T18:44:40: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T18:44:40: Environment: production
+2025-09-22T18:44:40: Port: 3000
+2025-09-22T18:44:40: Hostname: 0.0.0.0
+2025-09-22T18:44:43: ✅ Next.js app prepared
+2025-09-22T18:44:43: 🔌 Initializing Socket.io...
+2025-09-22T18:44:43: ✅ Socket.io server initialized successfully
