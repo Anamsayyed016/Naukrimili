@@ -48,6 +48,7 @@ interface BookmarkedJob {
 export default function JobSeekerBookmarksPage() {
   const [bookmarks, setBookmarks] = useState<BookmarkedJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBookmarks();
@@ -56,34 +57,69 @@ export default function JobSeekerBookmarksPage() {
   const fetchBookmarks = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log('🔍 Fetching bookmarks...');
       const response = await fetch('/api/jobs/bookmarks');
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('API Response:', data); // Debug log
+      console.log('📊 Raw API Response:', JSON.stringify(data, null, 2));
       
       if (data.success && data.data) {
         // Ensure data is an array and has proper structure
         const bookmarksData = Array.isArray(data.data) ? data.data : [];
-        console.log('Processed bookmarks:', bookmarksData); // Debug log
+        console.log('📋 Processed bookmarks array:', bookmarksData);
         
         // Validate each bookmark has required structure
-        const validBookmarks = bookmarksData.filter(bookmark => 
-          bookmark && 
-          bookmark.job && 
-          typeof bookmark.job === 'object' &&
-          bookmark.id
-        );
+        const validBookmarks = bookmarksData.filter((bookmark, index) => {
+          console.log(`🔍 Validating bookmark ${index}:`, bookmark);
+          
+          if (!bookmark) {
+            console.warn(`❌ Bookmark ${index} is null/undefined`);
+            return false;
+          }
+          
+          if (!bookmark.job) {
+            console.warn(`❌ Bookmark ${index} missing job object:`, bookmark);
+            return false;
+          }
+          
+          if (typeof bookmark.job !== 'object') {
+            console.warn(`❌ Bookmark ${index} job is not an object:`, bookmark.job);
+            return false;
+          }
+          
+          if (!bookmark.id) {
+            console.warn(`❌ Bookmark ${index} missing id:`, bookmark);
+            return false;
+          }
+          
+          // Check for skills array specifically
+          if (bookmark.job.skills !== undefined && !Array.isArray(bookmark.job.skills)) {
+            console.warn(`❌ Bookmark ${index} skills is not an array:`, bookmark.job.skills);
+            bookmark.job.skills = []; // Fix it
+          }
+          
+          console.log(`✅ Bookmark ${index} is valid`);
+          return true;
+        });
         
+        console.log(`📊 Valid bookmarks: ${validBookmarks.length}/${bookmarksData.length}`);
         setBookmarks(validBookmarks);
       } else {
-        console.error('Failed to fetch bookmarks:', data.error || 'No data received');
+        const errorMsg = data.error || 'No data received';
+        console.error('❌ Failed to fetch bookmarks:', errorMsg);
+        setError(errorMsg);
         setBookmarks([]);
       }
-    } catch (error) {
-      console.error('Error fetching bookmarks:', error);
+    } catch (error: any) {
+      console.error('💥 Error fetching bookmarks:', error);
+      setError(error.message || 'Failed to fetch bookmarks');
       setBookmarks([]);
     } finally {
       setLoading(false);
@@ -124,49 +160,122 @@ export default function JobSeekerBookmarksPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your saved jobs...</p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <AuthGuard allowedRoles={['jobseeker']}>
+  if (error) {
+    return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto p-6">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Saved Jobs</h1>
             <p className="text-gray-600">Your bookmarked job opportunities</p>
           </div>
+          <Card>
+            <CardContent className="p-12 text-center">
+              <div className="text-red-500 text-6xl mb-4">⚠️</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Bookmarks</h3>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <Button onClick={fetchBookmarks} className="mr-4">
+                Try Again
+              </Button>
+              <Link href="/jobs">
+                <Button variant="outline">
+                  Browse Jobs
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
-          {/* Bookmarks List */}
-          {bookmarks && Array.isArray(bookmarks) && bookmarks.length > 0 ? (
-            <div className="space-y-6">
-              {bookmarks.map((bookmark) => {
-                if (!bookmark || !bookmark.job) {
-                  console.warn('Invalid bookmark data:', bookmark);
-                  return null;
-                }
-                return (
-                <Card key={bookmark.id} className="hover:shadow-lg transition-shadow">
+  // Add a safety wrapper for rendering
+  const renderBookmarks = () => {
+    try {
+      console.log('🎨 Rendering bookmarks:', bookmarks);
+      
+      if (!bookmarks || !Array.isArray(bookmarks)) {
+        console.warn('⚠️ Bookmarks is not an array:', bookmarks);
+        return (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <Bookmark className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No saved jobs</h3>
+              <p className="text-gray-600 mb-6">
+                Start bookmarking jobs you're interested in
+              </p>
+              <Link href="/jobs">
+                <Button className="flex items-center gap-2">
+                  <Briefcase className="h-4 w-4" />
+                  Browse Jobs
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        );
+      }
+
+      if (bookmarks.length === 0) {
+        console.log('📭 No bookmarks found');
+        return (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <Bookmark className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No saved jobs</h3>
+              <p className="text-gray-600 mb-6">
+                Start bookmarking jobs you're interested in
+              </p>
+              <Link href="/jobs">
+                <Button className="flex items-center gap-2">
+                  <Briefcase className="h-4 w-4" />
+                  Browse Jobs
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        );
+      }
+
+      console.log(`🎯 Rendering ${bookmarks.length} bookmarks`);
+      
+      return (
+        <div className="space-y-6">
+          {bookmarks.map((bookmark, index) => {
+            console.log(`🎨 Rendering bookmark ${index}:`, bookmark);
+            
+            if (!bookmark || !bookmark.job) {
+              console.warn(`⚠️ Invalid bookmark at index ${index}:`, bookmark);
+              return null;
+            }
+            
+            try {
+              return (
+                <Card key={bookmark.id || `bookmark-${index}`} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-semibold text-gray-900">{bookmark.job.title}</h3>
+                          <h3 className="text-xl font-semibold text-gray-900">{bookmark.job.title || 'Untitled Job'}</h3>
                           {getStatusBadge(bookmark.job)}
                         </div>
                         
-                        <p className="text-gray-600 mb-3">{bookmark.job.company}</p>
+                        <p className="text-gray-600 mb-3">{bookmark.job.company || 'Unknown Company'}</p>
                         
                         <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                           <div className="flex items-center gap-1">
                             <MapPin className="h-4 w-4" />
-                            {bookmark.job.location}
+                            {bookmark.job.location || 'Location not specified'}
                           </div>
                           <div className="flex items-center gap-1">
                             <Briefcase className="h-4 w-4" />
-                            {bookmark.job.jobType}
+                            {bookmark.job.jobType || 'Job type not specified'}
                           </div>
                           {bookmark.job.salary && (
                             <div className="flex items-center gap-1">
@@ -176,7 +285,7 @@ export default function JobSeekerBookmarksPage() {
                           )}
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
-                            {bookmark.job.createdAt ? new Date(bookmark.job.createdAt).toLocaleDateString() : 'N/A'}
+                            {bookmark.job.createdAt ? new Date(bookmark.job.createdAt).toLocaleDateString() : 'Date not available'}
                           </div>
                         </div>
 
@@ -202,8 +311,8 @@ export default function JobSeekerBookmarksPage() {
 
                         {bookmark.job.skills && Array.isArray(bookmark.job.skills) && bookmark.job.skills.length > 0 && (
                           <div className="flex flex-wrap gap-1 mb-3">
-                            {bookmark.job.skills.slice(0, 5).map((skill, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                            {bookmark.job.skills.slice(0, 5).map((skill, skillIndex) => (
+                              <Badge key={skillIndex} variant="outline" className="text-xs">
                                 {skill}
                               </Badge>
                             ))}
@@ -217,7 +326,7 @@ export default function JobSeekerBookmarksPage() {
 
                         <div className="flex items-center justify-between">
                           <div className="text-xs text-gray-500">
-                            Saved {bookmark.bookmarked_at ? new Date(bookmark.bookmarked_at).toLocaleDateString() : 'Unknown'}
+                            Saved {bookmark.bookmarked_at ? new Date(bookmark.bookmarked_at).toLocaleDateString() : 'Unknown date'}
                           </div>
                           <div className="text-xs text-gray-500">
                             {bookmark.job._count?.applications || 0} applications
@@ -252,26 +361,49 @@ export default function JobSeekerBookmarksPage() {
                     </div>
                   </CardContent>
                 </Card>
-                );
-              })}
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="p-12 text-center">
-                <Bookmark className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No saved jobs</h3>
-                <p className="text-gray-600 mb-6">
-                  Start bookmarking jobs you're interested in
-                </p>
-                <Link href="/jobs">
-                  <Button className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4" />
-                    Browse Jobs
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
+              );
+            } catch (renderError) {
+              console.error(`💥 Error rendering bookmark ${index}:`, renderError, bookmark);
+              return (
+                <Card key={`error-${index}`} className="border-red-200">
+                  <CardContent className="p-4">
+                    <p className="text-red-600 text-sm">Error displaying bookmark: {renderError.message}</p>
+                  </CardContent>
+                </Card>
+              );
+            }
+          })}
+        </div>
+      );
+    } catch (error) {
+      console.error('💥 Critical error in renderBookmarks:', error);
+      return (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <div className="text-red-500 text-6xl mb-4">💥</div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Rendering Error</h3>
+            <p className="text-gray-600 mb-6">An error occurred while displaying bookmarks: {error.message}</p>
+            <Button onClick={() => window.location.reload()}>
+              Reload Page
+            </Button>
+          </CardContent>
+        </Card>
+      );
+    }
+  };
+
+  return (
+    <AuthGuard allowedRoles={['jobseeker']}>
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto p-6">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Saved Jobs</h1>
+            <p className="text-gray-600">Your bookmarked job opportunities</p>
+          </div>
+
+          {/* Bookmarks List */}
+          {renderBookmarks()}
         </div>
       </div>
     </AuthGuard>
