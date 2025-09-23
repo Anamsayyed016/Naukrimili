@@ -255,6 +255,7 @@ model Application {
   culture      String?
   mission      String?
   vision       String?
+  applicationData Json? // Store additional application form data
   company     Company? @relation(fields: [companyId], references: [id])
   job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
   resume      Resume?  @relation(fields: [resumeId], references: [id])
