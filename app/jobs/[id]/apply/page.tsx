@@ -129,22 +129,27 @@ export default function JobApplicationPage() {
       const response = await fetch(`/api/jobs/${jobId}`);
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
-          // Ensure isExternal is properly set
-          const jobData = {
-            ...data.job,
-            isExternal: data.job.isExternal || data.job.source !== 'manual' || data.job.id?.startsWith('ext-')
-          };
-          setJob(jobData);
+        if (data.success && data.job) {
+          // Validate job data before setting
+          if (data.job.title && data.job.company) {
+            // Ensure isExternal is properly set
+            const jobData = {
+              ...data.job,
+              isExternal: data.job.isExternal || data.job.source !== 'manual' || data.job.id?.startsWith('ext-')
+            };
+            setJob(jobData);
+          } else {
+            setError('Invalid job data received');
+          }
         } else {
           setError(data.error || 'Failed to load job details');
         }
       } else {
-        setError('Failed to fetch job details');
+        setError(`HTTP ${response.status}: Failed to fetch job details`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching job details:', error);
-      setError('Failed to load job details');
+      setError(error?.message || 'Failed to load job details');
     } finally {
       setLoading(false);
     }
@@ -292,7 +297,8 @@ export default function JobApplicationPage() {
         duration: 5000,
       });
       
-      setTimeout(() => router.push(`/jobs/${jobId}`), 2000);
+      // Redirect to jobs listing instead of job details to avoid potential errors
+      setTimeout(() => router.push('/jobs'), 2000);
       
     } catch (err: any) {
       console.error('Error submitting application:', err);
@@ -381,7 +387,7 @@ export default function JobApplicationPage() {
                 Go to Dashboard
               </Link>
             </div>
-            <p className="text-sm text-gray-500 mt-4">You will be redirected to the job details page in a moment...</p>
+            <p className="text-sm text-gray-500 mt-4">You will be redirected to the jobs page in a moment...</p>
           </div>
         </div>
       </div>

@@ -222,12 +222,12 @@ export default function JobDetailsPage() {
     );
   }
 
-  // Parse skills properly - handle both array and string formats
+  // Parse skills properly - handle both array and string formats with better error handling
   const skills = React.useMemo(() => {
-    if (!job?.skills) return [];
-    if (Array.isArray(job.skills)) return job.skills;
-    if (typeof job.skills === 'string') {
-      try {
+    try {
+      if (!job?.skills) return [];
+      if (Array.isArray(job.skills)) return job.skills;
+      if (typeof job.skills === 'string') {
         // Try to parse as JSON first
         if (job.skills.startsWith('{') || job.skills.startsWith('[')) {
           const parsed = JSON.parse(job.skills);
@@ -235,56 +235,91 @@ export default function JobDetailsPage() {
         }
         // Otherwise split by comma
         return job.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
-      } catch (error) {
-        console.warn('Failed to parse skills:', error);
-        return [];
       }
+      return [];
+    } catch (error) {
+      console.warn('Failed to parse skills:', error);
+      return [];
     }
-    return [];
   }, [job?.skills]);
 
-  // Format salary display
+  // Format salary display with better error handling
   const formatSalary = () => {
-    if (job.salary) return job.salary;
-    if (job.salaryMin && job.salaryMax) {
-      return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
+    try {
+      if (!job) return null;
+      if (job.salary) return job.salary;
+      if (job.salaryMin && job.salaryMax) {
+        return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
+      }
+      if (job.salaryMin) {
+        return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()}+`;
+      }
+      return null;
+    } catch (error) {
+      console.warn('Error formatting salary:', error);
+      return null;
     }
-    if (job.salaryMin) {
-      return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()}+`;
-    }
-    return null;
   };
 
-  // Format experience level
+  // Format experience level with error handling
   const formatExperienceLevel = () => {
-    if (job.experienceLevel) return job.experienceLevel;
-    return 'Not specified';
+    try {
+      if (!job) return 'Not specified';
+      return job.experienceLevel || 'Not specified';
+    } catch (error) {
+      console.warn('Error formatting experience level:', error);
+      return 'Not specified';
+    }
   };
 
-  // Format job type
+  // Format job type with error handling
   const formatJobType = () => {
-    if (job.jobType) return job.jobType;
-    return 'Not specified';
+    try {
+      if (!job) return 'Not specified';
+      return job.jobType || 'Not specified';
+    } catch (error) {
+      console.warn('Error formatting job type:', error);
+      return 'Not specified';
+    }
   };
 
-  // Format posted date
+  // Format posted date with error handling
   const formatPostedDate = () => {
-    if (job.postedAt) {
-      return new Date(job.postedAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+    try {
+      if (!job) return 'Recently posted';
+      if (job.postedAt) {
+        return new Date(job.postedAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      if (job.createdAt) {
+        return new Date(job.createdAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      return 'Recently posted';
+    } catch (error) {
+      console.warn('Error formatting posted date:', error);
+      return 'Recently posted';
     }
-    if (job.createdAt) {
-      return new Date(job.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    }
-    return 'Recently posted';
   };
+
+  // Safety check to prevent rendering with incomplete data
+  if (!job || !job.title || !job.company) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading job details...</p>
+          <p className="text-gray-500 text-sm mt-2">Please wait while we fetch the job information</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
