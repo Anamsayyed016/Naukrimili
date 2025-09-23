@@ -401,8 +401,55 @@ export default function AIJobPostingForm() {
 
   const handleInputChange = (field: keyof JobFormData, value: any) => {
     console.log('Manual input change:', { field, value });
-    // Directly update form data for manual typing - no AI interference
-    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Handle location type changes with proper cleanup
+    if (field === 'locationType') {
+      console.log(`🔄 Switching location type to: ${value}`);
+      
+      // Clear location-related fields when switching types
+      setFormData(prev => {
+        const newData = { ...prev, [field]: value };
+        
+        // Clear location data based on the new type
+        if (value === 'single') {
+          // Keep single location data, clear others
+          newData.multipleLocations = [];
+          newData.radiusCenter = '';
+          newData.radiusDistance = 25;
+        } else if (value === 'multiple') {
+          // Clear single location, keep multiple locations
+          newData.location = '';
+          newData.city = '';
+          newData.state = '';
+          newData.radiusCenter = '';
+          newData.radiusDistance = 25;
+        } else if (value === 'radius') {
+          // Clear single and multiple, keep radius
+          newData.location = '';
+          newData.city = '';
+          newData.state = '';
+          newData.multipleLocations = [];
+        }
+        
+        return newData;
+      });
+      
+      // Clear location input and suggestions
+      setLocationInput('');
+      setLocationSuggestions([]);
+      
+      // Show success message
+      const typeNames = {
+        single: 'Single Location',
+        multiple: 'Multiple Cities',
+        radius: 'Radius Search'
+      };
+      toast.success(`Switched to ${typeNames[value as keyof typeof typeNames]} mode`);
+    } else {
+      // Directly update form data for other fields
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
+    
     // Clear any existing suggestions for this field to prevent conflicts
     setFieldSuggestions(prev => {
       const newSuggestions = { ...prev };
@@ -593,11 +640,34 @@ export default function AIJobPostingForm() {
         });
         break;
       case 3:
-        isValid = formData.location.trim() !== '';
-        console.log('Step 3 validation:', { 
-          location: formData.location.trim(), 
-          isValid 
-        });
+        // Validate based on location type
+        if (formData.locationType === 'single') {
+          isValid = formData.location.trim() !== '';
+          console.log('Step 3 validation (single):', { 
+            location: formData.location.trim(), 
+            isValid 
+          });
+        } else if (formData.locationType === 'multiple') {
+          isValid = formData.multipleLocations.length > 0;
+          console.log('Step 3 validation (multiple):', { 
+            multipleLocations: formData.multipleLocations.length, 
+            locations: formData.multipleLocations,
+            isValid 
+          });
+        } else if (formData.locationType === 'radius') {
+          isValid = formData.radiusCenter.trim() !== '';
+          console.log('Step 3 validation (radius):', { 
+            radiusCenter: formData.radiusCenter.trim(),
+            radiusDistance: formData.radiusDistance,
+            isValid 
+          });
+        } else {
+          isValid = false;
+          console.log('Step 3 validation (unknown type):', { 
+            locationType: formData.locationType,
+            isValid 
+          });
+        }
         break;
       case 4:
         isValid = true;
@@ -614,9 +684,30 @@ export default function AIJobPostingForm() {
     console.log('🚀 Starting job submission process...');
     console.log('Form data:', formData);
     
-    if (!validateStep(1) || !validateStep(2) || !validateStep(3)) {
-      console.log('❌ Validation failed');
-      toast.error('Please complete all required fields');
+    // Validate each step with specific error messages
+    if (!validateStep(1)) {
+      console.log('❌ Step 1 validation failed');
+      toast.error('Please complete job title and description');
+      return;
+    }
+    
+    if (!validateStep(2)) {
+      console.log('❌ Step 2 validation failed');
+      toast.error('Please add job requirements and skills');
+      return;
+    }
+    
+    if (!validateStep(3)) {
+      console.log('❌ Step 3 validation failed');
+      if (formData.locationType === 'single') {
+        toast.error('Please select a job location');
+      } else if (formData.locationType === 'multiple') {
+        toast.error('Please add at least one city for multiple locations');
+      } else if (formData.locationType === 'radius') {
+        toast.error('Please enter a center location for radius search');
+      } else {
+        toast.error('Please complete location requirements');
+      }
       return;
     }
 
@@ -1441,6 +1532,20 @@ export default function AIJobPostingForm() {
                   <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">Location & Reach</h2>
                     <p className="text-slate-600">Define where you want to hire and how far to reach</p>
+                    
+                    {/* Location Type Indicator */}
+                    <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        {formData.locationType === 'single' && <MapPin className="h-4 w-4 text-blue-600" />}
+                        {formData.locationType === 'multiple' && <Globe className="h-4 w-4 text-blue-600" />}
+                        {formData.locationType === 'radius' && <Target className="h-4 w-4 text-blue-600" />}
+                        <span className="text-sm font-medium text-blue-800">
+                          {formData.locationType === 'single' && 'Single Location Mode'}
+                          {formData.locationType === 'multiple' && 'Multiple Cities Mode'}
+                          {formData.locationType === 'radius' && 'Radius Search Mode'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-6">
@@ -1540,6 +1645,112 @@ export default function AIJobPostingForm() {
                             {locationError}
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {formData.locationType === 'multiple' && (
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                            <Globe className="h-5 w-5 text-blue-600" />
+                            Multiple Cities
+                          </Label>
+                          <div className="space-y-3">
+                            {/* Add new location input */}
+                            <div className="flex gap-2">
+                              <Input
+                                value={locationInput}
+                                onChange={(e) => {
+                                  setLocationInput(e.target.value);
+                                  getLocationSuggestions(e.target.value);
+                                }}
+                                placeholder="Search and add cities..."
+                                className="flex-1 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
+                              />
+                              <Button
+                                type="button"
+                                onClick={() => {
+                                  if (locationInput.trim()) {
+                                    const newLocation = locationInput.trim();
+                                    if (!formData.multipleLocations.includes(newLocation)) {
+                                      handleInputChange('multipleLocations', [...formData.multipleLocations, newLocation]);
+                                      setLocationInput('');
+                                      setLocationSuggestions([]);
+                                    } else {
+                                      toast.error('Location already added');
+                                    }
+                                  }
+                                }}
+                                disabled={!locationInput.trim()}
+                                className="h-12 px-4 bg-blue-600 hover:bg-blue-700 text-white"
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            
+                            {/* Location suggestions dropdown */}
+                            {locationSuggestions.length > 0 && (
+                              <div className="bg-white border border-slate-200 rounded-lg shadow-lg z-10">
+                                {locationSuggestions.map((location, index) => (
+                                  <button
+                                    key={index}
+                                    onClick={() => {
+                                      const locationName = location.name;
+                                      if (!formData.multipleLocations.includes(locationName)) {
+                                        handleInputChange('multipleLocations', [...formData.multipleLocations, locationName]);
+                                        setLocationInput('');
+                                        setLocationSuggestions([]);
+                                      } else {
+                                        toast.error('Location already added');
+                                      }
+                                    }}
+                                    className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
+                                  >
+                                    <div className="font-medium">{location.name}</div>
+                                    <div className="text-sm text-slate-500">
+                                      {location.jobCount} jobs available
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Display added locations */}
+                            {formData.multipleLocations.length > 0 && (
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-slate-700">
+                                  Selected Cities ({formData.multipleLocations.length})
+                                </Label>
+                                <div className="flex flex-wrap gap-2">
+                                  {formData.multipleLocations.map((location, index) => (
+                                    <Badge
+                                      key={index}
+                                      variant="secondary"
+                                      className="px-3 py-1 bg-blue-100 text-blue-800 border-blue-200"
+                                    >
+                                      {location}
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const updatedLocations = formData.multipleLocations.filter((_, i) => i !== index);
+                                          handleInputChange('multipleLocations', updatedLocations);
+                                        }}
+                                        className="ml-2 hover:text-red-600"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </button>
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Help text */}
+                            <p className="text-sm text-slate-500">
+                              Add multiple cities where you want to hire. Candidates from any of these locations can apply.
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     )}
 
