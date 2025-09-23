@@ -4,7 +4,6 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { createNotification } from '@/lib/notification-service';
 
 export interface ResumeViewData {
   resumeId: string;

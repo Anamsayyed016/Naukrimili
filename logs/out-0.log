@@ -1081,3 +1081,1335 @@
 2025-09-22T20:57:15: ✅ Socket notification service initialized
 2025-09-22T20:57:15: ✅ Server ready on http://0.0.0.0:3000
 2025-09-22T20:57:15: 🔌 Socket.io ready and listening for connections
+2025-09-22T20:58:28: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T20:58:28: ✅ Server closed
+2025-09-22T20:58:29: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T20:58:29: Environment: production
+2025-09-22T20:58:29: Port: 3000
+2025-09-22T20:58:29: Hostname: 0.0.0.0
+2025-09-22T20:58:29: ✅ Next.js app prepared
+2025-09-22T20:58:29: 🔌 Initializing Socket.io...
+2025-09-22T20:58:29: ✅ Socket.io server initialized successfully
+2025-09-22T20:58:30: ✅ Simple Socket Service initialized
+2025-09-22T20:58:30: ✅ Socket Notification Service initialized successfully
+2025-09-22T20:58:30: ✅ Socket notification service initialized
+2025-09-22T20:58:30: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T20:58:30: 🔌 Socket.io ready and listening for connections
+2025-09-22T20:59:58: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T20:59:58: ✅ Server closed
+2025-09-22T21:01:01: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T21:01:01: Environment: production
+2025-09-22T21:01:01: Port: 3000
+2025-09-22T21:01:01: Hostname: 0.0.0.0
+2025-09-22T21:01:01: ✅ Next.js app prepared
+2025-09-22T21:01:01: 🔌 Initializing Socket.io...
+2025-09-22T21:01:01: ✅ Socket.io server initialized successfully
+2025-09-22T21:01:01: ✅ Simple Socket Service initialized
+2025-09-22T21:01:01: ✅ Socket Notification Service initialized successfully
+2025-09-22T21:01:01: ✅ Socket notification service initialized
+2025-09-22T21:01:02: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T21:01:02: 🔌 Socket.io ready and listening for connections
+2025-09-22T21:01:42: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T21:01:42: ✅ Server closed
+2025-09-22T21:01:42: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T21:01:42: Environment: production
+2025-09-22T21:01:42: Port: 3000
+2025-09-22T21:01:42: Hostname: 0.0.0.0
+2025-09-22T21:01:43: ✅ Next.js app prepared
+2025-09-22T21:01:43: 🔌 Initializing Socket.io...
+2025-09-22T21:01:43: ✅ Socket.io server initialized successfully
+2025-09-22T21:01:43: ✅ Simple Socket Service initialized
+2025-09-22T21:01:43: ✅ Socket Notification Service initialized successfully
+2025-09-22T21:01:43: ✅ Socket notification service initialized
+2025-09-22T21:01:44: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T21:01:44: 🔌 Socket.io ready and listening for connections
+2025-09-22T21:02:12: 🔌 User connected: irEbX5qoc6khuqhhAAAB
+2025-09-22T21:02:12: 🔌 User connected: 5KdMfuw7LflUdY8fAAAD
+2025-09-22T21:02:52: 🔌 User connected: yRontagp5XptM4WVAAAF
+2025-09-22T21:02:52: 🔌 User connected: pQOZHiQT07JHRwF3AAAH
+2025-09-22T21:03:09: 🔌 User connected: z48ykZnsSUgrSxa6AAAK
+2025-09-22T21:03:09: 🔌 User connected: Gm8B-d6fc5rtF3wRAAAL
+2025-09-22T21:15:08: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T21:15:08: ✅ Server closed
+2025-09-22T21:16:11: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T21:16:11: Environment: production
+2025-09-22T21:16:11: Port: 3000
+2025-09-22T21:16:11: Hostname: 0.0.0.0
+2025-09-22T21:16:11: ✅ Next.js app prepared
+2025-09-22T21:16:11: 🔌 Initializing Socket.io...
+2025-09-22T21:16:11: ✅ Socket.io server initialized successfully
+2025-09-22T21:16:11: ✅ Simple Socket Service initialized
+2025-09-22T21:16:11: ✅ Socket Notification Service initialized successfully
+2025-09-22T21:16:11: ✅ Socket notification service initialized
+2025-09-22T21:16:12: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T21:16:12: 🔌 Socket.io ready and listening for connections
+2025-09-22T21:17:23: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T21:17:23: ✅ Server closed
+2025-09-22T21:17:23: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T21:17:23: Environment: production
+2025-09-22T21:17:23: Port: 3000
+2025-09-22T21:17:23: Hostname: 0.0.0.0
+2025-09-22T21:17:24: ✅ Next.js app prepared
+2025-09-22T21:17:24: 🔌 Initializing Socket.io...
+2025-09-22T21:17:24: ✅ Socket.io server initialized successfully
+2025-09-22T21:17:25: ✅ Simple Socket Service initialized
+2025-09-22T21:17:25: ✅ Socket Notification Service initialized successfully
+2025-09-22T21:17:25: ✅ Socket notification service initialized
+2025-09-22T21:17:25: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T21:17:25: 🔌 Socket.io ready and listening for connections
+2025-09-22T21:17:51: 🔌 User connected: VQxCFx-fNbKdV8f9AAAB
+2025-09-22T21:17:52: 🔌 User connected: vwR4YwM7TVqbuSxCAAAD
+2025-09-22T21:17:58: 🔌 User connected: De3jV1JCYnlFJBqNAAAF
+2025-09-22T21:17:58: 🔌 User connected: NQLsLWBmJPyye1kEAAAH
+2025-09-22T21:18:00: 🔌 User connected: Dad5Obd-1zaLw-GxAAAJ
+2025-09-22T21:18:00: 🔌 User connected: H0D1GX5Eb_1J4UdwAAAL
+2025-09-22T21:18:21: 🔌 User connected: mXl0ZDEoEA5jY2M5AAAN
+2025-09-22T21:18:56: prisma:error 
+2025-09-22T21:18:56: Invalid `prisma.application.create()` invocation:
+2025-09-22T21:18:56: 
+2025-09-22T21:18:56: 
+2025-09-22T21:18:56: Foreign key constraint violated on the constraint: `Application_jobId_fkey`
+2025-09-22T21:18:57: prisma:error 
+2025-09-22T21:18:57: Invalid `prisma.application.create()` invocation:
+2025-09-22T21:18:57: 
+2025-09-22T21:18:57: 
+2025-09-22T21:18:57: Foreign key constraint violated on the constraint: `Application_jobId_fkey`
+2025-09-22T21:18:59: prisma:error 
+2025-09-22T21:18:59: Invalid `prisma.application.create()` invocation:
+2025-09-22T21:18:59: 
+2025-09-22T21:18:59: 
+2025-09-22T21:18:59: Foreign key constraint violated on the constraint: `Application_jobId_fkey`
+2025-09-22T21:19:11: 🔌 User connected: p2tNhTPsrGRvnSnUAAAP
+2025-09-22T21:19:12: 🔌 User connected: CH77g0RsJrJ-e7cCAAAR
+2025-09-22T21:19:39: prisma:error 
+2025-09-22T21:19:39: Invalid `prisma.application.create()` invocation:
+2025-09-22T21:19:39: 
+2025-09-22T21:19:39: 
+2025-09-22T21:19:39: Foreign key constraint violated on the constraint: `Application_jobId_fkey`
+2025-09-22T21:32:49: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T21:33:59: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T21:33:59: Environment: production
+2025-09-22T21:33:59: Port: 3000
+2025-09-22T21:33:59: Hostname: 0.0.0.0
+2025-09-22T21:33:59: ✅ Next.js app prepared
+2025-09-22T21:33:59: 🔌 Initializing Socket.io...
+2025-09-22T21:33:59: ✅ Socket.io server initialized successfully
+2025-09-22T21:33:59: ✅ Simple Socket Service initialized
+2025-09-22T21:33:59: ✅ Socket Notification Service initialized successfully
+2025-09-22T21:33:59: ✅ Socket notification service initialized
+2025-09-22T21:34:00: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T21:34:00: 🔌 Socket.io ready and listening for connections
+2025-09-22T21:34:08: 🔌 User connected: mmGIVWUA0_4UUCMnAAAB
+2025-09-22T21:34:09: 🔌 User connected: xG776VM4wKJPrRlMAAAD
+2025-09-22T21:34:10: 🔌 User connected: TeeEcTsdwWEsEW0XAAAF
+2025-09-22T21:34:11: 🔌 User connected: GXYYlE_dmkngwrIpAAAH
+2025-09-22T21:35:10: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T21:35:12: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T21:35:12: Environment: production
+2025-09-22T21:35:12: Port: 3000
+2025-09-22T21:35:12: Hostname: 0.0.0.0
+2025-09-22T21:35:13: ✅ Next.js app prepared
+2025-09-22T21:35:13: 🔌 Initializing Socket.io...
+2025-09-22T21:35:13: ✅ Socket.io server initialized successfully
+2025-09-22T21:35:14: ✅ Simple Socket Service initialized
+2025-09-22T21:35:14: ✅ Socket Notification Service initialized successfully
+2025-09-22T21:35:14: ✅ Socket notification service initialized
+2025-09-22T21:35:14: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T21:35:14: 🔌 Socket.io ready and listening for connections
+2025-09-22T21:35:24: 🔌 User connected: OOStbjo3MoDVkFZCAAAB
+2025-09-22T21:35:27: 🔌 User connected: y9VNrjmB0eYlGUfEAAAD
+2025-09-22T21:35:27: 🔌 User connected: XkPUQKuEtd7iLQFoAAAF
+2025-09-22T21:35:27: 🔌 User connected: rI7h9RqIxlIoADdBAAAH
+2025-09-22T21:35:27: 🔌 User connected: OVZOJp_qGFc3w-6mAAAJ
+2025-09-22T21:35:54: prisma:error 
+2025-09-22T21:35:54: Invalid `prisma.application.create()` invocation:
+2025-09-22T21:35:54: 
+2025-09-22T21:35:54: 
+2025-09-22T21:35:54: Foreign key constraint violated on the constraint: `Application_jobId_fkey`
+2025-09-22T21:58:17: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T21:59:28: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T21:59:28: Environment: production
+2025-09-22T21:59:28: Port: 3000
+2025-09-22T21:59:28: Hostname: 0.0.0.0
+2025-09-22T21:59:28: ✅ Next.js app prepared
+2025-09-22T21:59:28: 🔌 Initializing Socket.io...
+2025-09-22T21:59:28: ✅ Socket.io server initialized successfully
+2025-09-22T21:59:28: ✅ Simple Socket Service initialized
+2025-09-22T21:59:28: ✅ Socket Notification Service initialized successfully
+2025-09-22T21:59:28: ✅ Socket notification service initialized
+2025-09-22T21:59:29: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T21:59:29: 🔌 Socket.io ready and listening for connections
+2025-09-22T21:59:32: 🔌 User connected: 6x56dJKwtQcNGwU7AAAB
+2025-09-22T21:59:32: 🔌 User connected: HYIhikDp8MMTFcKpAAAD
+2025-09-22T21:59:32: 🔌 User connected: GqVNkJqfjgmuGyaSAAAF
+2025-09-22T21:59:35: 🔌 User connected: 6t0YJMLtSpMGG0WBAAAH
+2025-09-22T22:00:51: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T22:00:53: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:00:53: Environment: production
+2025-09-22T22:00:53: Port: 3000
+2025-09-22T22:00:53: Hostname: 0.0.0.0
+2025-09-22T22:00:54: ✅ Next.js app prepared
+2025-09-22T22:00:54: 🔌 Initializing Socket.io...
+2025-09-22T22:00:54: ✅ Socket.io server initialized successfully
+2025-09-22T22:00:55: ✅ Simple Socket Service initialized
+2025-09-22T22:00:55: ✅ Socket Notification Service initialized successfully
+2025-09-22T22:00:55: ✅ Socket notification service initialized
+2025-09-22T22:00:55: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T22:00:55: 🔌 Socket.io ready and listening for connections
+2025-09-22T22:01:20: 🔌 User connected: k_j75qJoOYTQEsydAAAB
+2025-09-22T22:01:20: 🔌 User connected: 8svBb-k23DIwuAjaAAAD
+2025-09-22T22:01:20: 🔌 User connected: 72rzRXFYZLPD-BvZAAAF
+2025-09-22T22:01:23: 🔌 User connected: 0Wb8Q1XKAPSoh6_rAAAH
+2025-09-22T22:01:51: 🔌 User connected: jIt1TZOhv0EJQf3TAAAJ
+2025-09-22T22:01:51: 🔌 User connected: YLI13hrmLL0GCjLDAAAL
+2025-09-22T22:02:02: 🔌 User connected: W8X-HMOga0lyjFfzAAAN
+2025-09-22T22:02:31: prisma:error 
+2025-09-22T22:02:31: Invalid `prisma.application.create()` invocation:
+2025-09-22T22:02:31: 
+2025-09-22T22:02:31: 
+2025-09-22T22:02:31: Foreign key constraint violated on the constraint: `Application_jobId_fkey`
+2025-09-22T22:09:55: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T22:11:06: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:11:06: Environment: production
+2025-09-22T22:11:06: Port: 3000
+2025-09-22T22:11:06: Hostname: 0.0.0.0
+2025-09-22T22:11:06: ✅ Next.js app prepared
+2025-09-22T22:11:06: 🔌 Initializing Socket.io...
+2025-09-22T22:11:06: ✅ Socket.io server initialized successfully
+2025-09-22T22:11:07: ✅ Simple Socket Service initialized
+2025-09-22T22:11:07: ✅ Socket Notification Service initialized successfully
+2025-09-22T22:11:07: ✅ Socket notification service initialized
+2025-09-22T22:11:08: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T22:11:08: 🔌 Socket.io ready and listening for connections
+2025-09-22T22:11:08: 🔌 User connected: FBimwqI8_db64BRlAAAB
+2025-09-22T22:11:09: 🔌 User connected: B2MBq1vw2DdHEv_tAAAD
+2025-09-22T22:11:10: 🔌 User connected: UNT2i4wmba82ny6tAAAF
+2025-09-22T22:11:11: 🔌 User connected: PrFLVGbHNHuk4SORAAAH
+2025-09-22T22:11:13: 🔌 User connected: R62Km1Ic8gSFBMaEAAAJ
+2025-09-22T22:12:31: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T22:12:33: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:12:33: Environment: production
+2025-09-22T22:12:33: Port: 3000
+2025-09-22T22:12:33: Hostname: 0.0.0.0
+2025-09-22T22:12:33: ✅ Next.js app prepared
+2025-09-22T22:12:33: 🔌 Initializing Socket.io...
+2025-09-22T22:12:33: ✅ Socket.io server initialized successfully
+2025-09-22T22:12:34: ✅ Simple Socket Service initialized
+2025-09-22T22:12:34: ✅ Socket Notification Service initialized successfully
+2025-09-22T22:12:34: ✅ Socket notification service initialized
+2025-09-22T22:12:34: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T22:12:34: 🔌 Socket.io ready and listening for connections
+2025-09-22T22:12:48: 🔌 User connected: Vmk23BMG76x5O41qAAAB
+2025-09-22T22:12:50: 🔌 User connected: NvLc9bwbdIDDD_cBAAAD
+2025-09-22T22:12:59: 🔌 User connected: zUwhi-KUoEsEAaSRAAAF
+2025-09-22T22:12:59: 🔌 User connected: vTspEsq3FZT8ykhVAAAH
+2025-09-22T22:13:09: 🔌 User connected: Vt-QqvjEbkShuj-yAAAJ
+2025-09-22T22:13:25: prisma:error 
+2025-09-22T22:13:25: Invalid `prisma.application.create()` invocation:
+2025-09-22T22:13:25: 
+2025-09-22T22:13:25: 
+2025-09-22T22:13:25: Foreign key constraint violated on the constraint: `Application_resumeId_fkey`
+2025-09-22T22:19:10: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T22:19:12: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:19:12: Environment: production
+2025-09-22T22:19:12: Port: 3000
+2025-09-22T22:19:12: Hostname: 0.0.0.0
+2025-09-22T22:19:12: ✅ Next.js app prepared
+2025-09-22T22:19:12: 🔌 Initializing Socket.io...
+2025-09-22T22:19:12: ✅ Socket.io server initialized successfully
+2025-09-22T22:19:13: ✅ Simple Socket Service initialized
+2025-09-22T22:19:13: ✅ Socket Notification Service initialized successfully
+2025-09-22T22:19:13: ✅ Socket notification service initialized
+2025-09-22T22:19:13: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T22:19:13: 🔌 Socket.io ready and listening for connections
+2025-09-22T22:19:13: 🔌 User connected: V7dg_hF1vuQA6y_SAAAB
+2025-09-22T22:19:14: 🔌 User connected: KV0RbuVdxn-E8ErqAAAD
+2025-09-22T22:19:14: 🔌 User connected: 0OK7S3DogYa6B2rwAAAF
+2025-09-22T22:19:14: 🔌 User connected: j9ykeaEPz0iFD-7iAAAH
+2025-09-22T22:19:14: 🔌 User connected: 9ntdQde5n3g7xqw_AAAJ
+2025-09-22T22:25:07: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T22:25:09: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:25:09: Environment: production
+2025-09-22T22:25:09: Port: 3000
+2025-09-22T22:25:09: Hostname: 0.0.0.0
+2025-09-22T22:25:09: ✅ Next.js app prepared
+2025-09-22T22:25:09: 🔌 Initializing Socket.io...
+2025-09-22T22:25:09: ✅ Socket.io server initialized successfully
+2025-09-22T22:25:10: ✅ Simple Socket Service initialized
+2025-09-22T22:25:10: ✅ Socket Notification Service initialized successfully
+2025-09-22T22:25:10: ✅ Socket notification service initialized
+2025-09-22T22:25:10: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T22:25:10: 🔌 Socket.io ready and listening for connections
+2025-09-22T22:25:25: 🔌 User connected: xn0YdaeEPF9hLih1AAAB
+2025-09-22T22:25:25: 🔌 User connected: g0mhfJVkHnUrzrX0AAAD
+2025-09-22T22:25:26: 🔌 User connected: TTI5EPTSGIHwyTzCAAAF
+2025-09-22T22:25:26: 🔌 User connected: S3sGVm6kloZTKG8bAAAH
+2025-09-22T22:25:27: 🔌 User connected: 9_ZLlZK1hGIj8nMAAAAJ
+2025-09-22T22:37:08: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T22:37:10: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:37:10: Environment: production
+2025-09-22T22:37:10: Port: 3000
+2025-09-22T22:37:10: Hostname: 0.0.0.0
+2025-09-22T22:37:10: ✅ Next.js app prepared
+2025-09-22T22:37:10: 🔌 Initializing Socket.io...
+2025-09-22T22:37:10: ✅ Socket.io server initialized successfully
+2025-09-22T22:37:10: ✅ Simple Socket Service initialized
+2025-09-22T22:37:10: ✅ Socket Notification Service initialized successfully
+2025-09-22T22:37:10: ✅ Socket notification service initialized
+2025-09-22T22:37:11: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T22:37:11: 🔌 Socket.io ready and listening for connections
+2025-09-22T22:37:12: 🔌 User connected: ZZ4lHGKicRlFlVNCAAAB
+2025-09-22T22:37:13: 🔌 User connected: UIy9EAXixb4oA4SIAAAD
+2025-09-22T22:39:20: 🔌 User connected: CrZAavIYLAPvYyJGAAAG
+2025-09-22T22:39:21: 🔌 User connected: 1sWUvCvSXS1MlQISAAAI
+2025-09-22T22:39:29: 🔌 User connected: lxGtvosd36EpMO1_AAAK
+2025-09-22T22:57:06: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T22:57:46: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:46: Environment: production
+2025-09-22T22:57:46: Port: 3000
+2025-09-22T22:57:46: Hostname: 0.0.0.0
+2025-09-22T22:57:46: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:46: Environment: production
+2025-09-22T22:57:46: Port: 3000
+2025-09-22T22:57:46: Hostname: 0.0.0.0
+2025-09-22T22:57:47: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:47: Environment: production
+2025-09-22T22:57:47: Port: 3000
+2025-09-22T22:57:47: Hostname: 0.0.0.0
+2025-09-22T22:57:47: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:47: Environment: production
+2025-09-22T22:57:47: Port: 3000
+2025-09-22T22:57:47: Hostname: 0.0.0.0
+2025-09-22T22:57:48: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:48: Environment: production
+2025-09-22T22:57:48: Port: 3000
+2025-09-22T22:57:48: Hostname: 0.0.0.0
+2025-09-22T22:57:48: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:48: Environment: production
+2025-09-22T22:57:48: Port: 3000
+2025-09-22T22:57:48: Hostname: 0.0.0.0
+2025-09-22T22:57:48: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:48: Environment: production
+2025-09-22T22:57:48: Port: 3000
+2025-09-22T22:57:48: Hostname: 0.0.0.0
+2025-09-22T22:57:49: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:49: Environment: production
+2025-09-22T22:57:49: Port: 3000
+2025-09-22T22:57:49: Hostname: 0.0.0.0
+2025-09-22T22:57:49: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:49: Environment: production
+2025-09-22T22:57:49: Port: 3000
+2025-09-22T22:57:49: Hostname: 0.0.0.0
+2025-09-22T22:57:50: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T22:57:50: Environment: production
+2025-09-22T22:57:50: Port: 3000
+2025-09-22T22:57:50: Hostname: 0.0.0.0
+2025-09-22T23:06:31: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T23:06:31: Environment: production
+2025-09-22T23:06:31: Port: 3000
+2025-09-22T23:06:31: Hostname: 0.0.0.0
+2025-09-22T23:06:31: ✅ Next.js app prepared
+2025-09-22T23:06:31: 🔌 Initializing Socket.io...
+2025-09-22T23:06:31: ✅ Socket.io server initialized successfully
+2025-09-22T23:06:31: ✅ Simple Socket Service initialized
+2025-09-22T23:06:31: ✅ Socket Notification Service initialized successfully
+2025-09-22T23:06:31: ✅ Socket notification service initialized
+2025-09-22T23:06:32: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T23:06:32: 🔌 Socket.io ready and listening for connections
+2025-09-22T23:06:40: 🔌 User connected: V6ROhI04vMAUxTs9AAAB
+2025-09-22T23:06:40: 🔌 User connected: PdoRtoRBcM5hbnSKAAAD
+2025-09-22T23:06:41: 🔌 User connected: hY-PaIvONMfXnsRYAAAF
+2025-09-22T23:06:42: 🔌 User connected: PdaDgh199IBwtHhFAAAH
+2025-09-22T23:06:45: 🔌 User connected: TOsDOzpBG5aKHaEPAAAJ
+2025-09-22T23:09:00: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T23:09:02: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T23:09:02: Environment: production
+2025-09-22T23:09:02: Port: 3000
+2025-09-22T23:09:02: Hostname: 0.0.0.0
+2025-09-22T23:09:03: ✅ Next.js app prepared
+2025-09-22T23:09:03: 🔌 Initializing Socket.io...
+2025-09-22T23:09:03: ✅ Socket.io server initialized successfully
+2025-09-22T23:09:04: ✅ Simple Socket Service initialized
+2025-09-22T23:09:04: ✅ Socket Notification Service initialized successfully
+2025-09-22T23:09:04: ✅ Socket notification service initialized
+2025-09-22T23:09:04: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T23:09:04: 🔌 Socket.io ready and listening for connections
+2025-09-22T23:09:14: 🔌 User connected: k8AiFlCuxsxWAoCbAAAB
+2025-09-22T23:09:16: 🔌 User connected: gVp1Z2C79j2rvSRFAAAD
+2025-09-22T23:09:17: 🔌 User connected: -eDaqDjJvf2XmR1sAAAF
+2025-09-22T23:09:18: 🔌 User connected: EusNAUG_KLqAqZ2TAAAH
+2025-09-22T23:09:19: 🔌 User connected: qkjwA3gtXo2XdD-fAAAJ
+2025-09-22T23:11:42: 🔌 User connected: X9eGAE4qfxpWBNG5AAAL
+2025-09-22T23:11:42: 🔌 User connected: iJQp5d04ct2CB_igAAAN
+2025-09-22T23:12:00: 🔌 User connected: vtt3Vbrqh82-VkyGAAAP
+2025-09-22T23:23:53: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T23:24:55: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T23:24:55: Environment: production
+2025-09-22T23:24:55: Port: 3000
+2025-09-22T23:24:55: Hostname: 0.0.0.0
+2025-09-22T23:24:55: ✅ Next.js app prepared
+2025-09-22T23:24:55: 🔌 Initializing Socket.io...
+2025-09-22T23:24:55: ✅ Socket.io server initialized successfully
+2025-09-22T23:24:55: ✅ Simple Socket Service initialized
+2025-09-22T23:24:55: ✅ Socket Notification Service initialized successfully
+2025-09-22T23:24:55: ✅ Socket notification service initialized
+2025-09-22T23:24:56: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T23:24:56: 🔌 Socket.io ready and listening for connections
+2025-09-22T23:25:03: 🔌 User connected: ZpxKapGv19Ga7F0OAAAB
+2025-09-22T23:25:04: 🔌 User connected: ZxS48F-MQqEEYj4yAAAD
+2025-09-22T23:25:04: 🔌 User connected: CK4on1v9YUucSqSYAAAF
+2025-09-22T23:27:12: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T23:27:14: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T23:27:14: Environment: production
+2025-09-22T23:27:14: Port: 3000
+2025-09-22T23:27:14: Hostname: 0.0.0.0
+2025-09-22T23:27:14: ✅ Next.js app prepared
+2025-09-22T23:27:14: 🔌 Initializing Socket.io...
+2025-09-22T23:27:14: ✅ Socket.io server initialized successfully
+2025-09-22T23:27:15: ✅ Simple Socket Service initialized
+2025-09-22T23:27:15: ✅ Socket Notification Service initialized successfully
+2025-09-22T23:27:15: ✅ Socket notification service initialized
+2025-09-22T23:27:15: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T23:27:15: 🔌 Socket.io ready and listening for connections
+2025-09-22T23:27:29: 🔌 User connected: LquANmRWHmBnCYmSAAAB
+2025-09-22T23:27:30: 🔌 User connected: WCvNYLSe4jT1ItK_AAAD
+2025-09-22T23:27:30: 🔌 User connected: wtKSGz5IPR_Q6Mk_AAAF
+2025-09-22T23:35:52: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T23:35:52: ✅ Server closed
+2025-09-22T23:36:54: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T23:36:54: Environment: production
+2025-09-22T23:36:54: Port: 3000
+2025-09-22T23:36:54: Hostname: 0.0.0.0
+2025-09-22T23:36:54: ✅ Next.js app prepared
+2025-09-22T23:36:54: 🔌 Initializing Socket.io...
+2025-09-22T23:36:54: ✅ Socket.io server initialized successfully
+2025-09-22T23:36:54: ✅ Simple Socket Service initialized
+2025-09-22T23:36:54: ✅ Socket Notification Service initialized successfully
+2025-09-22T23:36:54: ✅ Socket notification service initialized
+2025-09-22T23:36:55: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T23:36:55: 🔌 Socket.io ready and listening for connections
+2025-09-22T23:38:52: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T23:38:52: ✅ Server closed
+2025-09-22T23:38:52: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T23:38:52: Environment: production
+2025-09-22T23:38:52: Port: 3000
+2025-09-22T23:38:52: Hostname: 0.0.0.0
+2025-09-22T23:38:52: ✅ Next.js app prepared
+2025-09-22T23:38:52: 🔌 Initializing Socket.io...
+2025-09-22T23:38:52: ✅ Socket.io server initialized successfully
+2025-09-22T23:38:53: ✅ Simple Socket Service initialized
+2025-09-22T23:38:53: ✅ Socket Notification Service initialized successfully
+2025-09-22T23:38:53: ✅ Socket notification service initialized
+2025-09-22T23:38:53: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T23:38:53: 🔌 Socket.io ready and listening for connections
+2025-09-22T23:39:48: 🔌 User connected: nBLSI6G_RDraNyWOAAAC
+2025-09-22T23:39:48: 🔌 User connected: h-K9RW03dK7v65tCAAAE
+2025-09-22T23:40:35: 🔌 User connected: ZKb-uH0EbG2joIeLAAAG
+2025-09-22T23:41:21: 🔌 User connected: 78TBQxVBYQ1v-dKJAAAI
+2025-09-22T23:42:36: 🔌 User connected: ht8lywJbebZJ6C-eAAAK
+2025-09-22T23:42:36: 🔌 User connected: GMu4tZ5BpPWUqxaxAAAM
+2025-09-22T23:42:49: 🔌 User connected: 309tUmBzKK-3uuK5AAAO
+2025-09-22T23:43:17: 🔌 User connected: 9Ox52vD6FYQjl5qxAAAQ
+2025-09-22T23:46:34: 🔌 User connected: JKfroIoHULZ-8CWmAAAS
+2025-09-22T23:46:34: 🔌 User connected: w9iBJ4mgN0JSIzkjAAAU
+2025-09-22T23:56:49: 🛑 SIGINT received, shutting down gracefully
+2025-09-22T23:57:52: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-22T23:57:52: Environment: production
+2025-09-22T23:57:52: Port: 3000
+2025-09-22T23:57:52: Hostname: 0.0.0.0
+2025-09-22T23:57:52: ✅ Next.js app prepared
+2025-09-22T23:57:52: 🔌 Initializing Socket.io...
+2025-09-22T23:57:52: ✅ Socket.io server initialized successfully
+2025-09-22T23:57:52: ✅ Simple Socket Service initialized
+2025-09-22T23:57:52: ✅ Socket Notification Service initialized successfully
+2025-09-22T23:57:52: ✅ Socket notification service initialized
+2025-09-22T23:57:53: ✅ Server ready on http://0.0.0.0:3000
+2025-09-22T23:57:53: 🔌 Socket.io ready and listening for connections
+2025-09-22T23:57:56: 🔌 User connected: 3ieM0RMILXDJNbxmAAAB
+2025-09-22T23:57:58: 🔌 User connected: kOZ27cfNv3AaxoBZAAAD
+2025-09-23T00:01:09: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T00:01:11: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T00:01:11: Environment: production
+2025-09-23T00:01:11: Port: 3000
+2025-09-23T00:01:11: Hostname: 0.0.0.0
+2025-09-23T00:01:12: ✅ Next.js app prepared
+2025-09-23T00:01:12: 🔌 Initializing Socket.io...
+2025-09-23T00:01:12: ✅ Socket.io server initialized successfully
+2025-09-23T00:01:13: ✅ Simple Socket Service initialized
+2025-09-23T00:01:13: ✅ Socket Notification Service initialized successfully
+2025-09-23T00:01:13: ✅ Socket notification service initialized
+2025-09-23T00:01:13: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T00:01:13: 🔌 Socket.io ready and listening for connections
+2025-09-23T00:01:13: 🔌 User connected: 0wDixHTKN4GHvIpvAAAB
+2025-09-23T00:01:13: 🔌 User connected: e__UgnqLPTWEG8F2AAAD
+2025-09-23T00:01:26: 🔌 User connected: VJh5ZI7A2UtIEd5FAAAF
+2025-09-23T00:01:27: 🔌 User connected: 1VEuzND0RRM-csGeAAAH
+2025-09-23T00:02:13: 🔌 User connected: cRK-TH7DdJS1WOGPAAAJ
+2025-09-23T00:02:13: 🔌 User connected: p1ft8TJ4C2DVUJJmAAAL
+2025-09-23T00:02:15: 🔌 User connected: iT22raUnHAYa_fncAAAN
+2025-09-23T00:02:15: 🔌 User connected: M3MozfXNtCo3qer-AAAP
+2025-09-23T00:02:17: 🔌 User connected: II1UKq0EpDm0aKnKAAAR
+2025-09-23T00:02:17: 🔌 User connected: -RaVqce_VHpzlid6AAAT
+2025-09-23T00:02:55: 🔌 User connected: WgCSfmhQHmzCgxS0AAAV
+2025-09-23T00:02:55: 🔌 User connected: XPkWsvlF9Ay10vG7AAAX
+2025-09-23T00:02:58: 🔌 User connected: uaTMgpaOFBMQr2YQAAAZ
+2025-09-23T00:02:59: 🔌 User connected: YO4WHeg3P59a77UYAAAb
+2025-09-23T00:03:00: 🔌 User connected: 1Rif7nD0cuSZ7sPIAAAd
+2025-09-23T00:03:00: 🔌 User connected: 3MUIuMNJZnfLWt5YAAAf
+2025-09-23T00:09:59: 🔌 User connected: ikWtSLVNN-K74Q9iAAAh
+2025-09-23T00:09:59: 🔌 User connected: LRCCOliKEMx6vcRXAAAj
+2025-09-23T00:10:04: 🔌 User connected: 2gi4fAC99jiDNgAtAAAm
+2025-09-23T00:10:04: 🔌 User connected: 1FAyoTBnLQH2cxJnAAAn
+2025-09-23T00:10:17: 🔌 User connected: soBurNcpvztcpgpNAAAp
+2025-09-23T00:12:10: 🔌 User connected: SpJvU1i7RXfXIvQbAAAs
+2025-09-23T00:12:10: 🔌 User connected: -uYRmZVgKkqwt9-RAAAt
+2025-09-23T00:12:37: 🔌 User connected: N9EVC-EFVO4eF9g-AAAv
+2025-09-23T00:12:37: 🔌 User connected: CGh0v-ZyPVy5jwkBAAAx
+2025-09-23T08:59:35: 🔌 User connected: n88-oaVqnlOJEY6uAAAz
+2025-09-23T08:59:35: 🔌 User connected: AqAz1CPtdHfq40y3AAA1
+2025-09-23T08:59:45: 🔌 User connected: 3Qb8qyZ0K-UUyFfXAAA3
+2025-09-23T08:59:45: 🔌 User connected: whGP_LnOsjzNx0bWAAA5
+2025-09-23T08:59:48: 🔌 User connected: -yzoFNH-NqERAmCBAAA7
+2025-09-23T08:59:48: 🔌 User connected: Zv_VsjgwFzIlZi3mAAA9
+2025-09-23T09:02:51: 🔌 User connected: rV2dtL20CT0NeRfJAAA_
+2025-09-23T09:02:51: 🔌 User connected: YOHv8j_4BAXr7ezhAABB
+2025-09-23T09:15:46: 🔌 User connected: d6a-zwLInm0ZQ8AdAABD
+2025-09-23T09:15:47: 🔌 User connected: wjFfjKQur42DqdP7AABF
+2025-09-23T09:15:49: 🔌 User connected: FWgCBgTqU2yGFOneAABH
+2025-09-23T09:15:51: 🔌 User connected: 8i69XzZpqCbXDFLmAABJ
+2025-09-23T09:25:08: 🔌 User connected: b0DpHhrzVNCkPYBPAABL
+2025-09-23T09:25:08: 🔌 User connected: otIFiiieb3CzWCe-AABN
+2025-09-23T09:25:09: 🔌 User connected: Ny-hzHUj3rtjtfMRAABP
+2025-09-23T09:25:09: 🔌 User connected: hvIeNWjp3xcZKtpYAABR
+2025-09-23T10:25:28: 🔌 User connected: Z5E6n3ANzCZwOXFBAABT
+2025-09-23T10:25:28: 🔌 User connected: WndrRT8VQmtiwwF4AABV
+2025-09-23T10:41:16: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T10:42:58: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T10:42:58: Environment: production
+2025-09-23T10:42:58: Port: 3000
+2025-09-23T10:42:58: Hostname: 0.0.0.0
+2025-09-23T10:42:59: ✅ Next.js app prepared
+2025-09-23T10:42:59: 🔌 Initializing Socket.io...
+2025-09-23T10:42:59: ✅ Socket.io server initialized successfully
+2025-09-23T10:42:59: ✅ Simple Socket Service initialized
+2025-09-23T10:42:59: ✅ Socket Notification Service initialized successfully
+2025-09-23T10:42:59: ✅ Socket notification service initialized
+2025-09-23T10:43:00: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T10:43:00: 🔌 Socket.io ready and listening for connections
+2025-09-23T10:43:05: 🔌 User connected: CLcpDusKZunez_u0AAAB
+2025-09-23T10:43:06: 🔌 User connected: YlBNLHA4jLK7tNVmAAAD
+2025-09-23T10:47:32: 🔌 User connected: tBuY6bAve3S9pEelAAAF
+2025-09-23T10:47:32: 🔌 User connected: WRoHueS4QD1tQCpZAAAH
+2025-09-23T10:49:07: 🔌 User connected: yCZZSu0wkiThhCmBAAAJ
+2025-09-23T10:49:41: 🔌 User connected: VwkGzrPBOdLjLdRBAAAL
+2025-09-23T10:49:41: 🔌 User connected: MmnlpVeDl7lRmcdRAAAN
+2025-09-23T10:53:12: 🔌 User connected: mgk9lg47wydok0dYAAAP
+2025-09-23T10:53:12: 🔌 User connected: 6qPGj64dH7GXE1w5AAAR
+2025-09-23T10:53:22: 🔌 User connected: QryhWD3k4a1n7vElAAAT
+2025-09-23T10:54:59: 🔌 User connected: lfvckt0Rb8uCNGofAAAV
+2025-09-23T10:54:59: 🔌 User connected: fjk6iq9tGt4XQtP-AAAX
+2025-09-23T10:55:01: 🔌 User connected: QF3ucAB3Zrd0hj4HAAAZ
+2025-09-23T10:55:02: 🔌 User connected: SuE_5aMrBKxO-klXAAAb
+2025-09-23T10:55:04: 🔌 User connected: 9C_labXHXQCsFHxNAAAd
+2025-09-23T10:55:04: 🔌 User connected: VpUFkLD-yZdl2ggrAAAf
+2025-09-23T10:55:37: 🔌 User connected: Krh3fv0nuxbFvFvCAAAh
+2025-09-23T10:55:37: 🔌 User connected: yOQdGhejGJM_Osn3AAAj
+2025-09-23T10:56:32: 🔌 User connected: Zqo2FEHtFBIxopycAAAl
+2025-09-23T10:56:32: 🔌 User connected: hy7BipVHnZyC7NfuAAAn
+2025-09-23T10:56:45: 🔌 User connected: 0zmYpwUFzVlUU3nBAAAp
+2025-09-23T10:56:45: 🔌 User connected: V99eaJrmmdgSBAT5AAAr
+2025-09-23T10:56:57: 🔌 User connected: ZuLecf1DpkiDqorXAAAt
+2025-09-23T10:56:57: 🔌 User connected: A0kz37R1ukLmWEGaAAAv
+2025-09-23T10:57:05: 🔌 User connected: R0puhsma6bgNoypxAAAx
+2025-09-23T10:57:10: 🔌 User connected: 8nKuhrJK4IJmh68EAAAz
+2025-09-23T10:57:17: 🔌 User connected: x5epDLwQ421qFlc_AAA1
+2025-09-23T10:57:25: 🔌 User connected: F8U9pdE1hfP57cK1AAA3
+2025-09-23T10:57:35: 🔌 User connected: KAtJWhgeMUzC5q-XAAA5
+2025-09-23T10:57:35: 🔌 User connected: 57wvm5Ffs1ZWMpk7AAA7
+2025-09-23T10:57:35: 🔌 User connected: 6iXwm9iX_yZ_CytHAAA9
+2025-09-23T10:57:45: 🔌 User connected: jdshue5eFqE-dsiTAAA_
+2025-09-23T10:58:27: 🔌 User connected: 7CrWlSLtiISI4gGDAABB
+2025-09-23T10:58:27: 🔌 User connected: mcxZWF5W9ZnwX1hFAABD
+2025-09-23T11:00:03: 🔌 User connected: zD_Awwp-gRbTxT50AABF
+2025-09-23T11:00:03: 🔌 User connected: sgjYOr-WWZ7tdbQKAABH
+2025-09-23T11:00:04: 🔌 User connected: eBxE-CfdG4fXBcyRAABJ
+2025-09-23T11:00:04: 🔌 User connected: jCaePwsp1mKED4w-AABL
+2025-09-23T11:00:05: 🔌 User connected: Wi271UrpkZs6wDCDAABN
+2025-09-23T11:00:05: 🔌 User connected: eIt1eJeGKDQXgbZRAABP
+2025-09-23T11:00:07: 🔌 User connected: ayxi9escF_rI3kazAABR
+2025-09-23T11:00:07: 🔌 User connected: cEUPVYAN-SdlmWi6AABT
+2025-09-23T11:01:44: 🔌 User connected: 72SOs1goBDPxCA7YAABV
+2025-09-23T11:01:44: 🔌 User connected: W2iR4O3nmwhHBkGPAABX
+2025-09-23T11:06:11: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T11:06:13: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T11:06:13: Environment: production
+2025-09-23T11:06:13: Port: 3000
+2025-09-23T11:06:13: Hostname: 0.0.0.0
+2025-09-23T11:06:13: ✅ Next.js app prepared
+2025-09-23T11:06:13: 🔌 Initializing Socket.io...
+2025-09-23T11:06:13: ✅ Socket.io server initialized successfully
+2025-09-23T11:06:13: ✅ Simple Socket Service initialized
+2025-09-23T11:06:13: ✅ Socket Notification Service initialized successfully
+2025-09-23T11:06:13: ✅ Socket notification service initialized
+2025-09-23T11:06:14: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T11:06:14: 🔌 Socket.io ready and listening for connections
+2025-09-23T11:06:14: 🔌 User connected: Nll20jWq-lTNivbvAAAB
+2025-09-23T11:06:14: 🔌 User connected: rBzuPgTsJE0m75ZCAAAD
+2025-09-23T11:06:14: 🔌 User connected: bPAqpT11PhuM7TRMAAAF
+2025-09-23T11:06:14: 🔌 User connected: AEEP1HiAVGL8TMBEAAAH
+2025-09-23T11:06:15: 🔌 User connected: R_k9euL7ay0K-rxvAAAJ
+2025-09-23T11:06:15: 🔌 User connected: jcF_iC1Dlia60U8WAAAL
+2025-09-23T11:07:38: 🔌 User connected: bMTUva26YAribNe5AAAN
+2025-09-23T11:07:38: 🔌 User connected: dxB7VFhIF6pYxDUJAAAP
+2025-09-23T11:07:38: 🔌 User connected: eaE4u0b1YA0jY4KfAAAR
+2025-09-23T11:07:39: 🔌 User connected: -Bkvjh9GELTRZ89_AAAT
+2025-09-23T11:22:12: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T11:23:22: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T11:23:22: Environment: production
+2025-09-23T11:23:22: Port: 3000
+2025-09-23T11:23:22: Hostname: 0.0.0.0
+2025-09-23T11:23:23: ✅ Next.js app prepared
+2025-09-23T11:23:23: 🔌 Initializing Socket.io...
+2025-09-23T11:23:23: ✅ Socket.io server initialized successfully
+2025-09-23T11:23:23: ✅ Simple Socket Service initialized
+2025-09-23T11:23:23: ✅ Socket Notification Service initialized successfully
+2025-09-23T11:23:23: ✅ Socket notification service initialized
+2025-09-23T11:23:24: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T11:23:24: 🔌 Socket.io ready and listening for connections
+2025-09-23T11:23:25: 🔌 User connected: XUSBJU5_YU12zkg8AAAB
+2025-09-23T11:23:26: 🔌 User connected: ow2ORcX3puoSx8HrAAAD
+2025-09-23T11:23:26: 🔌 User connected: g2BY15t90Unff_RFAAAF
+2025-09-23T11:23:27: 🔌 User connected: gdebzxZHh6O-u9MdAAAH
+2025-09-23T11:23:30: 🔌 User connected: aays4Ozkadpwi8yYAAAJ
+2025-09-23T11:23:30: 🔌 User connected: k1VdTnKGIUd28OT7AAAL
+2025-09-23T11:24:24: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T11:24:26: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T11:24:26: Environment: production
+2025-09-23T11:24:26: Port: 3000
+2025-09-23T11:24:26: Hostname: 0.0.0.0
+2025-09-23T11:24:26: ✅ Next.js app prepared
+2025-09-23T11:24:26: 🔌 Initializing Socket.io...
+2025-09-23T11:24:26: ✅ Socket.io server initialized successfully
+2025-09-23T11:24:26: ✅ Simple Socket Service initialized
+2025-09-23T11:24:26: ✅ Socket Notification Service initialized successfully
+2025-09-23T11:24:26: ✅ Socket notification service initialized
+2025-09-23T11:24:27: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T11:24:27: 🔌 Socket.io ready and listening for connections
+2025-09-23T11:24:44: 🔌 User connected: LfoFly9yeGpFeff1AAAB
+2025-09-23T11:24:45: 🔌 User connected: 9vORnDGyWNVon6N_AAAD
+2025-09-23T11:24:49: 🔌 User connected: Qa8A4udlMMrMFGAXAAAF
+2025-09-23T11:24:49: 🔌 User connected: Gq2MyCuzWPOg5aGOAAAH
+2025-09-23T11:24:49: 🔌 User connected: loyBs7PH8KeOwGMoAAAJ
+2025-09-23T11:24:49: 🔌 User connected: NcKj5grLoFhbEI1LAAAL
+2025-09-23T11:33:57: 🔌 User connected: QlZpHk5wTkI-P5f9AAAN
+2025-09-23T11:33:57: 🔌 User connected: MFziA4t15XPPDOKjAAAP
+2025-09-23T11:33:58: 🔌 User connected: uZGUDqp_dpaLbPwsAAAR
+2025-09-23T11:33:58: 🔌 User connected: oNllkBovWmlUe2YhAAAT
+2025-09-23T11:35:18: 🔌 User connected: P_pgDZlI47umA5y_AAAV
+2025-09-23T11:35:19: 🔌 User connected: yMVtH0-bO3BR_rG4AAAX
+2025-09-23T12:03:34: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T12:04:44: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T12:04:44: Environment: production
+2025-09-23T12:04:44: Port: 3000
+2025-09-23T12:04:44: Hostname: 0.0.0.0
+2025-09-23T12:04:44: ✅ Next.js app prepared
+2025-09-23T12:04:44: 🔌 Initializing Socket.io...
+2025-09-23T12:04:44: ✅ Socket.io server initialized successfully
+2025-09-23T12:04:44: ✅ Simple Socket Service initialized
+2025-09-23T12:04:44: ✅ Socket Notification Service initialized successfully
+2025-09-23T12:04:44: ✅ Socket notification service initialized
+2025-09-23T12:04:45: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T12:04:45: 🔌 Socket.io ready and listening for connections
+2025-09-23T12:04:53: 🔌 User connected: AIKe0celIYnkkR_KAAAB
+2025-09-23T12:04:59: 🔌 User connected: CPRvo8CiK6inzZvvAAAD
+2025-09-23T12:05:00: 🔌 User connected: c5M4m7Kq1Y_wg2JRAAAF
+2025-09-23T12:05:02: 🔌 User connected: 8imqfpNIiHwHDSToAAAH
+2025-09-23T12:07:52: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T12:07:53: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T12:07:53: Environment: production
+2025-09-23T12:07:53: Port: 3000
+2025-09-23T12:07:53: Hostname: 0.0.0.0
+2025-09-23T12:07:54: ✅ Next.js app prepared
+2025-09-23T12:07:54: 🔌 Initializing Socket.io...
+2025-09-23T12:07:54: ✅ Socket.io server initialized successfully
+2025-09-23T12:07:54: ✅ Simple Socket Service initialized
+2025-09-23T12:07:54: ✅ Socket Notification Service initialized successfully
+2025-09-23T12:07:54: ✅ Socket notification service initialized
+2025-09-23T12:07:55: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T12:07:55: 🔌 Socket.io ready and listening for connections
+2025-09-23T12:08:08: 🔌 User connected: jmmBzyYO1iwbiHqIAAAB
+2025-09-23T12:08:09: 🔌 User connected: rIPsORn4-UkQIJLtAAAD
+2025-09-23T12:08:10: 🔌 User connected: dZxWNpk3_ybIpShGAAAF
+2025-09-23T12:08:10: 🔌 User connected: Yhn6QWt0N_dGKtDxAAAH
+2025-09-23T12:08:15: 🔌 User connected: lplbbfB6vKwkjpLwAAAJ
+2025-09-23T12:08:15: 🔌 User connected: qQEyIJFvjOl4qxczAAAL
+2025-09-23T12:08:22: 🔌 User connected: LtZZn9V1jkV7GKkWAAAN
+2025-09-23T12:08:22: 🔌 User connected: 9bwQcbObzE8oxVCmAAAP
+2025-09-23T12:08:24: 🔌 User connected: sIH0X_d4qu-f8QqvAAAR
+2025-09-23T12:08:24: 🔌 User connected: Q7fvyrUqZGXQXoOlAAAT
+2025-09-23T12:08:27: 🔌 User connected: cg01R1mBI_NATs_qAAAV
+2025-09-23T12:08:27: 🔌 User connected: GOOn98MFqPztfb8YAAAX
+2025-09-23T12:08:40: 🔌 User connected: CSypty_opv9vm3lmAAAZ
+2025-09-23T12:08:40: 🔌 User connected: BmUPlqmmPSu6l3DDAAAb
+2025-09-23T12:08:40: 🔌 User connected: OLnAuZ5Iwc3P267oAAAd
+2025-09-23T12:08:40: 🔌 User connected: WCtBE7dylhgIli0vAAAf
+2025-09-23T12:08:41: 🔌 User connected: dYDqLvM_WcPt8N1hAAAh
+2025-09-23T12:08:41: 🔌 User connected: -zCqCU8QzHjwTtAuAAAj
+2025-09-23T12:08:42: 🔌 User connected: aAyc_wgWS67PDZBZAAAl
+2025-09-23T12:08:42: 🔌 User connected: 02cbttq6ww5HynUoAAAn
+2025-09-23T12:31:06: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T12:32:14: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T12:32:14: Environment: production
+2025-09-23T12:32:14: Port: 3000
+2025-09-23T12:32:14: Hostname: 0.0.0.0
+2025-09-23T12:32:14: ✅ Next.js app prepared
+2025-09-23T12:32:14: 🔌 Initializing Socket.io...
+2025-09-23T12:32:14: ✅ Socket.io server initialized successfully
+2025-09-23T12:32:14: ✅ Simple Socket Service initialized
+2025-09-23T12:32:14: ✅ Socket Notification Service initialized successfully
+2025-09-23T12:32:14: ✅ Socket notification service initialized
+2025-09-23T12:32:15: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T12:32:15: 🔌 Socket.io ready and listening for connections
+2025-09-23T12:32:18: 🔌 User connected: 85o7O081eRsclA1cAAAB
+2025-09-23T12:32:20: 🔌 User connected: gtTTr0suBh1ZvEG6AAAD
+2025-09-23T12:32:21: 🔌 User connected: pfwKwLLwtoOHc-KpAAAF
+2025-09-23T12:32:22: 🔌 User connected: Y8p4NUpFg8YzSvYNAAAH
+2025-09-23T12:32:23: 🔌 User connected: RJ7VaWQesN6MW944AAAJ
+2025-09-23T12:32:24: 🔌 User connected: u0N5Ql2O2nwE-XCcAAAL
+2025-09-23T12:36:20: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T12:36:22: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T12:36:22: Environment: production
+2025-09-23T12:36:22: Port: 3000
+2025-09-23T12:36:22: Hostname: 0.0.0.0
+2025-09-23T12:36:22: ✅ Next.js app prepared
+2025-09-23T12:36:22: 🔌 Initializing Socket.io...
+2025-09-23T12:36:22: ✅ Socket.io server initialized successfully
+2025-09-23T12:36:22: ✅ Simple Socket Service initialized
+2025-09-23T12:36:22: ✅ Socket Notification Service initialized successfully
+2025-09-23T12:36:22: ✅ Socket notification service initialized
+2025-09-23T12:36:23: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T12:36:23: 🔌 Socket.io ready and listening for connections
+2025-09-23T12:36:36: 🔌 User connected: nMiAmWPcS_AJdqiAAAAB
+2025-09-23T12:36:36: 🔌 User connected: tp8c1INCmuvM3rYAAAAD
+2025-09-23T13:21:23: 🔌 User connected: 8_ozprVdrv8UhY99AAAF
+2025-09-23T13:21:23: 🔌 User connected: P9Hmofm_VFQ5lo_dAAAH
+2025-09-23T13:22:18: 🔌 User connected: hlRgJhXp1MKyELdlAAAJ
+2025-09-23T13:22:18: 🔌 User connected: _msH2ZNnNcb6NAGwAAAL
+2025-09-23T13:36:04: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T13:36:06: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T13:36:06: Environment: production
+2025-09-23T13:36:06: Port: 3000
+2025-09-23T13:36:06: Hostname: 0.0.0.0
+2025-09-23T13:36:06: ✅ Next.js app prepared
+2025-09-23T13:36:06: 🔌 Initializing Socket.io...
+2025-09-23T13:36:06: ✅ Socket.io server initialized successfully
+2025-09-23T13:36:06: ✅ Simple Socket Service initialized
+2025-09-23T13:36:06: ✅ Socket Notification Service initialized successfully
+2025-09-23T13:36:06: ✅ Socket notification service initialized
+2025-09-23T13:36:07: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T13:36:07: 🔌 Socket.io ready and listening for connections
+2025-09-23T13:36:19: 🔌 User connected: p-9Ib3G4dslNKS0ZAAAB
+2025-09-23T13:36:19: 🔌 User connected: uDNIB4Lu3ql4BPZrAAAD
+2025-09-23T13:36:19: 🔌 User connected: 3Z_7lJPKaUeVvpaTAAAF
+2025-09-23T13:36:19: 🔌 User connected: AoNTXYOyVit7IkBUAAAH
+2025-09-23T13:57:17: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T13:58:27: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T13:58:27: Environment: production
+2025-09-23T13:58:27: Port: 3000
+2025-09-23T13:58:27: Hostname: 0.0.0.0
+2025-09-23T13:58:27: ✅ Next.js app prepared
+2025-09-23T13:58:27: 🔌 Initializing Socket.io...
+2025-09-23T13:58:27: ✅ Socket.io server initialized successfully
+2025-09-23T13:58:27: ✅ Simple Socket Service initialized
+2025-09-23T13:58:27: ✅ Socket Notification Service initialized successfully
+2025-09-23T13:58:27: ✅ Socket notification service initialized
+2025-09-23T13:58:29: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T13:58:29: 🔌 Socket.io ready and listening for connections
+2025-09-23T13:58:30: 🔌 User connected: x6e2XkOKh_1Ez80bAAAB
+2025-09-23T13:58:36: 🔌 User connected: Z_1r2BfHGdBvghTSAAAD
+2025-09-23T13:58:37: 🔌 User connected: d4ajNvDqnFA3jbGBAAAF
+2025-09-23T13:58:37: 🔌 User connected: us-zUyER4CVMWNzWAAAH
+2025-09-23T14:02:16: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T14:02:18: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T14:02:18: Environment: production
+2025-09-23T14:02:18: Port: 3000
+2025-09-23T14:02:18: Hostname: 0.0.0.0
+2025-09-23T14:02:19: ✅ Next.js app prepared
+2025-09-23T14:02:19: 🔌 Initializing Socket.io...
+2025-09-23T14:02:19: ✅ Socket.io server initialized successfully
+2025-09-23T14:02:19: ✅ Simple Socket Service initialized
+2025-09-23T14:02:19: ✅ Socket Notification Service initialized successfully
+2025-09-23T14:02:19: ✅ Socket notification service initialized
+2025-09-23T14:02:20: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T14:02:20: 🔌 Socket.io ready and listening for connections
+2025-09-23T14:02:20: 🔌 User connected: 18T9G_QDQeRQJWB5AAAB
+2025-09-23T14:02:20: 🔌 User connected: YUmuU-GJFhymQRabAAAD
+2025-09-23T14:02:20: 🔌 User connected: 62JtuYalLhFSVXnvAAAF
+2025-09-23T14:02:21: 🔌 User connected: CMdEmSxV6CG5IiMrAAAH
+2025-09-23T14:04:53: 🔌 User connected: xb-uGc5UzvCc_BRVAAAJ
+2025-09-23T14:04:54: 🔌 User connected: DqBUFfd89e070uQeAAAL
+2025-09-23T14:04:54: 🔌 User connected: zMDcKGaQ371oixdxAAAN
+2025-09-23T14:04:54: 🔌 User connected: fm-Pkf1LttPejTPxAAAP
+2025-09-23T14:05:20: 🔌 User connected: Pc2GdWuq0c0_vGAFAAAR
+2025-09-23T14:05:20: 🔌 User connected: k67rc-L-OjegFWGpAAAT
+2025-09-23T14:34:04: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T14:35:15: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T14:35:15: Environment: production
+2025-09-23T14:35:15: Port: 3000
+2025-09-23T14:35:15: Hostname: 0.0.0.0
+2025-09-23T14:35:15: ✅ Next.js app prepared
+2025-09-23T14:35:15: 🔌 Initializing Socket.io...
+2025-09-23T14:35:15: ✅ Socket.io server initialized successfully
+2025-09-23T14:35:15: ✅ Simple Socket Service initialized
+2025-09-23T14:35:15: ✅ Socket Notification Service initialized successfully
+2025-09-23T14:35:15: ✅ Socket notification service initialized
+2025-09-23T14:35:16: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T14:35:16: 🔌 Socket.io ready and listening for connections
+2025-09-23T14:35:24: 🔌 User connected: xGCv9PbOYKtWACZyAAAB
+2025-09-23T14:35:27: 🔌 User connected: 1hu2NNZyum34qxyoAAAD
+2025-09-23T16:03:43: 🔌 User connected: 1xj1xtbvF7bNhx2AAAAF
+2025-09-23T16:03:43: 🔌 User connected: 2VyRRYWx3LSn1QryAAAH
+2025-09-23T16:03:58: 🔌 User connected: bY5w6Wz3s5on_XgPAAAJ
+2025-09-23T16:03:58: 🔌 User connected: iS2a6LacsKHv8dQZAAAL
+2025-09-23T16:04:13: 🔌 User connected: nl6JU5VOaRgpgLS_AAAN
+2025-09-23T16:04:14: 🔌 User connected: TBAMNcOuezjTstufAAAP
+2025-09-23T16:04:31: 🔌 User connected: YvZdfcN1d2IoxMC0AAAR
+2025-09-23T16:04:31: 🔌 User connected: 5OzdxPay5t-lvSAXAAAT
+2025-09-23T16:05:36: 🔌 User connected: __yB2RhgGkzmCkA8AAAV
+2025-09-23T16:05:36: 🔌 User connected: x7NdGfjmaJ4KjG_zAAAX
+2025-09-23T16:05:48: 🔌 User connected: ckPFSUDS6bf7Xh9yAAAZ
+2025-09-23T16:05:48: 🔌 User connected: kyIWe20OrznjHr-hAAAb
+2025-09-23T16:05:50: 🔌 User connected: GvMkpmxjZg4EBsMwAAAd
+2025-09-23T16:05:50: 🔌 User connected: dILaduenHVkPsJglAAAf
+2025-09-23T16:06:06: 🔌 User connected: MZvxipkLYIK5s2XaAAAh
+2025-09-23T16:06:07: 🔌 User connected: 7Vcb6okxCv1eyrqNAAAj
+2025-09-23T16:11:50: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T16:11:52: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T16:11:52: Environment: production
+2025-09-23T16:11:52: Port: 3000
+2025-09-23T16:11:52: Hostname: 0.0.0.0
+2025-09-23T16:11:53: ✅ Next.js app prepared
+2025-09-23T16:11:53: 🔌 Initializing Socket.io...
+2025-09-23T16:11:53: ✅ Socket.io server initialized successfully
+2025-09-23T16:11:53: ✅ Simple Socket Service initialized
+2025-09-23T16:11:53: ✅ Socket Notification Service initialized successfully
+2025-09-23T16:11:53: ✅ Socket notification service initialized
+2025-09-23T16:11:54: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T16:11:54: 🔌 Socket.io ready and listening for connections
+2025-09-23T16:11:54: 🔌 User connected: Ter-Sf--OS81wB5wAAAB
+2025-09-23T16:11:54: 🔌 User connected: mjZ0s6WZEVqjmwf7AAAD
+2025-09-23T16:54:29: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T16:55:40: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T16:55:40: Environment: production
+2025-09-23T16:55:40: Port: 3000
+2025-09-23T16:55:40: Hostname: 0.0.0.0
+2025-09-23T16:55:40: ✅ Next.js app prepared
+2025-09-23T16:55:40: 🔌 Initializing Socket.io...
+2025-09-23T16:55:40: ✅ Socket.io server initialized successfully
+2025-09-23T16:55:40: ✅ Simple Socket Service initialized
+2025-09-23T16:55:40: ✅ Socket Notification Service initialized successfully
+2025-09-23T16:55:40: ✅ Socket notification service initialized
+2025-09-23T16:55:41: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T16:55:41: 🔌 Socket.io ready and listening for connections
+2025-09-23T16:55:51: 🔌 User connected: iq21sKiw5_QTOfLLAAAB
+2025-09-23T16:55:54: 🔌 User connected: 67kN_oo7VYxuU6N9AAAD
+2025-09-23T17:24:17: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T17:24:19: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T17:24:19: Environment: production
+2025-09-23T17:24:19: Port: 3000
+2025-09-23T17:24:19: Hostname: 0.0.0.0
+2025-09-23T17:24:19: ✅ Next.js app prepared
+2025-09-23T17:24:19: 🔌 Initializing Socket.io...
+2025-09-23T17:24:19: ✅ Socket.io server initialized successfully
+2025-09-23T17:24:19: ✅ Simple Socket Service initialized
+2025-09-23T17:24:19: ✅ Socket Notification Service initialized successfully
+2025-09-23T17:24:19: ✅ Socket notification service initialized
+2025-09-23T17:24:20: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T17:24:20: 🔌 Socket.io ready and listening for connections
+2025-09-23T17:24:32: 🔌 User connected: vLqWAmLpD6jFowf5AAAB
+2025-09-23T17:24:35: 🔌 User connected: SEWQ2Zy4HFumgpB4AAAD
+2025-09-23T17:28:10: 🔌 User connected: hldGD8YEc54vqA9XAAAF
+2025-09-23T17:28:10: 🔌 User connected: wpUEBHED1zakDW4CAAAH
+2025-09-23T17:28:12: 🔌 User connected: tD6Ljfo3hVgGnuqKAAAJ
+2025-09-23T17:28:12: 🔌 User connected: Va1fRaDOQ8KzuR2fAAAL
+2025-09-23T17:28:40: 🔌 User connected: NEjEM1PZT7WHID68AAAN
+2025-09-23T17:28:40: 🔌 User connected: a2JFEqOxoerNyLIoAAAP
+2025-09-23T17:29:04: 🔌 User connected: 8VQQiXsPNYf0biiyAAAR
+2025-09-23T17:29:04: 🔌 User connected: DYhlHTIfzvCtgmZgAAAT
+2025-09-23T17:29:05: 🔌 User connected: R6Khd3Ad3t-X-Q7HAAAV
+2025-09-23T17:29:05: 🔌 User connected: Ze9cJEM0Ntb8mcPSAAAX
+2025-09-23T17:29:07: 🔌 User connected: mc_UDykhxAa2IMaDAAAZ
+2025-09-23T17:29:07: 🔌 User connected: 9iRpFnk13Ln1mRnZAAAb
+2025-09-23T17:29:33: 🔌 User connected: bYPIO65CtcgmT_FeAAAd
+2025-09-23T17:29:33: 🔌 User connected: M22irzOIzOh0SXnSAAAf
+2025-09-23T17:45:39: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T17:46:50: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T17:46:50: Environment: production
+2025-09-23T17:46:50: Port: 3000
+2025-09-23T17:46:50: Hostname: 0.0.0.0
+2025-09-23T17:46:51: ✅ Next.js app prepared
+2025-09-23T17:46:51: 🔌 Initializing Socket.io...
+2025-09-23T17:46:51: ✅ Socket.io server initialized successfully
+2025-09-23T17:46:51: ✅ Simple Socket Service initialized
+2025-09-23T17:46:51: ✅ Socket Notification Service initialized successfully
+2025-09-23T17:46:51: ✅ Socket notification service initialized
+2025-09-23T17:46:52: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T17:46:52: 🔌 Socket.io ready and listening for connections
+2025-09-23T17:46:52: 🔌 User connected: vKv8ZH7pTP6n--CdAAAB
+2025-09-23T17:46:56: 🔌 User connected: f6nkybCeD62b5S6EAAAD
+2025-09-23T17:48:10: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T17:48:12: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T17:48:12: Environment: production
+2025-09-23T17:48:12: Port: 3000
+2025-09-23T17:48:12: Hostname: 0.0.0.0
+2025-09-23T17:48:12: ✅ Next.js app prepared
+2025-09-23T17:48:12: 🔌 Initializing Socket.io...
+2025-09-23T17:48:12: ✅ Socket.io server initialized successfully
+2025-09-23T17:48:12: ✅ Simple Socket Service initialized
+2025-09-23T17:48:12: ✅ Socket Notification Service initialized successfully
+2025-09-23T17:48:12: ✅ Socket notification service initialized
+2025-09-23T17:48:13: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T17:48:13: 🔌 Socket.io ready and listening for connections
+2025-09-23T17:48:47: 🔌 User connected: oEKz2MX6zE-P5NA6AAAB
+2025-09-23T17:48:47: 🔌 User connected: jQ8CMtVWurzqH7EtAAAD
+2025-09-23T17:48:58: 🔌 User connected: 6RaXdh7NIOF5eOIdAAAF
+2025-09-23T17:48:58: 🔌 User connected: COuUD6KTUA2IGjnqAAAH
+2025-09-23T17:49:09: 🔌 User connected: INhjIyioIG7XSYBUAAAJ
+2025-09-23T17:49:09: 🔌 User connected: 2AY7yuNIbDekamswAAAL
+2025-09-23T17:49:27: 🔌 User connected: 5U1DIqEwH7G3J_IYAAAN
+2025-09-23T17:49:28: 🔌 User connected: _ujTB3e0Te4BgkIQAAAP
+2025-09-23T17:52:12: 🔌 User connected: -ecbRM5zp-84EYuFAAAR
+2025-09-23T17:52:58: 🔌 User connected: oFACUA-XebM_JoZ6AAAU
+2025-09-23T17:52:58: 🔌 User connected: 08FIrW0nh9xlYbWfAAAV
+2025-09-23T17:58:20: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T17:59:30: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T17:59:30: Environment: production
+2025-09-23T17:59:30: Port: 3000
+2025-09-23T17:59:30: Hostname: 0.0.0.0
+2025-09-23T17:59:30: ✅ Next.js app prepared
+2025-09-23T17:59:30: 🔌 Initializing Socket.io...
+2025-09-23T17:59:30: ✅ Socket.io server initialized successfully
+2025-09-23T17:59:30: ✅ Simple Socket Service initialized
+2025-09-23T17:59:30: ✅ Socket Notification Service initialized successfully
+2025-09-23T17:59:30: ✅ Socket notification service initialized
+2025-09-23T17:59:31: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T17:59:31: 🔌 Socket.io ready and listening for connections
+2025-09-23T17:59:35: 🔌 User connected: C9aeQkMvzx5FUxvpAAAB
+2025-09-23T17:59:36: 🔌 User connected: ohh3W9zVX5PypiSRAAAD
+2025-09-23T18:00:49: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T18:00:51: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T18:00:51: Environment: production
+2025-09-23T18:00:51: Port: 3000
+2025-09-23T18:00:51: Hostname: 0.0.0.0
+2025-09-23T18:00:51: ✅ Next.js app prepared
+2025-09-23T18:00:51: 🔌 Initializing Socket.io...
+2025-09-23T18:00:51: ✅ Socket.io server initialized successfully
+2025-09-23T18:00:51: ✅ Simple Socket Service initialized
+2025-09-23T18:00:51: ✅ Socket Notification Service initialized successfully
+2025-09-23T18:00:51: ✅ Socket notification service initialized
+2025-09-23T18:00:52: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T18:00:52: 🔌 Socket.io ready and listening for connections
+2025-09-23T18:01:04: 🔌 User connected: T0BuaCmS5Bay-JaFAAAB
+2025-09-23T18:01:04: 🔌 User connected: Wj6n-tApRBILXZjnAAAD
+2025-09-23T18:01:06: 🔌 User connected: y5bEfjZiTjFyLd9dAAAF
+2025-09-23T18:01:06: 🔌 User connected: Pk3OCaGITkujOyVWAAAH
+2025-09-23T18:01:07: 🔌 User connected: rzif1tW7cjgS_w-sAAAJ
+2025-09-23T18:01:08: 🔌 User connected: 9BTI_f53JTFJ3wnfAAAL
+2025-09-23T18:01:40: 🔌 User connected: o2gErnaikIW_D6z_AAAN
+2025-09-23T18:01:41: 🔌 User connected: b7XqLrhzM5Z5_fg4AAAP
+2025-09-23T18:02:56: 🔌 User connected: 4Ot4NZ6Xba14hHzOAAAR
+2025-09-23T18:02:56: 🔌 User connected: lCFU94xzsJoRESnJAAAT
+2025-09-23T18:16:51: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T18:18:05: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T18:18:05: Environment: production
+2025-09-23T18:18:05: Port: 3000
+2025-09-23T18:18:05: Hostname: 0.0.0.0
+2025-09-23T18:18:06: ✅ Next.js app prepared
+2025-09-23T18:18:06: 🔌 Initializing Socket.io...
+2025-09-23T18:18:06: ✅ Socket.io server initialized successfully
+2025-09-23T18:18:06: ✅ Simple Socket Service initialized
+2025-09-23T18:18:06: ✅ Socket Notification Service initialized successfully
+2025-09-23T18:18:06: ✅ Socket notification service initialized
+2025-09-23T18:18:07: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T18:18:07: 🔌 Socket.io ready and listening for connections
+2025-09-23T18:18:07: 🔌 User connected: 2UL2_X5w90FXjV6LAAAB
+2025-09-23T18:18:12: 🔌 User connected: 4XaX575UzS1_MJZWAAAD
+2025-09-23T18:20:43: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T18:20:45: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T18:20:45: Environment: production
+2025-09-23T18:20:45: Port: 3000
+2025-09-23T18:20:45: Hostname: 0.0.0.0
+2025-09-23T18:20:45: ✅ Next.js app prepared
+2025-09-23T18:20:45: 🔌 Initializing Socket.io...
+2025-09-23T18:20:45: ✅ Socket.io server initialized successfully
+2025-09-23T18:20:45: ✅ Simple Socket Service initialized
+2025-09-23T18:20:45: ✅ Socket Notification Service initialized successfully
+2025-09-23T18:20:45: ✅ Socket notification service initialized
+2025-09-23T18:20:46: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T18:20:46: 🔌 Socket.io ready and listening for connections
+2025-09-23T18:20:47: 🔌 User connected: QJq5sWn8HuG_VdZ5AAAB
+2025-09-23T18:20:47: 🔌 User connected: 0BEoDVGOKZNxPurEAAAD
+2025-09-23T18:21:57: 🔌 User connected: 0M8zTuUrmne3Jxm_AAAF
+2025-09-23T18:21:57: 🔌 User connected: NPbtLbRL5hDdtKN4AAAH
+2025-09-23T18:25:04: 🔌 User connected: RTc_z6yQl1fFfLNUAAAJ
+2025-09-23T18:25:04: 🔌 User connected: yg-iCsHg0y4QQHzsAAAL
+2025-09-23T18:32:11: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T18:33:18: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T18:33:18: Environment: production
+2025-09-23T18:33:18: Port: 3000
+2025-09-23T18:33:18: Hostname: 0.0.0.0
+2025-09-23T18:33:18: ✅ Next.js app prepared
+2025-09-23T18:33:18: 🔌 Initializing Socket.io...
+2025-09-23T18:33:18: ✅ Socket.io server initialized successfully
+2025-09-23T18:33:18: ✅ Simple Socket Service initialized
+2025-09-23T18:33:18: ✅ Socket Notification Service initialized successfully
+2025-09-23T18:33:18: ✅ Socket notification service initialized
+2025-09-23T18:33:19: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T18:33:19: 🔌 Socket.io ready and listening for connections
+2025-09-23T18:33:28: 🔌 User connected: 4x_634KEa2hdBSqMAAAB
+2025-09-23T18:33:28: 🔌 User connected: Wr_UDcrJW9lZm2-2AAAD
+2025-09-23T18:33:29: 🔌 User connected: UK6kmFzxDplPpb60AAAF
+2025-09-23T18:33:31: 🔌 User connected: 3PAsQzYy7ppIQklCAAAH
+2025-09-23T18:35:26: 🔌 User connected: Kq8NXBFRBdn9Y7C9AAAJ
+2025-09-23T18:35:26: 🔌 User connected: Ww9xsBtetet9oMmQAAAL
+2025-09-23T18:35:27: 🔌 User connected: oq6a9_WX-3siL3_IAAAN
+2025-09-23T18:35:27: 🔌 User connected: 7LHksxFh7E7SbI2jAAAP
+2025-09-23T18:36:20: 🔌 User connected: g5V0UWONMSVK6JJRAAAR
+2025-09-23T18:36:20: 🔌 User connected: 9xqjGkpSoBXQoRR1AAAT
+2025-09-23T18:36:21: 🔌 User connected: gqx1a6D0900QPofKAAAV
+2025-09-23T18:37:07: 🔌 User connected: OvpEjNAK4EBKQdC4AAAX
+2025-09-23T18:37:07: 🔌 User connected: eIpf4xPyqW0i7yjyAAAZ
+2025-09-23T18:38:17: 🔌 User connected: 6bITyNbLtg0Bzoh1AAAb
+2025-09-23T18:38:18: 🔌 User connected: ToSIMRRp8_CaC51AAAAd
+2025-09-23T18:38:46: 🔌 User connected: mUUz-W767XEjFVy9AAAf
+2025-09-23T18:38:46: 🔌 User connected: YaESsWhIyH0ME_9kAAAh
+2025-09-23T18:38:48: 🔌 User connected: Z2ZG0BmAUa4K-BQ8AAAj
+2025-09-23T18:38:48: 🔌 User connected: 5rkOwKYKO19uzN3LAAAl
+2025-09-23T18:38:50: 🔌 User connected: 6KB8SJ7xbnur1DBnAAAn
+2025-09-23T18:38:50: 🔌 User connected: KoGnmqUXKvahNjZyAAAp
+2025-09-23T18:39:46: 🔌 User connected: Xylybuo6eFYoiZvOAAAr
+2025-09-23T18:39:46: 🔌 User connected: 8tP0ZDlqWfD4mg4HAAAt
+2025-09-23T18:52:54: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T18:54:03: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T18:54:03: Environment: production
+2025-09-23T18:54:03: Port: 3000
+2025-09-23T18:54:03: Hostname: 0.0.0.0
+2025-09-23T18:54:04: ✅ Next.js app prepared
+2025-09-23T18:54:04: 🔌 Initializing Socket.io...
+2025-09-23T18:54:04: ✅ Socket.io server initialized successfully
+2025-09-23T18:54:04: ✅ Simple Socket Service initialized
+2025-09-23T18:54:04: ✅ Socket Notification Service initialized successfully
+2025-09-23T18:54:04: ✅ Socket notification service initialized
+2025-09-23T18:54:05: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T18:54:05: 🔌 Socket.io ready and listening for connections
+2025-09-23T18:54:24: 🔌 User connected: Ar11o7SPgZVK5MdXAAAB
+2025-09-23T18:54:25: 🔌 User connected: BejvjHF2t9mx8mKQAAAD
+2025-09-23T18:55:35: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T18:55:37: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T18:55:37: Environment: production
+2025-09-23T18:55:37: Port: 3000
+2025-09-23T18:55:37: Hostname: 0.0.0.0
+2025-09-23T18:55:37: ✅ Next.js app prepared
+2025-09-23T18:55:37: 🔌 Initializing Socket.io...
+2025-09-23T18:55:37: ✅ Socket.io server initialized successfully
+2025-09-23T18:55:37: ✅ Simple Socket Service initialized
+2025-09-23T18:55:37: ✅ Socket Notification Service initialized successfully
+2025-09-23T18:55:37: ✅ Socket notification service initialized
+2025-09-23T18:55:38: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T18:55:38: 🔌 Socket.io ready and listening for connections
+2025-09-23T18:55:39: 🔌 User connected: eFSbiQKNDEqhvi1wAAAB
+2025-09-23T18:55:39: 🔌 User connected: zdYY0IfLqqITxzYOAAAD
+2025-09-23T18:55:46: 🔌 User connected: it4uiOWVib_OWfl9AAAF
+2025-09-23T18:55:46: 🔌 User connected: 7fsQqbQiE6FZn05rAAAH
+2025-09-23T18:55:48: 🔌 User connected: 7rCs-yFYiesyiOtKAAAJ
+2025-09-23T18:55:49: 🔌 User connected: RZEnVLoLfR8EkT5NAAAL
+2025-09-23T19:09:17: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T19:10:28: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T19:10:28: Environment: production
+2025-09-23T19:10:28: Port: 3000
+2025-09-23T19:10:28: Hostname: 0.0.0.0
+2025-09-23T19:10:28: ✅ Next.js app prepared
+2025-09-23T19:10:28: 🔌 Initializing Socket.io...
+2025-09-23T19:10:28: ✅ Socket.io server initialized successfully
+2025-09-23T19:10:28: ✅ Simple Socket Service initialized
+2025-09-23T19:10:28: ✅ Socket Notification Service initialized successfully
+2025-09-23T19:10:28: ✅ Socket notification service initialized
+2025-09-23T19:10:29: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T19:10:29: 🔌 Socket.io ready and listening for connections
+2025-09-23T19:10:41: 🔌 User connected: 5bcZXdTK8fHFPpjtAAAB
+2025-09-23T19:10:43: 🔌 User connected: nQGeyHpFQumYBkk5AAAD
+2025-09-23T19:14:43: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T19:14:45: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T19:14:45: Environment: production
+2025-09-23T19:14:45: Port: 3000
+2025-09-23T19:14:45: Hostname: 0.0.0.0
+2025-09-23T19:14:45: ✅ Next.js app prepared
+2025-09-23T19:14:45: 🔌 Initializing Socket.io...
+2025-09-23T19:14:45: ✅ Socket.io server initialized successfully
+2025-09-23T19:14:45: ✅ Simple Socket Service initialized
+2025-09-23T19:14:45: ✅ Socket Notification Service initialized successfully
+2025-09-23T19:14:45: ✅ Socket notification service initialized
+2025-09-23T19:14:46: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T19:14:46: 🔌 Socket.io ready and listening for connections
+2025-09-23T19:14:47: 🔌 User connected: KwazDmj1xWaXBQTLAAAB
+2025-09-23T19:14:47: 🔌 User connected: f7Uaxrt5yffBFyL7AAAD
+2025-09-23T19:15:05: 🔌 User connected: rH_IqW4mFwZD50WmAAAF
+2025-09-23T19:15:05: 🔌 User connected: IKc85RwsKzHQbgp4AAAH
+2025-09-23T19:15:07: 🔌 User connected: _ZGb4v4HA95lj0EhAAAJ
+2025-09-23T19:15:07: 🔌 User connected: 5jrSeu1j58RtnUlFAAAL
+2025-09-23T19:30:07: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T19:31:13: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T19:31:13: Environment: production
+2025-09-23T19:31:13: Port: 3000
+2025-09-23T19:31:13: Hostname: 0.0.0.0
+2025-09-23T19:31:13: ✅ Next.js app prepared
+2025-09-23T19:31:13: 🔌 Initializing Socket.io...
+2025-09-23T19:31:13: ✅ Socket.io server initialized successfully
+2025-09-23T19:31:13: ✅ Simple Socket Service initialized
+2025-09-23T19:31:13: ✅ Socket Notification Service initialized successfully
+2025-09-23T19:31:13: ✅ Socket notification service initialized
+2025-09-23T19:31:14: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T19:31:14: 🔌 Socket.io ready and listening for connections
+2025-09-23T19:31:17: 🔌 User connected: VZZOE6whLobaYBmvAAAB
+2025-09-23T19:31:19: 🔌 User connected: bAw8uJui2l-I-F3RAAAD
+2025-09-23T19:32:20: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T19:32:22: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T19:32:22: Environment: production
+2025-09-23T19:32:22: Port: 3000
+2025-09-23T19:32:22: Hostname: 0.0.0.0
+2025-09-23T19:32:22: ✅ Next.js app prepared
+2025-09-23T19:32:22: 🔌 Initializing Socket.io...
+2025-09-23T19:32:22: ✅ Socket.io server initialized successfully
+2025-09-23T19:32:23: ✅ Simple Socket Service initialized
+2025-09-23T19:32:23: ✅ Socket Notification Service initialized successfully
+2025-09-23T19:32:23: ✅ Socket notification service initialized
+2025-09-23T19:32:23: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T19:32:23: 🔌 Socket.io ready and listening for connections
+2025-09-23T19:32:24: 🔌 User connected: At4_G9QEM3UvwDKWAAAB
+2025-09-23T19:32:24: 🔌 User connected: A0zW6Pcqk8_sC1M-AAAD
+2025-09-23T19:32:32: 🔌 User connected: kWRPfT9spZ3SrMO2AAAF
+2025-09-23T19:32:32: 🔌 User connected: Eqrw8yUOEW-RZU8qAAAH
+2025-09-23T19:32:54: 🔌 User connected: Gf946Ad1TTqZVyvpAAAJ
+2025-09-23T19:32:54: 🔌 User connected: 7ghhh_g8A4fbsIccAAAL
+2025-09-23T19:45:43: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T19:46:48: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T19:46:48: Environment: production
+2025-09-23T19:46:48: Port: 3000
+2025-09-23T19:46:48: Hostname: 0.0.0.0
+2025-09-23T19:46:49: ✅ Next.js app prepared
+2025-09-23T19:46:49: 🔌 Initializing Socket.io...
+2025-09-23T19:46:49: ✅ Socket.io server initialized successfully
+2025-09-23T19:46:49: ✅ Simple Socket Service initialized
+2025-09-23T19:46:49: ✅ Socket Notification Service initialized successfully
+2025-09-23T19:46:49: ✅ Socket notification service initialized
+2025-09-23T19:46:49: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T19:46:49: 🔌 Socket.io ready and listening for connections
+2025-09-23T19:46:54: 🔌 User connected: OWkpqr76HWoXW_SvAAAB
+2025-09-23T19:46:59: 🔌 User connected: mVMzqRcqM5Zsg_QyAAAD
+2025-09-23T19:57:02: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T19:57:02: ✅ Server closed
+2025-09-23T19:57:02: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T19:57:02: Environment: production
+2025-09-23T19:57:02: Port: 3000
+2025-09-23T19:57:02: Hostname: 0.0.0.0
+2025-09-23T19:57:02: ✅ Next.js app prepared
+2025-09-23T19:57:02: 🔌 Initializing Socket.io...
+2025-09-23T19:57:02: ✅ Socket.io server initialized successfully
+2025-09-23T19:57:02: ✅ Simple Socket Service initialized
+2025-09-23T19:57:02: ✅ Socket Notification Service initialized successfully
+2025-09-23T19:57:02: ✅ Socket notification service initialized
+2025-09-23T19:57:03: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T19:57:03: 🔌 Socket.io ready and listening for connections
+2025-09-23T19:57:13: 🔌 User connected: 2jWlbf0vS_P_uDR8AAAB
+2025-09-23T19:57:14: 🔌 User connected: URzm1vcBa96JOVMtAAAD
+2025-09-23T19:57:14: 🔌 User connected: i2JH5_lurCR8c0N3AAAF
+2025-09-23T19:57:14: 🔌 User connected: pCumKguxt_BlLxHUAAAH
+2025-09-23T20:00:52: 🔌 User connected: GeZO-f4-3ppIoNrhAAAJ
+2025-09-23T20:03:24: 🔌 User connected: ztcUT965bgNrpL-SAAAL
+2025-09-23T20:03:24: 🔌 User connected: S6_PvnguAnVnc9NYAAAN
+2025-09-23T20:04:57: 🔌 User connected: bnGbBxs9bpUNlB7-AAAP
+2025-09-23T20:04:57: 🔌 User connected: YCo8chGhyQB0jI-KAAAR
+2025-09-23T20:05:29: 🔌 User connected: ndEkEztN1wLQfd6oAAAT
+2025-09-23T20:05:29: 🔌 User connected: 31hHWU6I_2cifHAMAAAV
+2025-09-23T20:05:30: 🔌 User connected: qlMxlZB9qgFqNWwmAAAX
+2025-09-23T20:05:30: 🔌 User connected: tSIiCdC1vvuQdZ4WAAAZ
+2025-09-23T20:05:33: 🔌 User connected: mWy9MWtnWiNdYwj9AAAb
+2025-09-23T20:05:33: 🔌 User connected: 4fJhT0m8Ssl3vuF5AAAd
+2025-09-23T20:05:35: 🔌 User connected: 0FLY1ODAljtKtXJTAAAf
+2025-09-23T20:05:35: 🔌 User connected: rbxjt7MYXE7zmHHOAAAh
+2025-09-23T20:06:22: 🔌 User connected: _545hlNiPk2ygMc3AAAk
+2025-09-23T20:06:22: 🔌 User connected: 9o6mT69swUI52z7CAAAl
+2025-09-23T20:15:56: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T20:17:04: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T20:17:04: Environment: production
+2025-09-23T20:17:04: Port: 3000
+2025-09-23T20:17:04: Hostname: 0.0.0.0
+2025-09-23T20:17:05: ✅ Next.js app prepared
+2025-09-23T20:17:05: 🔌 Initializing Socket.io...
+2025-09-23T20:17:05: ✅ Socket.io server initialized successfully
+2025-09-23T20:17:05: ✅ Simple Socket Service initialized
+2025-09-23T20:17:05: ✅ Socket Notification Service initialized successfully
+2025-09-23T20:17:05: ✅ Socket notification service initialized
+2025-09-23T20:17:06: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T20:17:06: 🔌 Socket.io ready and listening for connections
+2025-09-23T20:17:11: 🔌 User connected: 8oeP-UJ0j7i9-WVPAAAB
+2025-09-23T20:17:13: 🔌 User connected: lvU6DG6GvcbmFOlKAAAD
+2025-09-23T20:17:14: 🔌 User connected: ImhWgtkUzdfd6jw9AAAF
+2025-09-23T20:17:16: 🔌 User connected: s2NgfEbp3Q73xoHWAAAH
+2025-09-23T20:18:12: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T20:18:14: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T20:18:14: Environment: production
+2025-09-23T20:18:14: Port: 3000
+2025-09-23T20:18:14: Hostname: 0.0.0.0
+2025-09-23T20:18:14: ✅ Next.js app prepared
+2025-09-23T20:18:14: 🔌 Initializing Socket.io...
+2025-09-23T20:18:14: ✅ Socket.io server initialized successfully
+2025-09-23T20:18:14: ✅ Simple Socket Service initialized
+2025-09-23T20:18:14: ✅ Socket Notification Service initialized successfully
+2025-09-23T20:18:14: ✅ Socket notification service initialized
+2025-09-23T20:18:15: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T20:18:15: 🔌 Socket.io ready and listening for connections
+2025-09-23T20:18:27: 🔌 User connected: rr8HRjoS3nKoEXESAAAB
+2025-09-23T20:18:28: 🔌 User connected: 5cS0I1ckLW6ZNXX0AAAD
+2025-09-23T20:18:28: 🔌 User connected: HaXSk4011bNdvxy7AAAF
+2025-09-23T20:18:30: 🔌 User connected: 0H8RCQRY2Km6M-MxAAAH
+2025-09-23T20:30:52: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T20:31:58: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T20:31:58: Environment: production
+2025-09-23T20:31:58: Port: 3000
+2025-09-23T20:31:58: Hostname: 0.0.0.0
+2025-09-23T20:31:59: ✅ Next.js app prepared
+2025-09-23T20:31:59: 🔌 Initializing Socket.io...
+2025-09-23T20:31:59: ✅ Socket.io server initialized successfully
+2025-09-23T20:31:59: ✅ Simple Socket Service initialized
+2025-09-23T20:31:59: ✅ Socket Notification Service initialized successfully
+2025-09-23T20:31:59: ✅ Socket notification service initialized
+2025-09-23T20:32:00: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T20:32:00: 🔌 Socket.io ready and listening for connections
+2025-09-23T20:32:10: 🔌 User connected: 4RF1BZxuMjmtiGU6AAAB
+2025-09-23T20:32:10: 🔌 User connected: saSRpydAALnfbE7FAAAD
+2025-09-23T20:33:28: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T20:33:30: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T20:33:30: Environment: production
+2025-09-23T20:33:30: Port: 3000
+2025-09-23T20:33:30: Hostname: 0.0.0.0
+2025-09-23T20:33:30: ✅ Next.js app prepared
+2025-09-23T20:33:30: 🔌 Initializing Socket.io...
+2025-09-23T20:33:30: ✅ Socket.io server initialized successfully
+2025-09-23T20:33:30: ✅ Simple Socket Service initialized
+2025-09-23T20:33:30: ✅ Socket Notification Service initialized successfully
+2025-09-23T20:33:30: ✅ Socket notification service initialized
+2025-09-23T20:33:31: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T20:33:31: 🔌 Socket.io ready and listening for connections
+2025-09-23T20:33:32: 🔌 User connected: nAmGKG-WGC98fol2AAAB
+2025-09-23T20:33:32: 🔌 User connected: XjobIUnLqFgzohKtAAAD
+2025-09-23T20:33:40: 🔌 User connected: HkkB0pTxZj7ZAB11AAAF
+2025-09-23T20:33:40: 🔌 User connected: v91UfurS81oxIbbnAAAH
+2025-09-23T20:33:57: 🔌 User connected: d37H_h8IvzPJZd_WAAAJ
+2025-09-23T20:33:58: 🔌 User connected: sJqOMRqoxW1uuTiqAAAL
+2025-09-23T20:49:03: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T20:50:29: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T20:50:29: Environment: production
+2025-09-23T20:50:29: Port: 3000
+2025-09-23T20:50:29: Hostname: 0.0.0.0
+2025-09-23T20:50:29: ✅ Next.js app prepared
+2025-09-23T20:50:29: 🔌 Initializing Socket.io...
+2025-09-23T20:50:29: ✅ Socket.io server initialized successfully
+2025-09-23T20:50:29: ✅ Simple Socket Service initialized
+2025-09-23T20:50:29: ✅ Socket Notification Service initialized successfully
+2025-09-23T20:50:29: ✅ Socket notification service initialized
+2025-09-23T20:50:30: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T20:50:30: 🔌 Socket.io ready and listening for connections
+2025-09-23T20:50:34: 🔌 User connected: KqFQrsP32JoKTFy8AAAB
+2025-09-23T20:50:35: 🔌 User connected: Xz4nK4rzP0gyVTE2AAAD
+2025-09-23T20:53:39: 🔌 User connected: KlfNurTOaqsAzEUaAAAF
+2025-09-23T20:53:43: 🔌 User connected: Ti2Agj2FvnIQpvdGAAAH
+2025-09-23T20:54:25: 🔌 User connected: Iep5hOH5V56cfsrRAAAJ
+2025-09-23T20:57:54: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T20:57:56: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T20:57:56: Environment: production
+2025-09-23T20:57:56: Port: 3000
+2025-09-23T20:57:56: Hostname: 0.0.0.0
+2025-09-23T20:57:56: ✅ Next.js app prepared
+2025-09-23T20:57:56: 🔌 Initializing Socket.io...
+2025-09-23T20:57:56: ✅ Socket.io server initialized successfully
+2025-09-23T20:57:56: ✅ Simple Socket Service initialized
+2025-09-23T20:57:56: ✅ Socket Notification Service initialized successfully
+2025-09-23T20:57:56: ✅ Socket notification service initialized
+2025-09-23T20:57:58: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T20:57:58: 🔌 Socket.io ready and listening for connections
+2025-09-23T20:57:58: 🔌 User connected: Z5fZYcrtr6JrRtdXAAAB
+2025-09-23T20:57:58: 🔌 User connected: zooeV9Kmvs4y1fxLAAAD
+2025-09-23T20:58:13: 🔌 User connected: DNTX6ExXtgbi5biAAAAF
+2025-09-23T20:58:14: 🔌 User connected: zoLiWbH_sYPM0140AAAH
+2025-09-23T20:58:47: 🔌 User connected: 30PnFYoAgifpcLdPAAAJ
+2025-09-23T21:18:02: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T21:18:02: ✅ Server closed
+2025-09-23T21:19:19: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T21:19:19: Environment: production
+2025-09-23T21:19:19: Port: 3000
+2025-09-23T21:19:19: Hostname: 0.0.0.0
+2025-09-23T21:19:20: ✅ Next.js app prepared
+2025-09-23T21:19:20: 🔌 Initializing Socket.io...
+2025-09-23T21:19:20: ✅ Socket.io server initialized successfully
+2025-09-23T21:19:20: ✅ Simple Socket Service initialized
+2025-09-23T21:19:20: ✅ Socket Notification Service initialized successfully
+2025-09-23T21:19:20: ✅ Socket notification service initialized
+2025-09-23T21:19:21: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T21:19:21: 🔌 Socket.io ready and listening for connections
+2025-09-23T21:22:05: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T21:22:05: ✅ Server closed
+2025-09-23T21:22:05: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T21:22:05: Environment: production
+2025-09-23T21:22:05: Port: 3000
+2025-09-23T21:22:05: Hostname: 0.0.0.0
+2025-09-23T21:22:06: ✅ Next.js app prepared
+2025-09-23T21:22:06: 🔌 Initializing Socket.io...
+2025-09-23T21:22:06: ✅ Socket.io server initialized successfully
+2025-09-23T21:22:06: ✅ Simple Socket Service initialized
+2025-09-23T21:22:06: ✅ Socket Notification Service initialized successfully
+2025-09-23T21:22:06: ✅ Socket notification service initialized
+2025-09-23T21:22:07: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T21:22:07: 🔌 Socket.io ready and listening for connections
+2025-09-23T21:26:39: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T21:26:39: ✅ Server closed
+2025-09-23T21:26:39: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T21:26:39: Environment: production
+2025-09-23T21:26:39: Port: 3000
+2025-09-23T21:26:39: Hostname: 0.0.0.0
+2025-09-23T21:26:40: ✅ Next.js app prepared
+2025-09-23T21:26:40: 🔌 Initializing Socket.io...
+2025-09-23T21:26:40: ✅ Socket.io server initialized successfully
+2025-09-23T21:26:40: ✅ Simple Socket Service initialized
+2025-09-23T21:26:40: ✅ Socket Notification Service initialized successfully
+2025-09-23T21:26:40: ✅ Socket notification service initialized
+2025-09-23T21:26:41: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T21:26:41: 🔌 Socket.io ready and listening for connections
+2025-09-23T21:33:10: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T21:33:10: ✅ Server closed
+2025-09-23T21:33:11: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T21:33:11: Environment: production
+2025-09-23T21:33:11: Port: 3000
+2025-09-23T21:33:11: Hostname: 0.0.0.0
+2025-09-23T21:33:11: ✅ Next.js app prepared
+2025-09-23T21:33:11: 🔌 Initializing Socket.io...
+2025-09-23T21:33:11: ✅ Socket.io server initialized successfully
+2025-09-23T21:33:11: ✅ Simple Socket Service initialized
+2025-09-23T21:33:11: ✅ Socket Notification Service initialized successfully
+2025-09-23T21:33:11: ✅ Socket notification service initialized
+2025-09-23T21:33:13: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T21:33:13: 🔌 Socket.io ready and listening for connections
+2025-09-23T21:39:48: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T21:39:48: ✅ Server closed
+2025-09-23T21:39:49: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T21:39:49: Environment: production
+2025-09-23T21:39:49: Port: 3000
+2025-09-23T21:39:49: Hostname: 0.0.0.0
+2025-09-23T21:39:49: ✅ Next.js app prepared
+2025-09-23T21:39:49: 🔌 Initializing Socket.io...
+2025-09-23T21:39:49: ✅ Socket.io server initialized successfully
+2025-09-23T21:39:49: ✅ Simple Socket Service initialized
+2025-09-23T21:39:49: ✅ Socket Notification Service initialized successfully
+2025-09-23T21:39:49: ✅ Socket notification service initialized
+2025-09-23T21:39:50: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T21:39:50: 🔌 Socket.io ready and listening for connections

@@ -226,7 +226,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
             // Send welcome notification for new user
             try {
-              const { createWelcomeNotification } = await import('./notification-service');
               await createWelcomeNotification(newUser.id, newUser.name || 'User', 'Google');
               console.log('✅ Welcome notification sent for new Google OAuth user');
             } catch (notificationError) {
