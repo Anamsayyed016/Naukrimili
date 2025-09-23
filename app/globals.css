@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import mobile notification styles */
+@import '../styles/mobile-notifications.css';
+
 /* Fix for dropdown z-index issues */
 [data-radix-popper-content-wrapper] {
   z-index: 9999 !important;

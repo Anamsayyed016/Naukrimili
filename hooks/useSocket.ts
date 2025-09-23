@@ -6,7 +6,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
-import { showNotification, initializeNotifications } from '@/lib/mobile-notifications';
+import { useMobileNotifications } from '@/hooks/useMobileNotifications';
 
 interface SocketUser {
   userId: string;
@@ -41,6 +41,7 @@ interface UseSocketReturn {
 
 export function useSocket(): UseSocketReturn {
   const { data: session, status } = useSession();
+  const { showMobileNotification, isMobile } = useMobileNotifications();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -105,9 +106,8 @@ export function useSocket(): UseSocketReturn {
           return [notification, ...prev];
         });
         
-        // Show browser notification if permission granted
         // Show notification with mobile compatibility
-        showNotification({
+        showMobileNotification({
           title: notification.title,
           body: notification.message,
           icon: '/favicon.ico',
@@ -141,9 +141,8 @@ export function useSocket(): UseSocketReturn {
           return [notification, ...prev];
         });
         
-        // Show browser notification if permission granted
         // Show notification with mobile compatibility
-        showNotification({
+        showMobileNotification({
           title: notification.title,
           body: notification.message,
           icon: '/favicon.ico',
@@ -176,14 +175,7 @@ export function useSocket(): UseSocketReturn {
     }
   }, [status, session?.user?.email, session?.user?.id]);
 
-  // Initialize notifications with mobile compatibility
-  useEffect(() => {
-    if (isConnected) {
-      initializeNotifications().catch(error => {
-        console.warn('Failed to initialize notifications:', error);
-      });
-    }
-  }, [isConnected]);
+  // Mobile notification initialization is handled by useMobileNotifications hook
 
   // Fetch initial notifications when connected
   useEffect(() => {

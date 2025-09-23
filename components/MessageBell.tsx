@@ -149,7 +149,16 @@ export function MessageBell() {
       
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="relative">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="relative touch-manipulation min-h-[44px] min-w-[44px] p-2"
+            style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale'
+            }}
+          >
             {unreadCount > 0 ? (
               <MessageSquareMore className="h-5 w-5 text-blue-500" />
             ) : (
@@ -158,7 +167,12 @@ export function MessageBell() {
             {unreadCount > 0 && (
               <Badge 
                 variant="destructive" 
-                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs font-bold"
+                style={{ 
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale'
+                }}
               >
                 {unreadCount > 99 ? '99+' : unreadCount}
               </Badge>
@@ -166,7 +180,15 @@ export function MessageBell() {
           </Button>
         </PopoverTrigger>
         
-        <PopoverContent className="w-80 p-0" align="end">
+        <PopoverContent 
+          className="w-80 sm:w-96 p-0" 
+          align="end"
+          style={{ 
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            WebkitFontSmoothing: 'antialiased',
+            MozOsxFontSmoothing: 'grayscale'
+          }}
+        >
           <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-gray-900">Messages</h3>
@@ -175,7 +197,7 @@ export function MessageBell() {
                   variant="ghost"
                   size="sm"
                   onClick={handleMarkAllRead}
-                  className="text-xs h-6 px-2"
+                  className="text-xs h-6 px-2 touch-manipulation"
                 >
                   <Check className="h-3 w-3 mr-1" />
                   Mark all read
@@ -184,42 +206,48 @@ export function MessageBell() {
             </div>
           </div>
           
-          <ScrollArea className="h-80">
+          <ScrollArea className="h-80 max-h-[50vh]">
             {isLoading ? (
               <div className="p-4 text-center text-gray-500">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
                 Loading messages...
               </div>
             ) : messages.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <MessageSquare className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                <p>No messages yet</p>
-                <p className="text-sm">Start a conversation to see messages here</p>
+                <p className="font-medium">No messages yet</p>
+                <p className="text-sm leading-relaxed">Start a conversation to see messages here</p>
               </div>
             ) : (
               <div className="divide-y">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="p-4 hover:bg-gray-50 cursor-pointer transition-colors touch-manipulation"
                     onClick={() => handleMessageClick(message)}
+                    style={{ 
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                      WebkitFontSmoothing: 'antialiased',
+                      MozOsxFontSmoothing: 'grayscale'
+                    }}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="text-lg">
+                      <div className="text-lg flex-shrink-0">
                         {getMessageIcon(message.messageType)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <h4 className={`text-sm font-medium ${getMessageColor(message.messageType)}`}>
+                          <h4 className={`text-sm font-medium leading-tight ${getMessageColor(message.messageType)}`}>
                             {message.senderName}
                           </h4>
                           {!message.isRead && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                            <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2 leading-relaxed">
                           {message.content}
                         </p>
-                        <p className="text-xs text-gray-400 mt-2">
+                        <p className="text-xs text-gray-400 mt-2 font-medium">
                           {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
                         </p>
                       </div>

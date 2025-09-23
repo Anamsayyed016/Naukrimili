@@ -150,10 +150,24 @@ export function showNotification(options: NotificationOptions): boolean {
  */
 export function showInAppNotification(options: NotificationOptions): boolean {
   try {
+    // Detect mobile device for better positioning
+    const isMobile = window.innerWidth <= 768 || 
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
     // Create a temporary notification element
     const notification = document.createElement('div');
-    notification.className = 'fixed top-4 right-4 z-50 max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg p-4 transform transition-all duration-300 translate-x-full';
-    notification.style.zIndex = '9999';
+    
+    // Mobile-optimized positioning and styling
+    if (isMobile) {
+      notification.className = 'fixed top-4 left-4 right-4 z-50 max-w-full bg-white border border-gray-200 rounded-xl shadow-2xl p-4 transform transition-all duration-300 translate-y-[-100%]';
+      notification.style.zIndex = '9999';
+      notification.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+      (notification.style as any).webkitFontSmoothing = 'antialiased';
+      (notification.style as any).mozOsxFontSmoothing = 'grayscale';
+    } else {
+      notification.className = 'fixed top-4 right-4 z-50 max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg p-4 transform transition-all duration-300 translate-x-full';
+      notification.style.zIndex = '9999';
+    }
     
     notification.innerHTML = `
       <div class="flex items-start gap-3">
@@ -165,10 +179,10 @@ export function showInAppNotification(options: NotificationOptions): boolean {
           </div>
         </div>
         <div class="flex-1 min-w-0">
-          <h4 class="text-sm font-medium text-gray-900">${options.title}</h4>
-          ${options.body ? `<p class="text-sm text-gray-600 mt-1">${options.body}</p>` : ''}
+          <h4 class="text-sm font-medium text-gray-900 leading-tight">${options.title}</h4>
+          ${options.body ? `<p class="text-sm text-gray-600 mt-1 leading-relaxed">${options.body}</p>` : ''}
         </div>
-        <button class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-600" onclick="this.parentElement.parentElement.remove()">
+        <button class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-600 touch-manipulation" onclick="this.parentElement.parentElement.remove()">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -179,14 +193,22 @@ export function showInAppNotification(options: NotificationOptions): boolean {
     // Add to page
     document.body.appendChild(notification);
 
-    // Animate in
+    // Animate in with mobile-optimized animation
     setTimeout(() => {
-      notification.style.transform = 'translateX(0)';
+      if (isMobile) {
+        notification.style.transform = 'translateY(0)';
+      } else {
+        notification.style.transform = 'translateX(0)';
+      }
     }, 100);
 
     // Auto-remove after 5 seconds
     setTimeout(() => {
-      notification.style.transform = 'translateX(100%)';
+      if (isMobile) {
+        notification.style.transform = 'translateY(-100%)';
+      } else {
+        notification.style.transform = 'translateX(100%)';
+      }
       setTimeout(() => {
         if (notification.parentElement) {
           notification.remove();

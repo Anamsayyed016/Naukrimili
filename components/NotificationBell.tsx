@@ -154,7 +154,16 @@ export function NotificationBell() {
       
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="relative">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="relative touch-manipulation min-h-[44px] min-w-[44px] p-2"
+            style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale'
+            }}
+          >
             {unreadCount > 0 ? (
               <BellRing className="h-5 w-5 text-orange-500" />
             ) : (
@@ -163,7 +172,12 @@ export function NotificationBell() {
             {unreadCount > 0 && (
               <Badge 
                 variant="destructive" 
-                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs font-bold"
+                style={{ 
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale'
+                }}
               >
                 {unreadCount > 99 ? '99+' : unreadCount}
               </Badge>
@@ -171,7 +185,15 @@ export function NotificationBell() {
           </Button>
         </PopoverTrigger>
         
-        <PopoverContent className="w-80 p-0" align="end">
+        <PopoverContent 
+          className="w-80 sm:w-96 p-0" 
+          align="end"
+          style={{ 
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            WebkitFontSmoothing: 'antialiased',
+            MozOsxFontSmoothing: 'grayscale'
+          }}
+        >
           <div className="flex items-center justify-between p-4 border-b">
             <h3 className="font-semibold">Notifications</h3>
             <div className="flex items-center gap-2">
@@ -196,16 +218,17 @@ export function NotificationBell() {
             </div>
           </div>
           
-          <ScrollArea className="h-96">
+          <ScrollArea className="h-96 max-h-[50vh]">
             {isLoading ? (
               <div className="p-4 text-center text-sm text-gray-500">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
                 Loading notifications...
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
                 <Bell className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                <p className="text-sm text-gray-500">No notifications yet</p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 font-medium">No notifications yet</p>
+                <p className="text-xs text-gray-400 mt-1 leading-relaxed">
                   You'll see updates about jobs, applications, and messages here
                 </p>
               </div>
@@ -214,28 +237,33 @@ export function NotificationBell() {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                    className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors touch-manipulation ${
                       !notification.isRead ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
                     }`}
                     onClick={() => handleNotificationClick(notification)}
+                    style={{ 
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                      WebkitFontSmoothing: 'antialiased',
+                      MozOsxFontSmoothing: 'grayscale'
+                    }}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="text-lg">
+                      <div className="text-lg flex-shrink-0">
                         {getNotificationIcon(notification.type)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <h4 className={`text-sm font-medium ${getNotificationColor(notification.type)}`}>
+                          <h4 className={`text-sm font-medium leading-tight ${getNotificationColor(notification.type)}`}>
                             {notification.title}
                           </h4>
                           {!notification.isRead && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                            <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2 leading-relaxed">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-gray-400 mt-2">
+                        <p className="text-xs text-gray-400 mt-2 font-medium">
                           {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                         </p>
                       </div>

@@ -186,6 +186,20 @@ export default function MainNavigation({
           {/* Mobile Navigation - REACT STATE APPROACH */}
           {isMounted && isMobile && (
             <div className="flex items-center">
+            {/* Mobile Notifications - Show when logged in */}
+            {isMounted && isAuthenticated && user && (
+              <div className="mr-2">
+                <NotificationBell />
+              </div>
+            )}
+            
+            {/* Mobile Messages - Show when logged in */}
+            {isMounted && isAuthenticated && user && (
+              <div className="mr-2">
+                <MessageBell />
+              </div>
+            )}
+
             {/* Mobile User Profile - Show when logged in */}
             {isMounted && isAuthenticated && user && (
               <div className="mr-3">
