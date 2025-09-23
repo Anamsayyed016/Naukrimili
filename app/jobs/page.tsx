@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import JobsClient from "./JobsClient";
 import UnlimitedJobSearch from "@/components/jobs/UnlimitedJobSearch";
 
@@ -19,7 +20,8 @@ interface SearchParams {
 }
 
 export default function JobsPage() {
-  const [searchParams, setSearchParams] = useState<SearchParams>({
+  const searchParams = useSearchParams();
+  const [searchState, setSearchState] = useState<SearchParams>({
     query: '',
     location: '',
     country: 'IN',
@@ -37,9 +39,34 @@ export default function JobsPage() {
   const [sectors, setSectors] = useState<string[]>([]);
   const [countries, setCountries] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isFromHomepage, setIsFromHomepage] = useState(false);
+
+  // Check if coming from homepage search
+  useEffect(() => {
+    const unlimited = searchParams.get('unlimited');
+    const query = searchParams.get('q');
+    const location = searchParams.get('location');
+    
+    if (unlimited === 'true' || query || location) {
+      setIsFromHomepage(true);
+      
+      // Update search state from URL params
+      setSearchState(prev => ({
+        ...prev,
+        query: query || '',
+        location: location || '',
+        jobType: searchParams.get('jobType') || '',
+        experienceLevel: searchParams.get('experienceLevel') || '',
+        isRemote: searchParams.get('isRemote') === 'true',
+        salaryMin: parseInt(searchParams.get('salaryMin') || '0'),
+        salaryMax: parseInt(searchParams.get('salaryMax') || '200000'),
+        limit: parseInt(searchParams.get('limit') || '100')
+      }));
+    }
+  }, [searchParams]);
 
   const handleSearch = async (params: SearchParams) => {
-    setSearchParams(params);
+    setSearchState(params);
     setLoading(true);
     
     try {
@@ -82,22 +109,26 @@ export default function JobsPage() {
         {/* Page Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Find Your Dream Job
+            {isFromHomepage ? 'Search Results' : 'Find Your Dream Job'}
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover unlimited job opportunities across all sectors and industries. 
-            Search through thousands of positions from top companies worldwide.
+            {isFromHomepage 
+              ? 'Discover unlimited job opportunities based on your search criteria'
+              : 'Discover unlimited job opportunities across all sectors and industries. Search through thousands of positions from top companies worldwide.'
+            }
           </p>
         </div>
 
-        {/* Unlimited Search Component */}
-        <UnlimitedJobSearch
-          onSearch={handleSearch}
-          loading={loading}
-          totalJobs={totalJobs}
-          sectors={sectors}
-          countries={countries}
-        />
+        {/* Show search component only if not from homepage */}
+        {!isFromHomepage && (
+          <UnlimitedJobSearch
+            onSearch={handleSearch}
+            loading={loading}
+            totalJobs={totalJobs}
+            sectors={sectors}
+            countries={countries}
+          />
+        )}
 
         {/* Jobs Results */}
         <div className="mt-8">

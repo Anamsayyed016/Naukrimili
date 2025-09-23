@@ -131,19 +131,25 @@ const SECTOR_QUERIES = {
   ]
 };
 
-// Country-specific configurations
+// Country-specific configurations - Prioritizing main target countries
 const COUNTRY_CONFIGS = {
-  'IN': { adzuna: 'in', jsearch: 'IN', google: 'India', jooble: 'in' },
-  'US': { adzuna: 'us', jsearch: 'US', google: 'United States', jooble: 'us' },
-  'GB': { adzuna: 'gb', jsearch: 'GB', google: 'United Kingdom', jooble: 'gb' },
-  'AE': { adzuna: 'ae', jsearch: 'AE', google: 'United Arab Emirates', jooble: 'ae' },
-  'CA': { adzuna: 'ca', jsearch: 'CA', google: 'Canada', jooble: 'ca' },
-  'AU': { adzuna: 'au', jsearch: 'AU', google: 'Australia', jooble: 'au' },
-  'DE': { adzuna: 'de', jsearch: 'DE', google: 'Germany', jooble: 'de' },
-  'FR': { adzuna: 'fr', jsearch: 'FR', google: 'France', jooble: 'fr' },
-  'SG': { adzuna: 'sg', jsearch: 'SG', google: 'Singapore', jooble: 'sg' },
-  'JP': { adzuna: 'jp', jsearch: 'JP', google: 'Japan', jooble: 'jp' }
+  // Main Target Countries (Priority)
+  'IN': { adzuna: 'in', jsearch: 'IN', google: 'India', jooble: 'in', priority: 1, name: 'India' },
+  'US': { adzuna: 'us', jsearch: 'US', google: 'United States', jooble: 'us', priority: 1, name: 'United States' },
+  'AE': { adzuna: 'ae', jsearch: 'AE', google: 'United Arab Emirates', jooble: 'ae', priority: 1, name: 'UAE' },
+  'GB': { adzuna: 'gb', jsearch: 'GB', google: 'United Kingdom', jooble: 'gb', priority: 1, name: 'United Kingdom' },
+  
+  // Secondary Countries
+  'CA': { adzuna: 'ca', jsearch: 'CA', google: 'Canada', jooble: 'ca', priority: 2, name: 'Canada' },
+  'AU': { adzuna: 'au', jsearch: 'AU', google: 'Australia', jooble: 'au', priority: 2, name: 'Australia' },
+  'DE': { adzuna: 'de', jsearch: 'DE', google: 'Germany', jooble: 'de', priority: 3, name: 'Germany' },
+  'FR': { adzuna: 'fr', jsearch: 'FR', google: 'France', jooble: 'fr', priority: 3, name: 'France' },
+  'SG': { adzuna: 'sg', jsearch: 'SG', google: 'Singapore', jooble: 'sg', priority: 3, name: 'Singapore' },
+  'JP': { adzuna: 'jp', jsearch: 'JP', google: 'Japan', jooble: 'jp', priority: 3, name: 'Japan' }
 };
+
+// Main target countries for unlimited search
+const MAIN_TARGET_COUNTRIES = ['IN', 'US', 'AE', 'GB'];
 
 export class UnlimitedJobSearch {
   private cache = new Map<string, { data: any; timestamp: number }>();
@@ -345,49 +351,67 @@ export class UnlimitedJobSearch {
 
   /**
    * Search external APIs with multiple queries and pagination
+   * Prioritizes main target countries (India, USA, UAE, UK)
    */
   private async searchExternalJobs(options: any) {
     const { query, location, country, page, limit } = options;
     const allJobs: any[] = [];
-    const countryConfig = COUNTRY_CONFIGS[country as keyof typeof COUNTRY_CONFIGS] || COUNTRY_CONFIGS.IN;
+    
+    // Determine countries to search - prioritize main target countries
+    let countriesToSearch = [country];
+    
+    // If searching a main target country, also search other main countries for more results
+    if (MAIN_TARGET_COUNTRIES.includes(country)) {
+      countriesToSearch = MAIN_TARGET_COUNTRIES.filter(c => c !== country).slice(0, 2);
+      countriesToSearch.unshift(country); // Put the primary country first
+    } else {
+      // If not a main target country, add main target countries for more coverage
+      countriesToSearch = [country, ...MAIN_TARGET_COUNTRIES.slice(0, 2)];
+    }
 
     // Generate multiple search queries for comprehensive coverage
     const searchQueries = this.generateSearchQueries(query);
 
     // Fetch from multiple pages to get more results
-    const maxPages = Math.min(5, Math.ceil(limit / 20)); // Fetch up to 5 pages
+    const maxPages = Math.min(3, Math.ceil(limit / 30)); // Reduced pages but more countries
 
-    for (const searchQuery of searchQueries.slice(0, 3)) { // Limit to 3 queries per API
-      for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
-        try {
-          // Adzuna
-          const adzunaJobs = await fetchFromAdzuna(searchQuery, countryConfig.adzuna, pageNum, {
-            location: location || undefined,
-            distanceKm: 50 // Increased radius
-          });
-          allJobs.push(...adzunaJobs);
+    for (const searchCountry of countriesToSearch.slice(0, 3)) { // Limit to 3 countries
+      const countryConfig = COUNTRY_CONFIGS[searchCountry as keyof typeof COUNTRY_CONFIGS] || COUNTRY_CONFIGS.IN;
+      
+      console.log(`🌍 Searching in ${countryConfig.name} (${searchCountry})`);
+      
+      for (const searchQuery of searchQueries.slice(0, 2)) { // Limit to 2 queries per country
+        for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+          try {
+            // Adzuna
+            const adzunaJobs = await fetchFromAdzuna(searchQuery, countryConfig.adzuna, pageNum, {
+              location: location || undefined,
+              distanceKm: 50 // Increased radius
+            });
+            allJobs.push(...adzunaJobs.map(job => ({ ...job, country: searchCountry, countryName: countryConfig.name })));
 
-          // JSearch
-          const jsearchJobs = await fetchFromJSearch(searchQuery, countryConfig.jsearch, pageNum);
-          allJobs.push(...jsearchJobs);
+            // JSearch
+            const jsearchJobs = await fetchFromJSearch(searchQuery, countryConfig.jsearch, pageNum);
+            allJobs.push(...jsearchJobs.map(job => ({ ...job, country: searchCountry, countryName: countryConfig.name })));
 
-          // Google Jobs
-          const googleJobs = await fetchFromGoogleJobs(searchQuery, countryConfig.google, pageNum);
-          allJobs.push(...googleJobs);
+            // Google Jobs
+            const googleJobs = await fetchFromGoogleJobs(searchQuery, countryConfig.google, pageNum);
+            allJobs.push(...googleJobs.map(job => ({ ...job, country: searchCountry, countryName: countryConfig.name })));
 
-          // Jooble
-          const joobleJobs = await fetchFromJooble(searchQuery, countryConfig.jooble, pageNum, {
-            radius: 50,
-            countryCode: country.toLowerCase()
-          });
-          allJobs.push(...joobleJobs);
+            // Jooble
+            const joobleJobs = await fetchFromJooble(searchQuery, countryConfig.jooble, pageNum, {
+              radius: 50,
+              countryCode: searchCountry.toLowerCase()
+            });
+            allJobs.push(...joobleJobs.map(job => ({ ...job, country: searchCountry, countryName: countryConfig.name })));
 
-        } catch (error) {
-          console.warn(`⚠️ Error fetching page ${pageNum} for query "${searchQuery}":`, error);
+          } catch (error) {
+            console.warn(`⚠️ Error fetching page ${pageNum} for query "${searchQuery}" in ${countryConfig.name}:`, error);
+          }
+
+          // Rate limiting between pages
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
-
-        // Rate limiting between pages
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
 
@@ -424,6 +448,7 @@ export class UnlimitedJobSearch {
 
   /**
    * Generate sample jobs for uncovered sectors
+   * Prioritizes main target countries (India, USA, UAE, UK)
    */
   private async generateSampleJobs(options: any) {
     const { query, location, country, sector, limit } = options;
@@ -436,38 +461,61 @@ export class UnlimitedJobSearch {
 
     if (!company) return sampleJobs;
 
+    // Determine countries to generate sample jobs for
+    let countriesToGenerate = [country];
+    
+    // If not a main target country, prioritize main target countries
+    if (!MAIN_TARGET_COUNTRIES.includes(country)) {
+      countriesToGenerate = [country, ...MAIN_TARGET_COUNTRIES.slice(0, 2)];
+    } else {
+      // If it's a main target country, also generate for other main countries
+      countriesToGenerate = [country, ...MAIN_TARGET_COUNTRIES.filter(c => c !== country).slice(0, 1)];
+    }
+
     // Generate jobs for different sectors
     const sectorsToCover = sector ? [sector] : Object.keys(SECTOR_QUERIES);
-    const jobsPerSector = Math.ceil(limit / sectorsToCover.length);
+    const jobsPerSector = Math.ceil(limit / (sectorsToCover.length * countriesToGenerate.length));
 
-    for (const sectorName of sectorsToCover.slice(0, Math.ceil(limit / 10))) {
-      const sectorQueries = SECTOR_QUERIES[sectorName as keyof typeof SECTOR_QUERIES] || [];
+    for (const countryCode of countriesToGenerate.slice(0, 3)) {
+      const countryConfig = COUNTRY_CONFIGS[countryCode as keyof typeof COUNTRY_CONFIGS] || COUNTRY_CONFIGS.IN;
       
-      for (let i = 0; i < Math.min(jobsPerSector, sectorQueries.length); i++) {
-        const jobTitle = sectorQueries[i];
-        if (!jobTitle) continue;
+      for (const sectorName of sectorsToCover.slice(0, Math.ceil(limit / 15))) {
+        const sectorQueries = SECTOR_QUERIES[sectorName as keyof typeof SECTOR_QUERIES] || [];
+        
+        for (let i = 0; i < Math.min(jobsPerSector, sectorQueries.length); i++) {
+          const jobTitle = sectorQueries[i];
+          if (!jobTitle) continue;
 
-        sampleJobs.push({
-          id: `sample-${sectorName}-${i}-${Date.now()}`,
-          title: jobTitle,
-          company: company.name,
-          location: location || 'Multiple Locations',
-          country: country,
-          description: `We are looking for a ${jobTitle} to join our team. This is a great opportunity to work in a dynamic environment.`,
-          requirements: `Experience in ${jobTitle} field preferred.`,
-          salary: this.generateSalaryRange(sectorName),
-          jobType: 'full-time',
-          experienceLevel: this.determineExperienceLevel(jobTitle),
-          skills: this.extractSkillsFromTitle(jobTitle),
-          isRemote: Math.random() > 0.7,
-          isFeatured: Math.random() > 0.9,
-          sector: sectorName,
-          source: 'sample',
-          sourceId: `sample-${sectorName}-${i}`,
-          createdAt: new Date(),
-          postedAt: new Date(),
-          _count: { applications: 0, bookmarks: 0 }
-        });
+          // Generate location-specific job
+          const jobLocation = this.generateLocationForCountry(countryCode, location);
+          const salary = this.generateSalaryRangeForCountry(sectorName, countryCode);
+
+          sampleJobs.push({
+            id: `sample-${countryCode}-${sectorName}-${i}-${Date.now()}`,
+            title: jobTitle,
+            company: company.name,
+            location: jobLocation,
+            country: countryCode,
+            countryName: countryConfig.name,
+            description: `We are looking for a ${jobTitle} to join our team in ${countryConfig.name}. This is a great opportunity to work in a dynamic environment.`,
+            requirements: `Experience in ${jobTitle} field preferred. Knowledge of local market preferred.`,
+            salary: salary,
+            salaryMin: this.extractSalaryMin(salary),
+            salaryMax: this.extractSalaryMax(salary),
+            salaryCurrency: this.getCurrencyForCountry(countryCode),
+            jobType: 'full-time',
+            experienceLevel: this.determineExperienceLevel(jobTitle),
+            skills: this.extractSkillsFromTitle(jobTitle),
+            isRemote: Math.random() > 0.7,
+            isFeatured: Math.random() > 0.9,
+            sector: sectorName,
+            source: 'sample',
+            sourceId: `sample-${countryCode}-${sectorName}-${i}`,
+            createdAt: new Date(),
+            postedAt: new Date(),
+            _count: { applications: 0, bookmarks: 0 }
+          });
+        }
       }
     }
 
@@ -625,6 +673,110 @@ export class UnlimitedJobSearch {
     }
 
     return skills;
+  }
+
+  /**
+   * Generate location for specific country
+   */
+  private generateLocationForCountry(countryCode: string, preferredLocation?: string): string {
+    if (preferredLocation) return preferredLocation;
+
+    const locations: { [key: string]: string[] } = {
+      'IN': ['Bangalore', 'Mumbai', 'Delhi', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata', 'Ahmedabad'],
+      'US': ['New York', 'San Francisco', 'Los Angeles', 'Chicago', 'Boston', 'Seattle', 'Austin', 'Denver'],
+      'AE': ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah'],
+      'GB': ['London', 'Manchester', 'Birmingham', 'Edinburgh', 'Glasgow', 'Liverpool', 'Leeds', 'Bristol'],
+      'CA': ['Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa', 'Edmonton', 'Winnipeg'],
+      'AU': ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Canberra', 'Gold Coast'],
+      'DE': ['Berlin', 'Munich', 'Hamburg', 'Frankfurt', 'Cologne', 'Stuttgart', 'Düsseldorf'],
+      'FR': ['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice', 'Nantes', 'Strasbourg'],
+      'SG': ['Singapore', 'Central Region', 'East Region', 'North Region', 'West Region'],
+      'JP': ['Tokyo', 'Osaka', 'Yokohama', 'Nagoya', 'Sapporo', 'Fukuoka', 'Kobe']
+    };
+
+    const countryLocations = locations[countryCode] || locations['IN'];
+    return countryLocations[Math.floor(Math.random() * countryLocations.length)];
+  }
+
+  /**
+   * Generate salary range for specific country and sector
+   */
+  private generateSalaryRangeForCountry(sector: string, countryCode: string): string {
+    const currency = this.getCurrencyForCountry(countryCode);
+    
+    // Base salary ranges by country (in local currency)
+    const countryMultipliers: { [key: string]: number } = {
+      'IN': 1,      // INR
+      'US': 80,     // USD (1 USD ≈ 80 INR)
+      'AE': 300,    // AED (1 AED ≈ 22 INR)
+      'GB': 65,     // GBP (1 GBP ≈ 100 INR)
+      'CA': 100,    // CAD (1 CAD ≈ 60 INR)
+      'AU': 120,    // AUD (1 AUD ≈ 55 INR)
+      'DE': 70,     // EUR (1 EUR ≈ 90 INR)
+      'FR': 70,     // EUR
+      'SG': 120,    // SGD (1 SGD ≈ 60 INR)
+      'JP': 12000   // JPY (1 JPY ≈ 0.5 INR)
+    };
+
+    const multiplier = countryMultipliers[countryCode] || 1;
+    
+    // Base salary ranges by sector (in INR)
+    const sectorRanges: { [key: string]: { min: number; max: number } } = {
+      'technology': { min: 500000, max: 2000000 },
+      'healthcare': { min: 400000, max: 1500000 },
+      'finance': { min: 600000, max: 2500000 },
+      'education': { min: 300000, max: 800000 },
+      'marketing': { min: 350000, max: 1200000 },
+      'sales': { min: 300000, max: 1500000 },
+      'engineering': { min: 500000, max: 1500000 },
+      'retail': { min: 250000, max: 600000 },
+      'hospitality': { min: 250000, max: 700000 },
+      'manufacturing': { min: 350000, max: 1000000 },
+      'consulting': { min: 800000, max: 3000000 },
+      'government': { min: 400000, max: 1200000 },
+      'nonprofit': { min: 300000, max: 700000 }
+    };
+
+    const range = sectorRanges[sector] || { min: 300000, max: 800000 };
+    const min = Math.floor((range.min * multiplier) / 1000) * 1000;
+    const max = Math.floor((range.max * multiplier) / 1000) * 1000;
+
+    return `${currency} ${min.toLocaleString()} - ${max.toLocaleString()}`;
+  }
+
+  /**
+   * Get currency for country
+   */
+  private getCurrencyForCountry(countryCode: string): string {
+    const currencies: { [key: string]: string } = {
+      'IN': '₹',
+      'US': '$',
+      'AE': 'AED',
+      'GB': '£',
+      'CA': 'C$',
+      'AU': 'A$',
+      'DE': '€',
+      'FR': '€',
+      'SG': 'S$',
+      'JP': '¥'
+    };
+    return currencies[countryCode] || '₹';
+  }
+
+  /**
+   * Extract minimum salary from salary string
+   */
+  private extractSalaryMin(salary: string): number {
+    const match = salary.match(/[\d,]+/);
+    return match ? parseInt(match[0].replace(/,/g, '')) : 0;
+  }
+
+  /**
+   * Extract maximum salary from salary string
+   */
+  private extractSalaryMax(salary: string): number {
+    const matches = salary.match(/[\d,]+/g);
+    return matches && matches.length > 1 ? parseInt(matches[1].replace(/,/g, '')) : 0;
   }
 }
 

@@ -99,10 +99,11 @@ export default function JobSearchHero({
     }
   }, []);
 
-  // Handle search submission
+  // Handle search submission with unlimited search
   const handleSearch = useCallback(() => {
     const params = new URLSearchParams();
     
+    // Use unlimited search parameters
     if (filters.query) params.set('q', filters.query);
     if (filters.location) params.set('location', filters.location);
     if (filters.jobType !== 'all') params.set('jobType', filters.jobType);
@@ -110,6 +111,13 @@ export default function JobSearchHero({
     if (filters.isRemote) params.set('isRemote', 'true');
     if (filters.salaryMin) params.set('salaryMin', filters.salaryMin);
     if (filters.salaryMax) params.set('salaryMax', filters.salaryMax);
+    
+    // Add unlimited search parameters
+    params.set('unlimited', 'true');
+    params.set('limit', '100'); // Increased limit for unlimited search
+    params.set('includeExternal', 'true');
+    params.set('includeDatabase', 'true');
+    params.set('includeSample', 'true');
     
     // Add location coordinates if available
     if (userLocation) {

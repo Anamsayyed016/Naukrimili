@@ -81,16 +81,33 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
       console.log('🔍 Fetching unlimited jobs with query:', query, 'location:', location, 'page:', page);
 
+      // Determine country based on location or default to India
+      let country = 'IN'; // Default to India
+      if (location) {
+        const locationLower = location.toLowerCase();
+        if (locationLower.includes('usa') || locationLower.includes('united states') || locationLower.includes('us')) {
+          country = 'US';
+        } else if (locationLower.includes('uae') || locationLower.includes('united arab emirates') || locationLower.includes('dubai')) {
+          country = 'AE';
+        } else if (locationLower.includes('uk') || locationLower.includes('united kingdom') || locationLower.includes('london')) {
+          country = 'GB';
+        } else if (locationLower.includes('canada') || locationLower.includes('toronto') || locationLower.includes('vancouver')) {
+          country = 'CA';
+        } else if (locationLower.includes('australia') || locationLower.includes('sydney') || locationLower.includes('melbourne')) {
+          country = 'AU';
+        }
+      }
+
       // Use unlimited API to get comprehensive job coverage
       const unlimitedParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
-        country: 'IN',
+        country: country,
         includeExternal: 'true',
         includeDatabase: 'true',
         includeSample: 'true', // Include sample jobs for comprehensive coverage
         page: page.toString(),
-        limit: '50' // Increased limit for unlimited search
+        limit: '100' // Increased limit for unlimited search
       });
 
       const unlimitedResponse = await fetch(`/api/jobs/unlimited?${unlimitedParams.toString()}`);
@@ -102,7 +119,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
       const unlimitedData = await unlimitedResponse.json();
       
       if (unlimitedData.success) {
-        console.log(`✅ Unlimited API: Found ${unlimitedData.jobs?.length || 0} jobs on page ${page}`);
+        console.log(`✅ Unlimited API: Found ${unlimitedData.jobs?.length || 0} jobs on page ${page} for country ${country}`);
         console.log(`📊 Total jobs available: ${unlimitedData.pagination?.totalJobs || 0}`);
         console.log(`📊 Job sources: Database=${unlimitedData.sources?.database || 0}, External=${unlimitedData.sources?.external || 0}, Sample=${unlimitedData.sources?.sample || 0}`);
         

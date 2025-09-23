@@ -28,8 +28,8 @@ export default async function HomePage() {
   let topCompanies: Company[] = [];
   
   try {
-    // Fetch featured jobs
-    const jobsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/jobs/unified?limit=6&includeExternal=true`, {
+    // Fetch featured jobs using unlimited search
+    const jobsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/jobs/unlimited?limit=6&includeExternal=true&includeDatabase=true&includeSample=true&country=IN`, {
       cache: 'no-store'
     });
     const jobsData = await jobsResponse.json();
@@ -57,16 +57,22 @@ export default async function HomePage() {
     'Product Manager',
     'UI/UX Designer',
     'DevOps Engineer',
-    'Marketing Manager'
+    'Marketing Manager',
+    'Sales Representative',
+    'Nurse',
+    'Teacher',
+    'Accountant'
   ];
 
   const popularLocations = [
-    'Bangalore',
-    'Mumbai',
-    'Delhi',
-    'Hyderabad',
-    'Chennai',
-    'Pune'
+    // India
+    'Bangalore', 'Mumbai', 'Delhi', 'Hyderabad', 'Chennai', 'Pune',
+    // USA
+    'New York', 'San Francisco', 'Los Angeles', 'Chicago', 'Boston', 'Seattle',
+    // UAE
+    'Dubai', 'Abu Dhabi', 'Sharjah',
+    // UK
+    'London', 'Manchester', 'Birmingham', 'Edinburgh'
   ];
 
   return (
