@@ -112,7 +112,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         includeDatabase: 'true',
         includeSample: 'true',
         page: page.toString(),
-        limit: '20' // Reduced limit for faster loading
+        limit: '100' // Increased limit for unlimited job search
       });
 
       console.log('📡 Making optimized API call to:', `/api/jobs/optimized?${optimizedParams.toString()}`);

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const salaryMax = searchParams.get('salaryMax') ? parseInt(searchParams.get('salaryMax')!) : undefined;
     const sector = searchParams.get('sector') || '';
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = Math.min(50, Math.max(10, parseInt(searchParams.get('limit') || '20')));
+    const limit = Math.min(200, Math.max(10, parseInt(searchParams.get('limit') || '100')));
     const includeExternal = searchParams.get('includeExternal') !== 'false';
     const includeDatabase = searchParams.get('includeDatabase') !== 'false';
     const includeSample = searchParams.get('includeSample') !== 'false';

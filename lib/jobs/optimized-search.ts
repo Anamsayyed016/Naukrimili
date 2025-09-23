@@ -95,7 +95,7 @@ export class OptimizedJobSearch {
       salaryMax,
       sector = '',
       page = 1,
-      limit = 20, // Reduced default limit for faster loading
+      limit = 100, // Increased default limit for unlimited job search
       includeExternal = true,
       includeDatabase = true,
       includeSample = true
@@ -143,7 +143,7 @@ export class OptimizedJobSearch {
     if (includeExternal && allJobs.length < limit) {
       try {
         const externalJobs = await this.searchExternalJobsOptimized({
-          query, location, country, page, limit: Math.min(limit - allJobs.length, 30)
+          query, location, country, page, limit: Math.min(limit - allJobs.length, 100)
         });
         allJobs.push(...externalJobs);
         sources.external = externalJobs.length;
@@ -253,7 +253,7 @@ export class OptimizedJobSearch {
         { isFeatured: 'desc' },
         { createdAt: 'desc' }
       ],
-      take: Math.min(limit, 100) // Limit database results
+      take: Math.min(limit, 500) // Increased database limit for more jobs
     });
 
     return jobs;
@@ -373,7 +373,7 @@ export class OptimizedJobSearch {
       'New York, USA', 'San Francisco, USA', 'London, UK', 'Dubai, UAE'
     ];
 
-    for (let i = 0; i < Math.min(limit, 10); i++) {
+    for (let i = 0; i < Math.min(limit, 50); i++) {
       sampleJobs.push({
         id: `sample-${Date.now()}-${i}`,
         title: query ? `${query} ${i + 1}` : jobTitles[i % jobTitles.length],
