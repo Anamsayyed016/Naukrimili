@@ -334,7 +334,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create application
+    // Create application with real user data
     const application = await prisma.application.create({
       data: {
         userId: user.id,
@@ -344,7 +344,17 @@ export async function POST(request: NextRequest) {
         appliedAt: new Date(),
         coverLetter: coverLetter || null,
         resumeId: null, // Fixed: Ensure resumeId is null if no resume is uploaded
-        companyId: companyId
+        companyId: companyId,
+        // Store additional application data
+        applicationData: JSON.stringify({
+          fullName: fullName,
+          email: email,
+          phone: phone,
+          location: location,
+          expectedSalary: expectedSalary,
+          availability: availability,
+          resumeUrl: resumeUrl
+        })
       },
       include: {
         job: true,
@@ -352,7 +362,9 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            email: true
+            email: true,
+            phone: true,
+            location: true
           }
         }
       }
@@ -360,7 +372,7 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Application created successfully:', application.id);
 
-    // Create database notification for persistence
+    // Create database notification for job seeker
     try {
       await prisma.notification.create({
         data: {
@@ -376,9 +388,73 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      console.log('✅ Database notification created for user:', user.id);
+      console.log('✅ Database notification created for job seeker:', user.id);
     } catch (dbError) {
-      console.warn('⚠️ Failed to create database notification:', dbError);
+      console.warn('⚠️ Failed to create database notification for job seeker:', dbError);
+    }
+
+    // Notify employer about new application
+    if (companyId) {
+      try {
+        // Find the employer who created the company
+        const employer = await prisma.user.findFirst({
+          where: {
+            createdCompanies: {
+              some: { id: companyId }
+            }
+          },
+          select: { id: true, name: true, email: true }
+        });
+
+        if (employer) {
+          await prisma.notification.create({
+            data: {
+              userId: employer.id,
+              type: 'APPLICATION_UPDATE',
+              title: 'New Job Application Received! 🎉',
+              message: `You have received a new application for "${application.job.title}" from ${fullName}.`,
+              data: {
+                applicationId: application.id,
+                jobId: application.jobId,
+                jobTitle: application.job.title,
+                applicantName: fullName,
+                applicantEmail: email,
+                applicantPhone: phone
+              }
+            }
+          });
+
+          console.log('✅ Database notification created for employer:', employer.id);
+
+          // Send real-time notification via Socket.io
+          try {
+            const { getServerSocket } = await import('@/lib/socket-server');
+            const io = getServerSocket();
+            
+            if (io) {
+              io.to(`user:${employer.id}`).emit('new_notification', {
+                type: 'APPLICATION_UPDATE',
+                title: 'New Job Application Received! 🎉',
+                message: `You have received a new application for "${application.job.title}" from ${fullName}.`,
+                data: {
+                  applicationId: application.id,
+                  jobId: application.jobId,
+                  jobTitle: application.job.title,
+                  applicantName: fullName,
+                  applicantEmail: email,
+                  applicantPhone: phone
+                },
+                timestamp: new Date().toISOString()
+              });
+              console.log('📡 Real-time notification sent to employer via Socket.io');
+            }
+          } catch (socketError) {
+            console.warn('⚠️ Failed to send real-time notification to employer:', socketError);
+          }
+        }
+      } catch (employerNotificationError) {
+        console.warn('⚠️ Failed to notify employer:', employerNotificationError);
+      }
     }
 
     // Return success response

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireEmployerAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { getSocketService } from "@/lib/socket-server";
+import { createNotification } from "@/lib/notification-service";
 
 export async function GET(
   request: NextRequest,
@@ -134,12 +135,12 @@ export async function PATCH(
       }
     });
 
-    // Send real-time notification to job seeker via Socket.io
-    const socketService = getSocketService();
-    if (socketService && status && status !== existingApplication.status) {
+    // Send notification to job seeker about status update
+    if (status && status !== existingApplication.status) {
       try {
-        // Notify the job seeker about status update
-        await socketService.sendNotificationToUser(updatedApplication.user.id, {
+        // Create database notification
+        await createNotification({
+          userId: updatedApplication.user.id,
           type: 'APPLICATION_UPDATE',
           title: 'Application Status Updated',
           message: `Your application for ${updatedApplication.job.title} at ${updatedApplication.job.company} has been updated to ${status}`,
@@ -151,13 +152,26 @@ export async function PATCH(
           }
         });
 
-        // Note: Real-time event emission would need to be handled by the socket service
-        // For now, we rely on the notification system for real-time updates
+        // Send real-time notification via Socket.io
+        const socketService = getSocketService();
+        if (socketService) {
+          await socketService.sendNotificationToUser(updatedApplication.user.id, {
+            type: 'APPLICATION_UPDATE',
+            title: 'Application Status Updated',
+            message: `Your application for ${updatedApplication.job.title} at ${updatedApplication.job.company} has been updated to ${status}`,
+            data: {
+              applicationId: updatedApplication.id,
+              newStatus: status,
+              jobTitle: updatedApplication.job.title,
+              company: updatedApplication.job.company
+            }
+          });
+        }
 
-        console.log(`📤 Real-time notification sent for application status update: ${applicationId} -> ${status}`);
-      } catch (socketError) {
-        console.warn('⚠️ Failed to send real-time notification:', socketError);
-        // Don't fail the update if socket fails
+        console.log(`📤 Notification sent for application status update: ${applicationId} -> ${status}`);
+      } catch (notificationError) {
+        console.warn('⚠️ Failed to send notification:', notificationError);
+        // Don't fail the update if notification fails
       }
     }
 

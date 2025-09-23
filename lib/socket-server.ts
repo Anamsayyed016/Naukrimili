@@ -7,8 +7,10 @@ import { Server as SocketIOServer } from 'socket.io';
 import { NextRequest } from 'next/server';
 import { auth } from './nextauth-config';
 import { prisma } from './prisma';
+import { createNotification } from './notification-service';
 
-// Use the notification service types
+// Notification types
+export type NotificationType = 'APPLICATION_UPDATE' | 'JOB_CREATED' | 'JOB_UPDATED' | 'JOB_DELETED' | 'COMPANY_UPDATE' | 'RESUME_UPLOADED' | 'MESSAGE_RECEIVED' | 'SYSTEM_ANNOUNCEMENT' | 'info' | 'success' | 'warning' | 'error';
 
 export interface SocketUser {
   userId: string;
