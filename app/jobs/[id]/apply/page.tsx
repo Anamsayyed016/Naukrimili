@@ -372,7 +372,9 @@ export default function JobApplicationPage() {
               <CheckCircle className="h-12 w-12 text-green-600" />
             </div>
             <h2 className="text-3xl font-bold text-green-800 mb-3">Application Submitted!</h2>
-            <p className="text-green-700 mb-6 text-lg">Your application for <strong>{job?.title || 'this position'}</strong> at <strong>{job?.company || 'the company'}</strong> has been submitted successfully.</p>
+            <p className="text-green-700 mb-6 text-lg">
+              Your application has been submitted successfully.
+            </p>
             <div className="space-y-3">
               <Link
                 href="/jobs"
@@ -402,6 +404,39 @@ export default function JobApplicationPage() {
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 text-lg">Loading job details...</p>
           <p className="text-gray-500 text-sm mt-2">Please wait while we fetch the job information</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Additional safety check for job data integrity
+  if (job && (!job.title || !job.company)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 flex items-center justify-center">
+        <div className="text-center max-w-lg mx-auto px-4">
+          <div className="bg-white border border-red-200 rounded-2xl p-8 shadow-xl">
+            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="h-12 w-12 text-red-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-red-800 mb-3">Invalid Job Data</h2>
+            <p className="text-red-700 mb-6 text-lg">
+              The job information appears to be incomplete or corrupted. Please try again.
+            </p>
+            <div className="space-y-3">
+              <Link
+                href="/jobs"
+                className="block w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Browse Other Jobs
+              </Link>
+              <button
+                onClick={() => window.location.reload()}
+                className="block w-full border border-red-600 text-red-600 px-6 py-3 rounded-lg hover:bg-red-50 transition-colors font-medium"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
