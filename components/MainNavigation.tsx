@@ -136,22 +136,11 @@ export default function MainNavigation({
     <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Brand - Logo with Text */}
+          {/* Brand - Clean Text Only */}
           <Link href="/" className="flex items-center hover:opacity-80 transition-all duration-300 group">
-            <div className="flex items-center space-x-2">
-              {/* Logo Image */}
-              <div className="flex-shrink-0">
-                <img 
-                  src="/logo.svg" 
-                  alt={`${brandName} Logo`}
-                  className="h-8 w-auto sm:h-10 lg:h-12"
-                />
-              </div>
-              {/* Fallback Text for very small screens */}
-              <span className="hidden sm:block text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                {brandName}
-              </span>
-            </div>
+            <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              {brandName}
+            </span>
           </Link>
 
           {/* Main Navigation - Enhanced Desktop */}
