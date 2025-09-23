@@ -247,6 +247,8 @@ export default function AIJobPostingForm() {
       return;
     }
     
+    console.log(`🔮 Requesting AI suggestions for field: ${field}, value: ${value}`);
+
     // Show instant suggestions immediately for professional feel
     const instantSuggestion = getInstantSuggestions(field, value);
     setFieldSuggestions(prev => ({
@@ -257,6 +259,8 @@ export default function AIJobPostingForm() {
     
     setAiLoading(true);
     try {
+      console.log('📡 Making API call to /api/ai/form-suggestions');
+      
       const response = await fetch('/api/ai/form-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -272,14 +276,26 @@ export default function AIJobPostingForm() {
         })
       });
 
+      console.log('📡 API Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error Response:', errorText);
+        throw new Error(`API failed: ${response.status} - ${errorText}`);
+      }
+
       const data = await response.json();
+      console.log('📡 API Response data:', data);
+      
       if (data.success) {
         const suggestion: AISuggestion = {
           field,
           suggestions: data.suggestions,
           confidence: data.confidence,
-          reasoning: `AI confidence: ${data.confidence}%`
+          reasoning: `AI confidence: ${data.confidence}% (${data.aiProvider || 'unknown'})`
         };
+        
+        console.log(`✅ AI suggestions received: ${data.suggestions.length} suggestions with ${data.confidence}% confidence`);
         
         // Update with AI suggestions (replace instant ones)
         setFieldSuggestions(prev => ({
@@ -288,9 +304,16 @@ export default function AIJobPostingForm() {
         }));
         
         setActiveField(field);
+        
+        // Show success toast
+        toast.success(`AI suggestions loaded! (${data.aiProvider || 'AI'})`);
+      } else {
+        console.error('❌ API returned success: false', data);
+        toast.error('AI suggestions failed. Using instant suggestions.');
       }
     } catch (error) {
-      console.error('AI suggestions error:', error);
+      console.error('❌ AI suggestions error:', error);
+      toast.error('AI suggestions unavailable. Using instant suggestions.');
       // Keep instant suggestions if AI fails
     } finally {
       setAiLoading(false);
