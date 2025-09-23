@@ -402,6 +402,9 @@ export default function AIJobPostingForm() {
 
   const handleInputChange = (field: keyof JobFormData, value: any) => {
     console.log('Manual input change:', { field, value });
+    // Directly update form data for manual typing
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Also trigger AI suggestions if needed
     handleInputChangeWithSuggestions(field, value);
   };
 
@@ -656,6 +659,31 @@ export default function AIJobPostingForm() {
           description: 'Job seekers can now find and apply to your position with enhanced visibility.',
           duration: 5000,
         });
+        
+        // Send notification to user
+        try {
+          const notificationResponse = await fetch('/api/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: 'Job Posted Successfully! 🎉',
+              message: `Your job "${data.job.title}" has been posted and is now live on the platform.`,
+              type: 'success',
+              data: {
+                jobId: data.job.id,
+                jobTitle: data.job.title,
+                action: 'job_created'
+              }
+            })
+          });
+          
+          if (notificationResponse.ok) {
+            console.log('✅ Job creation notification sent');
+          }
+        } catch (notificationError) {
+          console.error('❌ Failed to send job creation notification:', notificationError);
+          // Don't fail the job posting if notification fails
+        }
         // Reset form and clear persistence
         const resetFormData: JobFormData = {
           title: '', description: '', requirements: '', location: '', city: '', state: '', country: 'IN',
@@ -683,8 +711,8 @@ export default function AIJobPostingForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      <div className="container mx-auto px-2 sm:px-4 lg:px-8 max-w-6xl py-4 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 mobile-job-form">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-8 max-w-6xl py-4 sm:py-8">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4">
@@ -779,7 +807,7 @@ export default function AIJobPostingForm() {
                           value={formData.title}
                           onChange={(e) => handleInputChange('title', e.target.value)}
                           placeholder="e.g., Senior Software Engineer"
-                          className="text-base sm:text-lg h-12 sm:h-16 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 pr-12 bg-white text-slate-900 font-medium"
+                          className="text-base sm:text-lg h-12 sm:h-16 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 pr-12 bg-white text-slate-900 font-medium touch-manipulation"
                         />
                         {aiLoading && activeField === 'title' && (
                           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -874,7 +902,7 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('description', e.target.value)}
                           rows={6}
                           placeholder="Describe the role, responsibilities, and what makes this opportunity special..."
-                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base bg-white text-slate-900"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base sm:text-lg bg-white text-slate-900 touch-manipulation resize-none"
                         />
                         {aiLoading && activeField === 'description' && (
                           <div className="absolute right-3 top-3">
@@ -1123,8 +1151,20 @@ export default function AIJobPostingForm() {
                                 getAISuggestions('skills', value);
                               }
                             }}
-                            placeholder="Type skills and press comma to add..."
-                            className="h-12 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 bg-white text-slate-900"
+                            onKeyDown={(e) => {
+                              // Handle Enter key to add skill
+                              if (e.key === 'Enter' && skillsInput.trim()) {
+                                e.preventDefault();
+                                const skill = skillsInput.trim();
+                                if (skill && !formData.skills.includes(skill)) {
+                                  setFormData(prev => ({ ...prev, skills: [...prev.skills, skill] }));
+                                  setSkillsInput('');
+                                  toast.success(`Added skill: ${skill}`);
+                                }
+                              }
+                            }}
+                            placeholder="Type skills and press Enter or comma to add..."
+                            className="h-12 sm:h-14 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 bg-white text-slate-900 text-base sm:text-lg touch-manipulation"
                           />
                           {aiLoading && activeField === 'skills' && (
                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -1640,7 +1680,7 @@ export default function AIJobPostingForm() {
                 <Button
                   variant="outline"
                   onClick={clearFormData}
-                  className="px-3 sm:px-4 py-2 text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400 w-full sm:w-auto"
+                  className="px-3 sm:px-4 py-3 sm:py-4 text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl"
                   title="Clear all form data and start fresh"
                 >
                   <X className="h-4 w-4 mr-2" />
@@ -1651,7 +1691,7 @@ export default function AIJobPostingForm() {
                   <Button
                     onClick={nextStep}
                     disabled={!validateStep(currentStep)}
-                    className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+                    className="px-4 sm:px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl"
                   >
                     Next
                     <ArrowRight className="h-4 w-4 ml-2" />
@@ -1660,7 +1700,7 @@ export default function AIJobPostingForm() {
                   <Button
                     onClick={handleSubmit}
                     disabled={loading || !validateStep(1) || !validateStep(2) || !validateStep(3)}
-                    className="px-6 sm:px-8 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto"
+                    className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl"
                   >
                     {loading ? (
                       <>

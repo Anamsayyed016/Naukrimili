@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import AIJobPostingForm from '@/components/jobs/AIJobPostingForm';
+import EmployerOnboardingCheck from '@/components/employer/EmployerOnboardingCheck';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -204,5 +205,9 @@ export default function CreateJobPage() {
     );
   }
 
-  return <AIJobPostingForm />;
+  return (
+    <EmployerOnboardingCheck requiredAction="company">
+      <AIJobPostingForm />
+    </EmployerOnboardingCheck>
+  );
 }

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import EmployerOnboardingCheck from '@/components/employer/EmployerOnboardingCheck';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -338,7 +339,7 @@ export default function CreateCompanyPage() {
       console.log("Making API call to /api/company/profile");
       console.log("Request body:", JSON.stringify(formData, null, 2));
       
-      const response = await fetch("/api/company/profile", {
+      const response = await fetch("/api/employer/company-profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -447,7 +448,7 @@ export default function CreateCompanyPage() {
   }
 
   return (
-    <>
+    <EmployerOnboardingCheck requiredAction="none">
       <div id="select-portal" className="fixed inset-0 pointer-events-none z-[9998]" />
       <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
       <style jsx global>{`
@@ -1217,20 +1218,6 @@ export default function CreateCompanyPage() {
               )}
             </AnimatePresence>
 
-            {/* Debug Test Button */}
-            <div className="mb-4">
-              <Button
-                onClick={() => {
-                  console.log("TEST BUTTON CLICKED");
-                  console.log("Form data:", formData);
-                  console.log("Session:", session);
-                  console.log("Status:", status);
-                }}
-                className="w-full bg-red-600 hover:bg-red-700 text-white"
-              >
-                DEBUG TEST - Check Console
-              </Button>
-            </div>
 
             {/* Navigation Buttons */}
             <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8 sm:mt-10">
@@ -1285,6 +1272,6 @@ export default function CreateCompanyPage() {
         </Card>
         </div>
       </div>
-    </>
+    </EmployerOnboardingCheck>
   );
 }

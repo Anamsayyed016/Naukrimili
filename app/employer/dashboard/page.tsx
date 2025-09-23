@@ -22,7 +22,9 @@ import {
   MapPin,
   DollarSign,
   Calendar,
-  Sparkles
+  Sparkles,
+  Bell,
+  BellRing
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -55,6 +57,8 @@ export default function EmployerDashboard() {
   const [stats, setStats] = useState<CompanyStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [hasCompany, setHasCompany] = useState(false);
 
   const quickActions: QuickAction[] = [
@@ -104,7 +108,21 @@ export default function EmployerDashboard() {
     }
     
     fetchDashboardData();
+    fetchNotifications();
   }, [status, session, router]);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('/api/notifications');
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -171,12 +189,48 @@ export default function EmployerDashboard() {
         {/* Enhanced Header */}
         <div className="mb-10">
           <div className="text-center mb-8">
-            <h1 className="text-5xl font-bold text-slate-900 mb-3">
-              Welcome back, {session?.user?.name?.split(' ')[0] || 'Employer'}! 👋
-            </h1>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <h1 className="text-5xl font-bold text-slate-900">
+                Welcome back, {session?.user?.name?.split(' ')[0] || 'Employer'}! 👋
+              </h1>
+              {/* Notification Bell */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative p-3 hover:bg-blue-50 rounded-full"
+                  onClick={() => {
+                    // Toggle notification panel or redirect to notifications
+                    router.push('/messages');
+                  }}
+                >
+                  {unreadCount > 0 ? (
+                    <BellRing className="h-6 w-6 text-orange-500" />
+                  ) : (
+                    <Bell className="h-6 w-6 text-slate-600" />
+                  )}
+                  {unreadCount > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs font-bold"
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </div>
+            </div>
             <p className="text-slate-600 text-xl">
               {hasCompany ? 'Manage your company and job postings' : 'Let\'s get your company set up'}
             </p>
+            {unreadCount > 0 && (
+              <div className="mt-4">
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
+                  <Bell className="h-3 w-3 mr-1" />
+                  {unreadCount} new notification{unreadCount > 1 ? 's' : ''}
+                </Badge>
+              </div>
+            )}
           </div>
         </div>
 

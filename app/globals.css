@@ -5,6 +5,9 @@
 /* Import mobile notification styles */
 @import '../styles/mobile-notifications.css';
 
+/* Import mobile job form styles */
+@import '../styles/mobile-job-form.css';
+
 /* Fix for dropdown z-index issues */
 [data-radix-popper-content-wrapper] {
   z-index: 9999 !important;
