@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import React from "react";
-import JobsClient from "./JobsClient";
+import OptimizedJobsClient from "./OptimizedJobsClient";
 
 export default function JobsPage() {
   return (
@@ -19,7 +19,7 @@ export default function JobsPage() {
 
         {/* Jobs Results - No filters, just jobs */}
         <div className="mt-8">
-          <JobsClient initialJobs={[]} />
+              <OptimizedJobsClient initialJobs={[]} />
         </div>
       </div>
     </div>
