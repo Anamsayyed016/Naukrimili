@@ -103,42 +103,39 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         }
       }
 
-      // Use optimized API for better performance
-      const optimizedParams = new URLSearchParams({
+      // Use real job search API for quality jobs
+      const realParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
         country: country,
-        includeExternal: 'true',
-        includeDatabase: 'true',
-        includeSample: 'true',
         page: page.toString(),
         limit: '100' // Increased limit for unlimited job search
       });
 
-      console.log('📡 Making optimized API call to:', `/api/jobs/optimized?${optimizedParams.toString()}`);
+      console.log('📡 Making real job search API call to:', `/api/jobs/real?${realParams.toString()}`);
 
       const startTime = Date.now();
-      const response = await fetch(`/api/jobs/optimized?${optimizedParams.toString()}`);
+      const response = await fetch(`/api/jobs/real?${realParams.toString()}`);
       const responseTime = Date.now() - startTime;
       
-      console.log(`📡 Optimized API Response status: ${response.status} (${responseTime}ms)`);
+      console.log(`📡 Real job search API Response status: ${response.status} (${responseTime}ms)`);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Optimized API Error Response:', errorText);
-        throw new Error(`Optimized API failed: ${response.status}`);
+        console.error('❌ Real job search API Error Response:', errorText);
+        throw new Error(`Real job search API failed: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('📡 Optimized API Response data:', data);
+      console.log('📡 Real job search API Response data:', data);
       
       if (!data.success) {
-        throw new Error(data.error || 'Optimized API returned success: false');
+        throw new Error(data.error || 'Real job search API returned success: false');
       }
 
       // Process jobs
       const jobs = (data.jobs || []).map(convertToSimpleJob);
-      console.log(`✅ Processed ${jobs.length} jobs in ${responseTime}ms`);
+      console.log(`✅ Processed ${jobs.length} real jobs in ${responseTime}ms`);
 
       // Update state
       setJobs(jobs);
@@ -154,14 +151,14 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         sources: data.sources
       });
 
-      console.log('✅ Optimized jobs loaded successfully:', {
+      console.log('✅ Real jobs loaded successfully:', {
         jobsCount: jobs.length,
         totalJobs: data.pagination?.totalJobs || jobs.length,
         currentPage: page,
         totalPages: data.pagination?.totalPages || 1,
         sources: data.sources,
-        performance: data.metadata?.performance,
-        cached: data.metadata?.cached
+        realJobsPercentage: data.metadata?.realJobsPercentage || 0,
+        performance: data.metadata?.performance
       });
 
     } catch (error) {
@@ -192,28 +189,6 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
   return (
     <div className="space-y-6">
-      {/* Performance Metrics */}
-      {performanceMetrics && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-4">
-              <span className="font-medium text-blue-900">
-                ⚡ Loaded in {performanceMetrics.responseTime}ms
-              </span>
-              {performanceMetrics.cached && (
-                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                  🚀 Cached
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-4 text-blue-700">
-              <span>DB: {performanceMetrics.sources?.database || 0}</span>
-              <span>External: {performanceMetrics.sources?.external || 0}</span>
-              <span>Sample: {performanceMetrics.sources?.sample || 0}</span>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Loading State */}
       {loading && jobs.length === 0 && (
@@ -312,21 +287,26 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 key={job.id}
                 job={job as JobResult}
                 isBookmarked={bookmarkedJobs.includes(job.id)}
-                onBookmarkToggle={() => toggleBookmark(job.id)}
+                onBookmark={() => toggleBookmark(job.id)}
                 viewMode={viewMode}
               />
             ))}
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {(totalPages > 1 || hasNextPage) && (
             <div className="flex justify-center mt-8">
               <EnhancedPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
+                config={{
+                  page: currentPage,
+                  limit: 100,
+                  total: totalJobs,
+                  maxVisiblePages: 5,
+                  showFirstLast: true,
+                  showPrevNext: true,
+                  showPageNumbers: true
+                }}
                 onPageChange={handlePageChange}
-                hasNextPage={hasNextPage}
-                hasPrevPage={hasPrevPage}
               />
             </div>
           )}
