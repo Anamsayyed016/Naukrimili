@@ -119,8 +119,8 @@ export default function JobsPage() {
           </p>
         </div>
 
-        {/* Show search component only if not from homepage */}
-        {!isFromHomepage && (
+        {/* Show search component only if not from homepage and no search params */}
+        {!isFromHomepage && !searchParams.get('q') && !searchParams.get('location') && (
           <UnlimitedJobSearch
             onSearch={handleSearch}
             loading={loading}

@@ -107,33 +107,96 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         includeDatabase: 'true',
         includeSample: 'true', // Include sample jobs for comprehensive coverage
         page: page.toString(),
-        limit: '100' // Increased limit for unlimited search
+        limit: '50' // Reduced limit for faster loading
       });
 
-      const unlimitedResponse = await fetch(`/api/jobs/unlimited?${unlimitedParams.toString()}`);
-      
-      if (!unlimitedResponse.ok) {
-        throw new Error(`Failed to fetch unlimited jobs: ${unlimitedResponse.status}`);
+      console.log('📡 Making API call to:', `/api/jobs/unlimited?${unlimitedParams.toString()}`);
+
+      let unlimitedResponse;
+      let unlimitedData;
+
+      try {
+        unlimitedResponse = await fetch(`/api/jobs/unlimited?${unlimitedParams.toString()}`);
+        
+        console.log('📡 Unlimited API Response status:', unlimitedResponse.status);
+        
+        if (!unlimitedResponse.ok) {
+          const errorText = await unlimitedResponse.text();
+          console.error('❌ Unlimited API Error Response:', errorText);
+          throw new Error(`Unlimited API failed: ${unlimitedResponse.status}`);
+        }
+
+        unlimitedData = await unlimitedResponse.json();
+        console.log('📡 Unlimited API Response data:', unlimitedData);
+        
+        if (!unlimitedData.success) {
+          throw new Error(unlimitedData.error || 'Unlimited API returned success: false');
+        }
+      } catch (unlimitedError) {
+        console.warn('⚠️ Unlimited API failed, falling back to unified API:', unlimitedError);
+        
+        // Fallback to unified API
+        const unifiedParams = new URLSearchParams({
+          ...(query && { query }),
+          ...(location && { location }),
+          country: country,
+          includeExternal: 'true',
+          page: page.toString(),
+          limit: '50'
+        });
+
+        console.log('📡 Fallback: Making API call to unified API:', `/api/jobs/unified?${unifiedParams.toString()}`);
+        
+        const unifiedResponse = await fetch(`/api/jobs/unified?${unifiedParams.toString()}`);
+        
+        if (!unifiedResponse.ok) {
+          throw new Error(`Both unlimited and unified APIs failed: ${unifiedResponse.status}`);
+        }
+
+        const unifiedData = await unifiedResponse.json();
+        console.log('📡 Unified API Response data:', unifiedData);
+        
+        if (!unifiedData.success) {
+          throw new Error(unifiedData.error || 'Unified API also failed');
+        }
+
+        // Convert unified data to unlimited format
+        unlimitedData = {
+          success: true,
+          jobs: unifiedData.jobs || [],
+          pagination: {
+            totalJobs: unifiedData.pagination?.total || unifiedData.jobs?.length || 0,
+            totalPages: unifiedData.pagination?.totalPages || 1,
+            hasMore: unifiedData.pagination?.hasNext || false
+          },
+          sources: {
+            database: unifiedData.jobs?.length || 0,
+            external: 0,
+            sample: 0
+          },
+          metadata: {
+            sectors: [],
+            countries: [country]
+          }
+        };
       }
 
-      const unlimitedData = await unlimitedResponse.json();
-      
       if (unlimitedData.success) {
-        console.log(`✅ Unlimited API: Found ${unlimitedData.jobs?.length || 0} jobs on page ${page} for country ${country}`);
+        console.log(`✅ API: Found ${unlimitedData.jobs?.length || 0} jobs on page ${page} for country ${country}`);
         console.log(`📊 Total jobs available: ${unlimitedData.pagination?.totalJobs || 0}`);
         console.log(`📊 Job sources: Database=${unlimitedData.sources?.database || 0}, External=${unlimitedData.sources?.external || 0}, Sample=${unlimitedData.sources?.sample || 0}`);
         
         const newJobs = (unlimitedData.jobs || []).map(convertToSimpleJob);
         setJobs(newJobs);
         
-        // Update pagination state with unlimited data
-        console.log('📊 Unlimited pagination data from API:', unlimitedData.pagination);
+        // Update pagination state
+        console.log('📊 Pagination data from API:', unlimitedData.pagination);
         setTotalPages(unlimitedData.pagination?.totalPages || 1);
         setTotalJobs(unlimitedData.pagination?.totalJobs || 0);
         setHasNextPage(unlimitedData.pagination?.hasMore || false);
         setHasPrevPage(page > 1);
         setCurrentPage(page);
-        console.log('📊 Updated unlimited pagination state:', {
+        console.log('📊 Updated pagination state:', {
           totalPages: unlimitedData.pagination?.totalPages || 1,
           totalJobs: unlimitedData.pagination?.totalJobs || 0,
           hasMore: unlimitedData.pagination?.hasMore || false,
@@ -146,11 +209,13 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
           console.log(`📊 Available sectors: ${unlimitedData.metadata.sectors?.length || 0}, Countries: ${unlimitedData.metadata.countries?.length || 0}`);
         }
       } else {
-        throw new Error(unlimitedData.error || 'Failed to fetch unlimited jobs');
+        console.error('❌ API returned success: false', unlimitedData);
+        throw new Error(unlimitedData.error || 'Failed to fetch jobs');
       }
     } catch (err) {
-      console.error('Error fetching unlimited jobs:', err);
+      console.error('❌ Error fetching unlimited jobs:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch jobs');
+      setJobs([]); // Clear jobs on error
     } finally {
       setLoading(false);
     }
@@ -263,6 +328,13 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         {/* Loading State */}
         {loading && jobs.length === 0 && (
           <div className="space-y-4">
+            <div className="text-center py-8">
+              <div className="inline-flex items-center gap-2 text-blue-600">
+                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="font-medium">Loading unlimited jobs...</span>
+              </div>
+              <p className="text-sm text-gray-500 mt-2">Searching across all sectors and countries</p>
+            </div>
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse">
                 <div className="flex items-start space-x-4">
