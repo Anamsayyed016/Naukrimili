@@ -82,7 +82,7 @@ export default function CompanyProfilePage() {
 
   const fetchCompanyProfile = async () => {
     try {
-      const response = await fetch('/api/company/profile');
+      const response = await fetch('/api/employer/company-profile');
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -125,7 +125,7 @@ export default function CompanyProfilePage() {
 
     setSaving(true);
     try {
-      const response = await fetch('/api/company/profile', {
+      const response = await fetch('/api/employer/company-profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -158,7 +158,7 @@ export default function CompanyProfilePage() {
 
     setDeleting(true);
     try {
-      const response = await fetch('/api/company/profile', {
+      const response = await fetch('/api/employer/company-profile', {
         method: 'DELETE',
       });
 

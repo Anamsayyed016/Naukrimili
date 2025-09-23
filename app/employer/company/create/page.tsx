@@ -128,12 +128,9 @@ export default function CreateCompanyPage() {
     const checkExistingCompany = async () => {
       if (status === 'authenticated' && session?.user?.role === 'employer') {
         try {
-          const response = await fetch('/api/company/profile', {
+          const response = await fetch('/api/employer/company-profile', {
             method: 'GET',
             credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-            },
           });
 
           if (response.ok) {
@@ -330,20 +327,13 @@ export default function CreateCompanyPage() {
     
     try {
       // Get session token from cookies
-      const token = document.cookie
-        .split("; ")
-        .find(row => row.startsWith("next-auth.session-token="))
-        ?.split("=")[1];
-      
-      console.log("Session token found:", !!token);
-      console.log("Making API call to /api/company/profile");
+      console.log("Making API call to /api/employer/company-profile");
       console.log("Request body:", JSON.stringify(formData, null, 2));
       
       const response = await fetch("/api/employer/company-profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(token && { "Authorization": `Bearer ${token}` }),
         },
         credentials: "include",
         body: JSON.stringify(formData),

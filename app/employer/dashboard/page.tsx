@@ -129,7 +129,7 @@ export default function EmployerDashboard() {
       setLoading(true);
       
       // Check if company exists
-      const companyResponse = await fetch('/api/company/profile');
+      const companyResponse = await fetch('/api/employer/company-profile');
       if (companyResponse.ok) {
         const companyData = await companyResponse.json();
         if (companyData.success) {

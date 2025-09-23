@@ -1,24 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireEmployerAuth } from '@/lib/auth-utils';
+import { getAuthenticatedUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     console.log('🔍 Company profile API called');
     
-    const auth = await requireEmployerAuth();
-    if ("error" in auth) {
-      console.log('❌ Auth error:', auth.error, 'Status:', auth.status);
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    // First try to get basic user auth
+    const basicUser = await getAuthenticatedUser();
+    if (!basicUser) {
+      console.log('❌ No authenticated user found');
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
-    const { user } = auth;
-    console.log('✅ User authenticated:', { id: user.id, email: user.email, role: user.role });
+    if (basicUser.role !== 'employer') {
+      console.log('❌ User is not an employer, role:', basicUser.role);
+      return NextResponse.json({ error: "Employer account required" }, { status: 403 });
+    }
+
+    console.log('✅ User authenticated:', { id: basicUser.id, email: basicUser.email, role: basicUser.role });
     
     // Get the user's company
-    console.log('🔍 Looking for company for user:', user.id);
+    console.log('🔍 Looking for company for user:', basicUser.id);
     const company = await prisma.company.findFirst({
-      where: { createdBy: user.id },
+      where: { createdBy: basicUser.id },
       select: {
         id: true,
         name: true,
@@ -36,7 +41,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!company) {
-      console.log('❌ No company found for user:', user.id);
+      console.log('❌ No company found for user:', basicUser.id);
       return NextResponse.json(
         { error: "Company not found" },
         { status: 404 }
@@ -66,25 +71,30 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔍 Company creation API called');
     
-    const auth = await requireEmployerAuth();
-    if ("error" in auth) {
-      console.log('❌ Auth error:', auth.error, 'Status:', auth.status);
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    // First try to get basic user auth
+    const basicUser = await getAuthenticatedUser();
+    if (!basicUser) {
+      console.log('❌ No authenticated user found');
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
-    const { user } = auth;
-    console.log('✅ User authenticated:', { id: user.id, email: user.email, role: user.role });
+    if (basicUser.role !== 'employer') {
+      console.log('❌ User is not an employer, role:', basicUser.role);
+      return NextResponse.json({ error: "Employer account required" }, { status: 403 });
+    }
+
+    console.log('✅ User authenticated:', { id: basicUser.id, email: basicUser.email, role: basicUser.role });
     
     const body = await request.json();
     console.log('📥 Request body received:', body);
 
     // Check if company already exists
     const existingCompany = await prisma.company.findFirst({
-      where: { createdBy: user.id }
+      where: { createdBy: basicUser.id }
     });
 
     if (existingCompany) {
-      console.log('❌ Company already exists for user:', user.id);
+      console.log('❌ Company already exists for user:', basicUser.id);
       return NextResponse.json(
         { error: "Company profile already exists" },
         { status: 400 }
@@ -109,7 +119,7 @@ export async function POST(request: NextRequest) {
         culture: body.culture,
         mission: body.mission,
         vision: body.vision,
-        createdBy: user.id,
+        createdBy: basicUser.id,
         isVerified: false
       }
     });
@@ -120,7 +130,7 @@ export async function POST(request: NextRequest) {
     try {
       const { createNotification } = await import('@/lib/notification-service');
       await createNotification({
-        userId: user.id,
+        userId: basicUser.id,
         title: 'Company Profile Created! 🎉',
         message: `Your company "${company.name}" has been successfully created. You can now start posting jobs!`,
         type: 'success',
