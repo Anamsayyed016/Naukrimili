@@ -133,52 +133,82 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
           throw new Error(unlimitedData.error || 'Unlimited API returned success: false');
         }
       } catch (unlimitedError) {
-        console.warn('⚠️ Unlimited API failed, falling back to unified API:', unlimitedError);
+        console.warn('⚠️ Unlimited API failed, trying simple unlimited API:', unlimitedError);
         
-        // Fallback to unified API
-        const unifiedParams = new URLSearchParams({
-          ...(query && { query }),
-          ...(location && { location }),
-          country: country,
-          includeExternal: 'true',
-          page: page.toString(),
-          limit: '50'
-        });
+        try {
+          // Try simple unlimited API
+          const simpleParams = new URLSearchParams({
+            ...(query && { query }),
+            ...(location && { location }),
+            country: country,
+            page: page.toString(),
+            limit: '50'
+          });
 
-        console.log('📡 Fallback: Making API call to unified API:', `/api/jobs/unified?${unifiedParams.toString()}`);
-        
-        const unifiedResponse = await fetch(`/api/jobs/unified?${unifiedParams.toString()}`);
-        
-        if (!unifiedResponse.ok) {
-          throw new Error(`Both unlimited and unified APIs failed: ${unifiedResponse.status}`);
-        }
-
-        const unifiedData = await unifiedResponse.json();
-        console.log('📡 Unified API Response data:', unifiedData);
-        
-        if (!unifiedData.success) {
-          throw new Error(unifiedData.error || 'Unified API also failed');
-        }
-
-        // Convert unified data to unlimited format
-        unlimitedData = {
-          success: true,
-          jobs: unifiedData.jobs || [],
-          pagination: {
-            totalJobs: unifiedData.pagination?.total || unifiedData.jobs?.length || 0,
-            totalPages: unifiedData.pagination?.totalPages || 1,
-            hasMore: unifiedData.pagination?.hasNext || false
-          },
-          sources: {
-            database: unifiedData.jobs?.length || 0,
-            external: 0,
-            sample: 0
-          },
-          metadata: {
-            sectors: [],
-            countries: [country]
+          console.log('📡 Fallback: Making API call to simple unlimited API:', `/api/jobs/simple-unlimited?${simpleParams.toString()}`);
+          
+          const simpleResponse = await fetch(`/api/jobs/simple-unlimited?${simpleParams.toString()}`);
+          
+          if (!simpleResponse.ok) {
+            throw new Error(`Simple unlimited API failed: ${simpleResponse.status}`);
           }
-        };
+
+          const simpleData = await simpleResponse.json();
+          console.log('📡 Simple unlimited API Response data:', simpleData);
+          
+          if (!simpleData.success) {
+            throw new Error(simpleData.error || 'Simple unlimited API returned success: false');
+          }
+
+          unlimitedData = simpleData;
+        } catch (simpleError) {
+          console.warn('⚠️ Simple unlimited API also failed, trying unified API:', simpleError);
+          
+          // Final fallback to unified API
+          const unifiedParams = new URLSearchParams({
+            ...(query && { query }),
+            ...(location && { location }),
+            country: country,
+            includeExternal: 'true',
+            page: page.toString(),
+            limit: '50'
+          });
+
+          console.log('📡 Final fallback: Making API call to unified API:', `/api/jobs/unified?${unifiedParams.toString()}`);
+          
+          const unifiedResponse = await fetch(`/api/jobs/unified?${unifiedParams.toString()}`);
+          
+          if (!unifiedResponse.ok) {
+            throw new Error(`All APIs failed: ${unifiedResponse.status}`);
+          }
+
+          const unifiedData = await unifiedResponse.json();
+          console.log('📡 Unified API Response data:', unifiedData);
+          
+          if (!unifiedData.success) {
+            throw new Error(unifiedData.error || 'Unified API also failed');
+          }
+
+          // Convert unified data to unlimited format
+          unlimitedData = {
+            success: true,
+            jobs: unifiedData.jobs || [],
+            pagination: {
+              totalJobs: unifiedData.pagination?.total || unifiedData.jobs?.length || 0,
+              totalPages: unifiedData.pagination?.totalPages || 1,
+              hasMore: unifiedData.pagination?.hasNext || false
+            },
+            sources: {
+              database: unifiedData.jobs?.length || 0,
+              external: 0,
+              sample: 0
+            },
+            metadata: {
+              sectors: [],
+              countries: [country]
+            }
+          };
+        }
       }
 
       if (unlimitedData.success) {
