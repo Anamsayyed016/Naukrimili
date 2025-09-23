@@ -12,8 +12,20 @@ import MobileErrorBoundary from '@/components/MobileErrorBoundary';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Job Portal - Find Your Dream Job',
+  title: 'NaukriMili - Find Your Dream Job',
   description: 'Discover thousands of job opportunities and connect with top employers',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' }
+    ],
+    apple: '/favicon.svg',
+  },
+  openGraph: {
+    title: 'NaukriMili - Find Your Dream Job',
+    description: 'Discover thousands of job opportunities and connect with top employers',
+    images: ['/logo.svg'],
+  },
 };
 
 export default function RootLayout({
