@@ -73,58 +73,66 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
     };
   }
 
-  // Fetch jobs using unified API (database + external jobs)
+  // Fetch jobs using unlimited API (database + external + sample jobs)
   const fetchJobs = async (query: string = '', location: string = '', page: number = 1) => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Fetching jobs with query:', query, 'location:', location, 'page:', page);
+      console.log('🔍 Fetching unlimited jobs with query:', query, 'location:', location, 'page:', page);
 
-      // Use unified API to get both database and external jobs
-      const unifiedParams = new URLSearchParams({
+      // Use unlimited API to get comprehensive job coverage
+      const unlimitedParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
         country: 'IN',
         includeExternal: 'true',
+        includeDatabase: 'true',
+        includeSample: 'true', // Include sample jobs for comprehensive coverage
         page: page.toString(),
-        limit: '15' // 15 jobs per page for better pagination
+        limit: '50' // Increased limit for unlimited search
       });
 
-      const unifiedResponse = await fetch(`/api/jobs/unified?${unifiedParams.toString()}`);
+      const unlimitedResponse = await fetch(`/api/jobs/unlimited?${unlimitedParams.toString()}`);
       
-      if (!unifiedResponse.ok) {
-        throw new Error(`Failed to fetch jobs: ${unifiedResponse.status}`);
+      if (!unlimitedResponse.ok) {
+        throw new Error(`Failed to fetch unlimited jobs: ${unlimitedResponse.status}`);
       }
 
-      const unifiedData = await unifiedResponse.json();
+      const unlimitedData = await unlimitedResponse.json();
       
-      if (unifiedData.success) {
-        console.log(`✅ Unified API: Found ${unifiedData.jobs?.length || 0} jobs on page ${page}`);
-        console.log(`📊 Total jobs available: ${unifiedData.pagination?.total || 0}`);
+      if (unlimitedData.success) {
+        console.log(`✅ Unlimited API: Found ${unlimitedData.jobs?.length || 0} jobs on page ${page}`);
+        console.log(`📊 Total jobs available: ${unlimitedData.pagination?.totalJobs || 0}`);
+        console.log(`📊 Job sources: Database=${unlimitedData.sources?.database || 0}, External=${unlimitedData.sources?.external || 0}, Sample=${unlimitedData.sources?.sample || 0}`);
         
-        const newJobs = (unifiedData.jobs || []).map(convertToSimpleJob);
+        const newJobs = (unlimitedData.jobs || []).map(convertToSimpleJob);
         setJobs(newJobs);
         
-        // Update pagination state
-        console.log('📊 Pagination data from API:', unifiedData.pagination);
-        setTotalPages(unifiedData.pagination?.totalPages || 1);
-        setTotalJobs(unifiedData.pagination?.total || 0);
-        setHasNextPage(unifiedData.pagination?.hasNext || false);
-        setHasPrevPage(unifiedData.pagination?.hasPrev || false);
+        // Update pagination state with unlimited data
+        console.log('📊 Unlimited pagination data from API:', unlimitedData.pagination);
+        setTotalPages(unlimitedData.pagination?.totalPages || 1);
+        setTotalJobs(unlimitedData.pagination?.totalJobs || 0);
+        setHasNextPage(unlimitedData.pagination?.hasMore || false);
+        setHasPrevPage(page > 1);
         setCurrentPage(page);
-        console.log('📊 Updated pagination state:', {
-          totalPages: unifiedData.pagination?.totalPages || 1,
-          totalJobs: unifiedData.pagination?.total || 0,
-          hasNext: unifiedData.pagination?.hasNext || false,
-          hasPrev: unifiedData.pagination?.hasPrev || false,
+        console.log('📊 Updated unlimited pagination state:', {
+          totalPages: unlimitedData.pagination?.totalPages || 1,
+          totalJobs: unlimitedData.pagination?.totalJobs || 0,
+          hasMore: unlimitedData.pagination?.hasMore || false,
+          hasPrev: page > 1,
           currentPage: page
         });
+        
+        // Log available sectors and countries for debugging
+        if (unlimitedData.metadata) {
+          console.log(`📊 Available sectors: ${unlimitedData.metadata.sectors?.length || 0}, Countries: ${unlimitedData.metadata.countries?.length || 0}`);
+        }
       } else {
-        throw new Error(unifiedData.error || 'Failed to fetch jobs');
+        throw new Error(unlimitedData.error || 'Failed to fetch unlimited jobs');
       }
     } catch (err) {
-      console.error('Error fetching jobs:', err);
+      console.error('Error fetching unlimited jobs:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch jobs');
     } finally {
       setLoading(false);
