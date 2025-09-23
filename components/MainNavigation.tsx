@@ -19,7 +19,9 @@ import {
   Home,
   Upload,
   Search,
-  ChevronDown
+  ChevronDown,
+  Heart,
+  Users
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -99,30 +101,35 @@ export default function MainNavigation({
   }, [router]);
 
   const navLinks = useMemo(() => {
-    const baseLinks = [
+    // Keep main navigation clean and professional - only public pages
+    return [
       { title: "Home", href: "/", icon: Home },
       { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
       { title: "Companies", href: "/companies", icon: BuildingIcon }
     ];
+  }, []);
 
-    // Add role-specific links
-    if (isMounted && isAuthenticated && user?.role) {
-      if (user.role === 'employer') {
-        baseLinks.push(
-          { title: "Dashboard", href: "/employer/dashboard", icon: BarChartIcon },
-          { title: "Post Job", href: "/employer/jobs/create", icon: BriefcaseIcon },
-          { title: "Applications", href: "/employer/applications", icon: FileTextIcon }
-        );
-      } else if (user.role === 'jobseeker') {
-        baseLinks.push(
-          { title: "Dashboard", href: "/dashboard/jobseeker", icon: BarChartIcon },
-          { title: "My Resumes", href: "/dashboard/jobseeker/resumes", icon: FileTextIcon },
-          { title: "Applications", href: "/dashboard/jobseeker/applications", icon: BriefcaseIcon }
-        );
-      }
+  // Role-specific links for dropdown menus
+  const roleSpecificLinks = useMemo(() => {
+    if (!isMounted || !isAuthenticated || !user?.role) return [];
+
+    if (user.role === 'employer') {
+      return [
+        { title: "Dashboard", href: "/employer/dashboard", icon: BarChartIcon, description: "View analytics and insights" },
+        { title: "Post Job", href: "/employer/jobs/create", icon: BriefcaseIcon, description: "Create new job posting" },
+        { title: "Manage Jobs", href: "/employer/jobs", icon: FileTextIcon, description: "View and edit job postings" },
+        { title: "Applications", href: "/employer/applications", icon: Users, description: "Review job applications" },
+        { title: "Company Profile", href: "/employer/company/profile", icon: BuildingIcon, description: "Update company info" }
+      ];
+    } else if (user.role === 'jobseeker') {
+      return [
+        { title: "Dashboard", href: "/dashboard/jobseeker", icon: BarChartIcon, description: "View your activity" },
+        { title: "My Resumes", href: "/dashboard/jobseeker/resumes", icon: FileTextIcon, description: "Manage your resumes" },
+        { title: "Applications", href: "/dashboard/jobseeker/applications", icon: BriefcaseIcon, description: "Track your applications" },
+        { title: "Bookmarks", href: "/dashboard/jobseeker/bookmarks", icon: Heart, description: "Saved jobs" }
+      ];
     }
-
-    return baseLinks;
+    return [];
   }, [isMounted, isAuthenticated, user?.role]);
 
   return (
@@ -151,6 +158,39 @@ export default function MainNavigation({
                 {link.title}
               </Link>
             ))}
+
+            {/* Role-specific dropdown for authenticated users */}
+            {isMounted && isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300"
+                  >
+                    <span className="font-medium">
+                      {user.role === 'employer' ? 'For Employers' : 'For Job Seekers'}
+                    </span>
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-64">
+                  {roleSpecificLinks.map((link) => (
+                    <DropdownMenuItem key={link.title} asChild>
+                      <Link
+                        href={link.href}
+                        className="flex items-start gap-3 px-3 py-3 hover:bg-gray-50 transition-colors"
+                      >
+                        <link.icon className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900">{link.title}</div>
+                          <div className="text-sm text-gray-500 mt-0.5">{link.description}</div>
+                        </div>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Desktop Right Side - Enhanced User Actions */}
@@ -259,6 +299,29 @@ export default function MainNavigation({
                   {link.title}
                 </Link>
               ))}
+
+              {/* Role-specific features for mobile */}
+              {isMounted && isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
+                <div className="px-4 py-3 space-y-2 border-t border-gray-200">
+                  <div className="text-sm font-medium text-gray-500 mb-3">
+                    {user.role === 'employer' ? 'For Employers' : 'For Job Seekers'}
+                  </div>
+                  {roleSpecificLinks.map((link) => (
+                    <Link
+                      key={link.title}
+                      href={link.href}
+                      onClick={closeMenu}
+                      className="flex items-start gap-3 px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 touch-target"
+                    >
+                      <link.icon className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900">{link.title}</div>
+                        <div className="text-sm text-gray-500 mt-0.5">{link.description}</div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
               
               {/* Mobile Authentication Section */}
               {isMounted && isAuthenticated && user ? (
