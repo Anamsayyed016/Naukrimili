@@ -128,7 +128,6 @@ export async function POST(request: NextRequest) {
 
     // Send notification to user
     try {
-      const { createNotification } = await import('@/lib/notification-service');
       await createNotification({
         userId: basicUser.id,
         title: 'Company Profile Created! 🎉',

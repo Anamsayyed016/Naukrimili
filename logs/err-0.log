@@ -5576,3 +5576,272 @@
 2025-09-22T20:57:15:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
 2025-09-22T20:57:15:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
 2025-09-22T20:57:15: }
+2025-09-22T20:57:57:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-22T20:57:57: Require stack:
+2025-09-22T20:57:57: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-22T20:57:57: - /var/www/jobportal/node_modules/next/dist/server/next.js] {
+2025-09-22T20:57:57:   code: 'MODULE_NOT_FOUND',
+2025-09-22T20:57:57:   requireStack: [Array]
+2025-09-22T20:57:57: }
+2025-09-22T20:58:30: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T20:58:30:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T20:58:30:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T20:58:30: }
+2025-09-22T21:01:02: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T21:01:02:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T21:01:02:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T21:01:02: }
+2025-09-22T21:01:44: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T21:01:44:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T21:01:44:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T21:01:44: }
+2025-09-22T21:16:12: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T21:16:12:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T21:16:12:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T21:16:12: }
+2025-09-22T21:17:25: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T21:17:25:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T21:17:25:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T21:17:25: }
+2025-09-22T21:34:00: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T21:34:00:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T21:34:00:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T21:34:00: }
+2025-09-22T21:35:14: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T21:35:14:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T21:35:14:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T21:35:14: }
+2025-09-22T21:59:29: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T21:59:29:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T21:59:29:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T21:59:29: }
+2025-09-22T22:00:55: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T22:00:55:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T22:00:55:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T22:00:55: }
+2025-09-22T22:11:08: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T22:11:08:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T22:11:08:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T22:11:08: }
+2025-09-22T22:12:34: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T22:12:34:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T22:12:34:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T22:12:34: }
+2025-09-22T22:19:13: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T22:19:13:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T22:19:13:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T22:19:13: }
+2025-09-22T22:25:10: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T22:25:10:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T22:25:10:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T22:25:10: }
+2025-09-22T22:37:11: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T22:37:11:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T22:37:11:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T22:37:11: }
+2025-09-22T22:57:46: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T22:57:46: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T22:57:47: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T22:57:47: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T22:57:48: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T22:57:48: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T22:57:49: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T22:57:49: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T22:57:50: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T22:57:50: ❌ Failed to prepare Next.js app: [Error: Could not find a production build in the '.next' directory. Try building your app with 'next build' before starting the production server. https://nextjs.org/docs/messages/production-start-no-build-id]
+2025-09-22T23:06:32: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T23:06:32:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T23:06:32:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T23:06:32: }
+2025-09-22T23:09:04: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T23:09:04:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T23:09:04:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T23:09:04: }
+2025-09-22T23:24:56: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T23:24:56:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T23:24:56:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T23:24:56: }
+2025-09-22T23:27:15: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T23:27:15:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T23:27:15:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T23:27:15: }
+2025-09-22T23:36:55: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T23:36:55:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T23:36:55:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T23:36:55: }
+2025-09-22T23:38:53: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T23:38:53:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T23:38:53:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T23:38:53: }
+2025-09-22T23:57:53: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-22T23:57:53:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-22T23:57:53:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-22T23:57:53: }
+2025-09-23T00:01:13: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T00:01:13:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T00:01:13:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T00:01:13: }
+2025-09-23T10:43:00: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T10:43:00:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T10:43:00:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T10:43:00: }
+2025-09-23T11:06:14: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T11:06:14:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T11:06:14:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T11:06:14: }
+2025-09-23T11:23:24: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T11:23:24:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T11:23:24:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T11:23:24: }
+2025-09-23T11:24:27: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T11:24:27:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T11:24:27:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T11:24:27: }
+2025-09-23T12:04:45: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T12:04:45:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T12:04:45:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T12:04:45: }
+2025-09-23T12:07:55: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T12:07:55:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T12:07:55:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T12:07:55: }
+2025-09-23T12:32:15: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T12:32:15:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T12:32:15:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T12:32:15: }
+2025-09-23T12:36:23: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T12:36:23:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T12:36:23:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T12:36:23: }
+2025-09-23T13:36:07: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T13:36:07:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T13:36:07:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T13:36:07: }
+2025-09-23T13:58:29: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T13:58:29:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T13:58:29:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T13:58:29: }
+2025-09-23T14:02:20: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T14:02:20:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T14:02:20:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T14:02:20: }
+2025-09-23T14:35:16: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T14:35:16:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T14:35:16:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T14:35:16: }
+2025-09-23T16:11:54: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T16:11:54:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T16:11:54:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T16:11:54: }
+2025-09-23T16:55:41: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T16:55:41:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T16:55:41:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T16:55:41: }
+2025-09-23T17:24:20: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T17:24:20:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T17:24:20:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T17:24:20: }
+2025-09-23T17:46:52: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T17:46:52:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T17:46:52:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T17:46:52: }
+2025-09-23T17:48:13: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T17:48:13:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T17:48:13:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T17:48:13: }
+2025-09-23T17:59:31: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T17:59:31:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T17:59:31:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T17:59:31: }
+2025-09-23T18:00:52: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T18:00:52:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T18:00:52:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T18:00:52: }
+2025-09-23T18:18:07: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T18:18:07:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T18:18:07:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T18:18:07: }
+2025-09-23T18:20:46: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T18:20:46:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T18:20:46:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T18:20:46: }
+2025-09-23T18:33:19: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T18:33:19:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T18:33:19:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T18:33:19: }
+2025-09-23T18:54:05: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T18:54:05:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T18:54:05:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T18:54:05: }
+2025-09-23T18:55:38: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T18:55:38:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T18:55:38:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T18:55:38: }
+2025-09-23T19:10:29: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T19:10:29:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T19:10:29:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T19:10:29: }
+2025-09-23T19:14:46: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T19:14:46:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T19:14:46:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T19:14:46: }
+2025-09-23T19:31:14: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T19:31:14:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T19:31:14:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T19:31:14: }
+2025-09-23T19:32:23: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T19:32:23:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T19:32:23:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T19:32:23: }
+2025-09-23T19:46:49: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T19:46:49:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T19:46:49:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T19:46:49: }
+2025-09-23T19:57:03: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T19:57:03:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T19:57:03:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T19:57:03: }
+2025-09-23T20:17:06: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T20:17:06:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T20:17:06:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T20:17:06: }
+2025-09-23T20:18:15: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T20:18:15:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T20:18:15:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T20:18:15: }
+2025-09-23T20:32:00: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T20:32:00:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T20:32:00:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T20:32:00: }
+2025-09-23T20:33:31: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T20:33:31:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T20:33:31:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T20:33:31: }
+2025-09-23T20:50:30: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T20:50:30:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T20:50:30:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T20:50:30: }
+2025-09-23T20:57:58: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T20:57:58:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T20:57:58:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T20:57:58: }
+2025-09-23T21:19:21: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T21:19:21:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T21:19:21:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T21:19:21: }
+2025-09-23T21:22:07: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T21:22:07:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T21:22:07:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T21:22:07: }
+2025-09-23T21:26:41: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T21:26:41:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T21:26:41:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T21:26:41: }
+2025-09-23T21:33:13: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T21:33:13:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T21:33:13:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T21:33:13: }
+2025-09-23T21:39:50: ⚠️ Failed to link socket service to notification service: TypeError: Unknown file extension ".ts" for /var/www/jobportal/lib/notification-service.ts
+2025-09-23T21:39:50:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
+2025-09-23T21:39:50:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
+2025-09-23T21:39:50: }

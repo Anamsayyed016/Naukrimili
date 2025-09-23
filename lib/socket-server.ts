@@ -6,11 +6,9 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { NextRequest } from 'next/server';
 import { auth } from './nextauth-config';
-import { createNotification, NotificationData, CreateNotificationData } from './notification-service';
 import { prisma } from './prisma';
 
 // Use the notification service types
-export type NotificationType = CreateNotificationData['type'];
 
 export interface SocketUser {
   userId: string;

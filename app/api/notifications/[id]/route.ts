@@ -6,7 +6,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/nextauth-config';
 
-import { markNotificationAsRead } from '@/lib/notification-service';
 import { prisma } from '@/lib/prisma';
 
 export async function PATCH(

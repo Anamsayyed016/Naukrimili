@@ -10,7 +10,6 @@ import {
   getUserNotifications, 
   markAllNotificationsAsRead,
   createNotification 
-} from '@/lib/notification-service';
 
 export async function GET(request: NextRequest) {
   try {
