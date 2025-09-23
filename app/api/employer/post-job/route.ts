@@ -79,6 +79,51 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Job created successfully:', { id: job.id, title: job.title });
 
+    // Send real-time notification via Socket.io
+    try {
+      // Import socket.io server instance
+      const { getServerSocket } = await import('@/lib/socket-server');
+      const io = getServerSocket();
+      
+      if (io) {
+        // Emit job creation event to all connected clients
+        io.emit('job_created', {
+          jobId: job.id,
+          jobTitle: job.title,
+          company: job.company,
+          location: job.location,
+          userId: basicUser.id,
+          timestamp: new Date().toISOString(),
+          type: 'job_created'
+        });
+        console.log('📡 Socket notification sent for job creation');
+      }
+    } catch (socketError) {
+      console.error('❌ Failed to send socket notification:', socketError);
+      // Don't fail the job posting if socket notification fails
+    }
+
+    // Create database notification
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: basicUser.id,
+          title: 'Job Posted Successfully! 🎉',
+          message: `Your job "${job.title}" has been posted and is now live on the platform.`,
+          type: 'success',
+          data: {
+            jobId: job.id,
+            jobTitle: job.title,
+            action: 'job_created'
+          }
+        }
+      });
+      console.log('✅ Database notification created for job creation');
+    } catch (notificationError) {
+      console.error('❌ Failed to create database notification:', notificationError);
+      // Don't fail the job posting if notification creation fails
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Job posted successfully',

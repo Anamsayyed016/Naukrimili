@@ -21,7 +21,7 @@ export interface SocketUser {
 }
 
 class SocketNotificationService {
-  private io: SocketIOServer;
+  public io: SocketIOServer;
   private connectedUsers: Map<string, SocketUser> = new Map();
   private userRooms: Map<string, Set<string>> = new Map(); // userId -> Set of socketIds
 
@@ -539,6 +539,11 @@ export function initializeSocketService(io: SocketIOServer): SocketNotificationS
 
 export function getSocketService(): SocketNotificationService | null {
   return socketService;
+}
+
+// Get the Socket.io server instance
+export function getServerSocket(): SocketIOServer | null {
+  return socketService?.io || null;
 }
 
 export default SocketNotificationService;

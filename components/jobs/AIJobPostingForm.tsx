@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -118,6 +119,8 @@ const popularLocations: LocationOption[] = [
 ];
 
 export default function AIJobPostingForm() {
+  const router = useRouter();
+  
   // Initialize form data from localStorage or default values
   const getInitialFormData = (): JobFormData => {
     if (typeof window !== 'undefined') {
@@ -755,12 +758,33 @@ export default function AIJobPostingForm() {
       console.log('📥 Response data:', data);
 
       if (data.success) {
-        toast.success('🚀 Job posted successfully! Your AI-optimized listing is now live.', {
+        console.log('🎉 Job posted successfully!', data);
+        
+        // Show success notification
+        toast.success('🎉 Job posted successfully! Your AI-optimized listing is now live.', {
           description: 'Job seekers can now find and apply to your position with enhanced visibility.',
           duration: 5000,
         });
         
-        // Send notification to user
+        // Send real-time notification via Socket.io
+        try {
+          // Emit socket notification for real-time updates
+          if (typeof window !== 'undefined' && (window as any).io) {
+            (window as any).io.emit('job_created', {
+              jobId: data.job.id,
+              jobTitle: data.job.title,
+              company: data.job.company,
+              location: data.job.location,
+              userId: 'current_user', // This should be the actual user ID
+              timestamp: new Date().toISOString()
+            });
+            console.log('📡 Socket notification sent for job creation');
+          }
+        } catch (socketError) {
+          console.error('❌ Failed to send socket notification:', socketError);
+        }
+        
+        // Send database notification
         try {
           const notificationResponse = await fetch('/api/notifications', {
             method: 'POST',
@@ -778,13 +802,17 @@ export default function AIJobPostingForm() {
           });
           
           if (notificationResponse.ok) {
-            console.log('✅ Job creation notification sent');
+            console.log('✅ Job creation notification sent to database');
           }
         } catch (notificationError) {
           console.error('❌ Failed to send job creation notification:', notificationError);
           // Don't fail the job posting if notification fails
         }
-        // Reset form and clear persistence
+        
+        // Clear form data and redirect to dashboard
+        console.log('🔄 Clearing form and redirecting to dashboard...');
+        
+        // Reset form data
         const resetFormData: JobFormData = {
           title: '', description: '', requirements: '', location: '', city: '', state: '', country: 'IN',
           jobType: 'Full-time', experienceLevel: 'Entry Level (0-2 years)', salary: '', skills: [], benefits: '',
@@ -798,8 +826,14 @@ export default function AIJobPostingForm() {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('jobPostingFormData');
           sessionStorage.removeItem('jobPostingCurrentStep');
-          console.log('Cleared form persistence after successful submission');
+          console.log('✅ Cleared form persistence after successful submission');
         }
+        
+        // Redirect to employer dashboard after a short delay
+        setTimeout(() => {
+          console.log('🚀 Redirecting to employer dashboard...');
+          router.push('/employer/dashboard');
+        }, 2000);
       } else {
         toast.error(data.error || 'Failed to post job');
       }
