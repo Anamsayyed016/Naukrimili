@@ -183,7 +183,7 @@ export default function AIJobPostingForm() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [activeField, setActiveField] = useState<string | null>(null);
   const [fieldSuggestions, setFieldSuggestions] = useState<{[key: string]: AISuggestion}>({});
-  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+  // Removed typingTimeout - no longer needed for manual typing
   
   const [formData, setFormData] = useState<JobFormData>(getInitialFormData);
 
@@ -297,31 +297,7 @@ export default function AIJobPostingForm() {
     }
   }, [formData.jobType, formData.experienceLevel, formData.skills]);
 
-  // Debounced input handler for real-time suggestions
-  const handleInputChangeWithSuggestions = useCallback((field: keyof JobFormData, value: any) => {
-    console.log('Input change:', { field, value });
-    
-    setFormData(prev => {
-      const updated = { ...prev, [field]: value };
-      console.log('Form data updated:', updated);
-      return updated;
-    });
-    
-    // Clear existing timeout
-    if (typingTimeout) {
-      clearTimeout(typingTimeout);
-    }
-    
-    // Set new timeout for AI suggestions - INSTANT for professional feel
-    if (['title', 'description', 'requirements', 'benefits', 'skills'].includes(field) && typeof value === 'string') {
-      const timeout = setTimeout(() => {
-        console.log('Triggering AI suggestions for:', field, value);
-        getAISuggestions(field, value);
-      }, 150); // 150ms delay for instant professional feel
-      
-      setTypingTimeout(timeout);
-    }
-  }, [getAISuggestions, typingTimeout]);
+  // Removed handleInputChangeWithSuggestions - now using direct handleInputChange for manual typing
 
   // Detect current location
   const detectCurrentLocation = useCallback(async () => {
@@ -402,10 +378,33 @@ export default function AIJobPostingForm() {
 
   const handleInputChange = (field: keyof JobFormData, value: any) => {
     console.log('Manual input change:', { field, value });
-    // Directly update form data for manual typing
+    // Directly update form data for manual typing - no AI interference
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Also trigger AI suggestions if needed
-    handleInputChangeWithSuggestions(field, value);
+    // Clear any existing suggestions for this field to prevent conflicts
+    setFieldSuggestions(prev => {
+      const newSuggestions = { ...prev };
+      delete newSuggestions[field];
+      return newSuggestions;
+    });
+    setActiveField(null);
+  };
+
+  // Optional AI suggestions - only triggered when user requests them
+  const requestAISuggestions = (field: string) => {
+    let fieldValue: string;
+    
+    if (field === 'skills') {
+      fieldValue = skillsInput;
+    } else {
+      fieldValue = formData[field as keyof JobFormData] as string;
+    }
+    
+    if (typeof fieldValue === 'string' && fieldValue.trim().length > 0) {
+      console.log('User requested AI suggestions for:', field, fieldValue);
+      getAISuggestions(field, fieldValue);
+    } else {
+      toast.error('Please enter some text first before requesting AI suggestions');
+    }
   };
 
   const handleSkillsChange = (value: string) => {
@@ -423,20 +422,13 @@ export default function AIJobPostingForm() {
       }
     }
     
-    // Trigger AI suggestions for skills with debouncing
-    if (value.length > 2) {
-      // Clear existing timeout for skills
-      if (typingTimeout) {
-        clearTimeout(typingTimeout);
-      }
-      
-      const timeout = setTimeout(() => {
-        console.log('Triggering AI suggestions for skills:', value);
-        getAISuggestions('skills', value);
-      }, 150); // 150ms delay for instant professional feel
-      
-      setTypingTimeout(timeout);
-    }
+    // Clear any existing AI suggestions to prevent conflicts
+    setFieldSuggestions(prev => {
+      const newSuggestions = { ...prev };
+      delete newSuggestions.skills;
+      return newSuggestions;
+    });
+    setActiveField(null);
   };
 
   const addSkill = (skill: string) => {
@@ -503,13 +495,7 @@ export default function AIJobPostingForm() {
   }, [currentStep]);
 
   // Cleanup typing timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (typingTimeout) {
-        clearTimeout(typingTimeout);
-      }
-    };
-  }, [typingTimeout]);
+  // Removed typingTimeout cleanup - no longer needed
 
   const nextStep = () => {
     console.log('Next step clicked. Current step:', currentStep);
@@ -807,10 +793,22 @@ export default function AIJobPostingForm() {
                           value={formData.title}
                           onChange={(e) => handleInputChange('title', e.target.value)}
                           placeholder="e.g., Senior Software Engineer"
-                          className="text-base sm:text-lg h-12 sm:h-16 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 pr-12 bg-white text-slate-900 font-medium touch-manipulation"
+                          className="text-base sm:text-lg h-12 sm:h-16 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 pr-20 bg-white text-slate-900 font-medium touch-manipulation"
                         />
+                        {/* Optional AI Suggestion Button */}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => requestAISuggestions('title')}
+                          disabled={!formData.title.trim() || aiLoading}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                          title="Get AI suggestions for job title"
+                        >
+                          <Sparkles className="h-4 w-4 text-blue-600" />
+                        </Button>
                         {aiLoading && activeField === 'title' && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                           </div>
                         )}
@@ -902,10 +900,22 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('description', e.target.value)}
                           rows={6}
                           placeholder="Describe the role, responsibilities, and what makes this opportunity special..."
-                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base sm:text-lg bg-white text-slate-900 touch-manipulation resize-none"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-14 text-base sm:text-lg bg-white text-slate-900 touch-manipulation resize-none"
                         />
+                        {/* Optional AI Suggestion Button */}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => requestAISuggestions('description')}
+                          disabled={!formData.description.trim() || aiLoading}
+                          className="absolute right-2 top-2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                          title="Get AI suggestions for job description"
+                        >
+                          <Sparkles className="h-4 w-4 text-blue-600" />
+                        </Button>
                         {aiLoading && activeField === 'description' && (
-                          <div className="absolute right-3 top-3">
+                          <div className="absolute right-12 top-3">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                           </div>
                         )}
@@ -1050,10 +1060,22 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('requirements', e.target.value)}
                           rows={4}
                           placeholder="List the key requirements, qualifications, and experience needed..."
-                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base bg-white text-slate-900"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-14 text-base bg-white text-slate-900 touch-manipulation resize-none"
                         />
+                        {/* Optional AI Suggestion Button */}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => requestAISuggestions('requirements')}
+                          disabled={!formData.requirements.trim() || aiLoading}
+                          className="absolute right-2 top-2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                          title="Get AI suggestions for job requirements"
+                        >
+                          <Sparkles className="h-4 w-4 text-blue-600" />
+                        </Button>
                         {aiLoading && activeField === 'requirements' && (
-                          <div className="absolute right-3 top-3">
+                          <div className="absolute right-12 top-3">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                           </div>
                         )}
@@ -1143,14 +1165,7 @@ export default function AIJobPostingForm() {
                         <div className="relative">
                           <Input
                             value={skillsInput}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setSkillsInput(value);
-                              // Trigger AI suggestions for skills
-                              if (value.length > 2) {
-                                getAISuggestions('skills', value);
-                              }
-                            }}
+                            onChange={(e) => handleSkillsChange(e.target.value)}
                             onKeyDown={(e) => {
                               // Handle Enter key to add skill
                               if (e.key === 'Enter' && skillsInput.trim()) {
@@ -1164,10 +1179,22 @@ export default function AIJobPostingForm() {
                               }
                             }}
                             placeholder="Type skills and press Enter or comma to add..."
-                            className="h-12 sm:h-14 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 bg-white text-slate-900 text-base sm:text-lg touch-manipulation"
+                            className="h-12 sm:h-14 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 bg-white text-slate-900 text-base sm:text-lg touch-manipulation pr-12"
                           />
+                          {/* Optional AI Suggestion Button */}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => requestAISuggestions('skills')}
+                            disabled={!skillsInput.trim() || aiLoading}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                            title="Get AI suggestions for skills"
+                          >
+                            <Sparkles className="h-4 w-4 text-blue-600" />
+                          </Button>
                           {aiLoading && activeField === 'skills' && (
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
                               <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                             </div>
                           )}
@@ -1290,10 +1317,22 @@ export default function AIJobPostingForm() {
                           onChange={(e) => handleInputChange('benefits', e.target.value)}
                           rows={3}
                           placeholder="What benefits and perks do you offer? (health insurance, flexible hours, etc.)"
-                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-12 text-base bg-white text-slate-900"
+                          className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-14 text-base bg-white text-slate-900 touch-manipulation resize-none"
                         />
+                        {/* Optional AI Suggestion Button */}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => requestAISuggestions('benefits')}
+                          disabled={!formData.benefits.trim() || aiLoading}
+                          className="absolute right-2 top-2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                          title="Get AI suggestions for benefits"
+                        >
+                          <Sparkles className="h-4 w-4 text-blue-600" />
+                        </Button>
                         {aiLoading && activeField === 'benefits' && (
-                          <div className="absolute right-3 top-3">
+                          <div className="absolute right-12 top-3">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                           </div>
                         )}
