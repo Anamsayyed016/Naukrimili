@@ -378,10 +378,10 @@ export default function MainNavigation({
                       closeMenu();
                       handleLogout();
                     }}
-                    className="w-full flex items-center justify-center px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-300 font-medium border border-red-200 touch-target"
+                    className="w-full flex items-center justify-center px-4 py-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-300 font-medium border border-red-200 min-h-[48px] touch-target"
                   >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
+                    <LogOut className="w-5 h-5 mr-2 flex-shrink-0" />
+                    <span className="text-sm font-medium">Sign Out</span>
                   </button>
                 </div>
               ) : (
