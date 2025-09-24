@@ -408,7 +408,9 @@ export class RealJobSearch {
 
     const companies = [
       'TechCorp', 'InnovateLabs', 'Digital Solutions', 'CloudTech', 'DataFlow',
-      'WebCraft', 'AppBuilder', 'CodeForge', 'TechNova', 'DevStudio'
+      'WebCraft', 'AppBuilder', 'CodeForge', 'TechNova', 'DevStudio',
+      'HealthCare Plus', 'FinanceFirst', 'EduTech Solutions', 'MarketingPro', 'SalesForce',
+      'Engineering Corp', 'RetailMax', 'Hospitality Group', 'Manufacturing Inc', 'Consulting Partners'
     ];
 
     const locations = [

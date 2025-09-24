@@ -211,7 +211,7 @@ export class UnlimitedJobSearch {
     if (includeExternal) {
       try {
         const externalJobs = await this.searchExternalJobs({
-          query, location, country, page, limit: Math.min(limit * 3, 500) // Fetch more external jobs for unlimited search
+          query, location, country, page, limit: Math.min(limit * 5, 1000) // Fetch even more external jobs for truly unlimited search
         });
         allJobs.push(...externalJobs);
         sources.external = externalJobs.length;
@@ -224,12 +224,14 @@ export class UnlimitedJobSearch {
     // 3. Sample jobs for unlimited coverage
     if (includeSample) {
       try {
+        // Only generate sample jobs if we have very few real jobs
+        const sampleLimit = Math.max(limit - allJobs.length, 50); // Only fill the gap
         const sampleJobs = await this.generateSampleJobs({
-          query, location, country, sector, limit: Math.max(limit * 2, 200) // Generate more sample jobs for unlimited search
+          query, location, country, sector, limit: sampleLimit
         });
         allJobs.push(...sampleJobs);
         sources.sample = sampleJobs.length;
-        console.log(`✅ Sample jobs: Generated ${sampleJobs.length} jobs for unlimited search`);
+        console.log(`✅ Sample jobs: Generated ${sampleJobs.length} jobs (only ${sampleLimit} needed)`);
       } catch (error) {
         console.error('❌ Sample job generation failed:', error);
       }
@@ -387,43 +389,67 @@ export class UnlimitedJobSearch {
     // Generate multiple search queries for comprehensive coverage
     const searchQueries = this.generateSearchQueries(query);
 
-    // Optimized: Only fetch from 1 page per country, 2 countries max, 2 APIs max
-    const maxPages = 1; // Only 1 page to reduce calls
-    const maxCountries = 2; // Only 2 countries
-    const maxQueries = 1; // Only 1 query per country
+    // UNLIMITED: Fetch from multiple pages, multiple countries, multiple queries, ALL APIs
+    const maxPages = 3; // 3 pages per API for unlimited results
+    const maxCountries = 4; // 4 countries for global coverage
+    const maxQueries = 3; // 3 queries per country for comprehensive search
 
     for (const searchCountry of countriesToSearch.slice(0, maxCountries)) {
       const countryConfig = COUNTRY_CONFIGS[searchCountry as keyof typeof COUNTRY_CONFIGS] || COUNTRY_CONFIGS.IN;
       
-      console.log(`🌍 Searching in ${countryConfig.name} (${searchCountry})`);
+      console.log(`🌍 UNLIMITED: Searching in ${countryConfig.name} (${searchCountry})`);
       
       for (const searchQuery of searchQueries.slice(0, maxQueries)) {
         try {
-          // Use Promise.all for parallel API calls - only 2 APIs max
+          // Use ALL available APIs with multiple pages for unlimited results
           const apiPromises = [
-            fetchFromAdzuna(searchQuery, countryConfig.adzuna, 1, {
-              location: location || undefined,
-              distanceKm: 25
-            }).catch(err => {
-              console.warn(`Adzuna failed for ${searchCountry}:`, err);
-              return [];
-            }),
-            fetchFromJSearch(searchQuery, countryConfig.jsearch, 1).catch(err => {
-              console.warn(`JSearch failed for ${searchCountry}:`, err);
-              return [];
-            })
+            // Adzuna - multiple pages
+            ...Array.from({ length: maxPages }, (_, i) => 
+              fetchFromAdzuna(searchQuery, countryConfig.adzuna, i + 1, {
+                location: location || undefined,
+                distanceKm: 25
+              }).catch(err => {
+                console.warn(`Adzuna page ${i + 1} failed for ${searchCountry}:`, err);
+                return [];
+              })
+            ),
+            // JSearch - multiple pages
+            ...Array.from({ length: maxPages }, (_, i) => 
+              fetchFromJSearch(searchQuery, countryConfig.jsearch, i + 1).catch(err => {
+                console.warn(`JSearch page ${i + 1} failed for ${searchCountry}:`, err);
+                return [];
+              })
+            ),
+            // Google Jobs - multiple pages
+            ...Array.from({ length: maxPages }, (_, i) => 
+              fetchFromGoogleJobs(searchQuery, countryConfig.google, i + 1).catch(err => {
+                console.warn(`Google Jobs page ${i + 1} failed for ${searchCountry}:`, err);
+                return [];
+              })
+            ),
+            // Jooble - multiple pages
+            ...Array.from({ length: maxPages }, (_, i) => 
+              fetchFromJooble(searchQuery, countryConfig.jooble, i + 1).catch(err => {
+                console.warn(`Jooble page ${i + 1} failed for ${searchCountry}:`, err);
+                return [];
+              })
+            )
           ];
 
           const results = await Promise.all(apiPromises);
           
-          // Process results
+          // Process results from all APIs and pages
           results.forEach((jobs, index) => {
-            const apiName = index === 0 ? 'Adzuna' : 'JSearch';
+            const apiIndex = Math.floor(index / maxPages);
+            const pageNum = (index % maxPages) + 1;
+            const apiNames = ['Adzuna', 'JSearch', 'Google Jobs', 'Jooble'];
+            const apiName = apiNames[apiIndex] || 'Unknown';
+            
             allJobs.push(...jobs.map(job => ({ 
               ...job, 
               country: searchCountry, 
               countryName: countryConfig.name,
-              source: apiName
+              source: `${apiName} (Page ${pageNum})`
             })));
           });
 
@@ -431,13 +457,14 @@ export class UnlimitedJobSearch {
           console.warn(`⚠️ Error fetching for query "${searchQuery}" in ${countryConfig.name}:`, error);
         }
 
-        // Minimal rate limiting - only 100ms between countries
-        if (searchCountry !== countriesToSearch[countriesToSearch.length - 1]) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+        // Rate limiting between queries - 200ms for unlimited search
+        if (searchQuery !== searchQueries[searchQueries.length - 1]) {
+          await new Promise(resolve => setTimeout(resolve, 200));
         }
       }
     }
 
+    console.log(`🚀 UNLIMITED: Fetched ${allJobs.length} jobs from external APIs`);
     return allJobs;
   }
 
@@ -477,12 +504,37 @@ export class UnlimitedJobSearch {
     const { query, location, country, sector, limit } = options;
     const sampleJobs: any[] = [];
 
-    // Get a real company for sample jobs
-    const company = await prisma.company.findFirst({
-      where: { isActive: true }
+    // Get multiple real companies for diverse sample jobs
+    const companies = await prisma.company.findMany({
+      where: { isActive: true },
+      take: 10 // Get up to 10 companies for diversity
     });
 
-    if (!company) return sampleJobs;
+    // Fallback companies if no companies in database
+    const fallbackCompanies = [
+      { name: 'TechCorp', industry: 'Technology' },
+      { name: 'InnovateLabs', industry: 'Technology' },
+      { name: 'Digital Solutions', industry: 'Technology' },
+      { name: 'CloudTech', industry: 'Technology' },
+      { name: 'DataFlow', industry: 'Technology' },
+      { name: 'WebCraft', industry: 'Technology' },
+      { name: 'AppBuilder', industry: 'Technology' },
+      { name: 'CodeForge', industry: 'Technology' },
+      { name: 'TechNova', industry: 'Technology' },
+      { name: 'DevStudio', industry: 'Technology' },
+      { name: 'HealthCare Plus', industry: 'Healthcare' },
+      { name: 'FinanceFirst', industry: 'Finance' },
+      { name: 'EduTech Solutions', industry: 'Education' },
+      { name: 'MarketingPro', industry: 'Marketing' },
+      { name: 'SalesForce', industry: 'Sales' },
+      { name: 'Engineering Corp', industry: 'Engineering' },
+      { name: 'RetailMax', industry: 'Retail' },
+      { name: 'Hospitality Group', industry: 'Hospitality' },
+      { name: 'Manufacturing Inc', industry: 'Manufacturing' },
+      { name: 'Consulting Partners', industry: 'Consulting' }
+    ];
+
+    const companiesToUse = companies && companies.length > 0 ? companies : fallbackCompanies;
 
     // Determine countries to generate sample jobs for
     let countriesToGenerate = [country];
@@ -513,10 +565,13 @@ export class UnlimitedJobSearch {
           const jobLocation = this.generateLocationForCountry(countryCode, location);
           const salary = this.generateSalaryRangeForCountry(sectorName, countryCode);
 
+          // Select a random company for diversity
+          const randomCompany = companiesToUse[Math.floor(Math.random() * companiesToUse.length)];
+          
           sampleJobs.push({
             id: `sample-${countryCode}-${sectorName}-${i}-${Date.now()}`,
             title: jobTitle,
-            company: company.name,
+            company: randomCompany.name,
             location: jobLocation,
             country: countryCode,
             countryName: countryConfig.name,
@@ -596,15 +651,25 @@ export class UnlimitedJobSearch {
     const uniqueJobs: any[] = [];
 
     for (const job of jobs) {
-      // Create a more flexible key for deduplication
-      const key = `${job.title?.toLowerCase()}-${job.company?.toLowerCase()}`.replace(/[^a-z0-9]/g, '');
+      // Create multiple keys for thorough deduplication
+      const titleKey = job.title?.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const companyKey = job.company?.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const locationKey = job.location?.toLowerCase().replace(/[^a-z0-9]/g, '');
       
-      if (!seen.has(key)) {
-        seen.add(key);
+      // Check for exact duplicates
+      const exactKey = `${titleKey}-${companyKey}-${locationKey}`;
+      
+      // Check for similar jobs (same title and company, different location)
+      const similarKey = `${titleKey}-${companyKey}`;
+      
+      if (!seen.has(exactKey) && !seen.has(similarKey)) {
+        seen.add(exactKey);
+        seen.add(similarKey);
         uniqueJobs.push(job);
       }
     }
 
+    console.log(`🔄 Deduplication: ${jobs.length} jobs → ${uniqueJobs.length} unique jobs`);
     return uniqueJobs;
   }
 
@@ -613,6 +678,13 @@ export class UnlimitedJobSearch {
    */
   private sortJobs(jobs: any[], options: any) {
     return jobs.sort((a, b) => {
+      // Real jobs first (database and external), then sample jobs
+      const aIsReal = a.source && a.source !== 'sample';
+      const bIsReal = b.source && b.source !== 'sample';
+      
+      if (aIsReal && !bIsReal) return -1;
+      if (!aIsReal && bIsReal) return 1;
+
       // Featured jobs first
       if (a.isFeatured && !b.isFeatured) return -1;
       if (!a.isFeatured && b.isFeatured) return 1;

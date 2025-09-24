@@ -47,20 +47,31 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
+
   const searchParams = useSearchParams();
 
   // Initialize with search params and load jobs
   useEffect(() => {
     const query = searchParams.get('q') || searchParams.get('query') || '';
     const loc = searchParams.get('location') || '';
+    const jobType = searchParams.get('jobType') || '';
+    const experienceLevel = searchParams.get('experienceLevel') || '';
+    const isRemote = searchParams.get('isRemote') === 'true';
+    const salaryMin = searchParams.get('salaryMin') || '';
+    const salaryMax = searchParams.get('salaryMax') || '';
+    const sector = searchParams.get('sector') || '';
 
-    console.log('⚡ OptimizedJobsClient initializing with params:', { query, loc });
+    console.log('⚡ OptimizedJobsClient initializing with params:', { 
+      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector 
+    });
 
     // Reset pagination when search params change
     setCurrentPage(1);
     
-    // Always fetch jobs using optimized API
-    fetchJobs(query, loc, 1);
+    // Always fetch jobs using unlimited API with all filters
+    fetchJobs(query, loc, 1, {
+      jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
+    });
   }, [searchParams]);
 
   // Add periodic refresh to show newly posted jobs
@@ -68,8 +79,17 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     const interval = setInterval(() => {
       const query = searchParams.get('q') || searchParams.get('query') || '';
       const loc = searchParams.get('location') || '';
+      const jobType = searchParams.get('jobType') || '';
+      const experienceLevel = searchParams.get('experienceLevel') || '';
+      const isRemote = searchParams.get('isRemote') === 'true';
+      const salaryMin = searchParams.get('salaryMin') || '';
+      const salaryMax = searchParams.get('salaryMax') || '';
+      const sector = searchParams.get('sector') || '';
+      
       console.log('🔄 Refreshing jobs to show newly posted jobs...');
-      fetchJobs(query, loc, currentPage);
+      fetchJobs(query, loc, currentPage, {
+        jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
+      });
     }, 30000); // Refresh every 30 seconds
 
     return () => clearInterval(interval);
@@ -93,7 +113,19 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   }
 
   // Fetch jobs using optimized API for better performance
-  const fetchJobs = async (query: string = '', location: string = '', page: number = 1) => {
+  const fetchJobs = async (
+    query: string = '', 
+    location: string = '', 
+    page: number = 1, 
+    filters: {
+      jobType?: string;
+      experienceLevel?: string;
+      isRemote?: boolean;
+      salaryMin?: string;
+      salaryMax?: string;
+      sector?: string;
+    } = {}
+  ) => {
     try {
       setLoading(true);
       setError(null);
@@ -117,16 +149,23 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         }
       }
 
-      // Use real job search API for quality jobs
+      // Use unlimited job search API with all filters from home page
       const unlimitedParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
         country: country,
         page: page.toString(),
-        limit: '200', // Unlimited jobs per page
+        limit: '500', // Truly unlimited jobs per page
         includeExternal: 'true',
         includeDatabase: 'true',
-        includeSample: 'true'
+        includeSample: 'true',
+        // Add all filter parameters from home page search
+        ...(filters.jobType && { jobType: filters.jobType }),
+        ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),
+        ...(filters.isRemote && { isRemote: 'true' }),
+        ...(filters.salaryMin && { salaryMin: filters.salaryMin }),
+        ...(filters.salaryMax && { salaryMax: filters.salaryMax }),
+        ...(filters.sector && { sector: filters.sector })
       });
 
       console.log('📡 Making unlimited job search API call to:', `/api/jobs/unlimited?${unlimitedParams.toString()}`);
@@ -187,8 +226,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         totalPages: data.pagination?.totalPages,
         hasMore: data.pagination?.hasMore,
         currentPage: page,
-        limit: 200,
-        shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || jobs.length) > 200
+        limit: 500,
+        shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || jobs.length) > 500
       });
 
     } catch (error) {
@@ -234,8 +273,17 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   const handlePageChange = (page: number) => {
     const query = searchParams.get('q') || searchParams.get('query') || '';
     const location = searchParams.get('location') || '';
+    const jobType = searchParams.get('jobType') || '';
+    const experienceLevel = searchParams.get('experienceLevel') || '';
+    const isRemote = searchParams.get('isRemote') === 'true';
+    const salaryMin = searchParams.get('salaryMin') || '';
+    const salaryMax = searchParams.get('salaryMax') || '';
+    const sector = searchParams.get('sector') || '';
+    
     setCurrentPage(page);
-    fetchJobs(query, location, page);
+    fetchJobs(query, location, page, {
+      jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
+    });
   };
 
   // Handle bookmark toggle
@@ -297,6 +345,52 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         </div>
       )}
 
+      {/* Current Search Filters Display */}
+      {!loading && !error && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-medium text-blue-900 mb-2">Current Search:</h3>
+              <div className="flex flex-wrap gap-2">
+                {searchParams.get('q') && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    Keyword: {searchParams.get('q')}
+                  </span>
+                )}
+                {searchParams.get('location') && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Location: {searchParams.get('location')}
+                  </span>
+                )}
+                {searchParams.get('jobType') && searchParams.get('jobType') !== 'all' && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    Type: {searchParams.get('jobType')}
+                  </span>
+                )}
+                {searchParams.get('experienceLevel') && searchParams.get('experienceLevel') !== 'all' && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    Level: {searchParams.get('experienceLevel')}
+                  </span>
+                )}
+                {searchParams.get('isRemote') === 'true' && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
+                    Remote
+                  </span>
+                )}
+                {searchParams.get('salaryMin') && (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    Salary: {searchParams.get('salaryMin')}+
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="text-sm text-blue-600">
+              {totalJobs} jobs found
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Jobs List */}
       {!loading && !error && jobs.length > 0 && (
         <div className="space-y-4">
@@ -334,7 +428,16 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 onClick={() => {
                   const query = searchParams.get('q') || searchParams.get('query') || '';
                   const location = searchParams.get('location') || '';
-                  fetchJobs(query, location, currentPage);
+                  const jobType = searchParams.get('jobType') || '';
+                  const experienceLevel = searchParams.get('experienceLevel') || '';
+                  const isRemote = searchParams.get('isRemote') === 'true';
+                  const salaryMin = searchParams.get('salaryMin') || '';
+                  const salaryMax = searchParams.get('salaryMax') || '';
+                  const sector = searchParams.get('sector') || '';
+                  
+                  fetchJobs(query, location, currentPage, {
+                    jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
+                  });
                 }}
                 disabled={loading}
                 className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
@@ -345,10 +448,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 Refresh
               </button>
               <div className="text-sm text-gray-600">
-                {totalJobs} jobs found
                 {lastRefresh && (
-                  <span className="ml-2 text-xs text-gray-400">
-                    (Last updated: {lastRefresh.toLocaleTimeString()})
+                  <span className="text-xs text-gray-400">
+                    Last updated: {lastRefresh.toLocaleTimeString()}
                   </span>
                 )}
               </div>
@@ -380,7 +482,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
               <EnhancedPagination
                 config={{
                   page: currentPage,
-                  limit: 200,
+                  limit: 500,
                   total: totalJobs,
                   maxVisiblePages: 5,
                   showFirstLast: true,
