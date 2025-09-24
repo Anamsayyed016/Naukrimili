@@ -89,7 +89,7 @@ export class RealJobSearch {
     // 2. External API jobs (real jobs)
     try {
       const externalJobs = await this.searchExternalJobs({
-        query, location, country, page, limit: Math.min(limit - allJobs.length, 150)
+        query, location, country, page, limit: Math.min(limit * 2, 200)
       });
       allJobs.push(...externalJobs);
       sources.external = externalJobs.length;
@@ -99,10 +99,10 @@ export class RealJobSearch {
     }
 
     // 3. Generate more diverse jobs to ensure we have enough for pagination
-    if (allJobs.length < limit) {
+    if (allJobs.length < limit * 2) {
       try {
         const additionalJobs = await this.generateDiverseJobs({
-          query, location, country, limit: limit - allJobs.length
+          query, location, country, limit: Math.max(limit * 2 - allJobs.length, 50)
         });
         allJobs.push(...additionalJobs);
         sources.sample = additionalJobs.length;
@@ -131,13 +131,13 @@ export class RealJobSearch {
 
     const searchTime = Date.now() - startTime;
 
-    // Ensure we always have enough jobs for pagination
-    const totalJobsForPagination = Math.max(uniqueJobs.length, limit * 3); // At least 3 pages worth
-    const hasMore = endIndex < totalJobsForPagination || uniqueJobs.length > limit;
+    // Use actual job count for pagination
+    const actualTotalJobs = uniqueJobs.length;
+    const hasMore = endIndex < actualTotalJobs;
 
     const result: RealJobSearchResult = {
       jobs: paginatedJobs,
-      totalJobs: totalJobsForPagination,
+      totalJobs: actualTotalJobs,
       hasMore: hasMore,
       nextPage: hasMore ? page + 1 : undefined,
       sources,
@@ -226,7 +226,7 @@ export class RealJobSearch {
         { isFeatured: 'desc' },
         { createdAt: 'desc' }
       ],
-      take: Math.min(limit, 300) // Increased limit for more real jobs
+      take: Math.min(limit * 5, 1000) // Fetch more jobs to ensure pagination works
     });
 
     console.log(`🔍 Database query found ${jobs.length} jobs with sources:`, 
