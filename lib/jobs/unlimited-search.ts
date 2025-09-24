@@ -153,7 +153,7 @@ const MAIN_TARGET_COUNTRIES = ['IN', 'US', 'AE', 'GB'];
 
 export class UnlimitedJobSearch {
   private cache = new Map<string, { data: any; timestamp: number }>();
-  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private readonly CACHE_TTL = 2 * 60 * 1000; // 2 minutes for faster updates
 
   /**
    * Perform unlimited job search across all sectors
@@ -179,6 +179,14 @@ export class UnlimitedJobSearch {
     console.log(`🚀 Starting unlimited job search:`, {
       query, location, country, sector, page, limit
     });
+
+    // Check cache first
+    const cacheKey = `unlimited:${query}:${location}:${country}:${sector}:${page}:${limit}`;
+    const cachedResult = this.cache.get(cacheKey);
+    if (cachedResult && (Date.now() - cachedResult.timestamp) < this.CACHE_TTL) {
+      console.log(`✅ Cache hit for unlimited search: ${cacheKey}`);
+      return cachedResult.data;
+    }
 
     const allJobs: any[] = [];
     const sources = { database: 0, external: 0, sample: 0 };
@@ -257,13 +265,20 @@ export class UnlimitedJobSearch {
       countries: jobCountries
     };
 
+    // Cache the result
+    this.cache.set(cacheKey, {
+      data: result,
+      timestamp: Date.now()
+    });
+
     console.log(`🎯 Unlimited search results:`, {
       total: result.totalJobs,
       showing: paginatedJobs.length,
       hasMore: result.hasMore,
       sources: result.sources,
       sectors: result.sectors.length,
-      countries: result.countries.length
+      countries: result.countries.length,
+      cached: false
     });
 
     return result;
@@ -372,45 +387,53 @@ export class UnlimitedJobSearch {
     // Generate multiple search queries for comprehensive coverage
     const searchQueries = this.generateSearchQueries(query);
 
-    // Fetch from multiple pages to get more results
-    const maxPages = Math.min(3, Math.ceil(limit / 30)); // Reduced pages but more countries
+    // Optimized: Only fetch from 1 page per country, 2 countries max, 2 APIs max
+    const maxPages = 1; // Only 1 page to reduce calls
+    const maxCountries = 2; // Only 2 countries
+    const maxQueries = 1; // Only 1 query per country
 
-    for (const searchCountry of countriesToSearch.slice(0, 3)) { // Limit to 3 countries
+    for (const searchCountry of countriesToSearch.slice(0, maxCountries)) {
       const countryConfig = COUNTRY_CONFIGS[searchCountry as keyof typeof COUNTRY_CONFIGS] || COUNTRY_CONFIGS.IN;
       
       console.log(`🌍 Searching in ${countryConfig.name} (${searchCountry})`);
       
-      for (const searchQuery of searchQueries.slice(0, 2)) { // Limit to 2 queries per country
-        for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
-          try {
-            // Adzuna
-            const adzunaJobs = await fetchFromAdzuna(searchQuery, countryConfig.adzuna, pageNum, {
+      for (const searchQuery of searchQueries.slice(0, maxQueries)) {
+        try {
+          // Use Promise.all for parallel API calls - only 2 APIs max
+          const apiPromises = [
+            fetchFromAdzuna(searchQuery, countryConfig.adzuna, 1, {
               location: location || undefined,
-              distanceKm: 50 // Increased radius
-            });
-            allJobs.push(...adzunaJobs.map(job => ({ ...job, country: searchCountry, countryName: countryConfig.name })));
+              distanceKm: 25
+            }).catch(err => {
+              console.warn(`Adzuna failed for ${searchCountry}:`, err);
+              return [];
+            }),
+            fetchFromJSearch(searchQuery, countryConfig.jsearch, 1).catch(err => {
+              console.warn(`JSearch failed for ${searchCountry}:`, err);
+              return [];
+            })
+          ];
 
-            // JSearch
-            const jsearchJobs = await fetchFromJSearch(searchQuery, countryConfig.jsearch, pageNum);
-            allJobs.push(...jsearchJobs.map(job => ({ ...job, country: searchCountry, countryName: countryConfig.name })));
+          const results = await Promise.all(apiPromises);
+          
+          // Process results
+          results.forEach((jobs, index) => {
+            const apiName = index === 0 ? 'Adzuna' : 'JSearch';
+            allJobs.push(...jobs.map(job => ({ 
+              ...job, 
+              country: searchCountry, 
+              countryName: countryConfig.name,
+              source: apiName
+            })));
+          });
 
-            // Google Jobs
-            const googleJobs = await fetchFromGoogleJobs(searchQuery, countryConfig.google, pageNum);
-            allJobs.push(...googleJobs.map(job => ({ ...job, country: searchCountry, countryName: countryConfig.name })));
+        } catch (error) {
+          console.warn(`⚠️ Error fetching for query "${searchQuery}" in ${countryConfig.name}:`, error);
+        }
 
-            // Jooble
-            const joobleJobs = await fetchFromJooble(searchQuery, countryConfig.jooble, pageNum, {
-              radius: 50,
-              countryCode: searchCountry.toLowerCase()
-            });
-            allJobs.push(...joobleJobs.map(job => ({ ...job, country: searchCountry, countryName: countryConfig.name })));
-
-          } catch (error) {
-            console.warn(`⚠️ Error fetching page ${pageNum} for query "${searchQuery}" in ${countryConfig.name}:`, error);
-          }
-
-          // Rate limiting between pages
-          await new Promise(resolve => setTimeout(resolve, 500));
+        // Minimal rate limiting - only 100ms between countries
+        if (searchCountry !== countriesToSearch[countriesToSearch.length - 1]) {
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
     }
