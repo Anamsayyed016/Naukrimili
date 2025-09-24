@@ -138,17 +138,45 @@ export async function PATCH(
     // Send notification to job seeker about status update
     if (status && status !== existingApplication.status) {
       try {
+        // Create specific notification messages for different actions
+        let notificationTitle = 'Application Status Updated';
+        let notificationMessage = `Your application for ${updatedApplication.job.title} at ${updatedApplication.job.company} has been updated to ${status}`;
+        
+        switch (status) {
+          case 'shortlisted':
+            notificationTitle = '🎉 Congratulations! You\'ve been shortlisted!';
+            notificationMessage = `Great news! Your application for ${updatedApplication.job.title} at ${updatedApplication.job.company} has been shortlisted. The employer is interested in your profile!`;
+            break;
+          case 'interview':
+            notificationTitle = '📅 Interview Scheduled!';
+            notificationMessage = `Excellent! Your application for ${updatedApplication.job.title} at ${updatedApplication.job.company} has been selected for an interview. Check your email for interview details.`;
+            break;
+          case 'hired':
+            notificationTitle = '🎊 Congratulations! You got the job!';
+            notificationMessage = `Amazing news! You have been selected for the ${updatedApplication.job.title} position at ${updatedApplication.job.company}. Welcome to the team!`;
+            break;
+          case 'rejected':
+            notificationTitle = 'Application Update';
+            notificationMessage = `Thank you for your interest. Unfortunately, your application for ${updatedApplication.job.title} at ${updatedApplication.job.company} was not selected this time. Don't give up - keep applying!`;
+            break;
+          case 'reviewed':
+            notificationTitle = 'Application Reviewed';
+            notificationMessage = `Your application for ${updatedApplication.job.title} at ${updatedApplication.job.company} has been reviewed by the hiring team.`;
+            break;
+        }
+
         // Create database notification
         await createNotification({
           userId: updatedApplication.user.id,
           type: 'APPLICATION_UPDATE',
-          title: 'Application Status Updated',
-          message: `Your application for ${updatedApplication.job.title} at ${updatedApplication.job.company} has been updated to ${status}`,
+          title: notificationTitle,
+          message: notificationMessage,
           data: {
             applicationId: updatedApplication.id,
             newStatus: status,
             jobTitle: updatedApplication.job.title,
-            company: updatedApplication.job.company
+            company: updatedApplication.job.company,
+            actionType: status
           }
         });
 
@@ -157,13 +185,14 @@ export async function PATCH(
         if (socketService) {
           await socketService.sendNotificationToUser(updatedApplication.user.id, {
             type: 'APPLICATION_UPDATE',
-            title: 'Application Status Updated',
-            message: `Your application for ${updatedApplication.job.title} at ${updatedApplication.job.company} has been updated to ${status}`,
+            title: notificationTitle,
+            message: notificationMessage,
             data: {
               applicationId: updatedApplication.id,
               newStatus: status,
               jobTitle: updatedApplication.job.title,
-              company: updatedApplication.job.company
+              company: updatedApplication.job.company,
+              actionType: status
             }
           });
         }

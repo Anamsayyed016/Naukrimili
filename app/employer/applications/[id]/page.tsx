@@ -50,6 +50,7 @@ interface ApplicationDetail {
   noticePeriod?: string;
   lastUpdated: string;
   notes?: string;
+  isFavorite?: boolean;
 }
 
 export default function ApplicationDetailPage() {
@@ -62,6 +63,7 @@ export default function ApplicationDetailPage() {
   const [application, setApplication] = useState<ApplicationDetail | null>(null);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     if (applicationId) {
@@ -129,7 +131,8 @@ export default function ApplicationDetailPage() {
         expectedSalary: applicationData.expectedSalary || 'Not specified',
         noticePeriod: applicationData.noticePeriod || 'Not specified',
         lastUpdated: apiApplication.updatedAt,
-        notes: apiApplication.notes || ''
+        notes: apiApplication.notes || '',
+        isFavorite: apiApplication.isFavorite || false
       };
 
       setApplication(transformedApplication);
@@ -271,6 +274,182 @@ export default function ApplicationDetailPage() {
         return <Badge variant="destructive">Rejected</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  // Quick Actions Handlers
+  const handleShortlistCandidate = async () => {
+    if (!application) return;
+    
+    setActionLoading('shortlist');
+    try {
+      const response = await fetch(`/api/employer/applications/${applicationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: 'shortlisted',
+          notes: notes
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to shortlist candidate');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to shortlist candidate');
+      }
+      
+      // Update local state
+      setApplication(prev => prev ? { ...prev, status: 'shortlisted' } : null);
+      
+    } catch (error) {
+      console.error('Error shortlisting candidate:', error);
+      setError(error instanceof Error ? error.message : 'Failed to shortlist candidate');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleScheduleInterview = async () => {
+    if (!application) return;
+    
+    setActionLoading('interview');
+    try {
+      const response = await fetch(`/api/employer/applications/${applicationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: 'interview',
+          notes: notes
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to schedule interview');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to schedule interview');
+      }
+      
+      // Update local state
+      setApplication(prev => prev ? { ...prev, status: 'interview' } : null);
+      
+    } catch (error) {
+      console.error('Error scheduling interview:', error);
+      setError(error instanceof Error ? error.message : 'Failed to schedule interview');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleAddToFavorites = async () => {
+    if (!application) return;
+    
+    setActionLoading('favorite');
+    try {
+      const response = await fetch('/api/employer/applications/favorites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          applicationId: applicationId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add to favorites');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to add to favorites');
+      }
+      
+      // Update local state
+      setApplication(prev => prev ? { ...prev, isFavorite: true } : null);
+      
+    } catch (error) {
+      console.error('Error adding to favorites:', error);
+      setError(error instanceof Error ? error.message : 'Failed to add to favorites');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRemoveFromFavorites = async () => {
+    if (!application) return;
+    
+    setActionLoading('unfavorite');
+    try {
+      const response = await fetch(`/api/employer/applications/favorites?applicationId=${applicationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove from favorites');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to remove from favorites');
+      }
+      
+      // Update local state
+      setApplication(prev => prev ? { ...prev, isFavorite: false } : null);
+      
+    } catch (error) {
+      console.error('Error removing from favorites:', error);
+      setError(error instanceof Error ? error.message : 'Failed to remove from favorites');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRejectApplication = async () => {
+    if (!application) return;
+    
+    setActionLoading('reject');
+    try {
+      const response = await fetch(`/api/employer/applications/${applicationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: 'rejected',
+          notes: notes
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to reject application');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to reject application');
+      }
+      
+      // Update local state
+      setApplication(prev => prev ? { ...prev, status: 'rejected' } : null);
+      
+    } catch (error) {
+      console.error('Error rejecting application:', error);
+      setError(error instanceof Error ? error.message : 'Failed to reject application');
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -536,21 +715,74 @@ export default function ApplicationDetailPage() {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full bg-green-600 hover:bg-green-700">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Shortlist Candidate
+                <Button 
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  onClick={handleShortlistCandidate}
+                  disabled={actionLoading === 'shortlist' || application?.status === 'shortlisted'}
+                >
+                  {actionLoading === 'shortlist' ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  ) : (
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                  )}
+                  {application?.status === 'shortlisted' ? 'Shortlisted' : 'Shortlist Candidate'}
                 </Button>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Schedule Interview
+                
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  onClick={handleScheduleInterview}
+                  disabled={actionLoading === 'interview' || application?.status === 'interview'}
+                >
+                  {actionLoading === 'interview' ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  ) : (
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                  )}
+                  {application?.status === 'interview' ? 'Interview Scheduled' : 'Schedule Interview'}
                 </Button>
-                <Button variant="outline" className="w-full">
-                  <Star className="h-4 w-4 mr-2" />
-                  Add to Favorites
-                </Button>
-                <Button variant="destructive" className="w-full">
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Reject Application
+                
+                {application?.isFavorite ? (
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-yellow-500 text-yellow-600 hover:bg-yellow-50"
+                    onClick={handleRemoveFromFavorites}
+                    disabled={actionLoading === 'unfavorite'}
+                  >
+                    {actionLoading === 'unfavorite' ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600 mr-2"></div>
+                    ) : (
+                      <Star className="h-4 w-4 mr-2 fill-current" />
+                    )}
+                    Remove from Favorites
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={handleAddToFavorites}
+                    disabled={actionLoading === 'favorite'}
+                  >
+                    {actionLoading === 'favorite' ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+                    ) : (
+                      <Star className="h-4 w-4 mr-2" />
+                    )}
+                    Add to Favorites
+                  </Button>
+                )}
+                
+                <Button 
+                  variant="destructive" 
+                  className="w-full"
+                  onClick={handleRejectApplication}
+                  disabled={actionLoading === 'reject' || application?.status === 'rejected'}
+                >
+                  {actionLoading === 'reject' ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  ) : (
+                    <XCircle className="h-4 w-4 mr-2" />
+                  )}
+                  {application?.status === 'rejected' ? 'Application Rejected' : 'Reject Application'}
                 </Button>
               </CardContent>
             </Card>

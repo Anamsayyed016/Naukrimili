@@ -251,6 +251,7 @@ model Application {
   status      String   @default("submitted")
   coverLetter String?
   notes       String?
+  isFavorite  Boolean  @default(false)
   appliedAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   benefits     String?
@@ -268,6 +269,7 @@ model Application {
   @@index([userId])
   @@index([jobId])
   @@index([status])
+  @@index([isFavorite])
 }
 
 model Message {
