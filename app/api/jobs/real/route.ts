@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const salaryMax = searchParams.get('salaryMax') ? parseInt(searchParams.get('salaryMax')!) : undefined;
     const sector = searchParams.get('sector') || '';
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = Math.min(200, Math.max(10, parseInt(searchParams.get('limit') || '100')));
+    const limit = Math.min(500, Math.max(10, parseInt(searchParams.get('limit') || '200')));
 
     console.log('📊 Real search params:', { 
       query, location, country, page, limit, jobType, experienceLevel, isRemote 

@@ -123,7 +123,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         ...(location && { location }),
         country: country,
         page: page.toString(),
-        limit: '50' // Optimized limit for better pagination
+        limit: '200' // Unlimited jobs with pagination
       });
 
       console.log('📡 Making real job search API call to:', `/api/jobs/real?${realParams.toString()}`);
@@ -337,7 +337,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
               <EnhancedPagination
                 config={{
                   page: currentPage,
-                  limit: 50,
+                  limit: 200,
                   total: totalJobs,
                   maxVisiblePages: 5,
                   showFirstLast: true,

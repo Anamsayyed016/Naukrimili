@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       salaryMax: searchParams.get('salaryMax') ? parseInt(searchParams.get('salaryMax')!) : undefined,
       sector: searchParams.get('sector') || '',
       page: parseInt(searchParams.get('page') || '1'),
-      limit: Math.min(500, Math.max(10, parseInt(searchParams.get('limit') || '100'))), // Increased limit
+      limit: Math.min(1000, Math.max(10, parseInt(searchParams.get('limit') || '200'))), // Unlimited limit
       includeExternal: searchParams.get('includeExternal') !== 'false',
       includeDatabase: searchParams.get('includeDatabase') !== 'false',
       includeSample: searchParams.get('includeSample') !== 'false'

@@ -170,7 +170,7 @@ export class UnlimitedJobSearch {
       salaryMax,
       sector = '',
       page = 1,
-      limit = 100, // Increased default limit
+      limit = 200, // Unlimited default limit
       includeExternal = true,
       includeDatabase = true,
       includeSample = true
@@ -211,7 +211,7 @@ export class UnlimitedJobSearch {
     if (includeExternal) {
       try {
         const externalJobs = await this.searchExternalJobs({
-          query, location, country, page, limit: Math.min(limit * 2, 200) // Fetch more external jobs
+          query, location, country, page, limit: Math.min(limit * 3, 500) // Fetch more external jobs for unlimited search
         });
         allJobs.push(...externalJobs);
         sources.external = externalJobs.length;
@@ -221,15 +221,15 @@ export class UnlimitedJobSearch {
       }
     }
 
-    // 3. Sample jobs for sectors not covered
-    if (includeSample && allJobs.length < limit) {
+    // 3. Sample jobs for unlimited coverage
+    if (includeSample) {
       try {
         const sampleJobs = await this.generateSampleJobs({
-          query, location, country, sector, limit: limit - allJobs.length
+          query, location, country, sector, limit: Math.max(limit * 2, 200) // Generate more sample jobs for unlimited search
         });
         allJobs.push(...sampleJobs);
         sources.sample = sampleJobs.length;
-        console.log(`✅ Sample jobs: Generated ${sampleJobs.length} jobs`);
+        console.log(`✅ Sample jobs: Generated ${sampleJobs.length} jobs for unlimited search`);
       } catch (error) {
         console.error('❌ Sample job generation failed:', error);
       }
@@ -358,7 +358,7 @@ export class UnlimitedJobSearch {
         { isFeatured: 'desc' },
         { createdAt: 'desc' }
       ],
-      take: 1000 // Increased limit for database search
+      take: 5000 // Unlimited database search
     });
 
     return jobs;

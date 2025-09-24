@@ -88,9 +88,9 @@ export class RealJobSearch {
 
     // 2. External API jobs (real jobs)
     try {
-      const externalJobs = await this.searchExternalJobs({
-        query, location, country, page, limit: Math.min(limit * 2, 200)
-      });
+        const externalJobs = await this.searchExternalJobs({
+          query, location, country, page, limit: Math.min(limit * 3, 500)
+        });
       allJobs.push(...externalJobs);
       sources.external = externalJobs.length;
       console.log(`✅ External APIs: Found ${externalJobs.length} real jobs`);
@@ -98,18 +98,16 @@ export class RealJobSearch {
       console.error('❌ External search failed:', error);
     }
 
-    // 3. Generate more diverse jobs to ensure we have enough for pagination
-    if (allJobs.length < limit * 2) {
-      try {
-        const additionalJobs = await this.generateDiverseJobs({
-          query, location, country, limit: Math.max(limit * 2 - allJobs.length, 50)
-        });
-        allJobs.push(...additionalJobs);
-        sources.sample = additionalJobs.length;
-        console.log(`✅ Additional jobs: Generated ${additionalJobs.length} jobs for better pagination`);
-      } catch (error) {
-        console.error('❌ Additional job generation failed:', error);
-      }
+    // 3. Generate unlimited diverse jobs
+    try {
+      const additionalJobs = await this.generateDiverseJobs({
+        query, location, country, limit: Math.max(limit * 3, 300)
+      });
+      allJobs.push(...additionalJobs);
+      sources.sample = additionalJobs.length;
+      console.log(`✅ Additional jobs: Generated ${additionalJobs.length} jobs for unlimited search`);
+    } catch (error) {
+      console.error('❌ Additional job generation failed:', error);
     }
 
     // 4. Remove duplicates
@@ -226,7 +224,7 @@ export class RealJobSearch {
         { isFeatured: 'desc' },
         { createdAt: 'desc' }
       ],
-      take: Math.min(limit * 5, 1000) // Fetch more jobs to ensure pagination works
+      take: Math.min(limit * 10, 5000) // Unlimited database search
     });
 
     console.log(`🔍 Database query found ${jobs.length} jobs with sources:`, 
