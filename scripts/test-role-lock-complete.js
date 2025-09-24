@@ -3,7 +3,7 @@
  * Tests all aspects of the role lock system
  */
 
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
