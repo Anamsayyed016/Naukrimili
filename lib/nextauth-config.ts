@@ -90,6 +90,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             email: user.email,
             name: user.name,
             role: user.role || 'jobseeker',
+            roleLocked: (user as any).roleLocked || false,
+            lockedRole: (user as any).lockedRole,
+            roleLockReason: (user as any).roleLockReason,
             isActive: user.isActive || true
           };
         } catch (error) {
@@ -107,6 +110,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.email = user.email;
         token.name = user.name;
+        token.roleLocked = (user as any).roleLocked;
+        token.lockedRole = (user as any).lockedRole;
+        token.roleLockReason = (user as any).roleLockReason;
         token.isActive = true;
         console.log('�� JWT callback - Initial user data:', user);
       }
@@ -124,8 +130,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.role = dbUser.role;
             token.email = dbUser.email;
             token.name = dbUser.name;
+            token.roleLocked = (dbUser as any).roleLocked;
+            token.lockedRole = (dbUser as any).lockedRole;
+            token.roleLockReason = (dbUser as any).roleLockReason;
             token.isActive = dbUser.isActive;
-            console.log('🔍 JWT callback - Updated token with latest DB data:', { id: token.id, role: token.role, trigger });
+            console.log('🔍 JWT callback - Updated token with latest DB data:', { id: token.id, role: token.role, roleLocked: token.roleLocked, trigger });
           } else {
             // User not found or inactive, invalidate token
             return {};
@@ -226,7 +235,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
             // Send welcome notification for new user
             try {
-              await createWelcomeNotification(newUser.id, newUser.name || 'User', 'Google');
+              // Create a simple notification record
+              await prisma.notification.create({
+                data: {
+                  userId: newUser.id,
+                  type: 'welcome',
+                  title: 'Welcome to NaukriMili!',
+                  message: `Welcome ${newUser.name || 'User'}! Your account has been created successfully.`,
+                  isRead: false
+                }
+              });
               console.log('✅ Welcome notification sent for new Google OAuth user');
             } catch (notificationError) {
               console.error('❌ Failed to send welcome notification:', notificationError);

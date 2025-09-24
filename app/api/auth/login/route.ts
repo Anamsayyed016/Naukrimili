@@ -6,13 +6,14 @@ import { z } from 'zod';
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1)
+  password: z.string().min(1),
+  role: z.enum(['jobseeker', 'employer']).optional()
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password } = loginSchema.parse(body);
+    const { email, password, role } = loginSchema.parse(body);
 
     // Find user in database
     const user = await prisma.user.findUnique({
@@ -45,6 +46,20 @@ export async function POST(request: NextRequest) {
         success: false,
         error: 'Account is deactivated. Please contact support.'
       }, { status: 403 });
+    }
+
+    // Check role lock if role is specified
+    if (role && (user as any).roleLocked) {
+      if ((user as any).lockedRole !== role) {
+        const reason = (user as any).roleLockReason || 'Role switching is not allowed after initial selection';
+        return NextResponse.json({
+          success: false,
+          error: `Cannot login as ${role}. ${reason}`,
+          currentRole: user.role,
+          lockedRole: (user as any).lockedRole,
+          reason: reason
+        }, { status: 403 });
+      }
     }
 
     // Generate JWT token

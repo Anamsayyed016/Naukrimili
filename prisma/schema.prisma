@@ -78,6 +78,9 @@ model User {
   firstName          String?
   lastName           String?
   role               String?
+  roleLocked         Boolean        @default(false)
+  lockedRole         String?
+  roleLockReason     String?
   phone              String?
   location           String?
   bio                String?

@@ -21,6 +21,7 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [roleLockError, setRoleLockError] = useState<any>(null);
   const router = useRouter();
 
   // Handle OAuth users who are already authenticated
@@ -55,8 +56,10 @@ export default function SignInPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setRoleLockError(null);
 
     try {
+      // First, try to authenticate with credentials
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
@@ -64,6 +67,25 @@ export default function SignInPage() {
       });
 
       if (result?.ok) {
+        // Check if user has role lock issues
+        const roleCheckResponse = await fetch('/api/auth/check-role-lock', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email: formData.email,
+            requestedRole: 'jobseeker' // Default role for login
+          }),
+        });
+
+        const roleCheckResult = await roleCheckResponse.json();
+        
+        if (!roleCheckResult.canLogin) {
+          setRoleLockError(roleCheckResult);
+          return;
+        }
+
         // Redirect to role selection or dashboard based on user role
         router.push('/auth/role-selection');
       } else {
@@ -141,6 +163,35 @@ export default function SignInPage() {
               <Alert className="alert-error border-0 rounded-xl">
                 <AlertCircle className="h-5 w-5" />
                 <AlertDescription className="text-base">{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {roleLockError && (
+              <Alert className="border-amber-200 bg-amber-50 border-0 rounded-xl">
+                <AlertCircle className="h-5 w-5 text-amber-600" />
+                <AlertDescription className="text-base">
+                  <div className="space-y-2">
+                    <p className="font-medium text-amber-800">{roleLockError.error}</p>
+                    {roleLockError.currentRole && (
+                      <p className="text-sm text-amber-700">
+                        Current role: <span className="font-medium">{roleLockError.currentRole}</span>
+                      </p>
+                    )}
+                    {roleLockError.reason && (
+                      <p className="text-sm text-amber-700">
+                        {roleLockError.reason}
+                      </p>
+                    )}
+                    <div className="mt-3">
+                      <Link 
+                        href="/auth/signin" 
+                        className="text-sm font-medium text-amber-800 hover:text-amber-900 underline"
+                      >
+                        Try logging in as {roleLockError.lockedRole}
+                      </Link>
+                    </div>
+                  </div>
+                </AlertDescription>
               </Alert>
             )}
 
