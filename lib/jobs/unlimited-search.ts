@@ -177,7 +177,7 @@ export class UnlimitedJobSearch {
     } = options;
 
     console.log(`🚀 Starting unlimited job search:`, {
-      query, location, country, sector, page, limit
+      query, location, country, sector, page, limit, includeExternal, includeDatabase, includeSample
     });
 
     // Check cache first
@@ -224,8 +224,8 @@ export class UnlimitedJobSearch {
     // 3. Sample jobs for unlimited coverage
     if (includeSample) {
       try {
-        // Only generate sample jobs if we have very few real jobs
-        const sampleLimit = Math.max(limit - allJobs.length, 50); // Only fill the gap
+        // Generate more sample jobs for unlimited coverage
+        const sampleLimit = Math.max(limit * 2, 200); // Generate more sample jobs for unlimited search
         const sampleJobs = await this.generateSampleJobs({
           query, location, country, sector, limit: sampleLimit
         });
@@ -472,10 +472,11 @@ export class UnlimitedJobSearch {
    * Generate comprehensive search queries
    */
   private generateSearchQueries(baseQuery: string): string[] {
-    const queries = [baseQuery];
+    const queries = [];
 
     if (baseQuery) {
-      // Add variations
+      // Add the base query and variations
+      queries.push(baseQuery);
       queries.push(
         `${baseQuery} jobs`,
         `${baseQuery} careers`,
@@ -487,10 +488,21 @@ export class UnlimitedJobSearch {
         `${baseQuery} recruitment`
       );
     } else {
-      // If no query, use sector-specific terms
+      // If no query, use comprehensive default terms for unlimited search
+      const defaultTerms = [
+        'jobs', 'careers', 'employment', 'work', 'hiring', 'recruitment',
+        'software engineer', 'developer', 'manager', 'analyst', 'designer',
+        'marketing', 'sales', 'finance', 'healthcare', 'education', 'engineering',
+        'remote work', 'full time', 'part time', 'contract', 'freelance'
+      ];
+      
+      // Add sector-specific terms for comprehensive coverage
       Object.values(SECTOR_QUERIES).forEach(sectorQueries => {
-        queries.push(...sectorQueries.slice(0, 5)); // Take first 5 from each sector
+        queries.push(...sectorQueries.slice(0, 3)); // Take first 3 from each sector
       });
+      
+      // Add default terms
+      queries.push(...defaultTerms);
     }
 
     return [...new Set(queries)]; // Remove duplicates

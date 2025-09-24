@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const location = searchParams.get('location') || '';
     const country = searchParams.get('country') || 'IN';
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = Math.min(100, parseInt(searchParams.get('limit') || '50'));
+    const limit = Math.min(500, parseInt(searchParams.get('limit') || '200'));
     
     console.log('📊 Simple search params:', { query, location, country, page, limit });
     
@@ -76,25 +76,49 @@ export async function GET(request: NextRequest) {
     
     console.log(`✅ Found ${jobs.length} jobs from database`);
     
-    // Generate some sample jobs if we don't have enough
+    // Generate comprehensive sample jobs for unlimited results
     const sampleJobs = [];
     if (jobs.length < limit) {
-      const sampleCount = Math.min(10, limit - jobs.length);
+      const sampleCount = Math.min(200, limit - jobs.length); // Generate up to 200 sample jobs
+      const jobTitles = [
+        'Software Engineer', 'Frontend Developer', 'Backend Developer', 'Full Stack Developer',
+        'Data Scientist', 'Product Manager', 'Marketing Manager', 'Sales Representative',
+        'Graphic Designer', 'Content Writer', 'HR Manager', 'Financial Analyst',
+        'Project Manager', 'DevOps Engineer', 'UI/UX Designer', 'Business Analyst',
+        'Customer Success Manager', 'Operations Manager', 'Account Manager', 'Research Scientist'
+      ];
+      
+      const companies = [
+        'TechCorp', 'InnovateLabs', 'Digital Solutions', 'CloudTech', 'DataFlow',
+        'WebCraft', 'AppBuilder', 'CodeForge', 'TechNova', 'DevStudio',
+        'HealthCare Plus', 'FinanceFirst', 'EduTech Solutions', 'MarketingPro', 'SalesForce',
+        'Engineering Corp', 'RetailMax', 'Hospitality Group', 'Manufacturing Inc', 'Consulting Partners'
+      ];
+      
+      const locations = [
+        'Remote', 'New York, NY', 'San Francisco, CA', 'London, UK', 'Mumbai, India',
+        'Dubai, UAE', 'Toronto, Canada', 'Sydney, Australia', 'Berlin, Germany', 'Tokyo, Japan'
+      ];
+      
       for (let i = 0; i < sampleCount; i++) {
+        const title = jobTitles[i % jobTitles.length];
+        const company = companies[i % companies.length];
+        const jobLocation = locations[i % locations.length];
+        
         sampleJobs.push({
           id: `sample-${Date.now()}-${i}`,
-          title: `${query || 'Software'} Engineer ${i + 1}`,
-          company: `Sample Company ${i + 1}`,
-          location: location || 'Remote',
+          title: title,
+          company: company,
+          location: jobLocation,
           country: country,
-          description: `This is a sample job description for ${query || 'Software'} Engineer position.`,
-          salary: '$50,000 - $80,000',
-          jobType: 'Full-time',
-          experienceLevel: 'Mid Level',
-          isRemote: true,
-          isFeatured: false,
-          sector: 'Technology',
-          postedAt: new Date(),
+          description: `This is a comprehensive job description for ${title} position at ${company}. We are looking for talented professionals to join our team.`,
+          salary: `$${Math.floor(Math.random() * 50000) + 50000} - $${Math.floor(Math.random() * 50000) + 80000}`,
+          jobType: ['Full-time', 'Part-time', 'Contract'][i % 3],
+          experienceLevel: ['Entry Level', 'Mid Level', 'Senior Level'][i % 3],
+          isRemote: Math.random() > 0.5,
+          isFeatured: i % 10 === 0,
+          sector: ['Technology', 'Healthcare', 'Finance', 'Education', 'Marketing'][i % 5],
+          postedAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
           createdAt: new Date(),
           source: 'sample',
           sourceId: `sample-${i}`,

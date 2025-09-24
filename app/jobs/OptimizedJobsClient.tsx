@@ -241,7 +241,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           ...(location && { location }),
           country: 'IN', // Default country for fallback
           page: page.toString(),
-          limit: '100'
+          limit: '200'
         });
         
         const fallbackResponse = await fetch(`/api/jobs/simple-unlimited?${fallbackParams.toString()}`);
