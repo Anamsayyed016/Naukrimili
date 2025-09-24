@@ -315,6 +315,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle resume upload if provided
+    let resumeId = null;
     let resumeUrl = null;
     if (resumeFile && resumeFile.size > 0) {
       try {
@@ -327,7 +328,20 @@ export async function POST(request: NextRequest) {
         // In a real implementation, you'd upload to cloud storage
         resumeUrl = `/uploads/resumes/${fileName}`;
         
-        console.log('✅ Resume processed:', fileName);
+        // Create Resume record in database
+        const resume = await prisma.resume.create({
+          data: {
+            userId: user.id,
+            fileName: fileName,
+            fileUrl: resumeUrl,
+            fileSize: resumeFile.size,
+            mimeType: resumeFile.type || 'application/pdf',
+            isActive: true
+          }
+        });
+        
+        resumeId = resume.id;
+        console.log('✅ Resume created in database:', resume.id);
       } catch (resumeError) {
         console.warn('⚠️ Failed to process resume:', resumeError);
         // Continue without resume
@@ -343,9 +357,22 @@ export async function POST(request: NextRequest) {
         status: 'submitted',
         appliedAt: new Date(),
         coverLetter: coverLetter || null,
-        resumeId: null, // Link to uploaded resume if available
-        companyId: companyId
-      },
+        resumeId: resumeId, // Link to uploaded resume if available
+        companyId: companyId,
+        applicationData: JSON.stringify({
+          resumeUrl: resumeUrl,
+          phone: phone || null,
+          location: location || null,
+          experience: null, // Not provided in form data
+          education: null, // Not provided in form data
+          skills: null, // Not provided in form data
+          expectedSalary: expectedSalary || null,
+          noticePeriod: availability || null, // Using availability as noticePeriod
+          portfolioUrl: null, // Not provided in form data
+          linkedinUrl: null, // Not provided in form data
+          githubUrl: null // Not provided in form data
+        })
+      } as any,
       include: {
         job: true,
         user: {
@@ -376,7 +403,7 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           type: 'APPLICATION_UPDATE',
           title: 'Application Submitted Successfully!',
-          message: `Your application for "${application.job?.title || 'the job'}" has been submitted successfully.`,
+          message: `Your application for "${(application as any).job?.title || 'the job'}" has been submitted successfully.`,
           data: {
             applicationId: application.id,
             jobId: application.jobId,
@@ -386,6 +413,32 @@ export async function POST(request: NextRequest) {
       });
 
       console.log('✅ Database notification created for job seeker:', user.id);
+
+      // Send real-time notification via Socket.io to job seeker
+      try {
+        const { getServerSocket } = await import('@/lib/socket-server');
+        const io = getServerSocket();
+        
+        if (io) {
+          io.to(`user:${user.id}`).emit('new_notification', {
+            type: 'APPLICATION_UPDATE',
+            title: 'Application Submitted Successfully! 🎉',
+            message: `Your application for "${(application as any).job?.title || 'the job'}" has been submitted successfully.`,
+            data: {
+              applicationId: application.id,
+              jobId: application.jobId,
+              companyId: application.companyId,
+              jobTitle: (application as any).job?.title || 'Unknown Job',
+              companyName: (application as any).job?.company || 'Unknown Company'
+            },
+            timestamp: new Date().toISOString()
+          });
+          console.log('📡 Real-time notification sent to job seeker via Socket.io');
+        }
+      } catch (socketError) {
+        console.warn('⚠️ Failed to send real-time notification to job seeker:', socketError);
+      }
+
     } catch (dbError) {
       console.warn('⚠️ Failed to create database notification for job seeker:', dbError);
     }
@@ -409,11 +462,11 @@ export async function POST(request: NextRequest) {
               userId: employer.id,
               type: 'APPLICATION_UPDATE',
               title: 'New Job Application Received! 🎉',
-              message: `You have received a new application for "${application.job?.title || 'the job'}" from ${fullName}.`,
+              message: `You have received a new application for "${(application as any).job?.title || 'the job'}" from ${fullName}.`,
               data: {
                 applicationId: application.id,
                 jobId: application.jobId,
-                jobTitle: application.job?.title || 'Unknown Job',
+                jobTitle: (application as any).job?.title || 'Unknown Job',
                 applicantName: fullName,
                 applicantEmail: email,
                 applicantPhone: phone
@@ -432,11 +485,11 @@ export async function POST(request: NextRequest) {
               io.to(`user:${employer.id}`).emit('new_notification', {
                 type: 'APPLICATION_UPDATE',
                 title: 'New Job Application Received! 🎉',
-                message: `You have received a new application for "${application.job?.title || 'the job'}" from ${fullName}.`,
+                message: `You have received a new application for "${(application as any).job?.title || 'the job'}" from ${fullName}.`,
                 data: {
                   applicationId: application.id,
                   jobId: application.jobId,
-                  jobTitle: application.job?.title || 'Unknown Job',
+                  jobTitle: (application as any).job?.title || 'Unknown Job',
                   applicantName: fullName,
                   applicantEmail: email,
                   applicantPhone: phone
@@ -460,8 +513,8 @@ export async function POST(request: NextRequest) {
       message: 'Application submitted successfully!',
       application: {
         id: application.id,
-        jobTitle: application.job?.title || 'Unknown Job',
-        companyName: application.job?.company || 'Unknown Company',
+        jobTitle: (application as any).job?.title || 'Unknown Job',
+        companyName: (application as any).job?.company || 'Unknown Company',
         status: application.status,
         appliedAt: application.appliedAt
       }

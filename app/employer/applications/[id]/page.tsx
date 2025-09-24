@@ -38,6 +38,7 @@ interface ApplicationDetail {
   status: 'submitted' | 'reviewed' | 'shortlisted' | 'interview' | 'hired' | 'rejected';
   appliedAt: string;
   resumeUrl: string;
+  resumeId?: string;
   coverLetter: string;
   experience: string;
   education: string;
@@ -109,6 +110,7 @@ export default function ApplicationDetailPage() {
         status: apiApplication.status,
         appliedAt: apiApplication.appliedAt,
         resumeUrl: apiApplication.resume?.fileUrl || applicationData.resumeUrl || null,
+        resumeId: apiApplication.resume?.id || null,
         coverLetter: apiApplication.coverLetter || applicationData.coverLetter || 'No cover letter provided',
         experience: apiApplication.user.experience || applicationData.experience || 'Not specified',
         education: apiApplication.user.education || applicationData.education || 'Not specified',
@@ -217,18 +219,14 @@ export default function ApplicationDetailPage() {
   };
 
   const handleDownloadResume = async () => {
-    if (!application?.resumeUrl) return;
+    if (!application?.resumeId) {
+      console.error('No resume ID available for download');
+      return;
+    }
     
     try {
-      // Extract resume ID from the resume URL or use application data
-      const resumeId = application.resumeUrl.split('/').pop()?.split('.')[0];
-      
-      if (!resumeId) {
-        throw new Error('Invalid resume URL');
-      }
-
-      // Call the employer resume download API
-      const response = await fetch(`/api/employer/resumes/${resumeId}/download`);
+      // Call the employer resume download API using the stored resume ID
+      const response = await fetch(`/api/employer/resumes/${application.resumeId}/download`);
       
       if (!response.ok) {
         throw new Error('Failed to download resume');
@@ -563,7 +561,7 @@ export default function ApplicationDetailPage() {
                 <CardTitle>Documents</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {application.resumeUrl ? (
+                {application.resumeUrl && application.resumeId ? (
                   <Button 
                     variant="outline" 
                     className="w-full"
