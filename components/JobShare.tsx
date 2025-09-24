@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { getJobUrl } from '@/components/SEOJobLink';
 import { 
   Share2, 
   MessageCircle, 
@@ -42,8 +43,8 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Generate job URL
-  const jobUrl = typeof window !== 'undefined' ? `${window.location.origin}/jobs/${job.id}` : '';
+  // Generate SEO-friendly job URL
+  const jobUrl = typeof window !== 'undefined' ? `${window.location.origin}${getJobUrl(job)}` : '';
   
   // Generate share text
   const shareText = `Check out this job opportunity: ${job.title} at ${job.company || 'Company'}${job.location ? ` in ${job.location}` : ''}`;
@@ -140,17 +141,37 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
   }, [isOpen]);
 
   return (
-    <div className={`relative ${className}`}>
+    <>
+      <style jsx>{`
+        .touch-target {
+          min-height: 44px;
+          min-width: 44px;
+        }
+        
+        @media (max-width: 640px) {
+          .touch-target {
+            min-height: 48px;
+            min-width: 48px;
+          }
+        }
+        
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
+      <div className={`relative ${className}`}>
       {/* Share Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
         variant="outline"
-        size="lg"
-        className="flex items-center gap-2 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 rounded-xl transition-all duration-300 text-xs sm:text-sm md:text-base min-w-0"
+        size="sm"
+        className="flex items-center gap-2 bg-white/90 backdrop-blur-sm border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-medium px-3 py-2 rounded-lg transition-all duration-200 text-sm min-w-[44px] min-h-[44px] touch-target"
       >
-        <Share2 className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
-        <span className="hidden sm:inline">Share Job</span>
-        <span className="sm:hidden">Share</span>
+        <Share2 className="w-4 h-4 flex-shrink-0" />
+        <span className="hidden xs:inline">Share</span>
       </Button>
 
       {/* Share Modal */}
@@ -165,7 +186,7 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
           {/* Modal Container */}
           <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             <div 
-              className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-sm max-h-[90vh] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
+              className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md max-h-[90vh] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -188,16 +209,16 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
 
               {/* Share Options */}
               <div className="p-4 max-h-[60vh] overflow-y-auto">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {/* Native Share (Mobile) */}
                   {navigator.share && (
                     <Button
                       onClick={handleNativeShare}
                       variant="outline"
-                      className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-gray-50 border-gray-200"
+                      className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-gray-50 border-gray-200 touch-target"
                     >
-                      <Share2 className="h-6 w-6 text-gray-600" />
-                      <span className="text-sm font-medium text-gray-700">Share</span>
+                      <Share2 className="h-5 w-5 text-gray-600" />
+                      <span className="text-xs font-medium text-gray-700">Share</span>
                     </Button>
                   )}
 
@@ -205,64 +226,64 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
                   <Button
                     onClick={() => handleExternalShare(shareUrls.whatsapp)}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-green-50 hover:border-green-200 border-gray-200"
+                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-green-50 hover:border-green-200 border-gray-200 touch-target"
                   >
-                    <MessageCircle className="h-6 w-6 text-green-600" />
-                    <span className="text-sm font-medium text-gray-700">WhatsApp</span>
+                    <MessageCircle className="h-5 w-5 text-green-600" />
+                    <span className="text-xs font-medium text-gray-700">WhatsApp</span>
                   </Button>
 
                   {/* LinkedIn */}
                   <Button
                     onClick={() => handleExternalShare(shareUrls.linkedin)}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-blue-50 hover:border-blue-200 border-gray-200"
+                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-blue-50 hover:border-blue-200 border-gray-200 touch-target"
                   >
-                    <Linkedin className="h-6 w-6 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700">LinkedIn</span>
+                    <Linkedin className="h-5 w-5 text-blue-600" />
+                    <span className="text-xs font-medium text-gray-700">LinkedIn</span>
                   </Button>
 
                   {/* Twitter/X */}
                   <Button
                     onClick={() => handleExternalShare(shareUrls.twitter)}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-gray-50 hover:border-gray-200 border-gray-200"
+                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-gray-50 hover:border-gray-200 border-gray-200 touch-target"
                   >
-                    <Twitter className="h-6 w-6 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-700">Twitter/X</span>
+                    <Twitter className="h-5 w-5 text-gray-600" />
+                    <span className="text-xs font-medium text-gray-700">Twitter/X</span>
                   </Button>
 
                   {/* Email */}
                   <Button
                     onClick={() => handleExternalShare(shareUrls.email)}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-red-50 hover:border-red-200 border-gray-200"
+                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-red-50 hover:border-red-200 border-gray-200 touch-target"
                   >
-                    <Mail className="h-6 w-6 text-red-600" />
-                    <span className="text-sm font-medium text-gray-700">Email</span>
+                    <Mail className="h-5 w-5 text-red-600" />
+                    <span className="text-xs font-medium text-gray-700">Email</span>
                   </Button>
 
                   {/* Instagram */}
                   <Button
                     onClick={handleInstagramShare}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-pink-50 hover:border-pink-200 border-gray-200"
+                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-pink-50 hover:border-pink-200 border-gray-200 touch-target"
                   >
-                    <Instagram className="h-6 w-6 text-pink-600" />
-                    <span className="text-sm font-medium text-gray-700">Instagram</span>
+                    <Instagram className="h-5 w-5 text-pink-600" />
+                    <span className="text-xs font-medium text-gray-700">Instagram</span>
                   </Button>
 
                   {/* Copy Link */}
                   <Button
                     onClick={handleCopyLink}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-purple-50 hover:border-purple-200 border-gray-200"
+                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-purple-50 hover:border-purple-200 border-gray-200 touch-target"
                   >
                     {copied ? (
-                      <Check className="h-6 w-6 text-green-600" />
+                      <Check className="h-5 w-5 text-green-600" />
                     ) : (
-                      <Copy className="h-6 w-6 text-purple-600" />
+                      <Copy className="h-5 w-5 text-purple-600" />
                     )}
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-xs font-medium text-gray-700">
                       {copied ? 'Copied!' : 'Copy Link'}
                     </span>
                   </Button>
@@ -270,12 +291,21 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
 
                 {/* Job Preview */}
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                  <div className="text-sm text-gray-600 mb-1">Preview:</div>
-                  <div className="text-sm font-medium text-gray-900 line-clamp-2">
+                  <div className="text-xs text-gray-600 mb-2 font-medium">Preview:</div>
+                  <div className="text-sm font-semibold text-gray-900 line-clamp-2 leading-tight">
                     {job.title}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {job.company}{job.location && ` • ${job.location}`}
+                  <div className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                    <span>{job.company}</span>
+                    {job.location && (
+                      <>
+                        <span>•</span>
+                        <span>{job.location}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="mt-2 text-xs text-gray-400 break-all">
+                    {jobUrl}
                   </div>
                 </div>
               </div>
@@ -283,6 +313,7 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }

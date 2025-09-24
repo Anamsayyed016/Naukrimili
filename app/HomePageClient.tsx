@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
 import { Button } from "@/components/ui/button";
 import JobSearchHero from '@/components/JobSearchHero';
+import SEOJobLink from '@/components/SEOJobLink';
 
 interface Job {
   id: number;
@@ -257,18 +258,12 @@ export default function HomePageClient({
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <Link
-                      href={`/jobs/${job.id}`}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline"
-                    >
+                    <SEOJobLink job={job} className="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline">
                       View Details →
-                    </Link>
-                    <Link
-                      href={`/jobs/${job.id}/apply`}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105"
-                    >
+                    </SEOJobLink>
+                    <SEOJobLink job={job} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105">
                       Apply Now
-                    </Link>
+                    </SEOJobLink>
                   </div>
                 </div>
               ))

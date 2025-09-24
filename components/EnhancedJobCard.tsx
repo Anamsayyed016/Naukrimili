@@ -18,6 +18,7 @@ import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { JobResult, JobQuickView } from '@/types/jobs';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSEOJobUrl } from '@/components/SEOJobLink';
 
 interface EnhancedJobCardProps {
   job: JobResult;
@@ -39,6 +40,7 @@ export default function EnhancedJobCard({
   showSalaryInsights = true
 }: EnhancedJobCardProps) {
   const [imageError, setImageError] = useState(false);
+  const seoJobUrl = useSEOJobUrl(job);
 
   const handleBookmark = () => {
     onBookmark?.(job.id);
@@ -166,7 +168,7 @@ export default function EnhancedJobCard({
               </button>
               
               <Link
-                href={`/jobs/${job.id}/apply`}
+                href={`${seoJobUrl}/apply`}
                 className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
               >
                 <span className="hidden sm:inline">Apply</span>
@@ -363,7 +365,7 @@ export default function EnhancedJobCard({
         {/* Card Footer Actions */}
         <div className="px-6 py-4 bg-gray-50 flex gap-3">
           <Link
-            href={`/jobs/${job.id}/apply`}
+            href={`${seoJobUrl}/apply`}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
           >
             Apply Now
