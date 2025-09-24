@@ -74,6 +74,21 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/auth/signin', req.url));
   }
 
+  // Check role-based access for protected routes
+  if (pathname.startsWith('/dashboard/') || pathname.startsWith('/employer/') || pathname.startsWith('/jobseeker/')) {
+    // Extract role from pathname
+    const pathRole = pathname.startsWith('/dashboard/employer') || pathname.startsWith('/employer/') ? 'employer' :
+                    pathname.startsWith('/dashboard/jobseeker') || pathname.startsWith('/jobseeker/') ? 'jobseeker' :
+                    pathname.startsWith('/dashboard/admin') ? 'admin' : null;
+    
+    if (pathRole) {
+      // Add role validation header for API routes to check
+      const response = NextResponse.next();
+      response.headers.set('X-Required-Role', pathRole);
+      return response;
+    }
+  }
+
   // Add security headers for all routes
   const response = NextResponse.next();
   response.headers.set('X-Content-Type-Options', 'nosniff');

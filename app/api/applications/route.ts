@@ -343,18 +343,8 @@ export async function POST(request: NextRequest) {
         status: 'submitted',
         appliedAt: new Date(),
         coverLetter: coverLetter || null,
-        resumeId: resumeId || null, // Link to uploaded resume if available
-        companyId: companyId,
-        // Store additional application data
-        applicationData: JSON.stringify({
-          fullName: fullName,
-          email: email,
-          phone: phone,
-          location: location,
-          expectedSalary: expectedSalary,
-          availability: availability,
-          resumeUrl: resumeUrl
-        })
+        resumeId: null, // Link to uploaded resume if available
+        companyId: companyId
       },
       include: {
         job: true,
@@ -386,7 +376,7 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           type: 'APPLICATION_UPDATE',
           title: 'Application Submitted Successfully!',
-          message: `Your application for "${application.job.title}" at ${application.job.company} has been submitted successfully.`,
+          message: `Your application for "${application.job?.title || 'the job'}" has been submitted successfully.`,
           data: {
             applicationId: application.id,
             jobId: application.jobId,
@@ -419,11 +409,11 @@ export async function POST(request: NextRequest) {
               userId: employer.id,
               type: 'APPLICATION_UPDATE',
               title: 'New Job Application Received! 🎉',
-              message: `You have received a new application for "${application.job.title}" from ${fullName}.`,
+              message: `You have received a new application for "${application.job?.title || 'the job'}" from ${fullName}.`,
               data: {
                 applicationId: application.id,
                 jobId: application.jobId,
-                jobTitle: application.job.title,
+                jobTitle: application.job?.title || 'Unknown Job',
                 applicantName: fullName,
                 applicantEmail: email,
                 applicantPhone: phone
@@ -442,11 +432,11 @@ export async function POST(request: NextRequest) {
               io.to(`user:${employer.id}`).emit('new_notification', {
                 type: 'APPLICATION_UPDATE',
                 title: 'New Job Application Received! 🎉',
-                message: `You have received a new application for "${application.job.title}" from ${fullName}.`,
+                message: `You have received a new application for "${application.job?.title || 'the job'}" from ${fullName}.`,
                 data: {
                   applicationId: application.id,
                   jobId: application.jobId,
-                  jobTitle: application.job.title,
+                  jobTitle: application.job?.title || 'Unknown Job',
                   applicantName: fullName,
                   applicantEmail: email,
                   applicantPhone: phone
@@ -470,8 +460,8 @@ export async function POST(request: NextRequest) {
       message: 'Application submitted successfully!',
       application: {
         id: application.id,
-        jobTitle: application.job.title,
-        companyName: application.job.company,
+        jobTitle: application.job?.title || 'Unknown Job',
+        companyName: application.job?.company || 'Unknown Company',
         status: application.status,
         appliedAt: application.appliedAt
       }

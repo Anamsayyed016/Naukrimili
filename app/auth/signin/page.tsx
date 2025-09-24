@@ -76,9 +76,9 @@ export default function SignInPage() {
             success: false,
             canLogin: false,
             error: result.error,
-            currentRole: result.currentRole,
-            lockedRole: result.lockedRole,
-            reason: result.reason
+            currentRole: (result as any).currentRole,
+            lockedRole: (result as any).lockedRole,
+            reason: (result as any).reason
           });
         } else {
           setError('Invalid email or password. Please try again.');

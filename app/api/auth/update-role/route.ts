@@ -28,16 +28,9 @@ export async function POST(request: NextRequest) {
       role: validatedData.role
     });
 
-    // First, check if user is already role-locked
+    // Single query to get all user data including role lock fields
     const existingUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        isActive: true
-      }
+      where: { id: session.user.id }
     }) as any;
 
     if (!existingUser) {
@@ -47,14 +40,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user is already role-locked by fetching role lock data
-    const roleLockData = await prisma.user.findUnique({
-      where: { id: session.user.id }
-    }) as any;
-
-    if (roleLockData?.roleLocked) {
-      const lockedRole = roleLockData.lockedRole;
-      const reason = roleLockData.roleLockReason || 'Role switching is not allowed after initial selection';
+    // Check if user is already role-locked
+    if (existingUser.roleLocked) {
+      const lockedRole = existingUser.lockedRole;
+      const reason = existingUser.roleLockReason || 'Role switching is not allowed after initial selection';
       
       return NextResponse.json({
         success: false,

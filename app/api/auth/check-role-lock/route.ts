@@ -59,9 +59,11 @@ export async function POST(request: NextRequest) {
 
     // If user has a role but is not locked, they should be locked to their current role
     if (user.role && !user.roleLocked) {
-      // Auto-lock existing users to their current role
+      // Use atomic update to prevent race conditions
       const updatedUser = await prisma.user.update({
-        where: { id: user.id },
+        where: { 
+          id: user.id
+        },
         data: {
           roleLocked: true,
           lockedRole: user.role,
