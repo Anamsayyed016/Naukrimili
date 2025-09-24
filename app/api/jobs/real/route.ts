@@ -48,6 +48,17 @@ export async function GET(request: NextRequest) {
     const searchTime = Date.now() - startTime;
     console.log(`⚡ Real job search completed in ${searchTime}ms`);
 
+    const totalPages = Math.ceil(result.totalJobs / limit) || 1;
+    
+    console.log('🔍 Real API Pagination Debug:', {
+      totalJobs: result.totalJobs,
+      limit: limit,
+      currentPage: page,
+      totalPages: totalPages,
+      hasMore: result.hasMore,
+      jobsReturned: result.jobs.length
+    });
+
     return NextResponse.json({
       success: true,
       jobs: result.jobs,
@@ -57,7 +68,7 @@ export async function GET(request: NextRequest) {
         hasMore: result.hasMore,
         nextPage: result.nextPage,
         jobsPerPage: limit,
-        totalPages: Math.ceil(result.totalJobs / limit) || 1
+        totalPages: totalPages
       },
       sources: result.sources,
       metadata: {

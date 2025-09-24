@@ -118,38 +118,41 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       }
 
       // Use real job search API for quality jobs
-      const realParams = new URLSearchParams({
+      const unlimitedParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
         country: country,
         page: page.toString(),
-        limit: '200' // Unlimited jobs with pagination
+        limit: '200', // Unlimited jobs per page
+        includeExternal: 'true',
+        includeDatabase: 'true',
+        includeSample: 'true'
       });
 
-      console.log('📡 Making real job search API call to:', `/api/jobs/real?${realParams.toString()}`);
+      console.log('📡 Making unlimited job search API call to:', `/api/jobs/unlimited?${unlimitedParams.toString()}`);
 
       const startTime = Date.now();
-      const response = await fetch(`/api/jobs/real?${realParams.toString()}`);
+      const response = await fetch(`/api/jobs/unlimited?${unlimitedParams.toString()}`);
       const responseTime = Date.now() - startTime;
       
-      console.log(`📡 Real job search API Response status: ${response.status} (${responseTime}ms)`);
+      console.log(`📡 Unlimited job search API Response status: ${response.status} (${responseTime}ms)`);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Real job search API Error Response:', errorText);
-        throw new Error(`Real job search API failed: ${response.status}`);
+        console.error('❌ Unlimited job search API Error Response:', errorText);
+        throw new Error(`Unlimited job search API failed: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('📡 Real job search API Response data:', data);
+      console.log('📡 Unlimited job search API Response data:', data);
       
       if (!data.success) {
-        throw new Error(data.error || 'Real job search API returned success: false');
+        throw new Error(data.error || 'Unlimited job search API returned success: false');
       }
 
       // Process jobs
       const jobs = (data.jobs || []).map(convertToSimpleJob);
-      console.log(`✅ Processed ${jobs.length} real jobs in ${responseTime}ms`);
+      console.log(`✅ Processed ${jobs.length} unlimited jobs in ${responseTime}ms`);
 
       // Update state
       setJobs(jobs);
@@ -168,18 +171,58 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       // Update last refresh time
       setLastRefresh(new Date());
 
-      console.log('✅ Real jobs loaded successfully:', {
+      console.log('✅ Unlimited jobs loaded successfully:', {
         jobsCount: jobs.length,
         totalJobs: data.pagination?.totalJobs || jobs.length,
         currentPage: page,
         totalPages: data.pagination?.totalPages || 1,
+        hasMore: data.pagination?.hasMore || false,
         sources: data.sources,
         realJobsPercentage: data.metadata?.realJobsPercentage || 0,
         performance: data.metadata?.performance
       });
+      
+      console.log('🔍 Pagination Debug:', {
+        totalJobs: data.pagination?.totalJobs,
+        totalPages: data.pagination?.totalPages,
+        hasMore: data.pagination?.hasMore,
+        currentPage: page,
+        limit: 200,
+        shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || jobs.length) > 200
+      });
 
     } catch (error) {
-      console.error('❌ Error fetching optimized jobs:', error);
+      console.error('❌ Error fetching unlimited jobs, trying fallback:', error);
+      
+      // Fallback to simple unlimited API
+      try {
+        console.log('🔄 Trying fallback to simple unlimited API...');
+        const fallbackParams = new URLSearchParams({
+          ...(query && { query }),
+          ...(location && { location }),
+          country: 'IN', // Default country for fallback
+          page: page.toString(),
+          limit: '100'
+        });
+        
+        const fallbackResponse = await fetch(`/api/jobs/simple-unlimited?${fallbackParams.toString()}`);
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          const fallbackJobs = (fallbackData.jobs || []).map(convertToSimpleJob);
+          
+          setJobs(fallbackJobs);
+          setTotalJobs(fallbackData.pagination?.totalJobs || fallbackJobs.length);
+          setTotalPages(fallbackData.pagination?.totalPages || 1);
+          setHasNextPage(fallbackData.pagination?.hasMore || false);
+          setHasPrevPage(page > 1);
+          
+          console.log('✅ Fallback successful:', fallbackJobs.length, 'jobs loaded');
+          return;
+        }
+      } catch (fallbackError) {
+        console.error('❌ Fallback also failed:', fallbackError);
+      }
+      
       setError('Failed to load jobs. Please try again.');
       setJobs([]);
     } finally {
@@ -332,7 +375,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           </div>
 
           {/* Pagination */}
-          {(totalPages > 1 || hasNextPage) && (
+          {(totalPages > 1 || hasNextPage || totalJobs > jobs.length) && (
             <div className="flex justify-center mt-8">
               <EnhancedPagination
                 config={{

@@ -13,7 +13,7 @@ export default function JobsPage() {
             Find Your Dream Job
           </h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Discover unlimited job opportunities across all sectors and industries. Search through thousands of positions from top companies worldwide.
+            Discover truly unlimited job opportunities across all sectors and industries. Search through thousands of positions from top companies worldwide with comprehensive results and advanced filtering.
           </p>
         </div>
 
