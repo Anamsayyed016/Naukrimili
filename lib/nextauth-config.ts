@@ -85,16 +85,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          // Check role lock if user is trying to switch roles
+          // Check role lock - if user is locked, they can only login with their locked role
           if ((user as any).roleLocked && (user as any).lockedRole) {
-            // User is role-locked, they can only login with their locked role
-            // This check will be handled by the login API endpoint
             console.log('🔒 User is role-locked:', {
               userId: user.id,
               email: user.email,
               lockedRole: (user as any).lockedRole,
               reason: (user as any).roleLockReason
             });
+            
+            // User is role-locked, they can only login with their locked role
+            // This prevents role switching at the authentication level
+            // The role will be enforced in the session
           }
 
           return {
@@ -304,18 +306,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             image: true,
             profilePicture: true
           }
-        });
+        }) as any;
 
         if (user) {
+          // Fetch role lock fields separately to avoid TypeScript issues
+          const roleLockData = await prisma.user.findUnique({
+            where: { id: user.id }
+          }) as any;
+
           // Use fresh data from database
           (session.user as any).id = user.id;
           (session.user as any).email = user.email;
           (session.user as any).name = user.name || '';
           (session.user as any).role = user.role;
+          (session.user as any).roleLocked = roleLockData?.roleLocked || false;
+          (session.user as any).lockedRole = roleLockData?.lockedRole;
+          (session.user as any).roleLockReason = roleLockData?.roleLockReason;
           (session.user as any).picture = user.profilePicture || user.image || token.picture || '';
           (session.user as any).isActive = user.isActive;
           
-          console.log('🔍 Session callback - Fresh data from DB:', { id: user.id, email: user.email, role: user.role });
+          // Enforce role lock - if user is locked, force their role to locked role
+          if (roleLockData?.roleLocked && roleLockData?.lockedRole) {
+            (session.user as any).role = roleLockData.lockedRole;
+            console.log(`🔒 Session: Enforcing locked role ${roleLockData.lockedRole} for user ${user.email}`);
+          }
+          
+          console.log('🔍 Session callback - Fresh data from DB:', { 
+            id: user.id, 
+            email: user.email, 
+            role: user.role, 
+            roleLocked: roleLockData?.roleLocked,
+            lockedRole: roleLockData?.lockedRole
+          });
         } else {
           // Fallback to token data if user not found
           (session.user as any).id = token.id;

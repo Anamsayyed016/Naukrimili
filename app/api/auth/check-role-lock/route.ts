@@ -27,12 +27,9 @@ export async function POST(request: NextRequest) {
         email: true,
         name: true,
         role: true,
-        roleLocked: true,
-        lockedRole: true,
-        roleLockReason: true,
         isActive: true
       }
-    });
+    }) as any;
 
     if (!user) {
       // User doesn't exist, can proceed with registration
@@ -60,17 +57,35 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // If user is not role locked, allow role switching (for backward compatibility)
-    if (!user.roleLocked) {
-      return NextResponse.json({
-        success: true,
-        canLogin: true,
-        message: 'Role switching allowed'
+    // If user has a role but is not locked, they should be locked to their current role
+    if (user.role && !user.roleLocked) {
+      // Auto-lock existing users to their current role
+      const updatedUser = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          roleLocked: true,
+          lockedRole: user.role,
+          roleLockReason: 'Auto-locked to existing role for security'
+        } as any,
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          isActive: true
+        }
       });
+      
+      console.log(`🔒 Auto-locked user ${user.email} to role: ${user.role}`);
+      
+      // Use the updated user data for role checking
+      user.roleLocked = (updatedUser as any).roleLocked;
+      user.lockedRole = (updatedUser as any).lockedRole;
+      user.roleLockReason = (updatedUser as any).roleLockReason;
     }
 
     // User is role locked - check if requested role matches locked role
-    if (user.lockedRole === requestedRole) {
+    if (user.roleLocked && user.lockedRole === requestedRole) {
       return NextResponse.json({
         success: true,
         canLogin: true,
