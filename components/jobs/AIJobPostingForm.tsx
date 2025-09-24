@@ -766,23 +766,9 @@ export default function AIJobPostingForm() {
           duration: 5000,
         });
         
-        // Send real-time notification via Socket.io
-        try {
-          // Emit socket notification for real-time updates
-          if (typeof window !== 'undefined' && (window as any).io) {
-            (window as any).io.emit('job_created', {
-              jobId: data.job.id,
-              jobTitle: data.job.title,
-              company: data.job.company,
-              location: data.job.location,
-              userId: 'current_user', // This should be the actual user ID
-              timestamp: new Date().toISOString()
-            });
-            console.log('📡 Socket notification sent for job creation');
-          }
-        } catch (socketError) {
-          console.error('❌ Failed to send socket notification:', socketError);
-        }
+        // Real-time notification is handled by the backend API
+        // No need to emit from frontend as the backend already handles this
+        console.log('📡 Job creation notification handled by backend API');
         
         // Send database notification
         try {

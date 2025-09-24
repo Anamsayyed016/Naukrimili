@@ -45,6 +45,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     sources: any;
   } | null>(null);
 
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+
   const searchParams = useSearchParams();
 
   // Initialize with search params and load jobs
@@ -60,6 +62,18 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     // Always fetch jobs using optimized API
     fetchJobs(query, loc, 1);
   }, [searchParams]);
+
+  // Add periodic refresh to show newly posted jobs
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const query = searchParams.get('q') || searchParams.get('query') || '';
+      const loc = searchParams.get('location') || '';
+      console.log('🔄 Refreshing jobs to show newly posted jobs...');
+      fetchJobs(query, loc, currentPage);
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [searchParams, currentPage]);
 
   // Convert any job format to simple Job format
   function convertToSimpleJob(job: any): Job {
@@ -151,6 +165,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         sources: data.sources
       });
 
+      // Update last refresh time
+      setLastRefresh(new Date());
+
       console.log('✅ Real jobs loaded successfully:', {
         jobsCount: jobs.length,
         totalJobs: data.pagination?.totalJobs || jobs.length,
@@ -240,7 +257,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       {/* Jobs List */}
       {!loading && !error && jobs.length > 0 && (
         <div className="space-y-4">
-          {/* View Mode Toggle */}
+          {/* View Mode Toggle and Refresh */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">View:</span>
@@ -269,8 +286,29 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 Compact
               </button>
             </div>
-            <div className="text-sm text-gray-600">
-              {totalJobs} jobs found
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => {
+                  const query = searchParams.get('q') || searchParams.get('query') || '';
+                  const location = searchParams.get('location') || '';
+                  fetchJobs(query, location, currentPage);
+                }}
+                disabled={loading}
+                className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
+              >
+                <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Refresh
+              </button>
+              <div className="text-sm text-gray-600">
+                {totalJobs} jobs found
+                {lastRefresh && (
+                  <span className="ml-2 text-xs text-gray-400">
+                    (Last updated: {lastRefresh.toLocaleTimeString()})
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

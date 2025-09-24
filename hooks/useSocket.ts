@@ -115,6 +115,19 @@ export function useSocket(): UseSocketReturn {
         });
       });
 
+      // Job creation events
+      newSocket.on('job_created', (data: any) => {
+        console.log('🎉 Job created event received:', data);
+        
+        // Show notification for job creation
+        showMobileNotification({
+          title: 'New Job Posted! 🎉',
+          body: `A new job "${data.jobTitle}" has been posted by ${data.company}`,
+          icon: '/favicon.ico',
+          tag: `job_created_${data.jobId}`
+        });
+      });
+
       // Handle unread count updates
       newSocket.on('notification_count', (data: { count: number; userId: string }) => {
         console.log('📊 Unread count updated:', data);

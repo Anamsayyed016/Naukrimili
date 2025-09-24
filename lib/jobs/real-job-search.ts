@@ -167,7 +167,7 @@ export class RealJobSearch {
   private async searchDatabaseJobs(filters: any, limit: number) {
     const where: any = {
       isActive: true,
-      // Exclude sample jobs
+      // Include real jobs (manual, external, but exclude sample)
       source: { not: 'sample' }
     };
 
@@ -228,6 +228,10 @@ export class RealJobSearch {
       ],
       take: Math.min(limit, 300) // Increased limit for more real jobs
     });
+
+    console.log(`🔍 Database query found ${jobs.length} jobs with sources:`, 
+      jobs.map(j => ({ id: j.id, title: j.title, source: j.source }))
+    );
 
     return jobs;
   }
