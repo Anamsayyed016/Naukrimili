@@ -159,3 +159,4 @@ If you encounter any issues:
 ---
 
 **Ready to proceed?** Install PostgreSQL and run `.\setup-database-complete.bat`!
+

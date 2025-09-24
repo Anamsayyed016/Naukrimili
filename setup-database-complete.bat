@@ -329,3 +329,4 @@ echo 🗄️ Database URL: postgresql://jobportal_user:jobportal_password@localh
 echo 👀 You can view your data with: npx prisma studio
 echo.
 pause
+

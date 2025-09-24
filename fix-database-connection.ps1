@@ -48,3 +48,4 @@ if ($LASTEXITCODE -eq 0) {
 
 Write-Host "🎉 Database setup completed!" -ForegroundColor Green
 Write-Host "You can now run: npm run dev" -ForegroundColor Cyan
+

@@ -93,6 +93,8 @@ export default function EmployerApplicationsPage() {
       if (data.success) {
         setApplications(data.data.applications);
         setPagination(data.data.pagination);
+      } else {
+        throw new Error(data.error || 'Failed to fetch applications');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -119,7 +121,7 @@ export default function EmployerApplicationsPage() {
   const updateApplicationStatus = async (applicationId: string, newStatus: string) => {
     try {
       const response = await fetch(`/api/employer/applications/${applicationId}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -127,10 +129,15 @@ export default function EmployerApplicationsPage() {
       });
 
       if (response.ok) {
-        // Update local state
-        setApplications(prev => prev.map(app => 
-          app.id === applicationId ? { ...app, status: newStatus } : app
-        ));
+        const result = await response.json();
+        if (result.success) {
+          // Update local state
+          setApplications(prev => prev.map(app => 
+            app.id === applicationId ? { ...app, status: newStatus } : app
+          ));
+        } else {
+          throw new Error(result.error || 'Failed to update application status');
+        }
       } else {
         throw new Error('Failed to update application status');
       }

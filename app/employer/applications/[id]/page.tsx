@@ -41,7 +41,7 @@ interface ApplicationDetail {
   coverLetter: string;
   experience: string;
   education: string;
-  skills: string[];
+  skills: string[] | string;
   portfolioUrl?: string;
   linkedinUrl?: string;
   githubUrl?: string;
@@ -60,6 +60,7 @@ export default function ApplicationDetailPage() {
   const [saving, setSaving] = useState(false);
   const [application, setApplication] = useState<ApplicationDetail | null>(null);
   const [notes, setNotes] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (applicationId) {
@@ -71,35 +72,69 @@ export default function ApplicationDetailPage() {
     try {
       setLoading(true);
       
-      // For now, use mock data - implement API call later
-      const mockApplication: ApplicationDetail = {
-        id: applicationId as string,
-        jobTitle: 'Senior React Developer',
-        jobId: 1,
-        applicantName: 'John Doe',
-        applicantEmail: 'john.doe@example.com',
-        applicantPhone: '+91 98765 43210',
-        applicantLocation: 'Bangalore, India',
-        status: 'submitted',
-        appliedAt: new Date().toISOString(),
-        resumeUrl: '/resumes/john-doe-resume.pdf',
-        coverLetter: 'I am excited to apply for this Senior React Developer position at TechCorp India. With over 5 years of experience in React development, I have successfully delivered multiple web applications that have improved user experience and business outcomes.\n\nMy expertise includes React, TypeScript, Node.js, and modern web technologies. I have worked on projects ranging from e-commerce platforms to enterprise dashboards, always focusing on clean code, performance optimization, and user-centric design.\n\nI am particularly drawn to TechCorp India because of its innovative approach to technology and commitment to employee growth. I believe my skills and experience would be a valuable addition to your team.\n\nI am available for an interview at your convenience and look forward to discussing how I can contribute to your company\'s success.',
-        experience: '5+ years',
-        education: 'B.Tech in Computer Science from Bangalore Institute of Technology',
-        skills: ['React', 'TypeScript', 'Node.js', 'MongoDB', 'Git', 'AWS', 'Docker', 'Jest'],
-        portfolioUrl: 'https://johndoe.dev',
-        linkedinUrl: 'https://linkedin.com/in/johndoe',
-        githubUrl: 'https://github.com/johndoe',
-        expectedSalary: '₹18L - ₹22L PA',
-        noticePeriod: '30 days',
-        lastUpdated: new Date().toISOString(),
-        notes: 'Strong technical background, good communication skills. Consider for interview.'
+      // Fetch real application data from API
+      const response = await fetch(`/api/employer/applications/${applicationId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch application data');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch application data');
+      }
+
+      const apiApplication = result.data;
+      
+      // Parse application data from JSON if it exists
+      let applicationData: any = {};
+      if (apiApplication.applicationData) {
+        try {
+          applicationData = typeof apiApplication.applicationData === 'string' 
+            ? JSON.parse(apiApplication.applicationData) 
+            : apiApplication.applicationData;
+        } catch (e) {
+          console.warn('Failed to parse application data:', e);
+        }
+      }
+
+      // Transform API data to component format
+      const transformedApplication: ApplicationDetail = {
+        id: apiApplication.id,
+        jobTitle: apiApplication.job.title,
+        jobId: parseInt(apiApplication.job.id),
+        applicantName: apiApplication.user.name || 'Unknown',
+        applicantEmail: apiApplication.user.email,
+        applicantPhone: apiApplication.user.phone || applicationData.phone || 'Not provided',
+        applicantLocation: apiApplication.user.location || applicationData.location || 'Not provided',
+        status: apiApplication.status,
+        appliedAt: apiApplication.appliedAt,
+        resumeUrl: apiApplication.resume?.fileUrl || applicationData.resumeUrl || null,
+        coverLetter: apiApplication.coverLetter || applicationData.coverLetter || 'No cover letter provided',
+        experience: apiApplication.user.experience || applicationData.experience || 'Not specified',
+        education: apiApplication.user.education || applicationData.education || 'Not specified',
+        skills: apiApplication.user.skills ? 
+          (typeof apiApplication.user.skills === 'string' ? 
+            JSON.parse(apiApplication.user.skills) : 
+            apiApplication.user.skills) : 
+          (applicationData.skills ? 
+            (typeof applicationData.skills === 'string' ? 
+              applicationData.skills.split(',').map(s => s.trim()) : 
+              applicationData.skills) : 
+            []),
+        portfolioUrl: applicationData.portfolioUrl || null,
+        linkedinUrl: applicationData.linkedinUrl || null,
+        githubUrl: applicationData.githubUrl || null,
+        expectedSalary: applicationData.expectedSalary || 'Not specified',
+        noticePeriod: applicationData.noticePeriod || 'Not specified',
+        lastUpdated: apiApplication.updatedAt,
+        notes: apiApplication.notes || ''
       };
 
-      setApplication(mockApplication);
-      setNotes(mockApplication.notes || '');
+      setApplication(transformedApplication);
+      setNotes(transformedApplication.notes || '');
     } catch (error) {
       console.error('Error fetching application data:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch application data');
     } finally {
       setLoading(false);
     }
@@ -111,17 +146,33 @@ export default function ApplicationDetailPage() {
     try {
       setSaving(true);
       
-      // Implement status change logic
-      // Application status change logged
+      // Call API to update application status
+      const response = await fetch(`/api/employer/applications/${application.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: newStatus,
+          notes: notes 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update application status');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update application status');
+      }
       
       // Update local state
       setApplication(prev => prev ? { ...prev, status: newStatus as any } : null);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
     } catch (error) {
       console.error('Error changing application status:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update application status');
     } finally {
       setSaving(false);
     }
@@ -133,19 +184,76 @@ export default function ApplicationDetailPage() {
     try {
       setSaving(true);
       
-      // Implement notes saving logic
-              // Notes saving logged
+      // Call API to save notes
+      const response = await fetch(`/api/employer/applications/${application.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          notes: notes,
+          status: application.status 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save notes');
+      }
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save notes');
+      }
       
       // Update local state
       setApplication(prev => prev ? { ...prev, notes } : null);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
     } catch (error) {
       console.error('Error saving notes:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save notes');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDownloadResume = async () => {
+    if (!application?.resumeUrl) return;
+    
+    try {
+      // Extract resume ID from the resume URL or use application data
+      const resumeId = application.resumeUrl.split('/').pop()?.split('.')[0];
+      
+      if (!resumeId) {
+        throw new Error('Invalid resume URL');
+      }
+
+      // Call the employer resume download API
+      const response = await fetch(`/api/employer/resumes/${resumeId}/download`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to download resume');
+      }
+
+      // Get filename from response headers or use default
+      const contentDisposition = response.headers.get('content-disposition');
+      const filename = contentDisposition 
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
+        : `resume-${application.applicantName.replace(/\s+/g, '-')}.pdf`;
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      setError(error instanceof Error ? error.message : 'Failed to download resume');
     }
   };
 
@@ -185,6 +293,28 @@ export default function ApplicationDetailPage() {
           {[...Array(4)].map((_, i) => (
             <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center py-12">
+          <div className="text-red-500 mb-4">
+            <svg className="h-16 w-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Application</h3>
+          <p className="text-gray-500 mb-6">{error}</p>
+          <div className="space-x-4">
+            <Button onClick={fetchApplicationData}>Retry</Button>
+            <Link href="/employer/applications">
+              <Button variant="outline">Back to Applications</Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -353,14 +483,23 @@ export default function ApplicationDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {(Array.isArray(application.skills) ? application.skills : (typeof application.skills === 'string' ? application.skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
-                    <span
-                      key={index}
-                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                  {(() => {
+                    let skillsArray: string[] = [];
+                    const skills = application.skills;
+                    if (Array.isArray(skills)) {
+                      skillsArray = skills;
+                    } else if (typeof skills === 'string' && skills) {
+                      skillsArray = skills.split(',').map(s => s.trim()).filter(s => s);
+                    }
+                    return skillsArray.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                      >
+                        {skill}
+                      </span>
+                    ));
+                  })()}
                 </div>
               </CardContent>
             </Card>
@@ -424,10 +563,21 @@ export default function ApplicationDetailPage() {
                 <CardTitle>Documents</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Resume
-                </Button>
+                {application.resumeUrl ? (
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => handleDownloadResume()}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Resume
+                  </Button>
+                ) : (
+                  <Button variant="outline" className="w-full" disabled>
+                    <Download className="h-4 w-4 mr-2" />
+                    No Resume Available
+                  </Button>
+                )}
                 {application.portfolioUrl && (
                   <Button variant="outline" className="w-full" asChild>
                     <a href={application.portfolioUrl} target="_blank" rel="noopener noreferrer">

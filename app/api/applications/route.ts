@@ -343,7 +343,7 @@ export async function POST(request: NextRequest) {
         status: 'submitted',
         appliedAt: new Date(),
         coverLetter: coverLetter || null,
-        resumeId: null, // Fixed: Ensure resumeId is null if no resume is uploaded
+        resumeId: resumeId || null, // Link to uploaded resume if available
         companyId: companyId,
         // Store additional application data
         applicationData: JSON.stringify({
@@ -365,6 +365,13 @@ export async function POST(request: NextRequest) {
             email: true,
             phone: true,
             location: true
+          }
+        },
+        resume: {
+          select: {
+            id: true,
+            fileName: true,
+            fileUrl: true
           }
         }
       }

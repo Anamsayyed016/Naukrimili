@@ -352,3 +352,4 @@ print_success "Database setup completed successfully!"
 print_status "You can now run: npm run dev"
 print_status "Database URL: postgresql://jobportal_user:jobportal_password@localhost:5432/jobportal"
 print_status "You can view your data with: npx prisma studio"
+
