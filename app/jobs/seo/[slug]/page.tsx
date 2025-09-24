@@ -88,7 +88,8 @@ export default function SEOJobDetailsPage() {
       
       if (!response.ok) {
         if (response.status === 404) {
-          setError('Job not found');
+          const errorData = await response.json();
+          setError(errorData.details || 'Job not found');
         } else {
           setError('Failed to load job details');
         }
