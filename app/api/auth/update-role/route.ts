@@ -28,10 +28,9 @@ export async function POST(request: NextRequest) {
       role: validatedData.role
     });
 
-    // Update user role in database
-    const updatedUser = await prisma.user.update({
+    // First, check if user is already role-locked
+    const existingUser = await prisma.user.findUnique({
       where: { id: session.user.id },
-      data: { role: validatedData.role },
       select: {
         id: true,
         email: true,
@@ -39,14 +38,70 @@ export async function POST(request: NextRequest) {
         role: true,
         isActive: true
       }
-    });
+    }) as any;
 
-    console.log('Role updated successfully:', updatedUser);
+    if (!existingUser) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if user is already role-locked
+    if ((existingUser as any).roleLocked) {
+      const lockedRole = (existingUser as any).lockedRole;
+      const reason = (existingUser as any).roleLockReason || 'Role switching is not allowed after initial selection';
+      
+      return NextResponse.json({
+        success: false,
+        error: `Cannot change role. You are locked as ${lockedRole}. ${reason}`,
+        currentRole: existingUser.role,
+        lockedRole: lockedRole,
+        reason: reason
+      }, { status: 403 });
+    }
+
+    // Check if user already has the same role
+    if (existingUser.role === validatedData.role) {
+      return NextResponse.json({
+        success: true,
+        message: 'Role is already set to the requested value',
+        user: existingUser
+      });
+    }
+
+    // Update user role and lock it
+    const updatedUser = await prisma.user.update({
+      where: { id: session.user.id },
+      data: { 
+        role: validatedData.role,
+        roleLocked: true,
+        lockedRole: validatedData.role,
+        roleLockReason: `Role locked as ${validatedData.role} after initial selection`
+      } as any,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true
+      }
+    }) as any;
+
+    console.log('Role updated and locked successfully:', updatedUser);
 
     return NextResponse.json({
       success: true,
-      message: 'Role updated successfully',
-      user: updatedUser
+      message: 'Role updated and locked successfully',
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        role: updatedUser.role,
+        roleLocked: (updatedUser as any).roleLocked,
+        lockedRole: (updatedUser as any).lockedRole,
+        roleLockReason: (updatedUser as any).roleLockReason
+      }
     });
 
   } catch (error) {

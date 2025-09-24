@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
+import { createNotification } from '@/lib/notification-service';
 
 export async function GET(request: NextRequest) {
   try {
@@ -126,7 +127,31 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Company created successfully:', { id: company.id, name: company.name });
 
-    // Send notification to user
+    // Send real-time notification via Socket.io
+    try {
+      // Import socket.io server instance
+      const { getServerSocket } = await import('@/lib/socket-server');
+      const io = getServerSocket();
+      
+      if (io) {
+        // Emit company creation event to all connected clients
+        io.emit('company_created', {
+          companyId: company.id,
+          companyName: company.name,
+          industry: company.industry,
+          location: company.location,
+          userId: basicUser.id,
+          timestamp: new Date().toISOString(),
+          type: 'company_created'
+        });
+        console.log('📡 Socket notification sent for company creation');
+      }
+    } catch (socketError) {
+      console.error('❌ Failed to send socket notification:', socketError);
+      // Don't fail the company creation if socket notification fails
+    }
+
+    // Create database notification
     try {
       await createNotification({
         userId: basicUser.id,
@@ -139,10 +164,10 @@ export async function POST(request: NextRequest) {
           action: 'company_created'
         }
       });
-      console.log('✅ Company creation notification sent');
+      console.log('✅ Database notification created for company creation');
     } catch (notificationError) {
-      console.error('❌ Failed to send company creation notification:', notificationError);
-      // Don't fail the company creation if notification fails
+      console.error('❌ Failed to create database notification:', notificationError);
+      // Don't fail the company creation if notification creation fails
     }
 
     return NextResponse.json({

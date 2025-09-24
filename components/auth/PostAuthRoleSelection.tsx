@@ -50,7 +50,31 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       // Use window.location.href to force a full page reload
       window.location.href = finalUrl;
     }
-  }, [user?.role]);
+    
+    // If user is role-locked, redirect them to their appropriate dashboard
+    if (user?.roleLocked && user?.lockedRole) {
+      console.log('🔒 User is role-locked, redirecting to locked role dashboard:', user.lockedRole);
+      let targetUrl = '/dashboard';
+      
+      switch (user.lockedRole) {
+        case 'jobseeker':
+          targetUrl = '/dashboard/jobseeker';
+          break;
+        case 'employer':
+          targetUrl = '/dashboard/company';
+          break;
+        case 'admin':
+          targetUrl = '/dashboard/admin';
+          break;
+        default:
+          targetUrl = '/dashboard';
+      }
+      
+      const finalUrl = `${targetUrl}?role_locked=true&timestamp=${Date.now()}`;
+      console.log('🔄 Role-locked redirect URL:', finalUrl);
+      window.location.href = finalUrl;
+    }
+  }, [user?.role, user?.roleLocked, user?.lockedRole]);
 
   const handleRoleSelection = async (role: 'jobseeker' | 'employer') => {
     setSelectedRole(role);
@@ -171,6 +195,56 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
   const handleEmployerSetup = () => {
     router.push('/employer/options');
   };
+
+  // If user is role-locked, show locked message
+  if (user.roleLocked && user.lockedRole) {
+    return (
+      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-[calc(100vh-4rem)]">
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Role Locked
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Your account is locked as a <strong>{user.lockedRole}</strong>. Role switching is not allowed after initial selection.
+            </p>
+            {user.roleLockReason && (
+              <p className="text-lg text-gray-500 mt-4">
+                Reason: {user.roleLockReason}
+              </p>
+            )}
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+              <div className="mb-6">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100">
+                  <UserCheck className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  Continue as {user.lockedRole === 'jobseeker' ? 'Job Seeker' : 'Employer'}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  You can continue using the platform with your current role.
+                </p>
+              </div>
+
+              <Button
+                onClick={() => {
+                  const targetUrl = user.lockedRole === 'jobseeker' ? '/dashboard/jobseeker' : '/dashboard/company';
+                  window.location.href = targetUrl;
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
+              >
+                Continue to Dashboard →
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // If user already has a role, show role change options
   if (user.role) {

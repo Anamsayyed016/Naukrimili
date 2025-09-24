@@ -85,6 +85,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
+          // Check role lock if user is trying to switch roles
+          if ((user as any).roleLocked && (user as any).lockedRole) {
+            // User is role-locked, they can only login with their locked role
+            // This check will be handled by the login API endpoint
+            console.log('🔒 User is role-locked:', {
+              userId: user.id,
+              email: user.email,
+              lockedRole: (user as any).lockedRole,
+              reason: (user as any).roleLockReason
+            });
+          }
+
           return {
             id: user.id,
             email: user.email,

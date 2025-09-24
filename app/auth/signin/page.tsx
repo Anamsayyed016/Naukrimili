@@ -67,29 +67,22 @@ export default function SignInPage() {
       });
 
       if (result?.ok) {
-        // Check if user has role lock issues
-        const roleCheckResponse = await fetch('/api/auth/check-role-lock', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            email: formData.email,
-            requestedRole: 'jobseeker' // Default role for login
-          }),
-        });
-
-        const roleCheckResult = await roleCheckResponse.json();
-        
-        if (!roleCheckResult.canLogin) {
-          setRoleLockError(roleCheckResult);
-          return;
-        }
-
         // Redirect to role selection or dashboard based on user role
         router.push('/auth/role-selection');
       } else {
-        setError('Invalid email or password. Please try again.');
+        // Check if the error is related to role lock
+        if (result?.error && result.error.includes('Cannot login as')) {
+          setRoleLockError({
+            success: false,
+            canLogin: false,
+            error: result.error,
+            currentRole: result.currentRole,
+            lockedRole: result.lockedRole,
+            reason: result.reason
+          });
+        } else {
+          setError('Invalid email or password. Please try again.');
+        }
       }
     } catch (error) {
       setError('An error occurred. Please try again.');
