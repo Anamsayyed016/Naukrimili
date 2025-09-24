@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (jobId && jobId !== "all") {
-      where.jobId = parseInt(jobId, 10);
+      where.jobId = jobId;
     }
 
     if (search) {
@@ -44,42 +44,49 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('🔍 Querying applications with where clause:', where);
-    const [applications, total] = await Promise.all([
-      prisma.application.findMany({
-        where,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-              location: true,
-              profilePicture: true,
-              bio: true,
-              skills: true,
-              experience: true
+    
+    let applications, total;
+    try {
+      [applications, total] = await Promise.all([
+        prisma.application.findMany({
+          where,
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                location: true,
+                profilePicture: true,
+                bio: true,
+                skills: true,
+                experience: true
+              }
+            },
+            job: {
+              select: {
+                id: true,
+                title: true,
+                location: true,
+                company: true,
+                jobType: true,
+                experienceLevel: true
+              }
             }
           },
-          job: {
-            select: {
-              id: true,
-              title: true,
-              location: true,
-              company: true,
-              jobType: true,
-              experienceLevel: true
-            }
-          }
-        },
-        orderBy: { appliedAt: "desc" },
-        skip,
-        take: limit
-      }),
-      prisma.application.count({ where })
-    ]);
-
-    console.log(`📊 Found ${applications.length} applications out of ${total} total for company ${user.company.id}`);
+          orderBy: { appliedAt: "desc" },
+          skip,
+          take: limit
+        }),
+        prisma.application.count({ where })
+      ]);
+      
+      console.log(`📊 Successfully fetched ${applications.length} applications out of ${total} total for company ${user.company.id}`);
+    } catch (dbError) {
+      console.error('❌ Database query error:', dbError);
+      throw dbError;
+    }
 
     // Calculate statistics
     const stats = await prisma.application.aggregate({
@@ -122,8 +129,22 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching company applications:", error);
+    
+    // Provide more detailed error information for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : 'No stack trace';
+    
+    console.error('Detailed error information:', {
+      message: errorMessage,
+      stack: errorStack,
+      timestamp: new Date().toISOString()
+    });
+    
     return NextResponse.json(
-      { error: "Failed to fetch applications" },
+      { 
+        error: "Failed to fetch applications",
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      },
       { status: 500 }
     );
   }
