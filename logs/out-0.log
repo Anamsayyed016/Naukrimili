@@ -5530,3 +5530,68 @@
 2025-09-25T16:29:11: 🔌 Socket.io ready and listening for connections
 2025-09-25T16:40:18: 🛑 SIGINT received, shutting down gracefully
 2025-09-25T16:40:18: ✅ Server closed
+2025-09-25T17:01:25: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T17:01:25: Environment: production
+2025-09-25T17:01:25: Port: 3000
+2025-09-25T17:01:25: Hostname: 0.0.0.0
+2025-09-25T17:01:25: ✅ Next.js app prepared
+2025-09-25T17:01:25: 🔌 Initializing Socket.io...
+2025-09-25T17:01:25: ✅ Socket.io server initialized successfully
+2025-09-25T17:01:25: ✅ Simple Socket Service initialized
+2025-09-25T17:01:25: ✅ Socket Notification Service initialized successfully
+2025-09-25T17:01:25: ✅ Socket notification service initialized
+2025-09-25T17:01:25: ✅ Socket service linked to notification service
+2025-09-25T17:01:25: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T17:01:25: 🔌 Socket.io ready and listening for connections
+2025-09-25T17:03:04: prisma:error 
+2025-09-25T17:03:04: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T17:03:04: 
+2025-09-25T17:03:04: 
+2025-09-25T17:03:04: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T17:03:04: 
+2025-09-25T17:03:04: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T17:03:55: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T17:03:55: ✅ Server closed
+2025-09-25T17:03:55: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T17:03:55: Environment: production
+2025-09-25T17:03:55: Port: 3000
+2025-09-25T17:03:55: Hostname: srv939274.hstgr.cloud
+2025-09-25T17:03:55: ✅ Next.js app prepared
+2025-09-25T17:03:55: 🔌 Initializing Socket.io...
+2025-09-25T17:03:55: ✅ Socket.io server initialized successfully
+2025-09-25T17:03:55: ✅ Simple Socket Service initialized
+2025-09-25T17:03:55: ✅ Socket Notification Service initialized successfully
+2025-09-25T17:03:55: ✅ Socket notification service initialized
+2025-09-25T17:03:55: ✅ Socket service linked to notification service
+2025-09-25T17:03:55: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T17:03:55: 🔌 Socket.io ready and listening for connections
+2025-09-25T17:06:07: prisma:error 
+2025-09-25T17:06:07: Invalid `prisma.job.count()` invocation:
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T17:06:07: prisma:error 
+2025-09-25T17:06:07: Invalid `prisma.job.count()` invocation:
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T17:06:07: prisma:error 
+2025-09-25T17:06:07: Invalid `prisma.job.count()` invocation:
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T17:06:07: prisma:error 
+2025-09-25T17:06:07: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T17:06:07: 
+2025-09-25T17:06:07: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T17:07:28: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T17:07:28: ✅ Server closed
