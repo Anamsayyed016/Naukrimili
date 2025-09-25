@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireEmployerAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { createNotification } from "@/lib/notification-service";
-import { getSocketService } from "@/lib/socket-server";
+// import { getSocketService } from "@/lib/socket-server";
 
 // GET - Get all favorited applications for the employer
 export async function GET(request: NextRequest) {
@@ -159,25 +159,25 @@ export async function POST(request: NextRequest) {
       });
 
       // Send real-time notification via Socket.io (optional)
-      try {
-        const socketService = getSocketService();
-        if (socketService) {
-          await socketService.sendNotificationToUser(application.user.id, {
-            type: 'APPLICATION_UPDATE',
-            title: '⭐ Your profile has been saved!',
-            message: `Great news! Your application for ${application.job.title} at ${application.job.company} has been saved by the employer. This means they're interested in your profile!`,
-            data: {
-              applicationId: application.id,
-              jobTitle: application.job.title,
-              company: application.job.company,
-              actionType: 'favorited'
-          }
-        });
-      }
-      } catch (socketError) {
-        console.warn('⚠️ Socket service not available:', socketError);
-        // Continue without socket notification
-      }
+      // try {
+      //   const socketService = getSocketService();
+      //   if (socketService) {
+      //     await socketService.sendNotificationToUser(application.user.id, {
+      //       type: 'APPLICATION_UPDATE',
+      //       title: '⭐ Your profile has been saved!',
+      //       message: `Great news! Your application for ${application.job.title} at ${application.job.company} has been saved by the employer. This means they're interested in your profile!`,
+      //       data: {
+      //         applicationId: application.id,
+      //         jobTitle: application.job.title,
+      //         company: application.job.company,
+      //         actionType: 'favorited'
+      //     }
+      //   });
+      // }
+      // } catch (socketError) {
+      //   console.warn('⚠️ Socket service not available:', socketError);
+      //   // Continue without socket notification
+      // }
 
       console.log(`📤 Notification sent to job seeker about being favorited: ${application.user.id}`);
     } catch (notificationError) {
