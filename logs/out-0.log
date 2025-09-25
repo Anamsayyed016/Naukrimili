@@ -2413,3 +2413,3120 @@
 2025-09-23T21:39:49: ✅ Socket notification service initialized
 2025-09-23T21:39:50: ✅ Server ready on http://0.0.0.0:3000
 2025-09-23T21:39:50: 🔌 Socket.io ready and listening for connections
+2025-09-23T22:10:32: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T22:10:32: ✅ Server closed
+2025-09-23T22:11:44: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T22:11:44: Environment: production
+2025-09-23T22:11:44: Port: 3000
+2025-09-23T22:11:44: Hostname: 0.0.0.0
+2025-09-23T22:11:44: ✅ Next.js app prepared
+2025-09-23T22:11:44: 🔌 Initializing Socket.io...
+2025-09-23T22:11:44: ✅ Socket.io server initialized successfully
+2025-09-23T22:11:44: ✅ Simple Socket Service initialized
+2025-09-23T22:11:44: ✅ Socket Notification Service initialized successfully
+2025-09-23T22:11:44: ✅ Socket notification service initialized
+2025-09-23T22:11:44: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T22:11:44: 🔌 Socket.io ready and listening for connections
+2025-09-23T22:16:03: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T22:16:03: ✅ Server closed
+2025-09-23T22:16:03: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T22:16:03: Environment: production
+2025-09-23T22:16:03: Port: 3000
+2025-09-23T22:16:03: Hostname: 0.0.0.0
+2025-09-23T22:16:03: ✅ Next.js app prepared
+2025-09-23T22:16:03: 🔌 Initializing Socket.io...
+2025-09-23T22:16:03: ✅ Socket.io server initialized successfully
+2025-09-23T22:16:03: ✅ Simple Socket Service initialized
+2025-09-23T22:16:03: ✅ Socket Notification Service initialized successfully
+2025-09-23T22:16:03: ✅ Socket notification service initialized
+2025-09-23T22:16:04: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T22:16:04: 🔌 Socket.io ready and listening for connections
+2025-09-23T22:17:13: 🔌 User connected: i729htZSUHJajUdwAAAB
+2025-09-23T22:17:13: 🔌 User connected: AapnAeHz3B8ptGl9AAAD
+2025-09-23T22:17:36: 🔌 User connected: _ehRLwPYRFqjQPMUAAAF
+2025-09-23T22:20:10: 🔌 User connected: iCLsawZnXW7PRwb3AAAH
+2025-09-23T22:20:10: 🔌 User connected: 6sZhVnvPJvlUbxk3AAAJ
+2025-09-23T22:20:11: 🔌 User connected: 7D4q2j1pyI7JPkxwAAAL
+2025-09-23T22:20:11: 🔌 User connected: 1TLk5eYfzyM7Vy-uAAAN
+2025-09-23T22:20:19: 🔌 User connected: nSylv9m9YCdaVxLSAAAP
+2025-09-23T22:20:19: 🔌 User connected: yZx_2LZeS9DrI2rFAAAR
+2025-09-23T22:20:21: 🔌 User connected: vWEKH27oHTj2JEYEAAAT
+2025-09-23T22:20:21: 🔌 User connected: O9tobL2-zGeyUNTKAAAV
+2025-09-23T22:21:59: 🔌 User connected: OZzdklsMuXxotNywAAAX
+2025-09-23T22:21:59: 🔌 User connected: Ugm0ckyN9FTgBLruAAAZ
+2025-09-23T22:22:18: 🔌 User connected: WteauepChwLyckMdAAAb
+2025-09-23T22:22:19: 🔌 User connected: sBBrZv6knfFUks4qAAAf
+2025-09-23T22:22:19: 🔌 User connected: 0cQxqAua-XjWtxn7AAAg
+2025-09-23T22:22:19: 🔌 User connected: 0FBpHMI9leytnd44AAAh
+2025-09-23T22:22:41: 🔌 User connected: _k5uuHpEPwfsrLcMAAAj
+2025-09-23T22:22:41: 🔌 User connected: o4jG8laIgfirM7i1AAAl
+2025-09-23T22:22:42: 🔌 User connected: GjATUB3LettEwS4IAAAn
+2025-09-23T22:22:42: 🔌 User connected: FqlB7iC_RZG3iGTPAAAp
+2025-09-23T22:22:43: 🔌 User connected: yF2TlxarLC6-skVAAAAr
+2025-09-23T22:22:43: 🔌 User connected: lRUiA_DmJ1G3kQ6AAAAt
+2025-09-23T22:25:45: 🔌 User connected: OIEqp_Ybt4Jg2ifQAAAv
+2025-09-23T22:25:45: 🔌 User connected: EplnjdO49h7DFQw2AAAx
+2025-09-23T22:26:45: 🔌 User connected: 8ykASIKgHY7AAjTpAAAz
+2025-09-23T22:26:45: 🔌 User connected: rke0oghK-9Un8gGlAAA1
+2025-09-23T22:26:45: 🔌 User connected: yUW9FtX1fX1LDQcrAAA3
+2025-09-23T22:26:46: 🔌 User connected: hX7fT03UzoC07gbdAAA5
+2025-09-23T22:26:46: 🔌 User connected: bBgC_u2PBWIymPPYAAA7
+2025-09-23T22:26:46: 🔌 User connected: XRuW18BROOi_W2S3AAA9
+2025-09-23T22:26:48: 🔌 User connected: Y-UgDcm3kHWFRigVAAA_
+2025-09-23T22:26:48: 🔌 User connected: fGzVuxZeCA5YGXgtAABB
+2025-09-23T22:26:51: 🔌 User connected: zaSUolppoR3zS5e8AABD
+2025-09-23T22:26:51: 🔌 User connected: Vhom2qDCNCf8mYhHAABF
+2025-09-23T22:28:34: 🔌 User connected: mshxizqU8swGYY2ZAABH
+2025-09-23T22:28:34: 🔌 User connected: nx0WLvZsXDT0A8FbAABJ
+2025-09-23T22:28:34: 🔌 User connected: Hujt7lqMsgMngEWgAABL
+2025-09-23T22:28:35: 🔌 User connected: _X1fd6egM3zuP3oBAABN
+2025-09-23T22:28:35: 🔌 User connected: 0jXPblsEEz-I1pE-AABP
+2025-09-23T22:28:35: 🔌 User connected: GuMeNF0w1qLCnEh8AABR
+2025-09-23T22:28:36: 🔌 User connected: 11J9q5oI348RLKQYAABT
+2025-09-23T22:28:36: 🔌 User connected: nx9BympzTX-cXVwQAABV
+2025-09-23T22:28:38: 🔌 User connected: gX8lbgICMqdjX_e6AABX
+2025-09-23T22:28:38: 🔌 User connected: jZYKu6EwZfok07_dAABZ
+2025-09-23T22:28:59: 🔌 User connected: 9KZK8mNywlDidCpZAABb
+2025-09-23T22:29:52: 🔌 User connected: ZQqTQr0AUNwTWk_7AABd
+2025-09-23T22:29:52: 🔌 User connected: CxpieMPCofSTIHzqAABf
+2025-09-23T22:29:53: 🔌 User connected: 3UvakLP79KEgoprAAABh
+2025-09-23T22:29:53: 🔌 User connected: KFm53VQ-qacIBMeyAABj
+2025-09-23T22:29:53: 🔌 User connected: k5cbbZ3z6n5WkdH_AABl
+2025-09-23T22:29:53: 🔌 User connected: Sr-WBlWMlKVwQ3xUAABn
+2025-09-23T22:29:58: 🔌 User connected: 8631XHH4JtZBeOP9AABp
+2025-09-23T22:29:58: 🔌 User connected: _0eGE4SMGJu8hUC2AABr
+2025-09-23T22:39:24: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T22:40:40: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T22:40:40: Environment: production
+2025-09-23T22:40:40: Port: 3000
+2025-09-23T22:40:40: Hostname: 0.0.0.0
+2025-09-23T22:40:40: ✅ Next.js app prepared
+2025-09-23T22:40:40: 🔌 Initializing Socket.io...
+2025-09-23T22:40:40: ✅ Socket.io server initialized successfully
+2025-09-23T22:40:40: ✅ Simple Socket Service initialized
+2025-09-23T22:40:40: ✅ Socket Notification Service initialized successfully
+2025-09-23T22:40:40: ✅ Socket notification service initialized
+2025-09-23T22:40:40: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T22:40:40: 🔌 Socket.io ready and listening for connections
+2025-09-23T22:40:42: 🔌 User connected: bu2sYoYfd-jSQIUhAAAB
+2025-09-23T22:40:42: 🔌 User connected: Jqmhzh0maIgbZambAAAD
+2025-09-23T22:40:42: 🔌 User connected: mbW0a_XmJdA7QidOAAAF
+2025-09-23T22:40:43: 🔌 User connected: hoDdmH3_xA3oafwhAAAH
+2025-09-23T22:42:19: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T22:42:21: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T22:42:21: Environment: production
+2025-09-23T22:42:21: Port: 3000
+2025-09-23T22:42:21: Hostname: 0.0.0.0
+2025-09-23T22:42:21: ✅ Next.js app prepared
+2025-09-23T22:42:21: 🔌 Initializing Socket.io...
+2025-09-23T22:42:21: ✅ Socket.io server initialized successfully
+2025-09-23T22:42:21: ✅ Simple Socket Service initialized
+2025-09-23T22:42:21: ✅ Socket Notification Service initialized successfully
+2025-09-23T22:42:21: ✅ Socket notification service initialized
+2025-09-23T22:42:21: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T22:42:21: 🔌 Socket.io ready and listening for connections
+2025-09-23T22:42:22: 🔌 User connected: ITaA0LkXA2mgmODOAAAB
+2025-09-23T22:42:22: 🔌 User connected: YAZt8iMElaHbktYZAAAD
+2025-09-23T22:42:23: 🔌 User connected: 5Y6HMWT72GQO7h62AAAF
+2025-09-23T22:42:23: 🔌 User connected: Yl0x2Do60l5akq7EAAAH
+2025-09-23T22:42:32: 🔌 User connected: rS1OykHARmA-JhdLAAAJ
+2025-09-23T22:42:32: 🔌 User connected: 7IyajOjUDo_oWDDoAAAL
+2025-09-23T22:42:53: 🔌 User connected: g4AjG9cy-tI5RS93AAAN
+2025-09-23T22:42:53: 🔌 User connected: clUHKirsOflDxRPcAAAP
+2025-09-23T22:42:53: 🔌 User connected: mwMfXQOFOY-RNHnHAAAR
+2025-09-23T22:42:53: 🔌 User connected: 2ULMGOzUEVfUzGFaAAAT
+2025-09-23T22:42:56: 🔌 User connected: -ob35rTdkLktemi0AAAV
+2025-09-23T22:42:56: 🔌 User connected: s9lnD9AMSgJwClJwAAAX
+2025-09-23T22:43:27: 🔌 User connected: fG_qAFiDtN-vBC_xAAAZ
+2025-09-23T22:43:40: 🔌 User connected: kOozrN6dpIyYyfo4AAAb
+2025-09-23T22:44:07: 🔌 User connected: Yn9mOh4DK_I3hk6QAAAd
+2025-09-23T22:44:24: prisma:error 
+2025-09-23T22:44:24: Invalid `prisma.application.create()` invocation:
+2025-09-23T22:44:24: 
+2025-09-23T22:44:24: {
+2025-09-23T22:44:24:   data: {
+2025-09-23T22:44:24:     userId: "cmfx4c1zo0003gxqm89r1h3lw",
+2025-09-23T22:44:24:     jobId: "cmfwxqnxi0001gxr455oyq4rl",
+2025-09-23T22:44:24:     notes: "na",
+2025-09-23T22:44:24:     status: "submitted",
+2025-09-23T22:44:24:     appliedAt: new Date("2025-09-23T22:44:24.921Z"),
+2025-09-23T22:44:24:     coverLetter: "na",
+2025-09-23T22:44:24:     resumeId: null,
+2025-09-23T22:44:24:     companyId: "cmfwwgkhk0001gxlcc99g6nms",
+2025-09-23T22:44:24:     applicationData: "{\"fullName\":\"anam sayyed\",\"email\":\"anamsayyed58@gmail.com\",\"phone\":\"907 657 2042\",\"location\":\"Bhopal Madhya Pradesh\",\"expectedSalary\":\"20,000\",\"availability\":\"Immediate\",\"resumeUrl\":\"/uploads/resumes/resume_cmfx4c1zo0003gxqm89r1h3lw_1758667464921.pdf\"}",
+2025-09-23T22:44:24:     ~~~~~~~~~~~~~~~
+2025-09-23T22:44:24: ?   id?: String,
+2025-09-23T22:44:24: ?   updatedAt?: DateTime,
+2025-09-23T22:44:24: ?   benefits?: String | Null,
+2025-09-23T22:44:24: ?   specialties?: String | Null,
+2025-09-23T22:44:24: ?   culture?: String | Null,
+2025-09-23T22:44:24: ?   mission?: String | Null,
+2025-09-23T22:44:24: ?   vision?: String | Null
+2025-09-23T22:44:24:   },
+2025-09-23T22:44:24:   include: {
+2025-09-23T22:44:24:     job: true,
+2025-09-23T22:44:24:     user: {
+2025-09-23T22:44:24:       select: {
+2025-09-23T22:44:24:         id: true,
+2025-09-23T22:44:24:         name: true,
+2025-09-23T22:44:24:         email: true,
+2025-09-23T22:44:24:         phone: true,
+2025-09-23T22:44:24:         location: true
+2025-09-23T22:44:24:       }
+2025-09-23T22:44:24:     }
+2025-09-23T22:44:24:   }
+2025-09-23T22:44:24: }
+2025-09-23T22:44:24: 
+2025-09-23T22:44:24: Unknown argument `applicationData`. Available options are marked with ?.
+2025-09-23T22:44:36: 🔌 User connected: PUmRdslW6W2zSnQMAAAf
+2025-09-23T22:44:36: 🔌 User connected: iQoi6o83h0KJ6dicAAAh
+2025-09-23T22:46:24: 🔌 User connected: zye1LPNxem_nGEtyAAAj
+2025-09-23T22:46:27: 🔌 User connected: tmOvw_BXwlawtQaqAAAl
+2025-09-23T22:55:59: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T22:57:06: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T22:57:06: Environment: production
+2025-09-23T22:57:06: Port: 3000
+2025-09-23T22:57:06: Hostname: 0.0.0.0
+2025-09-23T22:57:06: ✅ Next.js app prepared
+2025-09-23T22:57:06: 🔌 Initializing Socket.io...
+2025-09-23T22:57:06: ✅ Socket.io server initialized successfully
+2025-09-23T22:57:06: ✅ Simple Socket Service initialized
+2025-09-23T22:57:06: ✅ Socket Notification Service initialized successfully
+2025-09-23T22:57:06: ✅ Socket notification service initialized
+2025-09-23T22:57:06: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T22:57:06: 🔌 Socket.io ready and listening for connections
+2025-09-23T22:57:11: 🔌 User connected: XQlMyQ6acd9Qs_d4AAAB
+2025-09-23T22:57:14: 🔌 User connected: ViishuMIdpdPlduOAAAD
+2025-09-23T22:58:44: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T22:58:46: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T22:58:46: Environment: production
+2025-09-23T22:58:46: Port: 3000
+2025-09-23T22:58:46: Hostname: 0.0.0.0
+2025-09-23T22:58:46: ✅ Next.js app prepared
+2025-09-23T22:58:46: 🔌 Initializing Socket.io...
+2025-09-23T22:58:46: ✅ Socket.io server initialized successfully
+2025-09-23T22:58:46: ✅ Simple Socket Service initialized
+2025-09-23T22:58:46: ✅ Socket Notification Service initialized successfully
+2025-09-23T22:58:46: ✅ Socket notification service initialized
+2025-09-23T22:58:46: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T22:58:46: 🔌 Socket.io ready and listening for connections
+2025-09-23T22:58:48: 🔌 User connected: dMuHnfYxXBnjCsEPAAAB
+2025-09-23T22:58:48: 🔌 User connected: SChofYgZeq-oJB-sAAAD
+2025-09-23T23:01:33: 🔌 User connected: vsUuDFnqVonubGm9AAAF
+2025-09-23T23:01:34: prisma:error 
+2025-09-23T23:01:34: Invalid `prisma.user.findUnique()` invocation:
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: The table `public.User` does not exist in the current database.
+2025-09-23T23:01:34: prisma:error 
+2025-09-23T23:01:34: Invalid `prisma.notification.findMany()` invocation:
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: The table `public.Notification` does not exist in the current database.
+2025-09-23T23:01:34: prisma:error 
+2025-09-23T23:01:34: Invalid `prisma.notification.count()` invocation:
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: The table `public.Notification` does not exist in the current database.
+2025-09-23T23:01:34: prisma:error 
+2025-09-23T23:01:34: Invalid `prisma.user.findUnique()` invocation:
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: The table `public.User` does not exist in the current database.
+2025-09-23T23:01:34: prisma:error 
+2025-09-23T23:01:34: Invalid `prisma.notification.findMany()` invocation:
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: The table `public.Notification` does not exist in the current database.
+2025-09-23T23:01:34: prisma:error 
+2025-09-23T23:01:34: Invalid `prisma.notification.count()` invocation:
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: 
+2025-09-23T23:01:34: The table `public.Notification` does not exist in the current database.
+2025-09-23T23:01:45: 🔌 User connected: R_3QNqvhTxs3Pz9UAAAH
+2025-09-23T23:01:46: prisma:error 
+2025-09-23T23:01:46: Invalid `prisma.user.findUnique()` invocation:
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: The table `public.User` does not exist in the current database.
+2025-09-23T23:01:46: prisma:error 
+2025-09-23T23:01:46: Invalid `prisma.notification.count()` invocation:
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: The table `public.Notification` does not exist in the current database.
+2025-09-23T23:01:46: prisma:error 
+2025-09-23T23:01:46: Invalid `prisma.notification.findMany()` invocation:
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: The table `public.Notification` does not exist in the current database.
+2025-09-23T23:01:46: prisma:error 
+2025-09-23T23:01:46: Invalid `prisma.user.findUnique()` invocation:
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: The table `public.User` does not exist in the current database.
+2025-09-23T23:01:46: prisma:error 
+2025-09-23T23:01:46: Invalid `prisma.message.findMany()` invocation:
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: 
+2025-09-23T23:01:46: The table `public.Message` does not exist in the current database.
+2025-09-23T23:01:56: 🔌 User connected: sbHXxEZC63rDbJK1AAAJ
+2025-09-23T23:01:56: prisma:error 
+2025-09-23T23:01:56: Invalid `prisma.user.findUnique()` invocation:
+2025-09-23T23:01:56: 
+2025-09-23T23:01:56: 
+2025-09-23T23:01:56: The table `public.User` does not exist in the current database.
+2025-09-23T23:01:56: prisma:error 
+2025-09-23T23:01:56: Invalid `prisma.notification.findMany()` invocation:
+2025-09-23T23:01:56: 
+2025-09-23T23:01:56: 
+2025-09-23T23:01:56: The table `public.Notification` does not exist in the current database.
+2025-09-23T23:01:56: prisma:error 
+2025-09-23T23:01:56: Invalid `prisma.notification.count()` invocation:
+2025-09-23T23:01:56: 
+2025-09-23T23:01:56: 
+2025-09-23T23:01:56: The table `public.Notification` does not exist in the current database.
+2025-09-23T23:04:33: prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P01), message: "terminating connection due to administrator command", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3075), routine: Some("ProcessInterrupts") }) }
+2025-09-23T23:04:33: prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: Some(Fatal), code: SqlState(E57P01), message: "terminating connection due to administrator command", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("postgres.c"), line: Some(3075), routine: Some("ProcessInterrupts") }) }
+2025-09-23T23:13:32: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T23:13:34: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T23:13:34: Environment: production
+2025-09-23T23:13:34: Port: 3000
+2025-09-23T23:13:34: Hostname: 0.0.0.0
+2025-09-23T23:13:34: ✅ Next.js app prepared
+2025-09-23T23:13:34: 🔌 Initializing Socket.io...
+2025-09-23T23:13:34: ✅ Socket.io server initialized successfully
+2025-09-23T23:13:34: ✅ Simple Socket Service initialized
+2025-09-23T23:13:34: ✅ Socket Notification Service initialized successfully
+2025-09-23T23:13:34: ✅ Socket notification service initialized
+2025-09-23T23:13:34: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T23:13:34: 🔌 Socket.io ready and listening for connections
+2025-09-23T23:13:35: 🔌 User connected: OHhojfj8s0ushZk-AAAB
+2025-09-23T23:13:35: 🔌 User connected: PiFjruLfNymZT_6iAAAD
+2025-09-23T23:13:35: 🔌 User connected: BOeCzo5K1JmHTJxnAAAF
+2025-09-23T23:13:35: 🔌 User connected: Db3RMXUCW_0HmQTXAAAH
+2025-09-23T23:13:37: 🔌 User connected: hTOKpXbKoN-w6emRAAAJ
+2025-09-23T23:20:34: 🔌 User connected: W1YpB6oH4DEmJ2tbAAAL
+2025-09-23T23:20:34: 🔌 User connected: cdgcMvz9BkFSnYGnAAAN
+2025-09-23T23:20:34: 🔌 User connected: T-taRmZgWUYD2yXkAAAP
+2025-09-23T23:21:13: 🔌 User connected: LDTsUIXU7YtoKFZqAAAR
+2025-09-23T23:21:13: 🔌 User connected: nV2YPMbQo70zEMy1AAAT
+2025-09-23T23:21:13: 🔌 User connected: fkt20HLhJu3CzMvrAAAV
+2025-09-23T23:21:13: 🔌 User connected: 8lC_uL7qahO8aMUNAAAX
+2025-09-23T23:21:16: 🔌 User connected: H48GaxED6UTKtwzEAAAZ
+2025-09-23T23:21:16: 🔌 User connected: lhUlp71IqMapvnIXAAAb
+2025-09-23T23:21:18: 🔌 User connected: NnIaL4Nf_5Fxb3yiAAAd
+2025-09-23T23:21:18: 🔌 User connected: r-OkueRz_ZW_JPcUAAAf
+2025-09-23T23:22:44: 🔌 User connected: rtVfXUlz1zJM0NiLAAAh
+2025-09-23T23:22:50: 🔌 User connected: eB2Rbln8lv07i9rwAAAj
+2025-09-23T23:24:48: 🔌 User connected: WBaSMCR7X_3uqZSyAAAl
+2025-09-23T23:24:48: 🔌 User connected: Wayjz2XAMsNCC7wyAAAn
+2025-09-23T23:24:48: 🔌 User connected: wyj8belF_oCCHbPoAAAp
+2025-09-23T23:24:48: 🔌 User connected: riHH9l5DSq1QUtKyAAAr
+2025-09-23T23:24:50: 🔌 User connected: 2jI_zW-QzknyMHUsAAAt
+2025-09-23T23:24:50: 🔌 User connected: 4CUNmpsMB6FSPzq8AAAv
+2025-09-23T23:24:53: 🔌 User connected: DIlA1hDdzyORjDGSAAAx
+2025-09-23T23:24:53: 🔌 User connected: cMj7oov8Ocz8_mogAAAz
+2025-09-23T23:46:06: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T23:47:12: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T23:47:12: Environment: production
+2025-09-23T23:47:12: Port: 3000
+2025-09-23T23:47:12: Hostname: 0.0.0.0
+2025-09-23T23:47:13: ✅ Next.js app prepared
+2025-09-23T23:47:13: 🔌 Initializing Socket.io...
+2025-09-23T23:47:13: ✅ Socket.io server initialized successfully
+2025-09-23T23:47:13: ✅ Simple Socket Service initialized
+2025-09-23T23:47:13: ✅ Socket Notification Service initialized successfully
+2025-09-23T23:47:13: ✅ Socket notification service initialized
+2025-09-23T23:47:13: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T23:47:13: 🔌 Socket.io ready and listening for connections
+2025-09-23T23:47:20: 🔌 User connected: HhgYyIefPLYcs985AAAB
+2025-09-23T23:47:20: 🔌 User connected: VZhX_gdX85eLs89uAAAD
+2025-09-23T23:47:20: 🔌 User connected: jHmwS72cLqhj8_s6AAAF
+2025-09-23T23:47:20: 🔌 User connected: L60Kto8Fwms8IKb0AAAH
+2025-09-23T23:49:08: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T23:49:10: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T23:49:10: Environment: production
+2025-09-23T23:49:10: Port: 3000
+2025-09-23T23:49:10: Hostname: 0.0.0.0
+2025-09-23T23:49:11: ✅ Next.js app prepared
+2025-09-23T23:49:11: 🔌 Initializing Socket.io...
+2025-09-23T23:49:11: ✅ Socket.io server initialized successfully
+2025-09-23T23:49:11: ✅ Simple Socket Service initialized
+2025-09-23T23:49:11: ✅ Socket Notification Service initialized successfully
+2025-09-23T23:49:11: ✅ Socket notification service initialized
+2025-09-23T23:49:11: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T23:49:11: 🔌 Socket.io ready and listening for connections
+2025-09-23T23:49:12: 🔌 User connected: JYz3ODgflE0LdX_CAAAB
+2025-09-23T23:49:12: 🔌 User connected: g7udlMzAvpjhTrFJAAAD
+2025-09-23T23:49:12: 🔌 User connected: m7gOs6Zn3nfuOL-QAAAF
+2025-09-23T23:49:12: 🔌 User connected: -xbzuUaTBs9vuEiqAAAH
+2025-09-23T23:49:49: 🔌 User connected: FgTQiKqeyIx_r8s3AAAJ
+2025-09-23T23:49:49: 🔌 User connected: OgL-bFgLqx0_8eiSAAAL
+2025-09-23T23:55:25: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T23:56:28: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T23:56:28: Environment: production
+2025-09-23T23:56:28: Port: 3000
+2025-09-23T23:56:28: Hostname: 0.0.0.0
+2025-09-23T23:56:28: ✅ Next.js app prepared
+2025-09-23T23:56:28: 🔌 Initializing Socket.io...
+2025-09-23T23:56:28: ✅ Socket.io server initialized successfully
+2025-09-23T23:56:28: ✅ Simple Socket Service initialized
+2025-09-23T23:56:28: ✅ Socket Notification Service initialized successfully
+2025-09-23T23:56:28: ✅ Socket notification service initialized
+2025-09-23T23:56:28: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T23:56:28: 🔌 Socket.io ready and listening for connections
+2025-09-23T23:56:29: 🔌 User connected: EQNs413UDgKHOA9AAAAB
+2025-09-23T23:56:31: 🔌 User connected: ti7wCPZMdwvQASs5AAAD
+2025-09-23T23:56:31: 🔌 User connected: 7KU3aguS0F9WbSW9AAAF
+2025-09-23T23:56:31: 🔌 User connected: nMlS4Y2MROMT_Ik3AAAH
+2025-09-23T23:57:18: 🛑 SIGINT received, shutting down gracefully
+2025-09-23T23:57:20: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-23T23:57:20: Environment: production
+2025-09-23T23:57:20: Port: 3000
+2025-09-23T23:57:20: Hostname: 0.0.0.0
+2025-09-23T23:57:20: ✅ Next.js app prepared
+2025-09-23T23:57:20: 🔌 Initializing Socket.io...
+2025-09-23T23:57:20: ✅ Socket.io server initialized successfully
+2025-09-23T23:57:20: ✅ Simple Socket Service initialized
+2025-09-23T23:57:20: ✅ Socket Notification Service initialized successfully
+2025-09-23T23:57:20: ✅ Socket notification service initialized
+2025-09-23T23:57:20: ✅ Server ready on http://0.0.0.0:3000
+2025-09-23T23:57:20: 🔌 Socket.io ready and listening for connections
+2025-09-23T23:57:21: 🔌 User connected: vIVLiXnrexuAB-ZuAAAB
+2025-09-23T23:57:21: 🔌 User connected: _DyfwtjwctrgXl3CAAAD
+2025-09-23T23:57:21: 🔌 User connected: DBp3109RFD67vqBSAAAF
+2025-09-23T23:57:22: 🔌 User connected: GrKa_7QyaMTJUzVSAAAH
+2025-09-23T23:57:41: 🔌 User connected: uumSv8nxEQ12Ww7dAAAJ
+2025-09-23T23:57:41: 🔌 User connected: QumqAIGHMGCxEQvyAAAL
+2025-09-24T02:42:52: 🔌 User connected: trVHZgcJQoLeomicAAAN
+2025-09-24T02:42:53: 🔌 User connected: ByzGXa4qJ0LI30LeAAAP
+2025-09-24T02:42:56: 🔌 User connected: WLwrebmDoHn2Ty4JAAAR
+2025-09-24T02:42:56: 🔌 User connected: 07ajysA2r2Wa7WaJAAAT
+2025-09-24T02:42:58: 🔌 User connected: bf7s7Gr_8NiBbi_wAAAV
+2025-09-24T02:42:59: 🔌 User connected: 62jVvF14XWUYmq6XAAAX
+2025-09-24T02:46:38: 🔌 User connected: b_5ILG3dTduap765AAAZ
+2025-09-24T08:27:24: 🔌 User connected: kjH3U1pOwx47wLyUAAAb
+2025-09-24T08:27:24: 🔌 User connected: JiTo36LK0Ehl_aOHAAAe
+2025-09-24T08:27:24: 🔌 User connected: rnfBHVxgSRLajRU0AAAf
+2025-09-24T08:27:24: 🔌 User connected: M18nRn7vFa4KJFlyAAAh
+2025-09-24T08:27:24: 🔌 User connected: y9DumX8B5qi63v2_AAAl
+2025-09-24T08:27:24: 🔌 User connected: rGOCxMNEW8T9pit7AAAm
+2025-09-24T08:27:24: 🔌 User connected: -nzhNIHrzVlz4fT8AAAn
+2025-09-24T08:27:24: 🔌 User connected: 6JXocCJNOWMwCxfJAAAp
+2025-09-24T08:27:35: 🔌 User connected: eUTeGgASRQq0CEmOAAAr
+2025-09-24T08:27:53: 🔌 User connected: c891mn3LhanDWolHAAAt
+2025-09-24T11:20:52: 🔌 User connected: 0lm77Gn4G_Or0agWAAAv
+2025-09-24T11:20:53: 🔌 User connected: jnKLHftXm5vP7GYuAAAx
+2025-09-24T11:20:54: 🔌 User connected: LM1J9pVeKHRn0SRBAAAz
+2025-09-24T11:20:55: 🔌 User connected: RJcMtP10uk2DNLV1AAA1
+2025-09-24T11:24:05: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T11:25:42: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T11:25:42: Environment: production
+2025-09-24T11:25:42: Port: 3000
+2025-09-24T11:25:42: Hostname: 0.0.0.0
+2025-09-24T11:25:43: ✅ Next.js app prepared
+2025-09-24T11:25:43: 🔌 Initializing Socket.io...
+2025-09-24T11:25:43: ✅ Socket.io server initialized successfully
+2025-09-24T11:25:43: ✅ Simple Socket Service initialized
+2025-09-24T11:25:43: ✅ Socket Notification Service initialized successfully
+2025-09-24T11:25:43: ✅ Socket notification service initialized
+2025-09-24T11:25:43: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T11:25:43: 🔌 Socket.io ready and listening for connections
+2025-09-24T11:25:45: 🔌 User connected: ZiiF_jP9ldO0cBQUAAAB
+2025-09-24T11:25:46: 🔌 User connected: 9d3ZF3TRmaNsuFJwAAAD
+2025-09-24T11:26:53: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T11:26:54: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T11:26:54: Environment: production
+2025-09-24T11:26:54: Port: 3000
+2025-09-24T11:26:54: Hostname: 0.0.0.0
+2025-09-24T11:26:55: ✅ Next.js app prepared
+2025-09-24T11:26:55: 🔌 Initializing Socket.io...
+2025-09-24T11:26:55: ✅ Socket.io server initialized successfully
+2025-09-24T11:26:55: ✅ Simple Socket Service initialized
+2025-09-24T11:26:55: ✅ Socket Notification Service initialized successfully
+2025-09-24T11:26:55: ✅ Socket notification service initialized
+2025-09-24T11:26:55: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T11:26:55: 🔌 Socket.io ready and listening for connections
+2025-09-24T11:26:56: 🔌 User connected: sS9goyonKjNFwfuOAAAB
+2025-09-24T11:26:57: 🔌 User connected: GtFsu17u7rqzbzBJAAAD
+2025-09-24T11:26:59: 🔌 User connected: 0kwPy1sQ2ERmnq2yAAAF
+2025-09-24T11:26:59: 🔌 User connected: cyCu9zU-AOHa6Y5fAAAH
+2025-09-24T11:27:02: 🔌 User connected: pI7zhi9y4PdNWNXyAAAJ
+2025-09-24T11:27:02: 🔌 User connected: AbnDbmx4i_ih4R4zAAAL
+2025-09-24T11:27:05: 🔌 User connected: kWUFPG1wn_SbaAUwAAAN
+2025-09-24T11:27:05: 🔌 User connected: MtevZbb_rbSlSTfyAAAP
+2025-09-24T11:27:50: 🔌 User connected: OEri5diqNrj415ejAAAR
+2025-09-24T11:27:50: 🔌 User connected: 5UjaLuHsEi8VeMGtAAAT
+2025-09-24T11:27:52: 🔌 User connected: cnTXM33zRuMrP9XuAAAV
+2025-09-24T11:27:53: 🔌 User connected: tY4JMRTkLZsSb0c_AAAX
+2025-09-24T11:51:31: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T11:51:31: ✅ Server closed
+2025-09-24T11:52:46: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T11:52:46: Environment: production
+2025-09-24T11:52:46: Port: 3000
+2025-09-24T11:52:46: Hostname: 0.0.0.0
+2025-09-24T11:52:46: ✅ Next.js app prepared
+2025-09-24T11:52:46: 🔌 Initializing Socket.io...
+2025-09-24T11:52:46: ✅ Socket.io server initialized successfully
+2025-09-24T11:52:46: ✅ Simple Socket Service initialized
+2025-09-24T11:52:46: ✅ Socket Notification Service initialized successfully
+2025-09-24T11:52:46: ✅ Socket notification service initialized
+2025-09-24T11:52:46: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T11:52:46: 🔌 Socket.io ready and listening for connections
+2025-09-24T12:58:39: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T12:58:39: ✅ Server closed
+2025-09-24T12:58:40: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T12:58:40: Environment: production
+2025-09-24T12:58:40: Port: 3000
+2025-09-24T12:58:40: Hostname: 0.0.0.0
+2025-09-24T12:58:40: ✅ Next.js app prepared
+2025-09-24T12:58:40: 🔌 Initializing Socket.io...
+2025-09-24T12:58:40: ✅ Socket.io server initialized successfully
+2025-09-24T12:58:40: ✅ Simple Socket Service initialized
+2025-09-24T12:58:40: ✅ Socket Notification Service initialized successfully
+2025-09-24T12:58:40: ✅ Socket notification service initialized
+2025-09-24T12:58:40: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T12:58:40: 🔌 Socket.io ready and listening for connections
+2025-09-24T13:02:16: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T13:02:16: ✅ Server closed
+2025-09-24T13:02:16: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T13:02:16: Environment: production
+2025-09-24T13:02:16: Port: 3000
+2025-09-24T13:02:16: Hostname: 0.0.0.0
+2025-09-24T13:02:16: ✅ Next.js app prepared
+2025-09-24T13:02:16: 🔌 Initializing Socket.io...
+2025-09-24T13:02:16: ✅ Socket.io server initialized successfully
+2025-09-24T13:02:16: ✅ Simple Socket Service initialized
+2025-09-24T13:02:16: ✅ Socket Notification Service initialized successfully
+2025-09-24T13:02:16: ✅ Socket notification service initialized
+2025-09-24T13:02:16: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T13:02:16: 🔌 Socket.io ready and listening for connections
+2025-09-24T13:03:47: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T13:03:47: ✅ Server closed
+2025-09-24T13:03:47: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T13:03:47: Environment: production
+2025-09-24T13:03:47: Port: 3000
+2025-09-24T13:03:47: Hostname: srv939274.hstgr.cloud
+2025-09-24T13:03:47: ✅ Next.js app prepared
+2025-09-24T13:03:47: 🔌 Initializing Socket.io...
+2025-09-24T13:03:47: ✅ Socket.io server initialized successfully
+2025-09-24T13:03:47: ✅ Simple Socket Service initialized
+2025-09-24T13:03:47: ✅ Socket Notification Service initialized successfully
+2025-09-24T13:03:47: ✅ Socket notification service initialized
+2025-09-24T13:03:49: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-24T13:03:49: 🔌 Socket.io ready and listening for connections
+2025-09-24T13:13:52: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T13:13:52: ✅ Server closed
+2025-09-24T13:13:53: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T13:13:53: Environment: production
+2025-09-24T13:13:53: Port: 3000
+2025-09-24T13:13:53: Hostname: srv939274.hstgr.cloud
+2025-09-24T13:13:53: ✅ Next.js app prepared
+2025-09-24T13:13:53: 🔌 Initializing Socket.io...
+2025-09-24T13:13:53: ✅ Socket.io server initialized successfully
+2025-09-24T13:13:53: ✅ Simple Socket Service initialized
+2025-09-24T13:13:53: ✅ Socket Notification Service initialized successfully
+2025-09-24T13:13:53: ✅ Socket notification service initialized
+2025-09-24T13:13:54: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-24T13:13:54: 🔌 Socket.io ready and listening for connections
+2025-09-24T13:14:42: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T13:14:42: ✅ Server closed
+2025-09-24T13:14:42: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T13:14:42: Environment: production
+2025-09-24T13:14:42: Port: 3000
+2025-09-24T13:14:42: Hostname: 0.0.0.0
+2025-09-24T13:14:43: ✅ Next.js app prepared
+2025-09-24T13:14:43: 🔌 Initializing Socket.io...
+2025-09-24T13:14:43: ✅ Socket.io server initialized successfully
+2025-09-24T13:14:43: ✅ Simple Socket Service initialized
+2025-09-24T13:14:43: ✅ Socket Notification Service initialized successfully
+2025-09-24T13:14:43: ✅ Socket notification service initialized
+2025-09-24T13:14:43: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T13:14:43: 🔌 Socket.io ready and listening for connections
+2025-09-24T13:18:53: 🔌 User connected: BySIL_-OljSjep7TAAAB
+2025-09-24T13:18:53: 🔌 User connected: pq4nTvEQNGxFKxAZAAAD
+2025-09-24T13:19:00: 🔌 User connected: 9aJqgA9VYPhCdqSnAAAF
+2025-09-24T13:19:00: 🔌 User connected: S541zH_tAeHP9nbXAAAH
+2025-09-24T13:19:02: 🔌 User connected: GALc-7c6rh614ZiiAAAJ
+2025-09-24T13:19:02: 🔌 User connected: IdEtR74HwtF4tlBKAAAL
+2025-09-24T13:20:00: 🔌 User connected: 4cD72834msVYonLfAAAN
+2025-09-24T13:20:00: 🔌 User connected: hk7pmblqxQqIN08jAAAP
+2025-09-24T13:23:16: 🔌 User connected: iv2y-i7ShLAPnBt3AAAR
+2025-09-24T13:23:16: 🔌 User connected: 5Im-tCTj2dN3Gz7NAAAT
+2025-09-24T13:23:23: 🔌 User connected: wSjQjbYjOlSjsl0GAAAV
+2025-09-24T13:23:24: 🔌 User connected: hapQ7g5Hr0ME5RuMAAAX
+2025-09-24T13:23:25: 🔌 User connected: b9BX7L5M_tVliydcAAAZ
+2025-09-24T13:23:27: 🔌 User connected: zivxx8EKwJCivgH9AAAb
+2025-09-24T13:37:51: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T13:39:12: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T13:39:12: Environment: production
+2025-09-24T13:39:12: Port: 3000
+2025-09-24T13:39:12: Hostname: 0.0.0.0
+2025-09-24T13:39:13: ✅ Next.js app prepared
+2025-09-24T13:39:13: 🔌 Initializing Socket.io...
+2025-09-24T13:39:13: ✅ Socket.io server initialized successfully
+2025-09-24T13:39:13: ✅ Simple Socket Service initialized
+2025-09-24T13:39:13: ✅ Socket Notification Service initialized successfully
+2025-09-24T13:39:13: ✅ Socket notification service initialized
+2025-09-24T13:39:13: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T13:39:13: 🔌 Socket.io ready and listening for connections
+2025-09-24T13:39:18: 🔌 User connected: CUG1xJyYtOIYb15zAAAB
+2025-09-24T13:39:20: 🔌 User connected: QabknHTSABLP8V-WAAAD
+2025-09-24T13:40:41: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T13:40:43: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T13:40:43: Environment: production
+2025-09-24T13:40:43: Port: 3000
+2025-09-24T13:40:43: Hostname: srv939274.hstgr.cloud
+2025-09-24T13:40:43: ✅ Next.js app prepared
+2025-09-24T13:40:43: 🔌 Initializing Socket.io...
+2025-09-24T13:40:43: ✅ Socket.io server initialized successfully
+2025-09-24T13:40:43: ✅ Simple Socket Service initialized
+2025-09-24T13:40:43: ✅ Socket Notification Service initialized successfully
+2025-09-24T13:40:43: ✅ Socket notification service initialized
+2025-09-24T13:40:43: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-24T13:40:43: 🔌 Socket.io ready and listening for connections
+2025-09-24T13:45:31: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T13:45:31: ✅ Server closed
+2025-09-24T13:46:40: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T13:46:40: Environment: production
+2025-09-24T13:46:40: Port: 3000
+2025-09-24T13:46:40: Hostname: 0.0.0.0
+2025-09-24T13:46:41: ✅ Next.js app prepared
+2025-09-24T13:46:41: 🔌 Initializing Socket.io...
+2025-09-24T13:46:41: ✅ Socket.io server initialized successfully
+2025-09-24T13:46:41: ✅ Simple Socket Service initialized
+2025-09-24T13:46:41: ✅ Socket Notification Service initialized successfully
+2025-09-24T13:46:41: ✅ Socket notification service initialized
+2025-09-24T13:46:41: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T13:46:41: 🔌 Socket.io ready and listening for connections
+2025-09-24T13:48:51: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T13:48:51: ✅ Server closed
+2025-09-24T13:48:52: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T13:48:52: Environment: production
+2025-09-24T13:48:52: Port: 3000
+2025-09-24T13:48:52: Hostname: srv939274.hstgr.cloud
+2025-09-24T13:48:52: ✅ Next.js app prepared
+2025-09-24T13:48:52: 🔌 Initializing Socket.io...
+2025-09-24T13:48:52: ✅ Socket.io server initialized successfully
+2025-09-24T13:48:52: ✅ Simple Socket Service initialized
+2025-09-24T13:48:52: ✅ Socket Notification Service initialized successfully
+2025-09-24T13:48:52: ✅ Socket notification service initialized
+2025-09-24T13:48:53: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-24T13:48:53: 🔌 Socket.io ready and listening for connections
+2025-09-24T14:02:45: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T14:02:45: ✅ Server closed
+2025-09-24T14:02:46: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T14:02:46: Environment: production
+2025-09-24T14:02:46: Port: 3000
+2025-09-24T14:02:46: Hostname: 0.0.0.0
+2025-09-24T14:02:46: ✅ Next.js app prepared
+2025-09-24T14:02:46: 🔌 Initializing Socket.io...
+2025-09-24T14:02:46: ✅ Socket.io server initialized successfully
+2025-09-24T14:02:46: ✅ Simple Socket Service initialized
+2025-09-24T14:02:46: ✅ Socket Notification Service initialized successfully
+2025-09-24T14:02:46: ✅ Socket notification service initialized
+2025-09-24T14:02:46: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T14:02:46: 🔌 Socket.io ready and listening for connections
+2025-09-24T14:03:18: 🔌 User connected: TbmIVLV9oXwP9rimAAAC
+2025-09-24T14:03:18: 🔌 User connected: U5ia8nn9Q74MRSYvAAAD
+2025-09-24T14:03:19: 🔌 User connected: jjxvEQu2bAOQRpw3AAAF
+2025-09-24T14:03:19: 🔌 User connected: 0uYKustpJWAMWL2MAAAH
+2025-09-24T14:04:33: 🔌 User connected: kiBzS8X4gY9O4sTGAAAJ
+2025-09-24T14:04:33: 🔌 User connected: BUNxfJAmsIPLDTNhAAAL
+2025-09-24T14:04:38: 🔌 User connected: Igh99ppy--yNelXUAAAN
+2025-09-24T14:04:38: 🔌 User connected: _6UCkzhqp_xlBNpmAAAP
+2025-09-24T14:04:40: 🔌 User connected: KRppW0p_9MvKErFrAAAR
+2025-09-24T14:04:40: 🔌 User connected: 8zMeYfTRvTL_dnRdAAAT
+2025-09-24T14:06:06: 🔌 User connected: lxs9AmG2cg3JmHP0AAAV
+2025-09-24T14:06:06: 🔌 User connected: r618JXA2qGZyzMzfAAAX
+2025-09-24T14:06:17: 🔌 User connected: 4yfIzenFRzzv8bb7AAAZ
+2025-09-24T14:06:18: 🔌 User connected: 9ImfAFs-yAmKuFCsAAAb
+2025-09-24T14:06:19: 🔌 User connected: zv09j_Ahq0kjw_VNAAAd
+2025-09-24T14:06:19: 🔌 User connected: VuB2J8wtNfLY9QiyAAAf
+2025-09-24T14:18:30: 🔌 User connected: tiNSwipbjvZrgT-WAAAh
+2025-09-24T14:18:30: 🔌 User connected: V4LnUUKhEpn9cfPeAAAj
+2025-09-24T14:18:34: 🔌 User connected: siLS0cm3qm8HDkegAAAl
+2025-09-24T14:18:34: 🔌 User connected: U5KlgijH12JJL_a0AAAn
+2025-09-24T14:18:37: 🔌 User connected: VSnowvMKTTMnBwZWAAAp
+2025-09-24T14:18:37: 🔌 User connected: Rp6zQQJ6aY9uVhCmAAAr
+2025-09-24T14:19:24: 🔌 User connected: Xf4E_pW_lZeiC-GcAAAt
+2025-09-24T14:19:24: 🔌 User connected: n-nRpmlnnkT_ZsXZAAAv
+2025-09-24T14:29:20: 🔌 User connected: TtScDCCdZDY3cq3qAAAx
+2025-09-24T14:29:20: 🔌 User connected: yO9ssN5RA3PQdRCvAAAz
+2025-09-24T14:29:23: 🔌 User connected: Bf-1wOzHPMDipnbfAAA1
+2025-09-24T14:29:23: 🔌 User connected: T9PO2a9Lobq1qSqGAAA3
+2025-09-24T14:29:24: 🔌 User connected: aCg0Rx1fTliJ4doVAAA5
+2025-09-24T14:29:24: 🔌 User connected: Zq2ffAJoZPdIR3wNAAA7
+2025-09-24T14:35:15: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T14:36:27: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T14:36:27: Environment: production
+2025-09-24T14:36:27: Port: 3000
+2025-09-24T14:36:27: Hostname: 0.0.0.0
+2025-09-24T14:36:27: ✅ Next.js app prepared
+2025-09-24T14:36:27: 🔌 Initializing Socket.io...
+2025-09-24T14:36:27: ✅ Socket.io server initialized successfully
+2025-09-24T14:36:27: ✅ Simple Socket Service initialized
+2025-09-24T14:36:27: ✅ Socket Notification Service initialized successfully
+2025-09-24T14:36:27: ✅ Socket notification service initialized
+2025-09-24T14:36:27: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T14:36:27: 🔌 Socket.io ready and listening for connections
+2025-09-24T14:36:38: 🔌 User connected: vZsBzyDKxY7b2yXFAAAB
+2025-09-24T14:36:39: 🔌 User connected: pS5SEFE_UBTQ5_euAAAD
+2025-09-24T15:43:13: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T15:44:21: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T15:44:21: Environment: production
+2025-09-24T15:44:21: Port: 3000
+2025-09-24T15:44:21: Hostname: 0.0.0.0
+2025-09-24T15:44:22: ✅ Next.js app prepared
+2025-09-24T15:44:22: 🔌 Initializing Socket.io...
+2025-09-24T15:44:22: ✅ Socket.io server initialized successfully
+2025-09-24T15:44:22: ✅ Simple Socket Service initialized
+2025-09-24T15:44:22: ✅ Socket Notification Service initialized successfully
+2025-09-24T15:44:22: ✅ Socket notification service initialized
+2025-09-24T15:44:22: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T15:44:22: 🔌 Socket.io ready and listening for connections
+2025-09-24T15:44:32: 🔌 User connected: bsD5qnXxSt2_DrM3AAAB
+2025-09-24T15:44:33: 🔌 User connected: GlIbj140KXz1IJc7AAAD
+2025-09-24T16:04:26: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T16:04:26: ✅ Server closed
+2025-09-24T16:05:32: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T16:05:32: Environment: production
+2025-09-24T16:05:32: Port: 3000
+2025-09-24T16:05:32: Hostname: 0.0.0.0
+2025-09-24T16:05:32: ✅ Next.js app prepared
+2025-09-24T16:05:32: 🔌 Initializing Socket.io...
+2025-09-24T16:05:32: ✅ Socket.io server initialized successfully
+2025-09-24T16:05:32: ✅ Simple Socket Service initialized
+2025-09-24T16:05:32: ✅ Socket Notification Service initialized successfully
+2025-09-24T16:05:32: ✅ Socket notification service initialized
+2025-09-24T16:05:32: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T16:05:32: 🔌 Socket.io ready and listening for connections
+2025-09-24T16:09:35: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T16:09:35: ✅ Server closed
+2025-09-24T16:09:36: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T16:09:36: Environment: production
+2025-09-24T16:09:36: Port: 3000
+2025-09-24T16:09:36: Hostname: srv939274.hstgr.cloud
+2025-09-24T16:09:36: ✅ Next.js app prepared
+2025-09-24T16:09:36: 🔌 Initializing Socket.io...
+2025-09-24T16:09:36: ✅ Socket.io server initialized successfully
+2025-09-24T16:09:36: ✅ Simple Socket Service initialized
+2025-09-24T16:09:36: ✅ Socket Notification Service initialized successfully
+2025-09-24T16:09:36: ✅ Socket notification service initialized
+2025-09-24T16:09:36: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-24T16:09:36: 🔌 Socket.io ready and listening for connections
+2025-09-24T16:18:53: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T16:18:53: ✅ Server closed
+2025-09-24T16:18:53: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T16:18:53: Environment: production
+2025-09-24T16:18:53: Port: 3000
+2025-09-24T16:18:53: Hostname: 0.0.0.0
+2025-09-24T16:18:53: ✅ Next.js app prepared
+2025-09-24T16:18:53: 🔌 Initializing Socket.io...
+2025-09-24T16:18:53: ✅ Socket.io server initialized successfully
+2025-09-24T16:18:54: ✅ Simple Socket Service initialized
+2025-09-24T16:18:54: ✅ Socket Notification Service initialized successfully
+2025-09-24T16:18:54: ✅ Socket notification service initialized
+2025-09-24T16:18:54: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T16:18:54: 🔌 Socket.io ready and listening for connections
+2025-09-24T16:58:51: 🔌 User connected: O_IL5jQrZ82rckDWAAAB
+2025-09-24T16:58:51: 🔌 User connected: qOpMcSRGr65RG2xPAAAD
+2025-09-24T16:59:06: 🔌 User connected: 1ihkOoZ9r9ko0oSVAAAF
+2025-09-24T16:59:07: 🔌 User connected: I-jI17VQvUBIex1tAAAH
+2025-09-24T16:59:07: 🔌 User connected: B7mluD1-t6iDycOQAAAJ
+2025-09-24T17:03:33: 🔌 User connected: _CQ-pQmMiN0f9QPJAAAL
+2025-09-24T17:03:33: 🔌 User connected: HDPgXi88YDwCcRFiAAAN
+2025-09-24T17:17:30: 🔌 User connected: sBO1shlvMYuoxxnNAAAP
+2025-09-24T17:17:30: 🔌 User connected: rmzaL3RcZSHjuYoQAAAS
+2025-09-24T17:17:31: 🔌 User connected: fmL9TqpOnGkQ4hWiAAAU
+2025-09-24T17:19:29: 🔌 User connected: uJr3CYVpoXlIM1mZAAAX
+2025-09-24T17:19:30: 🔌 User connected: xyQsaWOZqiOgXcqZAAAY
+2025-09-24T17:19:30: 🔌 User connected: 8VjePJawN1rKTMA7AAAa
+2025-09-24T17:19:30: 🔌 User connected: JCU31N9-QupL6GzHAAAc
+2025-09-24T17:19:54: 🔌 User connected: 8XlasRoxSeZo_FbrAAAe
+2025-09-24T17:19:55: 🔌 User connected: czV2q_pJ4OqbU5vbAAAg
+2025-09-24T17:19:55: 🔌 User connected: Cg0xE7Ev0pqdUgRpAAAi
+2025-09-24T17:20:37: 🔌 User connected: fhVZ5RlgqytKR02iAAAk
+2025-09-24T17:20:37: 🔌 User connected: OC7h9TTNS5vWCNkJAAAm
+2025-09-24T17:20:44: 🔌 User connected: vF9MQOq4vBU68DaFAAAo
+2025-09-24T17:20:45: 🔌 User connected: gpy8OCyEhKb6BJgrAAAq
+2025-09-24T17:20:45: 🔌 User connected: A2fsxwQngo_ahlTRAAAs
+2025-09-24T17:21:53: 🔌 User connected: RlCVs2xhHlgxATjvAAAu
+2025-09-24T17:21:54: 🔌 User connected: ia99wrMFbAUdg62TAAAw
+2025-09-24T17:22:18: 🔌 User connected: fJqGVstLhXz2df84AAAy
+2025-09-24T17:22:18: 🔌 User connected: 8cQkLpwlL83BBlSSAAA0
+2025-09-24T17:22:20: 🔌 User connected: CVZ5zzZ0BQPwzzMYAAA2
+2025-09-24T17:22:21: 🔌 User connected: kJ-3e5ED7gjm_-30AAA4
+2025-09-24T17:22:21: 🔌 User connected: HhU1x8ShYOUj72KgAAA6
+2025-09-24T17:25:57: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T17:25:57: ✅ Server closed
+2025-09-24T17:25:57: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T17:25:57: Environment: production
+2025-09-24T17:25:57: Port: 3000
+2025-09-24T17:25:57: Hostname: srv939274.hstgr.cloud
+2025-09-24T17:25:58: ✅ Next.js app prepared
+2025-09-24T17:25:58: 🔌 Initializing Socket.io...
+2025-09-24T17:25:58: ✅ Socket.io server initialized successfully
+2025-09-24T17:25:58: ✅ Simple Socket Service initialized
+2025-09-24T17:25:58: ✅ Socket Notification Service initialized successfully
+2025-09-24T17:25:58: ✅ Socket notification service initialized
+2025-09-24T17:25:59: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-24T17:25:59: 🔌 Socket.io ready and listening for connections
+2025-09-24T17:29:01: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T17:29:01: ✅ Server closed
+2025-09-24T17:29:01: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T17:29:01: Environment: production
+2025-09-24T17:29:01: Port: 3000
+2025-09-24T17:29:01: Hostname: 0.0.0.0
+2025-09-24T17:29:02: ✅ Next.js app prepared
+2025-09-24T17:29:02: 🔌 Initializing Socket.io...
+2025-09-24T17:29:02: ✅ Socket.io server initialized successfully
+2025-09-24T17:29:02: ✅ Simple Socket Service initialized
+2025-09-24T17:29:02: ✅ Socket Notification Service initialized successfully
+2025-09-24T17:29:02: ✅ Socket notification service initialized
+2025-09-24T17:29:02: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T17:29:02: 🔌 Socket.io ready and listening for connections
+2025-09-24T17:31:46: 🔌 User connected: XRFQB9WZbpIEUDWBAAAB
+2025-09-24T17:31:46: 🔌 User connected: CfzG_u1F5VRXHEC8AAAD
+2025-09-24T17:31:48: 🔌 User connected: kQSdszgVZ5WbPsMGAAAF
+2025-09-24T17:31:48: 🔌 User connected: PMFMRHqYa1YFLIGJAAAH
+2025-09-24T17:31:49: 🔌 User connected: kVdJLRWGZoeaAKLWAAAJ
+2025-09-24T17:32:43: 🔌 User connected: 7FgX8cbzRO3gfErkAAAL
+2025-09-24T17:32:43: 🔌 User connected: OaU0Kg72PmFPd_rKAAAN
+2025-09-24T17:54:56: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T17:56:12: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T17:56:12: Environment: production
+2025-09-24T17:56:12: Port: 3000
+2025-09-24T17:56:12: Hostname: 0.0.0.0
+2025-09-24T17:56:12: ✅ Next.js app prepared
+2025-09-24T17:56:12: 🔌 Initializing Socket.io...
+2025-09-24T17:56:12: ✅ Socket.io server initialized successfully
+2025-09-24T17:56:12: ✅ Simple Socket Service initialized
+2025-09-24T17:56:12: ✅ Socket Notification Service initialized successfully
+2025-09-24T17:56:12: ✅ Socket notification service initialized
+2025-09-24T17:56:12: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T17:56:12: 🔌 Socket.io ready and listening for connections
+2025-09-24T17:56:16: 🔌 User connected: yFHGO109o6CSaB_oAAAB
+2025-09-24T17:56:17: 🔌 User connected: i8004C04GDJNuwgNAAAD
+2025-09-24T17:59:46: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T17:59:48: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T17:59:48: Environment: production
+2025-09-24T17:59:48: Port: 3000
+2025-09-24T17:59:48: Hostname: 0.0.0.0
+2025-09-24T17:59:48: ✅ Next.js app prepared
+2025-09-24T17:59:48: 🔌 Initializing Socket.io...
+2025-09-24T17:59:48: ✅ Socket.io server initialized successfully
+2025-09-24T17:59:48: ✅ Simple Socket Service initialized
+2025-09-24T17:59:48: ✅ Socket Notification Service initialized successfully
+2025-09-24T17:59:48: ✅ Socket notification service initialized
+2025-09-24T17:59:48: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T17:59:48: 🔌 Socket.io ready and listening for connections
+2025-09-24T17:59:49: 🔌 User connected: pTOs_HUrKKhh8GL-AAAB
+2025-09-24T17:59:49: 🔌 User connected: I52NBpScX_ziqId_AAAD
+2025-09-24T18:01:45: 🔌 User connected: RYnRvYXun-2Lal82AAAF
+2025-09-24T18:01:45: 🔌 User connected: r94ZWonBUo-GaP1vAAAH
+2025-09-24T18:06:54: 🔌 User connected: 57Vi-0bkrRbPh1P6AAAJ
+2025-09-24T18:06:55: 🔌 User connected: Y8t0I0KnGRoL5s-pAAAL
+2025-09-24T18:20:39: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T18:21:45: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T18:21:45: Environment: production
+2025-09-24T18:21:45: Port: 3000
+2025-09-24T18:21:45: Hostname: 0.0.0.0
+2025-09-24T18:21:45: ✅ Next.js app prepared
+2025-09-24T18:21:45: 🔌 Initializing Socket.io...
+2025-09-24T18:21:45: ✅ Socket.io server initialized successfully
+2025-09-24T18:21:45: ✅ Simple Socket Service initialized
+2025-09-24T18:21:45: ✅ Socket Notification Service initialized successfully
+2025-09-24T18:21:45: ✅ Socket notification service initialized
+2025-09-24T18:21:45: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T18:21:45: 🔌 Socket.io ready and listening for connections
+2025-09-24T18:21:46: 🔌 User connected: 9YYTafF_gvk3croAAAAB
+2025-09-24T18:21:48: 🔌 User connected: FIT1aAyBmHlSwwM8AAAD
+2025-09-24T18:21:49: 🔌 User connected: -IBT1NIhIq1j00VZAAAF
+2025-09-24T18:21:51: 🔌 User connected: 8VWXBk4WTsh1sIw-AAAH
+2025-09-24T18:22:52: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T18:22:54: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T18:22:54: Environment: production
+2025-09-24T18:22:54: Port: 3000
+2025-09-24T18:22:54: Hostname: 0.0.0.0
+2025-09-24T18:22:55: ✅ Next.js app prepared
+2025-09-24T18:22:55: 🔌 Initializing Socket.io...
+2025-09-24T18:22:55: ✅ Socket.io server initialized successfully
+2025-09-24T18:22:55: ✅ Simple Socket Service initialized
+2025-09-24T18:22:55: ✅ Socket Notification Service initialized successfully
+2025-09-24T18:22:55: ✅ Socket notification service initialized
+2025-09-24T18:22:55: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T18:22:55: 🔌 Socket.io ready and listening for connections
+2025-09-24T18:22:56: 🔌 User connected: Ncjs-CHRZbw8DalIAAAB
+2025-09-24T18:22:57: 🔌 User connected: b8yG2L9IYBQPY952AAAD
+2025-09-24T18:22:57: 🔌 User connected: Swcu61P5hC7ebVuEAAAF
+2025-09-24T18:22:57: 🔌 User connected: lfjqtVL3re8m_OxAAAAH
+2025-09-24T18:23:04: 🔌 User connected: L629NqVNWS5kGOp4AAAJ
+2025-09-24T18:23:04: 🔌 User connected: CK1PbC9vz5Q1lzHKAAAL
+2025-09-24T18:39:10: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T18:40:20: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T18:40:20: Environment: production
+2025-09-24T18:40:20: Port: 3000
+2025-09-24T18:40:20: Hostname: 0.0.0.0
+2025-09-24T18:40:20: ✅ Next.js app prepared
+2025-09-24T18:40:20: 🔌 Initializing Socket.io...
+2025-09-24T18:40:20: ✅ Socket.io server initialized successfully
+2025-09-24T18:40:20: ✅ Simple Socket Service initialized
+2025-09-24T18:40:20: ✅ Socket Notification Service initialized successfully
+2025-09-24T18:40:20: ✅ Socket notification service initialized
+2025-09-24T18:40:20: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T18:40:20: 🔌 Socket.io ready and listening for connections
+2025-09-24T18:40:25: 🔌 User connected: t3ReVPBXv7l8zxYrAAAB
+2025-09-24T18:40:27: 🔌 User connected: ih45Qyig8DntJH3mAAAD
+2025-09-24T18:41:46: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T18:41:48: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T18:41:48: Environment: production
+2025-09-24T18:41:48: Port: 3000
+2025-09-24T18:41:48: Hostname: 0.0.0.0
+2025-09-24T18:41:48: ✅ Next.js app prepared
+2025-09-24T18:41:48: 🔌 Initializing Socket.io...
+2025-09-24T18:41:48: ✅ Socket.io server initialized successfully
+2025-09-24T18:41:48: ✅ Simple Socket Service initialized
+2025-09-24T18:41:48: ✅ Socket Notification Service initialized successfully
+2025-09-24T18:41:48: ✅ Socket notification service initialized
+2025-09-24T18:41:48: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T18:41:48: 🔌 Socket.io ready and listening for connections
+2025-09-24T18:41:49: 🔌 User connected: e3qM1vq3dmQC2xkiAAAB
+2025-09-24T18:41:49: 🔌 User connected: M3iQoJSyqqEFzOw0AAAD
+2025-09-24T18:41:52: 🔌 User connected: MBhE4dKkt3pDxb6iAAAF
+2025-09-24T18:41:53: 🔌 User connected: t4MTuO8XMgHrASrsAAAH
+2025-09-24T19:02:37: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T19:03:48: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T19:03:48: Environment: production
+2025-09-24T19:03:48: Port: 3000
+2025-09-24T19:03:48: Hostname: 0.0.0.0
+2025-09-24T19:03:48: ✅ Next.js app prepared
+2025-09-24T19:03:48: 🔌 Initializing Socket.io...
+2025-09-24T19:03:48: ✅ Socket.io server initialized successfully
+2025-09-24T19:03:48: ✅ Simple Socket Service initialized
+2025-09-24T19:03:48: ✅ Socket Notification Service initialized successfully
+2025-09-24T19:03:48: ✅ Socket notification service initialized
+2025-09-24T19:03:48: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T19:03:48: 🔌 Socket.io ready and listening for connections
+2025-09-24T19:03:52: 🔌 User connected: mDSKAFxLoTIDXHvYAAAB
+2025-09-24T19:03:55: 🔌 User connected: Z3Eb0NE-U8v2c17KAAAD
+2025-09-24T19:05:06: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T19:05:08: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T19:05:08: Environment: production
+2025-09-24T19:05:08: Port: 3000
+2025-09-24T19:05:08: Hostname: 0.0.0.0
+2025-09-24T19:05:08: ✅ Next.js app prepared
+2025-09-24T19:05:08: 🔌 Initializing Socket.io...
+2025-09-24T19:05:08: ✅ Socket.io server initialized successfully
+2025-09-24T19:05:08: ✅ Simple Socket Service initialized
+2025-09-24T19:05:08: ✅ Socket Notification Service initialized successfully
+2025-09-24T19:05:08: ✅ Socket notification service initialized
+2025-09-24T19:05:08: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T19:05:08: 🔌 Socket.io ready and listening for connections
+2025-09-24T19:05:09: 🔌 User connected: iPyL7SOSfD0hOpNBAAAB
+2025-09-24T19:05:09: 🔌 User connected: 99ZxX3ENSzgtU0O4AAAD
+2025-09-24T19:05:20: 🔌 User connected: 0Z8CZEbCKAEyH9DYAAAF
+2025-09-24T19:05:20: 🔌 User connected: Ek4dRDsOOEpUXT8bAAAH
+2025-09-24T19:06:19: 🔌 User connected: h2_UTdxRzO5yrQy5AAAJ
+2025-09-24T19:06:19: 🔌 User connected: 7IyI4ucO1RFajR3mAAAL
+2025-09-24T19:06:22: 🔌 User connected: MUwXJj-GVyJMXsqrAAAN
+2025-09-24T19:06:22: 🔌 User connected: qmnK_LkyCqwHgpfBAAAP
+2025-09-24T19:06:22: 🔌 User connected: j4pYSOkAoTiIiuqBAAAR
+2025-09-24T19:06:30: 🔌 User connected: SOiBguGnMU0RsSprAAAT
+2025-09-24T19:06:30: 🔌 User connected: xbctJq_xMH2pgFgmAAAV
+2025-09-24T19:06:35: 🔌 User connected: l1iNId46NRqnyTydAAAX
+2025-09-24T19:06:35: 🔌 User connected: 3alS9dQtnLn2kZrsAAAZ
+2025-09-24T19:45:46: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T19:46:53: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T19:46:53: Environment: production
+2025-09-24T19:46:53: Port: 3000
+2025-09-24T19:46:53: Hostname: 0.0.0.0
+2025-09-24T19:46:53: ✅ Next.js app prepared
+2025-09-24T19:46:53: 🔌 Initializing Socket.io...
+2025-09-24T19:46:53: ✅ Socket.io server initialized successfully
+2025-09-24T19:46:53: ✅ Simple Socket Service initialized
+2025-09-24T19:46:53: ✅ Socket Notification Service initialized successfully
+2025-09-24T19:46:53: ✅ Socket notification service initialized
+2025-09-24T19:46:53: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T19:46:53: 🔌 Socket.io ready and listening for connections
+2025-09-24T19:46:55: 🔌 User connected: dun_IHgAZFQ3n5wAAAAB
+2025-09-24T19:46:56: 🔌 User connected: J4zrMlP8cl0eNmKuAAAD
+2025-09-24T19:48:28: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T19:48:30: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T19:48:30: Environment: production
+2025-09-24T19:48:30: Port: 3000
+2025-09-24T19:48:30: Hostname: 0.0.0.0
+2025-09-24T19:48:30: ✅ Next.js app prepared
+2025-09-24T19:48:30: 🔌 Initializing Socket.io...
+2025-09-24T19:48:30: ✅ Socket.io server initialized successfully
+2025-09-24T19:48:30: ✅ Simple Socket Service initialized
+2025-09-24T19:48:30: ✅ Socket Notification Service initialized successfully
+2025-09-24T19:48:30: ✅ Socket notification service initialized
+2025-09-24T19:48:30: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T19:48:30: 🔌 Socket.io ready and listening for connections
+2025-09-24T19:48:32: 🔌 User connected: hCfhs4Fj-PzpxL5KAAAB
+2025-09-24T19:48:32: 🔌 User connected: aYZ_z5BY29v6pxJWAAAD
+2025-09-24T19:48:38: 🔌 User connected: S3Gk-oz2pX6zrgtXAAAF
+2025-09-24T19:48:38: 🔌 User connected: Pz0HyRWFMNs98_XWAAAH
+2025-09-24T19:48:54: 🔌 User connected: yzNqiNk9BAitIPAnAAAJ
+2025-09-24T19:48:54: 🔌 User connected: J-kF9GIHxSs2ibuwAAAL
+2025-09-24T19:49:31: 🔌 User connected: EEaYuKWH6ot5xGEHAAAN
+2025-09-24T19:49:31: 🔌 User connected: nbV_yFjvRneJ_djXAAAP
+2025-09-24T20:02:34: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T20:03:41: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T20:03:41: Environment: production
+2025-09-24T20:03:41: Port: 3000
+2025-09-24T20:03:41: Hostname: 0.0.0.0
+2025-09-24T20:03:42: ✅ Next.js app prepared
+2025-09-24T20:03:42: 🔌 Initializing Socket.io...
+2025-09-24T20:03:42: ✅ Socket.io server initialized successfully
+2025-09-24T20:03:42: ✅ Simple Socket Service initialized
+2025-09-24T20:03:42: ✅ Socket Notification Service initialized successfully
+2025-09-24T20:03:42: ✅ Socket notification service initialized
+2025-09-24T20:03:42: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T20:03:42: 🔌 Socket.io ready and listening for connections
+2025-09-24T20:03:43: 🔌 User connected: ywZJRozzrrjrFu-oAAAB
+2025-09-24T20:03:47: 🔌 User connected: bbDgpF313kCLKOHXAAAD
+2025-09-24T20:04:47: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T20:04:48: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T20:04:48: Environment: production
+2025-09-24T20:04:48: Port: 3000
+2025-09-24T20:04:48: Hostname: 0.0.0.0
+2025-09-24T20:04:49: ✅ Next.js app prepared
+2025-09-24T20:04:49: 🔌 Initializing Socket.io...
+2025-09-24T20:04:49: ✅ Socket.io server initialized successfully
+2025-09-24T20:04:49: ✅ Simple Socket Service initialized
+2025-09-24T20:04:49: ✅ Socket Notification Service initialized successfully
+2025-09-24T20:04:49: ✅ Socket notification service initialized
+2025-09-24T20:04:49: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T20:04:49: 🔌 Socket.io ready and listening for connections
+2025-09-24T20:04:50: 🔌 User connected: _eHNuejjJ5pBvSMIAAAB
+2025-09-24T20:04:50: 🔌 User connected: tIxxCAPAzqGDtC9BAAAD
+2025-09-24T20:04:57: 🔌 User connected: kA-SCBvphR0OiCgjAAAF
+2025-09-24T20:04:57: 🔌 User connected: R-81Mg0qjVcFtkq2AAAH
+2025-09-24T20:05:30: 🔌 User connected: EXilNee03vFCy98ZAAAJ
+2025-09-24T20:05:30: 🔌 User connected: bAh2R1qSFkmxZxpwAAAL
+2025-09-24T20:05:43: 🔌 User connected: NP6n73x-4EtuLkBwAAAN
+2025-09-24T20:06:26: 🔌 User connected: uIblvkHVzMIYUknzAAAP
+2025-09-24T20:06:26: 🔌 User connected: ssoBeU-9KUirSG9mAAAR
+2025-09-24T20:06:26: 🔌 User connected: FZbMf3xg4chu8ryRAAAT
+2025-09-24T20:30:26: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T20:31:36: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T20:31:36: Environment: production
+2025-09-24T20:31:36: Port: 3000
+2025-09-24T20:31:36: Hostname: 0.0.0.0
+2025-09-24T20:31:36: ✅ Next.js app prepared
+2025-09-24T20:31:36: 🔌 Initializing Socket.io...
+2025-09-24T20:31:36: ✅ Socket.io server initialized successfully
+2025-09-24T20:31:36: ✅ Simple Socket Service initialized
+2025-09-24T20:31:36: ✅ Socket Notification Service initialized successfully
+2025-09-24T20:31:36: ✅ Socket notification service initialized
+2025-09-24T20:31:36: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T20:31:36: 🔌 Socket.io ready and listening for connections
+2025-09-24T20:31:41: 🔌 User connected: kd33HWyrgCez0fhAAAAB
+2025-09-24T20:31:43: 🔌 User connected: MOA9FK80NfYRqM-3AAAD
+2025-09-24T20:35:55: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T20:35:57: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T20:35:57: Environment: production
+2025-09-24T20:35:57: Port: 3000
+2025-09-24T20:35:57: Hostname: 0.0.0.0
+2025-09-24T20:35:57: ✅ Next.js app prepared
+2025-09-24T20:35:57: 🔌 Initializing Socket.io...
+2025-09-24T20:35:57: ✅ Socket.io server initialized successfully
+2025-09-24T20:35:57: ✅ Simple Socket Service initialized
+2025-09-24T20:35:57: ✅ Socket Notification Service initialized successfully
+2025-09-24T20:35:57: ✅ Socket notification service initialized
+2025-09-24T20:35:57: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T20:35:57: 🔌 Socket.io ready and listening for connections
+2025-09-24T20:35:59: 🔌 User connected: 98LZVdJPgokxpnBcAAAB
+2025-09-24T20:35:59: 🔌 User connected: j3tDMqbuiaxm33KhAAAD
+2025-09-24T20:36:03: 🔌 User connected: UvOVuZnK5s4B4B-3AAAF
+2025-09-24T20:36:03: 🔌 User connected: AxKC0sweGRyklPulAAAH
+2025-09-24T20:36:19: 🔌 User connected: KSRAAhyv2BBRxoAbAAAJ
+2025-09-24T20:36:19: 🔌 User connected: Srn5ORQLeR7UOT2yAAAL
+2025-09-24T20:36:32: 🔌 User connected: UMyJQ_5s_FsBbZHNAAAN
+2025-09-24T20:36:32: 🔌 User connected: BPHAYPzzS8J76ihfAAAP
+2025-09-24T21:00:28: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T21:00:30: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T21:00:30: Environment: production
+2025-09-24T21:00:30: Port: 3000
+2025-09-24T21:00:30: Hostname: 0.0.0.0
+2025-09-24T21:00:30: ✅ Next.js app prepared
+2025-09-24T21:00:30: 🔌 Initializing Socket.io...
+2025-09-24T21:00:30: ✅ Socket.io server initialized successfully
+2025-09-24T21:00:30: ✅ Simple Socket Service initialized
+2025-09-24T21:00:30: ✅ Socket Notification Service initialized successfully
+2025-09-24T21:00:30: ✅ Socket notification service initialized
+2025-09-24T21:00:30: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T21:00:30: 🔌 Socket.io ready and listening for connections
+2025-09-24T21:00:32: 🔌 User connected: XVG-5YwR9QcA3LFQAAAB
+2025-09-24T21:00:32: 🔌 User connected: m8YhWkSY_X5MCNcXAAAD
+2025-09-24T21:22:32: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T21:23:41: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T21:23:41: Environment: production
+2025-09-24T21:23:41: Port: 3000
+2025-09-24T21:23:41: Hostname: 0.0.0.0
+2025-09-24T21:23:41: ✅ Next.js app prepared
+2025-09-24T21:23:41: 🔌 Initializing Socket.io...
+2025-09-24T21:23:41: ✅ Socket.io server initialized successfully
+2025-09-24T21:23:41: ✅ Simple Socket Service initialized
+2025-09-24T21:23:41: ✅ Socket Notification Service initialized successfully
+2025-09-24T21:23:41: ✅ Socket notification service initialized
+2025-09-24T21:23:41: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T21:23:41: 🔌 Socket.io ready and listening for connections
+2025-09-24T21:23:43: 🔌 User connected: aN0Yyod55DQwJU-TAAAB
+2025-09-24T21:23:44: 🔌 User connected: zaJA4IfCSVoXW0gFAAAD
+2025-09-24T21:25:21: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T21:25:23: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T21:25:23: Environment: production
+2025-09-24T21:25:23: Port: 3000
+2025-09-24T21:25:23: Hostname: 0.0.0.0
+2025-09-24T21:25:23: ✅ Next.js app prepared
+2025-09-24T21:25:23: 🔌 Initializing Socket.io...
+2025-09-24T21:25:23: ✅ Socket.io server initialized successfully
+2025-09-24T21:25:23: ✅ Simple Socket Service initialized
+2025-09-24T21:25:23: ✅ Socket Notification Service initialized successfully
+2025-09-24T21:25:23: ✅ Socket notification service initialized
+2025-09-24T21:25:23: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T21:25:23: 🔌 Socket.io ready and listening for connections
+2025-09-24T21:25:24: 🔌 User connected: _04BHTacqGt2LdlKAAAB
+2025-09-24T21:25:25: 🔌 User connected: tD5hAtklL6opsn-pAAAD
+2025-09-24T21:26:07: prisma:error 
+2025-09-24T21:26:07: Invalid `prisma.application.findFirst()` invocation:
+2025-09-24T21:26:07: 
+2025-09-24T21:26:07: 
+2025-09-24T21:26:07: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T21:26:07: 🔌 User connected: 2mBzP4QSraDebGANAAAF
+2025-09-24T21:26:07: 🔌 User connected: HyJIXStOu8BnwHI5AAAH
+2025-09-24T21:26:09: prisma:error 
+2025-09-24T21:26:09: Invalid `prisma.application.findFirst()` invocation:
+2025-09-24T21:26:09: 
+2025-09-24T21:26:09: 
+2025-09-24T21:26:09: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T21:26:10: prisma:error 
+2025-09-24T21:26:10: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T21:26:10: 
+2025-09-24T21:26:10: 
+2025-09-24T21:26:10: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T21:26:17: 🔌 User connected: wKf8mJwUQ0mlKrLZAAAJ
+2025-09-24T21:26:17: 🔌 User connected: 7zPBfAR-3rGb7EwzAAAL
+2025-09-24T21:26:28: 🔌 User connected: asUH6DWetSFVvDzdAAAN
+2025-09-24T21:26:28: 🔌 User connected: vdHr7-SR81eFU_UKAAAP
+2025-09-24T21:27:31: 🔌 User connected: Vi8BerVNz_6__ZXCAAAR
+2025-09-24T21:27:31: prisma:error 
+2025-09-24T21:27:31: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T21:27:31: 
+2025-09-24T21:27:31: 
+2025-09-24T21:27:31: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T21:27:31: 🔌 User connected: vnGBBe6966_rwdVMAAAT
+2025-09-24T21:27:31: 🔌 User connected: 0c3-JMXDkBUuX_ldAAAV
+2025-09-24T21:27:38: 🔌 User connected: nrB9W_8fiCnlENRzAAAX
+2025-09-24T21:27:48: prisma:error 
+2025-09-24T21:27:48: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T21:27:48: 
+2025-09-24T21:27:48: 
+2025-09-24T21:27:48: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T21:28:12: 🔌 User connected: cSnoHjC0iiNeXeH4AAAZ
+2025-09-24T21:28:13: 🔌 User connected: UOT43nXFmzTJ6J9uAAAb
+2025-09-24T21:28:13: 🔌 User connected: 2fULItOl4mJNLuZBAAAd
+2025-09-24T21:28:16: prisma:error 
+2025-09-24T21:28:16: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T21:28:16: 
+2025-09-24T21:28:16: 
+2025-09-24T21:28:16: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T21:28:28: prisma:error 
+2025-09-24T21:28:28: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T21:28:28: 
+2025-09-24T21:28:28: 
+2025-09-24T21:28:28: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T21:28:31: prisma:error 
+2025-09-24T21:28:31: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T21:28:31: 
+2025-09-24T21:28:31: 
+2025-09-24T21:28:31: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T21:28:35: 🔌 User connected: FrY1coXbjGOSNGYzAAAf
+2025-09-24T21:28:36: 🔌 User connected: 9h_rosUn0l2MwsibAAAh
+2025-09-24T21:39:35: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T21:40:47: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T21:40:47: Environment: production
+2025-09-24T21:40:47: Port: 3000
+2025-09-24T21:40:47: Hostname: 0.0.0.0
+2025-09-24T21:40:47: ✅ Next.js app prepared
+2025-09-24T21:40:47: 🔌 Initializing Socket.io...
+2025-09-24T21:40:47: ✅ Socket.io server initialized successfully
+2025-09-24T21:40:47: ✅ Simple Socket Service initialized
+2025-09-24T21:40:47: ✅ Socket Notification Service initialized successfully
+2025-09-24T21:40:47: ✅ Socket notification service initialized
+2025-09-24T21:40:47: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T21:40:47: 🔌 Socket.io ready and listening for connections
+2025-09-24T21:40:51: 🔌 User connected: VAlMI3fXoF35sSBQAAAB
+2025-09-24T21:40:51: 🔌 User connected: B5T5JnqKXbFJVlE2AAAD
+2025-09-24T21:40:52: 🔌 User connected: y029w1SJCCP81wtJAAAF
+2025-09-24T21:40:54: 🔌 User connected: f_HKcLaqvTOE4HTjAAAH
+2025-09-24T21:50:40: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T21:50:42: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T21:50:42: Environment: production
+2025-09-24T21:50:42: Port: 3000
+2025-09-24T21:50:42: Hostname: 0.0.0.0
+2025-09-24T21:50:42: ✅ Next.js app prepared
+2025-09-24T21:50:42: 🔌 Initializing Socket.io...
+2025-09-24T21:50:42: ✅ Socket.io server initialized successfully
+2025-09-24T21:50:42: ✅ Simple Socket Service initialized
+2025-09-24T21:50:42: ✅ Socket Notification Service initialized successfully
+2025-09-24T21:50:42: ✅ Socket notification service initialized
+2025-09-24T21:50:42: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T21:50:42: 🔌 Socket.io ready and listening for connections
+2025-09-24T21:50:44: 🔌 User connected: 4_M82X6tnF64KAFLAAAB
+2025-09-24T21:50:44: 🔌 User connected: BKFv2p9jWvwlUInhAAAD
+2025-09-24T21:50:44: 🔌 User connected: R_qBrQmKLsyQxdi8AAAF
+2025-09-24T21:50:44: 🔌 User connected: GHV1yx-Mftx0rr_kAAAH
+2025-09-24T21:50:48: prisma:error 
+2025-09-24T21:50:48: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T21:50:48: 
+2025-09-24T21:50:48: 
+2025-09-24T21:50:48: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T21:50:48: 🔌 User connected: htJL6zSkQwVPWN8pAAAJ
+2025-09-24T21:50:49: 🔌 User connected: wF3metJ-rr0sJR_qAAAL
+2025-09-24T21:50:49: 🔌 User connected: h7__EVc2A859kftEAAAN
+2025-09-24T21:50:49: 🔌 User connected: O5gjFGRPYhV9cNHfAAAP
+2025-09-24T21:51:03: 🔌 User connected: sOzBAvUxiiK-g5_HAAAR
+2025-09-24T21:51:04: 🔌 User connected: vwVmvZQ5lrU2HU3ZAAAT
+2025-09-24T22:04:10: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T22:05:24: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T22:05:24: Environment: production
+2025-09-24T22:05:24: Port: 3000
+2025-09-24T22:05:24: Hostname: 0.0.0.0
+2025-09-24T22:05:24: ✅ Next.js app prepared
+2025-09-24T22:05:24: 🔌 Initializing Socket.io...
+2025-09-24T22:05:24: ✅ Socket.io server initialized successfully
+2025-09-24T22:05:24: ✅ Simple Socket Service initialized
+2025-09-24T22:05:24: ✅ Socket Notification Service initialized successfully
+2025-09-24T22:05:24: ✅ Socket notification service initialized
+2025-09-24T22:05:24: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T22:05:24: 🔌 Socket.io ready and listening for connections
+2025-09-24T22:05:27: 🔌 User connected: sJg5zAnJ3rh0cZQTAAAB
+2025-09-24T22:05:27: 🔌 User connected: cH26Ozut7FyKsCj5AAAD
+2025-09-24T22:05:28: 🔌 User connected: BmJw5RWrM3GwItXCAAAF
+2025-09-24T22:05:29: 🔌 User connected: CH_2F_Xd0n9TZ2ktAAAH
+2025-09-24T22:06:27: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T22:06:29: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T22:06:29: Environment: production
+2025-09-24T22:06:29: Port: 3000
+2025-09-24T22:06:29: Hostname: 0.0.0.0
+2025-09-24T22:06:30: ✅ Next.js app prepared
+2025-09-24T22:06:30: 🔌 Initializing Socket.io...
+2025-09-24T22:06:30: ✅ Socket.io server initialized successfully
+2025-09-24T22:06:30: ✅ Simple Socket Service initialized
+2025-09-24T22:06:30: ✅ Socket Notification Service initialized successfully
+2025-09-24T22:06:30: ✅ Socket notification service initialized
+2025-09-24T22:06:30: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T22:06:30: 🔌 Socket.io ready and listening for connections
+2025-09-24T22:06:31: 🔌 User connected: ES0NqV-kN94ckgWhAAAB
+2025-09-24T22:06:31: 🔌 User connected: C0Me8w2gpMwWky1DAAAD
+2025-09-24T22:06:32: 🔌 User connected: U-GCGJnhOroZxcnyAAAF
+2025-09-24T22:06:32: 🔌 User connected: kYbUIc1mxDU3vIoeAAAH
+2025-09-24T22:06:36: prisma:error 
+2025-09-24T22:06:36: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:06:36: 
+2025-09-24T22:06:36: 
+2025-09-24T22:06:36: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:06:36: 🔌 User connected: e9Y1Zl9swEqMTnAhAAAJ
+2025-09-24T22:06:36: 🔌 User connected: qaHtlB-pbVNraBpuAAAL
+2025-09-24T22:06:37: 🔌 User connected: haSX0W0SEMobkbYEAAAN
+2025-09-24T22:06:37: 🔌 User connected: yA5ObJBphWddnvxCAAAP
+2025-09-24T22:18:27: 🔌 User connected: UcdrWack28XILq3fAAAR
+2025-09-24T22:18:27: prisma:error 
+2025-09-24T22:18:27: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:18:27: 
+2025-09-24T22:18:27: 
+2025-09-24T22:18:27: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:18:27: 🔌 User connected: 8KXvbTMIUiQqbaXMAAAT
+2025-09-24T22:18:27: 🔌 User connected: ThFjta_Mj051XxBmAAAV
+2025-09-24T22:19:37: prisma:error 
+2025-09-24T22:19:37: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:19:37: 
+2025-09-24T22:19:37: 
+2025-09-24T22:19:37: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:19:38: 🔌 User connected: YyzqDe8hXAMB3xnJAAAX
+2025-09-24T22:19:39: 🔌 User connected: VbXOEQhXMEuCtOz7AAAZ
+2025-09-24T22:21:15: prisma:error 
+2025-09-24T22:21:15: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:21:15: 
+2025-09-24T22:21:15: 
+2025-09-24T22:21:15: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:21:16: 🔌 User connected: f4-Klfhm2K7LQ9TfAAAb
+2025-09-24T22:21:16: 🔌 User connected: iJoRkkAuwm6GqEL6AAAd
+2025-09-24T22:23:03: prisma:error 
+2025-09-24T22:23:03: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:23:03: 
+2025-09-24T22:23:03: 
+2025-09-24T22:23:03: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:23:04: 🔌 User connected: MmzJ1tQFPxhNlJMsAAAf
+2025-09-24T22:23:04: 🔌 User connected: it4Comtvl3LfKx6CAAAh
+2025-09-24T22:24:14: prisma:error 
+2025-09-24T22:24:14: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:24:14: 
+2025-09-24T22:24:14: 
+2025-09-24T22:24:14: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:24:17: 🔌 User connected: DTtUdpiUhGk-jMIvAAAj
+2025-09-24T22:24:31: prisma:error 
+2025-09-24T22:24:31: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:24:31: 
+2025-09-24T22:24:31: 
+2025-09-24T22:24:31: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:25:10: prisma:error 
+2025-09-24T22:25:10: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:25:10: 
+2025-09-24T22:25:10: 
+2025-09-24T22:25:10: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:25:17: prisma:error 
+2025-09-24T22:25:17: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:25:17: 
+2025-09-24T22:25:17: 
+2025-09-24T22:25:17: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:26:29: 🔌 User connected: k8OQtbSgGT9sWnr-AAAl
+2025-09-24T22:26:29: 🔌 User connected: Gzu1GBpn3LUsoE_aAAAn
+2025-09-24T22:26:30: 🔌 User connected: s7Po0SZCQ_Dq63roAAAp
+2025-09-24T22:26:35: prisma:error 
+2025-09-24T22:26:35: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:26:35: 
+2025-09-24T22:26:35: 
+2025-09-24T22:26:35: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:26:39: prisma:error 
+2025-09-24T22:26:39: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:26:39: 
+2025-09-24T22:26:39: 
+2025-09-24T22:26:39: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:26:39: 🔌 User connected: KY-4-gexOGxMEAtxAAAr
+2025-09-24T22:26:39: 🔌 User connected: RuQK8o6L7gtNtq1jAAAt
+2025-09-24T22:26:40: prisma:error 
+2025-09-24T22:26:40: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:26:40: 
+2025-09-24T22:26:40: 
+2025-09-24T22:26:40: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:26:40: 🔌 User connected: JESqX13RcFRx5N6EAAAv
+2025-09-24T22:26:41: 🔌 User connected: zyqp4Nf_r-IcHHzNAAAx
+2025-09-24T22:26:42: prisma:error 
+2025-09-24T22:26:42: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:26:42: 
+2025-09-24T22:26:42: 
+2025-09-24T22:26:42: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:26:50: prisma:error 
+2025-09-24T22:26:50: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:26:50: 
+2025-09-24T22:26:50: 
+2025-09-24T22:26:50: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:26:59: prisma:error 
+2025-09-24T22:26:59: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T22:26:59: 
+2025-09-24T22:26:59: 
+2025-09-24T22:26:59: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T22:28:30: 🔌 User connected: ztFbm3EAHpUZ9xwoAAAz
+2025-09-24T23:31:58: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T23:31:58: ✅ Server closed
+2025-09-24T23:33:07: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T23:33:07: Environment: production
+2025-09-24T23:33:07: Port: 3000
+2025-09-24T23:33:07: Hostname: 0.0.0.0
+2025-09-24T23:33:07: ✅ Next.js app prepared
+2025-09-24T23:33:07: 🔌 Initializing Socket.io...
+2025-09-24T23:33:07: ✅ Socket.io server initialized successfully
+2025-09-24T23:33:07: ✅ Simple Socket Service initialized
+2025-09-24T23:33:07: ✅ Socket Notification Service initialized successfully
+2025-09-24T23:33:07: ✅ Socket notification service initialized
+2025-09-24T23:33:07: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T23:33:07: 🔌 Socket.io ready and listening for connections
+2025-09-24T23:34:09: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T23:34:09: ✅ Server closed
+2025-09-24T23:34:10: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T23:34:10: Environment: production
+2025-09-24T23:34:10: Port: 3000
+2025-09-24T23:34:10: Hostname: 0.0.0.0
+2025-09-24T23:34:10: ✅ Next.js app prepared
+2025-09-24T23:34:10: 🔌 Initializing Socket.io...
+2025-09-24T23:34:10: ✅ Socket.io server initialized successfully
+2025-09-24T23:34:10: ✅ Simple Socket Service initialized
+2025-09-24T23:34:10: ✅ Socket Notification Service initialized successfully
+2025-09-24T23:34:10: ✅ Socket notification service initialized
+2025-09-24T23:34:10: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T23:34:10: 🔌 Socket.io ready and listening for connections
+2025-09-24T23:34:15: 🔌 User connected: lgAG_xJ4sADm-GqpAAAB
+2025-09-24T23:34:15: 🔌 User connected: Aeckvg4f9fR9pjjOAAAD
+2025-09-24T23:34:16: 🔌 User connected: Z810tzw6QjqL3wsgAAAF
+2025-09-24T23:34:20: 🔌 User connected: gNm_OebvLMj4YttsAAAH
+2025-09-24T23:34:20: 🔌 User connected: HvvRID_9OLNVIs7rAAAJ
+2025-09-24T23:34:20: 🔌 User connected: s_2d3AmU0qUsREWLAAAL
+2025-09-24T23:34:27: 🔌 User connected: KKZStqv5qXKecIGjAAAN
+2025-09-24T23:34:27: 🔌 User connected: AWyzB3RlxHdX97nfAAAP
+2025-09-24T23:34:54: 🔌 User connected: erQeranY_IPMQpTaAAAR
+2025-09-24T23:35:04: 🔌 User connected: J7OTSM5NRWNwJyv8AAAT
+2025-09-24T23:35:04: 🔌 User connected: MKXWnWFj3bff2HzgAAAV
+2025-09-24T23:56:03: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T23:57:09: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T23:57:09: Environment: production
+2025-09-24T23:57:09: Port: 3000
+2025-09-24T23:57:09: Hostname: 0.0.0.0
+2025-09-24T23:57:09: ✅ Next.js app prepared
+2025-09-24T23:57:09: 🔌 Initializing Socket.io...
+2025-09-24T23:57:09: ✅ Socket.io server initialized successfully
+2025-09-24T23:57:09: ✅ Simple Socket Service initialized
+2025-09-24T23:57:09: ✅ Socket Notification Service initialized successfully
+2025-09-24T23:57:09: ✅ Socket notification service initialized
+2025-09-24T23:57:09: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T23:57:09: 🔌 Socket.io ready and listening for connections
+2025-09-24T23:57:10: 🔌 User connected: 7R37TZZ28kzn0RxCAAAB
+2025-09-24T23:57:10: 🔌 User connected: cK8DcZghmslbHoGcAAAD
+2025-09-24T23:57:11: 🔌 User connected: vV8UeF8Gac5Ut-GCAAAF
+2025-09-24T23:57:12: 🔌 User connected: 1I42eQpRogn1s-aaAAAH
+2025-09-24T23:57:14: 🔌 User connected: hWjiVoZL6JMPPzBvAAAJ
+2025-09-24T23:58:19: 🛑 SIGINT received, shutting down gracefully
+2025-09-24T23:58:21: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-24T23:58:21: Environment: production
+2025-09-24T23:58:21: Port: 3000
+2025-09-24T23:58:21: Hostname: 0.0.0.0
+2025-09-24T23:58:22: ✅ Next.js app prepared
+2025-09-24T23:58:22: 🔌 Initializing Socket.io...
+2025-09-24T23:58:22: ✅ Socket.io server initialized successfully
+2025-09-24T23:58:22: ✅ Simple Socket Service initialized
+2025-09-24T23:58:22: ✅ Socket Notification Service initialized successfully
+2025-09-24T23:58:22: ✅ Socket notification service initialized
+2025-09-24T23:58:22: ✅ Server ready on http://0.0.0.0:3000
+2025-09-24T23:58:22: 🔌 Socket.io ready and listening for connections
+2025-09-24T23:58:23: 🔌 User connected: ERTkqqZFmjbL0c2DAAAB
+2025-09-24T23:58:23: 🔌 User connected: 1vK8LyVYyfb7GbjiAAAD
+2025-09-24T23:58:24: 🔌 User connected: 2EtNF0lfmlV_HCh5AAAF
+2025-09-24T23:58:24: 🔌 User connected: hK_8gxp7-2PIXmnAAAAH
+2025-09-24T23:58:24: 🔌 User connected: g_r8NKMrxhcEDn6CAAAJ
+2025-09-24T23:58:30: 🔌 User connected: VhWGn8Xhdo7-RxilAAAL
+2025-09-24T23:58:30: 🔌 User connected: xXqZ_ByKoThquLDiAAAN
+2025-09-24T23:58:30: 🔌 User connected: w_jLQp8bOqJRxI2AAAAP
+2025-09-24T23:58:30: 🔌 User connected: Q7gsgLsI6aVkxFEQAAAR
+2025-09-24T23:58:30: 🔌 User connected: wscaWqadsyuJpISlAAAT
+2025-09-24T23:58:32: 🔌 User connected: TRLRzHguE9ukH3SuAAAV
+2025-09-24T23:58:32: 🔌 User connected: ZX93WCiBoiayv4OfAAAX
+2025-09-24T23:58:32: 🔌 User connected: 5ulvoOguxBXEIt5HAAAZ
+2025-09-24T23:58:32: 🔌 User connected: mAK7fV0fusFHZVIbAAAb
+2025-09-24T23:58:32: 🔌 User connected: 3Sl4NuLafVMwKDRVAAAd
+2025-09-24T23:58:33: 🔌 User connected: k90eXPkvIWUhUSE2AAAf
+2025-09-24T23:58:33: 🔌 User connected: cc8VW9lQ-tuGf2UBAAAh
+2025-09-24T23:58:34: 🔌 User connected: XGAJCerV1Jnfa8aiAAAj
+2025-09-24T23:58:34: 🔌 User connected: IP_tvhimav2DVvzlAAAl
+2025-09-24T23:58:34: 🔌 User connected: nu5UFjB5b5exqqL_AAAn
+2025-09-24T23:58:35: 🔌 User connected: 3ZFHAAoSxICuVrC6AAAp
+2025-09-24T23:58:35: 🔌 User connected: bUkIHjT80P7zKMDGAAAr
+2025-09-24T23:58:36: 🔌 User connected: -i8hpZR7Lxwz3bXZAAAt
+2025-09-24T23:58:36: 🔌 User connected: LYDmt1IdYQ0CltzlAAAv
+2025-09-24T23:58:58: 🔌 User connected: Y-18JpmTRUjhVG9YAAAy
+2025-09-24T23:58:58: prisma:error 
+2025-09-24T23:58:58: Invalid `prisma.application.findMany()` invocation:
+2025-09-24T23:58:58: 
+2025-09-24T23:58:58: 
+2025-09-24T23:58:58: The column `Application.isFavorite` does not exist in the current database.
+2025-09-24T23:58:58: 🔌 User connected: HiFhYxZPwp_uxpoQAAA0
+2025-09-24T23:58:59: 🔌 User connected: B7FRKQH78v0zmZWrAAA2
+2025-09-24T23:59:08: 🔌 User connected: -dI4c6kMReZwsBvXAAA4
+2025-09-24T23:59:16: 🔌 User connected: mYoej8DG_qoQEyGbAAA6
+2025-09-24T23:59:24: 🔌 User connected: 9yjBttVFncy3dD95AAA8
+2025-09-24T23:59:25: 🔌 User connected: 6KOQ7un0uxdq-d9PAAA-
+2025-09-25T00:04:23: 🔌 User connected: 4f9YUUuYnCl75EA9AABA
+2025-09-25T00:06:19: 🔌 User connected: xitvb8VC307boaiuAABC
+2025-09-25T00:08:10: 🔌 User connected: 2PrULKWMGlBbTH4AAABE
+2025-09-25T09:43:27: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T09:43:27: ✅ Server closed
+2025-09-25T09:43:28: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T09:43:28: Environment: production
+2025-09-25T09:43:28: Port: 3000
+2025-09-25T09:43:28: Hostname: 0.0.0.0
+2025-09-25T09:43:28: ✅ Next.js app prepared
+2025-09-25T09:43:28: 🔌 Initializing Socket.io...
+2025-09-25T09:43:28: ✅ Socket.io server initialized successfully
+2025-09-25T09:43:28: ✅ Simple Socket Service initialized
+2025-09-25T09:43:28: ✅ Socket Notification Service initialized successfully
+2025-09-25T09:43:28: ✅ Socket notification service initialized
+2025-09-25T09:43:28: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T09:43:28: 🔌 Socket.io ready and listening for connections
+2025-09-25T09:49:20: prisma:error 
+2025-09-25T09:49:20: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T09:49:20: 
+2025-09-25T09:49:20: 
+2025-09-25T09:49:20: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:20: 
+2025-09-25T09:49:20: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:24: prisma:error 
+2025-09-25T09:49:24: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:24: 
+2025-09-25T09:49:24: 
+2025-09-25T09:49:24: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:24: 
+2025-09-25T09:49:24: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: 🔌 User connected: QUTUtjpU463q2dTqAAAB
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: 🔌 User connected: ZXj544AbU7_FAQDiAAAD
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: 🔌 User connected: ktCNMKnkQbN_zvezAAAF
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: 🔌 User connected: oXLN7S3YGr0aK7OGAAAH
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:25: prisma:error 
+2025-09-25T09:49:25: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:25: 
+2025-09-25T09:49:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:26: prisma:error 
+2025-09-25T09:49:26: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:26: prisma:error 
+2025-09-25T09:49:26: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:26: prisma:error 
+2025-09-25T09:49:26: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:26: prisma:error 
+2025-09-25T09:49:26: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:26: prisma:error 
+2025-09-25T09:49:26: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:49:26: prisma:error 
+2025-09-25T09:49:26: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:49:26: 
+2025-09-25T09:49:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:00: prisma:error 
+2025-09-25T09:57:00: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T09:57:00: 
+2025-09-25T09:57:00: 
+2025-09-25T09:57:00: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:00: 
+2025-09-25T09:57:00: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:02: prisma:error 
+2025-09-25T09:57:02: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:02: prisma:error 
+2025-09-25T09:57:02: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:02: prisma:error 
+2025-09-25T09:57:02: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:02: prisma:error 
+2025-09-25T09:57:02: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:02: prisma:error 
+2025-09-25T09:57:02: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:02: prisma:error 
+2025-09-25T09:57:02: Invalid `prisma.job.groupBy()` invocation:
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:02: prisma:error 
+2025-09-25T09:57:02: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:02: 
+2025-09-25T09:57:02: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: 🔌 User connected: EFjgAU9eJlx7HQMVAAAJ
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: 🔌 User connected: uAQzEUhlHmTwkQumAAAL
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: 🔌 User connected: sdbag2VNnV4e-3IuAAAN
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: 🔌 User connected: Yz78ssauvCtRHcpUAAAP
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:03: prisma:error 
+2025-09-25T09:57:03: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:03: 
+2025-09-25T09:57:03: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:04: prisma:error 
+2025-09-25T09:57:04: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:04: prisma:error 
+2025-09-25T09:57:04: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:04: prisma:error 
+2025-09-25T09:57:04: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:04: prisma:error 
+2025-09-25T09:57:04: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:04: prisma:error 
+2025-09-25T09:57:04: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:04: prisma:error 
+2025-09-25T09:57:04: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:04: 
+2025-09-25T09:57:04: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:19: prisma:error 
+2025-09-25T09:57:19: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T09:57:19: 
+2025-09-25T09:57:19: 
+2025-09-25T09:57:19: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:19: 
+2025-09-25T09:57:19: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:57:29: prisma:error 
+2025-09-25T09:57:29: Invalid `prisma.company.findMany()` invocation:
+2025-09-25T09:57:29: 
+2025-09-25T09:57:29: 
+2025-09-25T09:57:29: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:57:29: 
+2025-09-25T09:57:29: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:19: 🔌 User connected: GTfB7cxJvm7Ym3d-AAAR
+2025-09-25T09:58:19: prisma:error 
+2025-09-25T09:58:19: Invalid `prisma.job.findUnique()` invocation:
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:19: prisma:error 
+2025-09-25T09:58:19: Invalid `prisma.company.findFirst()` invocation:
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:19: prisma:error 
+2025-09-25T09:58:19: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:19: prisma:error 
+2025-09-25T09:58:19: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:19: prisma:error 
+2025-09-25T09:58:19: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:19: 
+2025-09-25T09:58:19: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:30: 🔌 User connected: jCGAG2x2gws-JiJnAAAT
+2025-09-25T09:58:30: prisma:error 
+2025-09-25T09:58:30: Invalid `prisma.job.findUnique()` invocation:
+2025-09-25T09:58:30: 
+2025-09-25T09:58:30: 
+2025-09-25T09:58:30: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:30: 
+2025-09-25T09:58:30: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:30: prisma:error 
+2025-09-25T09:58:30: Invalid `prisma.company.findFirst()` invocation:
+2025-09-25T09:58:30: 
+2025-09-25T09:58:30: 
+2025-09-25T09:58:30: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:30: 
+2025-09-25T09:58:30: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:31: prisma:error 
+2025-09-25T09:58:31: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:58:31: 
+2025-09-25T09:58:31: 
+2025-09-25T09:58:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:31: 
+2025-09-25T09:58:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:31: prisma:error 
+2025-09-25T09:58:31: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:58:31: 
+2025-09-25T09:58:31: 
+2025-09-25T09:58:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:31: 
+2025-09-25T09:58:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:58:31: prisma:error 
+2025-09-25T09:58:31: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:58:31: 
+2025-09-25T09:58:31: 
+2025-09-25T09:58:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:58:31: 
+2025-09-25T09:58:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:31: 🔌 User connected: 3Ftm5pVd2dVYaiZ0AAAV
+2025-09-25T09:59:31: prisma:error 
+2025-09-25T09:59:31: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:31: 🔌 User connected: 2oG6imboHgtOSegZAAAX
+2025-09-25T09:59:31: prisma:error 
+2025-09-25T09:59:31: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:31: prisma:error 
+2025-09-25T09:59:31: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:31: prisma:error 
+2025-09-25T09:59:31: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:31: prisma:error 
+2025-09-25T09:59:31: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:31: prisma:error 
+2025-09-25T09:59:31: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:31: prisma:error 
+2025-09-25T09:59:31: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:31: prisma:error 
+2025-09-25T09:59:31: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:31: 
+2025-09-25T09:59:31: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:32: prisma:error 
+2025-09-25T09:59:32: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T09:59:32: 
+2025-09-25T09:59:32: 
+2025-09-25T09:59:32: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:32: 
+2025-09-25T09:59:32: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:32: prisma:error 
+2025-09-25T09:59:32: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T09:59:32: 
+2025-09-25T09:59:32: 
+2025-09-25T09:59:32: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:32: 
+2025-09-25T09:59:32: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T09:59:32: prisma:error 
+2025-09-25T09:59:32: Invalid `prisma.notification.count()` invocation:
+2025-09-25T09:59:32: 
+2025-09-25T09:59:32: 
+2025-09-25T09:59:32: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T09:59:32: 
+2025-09-25T09:59:32: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:07:09: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T10:08:29: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T10:08:29: Environment: production
+2025-09-25T10:08:29: Port: 3000
+2025-09-25T10:08:29: Hostname: 0.0.0.0
+2025-09-25T10:08:29: ✅ Next.js app prepared
+2025-09-25T10:08:29: 🔌 Initializing Socket.io...
+2025-09-25T10:08:29: ✅ Socket.io server initialized successfully
+2025-09-25T10:08:29: ✅ Simple Socket Service initialized
+2025-09-25T10:08:29: ✅ Socket Notification Service initialized successfully
+2025-09-25T10:08:29: ✅ Socket notification service initialized
+2025-09-25T10:08:29: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T10:08:29: 🔌 Socket.io ready and listening for connections
+2025-09-25T10:08:33: 🔌 User connected: 0pbO_82kRPX-Ia3QAAAB
+2025-09-25T10:08:33: 🔌 User connected: Hqm2CY8EstbVfJ4WAAAD
+2025-09-25T10:08:33: prisma:error 
+2025-09-25T10:08:33: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:33: prisma:error 
+2025-09-25T10:08:33: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:33: prisma:error 
+2025-09-25T10:08:33: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:33: prisma:error 
+2025-09-25T10:08:33: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:33: prisma:error 
+2025-09-25T10:08:33: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:33: prisma:error 
+2025-09-25T10:08:33: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:33: 
+2025-09-25T10:08:33: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: 🔌 User connected: 5kvm6RzSdtAHfHCAAAAF
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:34: prisma:error 
+2025-09-25T10:08:34: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:34: 
+2025-09-25T10:08:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:35: 🔌 User connected: kL9iy549h-BfWpQTAAAH
+2025-09-25T10:08:35: prisma:error 
+2025-09-25T10:08:35: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:35: prisma:error 
+2025-09-25T10:08:35: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:35: 🔌 User connected: ehFPL2Tz7k7dT_6fAAAJ
+2025-09-25T10:08:35: prisma:error 
+2025-09-25T10:08:35: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:35: prisma:error 
+2025-09-25T10:08:35: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:35: prisma:error 
+2025-09-25T10:08:35: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:35: prisma:error 
+2025-09-25T10:08:35: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:35: prisma:error 
+2025-09-25T10:08:35: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:08:35: prisma:error 
+2025-09-25T10:08:35: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:08:35: 
+2025-09-25T10:08:35: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:09:47: prisma:error 
+2025-09-25T10:09:47: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T10:09:47: 
+2025-09-25T10:09:47: 
+2025-09-25T10:09:47: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:09:47: 
+2025-09-25T10:09:47: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:24:00: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T10:24:02: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T10:24:02: Environment: production
+2025-09-25T10:24:02: Port: 3000
+2025-09-25T10:24:02: Hostname: srv939274.hstgr.cloud
+2025-09-25T10:24:02: ✅ Next.js app prepared
+2025-09-25T10:24:02: 🔌 Initializing Socket.io...
+2025-09-25T10:24:02: ✅ Socket.io server initialized successfully
+2025-09-25T10:24:02: ✅ Simple Socket Service initialized
+2025-09-25T10:24:02: ✅ Socket Notification Service initialized successfully
+2025-09-25T10:24:02: ✅ Socket notification service initialized
+2025-09-25T10:24:03: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T10:24:03: 🔌 Socket.io ready and listening for connections
+2025-09-25T10:32:21: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T10:32:21: ✅ Server closed
+2025-09-25T10:32:21: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T10:32:21: Environment: production
+2025-09-25T10:32:21: Port: 3000
+2025-09-25T10:32:21: Hostname: srv939274.hstgr.cloud
+2025-09-25T10:32:21: ✅ Next.js app prepared
+2025-09-25T10:32:21: 🔌 Initializing Socket.io...
+2025-09-25T10:32:21: ✅ Socket.io server initialized successfully
+2025-09-25T10:32:21: ✅ Simple Socket Service initialized
+2025-09-25T10:32:21: ✅ Socket Notification Service initialized successfully
+2025-09-25T10:32:21: ✅ Socket notification service initialized
+2025-09-25T10:32:22: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T10:32:22: 🔌 Socket.io ready and listening for connections
+2025-09-25T10:33:13: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T10:33:13: ✅ Server closed
+2025-09-25T10:33:14: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T10:33:14: Environment: production
+2025-09-25T10:33:14: Port: 3000
+2025-09-25T10:33:14: Hostname: 0.0.0.0
+2025-09-25T10:33:14: ✅ Next.js app prepared
+2025-09-25T10:33:14: 🔌 Initializing Socket.io...
+2025-09-25T10:33:14: ✅ Socket.io server initialized successfully
+2025-09-25T10:33:14: ✅ Simple Socket Service initialized
+2025-09-25T10:33:14: ✅ Socket Notification Service initialized successfully
+2025-09-25T10:33:14: ✅ Socket notification service initialized
+2025-09-25T10:33:14: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T10:33:14: 🔌 Socket.io ready and listening for connections
+2025-09-25T10:33:21: prisma:error 
+2025-09-25T10:33:21: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:21: prisma:error 
+2025-09-25T10:33:21: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:21: prisma:error 
+2025-09-25T10:33:21: Invalid `prisma.job.findUnique()` invocation:
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:21: prisma:error 
+2025-09-25T10:33:21: Invalid `prisma.company.findFirst()` invocation:
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:21: prisma:error 
+2025-09-25T10:33:21: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:21: 
+2025-09-25T10:33:21: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:23: 🔌 User connected: X5jse9XJch_DDl51AAAB
+2025-09-25T10:33:23: prisma:error 
+2025-09-25T10:33:23: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:23: prisma:error 
+2025-09-25T10:33:23: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:23: prisma:error 
+2025-09-25T10:33:23: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:23: prisma:error 
+2025-09-25T10:33:23: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:23: prisma:error 
+2025-09-25T10:33:23: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:23: 
+2025-09-25T10:33:23: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:25: 🔌 User connected: EcV_muEkaZ5VDy7jAAAD
+2025-09-25T10:33:25: prisma:error 
+2025-09-25T10:33:25: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:25: 
+2025-09-25T10:33:25: 
+2025-09-25T10:33:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:25: 
+2025-09-25T10:33:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:25: prisma:error 
+2025-09-25T10:33:25: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:25: 
+2025-09-25T10:33:25: 
+2025-09-25T10:33:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:25: 
+2025-09-25T10:33:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:25: prisma:error 
+2025-09-25T10:33:25: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:25: 
+2025-09-25T10:33:25: 
+2025-09-25T10:33:25: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:25: 
+2025-09-25T10:33:25: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:26: 🔌 User connected: OFag-clqU1sM0gimAAAF
+2025-09-25T10:33:26: 🔌 User connected: LNYISzFa_C8Xz-6VAAAH
+2025-09-25T10:33:26: prisma:error 
+2025-09-25T10:33:26: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:26: prisma:error 
+2025-09-25T10:33:26: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:26: prisma:error 
+2025-09-25T10:33:26: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:26: prisma:error 
+2025-09-25T10:33:26: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:26: prisma:error 
+2025-09-25T10:33:26: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:26: 
+2025-09-25T10:33:26: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: 🔌 User connected: JmtQlQWIA3UmoxnyAAAJ
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:27: prisma:error 
+2025-09-25T10:33:27: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:27: 
+2025-09-25T10:33:27: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:43: prisma:error 
+2025-09-25T10:33:43: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:43: prisma:error 
+2025-09-25T10:33:43: Invalid `prisma.job.findUnique()` invocation:
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:43: prisma:error 
+2025-09-25T10:33:43: Invalid `prisma.company.findFirst()` invocation:
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:43: prisma:error 
+2025-09-25T10:33:43: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:43: 
+2025-09-25T10:33:43: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:44: 🔌 User connected: PmkrQI051ftqatgLAAAL
+2025-09-25T10:33:44: prisma:error 
+2025-09-25T10:33:44: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:44: 
+2025-09-25T10:33:44: 
+2025-09-25T10:33:44: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:44: 
+2025-09-25T10:33:44: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:44: prisma:error 
+2025-09-25T10:33:44: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:44: 
+2025-09-25T10:33:44: 
+2025-09-25T10:33:44: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:44: 
+2025-09-25T10:33:44: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:44: prisma:error 
+2025-09-25T10:33:44: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:44: 
+2025-09-25T10:33:44: 
+2025-09-25T10:33:44: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:44: 
+2025-09-25T10:33:44: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:45: prisma:error 
+2025-09-25T10:33:45: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:45: 
+2025-09-25T10:33:45: 
+2025-09-25T10:33:45: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:45: 
+2025-09-25T10:33:45: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:45: prisma:error 
+2025-09-25T10:33:45: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:45: 
+2025-09-25T10:33:45: 
+2025-09-25T10:33:45: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:45: 
+2025-09-25T10:33:45: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:45: prisma:error 
+2025-09-25T10:33:45: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:45: 
+2025-09-25T10:33:45: 
+2025-09-25T10:33:45: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:45: 
+2025-09-25T10:33:45: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:46: 🔌 User connected: EuhZI7cYSzRg-7fQAAAN
+2025-09-25T10:33:46: prisma:error 
+2025-09-25T10:33:46: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:46: 
+2025-09-25T10:33:46: 
+2025-09-25T10:33:46: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:46: 
+2025-09-25T10:33:46: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:46: prisma:error 
+2025-09-25T10:33:46: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:46: 
+2025-09-25T10:33:46: 
+2025-09-25T10:33:46: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:46: 
+2025-09-25T10:33:46: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:46: prisma:error 
+2025-09-25T10:33:46: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:46: 
+2025-09-25T10:33:46: 
+2025-09-25T10:33:46: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:46: 
+2025-09-25T10:33:46: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:47: 🔌 User connected: PKlQVgemlhxkzcULAAAP
+2025-09-25T10:33:47: 🔌 User connected: Ln2aeSgeURoBgoiOAAAR
+2025-09-25T10:33:47: prisma:error 
+2025-09-25T10:33:47: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:47: 
+2025-09-25T10:33:47: 
+2025-09-25T10:33:47: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:47: 
+2025-09-25T10:33:47: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:47: prisma:error 
+2025-09-25T10:33:47: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:47: 
+2025-09-25T10:33:47: 
+2025-09-25T10:33:47: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:47: 
+2025-09-25T10:33:47: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: 🔌 User connected: kuE9otSQ78i-F5lmAAAT
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.message.findMany()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.user.findUnique()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.notification.findMany()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:33:48: prisma:error 
+2025-09-25T10:33:48: Invalid `prisma.notification.count()` invocation:
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:33:48: 
+2025-09-25T10:33:48: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:37:57: prisma:error 
+2025-09-25T10:37:57: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T10:37:57: 
+2025-09-25T10:37:57: 
+2025-09-25T10:37:57: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:37:57: 
+2025-09-25T10:37:57: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:38:06: prisma:error 
+2025-09-25T10:38:06: Invalid `prisma.company.findMany()` invocation:
+2025-09-25T10:38:06: 
+2025-09-25T10:38:06: 
+2025-09-25T10:38:06: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:38:06: 
+2025-09-25T10:38:06: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:38:06: prisma:error 
+2025-09-25T10:38:06: Invalid `prisma.job.count()` invocation:
+2025-09-25T10:38:06: 
+2025-09-25T10:38:06: 
+2025-09-25T10:38:06: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:38:06: 
+2025-09-25T10:38:06: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:39:21: prisma:error 
+2025-09-25T10:39:21: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T10:39:21: 
+2025-09-25T10:39:21: 
+2025-09-25T10:39:21: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:39:21: 
+2025-09-25T10:39:21: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:41:43: prisma:error 
+2025-09-25T10:41:43: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T10:41:43: 
+2025-09-25T10:41:43: 
+2025-09-25T10:41:43: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:41:43: 
+2025-09-25T10:41:43: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:41:43: prisma:error 
+2025-09-25T10:41:43: Invalid `prisma.job.count()` invocation:
+2025-09-25T10:41:43: 
+2025-09-25T10:41:43: 
+2025-09-25T10:41:43: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:41:43: 
+2025-09-25T10:41:43: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:45:11: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T10:45:13: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T10:45:13: Environment: production
+2025-09-25T10:45:13: Port: 3000
+2025-09-25T10:45:13: Hostname: srv939274.hstgr.cloud
+2025-09-25T10:45:13: ✅ Next.js app prepared
+2025-09-25T10:45:13: 🔌 Initializing Socket.io...
+2025-09-25T10:45:13: ✅ Socket.io server initialized successfully
+2025-09-25T10:45:13: ✅ Simple Socket Service initialized
+2025-09-25T10:45:13: ✅ Socket Notification Service initialized successfully
+2025-09-25T10:45:13: ✅ Socket notification service initialized
+2025-09-25T10:45:14: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T10:45:14: 🔌 Socket.io ready and listening for connections
+2025-09-25T10:47:10: prisma:error 
+2025-09-25T10:47:10: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T10:47:10: 
+2025-09-25T10:47:10: 
+2025-09-25T10:47:10: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:47:10: 
+2025-09-25T10:47:10: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:47:10: prisma:error 
+2025-09-25T10:47:10: Invalid `prisma.job.count()` invocation:
+2025-09-25T10:47:10: 
+2025-09-25T10:47:10: 
+2025-09-25T10:47:10: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T10:47:10: 
+2025-09-25T10:47:10: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T10:48:43: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T10:48:43: ✅ Server closed
+2025-09-25T11:17:28: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T11:17:28: Environment: production
+2025-09-25T11:17:28: Port: 3000
+2025-09-25T11:17:28: Hostname: 0.0.0.0
+2025-09-25T11:17:28: ✅ Next.js app prepared
+2025-09-25T11:17:28: 🔌 Initializing Socket.io...
+2025-09-25T11:17:28: ✅ Socket.io server initialized successfully
+2025-09-25T11:17:28: ✅ Simple Socket Service initialized
+2025-09-25T11:17:28: ✅ Socket Notification Service initialized successfully
+2025-09-25T11:17:28: ✅ Socket notification service initialized
+2025-09-25T11:17:28: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T11:17:28: 🔌 Socket.io ready and listening for connections
+2025-09-25T11:19:01: prisma:error 
+2025-09-25T11:19:01: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T11:19:01: 
+2025-09-25T11:19:01: 
+2025-09-25T11:19:01: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T11:19:01: 
+2025-09-25T11:19:01: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T11:20:13: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T11:20:13: ✅ Server closed
+2025-09-25T11:20:13: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T11:20:13: Environment: production
+2025-09-25T11:20:13: Port: 3000
+2025-09-25T11:20:13: Hostname: srv939274.hstgr.cloud
+2025-09-25T11:20:13: ✅ Next.js app prepared
+2025-09-25T11:20:13: 🔌 Initializing Socket.io...
+2025-09-25T11:20:13: ✅ Socket.io server initialized successfully
+2025-09-25T11:20:13: ✅ Simple Socket Service initialized
+2025-09-25T11:20:13: ✅ Socket Notification Service initialized successfully
+2025-09-25T11:20:13: ✅ Socket notification service initialized
+2025-09-25T11:20:15: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T11:20:15: 🔌 Socket.io ready and listening for connections
+2025-09-25T11:22:48: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T11:22:48: ✅ Server closed
+2025-09-25T11:33:23: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T11:33:23: Environment: production
+2025-09-25T11:33:23: Port: 3000
+2025-09-25T11:33:23: Hostname: 0.0.0.0
+2025-09-25T11:33:23: ✅ Next.js app prepared
+2025-09-25T11:33:23: 🔌 Initializing Socket.io...
+2025-09-25T11:33:23: ✅ Socket.io server initialized successfully
+2025-09-25T11:33:23: ✅ Simple Socket Service initialized
+2025-09-25T11:33:23: ✅ Socket Notification Service initialized successfully
+2025-09-25T11:33:23: ✅ Socket notification service initialized
+2025-09-25T11:33:23: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T11:33:23: 🔌 Socket.io ready and listening for connections
+2025-09-25T11:34:21: prisma:error 
+2025-09-25T11:34:21: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T11:34:21: 
+2025-09-25T11:34:21: 
+2025-09-25T11:34:21: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T11:34:21: 
+2025-09-25T11:34:21: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T11:35:25: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T11:35:25: ✅ Server closed
+2025-09-25T11:35:25: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T11:35:25: Environment: production
+2025-09-25T11:35:25: Port: 3000
+2025-09-25T11:35:25: Hostname: srv939274.hstgr.cloud
+2025-09-25T11:35:26: ✅ Next.js app prepared
+2025-09-25T11:35:26: 🔌 Initializing Socket.io...
+2025-09-25T11:35:26: ✅ Socket.io server initialized successfully
+2025-09-25T11:35:26: ✅ Simple Socket Service initialized
+2025-09-25T11:35:26: ✅ Socket Notification Service initialized successfully
+2025-09-25T11:35:26: ✅ Socket notification service initialized
+2025-09-25T11:35:27: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T11:35:27: 🔌 Socket.io ready and listening for connections
+2025-09-25T11:36:54: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T11:36:54: ✅ Server closed
+2025-09-25T12:23:26: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T12:23:26: Environment: production
+2025-09-25T12:23:26: Port: 3000
+2025-09-25T12:23:26: Hostname: 0.0.0.0
+2025-09-25T12:23:26: ✅ Next.js app prepared
+2025-09-25T12:23:26: 🔌 Initializing Socket.io...
+2025-09-25T12:23:26: ✅ Socket.io server initialized successfully
+2025-09-25T12:23:26: ✅ Simple Socket Service initialized
+2025-09-25T12:23:26: ✅ Socket Notification Service initialized successfully
+2025-09-25T12:23:26: ✅ Socket notification service initialized
+2025-09-25T12:23:26: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T12:23:26: 🔌 Socket.io ready and listening for connections
+2025-09-25T12:27:44: prisma:error 
+2025-09-25T12:27:44: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T12:27:44: 
+2025-09-25T12:27:44: 
+2025-09-25T12:27:44: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T12:27:44: 
+2025-09-25T12:27:44: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T12:30:04: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T12:30:04: ✅ Server closed
+2025-09-25T12:30:04: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T12:30:04: Environment: production
+2025-09-25T12:30:04: Port: 3000
+2025-09-25T12:30:04: Hostname: srv939274.hstgr.cloud
+2025-09-25T12:30:04: ✅ Next.js app prepared
+2025-09-25T12:30:04: 🔌 Initializing Socket.io...
+2025-09-25T12:30:04: ✅ Socket.io server initialized successfully
+2025-09-25T12:30:04: ✅ Simple Socket Service initialized
+2025-09-25T12:30:04: ✅ Socket Notification Service initialized successfully
+2025-09-25T12:30:04: ✅ Socket notification service initialized
+2025-09-25T12:30:04: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T12:30:04: 🔌 Socket.io ready and listening for connections
+2025-09-25T12:34:53: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T12:34:53: ✅ Server closed
+2025-09-25T12:46:09: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T12:46:09: Environment: production
+2025-09-25T12:46:09: Port: 3000
+2025-09-25T12:46:09: Hostname: 0.0.0.0
+2025-09-25T12:46:09: ✅ Next.js app prepared
+2025-09-25T12:46:09: 🔌 Initializing Socket.io...
+2025-09-25T12:46:09: ✅ Socket.io server initialized successfully
+2025-09-25T12:46:09: ✅ Simple Socket Service initialized
+2025-09-25T12:46:09: ✅ Socket Notification Service initialized successfully
+2025-09-25T12:46:09: ✅ Socket notification service initialized
+2025-09-25T12:46:09: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T12:46:09: 🔌 Socket.io ready and listening for connections
+2025-09-25T12:48:39: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T12:48:39: ✅ Server closed
+2025-09-25T12:48:39: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T12:48:39: Environment: production
+2025-09-25T12:48:39: Port: 3000
+2025-09-25T12:48:39: Hostname: srv939274.hstgr.cloud
+2025-09-25T12:48:40: ✅ Next.js app prepared
+2025-09-25T12:48:40: 🔌 Initializing Socket.io...
+2025-09-25T12:48:40: ✅ Socket.io server initialized successfully
+2025-09-25T12:48:40: ✅ Simple Socket Service initialized
+2025-09-25T12:48:40: ✅ Socket Notification Service initialized successfully
+2025-09-25T12:48:40: ✅ Socket notification service initialized
+2025-09-25T12:48:41: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T12:48:41: 🔌 Socket.io ready and listening for connections
+2025-09-25T12:49:57: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T12:49:57: ✅ Server closed
+2025-09-25T13:11:28: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T13:11:28: Environment: production
+2025-09-25T13:11:28: Port: 3000
+2025-09-25T13:11:28: Hostname: 0.0.0.0
+2025-09-25T13:11:28: ✅ Next.js app prepared
+2025-09-25T13:11:28: 🔌 Initializing Socket.io...
+2025-09-25T13:11:28: ✅ Socket.io server initialized successfully
+2025-09-25T13:11:28: ✅ Simple Socket Service initialized
+2025-09-25T13:11:28: ✅ Socket Notification Service initialized successfully
+2025-09-25T13:11:28: ✅ Socket notification service initialized
+2025-09-25T13:11:28: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T13:11:28: 🔌 Socket.io ready and listening for connections
+2025-09-25T13:12:34: prisma:error 
+2025-09-25T13:12:34: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T13:12:34: 
+2025-09-25T13:12:34: 
+2025-09-25T13:12:34: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T13:12:34: 
+2025-09-25T13:12:34: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T13:14:07: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T13:14:07: ✅ Server closed
+2025-09-25T13:14:08: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T13:14:08: Environment: production
+2025-09-25T13:14:08: Port: 3000
+2025-09-25T13:14:08: Hostname: srv939274.hstgr.cloud
+2025-09-25T13:14:08: ✅ Next.js app prepared
+2025-09-25T13:14:08: 🔌 Initializing Socket.io...
+2025-09-25T13:14:08: ✅ Socket.io server initialized successfully
+2025-09-25T13:14:08: ✅ Simple Socket Service initialized
+2025-09-25T13:14:08: ✅ Socket Notification Service initialized successfully
+2025-09-25T13:14:08: ✅ Socket notification service initialized
+2025-09-25T13:14:09: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T13:14:09: 🔌 Socket.io ready and listening for connections
+2025-09-25T13:15:45: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T13:15:45: ✅ Server closed
+2025-09-25T13:30:52: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T13:30:52: Environment: production
+2025-09-25T13:30:52: Port: 3000
+2025-09-25T13:30:52: Hostname: 0.0.0.0
+2025-09-25T13:30:52: ✅ Next.js app prepared
+2025-09-25T13:30:52: 🔌 Initializing Socket.io...
+2025-09-25T13:30:52: ✅ Socket.io server initialized successfully
+2025-09-25T13:30:52: ✅ Simple Socket Service initialized
+2025-09-25T13:30:52: ✅ Socket Notification Service initialized successfully
+2025-09-25T13:30:52: ✅ Socket notification service initialized
+2025-09-25T13:30:52: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T13:30:52: 🔌 Socket.io ready and listening for connections
+2025-09-25T13:31:44: prisma:error 
+2025-09-25T13:31:44: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T13:31:44: 
+2025-09-25T13:31:44: 
+2025-09-25T13:31:44: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T13:31:44: 
+2025-09-25T13:31:44: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T13:33:10: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T13:33:10: ✅ Server closed
+2025-09-25T13:44:14: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T13:44:14: Environment: production
+2025-09-25T13:44:14: Port: 3000
+2025-09-25T13:44:14: Hostname: 0.0.0.0
+2025-09-25T13:44:14: ✅ Next.js app prepared
+2025-09-25T13:44:14: 🔌 Initializing Socket.io...
+2025-09-25T13:44:14: ✅ Socket.io server initialized successfully
+2025-09-25T13:44:14: ✅ Simple Socket Service initialized
+2025-09-25T13:44:14: ✅ Socket Notification Service initialized successfully
+2025-09-25T13:44:14: ✅ Socket notification service initialized
+2025-09-25T13:44:14: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T13:44:14: 🔌 Socket.io ready and listening for connections
+2025-09-25T13:45:13: prisma:error 
+2025-09-25T13:45:13: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T13:45:13: 
+2025-09-25T13:45:13: 
+2025-09-25T13:45:13: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T13:45:13: 
+2025-09-25T13:45:13: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T13:46:03: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T13:46:03: ✅ Server closed
+2025-09-25T13:58:07: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T13:58:07: Environment: production
+2025-09-25T13:58:07: Port: 3000
+2025-09-25T13:58:07: Hostname: 0.0.0.0
+2025-09-25T13:58:08: ✅ Next.js app prepared
+2025-09-25T13:58:08: 🔌 Initializing Socket.io...
+2025-09-25T13:58:08: ✅ Socket.io server initialized successfully
+2025-09-25T13:58:08: ✅ Simple Socket Service initialized
+2025-09-25T13:58:08: ✅ Socket Notification Service initialized successfully
+2025-09-25T13:58:08: ✅ Socket notification service initialized
+2025-09-25T13:58:08: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T13:58:08: 🔌 Socket.io ready and listening for connections
+2025-09-25T14:01:18: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T14:01:18: ✅ Server closed
+2025-09-25T14:01:18: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T14:01:18: Environment: production
+2025-09-25T14:01:18: Port: 3000
+2025-09-25T14:01:18: Hostname: srv939274.hstgr.cloud
+2025-09-25T14:01:19: ✅ Next.js app prepared
+2025-09-25T14:01:19: 🔌 Initializing Socket.io...
+2025-09-25T14:01:19: ✅ Socket.io server initialized successfully
+2025-09-25T14:01:19: ✅ Simple Socket Service initialized
+2025-09-25T14:01:19: ✅ Socket Notification Service initialized successfully
+2025-09-25T14:01:19: ✅ Socket notification service initialized
+2025-09-25T14:01:19: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T14:01:19: 🔌 Socket.io ready and listening for connections
+2025-09-25T14:02:31: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T14:02:31: ✅ Server closed
+2025-09-25T14:13:43: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T14:13:43: Environment: production
+2025-09-25T14:13:43: Port: 3000
+2025-09-25T14:13:43: Hostname: 0.0.0.0
+2025-09-25T14:13:43: ✅ Next.js app prepared
+2025-09-25T14:13:43: 🔌 Initializing Socket.io...
+2025-09-25T14:13:43: ✅ Socket.io server initialized successfully
+2025-09-25T14:13:43: ✅ Simple Socket Service initialized
+2025-09-25T14:13:43: ✅ Socket Notification Service initialized successfully
+2025-09-25T14:13:43: ✅ Socket notification service initialized
+2025-09-25T14:13:43: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T14:13:43: 🔌 Socket.io ready and listening for connections
+2025-09-25T14:16:19: prisma:error 
+2025-09-25T14:16:19: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T14:16:19: 
+2025-09-25T14:16:19: 
+2025-09-25T14:16:19: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T14:16:19: 
+2025-09-25T14:16:19: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T14:17:26: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T14:17:26: ✅ Server closed
+2025-09-25T14:17:26: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T14:17:26: Environment: production
+2025-09-25T14:17:26: Port: 3000
+2025-09-25T14:17:26: Hostname: srv939274.hstgr.cloud
+2025-09-25T14:17:27: ✅ Next.js app prepared
+2025-09-25T14:17:27: 🔌 Initializing Socket.io...
+2025-09-25T14:17:27: ✅ Socket.io server initialized successfully
+2025-09-25T14:17:27: ✅ Simple Socket Service initialized
+2025-09-25T14:17:27: ✅ Socket Notification Service initialized successfully
+2025-09-25T14:17:27: ✅ Socket notification service initialized
+2025-09-25T14:17:27: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T14:17:27: 🔌 Socket.io ready and listening for connections
+2025-09-25T14:19:15: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T14:19:15: ✅ Server closed
+2025-09-25T15:16:47: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T15:16:47: Environment: production
+2025-09-25T15:16:47: Port: 3000
+2025-09-25T15:16:47: Hostname: 0.0.0.0
+2025-09-25T15:16:47: ✅ Next.js app prepared
+2025-09-25T15:16:47: 🔌 Initializing Socket.io...
+2025-09-25T15:16:47: ✅ Socket.io server initialized successfully
+2025-09-25T15:16:47: ✅ Simple Socket Service initialized
+2025-09-25T15:16:47: ✅ Socket Notification Service initialized successfully
+2025-09-25T15:16:47: ✅ Socket notification service initialized
+2025-09-25T15:16:47: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T15:16:47: 🔌 Socket.io ready and listening for connections
+2025-09-25T15:17:52: prisma:error 
+2025-09-25T15:17:52: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T15:17:52: 
+2025-09-25T15:17:52: 
+2025-09-25T15:17:52: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T15:17:52: 
+2025-09-25T15:17:52: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T15:20:11: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T15:20:11: ✅ Server closed
+2025-09-25T15:20:11: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T15:20:11: Environment: production
+2025-09-25T15:20:11: Port: 3000
+2025-09-25T15:20:11: Hostname: srv939274.hstgr.cloud
+2025-09-25T15:20:12: ✅ Next.js app prepared
+2025-09-25T15:20:12: 🔌 Initializing Socket.io...
+2025-09-25T15:20:12: ✅ Socket.io server initialized successfully
+2025-09-25T15:20:12: ✅ Simple Socket Service initialized
+2025-09-25T15:20:12: ✅ Socket Notification Service initialized successfully
+2025-09-25T15:20:12: ✅ Socket notification service initialized
+2025-09-25T15:20:12: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T15:20:12: 🔌 Socket.io ready and listening for connections
+2025-09-25T15:23:07: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T15:23:07: ✅ Server closed
+2025-09-25T16:27:38: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T16:27:38: Environment: production
+2025-09-25T16:27:38: Port: 3000
+2025-09-25T16:27:38: Hostname: 0.0.0.0
+2025-09-25T16:27:38: ✅ Next.js app prepared
+2025-09-25T16:27:38: 🔌 Initializing Socket.io...
+2025-09-25T16:27:38: ✅ Socket.io server initialized successfully
+2025-09-25T16:27:38: ✅ Simple Socket Service initialized
+2025-09-25T16:27:38: ✅ Socket Notification Service initialized successfully
+2025-09-25T16:27:38: ✅ Socket notification service initialized
+2025-09-25T16:27:38: ✅ Server ready on http://0.0.0.0:3000
+2025-09-25T16:27:38: 🔌 Socket.io ready and listening for connections
+2025-09-25T16:28:39: prisma:error 
+2025-09-25T16:28:39: Invalid `prisma.job.findMany()` invocation:
+2025-09-25T16:28:39: 
+2025-09-25T16:28:39: 
+2025-09-25T16:28:39: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-25T16:28:39: 
+2025-09-25T16:28:39: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-25T16:29:09: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T16:29:09: ✅ Server closed
+2025-09-25T16:29:10: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-25T16:29:10: Environment: production
+2025-09-25T16:29:10: Port: 3000
+2025-09-25T16:29:10: Hostname: srv939274.hstgr.cloud
+2025-09-25T16:29:10: ✅ Next.js app prepared
+2025-09-25T16:29:10: 🔌 Initializing Socket.io...
+2025-09-25T16:29:10: ✅ Socket.io server initialized successfully
+2025-09-25T16:29:10: ✅ Simple Socket Service initialized
+2025-09-25T16:29:10: ✅ Socket Notification Service initialized successfully
+2025-09-25T16:29:10: ✅ Socket notification service initialized
+2025-09-25T16:29:11: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-25T16:29:11: 🔌 Socket.io ready and listening for connections
+2025-09-25T16:40:18: 🛑 SIGINT received, shutting down gracefully
+2025-09-25T16:40:18: ✅ Server closed
