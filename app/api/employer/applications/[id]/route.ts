@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireEmployerAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { getSocketService } from "@/lib/socket-server";
+// import { getSocketService } from "@/lib/socket-server";
 import { createNotification } from "@/lib/notification-service";
 
 export async function GET(
@@ -181,26 +181,26 @@ export async function PATCH(
         });
 
         // Send real-time notification via Socket.io (optional)
-        try {
-          const socketService = getSocketService();
-          if (socketService) {
-            await socketService.sendNotificationToUser(updatedApplication.user.id, {
-              type: 'APPLICATION_UPDATE',
-            title: notificationTitle,
-            message: notificationMessage,
-            data: {
-              applicationId: updatedApplication.id,
-              newStatus: status,
-              jobTitle: updatedApplication.job.title,
-              company: updatedApplication.job.company,
-              actionType: status
-            }
-          });
-        }
-        } catch (socketError) {
-          console.warn('⚠️ Socket service not available:', socketError);
-          // Continue without socket notification
-        }
+        // try {
+        //   const socketService = getSocketService();
+        //   if (socketService) {
+        //     await socketService.sendNotificationToUser(updatedApplication.user.id, {
+        //       type: 'APPLICATION_UPDATE',
+        //     title: notificationTitle,
+        //     message: notificationMessage,
+        //     data: {
+        //       applicationId: updatedApplication.id,
+        //       newStatus: status,
+        //       jobTitle: updatedApplication.job.title,
+        //       company: updatedApplication.job.company,
+        //       actionType: status
+        //     }
+        //   });
+        // }
+        // } catch (socketError) {
+        //   console.warn('⚠️ Socket service not available:', socketError);
+        //   // Continue without socket notification
+        // }
 
         console.log(`📤 Notification sent for application status update: ${applicationId} -> ${status}`);
       } catch (notificationError) {

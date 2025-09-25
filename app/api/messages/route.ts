@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
-import { getSocketService } from '@/lib/socket-server';
+// import { getSocketService } from '@/lib/socket-server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -135,24 +135,24 @@ export async function POST(request: NextRequest) {
     });
 
     // Send real-time notification via socket (optional)
-    try {
-      const socketService = getSocketService();
-      if (socketService) {
-        await socketService.sendNotificationToUser(receiverId, {
-          type: 'MESSAGE_RECEIVED',
-          title: `New message from ${newMessage.sender.name}`,
-          message: message,
-          data: {
-            messageId: newMessage.id,
-            senderId: session.user.id,
-            type: type
-          }
-        });
-      }
-    } catch (socketError) {
-      console.warn('⚠️ Socket service not available:', socketError);
-      // Continue without socket notification
-    }
+    // try {
+    //   const socketService = getSocketService();
+    //   if (socketService) {
+    //     await socketService.sendNotificationToUser(receiverId, {
+    //       type: 'MESSAGE_RECEIVED',
+    //       title: `New message from ${newMessage.sender.name}`,
+    //       message: message,
+    //       data: {
+    //         messageId: newMessage.id,
+    //         senderId: session.user.id,
+    //         type: type
+    //       }
+    //     });
+    //   }
+    // } catch (socketError) {
+    //   console.warn('⚠️ Socket service not available:', socketError);
+    //   // Continue without socket notification
+    // }
 
     return NextResponse.json({
       success: true,

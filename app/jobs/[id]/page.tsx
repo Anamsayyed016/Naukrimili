@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search } from "lucide-react";
 import JobShare from "@/components/JobShare";
+import ExpiredJobHandler from "@/components/ExpiredJobHandler";
 
 interface Job {
   id: string;
@@ -59,6 +60,7 @@ export default function JobDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [enhancedJobData, setEnhancedJobData] = useState<any>(null);
   const [enhancing, setEnhancing] = useState(false);
+  const [similarJobs, setSimilarJobs] = useState<any[]>([]);
 
   useEffect(() => {
     if (!id) {
@@ -69,18 +71,34 @@ export default function JobDetailsPage() {
 
     const fetchJob = async () => {
       try {
-        const response = await fetch(`/api/jobs/${id}`);
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
+        const response = await fetch(`/api/jobs/${id}`, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
-          throw new Error('Failed to fetch job');
+          // Handle expired jobs (410 Gone)
+          if (response.status === 410) {
+            const data = await response.json();
+            setError('EXPIRED');
+            setJob(data.expiredJob);
+            setSimilarJobs(data.similarJobs || []);
+            return;
+          }
+          throw new Error(`Failed to fetch job: ${response.status}`);
         }
 
         const data = await response.json();
         if (data.success) {
           // Ensure isExternal is properly set
           const jobData = {
-            ...data.job,
-            isExternal: data.job.isExternal || data.job.source !== 'manual' || data.job.id?.startsWith('ext-')
+            ...data.data,
+            isExternal: data.data.isExternal || data.data.source !== 'manual' || data.data.id?.startsWith('ext-')
           };
           setJob(jobData);
           
@@ -91,8 +109,12 @@ export default function JobDetailsPage() {
         } else {
           setError(data.error || 'Failed to load job');
         }
-      } catch (err) {
-        setError('Failed to load job details');
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          setError('Request timed out. Please try again.');
+        } else {
+          setError('Failed to load job details');
+        }
         console.error('Error fetching job:', err);
       } finally {
         setLoading(false);
@@ -152,6 +174,15 @@ export default function JobDetailsPage() {
         </div>
       </div>
     );
+  }
+
+  // Handle expired jobs
+  if (error === 'EXPIRED' && job) {
+    const expiredJob = {
+      ...job,
+      sourceUrl: job.source_url || null
+    };
+    return <ExpiredJobHandler expiredJob={expiredJob} similarJobs={similarJobs} />;
   }
 
   if (error || !job) {
