@@ -50,71 +50,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
   const searchParams = useSearchParams();
 
-  // Initialize with search params and load jobs
-  useEffect(() => {
-    const query = searchParams.get('q') || searchParams.get('query') || '';
-    const loc = searchParams.get('location') || '';
-    const jobType = searchParams.get('jobType') || '';
-    const experienceLevel = searchParams.get('experienceLevel') || '';
-    const isRemote = searchParams.get('isRemote') === 'true';
-    const salaryMin = searchParams.get('salaryMin') || '';
-    const salaryMax = searchParams.get('salaryMax') || '';
-    const sector = searchParams.get('sector') || '';
-
-    console.log('⚡ OptimizedJobsClient initializing with params:', { 
-      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector 
-    });
-
-    // Reset pagination when search params change
-    setCurrentPage(1);
-    
-    // Always fetch jobs using unlimited API with all filters
-    fetchJobs(query, loc, 1, {
-      jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
-    });
-  }, [searchParams]);
-
-  // Add periodic refresh to show newly posted jobs (fixed to prevent infinite loops)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const query = searchParams.get('q') || searchParams.get('query') || '';
-      const loc = searchParams.get('location') || '';
-      const jobType = searchParams.get('jobType') || '';
-      const experienceLevel = searchParams.get('experienceLevel') || '';
-      const isRemote = searchParams.get('isRemote') === 'true';
-      const salaryMin = searchParams.get('salaryMin') || '';
-      const salaryMax = searchParams.get('salaryMax') || '';
-      const sector = searchParams.get('sector') || '';
-      
-      console.log('🔄 Refreshing jobs to show newly posted jobs...');
-      // Use currentPage from state, not from dependency array to prevent infinite loops
-      fetchJobs(query, loc, currentPage, {
-        jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
-      });
-    }, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [searchParams]); // Removed currentPage from dependencies to prevent infinite loops
-
-  // Convert any job format to simple Job format
-  function convertToSimpleJob(job: any): Job {
-    return {
-      id: job.id || `job-${Math.random()}`,
-      title: job.title || 'Job Title',
-      company: job.company || job.companyRelation?.name || 'Company',
-      location: job.location || 'Location',
-      description: job.description || 'Job description not available',
-      salary: job.salary || job.salary_formatted,
-      postedAt: job.postedAt || job.createdAt || job.created_at,
-      source_url: job.source_url || job.redirect_url || job.applyUrl,
-      source: job.source || (job.isExternal ? 'external' : 'database'),
-      is_remote: job.is_remote || job.isRemote,
-      is_featured: job.is_featured || job.isFeatured
-    };
-  }
-
-  // Fetch jobs using optimized API for better performance
-  const fetchJobs = async (
+  // Fetch jobs using optimized API for better performance - memoized to prevent infinite loops
+  const fetchJobs = React.useCallback(async (
     query: string = '', 
     location: string = '', 
     page: number = 1, 
@@ -169,67 +106,58 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         ...(filters.sector && { sector: filters.sector })
       });
 
-      console.log('📡 Making unlimited job search API call to:', `/api/jobs/unlimited?${unlimitedParams.toString()}`);
-
       const startTime = Date.now();
       const response = await fetch(`/api/jobs/unlimited?${unlimitedParams.toString()}`);
       const responseTime = Date.now() - startTime;
-      
-      console.log(`📡 Unlimited job search API Response status: ${response.status} (${responseTime}ms)`);
-      
+
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Unlimited job search API Error Response:', errorText);
-        throw new Error(`Unlimited job search API failed: ${response.status}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('📡 Unlimited job search API Response data:', data);
       
-      if (!data.success) {
-        throw new Error(data.error || 'Unlimited job search API returned success: false');
+      if (data.success && data.jobs) {
+        const jobs = (data.jobs || []).map(convertToSimpleJob);
+        
+        setJobs(jobs);
+        setTotalJobs(data.pagination?.totalJobs || jobs.length);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setHasNextPage(data.pagination?.hasMore || false);
+        setHasPrevPage(page > 1);
+
+        // Update performance metrics
+        setPerformanceMetrics({
+          responseTime,
+          cached: data.metadata?.cached || false,
+          sources: data.sources
+        });
+
+        // Update last refresh time
+        setLastRefresh(new Date());
+
+        console.log('✅ Unlimited jobs loaded successfully:', {
+          jobsCount: jobs.length,
+          totalJobs: data.pagination?.totalJobs || jobs.length,
+          currentPage: page,
+          totalPages: data.pagination?.totalPages || 1,
+          hasMore: data.pagination?.hasMore || false,
+          sources: data.sources,
+          realJobsPercentage: data.metadata?.realJobsPercentage || 0,
+          performance: data.metadata?.performance
+        });
+        
+        console.log('🔍 Pagination Debug:', {
+          totalJobs: data.pagination?.totalJobs,
+          totalPages: data.pagination?.totalPages,
+          hasMore: data.pagination?.hasMore,
+          currentPage: page,
+          limit: 500,
+          shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || jobs.length) > 500
+        });
+
+      } else {
+        throw new Error(data.error || 'Failed to fetch jobs');
       }
-
-      // Process jobs
-      const jobs = (data.jobs || []).map(convertToSimpleJob);
-      console.log(`✅ Processed ${jobs.length} unlimited jobs in ${responseTime}ms`);
-
-      // Update state
-      setJobs(jobs);
-      setTotalJobs(data.pagination?.totalJobs || jobs.length);
-      setTotalPages(data.pagination?.totalPages || 1);
-      setHasNextPage(data.pagination?.hasMore || false);
-      setHasPrevPage(page > 1);
-
-      // Update performance metrics
-      setPerformanceMetrics({
-        responseTime,
-        cached: data.metadata?.cached || false,
-        sources: data.sources
-      });
-
-      // Update last refresh time
-      setLastRefresh(new Date());
-
-      console.log('✅ Unlimited jobs loaded successfully:', {
-        jobsCount: jobs.length,
-        totalJobs: data.pagination?.totalJobs || jobs.length,
-        currentPage: page,
-        totalPages: data.pagination?.totalPages || 1,
-        hasMore: data.pagination?.hasMore || false,
-        sources: data.sources,
-        realJobsPercentage: data.metadata?.realJobsPercentage || 0,
-        performance: data.metadata?.performance
-      });
-      
-      console.log('🔍 Pagination Debug:', {
-        totalJobs: data.pagination?.totalJobs,
-        totalPages: data.pagination?.totalPages,
-        hasMore: data.pagination?.hasMore,
-        currentPage: page,
-        limit: 500,
-        shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || jobs.length) > 500
-      });
 
     } catch (error) {
       console.error('❌ Error fetching unlimited jobs, trying fallback:', error);
@@ -268,7 +196,71 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Empty dependency array since fetchJobs doesn't depend on any external values
+
+  // Initialize with search params and load jobs
+  useEffect(() => {
+    const query = searchParams.get('q') || searchParams.get('query') || '';
+    const loc = searchParams.get('location') || '';
+    const jobType = searchParams.get('jobType') || '';
+    const experienceLevel = searchParams.get('experienceLevel') || '';
+    const isRemote = searchParams.get('isRemote') === 'true';
+    const salaryMin = searchParams.get('salaryMin') || '';
+    const salaryMax = searchParams.get('salaryMax') || '';
+    const sector = searchParams.get('sector') || '';
+
+    console.log('⚡ OptimizedJobsClient initializing with params:', { 
+      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector 
+    });
+
+    // Reset pagination when search params change
+    setCurrentPage(1);
+    
+    // Always fetch jobs using unlimited API with all filters
+    fetchJobs(query, loc, 1, {
+      jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
+    });
+  }, [searchParams, fetchJobs]);
+
+  // Periodic refresh disabled to prevent constant loading and improve performance
+  // Users can manually refresh using the refresh button if needed
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const query = searchParams.get('q') || searchParams.get('query') || '';
+  //     const loc = searchParams.get('location') || '';
+  //     const jobType = searchParams.get('jobType') || '';
+  //     const experienceLevel = searchParams.get('experienceLevel') || '';
+  //     const isRemote = searchParams.get('isRemote') === 'true';
+  //     const salaryMin = searchParams.get('salaryMin') || '';
+  //     const salaryMax = searchParams.get('salaryMax') || '';
+  //     const sector = searchParams.get('sector') || '';
+  //     
+  //     console.log('🔄 Refreshing jobs to show newly posted jobs...');
+  //     fetchJobs(query, loc, currentPage, {
+  //       jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
+  //     });
+  //   }, 30000); // Refresh every 30 seconds
+  //
+  //   return () => clearInterval(interval);
+  // }, [searchParams]);
+
+  // Convert any job format to simple Job format
+  function convertToSimpleJob(job: any): Job {
+    return {
+      id: job.id || `job-${Math.random()}`,
+      title: job.title || 'Job Title',
+      company: job.company || job.companyRelation?.name || 'Company',
+      location: job.location || 'Location',
+      description: job.description || 'Job description not available',
+      salary: job.salary || job.salary_formatted,
+      postedAt: job.postedAt || job.createdAt || job.created_at,
+      source_url: job.source_url || job.redirect_url || job.applyUrl,
+      source: job.source || (job.isExternal ? 'external' : 'database'),
+      is_remote: job.is_remote || job.isRemote,
+      is_featured: job.is_featured || job.isFeatured
+    };
+  }
+
 
   // Handle pagination
   const handlePageChange = (page: number) => {
