@@ -123,8 +123,8 @@ export default function JobApplicationPage() {
   const [enhancing, setEnhancing] = useState(false);
   const [similarJobs, setSimilarJobs] = useState<any[]>([]);
 
-  // Fetch job details function
-  const fetchJobDetails = async () => {
+  // Fetch job details function - memoized to prevent infinite re-renders
+  const fetchJobDetails = React.useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -180,9 +180,9 @@ export default function JobApplicationPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [jobId, rawId]);
 
-  const fetchEnhancedJobData = async (jobData: Job) => {
+  const fetchEnhancedJobData = React.useCallback(async (jobData: Job) => {
     setEnhancing(true);
     try {
       const response = await fetch('/api/jobs/enhance', {
@@ -210,7 +210,7 @@ export default function JobApplicationPage() {
     } finally {
       setEnhancing(false);
     }
-  };
+  }, []);
 
   // Parse skills properly - handle both array and string formats with better error handling
   const skills = React.useMemo(() => {
@@ -298,19 +298,6 @@ export default function JobApplicationPage() {
     }
   };
 
-  // Debug logging (client-side only)
-  if (typeof window !== 'undefined') {
-    console.log('🔍 Component rendering - rawId:', rawId);
-    console.log('🔍 Component rendering - jobId:', jobId);
-    console.log('🔍 Component rendering - loading:', loading);
-    console.log('🔍 Component rendering - error:', error);
-    
-    // Direct call to fetchJobDetails if we have a jobId and no job yet
-    if (jobId && !job && loading) {
-      console.log('🔍 Direct fetchJobDetails call from render');
-      fetchJobDetails();
-    }
-  }
   
   // Enhanced form state
   const [formData, setFormData] = useState<JobApplicationForm>({
@@ -334,6 +321,8 @@ export default function JobApplicationPage() {
   // Direct job fetching on component mount (client-side only)
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      console.log('🔍 Component rendering - rawId:', rawId);
+      console.log('🔍 Component rendering - jobId:', jobId);
       console.log('🔍 Client-side useEffect triggered - jobId:', jobId);
       if (jobId) {
         console.log('🔍 About to call fetchJobDetails');
@@ -344,7 +333,7 @@ export default function JobApplicationPage() {
         setLoading(false);
       }
     }
-  }, [jobId]);
+  }, [jobId, fetchJobDetails, rawId]);
 
   // Add a timeout fallback to prevent infinite loading
   useEffect(() => {
