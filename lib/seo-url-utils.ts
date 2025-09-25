@@ -138,8 +138,15 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
  */
 export function parseSEOJobUrl(url: string): string | null {
   // Extract job ID from the end of the URL
-  const match = url.match(/-([a-zA-Z0-9_-]+)$/);
-  return match ? match[1] : null;
+  // Look for a pattern that matches our job ID format (starts with 'cm' and has specific length)
+  const jobIdMatch = url.match(/-([a-zA-Z0-9]{20,})$/);
+  if (jobIdMatch) {
+    return jobIdMatch[1];
+  }
+  
+  // Fallback: try to find any alphanumeric string at the end after the last hyphen
+  const fallbackMatch = url.match(/-([a-zA-Z0-9_-]+)$/);
+  return fallbackMatch ? fallbackMatch[1] : null;
 }
 
 /**
