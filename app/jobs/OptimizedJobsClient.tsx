@@ -74,7 +74,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     });
   }, [searchParams]);
 
-  // Add periodic refresh to show newly posted jobs
+  // Add periodic refresh to show newly posted jobs (fixed to prevent infinite loops)
   useEffect(() => {
     const interval = setInterval(() => {
       const query = searchParams.get('q') || searchParams.get('query') || '';
@@ -87,13 +87,14 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       const sector = searchParams.get('sector') || '';
       
       console.log('🔄 Refreshing jobs to show newly posted jobs...');
+      // Use currentPage from state, not from dependency array to prevent infinite loops
       fetchJobs(query, loc, currentPage, {
         jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
       });
     }, 30000); // Refresh every 30 seconds
 
     return () => clearInterval(interval);
-  }, [searchParams, currentPage]);
+  }, [searchParams]); // Removed currentPage from dependencies to prevent infinite loops
 
   // Convert any job format to simple Job format
   function convertToSimpleJob(job: any): Job {
