@@ -125,6 +125,27 @@ export default function JobApplicationPage() {
     }
   }, [jobId]);
 
+  // Add a direct call to fetchJobDetails on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && jobId && !job) {
+      console.log('🔍 Direct fetchJobDetails call on mount');
+      fetchJobDetails();
+    }
+  }, []);
+
+  // Add a timeout fallback to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading && !job) {
+        console.log('⏰ Timeout reached, setting error');
+        setError('Request timed out. Please try again.');
+        setLoading(false);
+      }
+    }, 15000); // 15 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [loading, job]);
+
   // Socket notification handling
   useEffect(() => {
     if (socket) {
