@@ -134,23 +134,24 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Send real-time notification via socket
-    const socketService = getSocketService();
-    if (socketService) {
-      await socketService.sendNotificationToUser(receiverId, {
-        type: 'MESSAGE_RECEIVED',
-        title: `New message from ${newMessage.sender.name}`,
-        message: message,
-        data: {
-          messageId: newMessage.id,
-          senderId: session.user.id,
-          type: type
-        }
-      });
-
-      // Also emit to socket for real-time messaging
-      // Note: Direct socket emission would need to be handled by the socket service
-      // For now, we'll rely on the notification system for real-time updates
+    // Send real-time notification via socket (optional)
+    try {
+      const socketService = getSocketService();
+      if (socketService) {
+        await socketService.sendNotificationToUser(receiverId, {
+          type: 'MESSAGE_RECEIVED',
+          title: `New message from ${newMessage.sender.name}`,
+          message: message,
+          data: {
+            messageId: newMessage.id,
+            senderId: session.user.id,
+            type: type
+          }
+        });
+      }
+    } catch (socketError) {
+      console.warn('⚠️ Socket service not available:', socketError);
+      // Continue without socket notification
     }
 
     return NextResponse.json({

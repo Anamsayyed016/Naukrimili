@@ -180,11 +180,12 @@ export async function PATCH(
           }
         });
 
-        // Send real-time notification via Socket.io
-        const socketService = getSocketService();
-        if (socketService) {
-          await socketService.sendNotificationToUser(updatedApplication.user.id, {
-            type: 'APPLICATION_UPDATE',
+        // Send real-time notification via Socket.io (optional)
+        try {
+          const socketService = getSocketService();
+          if (socketService) {
+            await socketService.sendNotificationToUser(updatedApplication.user.id, {
+              type: 'APPLICATION_UPDATE',
             title: notificationTitle,
             message: notificationMessage,
             data: {
@@ -195,6 +196,10 @@ export async function PATCH(
               actionType: status
             }
           });
+        }
+        } catch (socketError) {
+          console.warn('⚠️ Socket service not available:', socketError);
+          // Continue without socket notification
         }
 
         console.log(`📤 Notification sent for application status update: ${applicationId} -> ${status}`);
