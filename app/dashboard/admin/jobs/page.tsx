@@ -535,7 +535,7 @@ export default function AdminJobsPage() {
                         </div>
                         
                         <div className="flex items-center gap-2">
-                          <Link href={`/jobs/${job.id}`}>
+                          <Link href={`/jobs/${job.id}/apply`}>
                             <Button variant="outline" size="sm" className="w-full sm:w-auto">
                               <Eye className="h-4 w-4 mr-2" />
                               View

@@ -397,7 +397,7 @@ export default function CompanyProfilePage() {
                     
                     <div className="flex-shrink-0">
                       <Button asChild>
-                        <Link href={`/jobs/${job.id}`}>
+                        <Link href={`/jobs/${job.id}/apply`}>
                           View Job
                         </Link>
                       </Button>

@@ -382,7 +382,7 @@ export default function JobSeekerDashboard() {
                             <div className="text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-lg">
                               <span className="font-medium">Why this matches:</span> {job.matchReasons.join(', ')}
                             </div>
-                            <Link href={`/jobs/${job.id}`}>
+                            <Link href={`/jobs/${job.id}/apply`}>
                               <Button size="sm" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300">
                                 View Job
                               </Button>

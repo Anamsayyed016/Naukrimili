@@ -491,7 +491,7 @@ export default function JobSeekerApplicationsPage() {
                     </div>
                     
                     <div className="flex items-center gap-2 ml-4">
-                      <Link href={`/jobs/${application.job.id}`}>
+                      <Link href={`/jobs/${application.job.id}/apply`}>
                         <Button variant="outline" size="sm">
                           <Eye className="h-4 w-4 mr-2" />
                           View Job

@@ -21,27 +21,62 @@ import {
   Phone,
   ExternalLink,
   AlertCircle,
-  Globe
+  Globe,
+  Heart,
+  Bookmark,
+  Users,
+  Eye,
+  Calendar,
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
 import { useSocket } from '@/hooks/useSocket';
 import { toast } from 'sonner';
 import { parseSEOJobUrl } from '@/lib/seo-url-utils';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import JobShare from "@/components/JobShare";
 
 interface Job {
   id: string;
   title: string;
   company: string | null;
+  companyLogo: string | null;
   location: string | null;
+  country: string;
+  description: string;
+  applyUrl: string | null;
+  apply_url: string | null;
+  source_url: string | null;
+  postedAt: string | null;
   salary: string | null;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  salaryCurrency: string | null;
   jobType: string | null;
   experienceLevel: string | null;
-  description: string;
-  skills: string[];
+  skills: string[] | string;
   isRemote: boolean;
+  isHybrid: boolean;
+  isUrgent: boolean;
   isFeatured: boolean;
+  sector: string | null;
+  views: number;
+  applications: number;
+  applicationsCount: number;
+  createdAt: string;
+  updatedAt: string;
+  creator: any;
   source: string;
-  source_url: string | null;
-  isExternal?: boolean;
+  isExternal: boolean;
+  companyRelation?: {
+    name: string;
+    logo: string | null;
+    location: string;
+    industry: string;
+    website: string | null;
+  };
 }
 
 interface ResumeProfile {
@@ -84,6 +119,9 @@ export default function JobApplicationPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [enhancedJobData, setEnhancedJobData] = useState<any>(null);
+  const [enhancing, setEnhancing] = useState(false);
+  const [similarJobs, setSimilarJobs] = useState<any[]>([]);
 
   // Fetch job details function
   const fetchJobDetails = async () => {
@@ -116,6 +154,11 @@ export default function JobApplicationPage() {
             console.log('✅ Setting job data:', jobData);
             setJob(jobData);
             setError(null); // Clear any previous errors
+            
+            // Fetch AI-enhanced data for better job insights
+            if (jobData && jobData.title) {
+              fetchEnhancedJobData(jobData);
+            }
           } else {
             console.log('❌ Invalid job data - missing title or company:', data.data);
             setError('Invalid job data received');
@@ -136,6 +179,122 @@ export default function JobApplicationPage() {
       console.error('Error fetching job details:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchEnhancedJobData = async (jobData: Job) => {
+    setEnhancing(true);
+    try {
+      const response = await fetch('/api/jobs/enhance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobTitle: jobData.title,
+          company: jobData.company,
+          description: jobData.description,
+          skills: Array.isArray(jobData.skills) ? jobData.skills : (jobData.skills ? [jobData.skills] : []),
+          location: jobData.location,
+          salary: jobData.salary,
+          experienceLevel: jobData.experienceLevel,
+          jobType: jobData.jobType,
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setEnhancedJobData(data.data);
+      } else {
+        console.warn('Failed to fetch enhanced job data:', data.error);
+      }
+    } catch (err) {
+      console.error('Error fetching enhanced job data:', err);
+    } finally {
+      setEnhancing(false);
+    }
+  };
+
+  // Parse skills properly - handle both array and string formats with better error handling
+  const skills = React.useMemo(() => {
+    try {
+      if (!job?.skills) return [];
+      if (Array.isArray(job.skills)) return job.skills;
+      if (typeof job.skills === 'string') {
+        // Try to parse as JSON first
+        if (job.skills.startsWith('{') || job.skills.startsWith('[')) {
+          const parsed = JSON.parse(job.skills);
+          return Array.isArray(parsed) ? parsed : [];
+        }
+        // Otherwise split by comma
+        return job.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      }
+      return [];
+    } catch (error) {
+      console.warn('Failed to parse skills:', error);
+      return [];
+    }
+  }, [job?.skills]);
+
+  // Format salary display with better error handling
+  const formatSalary = () => {
+    try {
+      if (!job) return null;
+      if (job.salary) return job.salary;
+      if (job.salaryMin && job.salaryMax) {
+        return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
+      }
+      if (job.salaryMin) {
+        return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()}+`;
+      }
+      return null;
+    } catch (error) {
+      console.warn('Error formatting salary:', error);
+      return null;
+    }
+  };
+
+  // Format experience level with error handling
+  const formatExperienceLevel = () => {
+    try {
+      if (!job) return 'Not specified';
+      return job.experienceLevel || 'Not specified';
+    } catch (error) {
+      console.warn('Error formatting experience level:', error);
+      return 'Not specified';
+    }
+  };
+
+  // Format job type with error handling
+  const formatJobType = () => {
+    try {
+      if (!job) return 'Not specified';
+      return job.jobType || 'Not specified';
+    } catch (error) {
+      console.warn('Error formatting job type:', error);
+      return 'Not specified';
+    }
+  };
+
+  // Format posted date with error handling
+  const formatPostedDate = () => {
+    try {
+      if (!job) return 'Recently posted';
+      if (job.postedAt) {
+        return new Date(job.postedAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      if (job.createdAt) {
+        return new Date(job.createdAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      return 'Recently posted';
+    } catch (error) {
+      console.warn('Error formatting posted date:', error);
+      return 'Recently posted';
     }
   };
 
@@ -279,7 +438,7 @@ export default function JobApplicationPage() {
           
           // Calculate skills match using enhanced analysis
           const matchedSkills = profile.skills.filter(skill => 
-            (job?.skills || []).some(required => 
+            skills.some(required => 
               required.toLowerCase().includes(skill.toLowerCase()) ||
               skill.toLowerCase().includes(required.toLowerCase())
             )
@@ -287,7 +446,7 @@ export default function JobApplicationPage() {
           setSkillsMatch(matchedSkills);
         } else {
           // Fallback to basic calculation
-          calculateATSAndSkills(profile, job?.skills || []);
+          calculateATSAndSkills(profile, skills);
         }
         
         // Show success message
@@ -516,9 +675,9 @@ export default function JobApplicationPage() {
       <div className="bg-white shadow-xl border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <Link href={`/jobs/${jobId}`} className="text-blue-600 hover:text-blue-700 transition-all duration-300 flex items-center gap-3 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl font-medium">
+            <Link href="/jobs" className="text-blue-600 hover:text-blue-700 transition-all duration-300 flex items-center gap-3 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl font-medium">
               <ArrowLeft className="h-5 w-5" />
-              Back to Job
+              Back to Jobs
             </Link>
             <nav className="text-sm text-gray-600 flex items-center gap-2">
               <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
@@ -532,6 +691,313 @@ export default function JobApplicationPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Job Header Section */}
+        <div className="mb-8">
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+            {/* Header with Gradient Background */}
+            <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-8 lg:p-12">
+              <div className="absolute inset-0 bg-black/10"></div>
+              <div className="relative z-10">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                  <div className="flex-1 text-white">
+                    <div className="flex items-center gap-3 mb-6">
+                      {job?.isFeatured && (
+                        <Badge className="bg-yellow-400 text-yellow-900 border-0 font-bold px-4 py-2 rounded-xl">
+                          <Star className="w-4 h-4 mr-2" />
+                          Featured
+                        </Badge>
+                      )}
+                      {job?.isUrgent && (
+                        <Badge className="bg-red-400 text-red-900 border-0 font-bold px-4 py-2 rounded-xl">
+                          <Clock className="w-4 h-4 mr-2" />
+                          Urgent
+                        </Badge>
+                      )}
+                      {job?.isExternal && (
+                        <Badge className="bg-blue-400 text-blue-900 border-0 font-bold px-4 py-2 rounded-xl">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          External
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+                      {job?.title || 'Job Title'}
+                    </h1>
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                          <Building className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-blue-100 text-sm font-medium">Company</p>
+                          <p className="text-xl font-bold">{job?.company || 'Unknown Company'}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                          <MapPin className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-blue-100 text-sm font-medium">Location</p>
+                          <p className="text-xl font-bold">{job?.location || 'Remote'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4">
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      className="flex items-center justify-center gap-2 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 rounded-xl transition-all duration-300 text-xs sm:text-sm md:text-base min-w-0 flex-1 xs:flex-none"
+                    >
+                      <Heart className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
+                      <span className="hidden sm:inline">Save Job</span>
+                      <span className="sm:hidden">Save</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      className="flex items-center justify-center gap-2 bg-white/20 backdrop-blur-sm border-white/30 text-white hover:bg-white/30 hover:text-white font-bold px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 rounded-xl transition-all duration-300 text-xs sm:text-sm md:text-base min-w-0 flex-1 xs:flex-none"
+                    >
+                      <Bookmark className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
+                      <span className="hidden sm:inline">Bookmark</span>
+                      <span className="sm:hidden">Bookmark</span>
+                    </Button>
+                    <JobShare 
+                      job={{
+                        id: job?.id || '',
+                        title: job?.title || '',
+                        company: job?.company || '',
+                        location: job?.location || ''
+                      }}
+                      className="flex-1 xs:flex-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Job Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="bg-white shadow-xl rounded-2xl border-0 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Briefcase className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Job Type</p>
+                  <p className="text-xl font-bold text-gray-900">{formatJobType()}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-xl rounded-2xl border-0 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Experience</p>
+                  <p className="text-xl font-bold text-gray-900">{formatExperienceLevel()}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-xl rounded-2xl border-0 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Remote</p>
+                  <p className="text-xl font-bold text-gray-900">
+                    {job?.isRemote ? 'Yes' : job?.isHybrid ? 'Hybrid' : 'No'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-xl rounded-2xl border-0 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+                  <Eye className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Views</p>
+                  <p className="text-xl font-bold text-gray-900">{job?.views || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-xl rounded-2xl border-0 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Applications</p>
+                  <p className="text-xl font-bold text-gray-900">{job?.applications || job?.applicationsCount || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-xl rounded-2xl border-0 overflow-hidden group hover:shadow-2xl transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Posted</p>
+                  <p className="text-xl font-bold text-gray-900">{formatPostedDate()}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Salary Section */}
+        {formatSalary() && (
+          <Card className="bg-gradient-to-r from-green-50 via-emerald-50 to-green-100 border-0 shadow-2xl rounded-2xl p-8 mb-8 overflow-hidden">
+            <CardContent className="p-0">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                  <DollarSign className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-green-700 mb-1">Salary Range</p>
+                  <p className="text-3xl font-bold text-green-800">{formatSalary()}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Skills Section */}
+        {skills.length > 0 && (
+          <Card className="bg-white shadow-2xl rounded-2xl border-0 p-8 mb-8">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                Required Skills
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                {skills.map((skill, index) => (
+                  <Badge 
+                    key={index}
+                    className="px-4 py-3 text-sm font-bold border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-800 hover:bg-purple-200 hover:border-purple-300 transition-all duration-300 rounded-xl"
+                  >
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Job Description */}
+        <Card className="bg-white shadow-md rounded-lg p-6 mb-8">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-gray-800">Job Description</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="prose max-w-none text-gray-700 leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: job?.description || 'No description available' }}
+            />
+          </CardContent>
+        </Card>
+
+        {/* AI-Enhanced Insights Section */}
+        {enhancing ? (
+          <Card className="bg-white shadow-md rounded-lg p-6 mb-8">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                AI-Powered Insights
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="animate-pulse space-y-4">
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-4 bg-gray-200 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : enhancedJobData && (
+          <div className="space-y-6 mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <Sparkles className="text-purple-500" />
+              AI-Powered Insights
+            </h2>
+            
+            {enhancedJobData.keyResponsibilities && (
+              <Card className="bg-white shadow-md rounded-lg p-6">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold text-gray-800">Key Responsibilities</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc list-inside space-y-2 text-gray-700">
+                    {enhancedJobData.keyResponsibilities.map((resp: string, i: number) => (
+                      <li key={i}>{resp}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
+            {enhancedJobData.requirements && (
+              <Card className="bg-white shadow-md rounded-lg p-6">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold text-gray-800">Requirements</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc list-inside space-y-2 text-gray-700">
+                    {enhancedJobData.requirements.map((req: string, i: number) => (
+                      <li key={i}>{req}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
+            {enhancedJobData.benefits && (
+              <Card className="bg-white shadow-md rounded-lg p-6">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold text-gray-800">Benefits & Perks</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc list-inside space-y-2 text-gray-700">
+                    {enhancedJobData.benefits.map((benefit: string, i: number) => (
+                      <li key={i}>{benefit}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Application Form */}
           <div className="lg:col-span-2">
@@ -590,14 +1056,14 @@ export default function JobApplicationPage() {
                 </div>
               </div>
               
-              {job?.skills && Array.isArray(job.skills) && job.skills.length > 0 && (
+              {skills.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <Star className="h-5 w-5 text-yellow-500" />
                     Required Skills
                   </h3>
                   <div className="flex flex-wrap gap-3">
-                    {job?.skills?.slice(0, 6).map((skill, index) => (
+                    {skills.slice(0, 6).map((skill, index) => (
                       <span
                         key={index}
                         className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 text-sm font-bold px-4 py-2 rounded-xl border border-blue-200"
@@ -605,9 +1071,9 @@ export default function JobApplicationPage() {
                         {skill}
                       </span>
                     ))}
-                    {job?.skills && Array.isArray(job.skills) && job.skills.length > 6 && (
+                    {skills.length > 6 && (
                       <span className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-sm font-bold px-4 py-2 rounded-xl border border-gray-300">
-                        +{job?.skills?.length - 6} more
+                        +{skills.length - 6} more
                       </span>
                     )}
                   </div>
@@ -916,7 +1382,7 @@ export default function JobApplicationPage() {
                   </h3>
                   <div className="space-y-2">
                     <p className="text-sm text-gray-600 mb-3">
-                      Your resume matches {skillsMatch.length} of {job?.skills?.length || 0} required skills
+                      Your resume matches {skillsMatch.length} of {skills.length} required skills
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {skillsMatch.map((skill, index) => (
