@@ -74,7 +74,10 @@ export default function JobApplicationPage() {
   
   // Parse job ID from SEO URL if needed
   const jobId = parseSEOJobUrl(rawId) || rawId;
-  const { socket, isConnected, notifications } = useSocket();
+  // const { socket, isConnected, notifications } = useSocket();
+  const socket = null;
+  const isConnected = false;
+  const notifications = [];
   
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
