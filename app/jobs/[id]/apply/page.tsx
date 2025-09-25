@@ -144,13 +144,13 @@ export default function JobApplicationPage() {
       clearTimeout(timeoutId);
       if (response.ok) {
         const data = await response.json();
-        if (data.success && data.job) {
+        if (data.success && data.data) {
           // Validate job data before setting
-          if (data.job.title && data.job.company) {
+          if (data.data.title && data.data.company) {
             // Ensure isExternal is properly set
             const jobData = {
-              ...data.job,
-              isExternal: data.job.isExternal || data.job.source !== 'manual' || data.job.id?.startsWith('ext-')
+              ...data.data,
+              isExternal: data.data.isExternal || data.data.source !== 'manual' || data.data.id?.startsWith('ext-')
             };
             setJob(jobData);
           } else {
