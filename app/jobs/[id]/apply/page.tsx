@@ -85,86 +85,7 @@ export default function JobApplicationPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Debug logging (client-side only)
-  if (typeof window !== 'undefined') {
-    console.log('🔍 Component rendering - rawId:', rawId);
-    console.log('🔍 Component rendering - jobId:', jobId);
-    console.log('🔍 Component rendering - loading:', loading);
-    console.log('🔍 Component rendering - error:', error);
-  }
-  
-  // Enhanced form state
-  const [formData, setFormData] = useState<JobApplicationForm>({
-    fullName: '',
-    email: '',
-    phone: '',
-    location: '',
-    coverLetter: '',
-    expectedSalary: '',
-    availability: 'Immediate',
-    resume: null,
-    resumeProfile: null
-  });
-
-  // Resume analysis state
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [atsScore, setAtsScore] = useState<number | null>(null);
-  const [skillsMatch, setSkillsMatch] = useState<string[]>([]);
-
-  useEffect(() => {
-    console.log('🔍 useEffect triggered - jobId:', jobId);
-    // Only run on client side
-    if (typeof window !== 'undefined' && jobId) {
-      console.log('🔍 About to call fetchJobDetails');
-      fetchJobDetails();
-    } else if (typeof window !== 'undefined' && !jobId) {
-      console.log('❌ No jobId, setting error');
-      setError('No job ID provided');
-      setLoading(false);
-    }
-  }, [jobId]);
-
-  // Add a direct call to fetchJobDetails on component mount
-  useEffect(() => {
-    if (typeof window !== 'undefined' && jobId && !job) {
-      console.log('🔍 Direct fetchJobDetails call on mount');
-      fetchJobDetails();
-    }
-  }, []);
-
-  // Add a timeout fallback to prevent infinite loading
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (loading && !job) {
-        console.log('⏰ Timeout reached, setting error');
-        setError('Request timed out. Please try again.');
-        setLoading(false);
-      }
-    }, 15000); // 15 second timeout
-
-    return () => clearTimeout(timeout);
-  }, [loading, job]);
-
-  // Socket notification handling
-  useEffect(() => {
-    if (socket) {
-      const handleNewNotification = (notification: any) => {
-        console.log('🔔 New notification received:', notification);
-        toast.success(notification.title, {
-          description: notification.message,
-          duration: 5000,
-        });
-      };
-
-      socket.on('new_notification', handleNewNotification);
-      
-      return () => {
-        socket.off('new_notification', handleNewNotification);
-      };
-    }
-  }, [socket]);
-
+  // Fetch job details function
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
@@ -217,6 +138,89 @@ export default function JobApplicationPage() {
       setLoading(false);
     }
   };
+
+  // Debug logging (client-side only)
+  if (typeof window !== 'undefined') {
+    console.log('🔍 Component rendering - rawId:', rawId);
+    console.log('🔍 Component rendering - jobId:', jobId);
+    console.log('🔍 Component rendering - loading:', loading);
+    console.log('🔍 Component rendering - error:', error);
+    
+    // Direct call to fetchJobDetails if we have a jobId and no job yet
+    if (jobId && !job && loading) {
+      console.log('🔍 Direct fetchJobDetails call from render');
+      fetchJobDetails();
+    }
+  }
+  
+  // Enhanced form state
+  const [formData, setFormData] = useState<JobApplicationForm>({
+    fullName: '',
+    email: '',
+    phone: '',
+    location: '',
+    coverLetter: '',
+    expectedSalary: '',
+    availability: 'Immediate',
+    resume: null,
+    resumeProfile: null
+  });
+
+  // Resume analysis state
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [atsScore, setAtsScore] = useState<number | null>(null);
+  const [skillsMatch, setSkillsMatch] = useState<string[]>([]);
+
+  // Direct job fetching on component mount (client-side only)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('🔍 Client-side useEffect triggered - jobId:', jobId);
+      if (jobId) {
+        console.log('🔍 About to call fetchJobDetails');
+        fetchJobDetails();
+      } else {
+        console.log('❌ No jobId, setting error');
+        setError('No job ID provided');
+        setLoading(false);
+      }
+    }
+  }, [jobId]);
+
+  // Add a timeout fallback to prevent infinite loading
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const timeout = setTimeout(() => {
+        if (loading && !job) {
+          console.log('⏰ Timeout reached, setting error');
+          setError('Request timed out. Please try again.');
+          setLoading(false);
+        }
+      }, 15000); // 15 second timeout
+
+      return () => clearTimeout(timeout);
+    }
+  }, [loading, job]);
+
+  // Socket notification handling
+  useEffect(() => {
+    if (socket) {
+      const handleNewNotification = (notification: any) => {
+        console.log('🔔 New notification received:', notification);
+        toast.success(notification.title, {
+          description: notification.message,
+          duration: 5000,
+        });
+      };
+
+      socket.on('new_notification', handleNewNotification);
+      
+      return () => {
+        socket.off('new_notification', handleNewNotification);
+      };
+    }
+  }, [socket]);
+
 
   const handleInputChange = (field: keyof JobApplicationForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [field]: e.target.value }));

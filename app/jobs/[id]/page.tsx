@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search } from "lucide-react";
 import JobShare from "@/components/JobShare";
+import ExpiredJobHandler from "@/components/ExpiredJobHandler";
 
 interface Job {
   id: string;
@@ -59,6 +60,7 @@ export default function JobDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [enhancedJobData, setEnhancedJobData] = useState<any>(null);
   const [enhancing, setEnhancing] = useState(false);
+  const [similarJobs, setSimilarJobs] = useState<any[]>([]);
 
   useEffect(() => {
     if (!id) {
@@ -80,6 +82,14 @@ export default function JobDetailsPage() {
         clearTimeout(timeoutId);
         
         if (!response.ok) {
+          // Handle expired jobs (410 Gone)
+          if (response.status === 410) {
+            const data = await response.json();
+            setError('EXPIRED');
+            setJob(data.expiredJob);
+            setSimilarJobs(data.similarJobs || []);
+            return;
+          }
           throw new Error(`Failed to fetch job: ${response.status}`);
         }
 
@@ -164,6 +174,15 @@ export default function JobDetailsPage() {
         </div>
       </div>
     );
+  }
+
+  // Handle expired jobs
+  if (error === 'EXPIRED' && job) {
+    const expiredJob = {
+      ...job,
+      sourceUrl: job.source_url || null
+    };
+    return <ExpiredJobHandler expiredJob={expiredJob} similarJobs={similarJobs} />;
   }
 
   if (error || !job) {
