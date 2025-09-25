@@ -69,11 +69,11 @@ export class DailyJobScheduler {
 
     try {
       // Step 1: Mark expired jobs as inactive
-      console.log('📅 Marking expired jobs as inactive...');
+      console.log('�� Marking expired jobs as inactive...');
       stats.expired = await EnhancedJobUpsertService.markExpiredJobsInactive();
 
       // Step 2: Fetch fresh jobs from all sources
-      console.log('🌐 Fetching fresh jobs from external APIs...');
+      console.log('�� Fetching fresh jobs from external APIs...');
       const allJobs = await this.fetchAllJobs();
       stats.totalFetched = allJobs.length;
 
@@ -207,7 +207,7 @@ export class DailyJobScheduler {
    * Test the scheduler with a small batch
    */
   async testSync(testQueries: string[] = ['software engineer'], testCountries: string[] = ['IN']) {
-    console.log('🧪 Running test sync...');
+    console.log('�� Running test sync...');
     
     const testConfig: SchedulerConfig = {
       ...this.config,
@@ -223,3 +223,4 @@ export class DailyJobScheduler {
 
 // Export a default instance
 export const dailyScheduler = new DailyJobScheduler();
+

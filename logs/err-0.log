@@ -5845,3 +5845,207 @@
 2025-09-23T21:39:50:     at Object.getFileProtocolModuleFormat [as (file:] (node:internal/modules/esm/get_format:189:9) {
 2025-09-23T21:39:50:   code: 'ERR_UNKNOWN_FILE_EXTENSION'
 2025-09-23T21:39:50: }
+2025-09-23T21:52:10:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-23T21:52:10: Require stack:
+2025-09-23T21:52:10: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-23T21:52:10: - /var/www/jobportal/node_modules/next/dist/server/next.js] {
+2025-09-23T21:52:10:   code: 'MODULE_NOT_FOUND',
+2025-09-23T21:52:10:   requireStack: [Array]
+2025-09-23T21:52:10: }
+2025-09-23T21:58:01:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-23T21:58:01: Require stack:
+2025-09-23T21:58:01: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-23T21:58:01: - /var/www/jobportal/node_modules/next/dist/server/next.js] {
+2025-09-23T21:58:01:   code: 'MODULE_NOT_FOUND',
+2025-09-23T21:58:01:   requireStack: [Array]
+2025-09-23T21:58:01: }
+2025-09-23T22:01:48:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-23T22:01:48: Require stack:
+2025-09-23T22:01:48: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-23T22:01:48: - /var/www/jobportal/node_modules/next/dist/server/next.js] {
+2025-09-23T22:01:48:   code: 'MODULE_NOT_FOUND',
+2025-09-23T22:01:48:   requireStack: [Array]
+2025-09-23T22:01:48: }
+2025-09-23T22:08:31:  ⨯ [Error: Cannot find module '/var/www/jobportal/.next/server/middleware-manifest.json'
+2025-09-23T22:08:31: Require stack:
+2025-09-23T22:08:31: - /var/www/jobportal/node_modules/next/dist/server/next-server.js
+2025-09-23T22:08:31: - /var/www/jobportal/node_modules/next/dist/server/next.js] {
+2025-09-23T22:08:31:   code: 'MODULE_NOT_FOUND',
+2025-09-23T22:08:31:   requireStack: [Array]
+2025-09-23T22:08:31: }
+2025-09-23T22:11:44: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T22:11:44:     at <unknown> (server.js:78:7)
+2025-09-23T22:16:04: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T22:16:04:     at <unknown> (server.js:78:7)
+2025-09-23T22:40:40: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T22:40:40:     at <unknown> (server.js:78:7)
+2025-09-23T22:42:21: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T22:42:21:     at <unknown> (server.js:78:7)
+2025-09-23T22:57:06: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T22:57:06:     at <unknown> (server.js:78:7)
+2025-09-23T22:58:46: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T22:58:46:     at <unknown> (server.js:78:7)
+2025-09-23T23:13:34: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T23:13:34:     at <unknown> (server.js:78:7)
+2025-09-23T23:47:13: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T23:47:13:     at <unknown> (server.js:78:7)
+2025-09-23T23:49:11: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T23:49:11:     at <unknown> (server.js:78:7)
+2025-09-23T23:49:16:  ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+2025-09-23T23:56:28: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T23:56:28:     at <unknown> (server.js:78:7)
+2025-09-23T23:57:20: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-23T23:57:20:     at <unknown> (server.js:78:7)
+2025-09-24T11:25:43: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T11:25:43:     at <unknown> (server.js:78:7)
+2025-09-24T11:26:55: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T11:26:55:     at <unknown> (server.js:78:7)
+2025-09-24T11:52:46: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T11:52:46:     at <unknown> (server.js:78:7)
+2025-09-24T12:58:40: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T12:58:40:     at <unknown> (server.js:78:7)
+2025-09-24T13:02:16: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T13:02:16:     at <unknown> (server.js:78:7)
+2025-09-24T13:03:47: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T13:03:47:     at <unknown> (server.js:78:7)
+2025-09-24T13:13:53: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T13:13:53:     at <unknown> (server.js:78:7)
+2025-09-24T13:14:43: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T13:14:43:     at <unknown> (server.js:78:7)
+2025-09-24T13:16:14: [31m[auth][error][0m UnknownAction: Only GET and POST requests are supported. Read more at https://errors.authjs.dev#unknownaction
+2025-09-24T13:16:14:     at b2 (/var/www/jobportal/.next/server/chunks/8745.js:1:61779)
+2025-09-24T13:16:14:     at fv (/var/www/jobportal/.next/server/chunks/8745.js:404:50996)
+2025-09-24T13:16:14:     at b (/var/www/jobportal/.next/server/chunks/8745.js:404:61256)
+2025-09-24T13:16:14:     at AsyncLocalStorage.run (node:async_hooks:335:14)
+2025-09-24T13:16:14:     at rN.do (/var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:21072)
+2025-09-24T13:16:14:     at /var/www/jobportal/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:5:27868
+2025-09-24T13:16:14:     at /var/www/jobportal/node_modules/next/dist/server/lib/trace/tracer.js:170:36
+2025-09-24T13:16:14:     at NoopContextManager.with (/var/www/jobportal/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+2025-09-24T13:16:14:     at ContextAPI.with (/var/www/jobportal/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+2025-09-24T13:16:14:     at NoopTracer.startActiveSpan (/var/www/jobportal/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+2025-09-24T13:39:13: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T13:39:13:     at <unknown> (server.js:78:7)
+2025-09-24T13:40:43: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T13:40:43:     at <unknown> (server.js:78:7)
+2025-09-24T13:46:41: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T13:46:41:     at <unknown> (server.js:78:7)
+2025-09-24T13:48:52: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T13:48:52:     at <unknown> (server.js:78:7)
+2025-09-24T14:02:46: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T14:02:46:     at <unknown> (server.js:78:7)
+2025-09-24T14:36:27: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T14:36:27:     at <unknown> (server.js:78:7)
+2025-09-24T15:44:22: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T15:44:22:     at <unknown> (server.js:78:7)
+2025-09-24T16:05:32: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T16:05:32:     at <unknown> (server.js:78:7)
+2025-09-24T16:09:36: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T16:09:36:     at <unknown> (server.js:78:7)
+2025-09-24T16:18:54: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T16:18:54:     at <unknown> (server.js:78:7)
+2025-09-24T17:25:58: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T17:25:58:     at <unknown> (server.js:78:7)
+2025-09-24T17:29:02: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T17:29:02:     at <unknown> (server.js:78:7)
+2025-09-24T17:56:12: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T17:56:12:     at <unknown> (server.js:78:7)
+2025-09-24T17:59:48: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T17:59:48:     at <unknown> (server.js:78:7)
+2025-09-24T18:21:45: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T18:21:45:     at <unknown> (server.js:78:7)
+2025-09-24T18:22:55: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T18:22:55:     at <unknown> (server.js:78:7)
+2025-09-24T18:40:20: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T18:40:20:     at <unknown> (server.js:78:7)
+2025-09-24T18:41:48: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T18:41:48:     at <unknown> (server.js:78:7)
+2025-09-24T19:03:48: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T19:03:48:     at <unknown> (server.js:78:7)
+2025-09-24T19:05:08: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T19:05:08:     at <unknown> (server.js:78:7)
+2025-09-24T19:46:53: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T19:46:53:     at <unknown> (server.js:78:7)
+2025-09-24T19:48:30: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T19:48:30:     at <unknown> (server.js:78:7)
+2025-09-24T20:03:42: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T20:03:42:     at <unknown> (server.js:78:7)
+2025-09-24T20:04:49: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T20:04:49:     at <unknown> (server.js:78:7)
+2025-09-24T20:31:36: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T20:31:36:     at <unknown> (server.js:78:7)
+2025-09-24T20:35:57: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T20:35:57:     at <unknown> (server.js:78:7)
+2025-09-24T21:00:30: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T21:00:30:     at <unknown> (server.js:78:7)
+2025-09-24T21:23:41: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T21:23:41:     at <unknown> (server.js:78:7)
+2025-09-24T21:25:23: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T21:25:23:     at <unknown> (server.js:78:7)
+2025-09-24T21:40:47: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T21:40:47:     at <unknown> (server.js:78:7)
+2025-09-24T21:50:42: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T21:50:42:     at <unknown> (server.js:78:7)
+2025-09-24T22:05:24: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T22:05:24:     at <unknown> (server.js:78:7)
+2025-09-24T22:06:30: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T22:06:30:     at <unknown> (server.js:78:7)
+2025-09-24T23:33:07: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T23:33:07:     at <unknown> (server.js:78:7)
+2025-09-24T23:34:10: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T23:34:10:     at <unknown> (server.js:78:7)
+2025-09-24T23:57:09: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T23:57:09:     at <unknown> (server.js:78:7)
+2025-09-24T23:58:22: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-24T23:58:22:     at <unknown> (server.js:78:7)
+2025-09-25T09:43:28: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T09:43:28:     at <unknown> (server.js:78:7)
+2025-09-25T10:08:29: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T10:08:29:     at <unknown> (server.js:78:7)
+2025-09-25T10:24:02: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T10:24:02:     at <unknown> (server.js:78:7)
+2025-09-25T10:32:21: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T10:32:21:     at <unknown> (server.js:78:7)
+2025-09-25T10:33:14: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T10:33:14:     at <unknown> (server.js:78:7)
+2025-09-25T10:45:13: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T10:45:13:     at <unknown> (server.js:78:7)
+2025-09-25T11:17:28: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T11:17:28:     at <unknown> (server.js:78:7)
+2025-09-25T11:20:13: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T11:20:13:     at <unknown> (server.js:78:7)
+2025-09-25T11:33:23: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T11:33:23:     at <unknown> (server.js:78:7)
+2025-09-25T11:35:26: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T11:35:26:     at <unknown> (server.js:78:7)
+2025-09-25T12:23:26: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T12:23:26:     at <unknown> (server.js:78:7)
+2025-09-25T12:30:04: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T12:30:04:     at <unknown> (server.js:78:7)
+2025-09-25T12:46:09: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T12:46:09:     at <unknown> (server.js:78:7)
+2025-09-25T12:48:40: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T12:48:40:     at <unknown> (server.js:78:7)
+2025-09-25T13:11:28: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T13:11:28:     at <unknown> (server.js:78:7)
+2025-09-25T13:14:08: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T13:14:08:     at <unknown> (server.js:78:7)
+2025-09-25T13:30:52: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T13:30:52:     at <unknown> (server.js:78:7)
+2025-09-25T13:44:14: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T13:44:14:     at <unknown> (server.js:78:7)
+2025-09-25T13:58:08: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T13:58:08:     at <unknown> (server.js:78:7)
+2025-09-25T14:01:19: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T14:01:19:     at <unknown> (server.js:78:7)
+2025-09-25T14:13:43: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T14:13:43:     at <unknown> (server.js:78:7)
+2025-09-25T14:17:27: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T14:17:27:     at <unknown> (server.js:78:7)
+2025-09-25T15:16:47: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T15:16:47:     at <unknown> (server.js:78:7)
+2025-09-25T15:20:12: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T15:20:12:     at <unknown> (server.js:78:7)
+2025-09-25T16:27:38: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T16:27:38:     at <unknown> (server.js:78:7)
+2025-09-25T16:29:10: ⚠️ Failed to link socket service to notification service: ReferenceError: setSocketService is not defined
+2025-09-25T16:29:10:     at <unknown> (server.js:78:7)
