@@ -22,31 +22,13 @@ export async function GET(
     // Try to get job from database first (more efficient)
     let job;
     try {
-      // First try to find by primary key (id)
-      job = await prisma.job.findUnique({
-        where: { id: id },
-        include: {
-          companyRelation: {
-            select: {
-              name: true,
-              logo: true,
-              location: true,
-              industry: true,
-              website: true
-            }
-          }
-        }
-      });
+      // Check if ID is a valid integer first
+      const isIntegerId = !isNaN(Number(id)) && Number.isInteger(Number(id));
       
-      if (job) {
-        console.log('✅ Job found in database by ID:', job.title);
-        return NextResponse.json({ success: true, data: job });
-      } else {
-        console.log(`❌ Job not found by ID: ${id}, trying sourceId...`);
-        
-        // If not found by ID, try to find by sourceId
-        job = await prisma.job.findFirst({
-          where: { sourceId: id },
+      if (isIntegerId) {
+        // First try to find by primary key (id)
+        job = await prisma.job.findUnique({
+          where: { id: Number(id) },
           include: {
             companyRelation: {
               select: {
@@ -61,11 +43,36 @@ export async function GET(
         });
         
         if (job) {
-          console.log('✅ Job found in database by sourceId:', job.title);
+          console.log('✅ Job found in database by ID:', job.title);
           return NextResponse.json({ success: true, data: job });
         } else {
-          console.log(`❌ Job not found by sourceId either: ${id}`);
+          console.log(`❌ Job not found by ID: ${id}, trying sourceId...`);
         }
+      } else {
+        console.log(`❌ ID is not an integer: ${id}, searching by sourceId...`);
+      }
+      
+      // If not found by ID or ID is not an integer, try to find by sourceId
+      job = await prisma.job.findFirst({
+        where: { sourceId: id },
+        include: {
+          companyRelation: {
+            select: {
+              name: true,
+              logo: true,
+              location: true,
+              industry: true,
+              website: true
+            }
+          }
+        }
+      });
+      
+      if (job) {
+        console.log('✅ Job found in database by sourceId:', job.title);
+        return NextResponse.json({ success: true, data: job });
+      } else {
+        console.log(`❌ Job not found by sourceId either: ${id}`);
       }
     } catch (dbError) {
       console.warn('⚠️ Database query failed:', dbError);
@@ -178,236 +185,6 @@ export async function GET(
           );
         }
       }
-    }
-    // Get the first company ID to link sample jobs to a real company
-    let sampleCompanyId = null;
-    try {
-      const firstCompany = await prisma.company.findFirst({
-        orderBy: { createdAt: 'asc' },
-        select: { id: true }
-      });
-      sampleCompanyId = firstCompany?.id || 'sample-company-default';
-    } catch (error) {
-      console.log('No company found, using default sample company ID');
-      sampleCompanyId = 'sample-company-default';
-    }
-
-    // If not found in database, try sample jobs as fallback
-    const sampleJobs = [
-      // Add the failing job as a sample
-      {
-        id: 'cmfx67vnn000agxe8ck3mas6a',
-        title: 'School Principal',
-        company: 'Elite International School',
-        companyId: sampleCompanyId,
-        location: 'Delhi, India',
-        country: 'IN',
-        description: 'We are seeking an experienced and visionary School Principal to lead our educational institution. The ideal candidate will have strong leadership skills, educational background, and a passion for academic excellence.',
-        requirements: ['Master\'s degree in Education or related field', 'Minimum 5 years of administrative experience', 'Strong leadership and communication skills', 'Knowledge of curriculum development'],
-        skills: ['Educational Leadership', 'Curriculum Development', 'Staff Management', 'Budget Planning', 'Student Affairs', 'Community Relations'],
-        jobType: 'full-time',
-        experienceLevel: 'senior',
-        salary: '₹18,00,000 - ₹30,00,000',
-        isRemote: false,
-        isFeatured: true,
-        isActive: true,
-        source: 'manual',
-        sourceId: 'sample-school-principal',
-        postedAt: new Date().toISOString(),
-        applyUrl: '#',
-        views: 245,
-        applicationsCount: 38
-      },
-      {
-        id: '1',
-        title: 'Senior Software Engineer',
-        company: 'TechCorp India',
-        companyId: sampleCompanyId,
-        location: 'Bangalore, India',
-        country: 'IN',
-        description: 'We are looking for a Senior Software Engineer to join our growing team. You will be responsible for developing and maintaining high-quality software solutions.',
-        requirements: ['React', 'Node.js', 'TypeScript', 'PostgreSQL'],
-        skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS', 'Docker'],
-        jobType: 'full-time',
-        experienceLevel: 'senior',
-        salary: '₹15,00,000 - ₹25,00,000',
-        isRemote: false,
-        isFeatured: true,
-        isActive: true,
-        source: 'manual',
-        sourceId: 'sample-1',
-        postedAt: new Date().toISOString(),
-        applyUrl: '#',
-        views: 150,
-        applicationsCount: 25
-      },
-      {
-        id: '2',
-        title: 'Frontend Developer',
-        company: 'Digital Solutions Ltd',
-        companyId: sampleCompanyId,
-        location: 'Mumbai, India',
-        country: 'IN',
-        description: 'Join our frontend team to build beautiful and responsive user interfaces. Experience with modern JavaScript frameworks required.',
-        requirements: ['JavaScript', 'React', 'CSS', 'HTML'],
-        skills: ['JavaScript', 'React', 'Vue.js', 'CSS3', 'HTML5', 'Webpack'],
-        jobType: 'full-time',
-        experienceLevel: 'mid',
-        salary: '₹8,00,000 - ₹15,00,000',
-        isRemote: true,
-        isFeatured: false,
-        isActive: true,
-        source: 'manual',
-        sourceId: 'sample-2',
-        postedAt: new Date().toISOString(),
-        applyUrl: '#',
-        views: 89,
-        applicationsCount: 12
-      },
-      {
-        id: '3',
-        title: 'Data Analyst',
-        company: 'Analytics Pro',
-        companyId: sampleCompanyId,
-        location: 'Delhi, India',
-        country: 'IN',
-        description: 'We need a Data Analyst to help us make sense of large datasets and provide insights to drive business decisions.',
-        requirements: ['Python', 'SQL', 'Excel', 'Statistics'],
-        skills: ['Python', 'SQL', 'Excel', 'Statistics', 'Tableau', 'Power BI'],
-        jobType: 'full-time',
-        experienceLevel: 'entry',
-        salary: '₹6,00,000 - ₹12,00,000',
-        isRemote: false,
-        isFeatured: false,
-        isActive: true,
-        source: 'manual',
-        sourceId: 'sample-3',
-        postedAt: new Date().toISOString(),
-        applyUrl: '#',
-        views: 67,
-        applicationsCount: 8
-      },
-      {
-        id: '4',
-        title: 'Product Manager',
-        company: 'InnovateTech',
-        companyId: sampleCompanyId,
-        location: 'Hyderabad, India',
-        country: 'IN',
-        description: 'Lead product development from concept to launch. Work with cross-functional teams to deliver exceptional user experiences.',
-        requirements: ['Product Management', 'Agile', 'User Research', 'Analytics'],
-        skills: ['Product Management', 'Agile', 'User Research', 'Analytics', 'Figma', 'JIRA'],
-        jobType: 'full-time',
-        experienceLevel: 'senior',
-        salary: '₹20,00,000 - ₹35,00,000',
-        isRemote: true,
-        isFeatured: true,
-        isActive: true,
-        source: 'manual',
-        sourceId: 'sample-4',
-        postedAt: new Date().toISOString(),
-        applyUrl: '#',
-        views: 203,
-        applicationsCount: 45
-      },
-      {
-        id: '5',
-        title: 'DevOps Engineer',
-        company: 'Cloud Systems',
-        companyId: sampleCompanyId,
-        location: 'Pune, India',
-        country: 'IN',
-        description: 'Build and maintain our cloud infrastructure. Automate deployment processes and ensure system reliability.',
-        requirements: ['AWS', 'Docker', 'Kubernetes', 'Linux'],
-        skills: ['AWS', 'Docker', 'Kubernetes', 'Linux', 'Terraform', 'Jenkins'],
-        jobType: 'full-time',
-        experienceLevel: 'mid',
-        salary: '₹12,00,000 - ₹20,00,000',
-        isRemote: false,
-        isFeatured: false,
-        isActive: true,
-        source: 'manual',
-        sourceId: 'sample-5',
-        postedAt: new Date().toISOString(),
-        applyUrl: '#',
-        views: 134,
-        applicationsCount: 18
-      },
-      {
-        id: '6',
-        title: 'UX Designer',
-        company: 'Creative Studio',
-        companyId: sampleCompanyId,
-        location: 'Chennai, India',
-        country: 'IN',
-        description: 'Create intuitive and engaging user experiences. Work closely with product and engineering teams.',
-        requirements: ['Figma', 'Adobe Creative Suite', 'User Research', 'Prototyping'],
-        skills: ['Figma', 'Adobe Creative Suite', 'User Research', 'Prototyping', 'Sketch', 'InVision'],
-        jobType: 'full-time',
-        experienceLevel: 'mid',
-        salary: '₹10,00,000 - ₹18,00,000',
-        isRemote: true,
-        isFeatured: false,
-        isActive: true,
-        source: 'manual',
-        sourceId: 'sample-6',
-        postedAt: new Date().toISOString(),
-        applyUrl: '#',
-        views: 92,
-        applicationsCount: 15
-      },
-      {
-        id: '7',
-        title: 'Software Engineer - Dubai',
-        company: 'Global Tech Solutions',
-        companyId: sampleCompanyId,
-        location: 'Dubai, UAE',
-        country: 'AE',
-        description: 'Join our Dubai office as a Software Engineer. Work on cutting-edge projects with international teams.',
-        requirements: ['Java', 'Spring Boot', 'Microservices', 'Docker'],
-        skills: ['Java', 'Spring Boot', 'Microservices', 'Docker', 'Kubernetes', 'AWS'],
-        jobType: 'full-time',
-        experienceLevel: 'mid',
-        salary: 'AED 15,000 - AED 25,000',
-        isRemote: false,
-        isFeatured: true,
-        isActive: true,
-        source: 'manual',
-        sourceId: 'sample-7',
-        postedAt: new Date().toISOString(),
-        applyUrl: '#',
-        views: 178,
-        applicationsCount: 32
-      },
-      {
-        id: '8',
-        title: 'Marketing Manager',
-        company: 'Growth Marketing Co',
-        companyId: sampleCompanyId,
-        location: 'Bangalore, India',
-        country: 'IN',
-        description: 'Drive marketing strategies and campaigns. Lead a team of marketing professionals.',
-        requirements: ['Digital Marketing', 'Analytics', 'Team Management', 'Content Strategy'],
-        skills: ['Digital Marketing', 'Google Analytics', 'Facebook Ads', 'Content Strategy', 'SEO', 'SEM'],
-        jobType: 'full-time',
-        experienceLevel: 'senior',
-        salary: '₹12,00,000 - ₹20,00,000',
-        isRemote: true,
-        isFeatured: false,
-        isActive: true,
-        source: 'manual',
-        sourceId: 'sample-8',
-        postedAt: new Date().toISOString(),
-        applyUrl: '#',
-        views: 95,
-        applicationsCount: 14
-      }
-    ];
-    
-    const sampleJob = sampleJobs.find(j => j.id === id);
-    if (sampleJob) {
-      console.log('✅ Job found in sample data:', sampleJob.title);
-      return NextResponse.json({ success: true, data: sampleJob });
     }
     
     // Enhanced error response with helpful information
