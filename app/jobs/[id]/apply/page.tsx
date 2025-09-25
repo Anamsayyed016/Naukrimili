@@ -84,6 +84,12 @@ export default function JobApplicationPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Debug logging
+  console.log('🔍 Component rendering - rawId:', rawId);
+  console.log('🔍 Component rendering - jobId:', jobId);
+  console.log('🔍 Component rendering - loading:', loading);
+  console.log('🔍 Component rendering - error:', error);
   
   // Enhanced form state
   const [formData, setFormData] = useState<JobApplicationForm>({
@@ -105,8 +111,14 @@ export default function JobApplicationPage() {
   const [skillsMatch, setSkillsMatch] = useState<string[]>([]);
 
   useEffect(() => {
+    console.log('🔍 useEffect triggered - jobId:', jobId);
     if (jobId) {
+      console.log('🔍 About to call fetchJobDetails');
       fetchJobDetails();
+    } else {
+      console.log('❌ No jobId, setting error');
+      setError('No job ID provided');
+      setLoading(false);
     }
   }, [jobId]);
 
