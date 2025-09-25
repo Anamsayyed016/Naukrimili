@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useSocket } from '@/hooks/useSocket';
 import { toast } from 'sonner';
+import { parseSEOJobUrl } from '@/lib/seo-url-utils';
 
 interface Job {
   id: string;
@@ -69,7 +70,10 @@ interface JobApplicationForm {
 export default function JobApplicationPage() {
   const params = useParams();
   const router = useRouter();
-  const jobId = params.id as string;
+  const rawId = params.id as string;
+  
+  // Parse job ID from SEO URL if needed
+  const jobId = parseSEOJobUrl(rawId) || rawId;
   const { socket, isConnected, notifications } = useSocket();
   
   const [job, setJob] = useState<Job | null>(null);
@@ -126,6 +130,8 @@ export default function JobApplicationPage() {
     try {
       setLoading(true);
       setError(null);
+      console.log('🔍 Apply page - Raw ID:', rawId);
+      console.log('🔍 Apply page - Parsed Job ID:', jobId);
       const response = await fetch(`/api/jobs/${jobId}`);
       if (response.ok) {
         const data = await response.json();
