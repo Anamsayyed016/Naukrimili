@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -105,6 +106,7 @@ interface JobApplicationForm {
 export default function JobApplicationPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session, status } = useSession();
   const rawId = params.id as string;
   
   // Parse job ID from SEO URL if needed
@@ -122,6 +124,13 @@ export default function JobApplicationPage() {
   const [enhancedJobData, setEnhancedJobData] = useState<any>(null);
   const [enhancing, setEnhancing] = useState(false);
   const [similarJobs, setSimilarJobs] = useState<any[]>([]);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin?callbackUrl=' + encodeURIComponent(window.location.pathname));
+    }
+  }, [status, router]);
 
   // Fetch job details function - memoized to prevent infinite re-renders
   const fetchJobDetails = React.useCallback(async () => {
@@ -517,9 +526,25 @@ export default function JobApplicationPage() {
       
     } catch (err: any) {
       console.error('Error submitting application:', err);
-      setError(err?.message || "Failed to submit application");
+      
+      // Handle specific error types
+      let errorMessage = err?.message || "Failed to submit application";
+      
+      if (err?.message?.includes('Authentication required')) {
+        errorMessage = "Please log in to submit your application";
+        // Redirect to login
+        setTimeout(() => {
+          router.push('/auth/signin?callbackUrl=' + encodeURIComponent(window.location.pathname));
+        }, 2000);
+      } else if (err?.message?.includes('Job not found')) {
+        errorMessage = "This job is no longer available";
+      } else if (err?.message?.includes('timeout')) {
+        errorMessage = "Request timed out. Please try again.";
+      }
+      
+      setError(errorMessage);
       toast.error('Application Failed', {
-        description: err?.message || "Failed to submit application",
+        description: errorMessage,
         duration: 5000,
       });
     } finally {
@@ -535,6 +560,49 @@ export default function JobApplicationPage() {
 
   // Check if this is an external job
   const isExternalJob = job?.isExternal || job?.source !== 'manual';
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (status === 'unauthenticated') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="w-8 h-8 text-blue-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Login Required</h1>
+            <p className="text-gray-600">You need to be logged in to apply for this job.</p>
+          </div>
+          <div className="space-y-3">
+            <Link
+              href={`/auth/signin?callbackUrl=${encodeURIComponent(window.location.pathname)}`}
+              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-block"
+            >
+              Sign In to Apply
+            </Link>
+            <Link
+              href="/jobs"
+              className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors inline-block"
+            >
+              Back to Jobs
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
