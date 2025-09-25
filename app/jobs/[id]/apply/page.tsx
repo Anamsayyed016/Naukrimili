@@ -144,6 +144,7 @@ export default function JobApplicationPage() {
       clearTimeout(timeoutId);
       if (response.ok) {
         const data = await response.json();
+        console.log('🔍 API Response:', data);
         if (data.success && data.data) {
           // Validate job data before setting
           if (data.data.title && data.data.company) {
@@ -152,11 +153,15 @@ export default function JobApplicationPage() {
               ...data.data,
               isExternal: data.data.isExternal || data.data.source !== 'manual' || data.data.id?.startsWith('ext-')
             };
+            console.log('✅ Setting job data:', jobData);
             setJob(jobData);
+            setError(null); // Clear any previous errors
           } else {
+            console.log('❌ Invalid job data - missing title or company:', data.data);
             setError('Invalid job data received');
           }
         } else {
+          console.log('❌ API returned error:', data.error);
           setError(data.error || 'Failed to load job details');
         }
       } else {
@@ -353,6 +358,7 @@ export default function JobApplicationPage() {
   }
 
   if (error || !job) {
+    console.log('🚨 Showing error page - Error:', error, 'Job:', job);
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
