@@ -132,7 +132,16 @@ export default function JobApplicationPage() {
       setError(null);
       console.log('🔍 Apply page - Raw ID:', rawId);
       console.log('🔍 Apply page - Parsed Job ID:', jobId);
-      const response = await fetch(`/api/jobs/${jobId}`);
+      
+      // Add timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(`/api/jobs/${jobId}`, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.job) {
@@ -154,8 +163,12 @@ export default function JobApplicationPage() {
         setError(`HTTP ${response.status}: Failed to fetch job details`);
       }
     } catch (error: any) {
+      if (error.name === 'AbortError') {
+        setError('Request timed out. Please try again.');
+      } else {
+        setError(error?.message || 'Failed to load job details');
+      }
       console.error('Error fetching job details:', error);
-      setError(error?.message || 'Failed to load job details');
     } finally {
       setLoading(false);
     }

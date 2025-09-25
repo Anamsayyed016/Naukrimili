@@ -64,6 +64,7 @@ export function useSocket(): UseSocketReturn {
         },
         transports: ['websocket', 'polling'],
         autoConnect: true,
+        forceNew: true, // Force new connection to prevent reconnection issues
       });
 
       // Connection events

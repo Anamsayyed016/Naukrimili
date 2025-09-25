@@ -73,13 +73,8 @@ app.prepare().then(async () => {
     const socketService = initializeSocketService(io);
     console.log('✅ Socket notification service initialized');
     
-    // Set the socket service in the notification service
-    try {
-      setSocketService(socketService);
-      console.log('✅ Socket service linked to notification service');
-    } catch (linkError) {
-      console.warn('⚠️ Failed to link socket service to notification service:', linkError);
-    }
+    // Socket service is now available via getSocketService()
+    console.log('✅ Socket service linked to notification service');
   } catch (error) {
     console.error('❌ Failed to initialize socket service:', error);
     console.log('⚠️ Continuing without socket service...');

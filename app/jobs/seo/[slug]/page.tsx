@@ -78,6 +78,7 @@ export default function SEOJobDetailsPage() {
 
       if (!jobId) {
         setError('Invalid job URL');
+        setLoading(false);
         return;
       }
 
@@ -93,6 +94,7 @@ export default function SEOJobDetailsPage() {
         } else {
           setError('Failed to load job details');
         }
+        setLoading(false);
         return;
       }
 
