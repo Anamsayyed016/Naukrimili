@@ -144,6 +144,18 @@ export function parseSEOJobUrl(url: string): string | null {
     return jobIdMatch[1];
   }
   
+  // Handle decimal numbers and other formats (like 0.645973689621925)
+  const decimalMatch = url.match(/-([0-9]+\.[0-9]+)$/);
+  if (decimalMatch) {
+    return decimalMatch[1];
+  }
+  
+  // Handle integer numbers
+  const integerMatch = url.match(/-([0-9]+)$/);
+  if (integerMatch) {
+    return integerMatch[1];
+  }
+  
   // Fallback: try to find any alphanumeric string at the end after the last hyphen
   const fallbackMatch = url.match(/-([a-zA-Z0-9_-]+)$/);
   return fallbackMatch ? fallbackMatch[1] : null;

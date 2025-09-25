@@ -22,6 +22,7 @@ export async function GET(
     // Try to get job from database first (more efficient)
     let job;
     try {
+      // First try to find by primary key (id)
       job = await prisma.job.findUnique({
         where: { id: id },
         include: {
@@ -38,10 +39,33 @@ export async function GET(
       });
       
       if (job) {
-        console.log('✅ Job found in database:', job.title);
+        console.log('✅ Job found in database by ID:', job.title);
         return NextResponse.json({ success: true, data: job });
       } else {
-        console.log(`❌ Job not found in database: ${id}`);
+        console.log(`❌ Job not found by ID: ${id}, trying sourceId...`);
+        
+        // If not found by ID, try to find by sourceId
+        job = await prisma.job.findFirst({
+          where: { sourceId: id },
+          include: {
+            companyRelation: {
+              select: {
+                name: true,
+                logo: true,
+                location: true,
+                industry: true,
+                website: true
+              }
+            }
+          }
+        });
+        
+        if (job) {
+          console.log('✅ Job found in database by sourceId:', job.title);
+          return NextResponse.json({ success: true, data: job });
+        } else {
+          console.log(`❌ Job not found by sourceId either: ${id}`);
+        }
       }
     } catch (dbError) {
       console.warn('⚠️ Database query failed:', dbError);
