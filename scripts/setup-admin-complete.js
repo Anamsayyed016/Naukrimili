@@ -35,7 +35,8 @@ async function setupAdminComplete() {
       adminUser = await prisma.user.create({
         data: {
           email: 'admin@jobportal.com',
-          name: 'System Admin',
+          firstName: 'System',
+          lastName: 'Admin',
           role: 'admin',
           password: hashedPassword,
           phone: '+91-9876543212',
