@@ -43,7 +43,7 @@ if (googleClientId && googleClientSecret &&
   }));
   console.log('✅ Google OAuth provider configured successfully');
 } else {
-  console.warn('⚠️ Google OAuth credentials not properly configured. Google sign-in will be disabled.');
+  console.warn("⚠️ Google OAuth credentials not properly configured. Google sign-in will be disabled.");
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({

@@ -5936,3 +5936,117 @@
 2025-09-25T23:55:24: 🔌 Socket.io ready and listening for connections
 2025-09-25T23:57:35: 🛑 SIGINT received, shutting down gracefully
 2025-09-25T23:57:35: ✅ Server closed
+2025-09-26T00:11:47: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T00:11:47: Environment: production
+2025-09-26T00:11:47: Port: 3000
+2025-09-26T00:11:47: Hostname: 0.0.0.0
+2025-09-26T00:11:47: ✅ Next.js app prepared
+2025-09-26T00:11:47: 🔌 Initializing Socket.io...
+2025-09-26T00:11:47: ✅ Socket.io server initialized successfully
+2025-09-26T00:11:47: ✅ Simple Socket Service initialized
+2025-09-26T00:11:47: ✅ Socket Notification Service initialized successfully
+2025-09-26T00:11:47: ✅ Socket notification service initialized
+2025-09-26T00:11:47: ✅ Socket service linked to notification service
+2025-09-26T00:11:47: ✅ Server ready on http://0.0.0.0:3000
+2025-09-26T00:11:47: 🔌 Socket.io ready and listening for connections
+2025-09-26T00:12:36: prisma:error 
+2025-09-26T00:12:36: Invalid `prisma.job.findMany()` invocation:
+2025-09-26T00:12:36: 
+2025-09-26T00:12:36: 
+2025-09-26T00:12:36: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-26T00:12:36: 
+2025-09-26T00:12:36: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-26T00:12:53: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T00:12:53: ✅ Server closed
+2025-09-26T00:12:53: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T00:12:53: Environment: production
+2025-09-26T00:12:53: Port: 3000
+2025-09-26T00:12:53: Hostname: srv939274.hstgr.cloud
+2025-09-26T00:12:53: ✅ Next.js app prepared
+2025-09-26T00:12:53: 🔌 Initializing Socket.io...
+2025-09-26T00:12:53: ✅ Socket.io server initialized successfully
+2025-09-26T00:12:53: ✅ Simple Socket Service initialized
+2025-09-26T00:12:53: ✅ Socket Notification Service initialized successfully
+2025-09-26T00:12:53: ✅ Socket notification service initialized
+2025-09-26T00:12:53: ✅ Socket service linked to notification service
+2025-09-26T00:12:53: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-26T00:12:53: 🔌 Socket.io ready and listening for connections
+2025-09-26T00:16:01: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T00:16:01: ✅ Server closed
+2025-09-26T10:53:51: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T10:53:51: Environment: production
+2025-09-26T10:53:51: Port: 3000
+2025-09-26T10:53:51: Hostname: 0.0.0.0
+2025-09-26T10:53:52: ✅ Next.js app prepared
+2025-09-26T10:53:52: 🔌 Initializing Socket.io...
+2025-09-26T10:53:52: ✅ Socket.io server initialized successfully
+2025-09-26T10:53:52: ✅ Simple Socket Service initialized
+2025-09-26T10:53:52: ✅ Socket Notification Service initialized successfully
+2025-09-26T10:53:52: ✅ Socket notification service initialized
+2025-09-26T10:53:52: ✅ Socket service linked to notification service
+2025-09-26T10:53:52: ✅ Server ready on http://0.0.0.0:3000
+2025-09-26T10:53:52: 🔌 Socket.io ready and listening for connections
+2025-09-26T10:57:12: prisma:error 
+2025-09-26T10:57:12: Invalid `prisma.job.findMany()` invocation:
+2025-09-26T10:57:12: 
+2025-09-26T10:57:12: 
+2025-09-26T10:57:12: Authentication failed against database server, the provided database credentials for `postgres` are not valid.
+2025-09-26T10:57:12: 
+2025-09-26T10:57:12: Please make sure to provide valid database credentials for the database server at the configured address.
+2025-09-26T10:57:32: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T10:57:32: ✅ Server closed
+2025-09-26T10:57:33: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T10:57:33: Environment: production
+2025-09-26T10:57:33: Port: 3000
+2025-09-26T10:57:33: Hostname: srv939274.hstgr.cloud
+2025-09-26T10:57:33: ✅ Next.js app prepared
+2025-09-26T10:57:33: 🔌 Initializing Socket.io...
+2025-09-26T10:57:33: ✅ Socket.io server initialized successfully
+2025-09-26T10:57:33: ✅ Simple Socket Service initialized
+2025-09-26T10:57:33: ✅ Socket Notification Service initialized successfully
+2025-09-26T10:57:33: ✅ Socket notification service initialized
+2025-09-26T10:57:33: ✅ Socket service linked to notification service
+2025-09-26T10:57:34: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-26T10:57:34: 🔌 Socket.io ready and listening for connections
+2025-09-26T10:57:47: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T10:57:47: ✅ Server closed
+2025-09-26T11:29:00: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:00: Environment: production
+2025-09-26T11:29:00: Port: 3000
+2025-09-26T11:29:00: Hostname: srv939274.hstgr.cloud
+2025-09-26T11:29:00: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:00: Environment: production
+2025-09-26T11:29:00: Port: 3000
+2025-09-26T11:29:00: Hostname: srv939274.hstgr.cloud
+2025-09-26T11:29:01: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:01: Environment: production
+2025-09-26T11:29:01: Port: 3000
+2025-09-26T11:29:01: Hostname: srv939274.hstgr.cloud
+2025-09-26T11:29:01: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:01: Environment: production
+2025-09-26T11:29:01: Port: 3000
+2025-09-26T11:29:01: Hostname: srv939274.hstgr.cloud
+2025-09-26T11:29:02: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:02: Environment: production
+2025-09-26T11:29:02: Port: 3000
+2025-09-26T11:29:02: Hostname: srv939274.hstgr.cloud
+2025-09-26T11:29:02: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:02: Environment: production
+2025-09-26T11:29:02: Port: 3000
+2025-09-26T11:29:02: Hostname: srv939274.hstgr.cloud
+2025-09-26T11:29:03: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:03: Environment: production
+2025-09-26T11:29:03: Port: 3000
+2025-09-26T11:29:03: Hostname: srv939274.hstgr.cloud
+2025-09-26T11:29:03: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:03: Environment: production
+2025-09-26T11:29:03: Port: 3000
+2025-09-26T11:29:03: Hostname: srv939274.hstgr.cloud
+2025-09-26T11:29:04: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:04: Environment: production
+2025-09-26T11:29:04: Port: 3000
+2025-09-26T11:29:04: Hostname: srv939274.hstgr.cloud
+2025-09-26T11:29:04: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T11:29:04: Environment: production
+2025-09-26T11:29:04: Port: 3000
+2025-09-26T11:29:04: Hostname: srv939274.hstgr.cloud
