@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
 
     // Check if job exists in database first
     let job = await prisma.job.findUnique({
-      where: { id: jobId }
+      where: { id: parseInt(jobId, 10) as any }
     });
 
     // If not found in database, check if it's a sample job and create it
@@ -352,7 +352,7 @@ export async function POST(request: NextRequest) {
     const application = await prisma.application.create({
       data: {
         userId: user.id,
-        jobId: jobId,
+        jobId: parseInt(jobId, 10),
         notes: coverLetter || null,
         status: 'submitted',
         appliedAt: new Date(),
