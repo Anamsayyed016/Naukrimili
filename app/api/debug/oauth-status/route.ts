@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         email: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         role: true,
         accounts: {
           select: {
@@ -27,7 +28,8 @@ export async function GET(request: NextRequest) {
         user: {
           select: {
             email: true,
-            name: true
+            firstName: true,
+            lastName: true
           }
         }
       }

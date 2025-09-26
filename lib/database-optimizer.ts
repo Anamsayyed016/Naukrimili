@@ -254,7 +254,7 @@ export class DatabaseOptimizer {
       
       // Fetch from database
       const job = await prisma.job.findUnique({
-        where: { id: jobId },
+        where: { id: jobId.toString() },
         include: {
           companyRelation: {
             select: {
@@ -270,7 +270,8 @@ export class DatabaseOptimizer {
           },
           creator: {
             select: {
-              name: true,
+              firstName: true,
+              lastName: true,
               email: true
             }
           }

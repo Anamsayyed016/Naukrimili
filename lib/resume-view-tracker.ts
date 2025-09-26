@@ -41,7 +41,8 @@ export async function trackResumeView(viewData: ResumeViewData): Promise<void> {
         user: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true
           }
         }
@@ -57,7 +58,7 @@ export async function trackResumeView(viewData: ResumeViewData): Promise<void> {
     const viewer = await prisma.user.findUnique({
       where: { id: viewData.viewerId },
       include: {
-        companyRelation: viewData.companyId ? {
+        createdCompanies: viewData.companyId ? {
           select: {
             id: true,
             name: true
@@ -136,19 +137,21 @@ async function sendResumeViewNotification(
     }
 
     // Create notification
-    await createNotification({
-      userId: resume.user.id,
-      type: 'RESUME_VIEWED',
-      title: notificationTitle,
-      message: notificationMessage,
+    await prisma.notification.create({
       data: {
-        resumeId: resume.id,
-        resumeName: resume.fileName,
-        viewerId: viewer.id,
-        viewerName,
-        viewerType,
-        companyName: viewer.companyRelation?.name,
-        viewedAt: new Date().toISOString()
+        userId: resume.user.id,
+        type: 'RESUME_VIEWED',
+        title: notificationTitle,
+        message: notificationMessage,
+        data: {
+          resumeId: resume.id,
+          resumeName: resume.fileName,
+          viewerId: viewer.id,
+          viewerName,
+          viewerType,
+          companyName: viewer.createdCompanies?.[0]?.name,
+          viewedAt: new Date().toISOString()
+        }
       }
     });
 
@@ -192,7 +195,8 @@ export async function getResumeViewStats(resumeId: string): Promise<ResumeViewSt
         include: {
           viewer: {
             select: {
-              name: true,
+              firstName: true,
+            lastName: true,
               email: true
             }
           },
@@ -213,7 +217,7 @@ export async function getResumeViewStats(resumeId: string): Promise<ResumeViewSt
 
     // Process recent views
     const processedRecentViews = recentViews.map(view => ({
-      viewerName: view.viewer.name || view.viewer.email,
+      viewerName: view.viewer.firstName && view.viewer.lastName ? `${view.viewer.firstName} ${view.viewer.lastName}` : view.viewer.firstName || view.viewer.email,
       viewerType: view.viewerType,
       companyName: view.company?.name,
       viewedAt: view.viewedAt
@@ -254,7 +258,8 @@ export async function getUserResumeViews(userId: string): Promise<any[]> {
         viewer: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true
           }
         },
