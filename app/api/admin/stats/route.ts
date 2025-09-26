@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         prisma.user.findMany({
           orderBy: { createdAt: 'desc' },
           take: 5,
-          select: { id: true, email: true, name: true, role: true, createdAt: true }
+          select: { id: true, email: true, firstName: true, lastName: true, role: true, createdAt: true }
         }),
         prisma.job.findMany({
           orderBy: { createdAt: 'desc' },

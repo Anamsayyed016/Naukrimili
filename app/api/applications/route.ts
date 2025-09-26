@@ -453,7 +453,7 @@ export async function POST(request: NextRequest) {
               some: { id: companyId }
             }
           },
-          select: { id: true, name: true, email: true }
+          select: { id: true, firstName: true, lastName: true, email: true }
         });
 
         if (employer) {

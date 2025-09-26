@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       },
       include: {
         user: {
-          select: { id: true, name: true, email: true }
+          select: { id: true, firstName: true, lastName: true, email: true }
         },
         job: {
           select: { id: true, title: true, company: true }

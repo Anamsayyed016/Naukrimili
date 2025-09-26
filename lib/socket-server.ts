@@ -73,7 +73,7 @@ class SocketNotificationService {
         // Likely a user ID, verify it exists
         const user = await prisma.user.findUnique({
           where: { id: token },
-          select: { id: true, email: true, name: true, role: true }
+          select: { id: true, email: true, firstName: true, lastName: true, role: true }
         });
 
         if (user) {
@@ -82,7 +82,7 @@ class SocketNotificationService {
             user: {
               id: user.id,
               email: user.email,
-              name: user.name,
+              name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || user.email,
               role: user.role
             }
           };
@@ -99,7 +99,7 @@ class SocketNotificationService {
         // Get user from database
         const user = await prisma.user.findUnique({
           where: { id: decoded.userId || decoded.sub || decoded.id },
-          select: { id: true, email: true, name: true, role: true }
+          select: { id: true, email: true, firstName: true, lastName: true, role: true }
         });
 
         if (user) {
@@ -108,7 +108,7 @@ class SocketNotificationService {
             user: {
               id: user.id,
               email: user.email,
-              name: user.name,
+              name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || user.email,
               role: user.role
             }
           };
