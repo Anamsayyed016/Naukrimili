@@ -17,7 +17,7 @@ model Job {
   location          String?
   country           String        @default("IN")
   description       String
-  requirements      String
+  requirements      String?
   applyUrl          String?
   apply_url         String?
   source_url        String?
