@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       user: {
         id: finalUser.id,
         email: finalUser.email,
-        name: finalUser.name,
+        name: finalUser.firstName && finalUser.lastName ? `${finalUser.firstName} ${finalUser.lastName}` : finalUser.firstName || finalUser.email,
         role: finalUser.role,
         roleLocked: finalUser.roleLocked,
         lockedRole: finalUser.lockedRole,

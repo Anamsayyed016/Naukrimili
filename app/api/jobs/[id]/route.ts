@@ -92,23 +92,26 @@ async function findJobInDatabase(id: string) {
   try {
     console.log(`🔍 Searching for job with ID: ${id}`);
     
-    // First try to find by primary key (id) - Job.id is String type
-    let job = await prisma.job.findUnique({
-      where: { id: id },
-      include: {
-        companyRelation: {
-          select: COMPANY_RELATION_SELECT
+    // First try to find by primary key (id) - Job.id is Int type, so convert string to int
+    const numericId = parseInt(id, 10);
+    if (!isNaN(numericId)) {
+      let job = await prisma.job.findUnique({
+        where: { id: numericId as any },
+        include: {
+          companyRelation: {
+            select: COMPANY_RELATION_SELECT
+          }
         }
+      });
+      
+      if (job) {
+        console.log('✅ Job found by primary ID:', job.title);
+        return job;
       }
-    });
-    
-    if (job) {
-      console.log('✅ Job found by primary ID:', job.title);
-      return job;
     }
     
     // If not found by ID, try to find by sourceId
-    job = await prisma.job.findFirst({
+    const job = await prisma.job.findFirst({
       where: { sourceId: id },
       include: {
         companyRelation: {
