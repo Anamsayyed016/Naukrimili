@@ -56,7 +56,8 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
       select: {
         id: true,
         email: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         role: true
       }
     });
@@ -95,7 +96,8 @@ export async function getAuthenticatedEmployer(): Promise<CompanyUser | null> {
         createdCompanies: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+        lastName: true,
             description: true,
             logo: true,
             website: true,
