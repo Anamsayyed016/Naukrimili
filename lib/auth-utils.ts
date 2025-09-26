@@ -96,8 +96,7 @@ export async function getAuthenticatedEmployer(): Promise<CompanyUser | null> {
         createdCompanies: {
           select: {
             id: true,
-            firstName: true,
-        lastName: true,
+            name: true,
             description: true,
             logo: true,
             website: true,
