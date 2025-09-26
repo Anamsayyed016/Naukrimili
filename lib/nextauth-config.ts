@@ -9,6 +9,32 @@ import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 
+// Custom adapter to handle name field properly
+const customPrismaAdapter = {
+  ...PrismaAdapter(prisma),
+  async createUser(user) {
+    // Split name into firstName and lastName
+    const nameParts = user.name ? user.name.split(' ') : ['', ''];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    
+    // Remove name field and add firstName/lastName
+    const { name, ...userData } = user;
+    
+    return prisma.user.create({
+      data: {
+        ...userData,
+        firstName,
+        lastName,
+        // Set default values for required fields
+        role: userData.role || 'jobseeker',
+        isActive: userData.isActive ?? true,
+        isVerified: userData.isVerified ?? false,
+      }
+    });
+  }
+}
+
 // Validate required NextAuth environment variables
 const nextAuthUrl = process.env.NEXTAUTH_URL || 'https://aftionix.in';
 const nextAuthSecret = process.env.NEXTAUTH_SECRET || 'fallback-secret-key-for-development-only-32-chars-min';
@@ -47,7 +73,7 @@ if (googleClientId && googleClientSecret &&
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: customPrismaAdapter,
   secret: nextAuthSecret,
   trustHost: true,
   debug: process.env.NODE_ENV === 'development',
