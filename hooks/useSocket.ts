@@ -62,9 +62,13 @@ export function useSocket(): UseSocketReturn {
                  (session as any).jwt || 
                  session.user.id
         },
-        transports: ['websocket', 'polling'],
+        transports: ['polling', 'websocket'], // Prefer polling first for better compatibility
         autoConnect: true,
         forceNew: true, // Force new connection to prevent reconnection issues
+        timeout: 10000, // 10 second timeout
+        reconnection: true,
+        reconnectionAttempts: 3,
+        reconnectionDelay: 1000,
       });
 
       // Connection events
@@ -79,8 +83,9 @@ export function useSocket(): UseSocketReturn {
       });
 
       newSocket.on('connect_error', (error) => {
-        console.error('❌ Socket connection error:', error);
+        console.warn('⚠️ Socket connection error (will retry):', error.message);
         setIsConnected(false);
+        // Don't show error to user, just log it
       });
 
       newSocket.on('connected', (data) => {

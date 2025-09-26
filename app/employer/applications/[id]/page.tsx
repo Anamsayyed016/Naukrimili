@@ -226,6 +226,14 @@ export default function ApplicationDetailPage() {
   const handleDownloadResume = async () => {
     if (!application?.resumeId) {
       console.error('No resume ID available for download');
+      setError('No resume available for download');
+      return;
+    }
+    
+    // Validate resume ID format
+    if (typeof application.resumeId !== 'string' || application.resumeId.length < 10) {
+      console.error('Invalid resume ID format:', application.resumeId);
+      setError('Invalid resume ID format');
       return;
     }
     

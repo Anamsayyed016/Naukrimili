@@ -22,6 +22,15 @@ export async function GET(
     const { user } = auth;
     const { id: resumeId } = await params;
     
+    // Validate resume ID format
+    if (!resumeId || typeof resumeId !== 'string' || resumeId.length < 10) {
+      console.error('❌ Invalid resume ID format:', resumeId);
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid resume ID format'
+      }, { status: 400 });
+    }
+    
     console.log('🔍 Resume download request:', { resumeId, companyId: user.company.id });
 
     // Find the resume and verify it belongs to an application for this employer's company
@@ -90,6 +99,15 @@ export async function GET(
           jobCompanyId: app.job.companyId
         }))
       } : 'Resume does not exist');
+      
+      // If resume exists but no applications, it might be a direct access attempt
+      if (anyResume && anyResume.applications.length === 0) {
+        console.log('⚠️ Resume exists but has no applications - direct access attempt');
+        return NextResponse.json({
+          success: false,
+          error: 'Resume not associated with any applications'
+        }, { status: 403 });
+      }
       
       return NextResponse.json({
         success: false,

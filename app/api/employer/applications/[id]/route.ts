@@ -194,7 +194,7 @@ export async function PATCH(
           }
         });
 
-        // Send real-time notification via Socket.io
+        // Send real-time notification via Socket.io (optional)
         try {
           const socketService = getSocketService();
           if (socketService) {
@@ -211,10 +211,12 @@ export async function PATCH(
               }
             });
             console.log(`📡 Real-time notification sent to jobseeker: ${updatedApplication.user.id}`);
+          } else {
+            console.log('📡 Socket service not available, notification saved to database only');
           }
         } catch (socketError) {
-          console.warn('⚠️ Socket service not available:', socketError);
-          // Continue without socket notification
+          console.warn('⚠️ Socket service error (notification saved to database):', socketError.message);
+          // Continue without socket notification - database notification is sufficient
         }
 
         console.log(`📤 Notification sent for application status update: ${applicationId} -> ${status}`);
