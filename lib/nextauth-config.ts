@@ -302,7 +302,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           select: {
             id: true,
             email: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             role: true,
             isActive: true,
             image: true,
