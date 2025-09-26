@@ -158,7 +158,7 @@ export default function JobApplicationPage() {
             // Ensure isExternal is properly set
             const jobData = {
               ...data.data,
-              isExternal: data.data.isExternal || data.data.source !== 'manual' || data.data.id?.startsWith('ext-')
+              isExternal: data.data.isExternal || data.data.source !== 'manual' || (typeof data.data.id === 'string' && data.data.id.startsWith('ext-'))
             };
             console.log('✅ Setting job data:', jobData);
             setJob(jobData);
@@ -228,7 +228,7 @@ export default function JobApplicationPage() {
       if (Array.isArray(job.skills)) return job.skills;
       if (typeof job.skills === 'string') {
         // Try to parse as JSON first
-        if (job.skills.startsWith('{') || job.skills.startsWith('[')) {
+        if (typeof job.skills === 'string' && (job.skills.startsWith('{') || job.skills.startsWith('['))) {
           const parsed = JSON.parse(job.skills);
           return Array.isArray(parsed) ? parsed : [];
         }
