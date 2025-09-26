@@ -90,6 +90,8 @@ export async function GET(
  */
 async function findJobInDatabase(id: string) {
   try {
+    console.log(`🔍 Searching for job with ID: ${id}`);
+    
     // First try to find by primary key (id) - Job.id is String type
     let job = await prisma.job.findUnique({
       where: { id: id },
@@ -118,6 +120,18 @@ async function findJobInDatabase(id: string) {
     if (job) {
       console.log('✅ Job found by sourceId:', job.title);
       return job;
+    }
+    
+    // Debug: Check what jobs exist in the database
+    const jobCount = await prisma.job.count();
+    console.log(`📊 Total jobs in database: ${jobCount}`);
+    
+    if (jobCount > 0) {
+      const sampleJobs = await prisma.job.findMany({
+        take: 5,
+        select: { id: true, title: true, sourceId: true }
+      });
+      console.log('📋 Sample jobs in database:', sampleJobs);
     }
     
     console.log(`❌ Job not found in database: ${id}`);
