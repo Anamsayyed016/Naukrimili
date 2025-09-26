@@ -21,8 +21,25 @@ export async function GET(
 
     const { user } = auth;
     const { id: resumeId } = await params;
+    
+    console.log('🔍 Resume download request:', { resumeId, companyId: user.company.id });
 
     // Find the resume and verify it belongs to an application for this employer's company
+    console.log('🔍 Searching for resume with query:', {
+      resumeId,
+      companyId: user.company.id,
+      where: { 
+        id: resumeId,
+        applications: {
+          some: {
+            job: {
+              companyId: user.company.id
+            }
+          }
+        }
+      }
+    });
+    
     const resume = await prisma.resume.findFirst({
       where: { 
         id: resumeId,
@@ -47,6 +64,33 @@ export async function GET(
     });
 
     if (!resume) {
+      console.log('❌ Resume not found or access denied for:', { resumeId, companyId: user.company.id });
+      
+      // Let's also check if the resume exists at all
+      const anyResume = await prisma.resume.findUnique({
+        where: { id: resumeId },
+        include: {
+          applications: {
+            include: {
+              job: {
+                select: { id: true, title: true, companyId: true }
+              }
+            }
+          }
+        }
+      });
+      
+      console.log('🔍 Resume exists check:', anyResume ? {
+        id: anyResume.id,
+        fileName: anyResume.fileName,
+        applications: anyResume.applications.map(app => ({
+          id: app.id,
+          jobId: app.jobId,
+          jobTitle: app.job.title,
+          jobCompanyId: app.job.companyId
+        }))
+      } : 'Resume does not exist');
+      
       return NextResponse.json({
         success: false,
         error: 'Resume not found or access denied'
