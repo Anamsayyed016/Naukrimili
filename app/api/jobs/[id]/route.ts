@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs } from '@/lib/jobs/providers';
 
+// Common company relation select for consistency
+const COMPANY_RELATION_SELECT = {
+  name: true,
+  logo: true,
+  location: true,
+  industry: true,
+  website: true
+};
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,190 +19,50 @@ export async function GET(
     const { id } = await params;
     console.log('🔍 Job API called with ID:', id);
     
-    // Add error handling for invalid IDs
-    if (!id || typeof id !== 'string') {
+    // Validate ID parameter
+    if (!id || typeof id !== 'string' || id.trim() === '') {
       console.error('❌ Invalid job ID provided:', id);
       return NextResponse.json(
-        { success: false, error: 'Invalid job ID' },
+        { 
+          success: false, 
+          error: 'Invalid job ID',
+          details: 'Job ID must be a non-empty string'
+        },
         { status: 400 }
       );
     }
 
+    const trimmedId = id.trim();
+    
     // Try to get job from database first (more efficient)
-    let job;
-    try {
-      // Check if ID is a valid integer first
-      const isIntegerId = !isNaN(Number(id)) && Number.isInteger(Number(id));
-      
-      if (isIntegerId) {
-        // First try to find by primary key (id)
-        job = await prisma.job.findUnique({
-          where: { id: Number(id) },
-          include: {
-            companyRelation: {
-              select: {
-                name: true,
-                logo: true,
-                location: true,
-                industry: true,
-                website: true
-              }
-            }
-          }
-        });
-        
-        if (job) {
-          console.log('✅ Job found in database by ID:', job.title);
-          return NextResponse.json({ success: true, data: job });
-        } else {
-          console.log(`❌ Job not found by ID: ${id}, trying sourceId...`);
-        }
-      } else {
-        console.log(`❌ ID is not an integer: ${id}, searching by sourceId...`);
-      }
-      
-      // If not found by ID or ID is not an integer, try to find by sourceId
-      job = await prisma.job.findFirst({
-        where: { sourceId: id },
-        include: {
-          companyRelation: {
-            select: {
-              name: true,
-              logo: true,
-              location: true,
-              industry: true,
-              website: true
-            }
-          }
-        }
+    let job = await findJobInDatabase(trimmedId);
+    
+    if (job) {
+      console.log('✅ Job found in database:', job.title);
+      return NextResponse.json({ 
+        success: true, 
+        data: formatJobResponse(job) 
       });
-      
-      if (job) {
-        console.log('✅ Job found in database by sourceId:', job.title);
-        return NextResponse.json({ success: true, data: job });
-      } else {
-        console.log(`❌ Job not found by sourceId either: ${id}`);
-      }
-    } catch (dbError) {
-      console.warn('⚠️ Database query failed:', dbError);
     }
     
-    // Check if this is an external job ID first
-    if (id.startsWith('ext-')) {
-      // Enhanced ID parsing to handle different formats
-      let sourceId = '';
-      let source = '';
-      
-      if (id.startsWith('ext-external-')) {
-        sourceId = id.replace('ext-external-', '');
-        source = 'external';
-      } else if (id.startsWith('ext-adzuna-')) {
-        sourceId = id.replace('ext-adzuna-', '');
-        source = 'adzuna';
-      } else if (id.startsWith('ext-jsearch-')) {
-        sourceId = id.replace('ext-jsearch-', '');
-        source = 'jsearch';
-      } else if (id.startsWith('ext-google-')) {
-        sourceId = id.replace('ext-google-', '');
-        source = 'google';
-      } else {
-        // Fallback for legacy format
-        sourceId = id.replace('ext-', '');
-        source = 'external';
-      }
-      
-      console.log(`🔍 Parsed external job ID: source=${source}, sourceId=${sourceId}`);
-      
-      // Try to find in database first with multiple source variations
-      const externalJob = await prisma.job.findFirst({
-        where: {
-          OR: [
-            { source: source, sourceId: sourceId },
-            { source: 'external', sourceId: sourceId },
-            { source: 'adzuna', sourceId: sourceId },
-            { sourceId: sourceId } // Fallback: just match sourceId
-          ]
-        },
-        include: {
-          companyRelation: {
-            select: {
-              name: true,
-              logo: true,
-              location: true,
-              industry: true,
-              website: true
-            }
-          }
-        }
-      });
-
+    // Check if this is an external job ID
+    if (trimmedId.startsWith('ext-')) {
+      const externalJob = await handleExternalJob(trimmedId);
       if (externalJob) {
-        const formattedJob = {
-          ...externalJob,
-          company: externalJob.company || externalJob.companyRelation?.name,
-          companyLogo: externalJob.companyLogo || externalJob.companyRelation?.logo,
-          companyLocation: externalJob.companyRelation?.location,
-          companyIndustry: externalJob.companyRelation?.industry,
-          companyWebsite: externalJob.companyRelation?.website,
-          isExternal: true,
-          source: source
-        };
-        return NextResponse.json({ success: true, data: formattedJob });
-      } else {
-        // Job not in database, fetch from external API
-        console.log(`🔄 Job not in database, fetching from external API: ${id}`);
-        
-        try {
-          // Enhanced external job fetching with better error handling
-          console.log(`🔄 Fetching external job from API: source=${source}, sourceId=${sourceId}`);
-          
-          const externalJobs = await fetchExternalJobById(sourceId, source);
-          
-          if (externalJobs && externalJobs.length > 0) {
-            const job = externalJobs[0];
-            const formattedJob = {
-              ...job,
-              id: id,
-              isExternal: true,
-              source: source,
-              apply_url: null,
-              source_url: job.source_url || job.applyUrl || job.redirect_url,
-              // Ensure all required fields exist
-              company: job.company || 'Company not specified',
-              location: job.location || 'Location not specified',
-              description: job.description || 'No description available',
-              skills: Array.isArray(job.skills) ? job.skills : (typeof job.skills === 'string' ? JSON.parse(job.skills || '[]') : []),
-              isRemote: job.isRemote || false,
-              isFeatured: job.isFeatured || false,
-              createdAt: job.postedAt ? new Date(job.postedAt) : new Date()
-            };
-            
-            console.log(`✅ Successfully fetched external job: ${id}`);
-            return NextResponse.json({ success: true, data: formattedJob });
-          } else {
-            console.log(`❌ External job not found in API: ${id}`);
-            return NextResponse.json(
-              { success: false, error: 'External job not found' },
-              { status: 404 }
-            );
-          }
-        } catch (fetchError) {
-          console.error(`❌ Error fetching external job ${id}:`, fetchError);
-          return NextResponse.json(
-            { success: false, error: 'Failed to fetch external job' },
-            { status: 500 }
-          );
-        }
+        return NextResponse.json({ 
+          success: true, 
+          data: externalJob 
+        });
       }
     }
     
     // Enhanced error response with helpful information
-    console.log(`❌ Job not found anywhere: ${id}`);
+    console.log(`❌ Job not found anywhere: ${trimmedId}`);
     return NextResponse.json(
       { 
         success: false, 
         error: 'Job not found',
-        details: `No job found with ID: ${id}`,
+        details: `No job found with ID: ${trimmedId}`,
         suggestions: [
           'The job may have been removed or expired',
           'Check if the job ID is correct',
@@ -204,14 +73,186 @@ export async function GET(
     );
     
   } catch (error) {
-    console.error('Error fetching job details:', error);
+    console.error('❌ Error fetching job details:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch job details' },
+      { 
+        success: false, 
+        error: 'Failed to fetch job details',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     );
   }
 }
 
+/**
+ * Find job in database by ID or sourceId
+ */
+async function findJobInDatabase(id: string) {
+  try {
+    // First try to find by primary key (id) - Job.id is String type
+    let job = await prisma.job.findUnique({
+      where: { id: id },
+      include: {
+        companyRelation: {
+          select: COMPANY_RELATION_SELECT
+        }
+      }
+    });
+    
+    if (job) {
+      console.log('✅ Job found by primary ID:', job.title);
+      return job;
+    }
+    
+    // If not found by ID, try to find by sourceId
+    job = await prisma.job.findFirst({
+      where: { sourceId: id },
+      include: {
+        companyRelation: {
+          select: COMPANY_RELATION_SELECT
+        }
+      }
+    });
+    
+    if (job) {
+      console.log('✅ Job found by sourceId:', job.title);
+      return job;
+    }
+    
+    console.log(`❌ Job not found in database: ${id}`);
+    return null;
+  } catch (error) {
+    console.error('❌ Database query failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Handle external job fetching and formatting
+ */
+async function handleExternalJob(id: string) {
+  try {
+    // Parse external job ID
+    const { sourceId, source } = parseExternalJobId(id);
+    console.log(`🔍 Parsed external job ID: source=${source}, sourceId=${sourceId}`);
+    
+    // Try to find in database first
+    const externalJob = await prisma.job.findFirst({
+      where: {
+        OR: [
+          { source: source, sourceId: sourceId },
+          { source: 'external', sourceId: sourceId },
+          { source: 'adzuna', sourceId: sourceId },
+          { sourceId: sourceId }
+        ]
+      },
+      include: {
+        companyRelation: {
+          select: COMPANY_RELATION_SELECT
+        }
+      }
+    });
+
+    if (externalJob) {
+      console.log('✅ External job found in database:', externalJob.title);
+      return formatJobResponse(externalJob, true, source);
+    }
+    
+    // Job not in database, fetch from external API
+    console.log(`🔄 Job not in database, fetching from external API: ${id}`);
+    
+    const externalJobs = await fetchExternalJobById(sourceId, source);
+    
+    if (externalJobs && externalJobs.length > 0) {
+      const job = externalJobs[0];
+      const formattedJob = formatExternalJob(job, id, source);
+      
+      console.log(`✅ Successfully fetched external job: ${id}`);
+      return formattedJob;
+    } else {
+      console.log(`❌ External job not found in API: ${id}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`❌ Error handling external job ${id}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Parse external job ID to extract source and sourceId
+ */
+function parseExternalJobId(id: string): { sourceId: string; source: string } {
+  if (id.startsWith('ext-external-')) {
+    return {
+      sourceId: id.replace('ext-external-', ''),
+      source: 'external'
+    };
+  } else if (id.startsWith('ext-adzuna-')) {
+    return {
+      sourceId: id.replace('ext-adzuna-', ''),
+      source: 'adzuna'
+    };
+  } else if (id.startsWith('ext-jsearch-')) {
+    return {
+      sourceId: id.replace('ext-jsearch-', ''),
+      source: 'jsearch'
+    };
+  } else if (id.startsWith('ext-google-')) {
+    return {
+      sourceId: id.replace('ext-google-', ''),
+      source: 'google'
+    };
+  } else {
+    // Fallback for legacy format
+    return {
+      sourceId: id.replace('ext-', ''),
+      source: 'external'
+    };
+  }
+}
+
+/**
+ * Format job response with consistent structure
+ */
+function formatJobResponse(job: any, isExternal: boolean = false, source?: string) {
+  return {
+    ...job,
+    company: job.company || job.companyRelation?.name,
+    companyLogo: job.companyLogo || job.companyRelation?.logo,
+    companyLocation: job.companyRelation?.location,
+    companyIndustry: job.companyRelation?.industry,
+    companyWebsite: job.companyRelation?.website,
+    isExternal: isExternal,
+    source: source || job.source
+  };
+}
+
+/**
+ * Format external job with required fields
+ */
+function formatExternalJob(job: any, id: string, source: string) {
+  return {
+    ...job,
+    id: id,
+    isExternal: true,
+    source: source,
+    apply_url: null,
+    source_url: job.source_url || job.applyUrl || job.redirect_url,
+    company: job.company || 'Company not specified',
+    location: job.location || 'Location not specified',
+    description: job.description || 'No description available',
+    skills: Array.isArray(job.skills) ? job.skills : (typeof job.skills === 'string' ? JSON.parse(job.skills || '[]') : []),
+    isRemote: job.isRemote || false,
+    isFeatured: job.isFeatured || false,
+    createdAt: job.postedAt ? new Date(job.postedAt) : new Date()
+  };
+}
+
+/**
+ * Fetch external job by ID from various providers
+ */
 async function fetchExternalJobById(sourceId: string, source: string) {
   try {
     console.log(`🔍 Fetching external job: source=${source}, sourceId=${sourceId}`);
