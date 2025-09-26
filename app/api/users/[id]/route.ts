@@ -18,7 +18,8 @@ export async function GET(
       where: { id },
       select: {
         id: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         email: true,
         role: true,
         phone: true,
@@ -131,7 +132,8 @@ export async function PUT(
       data: updateData,
       select: {
         id: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         email: true,
         role: true,
         phone: true,

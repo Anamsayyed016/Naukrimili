@@ -38,7 +38,8 @@ export async function GET(
         user: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true
           }
         }
@@ -118,7 +119,7 @@ export async function GET(
       // Don't fail the download if tracking fails
     }
 
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(fileBuffer as any, {
       status: 200,
       headers
     });
