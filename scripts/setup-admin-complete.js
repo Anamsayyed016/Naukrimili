@@ -16,7 +16,16 @@ async function setupAdminComplete() {
     
     // 1. Check if admin user exists
     let adminUser = await prisma.user.findUnique({
-      where: { email: 'admin@jobportal.com' }
+      where: { email: 'admin@jobportal.com' },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        password: true
+      }
     });
     
     if (!adminUser) {
@@ -69,7 +78,7 @@ async function setupAdminComplete() {
     if (verifyUser) {
       console.log('✅ Admin user verification successful!');
       console.log(`📧 Email: ${verifyUser.email}`);
-      console.log(`👤 Name: ${verifyUser.name}`);
+      console.log(`👤 Name: ${verifyUser.firstName && verifyUser.lastName ? `${verifyUser.firstName} ${verifyUser.lastName}` : verifyUser.firstName || verifyUser.email}`);
       console.log(`🔑 Role: ${verifyUser.role}`);
       console.log(`✅ Active: ${verifyUser.isActive}`);
       console.log(`🔐 Has Password: ${!!verifyUser.password}`);

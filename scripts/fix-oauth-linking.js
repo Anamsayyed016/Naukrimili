@@ -34,7 +34,8 @@ async function fixOAuthLinking() {
         user: {
           select: {
             email: true,
-            name: true
+            firstName: true,
+            lastName: true
           }
         }
       }
@@ -70,7 +71,14 @@ async function fixOAuthLinking() {
       for (const duplicate of duplicateUsers) {
         const users = await prisma.user.findMany({
           where: { email: duplicate.email },
-          orderBy: { createdAt: 'asc' }
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            createdAt: true
+          }
         });
 
         // Keep the first user, delete the rest

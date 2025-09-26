@@ -73,7 +73,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const bcrypt = (await import('bcryptjs')).default;
           
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email as string }
+            where: { email: credentials.email as string },
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              password: true,
+              role: true,
+              isActive: true,
+              roleLocked: true,
+              lockedRole: true,
+              roleLockReason: true
+            }
           });
           
           if (!user || !user.password || !user.isActive) {
@@ -137,7 +149,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if ((user && token.id) || trigger === 'update') {
         try {
           const dbUser = await prisma.user.findUnique({
-            where: { id: token.id as string }
+            where: { id: token.id as string },
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+              isActive: true,
+              roleLocked: true,
+              lockedRole: true,
+              roleLockReason: true
+            }
           });
           
           if (dbUser && dbUser.isActive) {
@@ -165,7 +188,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.log('🔍 JWT callback - Processing Google OAuth:', { email: profile.email, name: profile.name });
           
           const dbUser = await prisma.user.findUnique({
-            where: { email: profile.email || '' }
+            where: { email: profile.email || '' },
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+              isActive: true,
+              isVerified: true,
+              emailVerified: true
+            }
           });
           
           if (dbUser) {
@@ -314,7 +347,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (user) {
           // Fetch role lock fields separately to avoid TypeScript issues
           const roleLockData = await prisma.user.findUnique({
-            where: { id: user.id }
+            where: { id: user.id },
+            select: {
+              id: true,
+              roleLocked: true,
+              lockedRole: true,
+              roleLockReason: true
+            }
           }) as any;
 
           // Use fresh data from database
@@ -379,7 +418,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           
           // Check if user exists with this email
           const existingUser = await prisma.user.findUnique({
-            where: { email: profile.email }
+            where: { email: profile.email },
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+              isActive: true
+            }
           });
 
           if (existingUser) {
