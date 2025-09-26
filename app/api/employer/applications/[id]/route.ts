@@ -68,6 +68,18 @@ export async function GET(
       );
     }
 
+    console.log('🔍 Application data for employer:', {
+      applicationId: application.id,
+      userId: application.user.id,
+      jobId: application.job.id,
+      jobTitle: application.job.title,
+      resume: application.resume ? {
+        id: application.resume.id,
+        fileName: application.resume.fileName,
+        fileUrl: application.resume.fileUrl
+      } : 'No resume found'
+    });
+
     return NextResponse.json({
       success: true,
       data: application

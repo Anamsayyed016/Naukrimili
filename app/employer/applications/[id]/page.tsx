@@ -229,6 +229,13 @@ export default function ApplicationDetailPage() {
       return;
     }
     
+    console.log('🔍 Attempting resume download:', {
+      resumeId: application.resumeId,
+      resumeUrl: application.resumeUrl,
+      applicantName: application.applicantName,
+      downloadUrl: `/api/employer/resumes/${application.resumeId}/download`
+    });
+    
     try {
       // Call the employer resume download API using the stored resume ID
       const response = await fetch(`/api/employer/resumes/${application.resumeId}/download`);
