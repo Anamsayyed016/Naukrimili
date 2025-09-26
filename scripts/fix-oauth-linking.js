@@ -16,7 +16,8 @@ async function fixOAuthLinking() {
       select: {
         id: true,
         email: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         role: true
       }
     });
