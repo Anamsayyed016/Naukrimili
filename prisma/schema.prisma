@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Job {
-  id                String        @id @default(cuid())
+  id                Int           @id @default(autoincrement())
   source            String        @default("manual")
   sourceId          String        @default(cuid())
   title             String
@@ -73,7 +73,7 @@ model User {
   id                 String         @id @default(cuid())
   email              String         @unique
   emailVerified      DateTime?
-  name               String?
+  // name String? (computed from firstName + lastName)
   image              String?
   password           String?
   firstName          String?
@@ -173,7 +173,7 @@ model VerificationToken {
 model JobBookmark {
   id        String   @id @default(cuid())
   userId    String
-  jobId     String
+  jobId     Int
   notes     String?
   createdAt DateTime @default(now())
   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
@@ -246,7 +246,7 @@ model Resume {
 model Application {
   id          String   @id @default(cuid())
   userId      String
-  jobId       String
+  jobId       Int
   companyId   String?
   resumeId    String?
   status      String   @default("submitted")
@@ -399,7 +399,7 @@ model MobileError {
   devicePixelRatio  Float?
   touchSupport      Boolean   @default(false)
   protocol          String?
-  hostname          String?
+  hostname String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
