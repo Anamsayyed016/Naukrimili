@@ -102,7 +102,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return {
             id: user.id,
             email: user.email,
-            name: user.name,
+            name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || user.email,
             role: user.role || 'jobseeker',
             roleLocked: (user as any).roleLocked || false,
             lockedRole: (user as any).lockedRole,
@@ -123,7 +123,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.role = user.role;
         token.email = user.email;
-        token.name = user.name;
+        token.name = (user as any).firstName && (user as any).lastName ? `${(user as any).firstName} ${(user as any).lastName}` : (user as any).firstName || user.email;
         token.roleLocked = (user as any).roleLocked;
         token.lockedRole = (user as any).lockedRole;
         token.roleLockReason = (user as any).roleLockReason;
@@ -143,7 +143,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (dbUser && dbUser.isActive) {
             token.role = dbUser.role;
             token.email = dbUser.email;
-            token.name = dbUser.name;
+            token.name = dbUser.firstName && dbUser.lastName ? `${dbUser.firstName} ${dbUser.lastName}` : dbUser.firstName || dbUser.email;
             token.roleLocked = (dbUser as any).roleLocked;
             token.lockedRole = (dbUser as any).lockedRole;
             token.roleLockReason = (dbUser as any).roleLockReason;
@@ -173,7 +173,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             await prisma.user.update({
               where: { id: dbUser.id },
               data: {
-                name: profile.name || dbUser.name,
+                firstName: profile.name?.split(' ')[0] || dbUser.firstName,
+                lastName: profile.name?.split(' ').slice(1).join(' ') || dbUser.lastName,
                 isVerified: true,
                 emailVerified: new Date()
               }
@@ -210,7 +211,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.id = dbUser.id;
             token.role = dbUser.role;
             token.email = dbUser.email;
-            token.name = profile.name || dbUser.name;
+            token.name = profile.name || (dbUser.firstName && dbUser.lastName ? `${dbUser.firstName} ${dbUser.lastName}` : dbUser.firstName || dbUser.email);
             token.picture = (profile as any).picture || token.picture;
             token.isActive = dbUser.isActive || true; // Ensure isActive is set
             
@@ -220,7 +221,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             const newUser = await prisma.user.create({
               data: {
                 email: profile.email || '',
-                name: profile.name || '',
+                firstName: profile.name?.split(' ')[0] || '',
+                lastName: profile.name?.split(' ').slice(1).join(' ') || '',
                 role: null, // User will select role later
                 isActive: true,
                 isVerified: true,
@@ -255,7 +257,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   userId: newUser.id,
                   type: 'welcome',
                   title: 'Welcome to NaukriMili!',
-                  message: `Welcome ${newUser.name || 'User'}! Your account has been created successfully.`,
+                  message: `Welcome ${newUser.firstName && newUser.lastName ? `${newUser.firstName} ${newUser.lastName}` : newUser.firstName || 'User'}! Your account has been created successfully.`,
                   isRead: false
                 }
               });
@@ -267,7 +269,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             
             token.id = newUser.id;
             token.email = newUser.email;
-            token.name = newUser.name;
+            token.name = newUser.firstName && newUser.lastName ? `${newUser.firstName} ${newUser.lastName}` : newUser.firstName || newUser.email;
             token.picture = (profile as any).picture || token.picture;
             token.role = null; // Will be set when user selects role
             token.isActive = newUser.isActive || true; // Ensure isActive is set
@@ -317,7 +319,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           // Use fresh data from database
           (session.user as any).id = user.id;
           (session.user as any).email = user.email;
-          (session.user as any).name = user.name || '';
+          (session.user as any).name = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || user.email || '';
           (session.user as any).role = user.role;
           (session.user as any).roleLocked = roleLockData?.roleLocked || false;
           (session.user as any).lockedRole = roleLockData?.lockedRole;
