@@ -12167,3 +12167,1143 @@
 2025-09-26T11:57:06: 🔌 Socket.io ready and listening for connections
 2025-09-26T11:58:15: 🛑 SIGINT received, shutting down gracefully
 2025-09-26T11:58:15: ✅ Server closed
+2025-09-26T12:10:46: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T12:10:46: Environment: production
+2025-09-26T12:10:46: Port: 3000
+2025-09-26T12:10:46: Hostname: srv939274.hstgr.cloud
+2025-09-26T12:10:46: ✅ Next.js app prepared
+2025-09-26T12:10:46: 🔌 Initializing Socket.io...
+2025-09-26T12:10:46: ✅ Socket.io server initialized successfully
+2025-09-26T12:10:46: ✅ Simple Socket Service initialized
+2025-09-26T12:10:46: ✅ Socket Notification Service initialized successfully
+2025-09-26T12:10:46: ✅ Socket notification service initialized
+2025-09-26T12:10:46: ✅ Socket service linked to notification service
+2025-09-26T12:10:48: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-26T12:10:48: 🔌 Socket.io ready and listening for connections
+2025-09-26T12:12:17: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T12:12:17: ✅ Server closed
+2025-09-26T13:53:08: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T13:53:08: Environment: production
+2025-09-26T13:53:08: Port: 3000
+2025-09-26T13:53:08: Hostname: srv939274.hstgr.cloud
+2025-09-26T13:53:08: ✅ Next.js app prepared
+2025-09-26T13:53:08: 🔌 Initializing Socket.io...
+2025-09-26T13:53:08: ✅ Socket.io server initialized successfully
+2025-09-26T13:53:08: ✅ Simple Socket Service initialized
+2025-09-26T13:53:08: ✅ Socket Notification Service initialized successfully
+2025-09-26T13:53:08: ✅ Socket notification service initialized
+2025-09-26T13:53:08: ✅ Socket service linked to notification service
+2025-09-26T13:53:09: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-26T13:53:09: 🔌 Socket.io ready and listening for connections
+2025-09-26T13:54:43: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T13:54:43: ✅ Server closed
+2025-09-26T13:54:44: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T13:54:44: Environment: production
+2025-09-26T13:54:44: Port: 3000
+2025-09-26T13:54:44: Hostname: srv939274.hstgr.cloud
+2025-09-26T13:54:44: ✅ Next.js app prepared
+2025-09-26T13:54:44: 🔌 Initializing Socket.io...
+2025-09-26T13:54:44: ✅ Socket.io server initialized successfully
+2025-09-26T13:54:44: ✅ Simple Socket Service initialized
+2025-09-26T13:54:44: ✅ Socket Notification Service initialized successfully
+2025-09-26T13:54:44: ✅ Socket notification service initialized
+2025-09-26T13:54:44: ✅ Socket service linked to notification service
+2025-09-26T13:54:45: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-26T13:54:45: 🔌 Socket.io ready and listening for connections
+2025-09-26T13:56:08: prisma:error 
+2025-09-26T13:56:08: Invalid `prisma.user.create()` invocation:
+2025-09-26T13:56:08: 
+2025-09-26T13:56:08: {
+2025-09-26T13:56:08:   data: {
+2025-09-26T13:56:08:     name: "alina",
+2025-09-26T13:56:08:     ~~~~
+2025-09-26T13:56:08:     email: "alinak01696@gmail.com",
+2025-09-26T13:56:08:     image: "https://lh3.googleusercontent.com/a/ACg8ocJjftLOZic67hq9CF5-xOVOXHmUl9J1xZn8eq48RyNKfTocnw=s96-c",
+2025-09-26T13:56:08:     emailVerified: null,
+2025-09-26T13:56:08: ?   id?: String,
+2025-09-26T13:56:08: ?   password?: String | Null,
+2025-09-26T13:56:08: ?   firstName?: String | Null,
+2025-09-26T13:56:08: ?   lastName?: String | Null,
+2025-09-26T13:56:08: ?   role?: String | Null,
+2025-09-26T13:56:08: ?   roleLocked?: Boolean,
+2025-09-26T13:56:08: ?   lockedRole?: String | Null,
+2025-09-26T13:56:08: ?   roleLockReason?: String | Null,
+2025-09-26T13:56:08: ?   phone?: String | Null,
+2025-09-26T13:56:08: ?   location?: String | Null,
+2025-09-26T13:56:08: ?   bio?: String | Null,
+2025-09-26T13:56:08: ?   skills?: String,
+2025-09-26T13:56:08: ?   experience?: String | Null,
+2025-09-26T13:56:08: ?   education?: String | Null,
+2025-09-26T13:56:08: ?   profilePicture?: String | Null,
+2025-09-26T13:56:08: ?   isVerified?: Boolean,
+2025-09-26T13:56:08: ?   isActive?: Boolean,
+2025-09-26T13:56:08: ?   createdAt?: DateTime,
+2025-09-26T13:56:08: ?   updatedAt?: DateTime,
+2025-09-26T13:56:08: ?   benefits?: String | Null,
+2025-09-26T13:56:08: ?   specialties?: String | Null,
+2025-09-26T13:56:08: ?   culture?: String | Null,
+2025-09-26T13:56:08: ?   mission?: String | Null,
+2025-09-26T13:56:08: ?   vision?: String | Null,
+2025-09-26T13:56:08: ?   resumeUrl?: String | Null,
+2025-09-26T13:56:08: ?   locationPreference?: String | Null,
+2025-09-26T13:56:08: ?   salaryExpectation?: Int | Null,
+2025-09-26T13:56:08: ?   jobTypePreference?: String | Null,
+2025-09-26T13:56:08: ?   remotePreference?: Boolean,
+2025-09-26T13:56:08: ?   companyName?: String | Null,
+2025-09-26T13:56:08: ?   recruiterName?: String | Null,
+2025-09-26T13:56:08: ?   companyWebsite?: String | Null,
+2025-09-26T13:56:08: ?   companyIndustry?: String | Null,
+2025-09-26T13:56:08: ?   companySize?: String | Null,
+2025-09-26T13:56:08: ?   companyFounded?: Int | Null,
+2025-09-26T13:56:08: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:08: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:08: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T13:56:08: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T13:56:08: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T13:56:08: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T13:56:08:   }
+2025-09-26T13:56:08: }
+2025-09-26T13:56:08: 
+2025-09-26T13:56:08: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T13:56:08: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T13:56:08: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T13:56:08: Invalid `prisma.user.create()` invocation:
+2025-09-26T13:56:08: 
+2025-09-26T13:56:08: {
+2025-09-26T13:56:08:   data: {
+2025-09-26T13:56:08:     name: "alina",
+2025-09-26T13:56:08:     ~~~~
+2025-09-26T13:56:08:     email: "alinak01696@gmail.com",
+2025-09-26T13:56:08:     image: "https://lh3.googleusercontent.com/a/ACg8ocJjftLOZic67hq9CF5-xOVOXHmUl9J1xZn8eq48RyNKfTocnw=s96-c",
+2025-09-26T13:56:08:     emailVerified: null,
+2025-09-26T13:56:08: ?   id?: String,
+2025-09-26T13:56:08: ?   password?: String | Null,
+2025-09-26T13:56:08: ?   firstName?: String | Null,
+2025-09-26T13:56:08: ?   lastName?: String | Null,
+2025-09-26T13:56:08: ?   role?: String | Null,
+2025-09-26T13:56:08: ?   roleLocked?: Boolean,
+2025-09-26T13:56:08: ?   lockedRole?: String | Null,
+2025-09-26T13:56:08: ?   roleLockReason?: String | Null,
+2025-09-26T13:56:08: ?   phone?: String | Null,
+2025-09-26T13:56:08: ?   location?: String | Null,
+2025-09-26T13:56:08: ?   bio?: String | Null,
+2025-09-26T13:56:08: ?   skills?: String,
+2025-09-26T13:56:08: ?   experience?: String | Null,
+2025-09-26T13:56:08: ?   education?: String | Null,
+2025-09-26T13:56:08: ?   profilePicture?: String | Null,
+2025-09-26T13:56:08: ?   isVerified?: Boolean,
+2025-09-26T13:56:08: ?   isActive?: Boolean,
+2025-09-26T13:56:08: ?   createdAt?: DateTime,
+2025-09-26T13:56:08: ?   updatedAt?: DateTime,
+2025-09-26T13:56:08: ?   benefits?: String | Null,
+2025-09-26T13:56:08: ?   specialties?: String | Null,
+2025-09-26T13:56:08: ?   culture?: String | Null,
+2025-09-26T13:56:08: ?   mission?: String | Null,
+2025-09-26T13:56:08: ?   vision?: String | Null,
+2025-09-26T13:56:08: ?   resumeUrl?: String | Null,
+2025-09-26T13:56:08: ?   locationPreference?: String | Null,
+2025-09-26T13:56:08: ?   salaryExpectation?: Int | Null,
+2025-09-26T13:56:08: ?   jobTypePreference?: String | Null,
+2025-09-26T13:56:08: ?   remotePreference?: Boolean,
+2025-09-26T13:56:08: ?   companyName?: String | Null,
+2025-09-26T13:56:08: ?   recruiterName?: String | Null,
+2025-09-26T13:56:08: ?   companyWebsite?: String | Null,
+2025-09-26T13:56:08: ?   companyIndustry?: String | Null,
+2025-09-26T13:56:08: ?   companySize?: String | Null,
+2025-09-26T13:56:08: ?   companyFounded?: Int | Null,
+2025-09-26T13:56:08: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:08: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:08: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T13:56:08: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T13:56:08: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T13:56:08: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T13:56:08:   }
+2025-09-26T13:56:08: }
+2025-09-26T13:56:08: 
+2025-09-26T13:56:08: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T13:56:08:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T13:56:08:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T13:56:08:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T13:56:08:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T13:56:08:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T13:56:08:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T13:56:08:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T13:56:08:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T13:56:08:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T13:56:08:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T13:56:08: [31m[auth][details][0m: {}
+2025-09-26T13:56:08: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T13:56:08: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T13:56:08: Invalid `prisma.user.create()` invocation:
+2025-09-26T13:56:08: 
+2025-09-26T13:56:08: {
+2025-09-26T13:56:08:   data: {
+2025-09-26T13:56:08:     name: "alina",
+2025-09-26T13:56:08:     ~~~~
+2025-09-26T13:56:08:     email: "alinak01696@gmail.com",
+2025-09-26T13:56:08:     image: "https://lh3.googleusercontent.com/a/ACg8ocJjftLOZic67hq9CF5-xOVOXHmUl9J1xZn8eq48RyNKfTocnw=s96-c",
+2025-09-26T13:56:08:     emailVerified: null,
+2025-09-26T13:56:08: ?   id?: String,
+2025-09-26T13:56:08: ?   password?: String | Null,
+2025-09-26T13:56:08: ?   firstName?: String | Null,
+2025-09-26T13:56:08: ?   lastName?: String | Null,
+2025-09-26T13:56:08: ?   role?: String | Null,
+2025-09-26T13:56:08: ?   roleLocked?: Boolean,
+2025-09-26T13:56:08: ?   lockedRole?: String | Null,
+2025-09-26T13:56:08: ?   roleLockReason?: String | Null,
+2025-09-26T13:56:08: ?   phone?: String | Null,
+2025-09-26T13:56:08: ?   location?: String | Null,
+2025-09-26T13:56:08: ?   bio?: String | Null,
+2025-09-26T13:56:08: ?   skills?: String,
+2025-09-26T13:56:08: ?   experience?: String | Null,
+2025-09-26T13:56:08: ?   education?: String | Null,
+2025-09-26T13:56:08: ?   profilePicture?: String | Null,
+2025-09-26T13:56:08: ?   isVerified?: Boolean,
+2025-09-26T13:56:08: ?   isActive?: Boolean,
+2025-09-26T13:56:08: ?   createdAt?: DateTime,
+2025-09-26T13:56:08: ?   updatedAt?: DateTime,
+2025-09-26T13:56:08: ?   benefits?: String | Null,
+2025-09-26T13:56:08: ?   specialties?: String | Null,
+2025-09-26T13:56:08: ?   culture?: String | Null,
+2025-09-26T13:56:08: ?   mission?: String | Null,
+2025-09-26T13:56:08: ?   vision?: String | Null,
+2025-09-26T13:56:08: ?   resumeUrl?: String | Null,
+2025-09-26T13:56:08: ?   locationPreference?: String | Null,
+2025-09-26T13:56:08: ?   salaryExpectation?: Int | Null,
+2025-09-26T13:56:08: ?   jobTypePreference?: String | Null,
+2025-09-26T13:56:08: ?   remotePreference?: Boolean,
+2025-09-26T13:56:08: ?   companyName?: String | Null,
+2025-09-26T13:56:08: ?   recruiterName?: String | Null,
+2025-09-26T13:56:08: ?   companyWebsite?: String | Null,
+2025-09-26T13:56:08: ?   companyIndustry?: String | Null,
+2025-09-26T13:56:08: ?   companySize?: String | Null,
+2025-09-26T13:56:08: ?   companyFounded?: Int | Null,
+2025-09-26T13:56:08: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:08: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:08: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T13:56:08: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T13:56:08: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T13:56:08: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:08: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T13:56:08:   }
+2025-09-26T13:56:08: }
+2025-09-26T13:56:08: 
+2025-09-26T13:56:08: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T13:56:08:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T13:56:08:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T13:56:08:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T13:56:08:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T13:56:08:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T13:56:08:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T13:56:08:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T13:56:08:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T13:56:08:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T13:56:08:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T13:56:08: [31m[auth][details][0m: {}
+2025-09-26T13:56:18: prisma:error 
+2025-09-26T13:56:18: Invalid `prisma.user.create()` invocation:
+2025-09-26T13:56:18: 
+2025-09-26T13:56:18: {
+2025-09-26T13:56:18:   data: {
+2025-09-26T13:56:18:     name: "Anam Sayyed",
+2025-09-26T13:56:18:     ~~~~
+2025-09-26T13:56:18:     email: "anamsayyed58@gmail.com",
+2025-09-26T13:56:18:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T13:56:18:     emailVerified: null,
+2025-09-26T13:56:18: ?   id?: String,
+2025-09-26T13:56:18: ?   password?: String | Null,
+2025-09-26T13:56:18: ?   firstName?: String | Null,
+2025-09-26T13:56:18: ?   lastName?: String | Null,
+2025-09-26T13:56:18: ?   role?: String | Null,
+2025-09-26T13:56:18: ?   roleLocked?: Boolean,
+2025-09-26T13:56:18: ?   lockedRole?: String | Null,
+2025-09-26T13:56:18: ?   roleLockReason?: String | Null,
+2025-09-26T13:56:18: ?   phone?: String | Null,
+2025-09-26T13:56:18: ?   location?: String | Null,
+2025-09-26T13:56:18: ?   bio?: String | Null,
+2025-09-26T13:56:18: ?   skills?: String,
+2025-09-26T13:56:18: ?   experience?: String | Null,
+2025-09-26T13:56:18: ?   education?: String | Null,
+2025-09-26T13:56:18: ?   profilePicture?: String | Null,
+2025-09-26T13:56:18: ?   isVerified?: Boolean,
+2025-09-26T13:56:18: ?   isActive?: Boolean,
+2025-09-26T13:56:18: ?   createdAt?: DateTime,
+2025-09-26T13:56:18: ?   updatedAt?: DateTime,
+2025-09-26T13:56:18: ?   benefits?: String | Null,
+2025-09-26T13:56:18: ?   specialties?: String | Null,
+2025-09-26T13:56:18: ?   culture?: String | Null,
+2025-09-26T13:56:18: ?   mission?: String | Null,
+2025-09-26T13:56:18: ?   vision?: String | Null,
+2025-09-26T13:56:18: ?   resumeUrl?: String | Null,
+2025-09-26T13:56:18: ?   locationPreference?: String | Null,
+2025-09-26T13:56:18: ?   salaryExpectation?: Int | Null,
+2025-09-26T13:56:18: ?   jobTypePreference?: String | Null,
+2025-09-26T13:56:18: ?   remotePreference?: Boolean,
+2025-09-26T13:56:18: ?   companyName?: String | Null,
+2025-09-26T13:56:18: ?   recruiterName?: String | Null,
+2025-09-26T13:56:18: ?   companyWebsite?: String | Null,
+2025-09-26T13:56:18: ?   companyIndustry?: String | Null,
+2025-09-26T13:56:18: ?   companySize?: String | Null,
+2025-09-26T13:56:18: ?   companyFounded?: Int | Null,
+2025-09-26T13:56:18: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:18: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:18: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T13:56:18: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T13:56:18: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T13:56:18: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T13:56:18:   }
+2025-09-26T13:56:18: }
+2025-09-26T13:56:18: 
+2025-09-26T13:56:18: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T13:56:18: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T13:56:18: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T13:56:18: Invalid `prisma.user.create()` invocation:
+2025-09-26T13:56:18: 
+2025-09-26T13:56:18: {
+2025-09-26T13:56:18:   data: {
+2025-09-26T13:56:18:     name: "Anam Sayyed",
+2025-09-26T13:56:18:     ~~~~
+2025-09-26T13:56:18:     email: "anamsayyed58@gmail.com",
+2025-09-26T13:56:18:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T13:56:18:     emailVerified: null,
+2025-09-26T13:56:18: ?   id?: String,
+2025-09-26T13:56:18: ?   password?: String | Null,
+2025-09-26T13:56:18: ?   firstName?: String | Null,
+2025-09-26T13:56:18: ?   lastName?: String | Null,
+2025-09-26T13:56:18: ?   role?: String | Null,
+2025-09-26T13:56:18: ?   roleLocked?: Boolean,
+2025-09-26T13:56:18: ?   lockedRole?: String | Null,
+2025-09-26T13:56:18: ?   roleLockReason?: String | Null,
+2025-09-26T13:56:18: ?   phone?: String | Null,
+2025-09-26T13:56:18: ?   location?: String | Null,
+2025-09-26T13:56:18: ?   bio?: String | Null,
+2025-09-26T13:56:18: ?   skills?: String,
+2025-09-26T13:56:18: ?   experience?: String | Null,
+2025-09-26T13:56:18: ?   education?: String | Null,
+2025-09-26T13:56:18: ?   profilePicture?: String | Null,
+2025-09-26T13:56:18: ?   isVerified?: Boolean,
+2025-09-26T13:56:18: ?   isActive?: Boolean,
+2025-09-26T13:56:18: ?   createdAt?: DateTime,
+2025-09-26T13:56:18: ?   updatedAt?: DateTime,
+2025-09-26T13:56:18: ?   benefits?: String | Null,
+2025-09-26T13:56:18: ?   specialties?: String | Null,
+2025-09-26T13:56:18: ?   culture?: String | Null,
+2025-09-26T13:56:18: ?   mission?: String | Null,
+2025-09-26T13:56:18: ?   vision?: String | Null,
+2025-09-26T13:56:18: ?   resumeUrl?: String | Null,
+2025-09-26T13:56:18: ?   locationPreference?: String | Null,
+2025-09-26T13:56:18: ?   salaryExpectation?: Int | Null,
+2025-09-26T13:56:18: ?   jobTypePreference?: String | Null,
+2025-09-26T13:56:18: ?   remotePreference?: Boolean,
+2025-09-26T13:56:18: ?   companyName?: String | Null,
+2025-09-26T13:56:18: ?   recruiterName?: String | Null,
+2025-09-26T13:56:18: ?   companyWebsite?: String | Null,
+2025-09-26T13:56:18: ?   companyIndustry?: String | Null,
+2025-09-26T13:56:18: ?   companySize?: String | Null,
+2025-09-26T13:56:18: ?   companyFounded?: Int | Null,
+2025-09-26T13:56:18: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:18: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:18: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T13:56:18: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T13:56:18: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T13:56:18: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T13:56:18:   }
+2025-09-26T13:56:18: }
+2025-09-26T13:56:18: 
+2025-09-26T13:56:18: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T13:56:18:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T13:56:18:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T13:56:18:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T13:56:18:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T13:56:18:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T13:56:18:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T13:56:18:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T13:56:18:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T13:56:18:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T13:56:18:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T13:56:18: [31m[auth][details][0m: {}
+2025-09-26T13:56:18: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T13:56:18: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T13:56:18: Invalid `prisma.user.create()` invocation:
+2025-09-26T13:56:18: 
+2025-09-26T13:56:18: {
+2025-09-26T13:56:18:   data: {
+2025-09-26T13:56:18:     name: "Anam Sayyed",
+2025-09-26T13:56:18:     ~~~~
+2025-09-26T13:56:18:     email: "anamsayyed58@gmail.com",
+2025-09-26T13:56:18:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T13:56:18:     emailVerified: null,
+2025-09-26T13:56:18: ?   id?: String,
+2025-09-26T13:56:18: ?   password?: String | Null,
+2025-09-26T13:56:18: ?   firstName?: String | Null,
+2025-09-26T13:56:18: ?   lastName?: String | Null,
+2025-09-26T13:56:18: ?   role?: String | Null,
+2025-09-26T13:56:18: ?   roleLocked?: Boolean,
+2025-09-26T13:56:18: ?   lockedRole?: String | Null,
+2025-09-26T13:56:18: ?   roleLockReason?: String | Null,
+2025-09-26T13:56:18: ?   phone?: String | Null,
+2025-09-26T13:56:18: ?   location?: String | Null,
+2025-09-26T13:56:18: ?   bio?: String | Null,
+2025-09-26T13:56:18: ?   skills?: String,
+2025-09-26T13:56:18: ?   experience?: String | Null,
+2025-09-26T13:56:18: ?   education?: String | Null,
+2025-09-26T13:56:18: ?   profilePicture?: String | Null,
+2025-09-26T13:56:18: ?   isVerified?: Boolean,
+2025-09-26T13:56:18: ?   isActive?: Boolean,
+2025-09-26T13:56:18: ?   createdAt?: DateTime,
+2025-09-26T13:56:18: ?   updatedAt?: DateTime,
+2025-09-26T13:56:18: ?   benefits?: String | Null,
+2025-09-26T13:56:18: ?   specialties?: String | Null,
+2025-09-26T13:56:18: ?   culture?: String | Null,
+2025-09-26T13:56:18: ?   mission?: String | Null,
+2025-09-26T13:56:18: ?   vision?: String | Null,
+2025-09-26T13:56:18: ?   resumeUrl?: String | Null,
+2025-09-26T13:56:18: ?   locationPreference?: String | Null,
+2025-09-26T13:56:18: ?   salaryExpectation?: Int | Null,
+2025-09-26T13:56:18: ?   jobTypePreference?: String | Null,
+2025-09-26T13:56:18: ?   remotePreference?: Boolean,
+2025-09-26T13:56:18: ?   companyName?: String | Null,
+2025-09-26T13:56:18: ?   recruiterName?: String | Null,
+2025-09-26T13:56:18: ?   companyWebsite?: String | Null,
+2025-09-26T13:56:18: ?   companyIndustry?: String | Null,
+2025-09-26T13:56:18: ?   companySize?: String | Null,
+2025-09-26T13:56:18: ?   companyFounded?: Int | Null,
+2025-09-26T13:56:18: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:18: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T13:56:18: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T13:56:18: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T13:56:18: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T13:56:18: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T13:56:18: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T13:56:18:   }
+2025-09-26T13:56:18: }
+2025-09-26T13:56:18: 
+2025-09-26T13:56:18: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T13:56:18:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T13:56:18:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T13:56:18:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T13:56:18:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T13:56:18:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T13:56:18:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T13:56:18:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T13:56:18:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T13:56:18:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T13:56:18:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T13:56:18: [31m[auth][details][0m: {}
+2025-09-26T14:05:18: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T14:05:18: ✅ Server closed
+2025-09-26T14:06:25: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T14:06:25: Environment: production
+2025-09-26T14:06:25: Port: 3000
+2025-09-26T14:06:25: Hostname: srv939274.hstgr.cloud
+2025-09-26T14:06:25: ✅ Next.js app prepared
+2025-09-26T14:06:25: 🔌 Initializing Socket.io...
+2025-09-26T14:06:25: ✅ Socket.io server initialized successfully
+2025-09-26T14:06:25: ✅ Simple Socket Service initialized
+2025-09-26T14:06:25: ✅ Socket Notification Service initialized successfully
+2025-09-26T14:06:25: ✅ Socket notification service initialized
+2025-09-26T14:06:25: ✅ Socket service linked to notification service
+2025-09-26T14:06:25: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-26T14:06:25: 🔌 Socket.io ready and listening for connections
+2025-09-26T14:08:19: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T14:08:19: ✅ Server closed
+2025-09-26T14:08:19: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T14:08:19: Environment: production
+2025-09-26T14:08:19: Port: 3000
+2025-09-26T14:08:19: Hostname: srv939274.hstgr.cloud
+2025-09-26T14:08:19: ✅ Next.js app prepared
+2025-09-26T14:08:19: 🔌 Initializing Socket.io...
+2025-09-26T14:08:19: ✅ Socket.io server initialized successfully
+2025-09-26T14:08:19: ✅ Simple Socket Service initialized
+2025-09-26T14:08:19: ✅ Socket Notification Service initialized successfully
+2025-09-26T14:08:19: ✅ Socket notification service initialized
+2025-09-26T14:08:19: ✅ Socket service linked to notification service
+2025-09-26T14:08:19: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-26T14:08:19: 🔌 Socket.io ready and listening for connections
+2025-09-26T14:08:39: prisma:error 
+2025-09-26T14:08:39: Invalid `prisma.user.create()` invocation:
+2025-09-26T14:08:39: 
+2025-09-26T14:08:39: {
+2025-09-26T14:08:39:   data: {
+2025-09-26T14:08:39:     name: "Anam Sayyed",
+2025-09-26T14:08:39:     ~~~~
+2025-09-26T14:08:39:     email: "anamsayyed58@gmail.com",
+2025-09-26T14:08:39:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T14:08:39:     emailVerified: null,
+2025-09-26T14:08:39: ?   id?: String,
+2025-09-26T14:08:39: ?   password?: String | Null,
+2025-09-26T14:08:39: ?   firstName?: String | Null,
+2025-09-26T14:08:39: ?   lastName?: String | Null,
+2025-09-26T14:08:39: ?   role?: String | Null,
+2025-09-26T14:08:39: ?   roleLocked?: Boolean,
+2025-09-26T14:08:39: ?   lockedRole?: String | Null,
+2025-09-26T14:08:39: ?   roleLockReason?: String | Null,
+2025-09-26T14:08:39: ?   phone?: String | Null,
+2025-09-26T14:08:39: ?   location?: String | Null,
+2025-09-26T14:08:39: ?   bio?: String | Null,
+2025-09-26T14:08:39: ?   skills?: String,
+2025-09-26T14:08:39: ?   experience?: String | Null,
+2025-09-26T14:08:39: ?   education?: String | Null,
+2025-09-26T14:08:39: ?   profilePicture?: String | Null,
+2025-09-26T14:08:39: ?   isVerified?: Boolean,
+2025-09-26T14:08:39: ?   isActive?: Boolean,
+2025-09-26T14:08:39: ?   createdAt?: DateTime,
+2025-09-26T14:08:39: ?   updatedAt?: DateTime,
+2025-09-26T14:08:39: ?   benefits?: String | Null,
+2025-09-26T14:08:39: ?   specialties?: String | Null,
+2025-09-26T14:08:39: ?   culture?: String | Null,
+2025-09-26T14:08:39: ?   mission?: String | Null,
+2025-09-26T14:08:39: ?   vision?: String | Null,
+2025-09-26T14:08:39: ?   resumeUrl?: String | Null,
+2025-09-26T14:08:39: ?   locationPreference?: String | Null,
+2025-09-26T14:08:39: ?   salaryExpectation?: Int | Null,
+2025-09-26T14:08:39: ?   jobTypePreference?: String | Null,
+2025-09-26T14:08:39: ?   remotePreference?: Boolean,
+2025-09-26T14:08:39: ?   companyName?: String | Null,
+2025-09-26T14:08:39: ?   recruiterName?: String | Null,
+2025-09-26T14:08:39: ?   companyWebsite?: String | Null,
+2025-09-26T14:08:39: ?   companyIndustry?: String | Null,
+2025-09-26T14:08:39: ?   companySize?: String | Null,
+2025-09-26T14:08:39: ?   companyFounded?: Int | Null,
+2025-09-26T14:08:39: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:08:39: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:08:39: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T14:08:39: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T14:08:39: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T14:08:39: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T14:08:39:   }
+2025-09-26T14:08:39: }
+2025-09-26T14:08:39: 
+2025-09-26T14:08:39: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T14:08:39: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T14:08:39: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T14:08:39: Invalid `prisma.user.create()` invocation:
+2025-09-26T14:08:39: 
+2025-09-26T14:08:39: {
+2025-09-26T14:08:39:   data: {
+2025-09-26T14:08:39:     name: "Anam Sayyed",
+2025-09-26T14:08:39:     ~~~~
+2025-09-26T14:08:39:     email: "anamsayyed58@gmail.com",
+2025-09-26T14:08:39:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T14:08:39:     emailVerified: null,
+2025-09-26T14:08:39: ?   id?: String,
+2025-09-26T14:08:39: ?   password?: String | Null,
+2025-09-26T14:08:39: ?   firstName?: String | Null,
+2025-09-26T14:08:39: ?   lastName?: String | Null,
+2025-09-26T14:08:39: ?   role?: String | Null,
+2025-09-26T14:08:39: ?   roleLocked?: Boolean,
+2025-09-26T14:08:39: ?   lockedRole?: String | Null,
+2025-09-26T14:08:39: ?   roleLockReason?: String | Null,
+2025-09-26T14:08:39: ?   phone?: String | Null,
+2025-09-26T14:08:39: ?   location?: String | Null,
+2025-09-26T14:08:39: ?   bio?: String | Null,
+2025-09-26T14:08:39: ?   skills?: String,
+2025-09-26T14:08:39: ?   experience?: String | Null,
+2025-09-26T14:08:39: ?   education?: String | Null,
+2025-09-26T14:08:39: ?   profilePicture?: String | Null,
+2025-09-26T14:08:39: ?   isVerified?: Boolean,
+2025-09-26T14:08:39: ?   isActive?: Boolean,
+2025-09-26T14:08:39: ?   createdAt?: DateTime,
+2025-09-26T14:08:39: ?   updatedAt?: DateTime,
+2025-09-26T14:08:39: ?   benefits?: String | Null,
+2025-09-26T14:08:39: ?   specialties?: String | Null,
+2025-09-26T14:08:39: ?   culture?: String | Null,
+2025-09-26T14:08:39: ?   mission?: String | Null,
+2025-09-26T14:08:39: ?   vision?: String | Null,
+2025-09-26T14:08:39: ?   resumeUrl?: String | Null,
+2025-09-26T14:08:39: ?   locationPreference?: String | Null,
+2025-09-26T14:08:39: ?   salaryExpectation?: Int | Null,
+2025-09-26T14:08:39: ?   jobTypePreference?: String | Null,
+2025-09-26T14:08:39: ?   remotePreference?: Boolean,
+2025-09-26T14:08:39: ?   companyName?: String | Null,
+2025-09-26T14:08:39: ?   recruiterName?: String | Null,
+2025-09-26T14:08:39: ?   companyWebsite?: String | Null,
+2025-09-26T14:08:39: ?   companyIndustry?: String | Null,
+2025-09-26T14:08:39: ?   companySize?: String | Null,
+2025-09-26T14:08:39: ?   companyFounded?: Int | Null,
+2025-09-26T14:08:39: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:08:39: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:08:39: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T14:08:39: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T14:08:39: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T14:08:39: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T14:08:39:   }
+2025-09-26T14:08:39: }
+2025-09-26T14:08:39: 
+2025-09-26T14:08:39: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T14:08:39:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T14:08:39:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T14:08:39:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T14:08:39:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T14:08:39:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T14:08:39:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T14:08:39:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T14:08:39:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T14:08:39:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T14:08:39:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T14:08:39: [31m[auth][details][0m: {}
+2025-09-26T14:08:39: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T14:08:39: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T14:08:39: Invalid `prisma.user.create()` invocation:
+2025-09-26T14:08:39: 
+2025-09-26T14:08:39: {
+2025-09-26T14:08:39:   data: {
+2025-09-26T14:08:39:     name: "Anam Sayyed",
+2025-09-26T14:08:39:     ~~~~
+2025-09-26T14:08:39:     email: "anamsayyed58@gmail.com",
+2025-09-26T14:08:39:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T14:08:39:     emailVerified: null,
+2025-09-26T14:08:39: ?   id?: String,
+2025-09-26T14:08:39: ?   password?: String | Null,
+2025-09-26T14:08:39: ?   firstName?: String | Null,
+2025-09-26T14:08:39: ?   lastName?: String | Null,
+2025-09-26T14:08:39: ?   role?: String | Null,
+2025-09-26T14:08:39: ?   roleLocked?: Boolean,
+2025-09-26T14:08:39: ?   lockedRole?: String | Null,
+2025-09-26T14:08:39: ?   roleLockReason?: String | Null,
+2025-09-26T14:08:39: ?   phone?: String | Null,
+2025-09-26T14:08:39: ?   location?: String | Null,
+2025-09-26T14:08:39: ?   bio?: String | Null,
+2025-09-26T14:08:39: ?   skills?: String,
+2025-09-26T14:08:39: ?   experience?: String | Null,
+2025-09-26T14:08:39: ?   education?: String | Null,
+2025-09-26T14:08:39: ?   profilePicture?: String | Null,
+2025-09-26T14:08:39: ?   isVerified?: Boolean,
+2025-09-26T14:08:39: ?   isActive?: Boolean,
+2025-09-26T14:08:39: ?   createdAt?: DateTime,
+2025-09-26T14:08:39: ?   updatedAt?: DateTime,
+2025-09-26T14:08:39: ?   benefits?: String | Null,
+2025-09-26T14:08:39: ?   specialties?: String | Null,
+2025-09-26T14:08:39: ?   culture?: String | Null,
+2025-09-26T14:08:39: ?   mission?: String | Null,
+2025-09-26T14:08:39: ?   vision?: String | Null,
+2025-09-26T14:08:39: ?   resumeUrl?: String | Null,
+2025-09-26T14:08:39: ?   locationPreference?: String | Null,
+2025-09-26T14:08:39: ?   salaryExpectation?: Int | Null,
+2025-09-26T14:08:39: ?   jobTypePreference?: String | Null,
+2025-09-26T14:08:39: ?   remotePreference?: Boolean,
+2025-09-26T14:08:39: ?   companyName?: String | Null,
+2025-09-26T14:08:39: ?   recruiterName?: String | Null,
+2025-09-26T14:08:39: ?   companyWebsite?: String | Null,
+2025-09-26T14:08:39: ?   companyIndustry?: String | Null,
+2025-09-26T14:08:39: ?   companySize?: String | Null,
+2025-09-26T14:08:39: ?   companyFounded?: Int | Null,
+2025-09-26T14:08:39: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:08:39: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:08:39: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T14:08:39: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T14:08:39: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T14:08:39: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T14:08:39: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T14:08:39:   }
+2025-09-26T14:08:39: }
+2025-09-26T14:08:39: 
+2025-09-26T14:08:39: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T14:08:39:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T14:08:39:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T14:08:39:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T14:08:39:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T14:08:39:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T14:08:39:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T14:08:39:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T14:08:39:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T14:08:39:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T14:08:39:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T14:08:39: [31m[auth][details][0m: {}
+2025-09-26T14:09:29: prisma:error 
+2025-09-26T14:09:29: Invalid `prisma.user.create()` invocation:
+2025-09-26T14:09:29: 
+2025-09-26T14:09:29: {
+2025-09-26T14:09:29:   data: {
+2025-09-26T14:09:29:     name: "Anam Sayyed",
+2025-09-26T14:09:29:     ~~~~
+2025-09-26T14:09:29:     email: "anamsayyed58@gmail.com",
+2025-09-26T14:09:29:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T14:09:29:     emailVerified: null,
+2025-09-26T14:09:29: ?   id?: String,
+2025-09-26T14:09:29: ?   password?: String | Null,
+2025-09-26T14:09:29: ?   firstName?: String | Null,
+2025-09-26T14:09:29: ?   lastName?: String | Null,
+2025-09-26T14:09:29: ?   role?: String | Null,
+2025-09-26T14:09:29: ?   roleLocked?: Boolean,
+2025-09-26T14:09:29: ?   lockedRole?: String | Null,
+2025-09-26T14:09:29: ?   roleLockReason?: String | Null,
+2025-09-26T14:09:29: ?   phone?: String | Null,
+2025-09-26T14:09:29: ?   location?: String | Null,
+2025-09-26T14:09:29: ?   bio?: String | Null,
+2025-09-26T14:09:29: ?   skills?: String,
+2025-09-26T14:09:29: ?   experience?: String | Null,
+2025-09-26T14:09:29: ?   education?: String | Null,
+2025-09-26T14:09:29: ?   profilePicture?: String | Null,
+2025-09-26T14:09:29: ?   isVerified?: Boolean,
+2025-09-26T14:09:29: ?   isActive?: Boolean,
+2025-09-26T14:09:29: ?   createdAt?: DateTime,
+2025-09-26T14:09:29: ?   updatedAt?: DateTime,
+2025-09-26T14:09:29: ?   benefits?: String | Null,
+2025-09-26T14:09:29: ?   specialties?: String | Null,
+2025-09-26T14:09:29: ?   culture?: String | Null,
+2025-09-26T14:09:29: ?   mission?: String | Null,
+2025-09-26T14:09:29: ?   vision?: String | Null,
+2025-09-26T14:09:29: ?   resumeUrl?: String | Null,
+2025-09-26T14:09:29: ?   locationPreference?: String | Null,
+2025-09-26T14:09:29: ?   salaryExpectation?: Int | Null,
+2025-09-26T14:09:29: ?   jobTypePreference?: String | Null,
+2025-09-26T14:09:29: ?   remotePreference?: Boolean,
+2025-09-26T14:09:29: ?   companyName?: String | Null,
+2025-09-26T14:09:29: ?   recruiterName?: String | Null,
+2025-09-26T14:09:29: ?   companyWebsite?: String | Null,
+2025-09-26T14:09:29: ?   companyIndustry?: String | Null,
+2025-09-26T14:09:29: ?   companySize?: String | Null,
+2025-09-26T14:09:29: ?   companyFounded?: Int | Null,
+2025-09-26T14:09:29: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:09:29: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:09:29: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T14:09:29: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T14:09:29: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T14:09:29: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T14:09:29:   }
+2025-09-26T14:09:29: }
+2025-09-26T14:09:29: 
+2025-09-26T14:09:29: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T14:09:29: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T14:09:29: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T14:09:29: Invalid `prisma.user.create()` invocation:
+2025-09-26T14:09:29: 
+2025-09-26T14:09:29: {
+2025-09-26T14:09:29:   data: {
+2025-09-26T14:09:29:     name: "Anam Sayyed",
+2025-09-26T14:09:29:     ~~~~
+2025-09-26T14:09:29:     email: "anamsayyed58@gmail.com",
+2025-09-26T14:09:29:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T14:09:29:     emailVerified: null,
+2025-09-26T14:09:29: ?   id?: String,
+2025-09-26T14:09:29: ?   password?: String | Null,
+2025-09-26T14:09:29: ?   firstName?: String | Null,
+2025-09-26T14:09:29: ?   lastName?: String | Null,
+2025-09-26T14:09:29: ?   role?: String | Null,
+2025-09-26T14:09:29: ?   roleLocked?: Boolean,
+2025-09-26T14:09:29: ?   lockedRole?: String | Null,
+2025-09-26T14:09:29: ?   roleLockReason?: String | Null,
+2025-09-26T14:09:29: ?   phone?: String | Null,
+2025-09-26T14:09:29: ?   location?: String | Null,
+2025-09-26T14:09:29: ?   bio?: String | Null,
+2025-09-26T14:09:29: ?   skills?: String,
+2025-09-26T14:09:29: ?   experience?: String | Null,
+2025-09-26T14:09:29: ?   education?: String | Null,
+2025-09-26T14:09:29: ?   profilePicture?: String | Null,
+2025-09-26T14:09:29: ?   isVerified?: Boolean,
+2025-09-26T14:09:29: ?   isActive?: Boolean,
+2025-09-26T14:09:29: ?   createdAt?: DateTime,
+2025-09-26T14:09:29: ?   updatedAt?: DateTime,
+2025-09-26T14:09:29: ?   benefits?: String | Null,
+2025-09-26T14:09:29: ?   specialties?: String | Null,
+2025-09-26T14:09:29: ?   culture?: String | Null,
+2025-09-26T14:09:29: ?   mission?: String | Null,
+2025-09-26T14:09:29: ?   vision?: String | Null,
+2025-09-26T14:09:29: ?   resumeUrl?: String | Null,
+2025-09-26T14:09:29: ?   locationPreference?: String | Null,
+2025-09-26T14:09:29: ?   salaryExpectation?: Int | Null,
+2025-09-26T14:09:29: ?   jobTypePreference?: String | Null,
+2025-09-26T14:09:29: ?   remotePreference?: Boolean,
+2025-09-26T14:09:29: ?   companyName?: String | Null,
+2025-09-26T14:09:29: ?   recruiterName?: String | Null,
+2025-09-26T14:09:29: ?   companyWebsite?: String | Null,
+2025-09-26T14:09:29: ?   companyIndustry?: String | Null,
+2025-09-26T14:09:29: ?   companySize?: String | Null,
+2025-09-26T14:09:29: ?   companyFounded?: Int | Null,
+2025-09-26T14:09:29: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:09:29: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:09:29: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T14:09:29: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T14:09:29: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T14:09:29: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T14:09:29:   }
+2025-09-26T14:09:29: }
+2025-09-26T14:09:29: 
+2025-09-26T14:09:29: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T14:09:29:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T14:09:29:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T14:09:29:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T14:09:29:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T14:09:29:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T14:09:29:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T14:09:29:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T14:09:29:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T14:09:29:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T14:09:29:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T14:09:29: [31m[auth][details][0m: {}
+2025-09-26T14:09:29: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T14:09:29: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T14:09:29: Invalid `prisma.user.create()` invocation:
+2025-09-26T14:09:29: 
+2025-09-26T14:09:29: {
+2025-09-26T14:09:29:   data: {
+2025-09-26T14:09:29:     name: "Anam Sayyed",
+2025-09-26T14:09:29:     ~~~~
+2025-09-26T14:09:29:     email: "anamsayyed58@gmail.com",
+2025-09-26T14:09:29:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T14:09:29:     emailVerified: null,
+2025-09-26T14:09:29: ?   id?: String,
+2025-09-26T14:09:29: ?   password?: String | Null,
+2025-09-26T14:09:29: ?   firstName?: String | Null,
+2025-09-26T14:09:29: ?   lastName?: String | Null,
+2025-09-26T14:09:29: ?   role?: String | Null,
+2025-09-26T14:09:29: ?   roleLocked?: Boolean,
+2025-09-26T14:09:29: ?   lockedRole?: String | Null,
+2025-09-26T14:09:29: ?   roleLockReason?: String | Null,
+2025-09-26T14:09:29: ?   phone?: String | Null,
+2025-09-26T14:09:29: ?   location?: String | Null,
+2025-09-26T14:09:29: ?   bio?: String | Null,
+2025-09-26T14:09:29: ?   skills?: String,
+2025-09-26T14:09:29: ?   experience?: String | Null,
+2025-09-26T14:09:29: ?   education?: String | Null,
+2025-09-26T14:09:29: ?   profilePicture?: String | Null,
+2025-09-26T14:09:29: ?   isVerified?: Boolean,
+2025-09-26T14:09:29: ?   isActive?: Boolean,
+2025-09-26T14:09:29: ?   createdAt?: DateTime,
+2025-09-26T14:09:29: ?   updatedAt?: DateTime,
+2025-09-26T14:09:29: ?   benefits?: String | Null,
+2025-09-26T14:09:29: ?   specialties?: String | Null,
+2025-09-26T14:09:29: ?   culture?: String | Null,
+2025-09-26T14:09:29: ?   mission?: String | Null,
+2025-09-26T14:09:29: ?   vision?: String | Null,
+2025-09-26T14:09:29: ?   resumeUrl?: String | Null,
+2025-09-26T14:09:29: ?   locationPreference?: String | Null,
+2025-09-26T14:09:29: ?   salaryExpectation?: Int | Null,
+2025-09-26T14:09:29: ?   jobTypePreference?: String | Null,
+2025-09-26T14:09:29: ?   remotePreference?: Boolean,
+2025-09-26T14:09:29: ?   companyName?: String | Null,
+2025-09-26T14:09:29: ?   recruiterName?: String | Null,
+2025-09-26T14:09:29: ?   companyWebsite?: String | Null,
+2025-09-26T14:09:29: ?   companyIndustry?: String | Null,
+2025-09-26T14:09:29: ?   companySize?: String | Null,
+2025-09-26T14:09:29: ?   companyFounded?: Int | Null,
+2025-09-26T14:09:29: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:09:29: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:09:29: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T14:09:29: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T14:09:29: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T14:09:29: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T14:09:29: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T14:09:29:   }
+2025-09-26T14:09:29: }
+2025-09-26T14:09:29: 
+2025-09-26T14:09:29: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T14:09:29:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T14:09:29:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T14:09:29:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T14:09:29:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T14:09:29:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T14:09:29:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T14:09:29:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T14:09:29:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T14:09:29:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T14:09:29:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T14:09:29: [31m[auth][details][0m: {}
+2025-09-26T14:15:35: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T14:15:35: ✅ Server closed
+2025-09-26T14:16:40: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T14:16:40: Environment: production
+2025-09-26T14:16:40: Port: 3000
+2025-09-26T14:16:40: Hostname: srv939274.hstgr.cloud
+2025-09-26T14:16:41: ✅ Next.js app prepared
+2025-09-26T14:16:41: 🔌 Initializing Socket.io...
+2025-09-26T14:16:41: ✅ Socket.io server initialized successfully
+2025-09-26T14:16:41: ✅ Simple Socket Service initialized
+2025-09-26T14:16:41: ✅ Socket Notification Service initialized successfully
+2025-09-26T14:16:41: ✅ Socket notification service initialized
+2025-09-26T14:16:41: ✅ Socket service linked to notification service
+2025-09-26T14:16:41: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-26T14:16:41: 🔌 Socket.io ready and listening for connections
+2025-09-26T14:17:46: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T14:17:46: ✅ Server closed
+2025-09-26T14:17:46: 🚀 Starting custom Next.js server with Socket.io...
+2025-09-26T14:17:46: Environment: production
+2025-09-26T14:17:46: Port: 3000
+2025-09-26T14:17:46: Hostname: srv939274.hstgr.cloud
+2025-09-26T14:17:47: ✅ Next.js app prepared
+2025-09-26T14:17:47: 🔌 Initializing Socket.io...
+2025-09-26T14:17:47: ✅ Socket.io server initialized successfully
+2025-09-26T14:17:47: ✅ Simple Socket Service initialized
+2025-09-26T14:17:47: ✅ Socket Notification Service initialized successfully
+2025-09-26T14:17:47: ✅ Socket notification service initialized
+2025-09-26T14:17:47: ✅ Socket service linked to notification service
+2025-09-26T14:17:48: ✅ Server ready on http://srv939274.hstgr.cloud:3000
+2025-09-26T14:17:48: 🔌 Socket.io ready and listening for connections
+2025-09-26T14:19:37: prisma:error 
+2025-09-26T14:19:37: Invalid `prisma.user.create()` invocation:
+2025-09-26T14:19:37: 
+2025-09-26T14:19:37: {
+2025-09-26T14:19:37:   data: {
+2025-09-26T14:19:37:     name: "Anam Sayyed",
+2025-09-26T14:19:37:     ~~~~
+2025-09-26T14:19:37:     email: "anamsayyed58@gmail.com",
+2025-09-26T14:19:37:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T14:19:37:     emailVerified: null,
+2025-09-26T14:19:37: ?   id?: String,
+2025-09-26T14:19:37: ?   password?: String | Null,
+2025-09-26T14:19:37: ?   firstName?: String | Null,
+2025-09-26T14:19:37: ?   lastName?: String | Null,
+2025-09-26T14:19:37: ?   role?: String | Null,
+2025-09-26T14:19:37: ?   roleLocked?: Boolean,
+2025-09-26T14:19:37: ?   lockedRole?: String | Null,
+2025-09-26T14:19:37: ?   roleLockReason?: String | Null,
+2025-09-26T14:19:37: ?   phone?: String | Null,
+2025-09-26T14:19:37: ?   location?: String | Null,
+2025-09-26T14:19:37: ?   bio?: String | Null,
+2025-09-26T14:19:37: ?   skills?: String,
+2025-09-26T14:19:37: ?   experience?: String | Null,
+2025-09-26T14:19:37: ?   education?: String | Null,
+2025-09-26T14:19:37: ?   profilePicture?: String | Null,
+2025-09-26T14:19:37: ?   isVerified?: Boolean,
+2025-09-26T14:19:37: ?   isActive?: Boolean,
+2025-09-26T14:19:37: ?   createdAt?: DateTime,
+2025-09-26T14:19:37: ?   updatedAt?: DateTime,
+2025-09-26T14:19:37: ?   benefits?: String | Null,
+2025-09-26T14:19:37: ?   specialties?: String | Null,
+2025-09-26T14:19:37: ?   culture?: String | Null,
+2025-09-26T14:19:37: ?   mission?: String | Null,
+2025-09-26T14:19:37: ?   vision?: String | Null,
+2025-09-26T14:19:37: ?   resumeUrl?: String | Null,
+2025-09-26T14:19:37: ?   locationPreference?: String | Null,
+2025-09-26T14:19:37: ?   salaryExpectation?: Int | Null,
+2025-09-26T14:19:37: ?   jobTypePreference?: String | Null,
+2025-09-26T14:19:37: ?   remotePreference?: Boolean,
+2025-09-26T14:19:37: ?   companyName?: String | Null,
+2025-09-26T14:19:37: ?   recruiterName?: String | Null,
+2025-09-26T14:19:37: ?   companyWebsite?: String | Null,
+2025-09-26T14:19:37: ?   companyIndustry?: String | Null,
+2025-09-26T14:19:37: ?   companySize?: String | Null,
+2025-09-26T14:19:37: ?   companyFounded?: Int | Null,
+2025-09-26T14:19:37: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:19:37: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:19:37: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T14:19:37: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T14:19:37: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T14:19:37: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T14:19:37:   }
+2025-09-26T14:19:37: }
+2025-09-26T14:19:37: 
+2025-09-26T14:19:37: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T14:19:37: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T14:19:37: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T14:19:37: Invalid `prisma.user.create()` invocation:
+2025-09-26T14:19:37: 
+2025-09-26T14:19:37: {
+2025-09-26T14:19:37:   data: {
+2025-09-26T14:19:37:     name: "Anam Sayyed",
+2025-09-26T14:19:37:     ~~~~
+2025-09-26T14:19:37:     email: "anamsayyed58@gmail.com",
+2025-09-26T14:19:37:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T14:19:37:     emailVerified: null,
+2025-09-26T14:19:37: ?   id?: String,
+2025-09-26T14:19:37: ?   password?: String | Null,
+2025-09-26T14:19:37: ?   firstName?: String | Null,
+2025-09-26T14:19:37: ?   lastName?: String | Null,
+2025-09-26T14:19:37: ?   role?: String | Null,
+2025-09-26T14:19:37: ?   roleLocked?: Boolean,
+2025-09-26T14:19:37: ?   lockedRole?: String | Null,
+2025-09-26T14:19:37: ?   roleLockReason?: String | Null,
+2025-09-26T14:19:37: ?   phone?: String | Null,
+2025-09-26T14:19:37: ?   location?: String | Null,
+2025-09-26T14:19:37: ?   bio?: String | Null,
+2025-09-26T14:19:37: ?   skills?: String,
+2025-09-26T14:19:37: ?   experience?: String | Null,
+2025-09-26T14:19:37: ?   education?: String | Null,
+2025-09-26T14:19:37: ?   profilePicture?: String | Null,
+2025-09-26T14:19:37: ?   isVerified?: Boolean,
+2025-09-26T14:19:37: ?   isActive?: Boolean,
+2025-09-26T14:19:37: ?   createdAt?: DateTime,
+2025-09-26T14:19:37: ?   updatedAt?: DateTime,
+2025-09-26T14:19:37: ?   benefits?: String | Null,
+2025-09-26T14:19:37: ?   specialties?: String | Null,
+2025-09-26T14:19:37: ?   culture?: String | Null,
+2025-09-26T14:19:37: ?   mission?: String | Null,
+2025-09-26T14:19:37: ?   vision?: String | Null,
+2025-09-26T14:19:37: ?   resumeUrl?: String | Null,
+2025-09-26T14:19:37: ?   locationPreference?: String | Null,
+2025-09-26T14:19:37: ?   salaryExpectation?: Int | Null,
+2025-09-26T14:19:37: ?   jobTypePreference?: String | Null,
+2025-09-26T14:19:37: ?   remotePreference?: Boolean,
+2025-09-26T14:19:37: ?   companyName?: String | Null,
+2025-09-26T14:19:37: ?   recruiterName?: String | Null,
+2025-09-26T14:19:37: ?   companyWebsite?: String | Null,
+2025-09-26T14:19:37: ?   companyIndustry?: String | Null,
+2025-09-26T14:19:37: ?   companySize?: String | Null,
+2025-09-26T14:19:37: ?   companyFounded?: Int | Null,
+2025-09-26T14:19:37: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:19:37: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:19:37: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T14:19:37: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T14:19:37: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T14:19:37: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T14:19:37:   }
+2025-09-26T14:19:37: }
+2025-09-26T14:19:37: 
+2025-09-26T14:19:37: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T14:19:37:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T14:19:37:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T14:19:37:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T14:19:37:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T14:19:37:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T14:19:37:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T14:19:37:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T14:19:37:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T14:19:37:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T14:19:37:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T14:19:37: [31m[auth][details][0m: {}
+2025-09-26T14:19:37: [31m[auth][error][0m AdapterError: Read more at https://errors.authjs.dev#adaptererror
+2025-09-26T14:19:37: [31m[auth][cause][0m: PrismaClientValidationError: 
+2025-09-26T14:19:37: Invalid `prisma.user.create()` invocation:
+2025-09-26T14:19:37: 
+2025-09-26T14:19:37: {
+2025-09-26T14:19:37:   data: {
+2025-09-26T14:19:37:     name: "Anam Sayyed",
+2025-09-26T14:19:37:     ~~~~
+2025-09-26T14:19:37:     email: "anamsayyed58@gmail.com",
+2025-09-26T14:19:37:     image: "https://lh3.googleusercontent.com/a/ACg8ocIzSvGpDRjM-SQ__5aTArQd2UGOwTWXYwikpmz9FjxIeBju_Wbo=s96-c",
+2025-09-26T14:19:37:     emailVerified: null,
+2025-09-26T14:19:37: ?   id?: String,
+2025-09-26T14:19:37: ?   password?: String | Null,
+2025-09-26T14:19:37: ?   firstName?: String | Null,
+2025-09-26T14:19:37: ?   lastName?: String | Null,
+2025-09-26T14:19:37: ?   role?: String | Null,
+2025-09-26T14:19:37: ?   roleLocked?: Boolean,
+2025-09-26T14:19:37: ?   lockedRole?: String | Null,
+2025-09-26T14:19:37: ?   roleLockReason?: String | Null,
+2025-09-26T14:19:37: ?   phone?: String | Null,
+2025-09-26T14:19:37: ?   location?: String | Null,
+2025-09-26T14:19:37: ?   bio?: String | Null,
+2025-09-26T14:19:37: ?   skills?: String,
+2025-09-26T14:19:37: ?   experience?: String | Null,
+2025-09-26T14:19:37: ?   education?: String | Null,
+2025-09-26T14:19:37: ?   profilePicture?: String | Null,
+2025-09-26T14:19:37: ?   isVerified?: Boolean,
+2025-09-26T14:19:37: ?   isActive?: Boolean,
+2025-09-26T14:19:37: ?   createdAt?: DateTime,
+2025-09-26T14:19:37: ?   updatedAt?: DateTime,
+2025-09-26T14:19:37: ?   benefits?: String | Null,
+2025-09-26T14:19:37: ?   specialties?: String | Null,
+2025-09-26T14:19:37: ?   culture?: String | Null,
+2025-09-26T14:19:37: ?   mission?: String | Null,
+2025-09-26T14:19:37: ?   vision?: String | Null,
+2025-09-26T14:19:37: ?   resumeUrl?: String | Null,
+2025-09-26T14:19:37: ?   locationPreference?: String | Null,
+2025-09-26T14:19:37: ?   salaryExpectation?: Int | Null,
+2025-09-26T14:19:37: ?   jobTypePreference?: String | Null,
+2025-09-26T14:19:37: ?   remotePreference?: Boolean,
+2025-09-26T14:19:37: ?   companyName?: String | Null,
+2025-09-26T14:19:37: ?   recruiterName?: String | Null,
+2025-09-26T14:19:37: ?   companyWebsite?: String | Null,
+2025-09-26T14:19:37: ?   companyIndustry?: String | Null,
+2025-09-26T14:19:37: ?   companySize?: String | Null,
+2025-09-26T14:19:37: ?   companyFounded?: Int | Null,
+2025-09-26T14:19:37: ?   accounts?: AccountCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   applications?: ApplicationCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   createdCompanies?: CompanyCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:19:37: ?   createdJobs?: JobCreateNestedManyWithoutCreatorInput,
+2025-09-26T14:19:37: ?   bookmarks?: JobBookmarkCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   receivedMessages?: MessageCreateNestedManyWithoutReceiverInput,
+2025-09-26T14:19:37: ?   sentMessages?: MessageCreateNestedManyWithoutSenderInput,
+2025-09-26T14:19:37: ?   notifications?: NotificationCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   resumes?: ResumeCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   resumeViews?: ResumeViewCreateNestedManyWithoutViewerInput,
+2025-09-26T14:19:37: ?   sessions?: SessionCreateNestedManyWithoutUserInput,
+2025-09-26T14:19:37: ?   settings?: SettingsCreateNestedManyWithoutUserInput
+2025-09-26T14:19:37:   }
+2025-09-26T14:19:37: }
+2025-09-26T14:19:37: 
+2025-09-26T14:19:37: Unknown argument `name`. Did you mean `image`? Available options are marked with ?.
+2025-09-26T14:19:37:     at _n (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:29:1363)
+2025-09-26T14:19:37:     at ei.handleRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6926)
+2025-09-26T14:19:37:     at ei.handleAndLogRequestError (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-09-26T14:19:37:     at ei.request (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-09-26T14:19:37:     at async a (/var/www/jobportal/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-09-26T14:19:37:     at async c.<computed> (/var/www/jobportal/.next/server/chunks/8745.js:1:67530)
+2025-09-26T14:19:37:     at async dk (/var/www/jobportal/.next/server/chunks/8745.js:404:3145)
+2025-09-26T14:19:37:     at async fk (/var/www/jobportal/.next/server/chunks/8745.js:404:38403)
+2025-09-26T14:19:37:     at async ft (/var/www/jobportal/.next/server/chunks/8745.js:404:49833)
+2025-09-26T14:19:37:     at async fv (/var/www/jobportal/.next/server/chunks/8745.js:404:54516)
+2025-09-26T14:19:37: [31m[auth][details][0m: {}
+2025-09-26T14:21:53: 🛑 SIGINT received, shutting down gracefully
+2025-09-26T14:21:53: ✅ Server closed
