@@ -105,7 +105,9 @@ export default function ApplicationDetailPage() {
         id: apiApplication.id,
         jobTitle: apiApplication.job.title,
         jobId: parseInt(apiApplication.job.id),
-        applicantName: apiApplication.user.name || 'Unknown',
+        applicantName: apiApplication.user.firstName && apiApplication.user.lastName 
+          ? `${apiApplication.user.firstName} ${apiApplication.user.lastName}` 
+          : apiApplication.user.firstName || apiApplication.user.email || 'Unknown',
         applicantEmail: apiApplication.user.email,
         applicantPhone: apiApplication.user.phone || applicationData.phone || 'Not provided',
         applicantLocation: apiApplication.user.location || applicationData.location || 'Not provided',
@@ -715,31 +717,63 @@ export default function ApplicationDetailPage() {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button 
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  onClick={handleShortlistCandidate}
-                  disabled={actionLoading === 'shortlist' || application?.status === 'shortlisted'}
-                >
-                  {actionLoading === 'shortlist' ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                  )}
-                  {application?.status === 'shortlisted' ? 'Shortlisted' : 'Shortlist Candidate'}
-                </Button>
+                {application?.status !== 'shortlisted' && application?.status !== 'hired' && application?.status !== 'rejected' && (
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    onClick={handleShortlistCandidate}
+                    disabled={actionLoading === 'shortlist'}
+                  >
+                    {actionLoading === 'shortlist' ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                    )}
+                    Shortlist Candidate
+                  </Button>
+                )}
                 
-                <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                  onClick={handleScheduleInterview}
-                  disabled={actionLoading === 'interview' || application?.status === 'interview'}
-                >
-                  {actionLoading === 'interview' ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                  )}
-                  {application?.status === 'interview' ? 'Interview Scheduled' : 'Schedule Interview'}
-                </Button>
+                {application?.status === 'shortlisted' && (
+                  <div className="w-full bg-green-100 text-green-800 px-4 py-2 rounded-lg text-center">
+                    <CheckCircle className="h-4 w-4 inline mr-2" />
+                    Shortlisted
+                  </div>
+                )}
+                
+                {application?.status === 'shortlisted' && (
+                  <Button 
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    onClick={handleScheduleInterview}
+                    disabled={actionLoading === 'interview'}
+                  >
+                    {actionLoading === 'interview' ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                    )}
+                    Schedule Interview
+                  </Button>
+                )}
+                
+                {application?.status === 'interview' && (
+                  <div className="w-full bg-blue-100 text-blue-800 px-4 py-2 rounded-lg text-center">
+                    <MessageSquare className="h-4 w-4 inline mr-2" />
+                    Interview Scheduled
+                  </div>
+                )}
+                
+                {application?.status === 'hired' && (
+                  <div className="w-full bg-green-100 text-green-800 px-4 py-2 rounded-lg text-center">
+                    <CheckCircle className="h-4 w-4 inline mr-2" />
+                    Hired
+                  </div>
+                )}
+                
+                {application?.status === 'rejected' && (
+                  <div className="w-full bg-red-100 text-red-800 px-4 py-2 rounded-lg text-center">
+                    <XCircle className="h-4 w-4 inline mr-2" />
+                    Rejected
+                  </div>
+                )}
                 
                 {application?.isFavorite ? (
                   <Button 
