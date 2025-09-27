@@ -2,6 +2,7 @@
 
 import React from "react";
 import OptimizedJobsClient from "./OptimizedJobsClient";
+import FilterDebug from "@/components/FilterDebug";
 
 export default function JobsPage() {
   return (
@@ -22,6 +23,9 @@ export default function JobsPage() {
               <OptimizedJobsClient initialJobs={[]} />
         </div>
       </div>
+      
+      {/* Debug Component - Remove in production */}
+      <FilterDebug />
     </div>
   );
 }

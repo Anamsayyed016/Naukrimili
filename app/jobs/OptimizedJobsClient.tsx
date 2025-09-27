@@ -199,7 +199,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     const sector = searchParams.get('sector') || '';
 
     console.log('⚡ OptimizedJobsClient initializing with params:', { 
-      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector 
+      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
+      allParams: Object.fromEntries(searchParams.entries()) // Debug: show all params
     });
 
     // Reset pagination when search params change

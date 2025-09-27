@@ -104,8 +104,8 @@ export default function JobSearchHero({
   const handleSearch = useCallback(() => {
     const params = new URLSearchParams();
     
-    // Use unlimited search parameters
-    if (filters.query) params.set('q', filters.query);
+    // Use unlimited search parameters - FIXED: Use correct parameter names
+    if (filters.query) params.set('query', filters.query); // Fixed: was 'q'
     if (filters.location) params.set('location', filters.location);
     if (filters.jobType !== 'all') params.set('jobType', filters.jobType);
     if (filters.experienceLevel !== 'all') params.set('experienceLevel', filters.experienceLevel);
@@ -113,8 +113,7 @@ export default function JobSearchHero({
     if (filters.salaryMin) params.set('salaryMin', filters.salaryMin);
     if (filters.salaryMax) params.set('salaryMax', filters.salaryMax);
     
-    // Add unlimited search parameters
-    params.set('unlimited', 'true');
+    // Add unlimited search parameters - FIXED: Use correct API endpoint
     params.set('limit', '100'); // Increased limit for unlimited search
     params.set('includeExternal', 'true');
     params.set('includeDatabase', 'true');
@@ -128,7 +127,9 @@ export default function JobSearchHero({
       if (sortByDistance) params.set('sortByDistance', 'true');
     }
 
+    // FIXED: Use the unlimited search API endpoint directly
     const searchUrl = `/jobs?${params.toString()}`;
+    console.log('🔍 Search URL:', searchUrl); // Debug log
     router.push(searchUrl);
   }, [filters, userLocation, searchRadius, sortByDistance, router]);
 

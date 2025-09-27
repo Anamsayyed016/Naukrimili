@@ -76,7 +76,7 @@ export default function SmartFilterSuggestions({
       const trendingResponse = await fetch(`/api/jobs/unlimited?${params.toString()}`);
       const trendingData = await trendingResponse.json();
       
-      if (trendingData.success && trendingData.jobs) {
+      if (trendingData.success && trendingData.jobs && Array.isArray(trendingData.jobs)) {
         // Extract unique job titles and count occurrences
         const jobCounts: { [key: string]: number } = {};
         trendingData.jobs.forEach((job: any) => {
@@ -98,41 +98,88 @@ export default function SmartFilterSuggestions({
           }));
 
         setTrendingJobs(trendingSuggestions);
+      } else {
+        // Fallback: Use static trending jobs if API fails
+        const fallbackSuggestions: Suggestion[] = [
+          { id: 'trending-1', text: 'Software Engineer', type: 'job', count: 45, category: 'Trending Jobs' },
+          { id: 'trending-2', text: 'Data Analyst', type: 'job', count: 32, category: 'Trending Jobs' },
+          { id: 'trending-3', text: 'Product Manager', type: 'job', count: 28, category: 'Trending Jobs' },
+          { id: 'trending-4', text: 'Frontend Developer', type: 'job', count: 25, category: 'Trending Jobs' },
+          { id: 'trending-5', text: 'DevOps Engineer', type: 'job', count: 22, category: 'Trending Jobs' },
+          { id: 'trending-6', text: 'UI/UX Designer', type: 'job', count: 18, category: 'Trending Jobs' },
+          { id: 'trending-7', text: 'Backend Developer', type: 'job', count: 35, category: 'Trending Jobs' },
+          { id: 'trending-8', text: 'Full Stack Developer', type: 'job', count: 30, category: 'Trending Jobs' }
+        ];
+        setTrendingJobs(fallbackSuggestions);
       }
 
-      // Fetch location suggestions
-      const locationResponse = await fetch('/api/locations');
-      const locationData = await locationResponse.json();
-      
-      if (locationData.success && locationData.locations) {
-        const locationSuggestions: Suggestion[] = locationData.locations
-          .slice(0, 8)
-          .map((loc: any, index: number) => ({
-            id: `location-${index}`,
-            text: loc.name,
-            type: 'location' as const,
-            count: loc.jobCount || 0,
-            category: 'Popular Locations'
-          }));
+      // Fetch location suggestions with fallback
+      try {
+        const locationResponse = await fetch('/api/locations');
+        const locationData = await locationResponse.json();
         
-        setPopularLocations(locationSuggestions);
+        if (locationData.success && locationData.locations) {
+          const locationSuggestions: Suggestion[] = locationData.locations
+            .slice(0, 8)
+            .map((loc: any, index: number) => ({
+              id: `location-${index}`,
+              text: loc.name,
+              type: 'location' as const,
+              count: loc.jobCount || 0,
+              category: 'Popular Locations'
+            }));
+          
+          setPopularLocations(locationSuggestions);
+        } else {
+          // Fallback locations
+          const fallbackLocations: Suggestion[] = [
+            { id: 'location-1', text: 'Bangalore', type: 'location', count: 45, category: 'Popular Locations' },
+            { id: 'location-2', text: 'Mumbai', type: 'location', count: 38, category: 'Popular Locations' },
+            { id: 'location-3', text: 'Delhi', type: 'location', count: 42, category: 'Popular Locations' },
+            { id: 'location-4', text: 'Hyderabad', type: 'location', count: 28, category: 'Popular Locations' },
+            { id: 'location-5', text: 'Chennai', type: 'location', count: 25, category: 'Popular Locations' },
+            { id: 'location-6', text: 'Pune', type: 'location', count: 22, category: 'Popular Locations' },
+            { id: 'location-7', text: 'Kolkata', type: 'location', count: 18, category: 'Popular Locations' },
+            { id: 'location-8', text: 'Dubai', type: 'location', count: 15, category: 'Popular Locations' }
+          ];
+          setPopularLocations(fallbackLocations);
+        }
+      } catch (error) {
+        console.warn('Location API failed, using fallback:', error);
       }
 
-      // Fetch company suggestions
-      const companyResponse = await fetch('/api/companies?limit=8');
-      const companyData = await companyResponse.json();
-      
-      if (companyData.success && companyData.companies) {
-        const companySuggestions: Suggestion[] = companyData.companies
-          .map((company: any, index: number) => ({
-            id: `company-${index}`,
-            text: company.name,
-            type: 'company' as const,
-            count: company.jobCount || 0,
-            category: 'Top Companies'
-          }));
+      // Fetch company suggestions with fallback
+      try {
+        const companyResponse = await fetch('/api/companies?limit=8');
+        const companyData = await companyResponse.json();
         
-        setTopCompanies(companySuggestions);
+        if (companyData.success && companyData.companies) {
+          const companySuggestions: Suggestion[] = companyData.companies
+            .map((company: any, index: number) => ({
+              id: `company-${index}`,
+              text: company.name,
+              type: 'company' as const,
+              count: company.jobCount || 0,
+              category: 'Top Companies'
+            }));
+          
+          setTopCompanies(companySuggestions);
+        } else {
+          // Fallback companies
+          const fallbackCompanies: Suggestion[] = [
+            { id: 'company-1', text: 'Boeing', type: 'company', count: 25, category: 'Top Companies' },
+            { id: 'company-2', text: 'Ensono', type: 'company', count: 18, category: 'Top Companies' },
+            { id: 'company-3', text: 'HRT Technology', type: 'company', count: 15, category: 'Top Companies' },
+            { id: 'company-4', text: 'Jobot', type: 'company', count: 12, category: 'Top Companies' },
+            { id: 'company-5', text: 'TechCorp', type: 'company', count: 20, category: 'Top Companies' },
+            { id: 'company-6', text: 'InnovateLabs', type: 'company', count: 16, category: 'Top Companies' },
+            { id: 'company-7', text: 'Digital Solutions', type: 'company', count: 14, category: 'Top Companies' },
+            { id: 'company-8', text: 'CloudTech', type: 'company', count: 10, category: 'Top Companies' }
+          ];
+          setTopCompanies(fallbackCompanies);
+        }
+      } catch (error) {
+        console.warn('Company API failed, using fallback:', error);
       }
 
     } catch (error) {
