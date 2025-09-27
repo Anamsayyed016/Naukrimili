@@ -386,7 +386,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           (session.user as any).id = user.id;
           (session.user as any).email = user.email;
           (session.user as any).name = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || user.email || '';
-          (session.user as any).role = user.role;
           (session.user as any).roleLocked = roleLockData?.roleLocked || false;
           (session.user as any).lockedRole = roleLockData?.lockedRole;
           (session.user as any).roleLockReason = roleLockData?.roleLockReason;
@@ -397,6 +396,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (roleLockData?.roleLocked && roleLockData?.lockedRole) {
             (session.user as any).role = roleLockData.lockedRole;
             console.log(`🔒 Session: Enforcing locked role ${roleLockData.lockedRole} for user ${user.email}`);
+          } else {
+            // Use database role if not locked
+            (session.user as any).role = user.role;
+            console.log(`🔓 Session: Using database role ${user.role} for user ${user.email}`);
           }
           
           console.log('🔍 Session callback - Fresh data from DB:', { 
