@@ -189,11 +189,11 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
   // Initialize with search params and load jobs
   useEffect(() => {
-    const query = searchParams.get('q') || searchParams.get('query') || '';
+    const query = searchParams.get('query') || searchParams.get('q') || ''; // Support both parameter names
     const loc = searchParams.get('location') || '';
     const jobType = searchParams.get('jobType') || '';
     const experienceLevel = searchParams.get('experienceLevel') || '';
-    const isRemote = searchParams.get('isRemote') === 'true';
+    const isRemote = searchParams.get('isRemote') === 'true' || searchParams.get('remote') === 'true'; // Support both
     const salaryMin = searchParams.get('salaryMin') || '';
     const salaryMax = searchParams.get('salaryMax') || '';
     const sector = searchParams.get('sector') || '';

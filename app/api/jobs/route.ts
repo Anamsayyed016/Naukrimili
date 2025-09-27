@@ -40,6 +40,8 @@ interface JobWithDistance {
 }
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     // Validate request
     if (!request.url) {
@@ -52,13 +54,13 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     
-    // Validate and parse parameters with defaults
+    // Validate and parse parameters with defaults - support both parameter names
     const query = searchParams.get('query') || searchParams.get('q') || '';
     const location = searchParams.get('location') || '';
     const company = searchParams.get('company') || '';
     const jobType = searchParams.get('jobType') || '';
     const experienceLevel = searchParams.get('experienceLevel') || '';
-    const isRemote = searchParams.get('isRemote') === 'true';
+    const isRemote = searchParams.get('isRemote') === 'true' || searchParams.get('remote') === 'true';
     const sector = searchParams.get('sector') || '';
     const country = searchParams.get('country') || 'IN';
     
@@ -83,6 +85,12 @@ export async function GET(request: NextRequest) {
     const includeDistance = searchParams.get('includeDistance') === 'true';
     
     const skip = (page - 1) * limit;
+    
+    // Debug logging for search parameters
+    console.log('🔍 Jobs API Search Parameters:', {
+      query, location, company, jobType, experienceLevel, isRemote, sector, country,
+      page, limit, radius, userLat, userLng, sortByDistance, includeDistance
+    });
     
     // Build where clause with validation
     const where: any = { isActive: true };
@@ -163,6 +171,14 @@ export async function GET(request: NextRequest) {
       
       jobs = jobsResult;
       total = totalResult;
+      
+      console.log(`✅ Database query completed:`, {
+        jobsFound: jobs.length,
+        totalJobs: total,
+        query: where,
+        skip,
+        limit
+      });
     } catch (dbError: any) {
       console.error('❌ Database query failed:', dbError);
       return NextResponse.json(
@@ -381,7 +397,8 @@ export async function GET(request: NextRequest) {
       meta: {
         timestamp: new Date().toISOString(),
         endpoint: '/api/jobs',
-        version: '1.0'
+        version: '1.0',
+        searchTimeMs: Date.now() - startTime
       }
     };
     

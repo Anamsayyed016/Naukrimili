@@ -225,13 +225,13 @@ export default function EnhancedJobSearchHero({
       });
     }
 
-    // Build search URL
+    // Build search URL with correct parameter names
     const searchParams = new URLSearchParams();
-    searchParams.set('q', searchFilters.query);
+    searchParams.set('query', searchFilters.query); // Fixed: was 'q'
     if (searchFilters.location) searchParams.set('location', searchFilters.location);
     if (searchFilters.jobType !== 'all') searchParams.set('jobType', searchFilters.jobType);
     if (searchFilters.experienceLevel !== 'all') searchParams.set('experienceLevel', searchFilters.experienceLevel);
-    if (searchFilters.isRemote) searchParams.set('remote', 'true');
+    if (searchFilters.isRemote) searchParams.set('isRemote', 'true'); // Fixed: was 'remote'
     if (searchFilters.salaryMin) searchParams.set('salaryMin', searchFilters.salaryMin);
     if (searchFilters.salaryMax) searchParams.set('salaryMax', searchFilters.salaryMax);
 
