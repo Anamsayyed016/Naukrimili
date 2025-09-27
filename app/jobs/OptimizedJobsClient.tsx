@@ -96,7 +96,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         limit: '500', // Truly unlimited jobs per page
         includeExternal: 'true',
         includeDatabase: 'true',
-        includeSample: 'true',
+        includeSample: 'false', // Prioritize real jobs only
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),

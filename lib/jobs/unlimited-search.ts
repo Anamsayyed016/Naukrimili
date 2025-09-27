@@ -221,17 +221,17 @@ export class UnlimitedJobSearch {
       }
     }
 
-    // 3. Sample jobs for unlimited coverage
-    if (includeSample) {
+    // 3. Sample jobs for unlimited coverage (only if no real jobs found)
+    if (includeSample && allJobs.length < limit) {
       try {
-        // Generate more sample jobs for unlimited coverage
-        const sampleLimit = Math.max(limit * 2, 200); // Generate more sample jobs for unlimited search
+        // Only generate sample jobs if we don't have enough real jobs
+        const sampleLimit = Math.max(limit - allJobs.length, 50);
         const sampleJobs = await this.generateSampleJobs({
           query, location, country, sector, limit: sampleLimit
         });
         allJobs.push(...sampleJobs);
         sources.sample = sampleJobs.length;
-        console.log(`✅ Sample jobs: Generated ${sampleJobs.length} jobs (only ${sampleLimit} needed)`);
+        console.log(`✅ Sample jobs: Generated ${sampleJobs.length} jobs to fill remaining slots`);
       } catch (error) {
         console.error('❌ Sample job generation failed:', error);
       }
@@ -691,8 +691,8 @@ export class UnlimitedJobSearch {
   private sortJobs(jobs: any[], options: any) {
     return jobs.sort((a, b) => {
       // Real jobs first (database and external), then sample jobs
-      const aIsReal = a.source && a.source !== 'sample';
-      const bIsReal = b.source && b.source !== 'sample';
+      const aIsReal = a.source && a.source !== 'sample' && a.id && !isNaN(parseInt(a.id));
+      const bIsReal = b.source && b.source !== 'sample' && b.id && !isNaN(parseInt(b.id));
       
       if (aIsReal && !bIsReal) return -1;
       if (!aIsReal && bIsReal) return 1;

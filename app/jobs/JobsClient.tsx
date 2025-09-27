@@ -105,7 +105,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         country: country,
         includeExternal: 'true',
         includeDatabase: 'true',
-        includeSample: 'true', // Include sample jobs for comprehensive coverage
+        includeSample: 'false', // Prioritize real jobs only
         page: page.toString(),
         limit: '50' // Reduced limit for faster loading
       });
