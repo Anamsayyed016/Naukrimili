@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/nextauth-config";
 import { prisma } from "@/lib/prisma";
+import { comprehensiveNotificationService } from "@/lib/comprehensive-notification-service";
 
 // Helper function to get sample job data
 function getSampleJobData(jobId: string, companyId: string | null) {
@@ -406,7 +407,43 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Application created successfully:', application.id);
 
-    // Create database notification for job seeker
+    // Send comprehensive notifications
+    try {
+      const jobTitle = (application as any).job?.title || 'the job';
+      const companyName = (application as any).job?.company || 'Unknown Company';
+      
+      // Notify jobseeker
+      await comprehensiveNotificationService.notifyJobseekerApplicationSubmitted(
+        user.id, 
+        jobTitle, 
+        companyName
+      );
+      console.log('✅ Comprehensive notification sent to jobseeker');
+
+      // Notify employer if they exist
+      if (application.companyId) {
+        const company = await prisma.company.findUnique({
+          where: { id: application.companyId },
+          include: { user: true }
+        });
+
+        if (company?.user) {
+          await comprehensiveNotificationService.notifyEmployerNewApplication(
+            company.user.id,
+            `${user.firstName} ${user.lastName}`.trim() || user.email || 'Anonymous',
+            jobTitle,
+            application.id
+          );
+          console.log('✅ Comprehensive notification sent to employer');
+        }
+      }
+
+    } catch (notificationError) {
+      console.error('❌ Failed to send comprehensive notifications:', notificationError);
+      // Don't fail the application if notifications fail
+    }
+
+    // Create database notification for job seeker (legacy support)
     try {
       await prisma.notification.create({
         data: {

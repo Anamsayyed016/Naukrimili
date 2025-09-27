@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import UnifiedUserProfile from "./UnifiedUserProfile";
 import { NotificationBell } from "./NotificationBell";
+import { ComprehensiveNotificationBell } from "./ComprehensiveNotificationBell";
 import { MessageBell } from "./MessageBell";
 
 interface MainNavigationProps {
@@ -196,7 +197,7 @@ export default function MainNavigation({
           {/* Desktop Right Side - Enhanced User Actions */}
           <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
             {/* Desktop Notifications */}
-            <NotificationBell />
+            <ComprehensiveNotificationBell />
 
             {/* Desktop Messages */}
             <MessageBell />
@@ -229,7 +230,7 @@ export default function MainNavigation({
             {/* Mobile Notifications - Show when logged in */}
             {isMounted && isAuthenticated && user && (
               <div className="mr-2">
-                <NotificationBell />
+                <ComprehensiveNotificationBell />
               </div>
             )}
             

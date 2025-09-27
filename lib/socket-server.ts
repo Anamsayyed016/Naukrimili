@@ -9,8 +9,47 @@ import { auth } from './nextauth-config';
 import { prisma } from './prisma';
 import { createNotification } from './notification-service';
 
-// Notification types
-export type NotificationType = 'APPLICATION_UPDATE' | 'JOB_CREATED' | 'JOB_UPDATED' | 'JOB_DELETED' | 'COMPANY_UPDATE' | 'RESUME_UPLOADED' | 'MESSAGE_RECEIVED' | 'SYSTEM_ANNOUNCEMENT' | 'info' | 'success' | 'warning' | 'error';
+// Comprehensive notification types for job portal
+export type NotificationType = 
+  // Application & Job Flow
+  | 'APPLICATION_UPDATE' | 'APPLICATION_RECEIVED' | 'APPLICATION_REVIEWED' | 'APPLICATION_SHORTLISTED' 
+  | 'APPLICATION_REJECTED' | 'APPLICATION_ACCEPTED' | 'INTERVIEW_SCHEDULED' | 'INTERVIEW_RESCHEDULED'
+  | 'INTERVIEW_CANCELLED' | 'OFFER_MADE' | 'OFFER_ACCEPTED' | 'OFFER_REJECTED' | 'OFFER_WITHDRAWN'
+  
+  // Job Management
+  | 'JOB_CREATED' | 'JOB_UPDATED' | 'JOB_DELETED' | 'JOB_EXPIRED' | 'JOB_REACTIVATED' | 'JOB_FEATURED'
+  | 'JOB_VIEWED' | 'JOB_APPLIED' | 'JOB_SAVED' | 'JOB_UNSAVED' | 'JOB_SHARED'
+  
+  // Company & Profile
+  | 'COMPANY_UPDATE' | 'COMPANY_VERIFIED' | 'COMPANY_APPROVED' | 'COMPANY_REJECTED' | 'COMPANY_SUSPENDED'
+  | 'PROFILE_UPDATE' | 'PROFILE_VERIFIED' | 'PROFILE_COMPLETED' | 'PROFILE_INCOMPLETE'
+  
+  // Resume & Documents
+  | 'RESUME_UPLOADED' | 'RESUME_PARSED' | 'RESUME_ATS_SCORED' | 'RESUME_DOWNLOADED' | 'RESUME_VIEWED'
+  | 'DOCUMENT_UPLOADED' | 'DOCUMENT_VERIFIED' | 'DOCUMENT_REJECTED'
+  
+  // Communication
+  | 'MESSAGE_RECEIVED' | 'MESSAGE_SENT' | 'MESSAGE_READ' | 'CHAT_STARTED' | 'CHAT_ENDED'
+  | 'EMAIL_SENT' | 'SMS_SENT' | 'CALL_SCHEDULED' | 'CALL_COMPLETED'
+  
+  // System & Admin
+  | 'SYSTEM_ANNOUNCEMENT' | 'SYSTEM_MAINTENANCE' | 'SYSTEM_UPDATE' | 'SECURITY_ALERT'
+  | 'ADMIN_ACTION' | 'USER_SUSPENDED' | 'USER_ACTIVATED' | 'USER_DELETED'
+  
+  // Job Alerts & Recommendations
+  | 'JOB_ALERT_MATCH' | 'JOB_RECOMMENDATION' | 'SKILL_MATCH' | 'LOCATION_MATCH' | 'SALARY_MATCH'
+  | 'ALERT_CREATED' | 'ALERT_UPDATED' | 'ALERT_DELETED'
+  
+  // Analytics & Insights
+  | 'DASHBOARD_UPDATE' | 'ANALYTICS_READY' | 'REPORT_GENERATED' | 'INSIGHT_AVAILABLE'
+  | 'PERFORMANCE_UPDATE' | 'METRICS_CHANGED'
+  
+  // Payment & Subscription
+  | 'PAYMENT_SUCCESS' | 'PAYMENT_FAILED' | 'SUBSCRIPTION_ACTIVE' | 'SUBSCRIPTION_EXPIRED'
+  | 'INVOICE_GENERATED' | 'REFUND_PROCESSED'
+  
+  // Legacy types (maintain compatibility)
+  | 'info' | 'success' | 'warning' | 'error';
 
 export interface SocketUser {
   userId: string;
