@@ -197,7 +197,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.lockedRole = (dbUser as any).lockedRole;
             token.roleLockReason = (dbUser as any).roleLockReason;
             token.isActive = dbUser.isActive;
-            console.log('🔍 JWT callback - Updated token with latest DB data:', { id: token.id, role: token.role, roleLocked: token.roleLocked, trigger });
+            console.log('🔍 JWT callback - Updated token with latest DB data:', { 
+              id: token.id, 
+              role: token.role, 
+              roleLocked: token.roleLocked, 
+              lockedRole: token.lockedRole,
+              roleLockReason: token.roleLockReason,
+              trigger 
+            });
           } else {
             // User not found or inactive, invalidate token
             return {};
@@ -381,6 +388,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               roleLockReason: true
             }
           }) as any;
+          
+          console.log('🔍 Session callback - Role lock data from DB:', roleLockData);
 
           // Use fresh data from database
           (session.user as any).id = user.id;
@@ -402,13 +411,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             console.log(`🔓 Session: Using database role ${user.role} for user ${user.email}`);
           }
           
+          // Debug: Log the final session role that will be used
+          console.log(`🔍 Session callback - Final session role: ${(session.user as any).role}`);
+          
           console.log('🔍 Session callback - Fresh data from DB:', { 
             id: user.id, 
             email: user.email, 
             role: user.role, 
             roleLocked: roleLockData?.roleLocked,
-            lockedRole: roleLockData?.lockedRole
+            lockedRole: roleLockData?.lockedRole,
+            roleLockReason: roleLockData?.roleLockReason
           });
+          
+          // Debug: Log the final session role that will be used
+          const finalSessionRole = roleLockData?.roleLocked && roleLockData?.lockedRole 
+            ? roleLockData.lockedRole 
+            : user.role;
+          console.log('🔍 Session callback - Final session role:', finalSessionRole);
         } else {
           // Fallback to token data if user not found
           (session.user as any).id = token.id;

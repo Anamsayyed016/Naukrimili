@@ -33,22 +33,45 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
 
   // Check if user already has a role and redirect immediately
   React.useEffect(() => {
-    if (user?.role && user.role !== 'jobseeker' && user.role !== 'employer') {
-      console.log('User already has role:', user.role, '- redirecting immediately');
-      let targetUrl = '/dashboard';
+    if (user?.role) {
+      console.log('User already has role:', user.role, '- checking if should redirect');
       
-      switch (user.role) {
-        case 'admin':
-          targetUrl = '/dashboard/admin';
-          break;
-        default:
-          targetUrl = '/dashboard';
+      // If user has jobseeker or employer role, redirect to appropriate dashboard
+      if (user.role === 'jobseeker' || user.role === 'employer') {
+        let targetUrl = '/dashboard';
+        
+        switch (user.role) {
+          case 'jobseeker':
+            targetUrl = '/dashboard/jobseeker';
+            break;
+          case 'employer':
+            targetUrl = '/dashboard/company';
+            break;
+        }
+        
+        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
+        console.log('🔄 Redirecting user with existing role to:', finalUrl);
+        window.location.href = finalUrl;
+        return;
       }
       
-      const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
-      console.log('🔄 Immediate redirect URL:', finalUrl);
-      // Use window.location.href to force a full page reload
-      window.location.href = finalUrl;
+      // Handle other roles (admin, etc.)
+      if (user.role !== 'jobseeker' && user.role !== 'employer') {
+        console.log('User has non-standard role:', user.role, '- redirecting to admin dashboard');
+        let targetUrl = '/dashboard';
+        
+        switch (user.role) {
+          case 'admin':
+            targetUrl = '/dashboard/admin';
+            break;
+          default:
+            targetUrl = '/dashboard';
+        }
+        
+        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
+        console.log('🔄 Immediate redirect URL:', finalUrl);
+        window.location.href = finalUrl;
+      }
     }
     
     // If user is role-locked, redirect them to their appropriate dashboard
