@@ -4,21 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import EnhancedJobCard from '@/components/EnhancedJobCard';
 import { JobResult } from '@/types/jobs';
+import { Job } from '@/types/job';
 import EnhancedPagination from '@/components/ui/enhanced-pagination';
 
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  description: string;
-  salary?: string;
-  postedAt?: string;
-  source_url?: string;
-  source?: string;
-  is_remote?: boolean;
-  is_featured?: boolean;
-}
+// Using Job interface from types/job.d.ts
 
 interface OptimizedJobsClientProps {
   initialJobs: any[];
@@ -119,7 +108,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       if (data.success && data.jobs) {
         const jobs = (data.jobs || []).map(convertToSimpleJob);
         
-        setJobs(jobs);
+        setJobs(jobs as any);
         setTotalJobs(data.pagination?.totalJobs || jobs.length);
         setTotalPages(data.pagination?.totalPages || 1);
         setHasNextPage(data.pagination?.hasMore || false);
@@ -178,7 +167,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           const fallbackData = await fallbackResponse.json();
           const fallbackJobs = (fallbackData.jobs || []).map(convertToSimpleJob);
           
-          setJobs(fallbackJobs);
+          setJobs(fallbackJobs as any);
           setTotalJobs(fallbackData.pagination?.totalJobs || fallbackJobs.length);
           setTotalPages(fallbackData.pagination?.totalPages || 1);
           setHasNextPage(fallbackData.pagination?.hasMore || false);
@@ -246,19 +235,41 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
   // Convert any job format to simple Job format
   function convertToSimpleJob(job: any): Job {
+    // Format salary consistently
+    let salaryFormatted = '';
+    if (job.salary) {
+      salaryFormatted = job.salary;
+    } else if (job.salaryMin && job.salaryMax) {
+      const currency = job.salaryCurrency || '₹';
+      salaryFormatted = `${currency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
+    } else if (job.salaryMin) {
+      const currency = job.salaryCurrency || '₹';
+      salaryFormatted = `${currency} ${job.salaryMin.toLocaleString()}+`;
+    }
+
     return {
       id: job.id || `job-${Math.random()}`,
       title: job.title || 'Job Title',
       company: job.company || job.companyRelation?.name || 'Company',
       location: job.location || 'Location',
       description: job.description || 'Job description not available',
-      salary: job.salary || job.salary_formatted,
+      salary: salaryFormatted,
+      salary_formatted: salaryFormatted, // Add this for consistency
       postedAt: job.postedAt || job.createdAt || job.created_at,
       source_url: job.source_url || job.redirect_url || job.applyUrl,
       source: job.source || (job.isExternal ? 'external' : 'database'),
       is_remote: job.is_remote || job.isRemote,
-      is_featured: job.is_featured || job.isFeatured
-    };
+      is_featured: job.is_featured || job.isFeatured,
+      // Add missing fields for better job display
+      jobType: job.jobType || 'Full-time',
+      experienceLevel: job.experienceLevel || 'Mid Level',
+      skills: job.skills || [],
+      isExternal: job.isExternal || job.source !== 'manual',
+      applyUrl: job.applyUrl || job.source_url || job.redirect_url,
+      // Required fields for JobResult
+      time_ago: 'Recently',
+      redirect_url: job.source_url || job.redirect_url || job.applyUrl || '#'
+    } as any;
   }
 
 
@@ -461,7 +472,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
             {jobs.map((job) => (
               <EnhancedJobCard
                 key={job.id}
-                job={job as JobResult}
+                job={job as any}
                 isBookmarked={bookmarkedJobs.includes(job.id)}
                 onBookmark={() => toggleBookmark(job.id)}
                 viewMode={viewMode}

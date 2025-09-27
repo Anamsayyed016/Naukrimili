@@ -143,9 +143,9 @@ export default function EnhancedJobCard({
                 </div>
               </div>
               
-              {job.salary_formatted && (
+              {(job.salary_formatted || job.salary) && (
                 <div className="text-green-600 font-medium text-xs sm:text-sm mb-2">
-                  {job.salary_formatted}
+                  {job.salary_formatted || job.salary}
                 </div>
               )}
             </div>
@@ -297,10 +297,10 @@ export default function EnhancedJobCard({
           </div>
 
           {/* Salary */}
-          {job.salary_formatted && (
+          {(job.salary_formatted || job.salary) && (
             <div className="flex items-center text-green-600 font-semibold mb-4">
               <CurrencyDollarIcon className="w-5 h-5 mr-1" />
-              <span className="text-lg">{job.salary_formatted}</span>
+              <span className="text-lg">{job.salary_formatted || job.salary}</span>
               {showSalaryInsights && (
                 <span className="ml-2 text-xs text-gray-500 font-normal">
                   • Competitive

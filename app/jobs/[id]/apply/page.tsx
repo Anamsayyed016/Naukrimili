@@ -38,7 +38,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import JobShare from "@/components/JobShare";
-
 interface Job {
   id: string;
   title: string;
@@ -52,6 +51,7 @@ interface Job {
   source_url: string | null;
   postedAt: string | null;
   salary: string | null;
+  salary_formatted?: string;
   salaryMin: number | null;
   salaryMax: number | null;
   salaryCurrency: string | null;
@@ -247,11 +247,14 @@ export default function JobApplicationPage() {
     try {
       if (!job) return null;
       if (job.salary) return job.salary;
+      if (job.salary_formatted) return job.salary_formatted;
       if (job.salaryMin && job.salaryMax) {
-        return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
+        const currency = job.salaryCurrency || '₹';
+        return `${currency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
       }
       if (job.salaryMin) {
-        return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()}+`;
+        const currency = job.salaryCurrency || '₹';
+        return `${currency} ${job.salaryMin.toLocaleString()}+`;
       }
       return null;
     } catch (error) {
@@ -493,15 +496,28 @@ export default function JobApplicationPage() {
     setError(null);
     
     try {
+      // Validate required fields
+      if (!formData.fullName.trim()) {
+        throw new Error('Full name is required');
+      }
+      if (!formData.email.trim()) {
+        throw new Error('Email is required');
+      }
+      if (!jobId) {
+        throw new Error('Job ID is missing');
+      }
+
+      console.log('🚀 Submitting application for job:', jobId);
+
       const form = new FormData();
       form.append("jobId", jobId);
-      form.append("fullName", formData.fullName);
-      form.append("email", formData.email);
-      form.append("phone", formData.phone);
-      form.append("location", formData.location);
-      form.append("coverLetter", formData.coverLetter);
-      form.append("expectedSalary", formData.expectedSalary);
-      form.append("availability", formData.availability);
+      form.append("fullName", formData.fullName.trim());
+      form.append("email", formData.email.trim());
+      form.append("phone", formData.phone.trim());
+      form.append("location", formData.location.trim());
+      form.append("coverLetter", formData.coverLetter.trim());
+      form.append("expectedSalary", formData.expectedSalary.trim());
+      form.append("availability", formData.availability.trim());
       if (formData.resume) form.append("resume", formData.resume);
       
       const res = await fetch(`/api/applications`, { 
@@ -511,7 +527,12 @@ export default function JobApplicationPage() {
       
       const data = await res.json();
       
-      if (!res.ok) throw new Error(data?.error || "Failed to apply");
+      console.log('📡 Application response:', { status: res.status, data });
+      
+      if (!res.ok) {
+        console.error('❌ Application failed:', data);
+        throw new Error(data?.error || data?.details || "Failed to apply");
+      }
       
       setSubmitted(true);
       

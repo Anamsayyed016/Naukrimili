@@ -238,7 +238,15 @@ export async function POST(request: NextRequest) {
 
     // Check if job exists in database first
     let job = await prisma.job.findUnique({
-      where: { id: parseInt(jobId, 10) as any }
+      where: { id: parseInt(jobId, 10) as any },
+      include: {
+        companyRelation: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
     });
 
     // If not found in database, check if it's a sample job and create it
@@ -263,7 +271,15 @@ export async function POST(request: NextRequest) {
         try {
           const sampleJobData = getSampleJobData(jobId, sampleCompanyId);
           job = await prisma.job.create({
-            data: sampleJobData
+            data: sampleJobData,
+            include: {
+              companyRelation: {
+                select: {
+                  id: true,
+                  name: true
+                }
+              }
+            }
           });
           console.log('✅ Sample job created in database:', job.id);
         } catch (createError) {
@@ -360,7 +376,8 @@ export async function POST(request: NextRequest) {
         resumeId: resumeId, // Link to uploaded resume if available
         companyId: companyId,
         applicationData: JSON.stringify({
-          resumeUrl: resumeUrl,
+          fullName: fullName,
+          email: email,
           phone: phone || null,
           location: location || null,
           experience: null, // Not provided in form data

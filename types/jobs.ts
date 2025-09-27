@@ -5,6 +5,7 @@ export interface JobResult {
   companyLogo?: string
   location: string
   description: string
+  salary?: string
   salary_formatted?: string
   time_ago: string
   redirect_url: string
@@ -21,6 +22,10 @@ export interface JobResult {
   bookmarked_at?: string // For bookmarked jobs
   source?: string // Job source: 'manual' for internal, 'external' for external providers
   source_url?: string // External source URL for direct redirects
+  jobType?: string
+  experienceLevel?: string
+  isExternal?: boolean
+  applyUrl?: string
 }
 
 export interface JobSearchFilters {
