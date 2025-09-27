@@ -60,9 +60,11 @@ export async function GET(request: NextRequest) {
     const company = searchParams.get('company') || '';
     const jobType = searchParams.get('jobType') || '';
     const experienceLevel = searchParams.get('experienceLevel') || '';
-    const isRemote = searchParams.get('isRemote') === 'true' || searchParams.get('remote') === 'true';
+    const isRemote = searchParams.get('isRemote') === 'true' || searchParams.get('remote') === 'true' || searchParams.get('remote_only') === 'true';
     const sector = searchParams.get('sector') || '';
     const country = searchParams.get('country') || 'IN';
+    const salaryMin = searchParams.get('salaryMin') || '';
+    const salaryMax = searchParams.get('salaryMax') || '';
     
     // Validate numeric parameters
     let page = 1;
@@ -142,7 +144,18 @@ export async function GET(request: NextRequest) {
       where.country = country.trim();
     }
     
-    console.log(`🔍 Jobs API: Searching with filters:`, { query, location, company, jobType, experienceLevel, isRemote, sector, country, page, limit });
+    // Add salary filtering
+    if (salaryMin || salaryMax) {
+      where.salaryRange = {};
+      if (salaryMin) {
+        where.salaryRange.gte = parseInt(salaryMin);
+      }
+      if (salaryMax) {
+        where.salaryRange.lte = parseInt(salaryMax);
+      }
+    }
+    
+    console.log(`🔍 Jobs API: Searching with filters:`, { query, location, company, jobType, experienceLevel, isRemote, sector, country, salaryMin, salaryMax, page, limit });
     
     // Get jobs with pagination and error handling
     let jobs: any[] = [];

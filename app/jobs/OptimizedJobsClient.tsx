@@ -76,16 +76,13 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         }
       }
 
-      // Use unlimited job search API with all filters from home page
-      const unlimitedParams = new URLSearchParams({
+      // Use main jobs API with all filters - FIXED: Use correct endpoint
+      const mainParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
         country: country,
         page: page.toString(),
         limit: '500', // Truly unlimited jobs per page
-        includeExternal: 'true',
-        includeDatabase: 'true',
-        includeSample: 'false', // Prioritize real jobs only
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),
@@ -96,11 +93,17 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       });
 
       const startTime = Date.now();
-      const response = await fetch(`/api/jobs/unlimited?${unlimitedParams.toString()}`);
+      let response = await fetch(`/api/jobs?${mainParams.toString()}`);
       const responseTime = Date.now() - startTime;
 
+      // Fallback to simple API if main API fails
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        console.warn(`⚠️ Main API failed (${response.status}), trying simple API...`);
+        response = await fetch(`/api/jobs/simple?${mainParams.toString()}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
       }
 
       const data = await response.json();
@@ -124,7 +127,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         // Update last refresh time
         setLastRefresh(new Date());
 
-        console.log('✅ Unlimited jobs loaded successfully:', {
+        console.log('✅ Main API jobs loaded successfully:', {
           jobsCount: jobs.length,
           totalJobs: data.pagination?.totalJobs || jobs.length,
           currentPage: page,
