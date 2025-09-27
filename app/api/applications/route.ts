@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma";
 function getSampleJobData(jobId: string, companyId: string | null) {
   const sampleJobs = {
     '1': {
-      id: '1',
       title: 'Senior Software Engineer',
       company: 'TechCorp India',
       companyId: companyId,
@@ -28,7 +27,6 @@ function getSampleJobData(jobId: string, companyId: string | null) {
       applicationsCount: 25
     },
     '2': {
-      id: '2',
       title: 'Full Stack Developer',
       company: 'InnovateTech Solutions',
       companyId: companyId,
@@ -50,7 +48,6 @@ function getSampleJobData(jobId: string, companyId: string | null) {
       applicationsCount: 12
     },
     '3': {
-      id: '3',
       title: 'DevOps Engineer',
       company: 'CloudTech Systems',
       companyId: companyId,
@@ -72,7 +69,6 @@ function getSampleJobData(jobId: string, companyId: string | null) {
       applicationsCount: 8
     },
     '4': {
-      id: '4',
       title: 'Data Scientist',
       company: 'AI Innovations Ltd',
       companyId: companyId,
@@ -94,7 +90,6 @@ function getSampleJobData(jobId: string, companyId: string | null) {
       applicationsCount: 19
     },
     '5': {
-      id: '5',
       title: 'UI/UX Designer',
       company: 'Creative Design Studio',
       companyId: companyId,
@@ -116,7 +111,6 @@ function getSampleJobData(jobId: string, companyId: string | null) {
       applicationsCount: 6
     },
     '6': {
-      id: '6',
       title: 'Product Manager',
       company: 'TechStart Inc',
       companyId: companyId,
@@ -138,7 +132,6 @@ function getSampleJobData(jobId: string, companyId: string | null) {
       applicationsCount: 15
     },
     '7': {
-      id: '7',
       title: 'Software Engineer - Dubai',
       company: 'Global Tech Solutions',
       companyId: companyId,
@@ -160,7 +153,6 @@ function getSampleJobData(jobId: string, companyId: string | null) {
       applicationsCount: 32
     },
     '8': {
-      id: '8',
       title: 'Frontend Developer',
       company: 'WebCraft Studios',
       companyId: companyId,
@@ -227,27 +219,27 @@ export async function POST(request: NextRequest) {
       resumeFile: resumeFile ? 'provided' : 'not provided'
     });
 
-    // Validate required fields
-    if (!jobId || !fullName || !email) {
-      console.log('❌ Missing required fields');
+    // Enhanced validation with detailed error messages
+    const validationErrors = [];
+    if (!jobId?.trim()) validationErrors.push('Job ID is required');
+    if (!fullName?.trim()) validationErrors.push('Full name is required');
+    if (!email?.trim()) validationErrors.push('Email is required');
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      validationErrors.push('Invalid email format');
+    }
+
+    if (validationErrors.length > 0) {
+      console.log('❌ Validation failed:', validationErrors);
       return NextResponse.json({
         success: false,
-        error: 'Missing required fields: jobId, fullName, and email are required'
+        error: 'Validation failed',
+        details: validationErrors,
+        code: 'VALIDATION_ERROR'
       }, { status: 400 });
     }
 
-    // Check if job exists in database first
-    let job = await prisma.job.findUnique({
-      where: { id: parseInt(jobId, 10) as any },
-      include: {
-        companyRelation: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
-      }
-    });
+    // Enhanced job lookup with multiple strategies
+    let job = await findJobWithFallback(jobId.trim());
 
     // If not found in database, check if it's a sample job and create it
     if (!job) {
@@ -545,7 +537,93 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: false,
       error: 'Failed to submit application. Please try again.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      code: 'SUBMISSION_ERROR'
     }, { status: 500 });
+  }
+}
+
+/**
+ * Enhanced job lookup with multiple fallback strategies
+ */
+async function findJobWithFallback(jobId: string) {
+  try {
+    console.log(`🔍 Looking up job with ID: ${jobId}`);
+    
+    // Strategy 1: Direct numeric ID lookup
+    const numericId = parseInt(jobId, 10);
+    if (!isNaN(numericId)) {
+      try {
+        const job = await prisma.job.findUnique({
+          where: { id: numericId },
+          include: {
+            companyRelation: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
+        });
+        if (job) {
+          console.log('✅ Job found by numeric ID:', job.title);
+          return job;
+        }
+      } catch (error) {
+        console.warn('⚠️ Numeric ID lookup failed:', error);
+      }
+    }
+    
+    // Strategy 2: SourceId lookup
+    try {
+      const job = await prisma.job.findFirst({
+        where: { sourceId: jobId },
+        include: {
+          companyRelation: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      });
+      if (job) {
+        console.log('✅ Job found by sourceId:', job.title);
+        return job;
+      }
+    } catch (error) {
+      console.warn('⚠️ SourceId lookup failed:', error);
+    }
+    
+    // Strategy 3: String ID lookup (for external jobs)
+    try {
+      const job = await prisma.job.findFirst({
+        where: { 
+          OR: [
+            { sourceId: jobId }
+          ]
+        },
+        include: {
+          companyRelation: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      });
+      if (job) {
+        console.log('✅ Job found by string ID:', job.title);
+        return job;
+      }
+    } catch (error) {
+      console.warn('⚠️ String ID lookup failed:', error);
+    }
+    
+    console.log(`❌ Job not found with any strategy: ${jobId}`);
+    return null;
+  } catch (error) {
+    console.error('❌ Job lookup failed:', error);
+    return null;
   }
 }

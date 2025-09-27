@@ -19,6 +19,7 @@ import { JobResult, JobQuickView } from '@/types/jobs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSEOJobUrl } from '@/components/SEOJobLink';
+import { normalizeJobData } from '@/lib/job-data-normalizer';
 
 interface EnhancedJobCardProps {
   job: JobResult;
@@ -40,14 +41,17 @@ export default function EnhancedJobCard({
   showSalaryInsights = true
 }: EnhancedJobCardProps) {
   const [imageError, setImageError] = useState(false);
-  const seoJobUrl = useSEOJobUrl(job);
+  
+  // Normalize job data to ensure consistency
+  const normalizedJob = normalizeJobData(job);
+  const seoJobUrl = useSEOJobUrl(normalizedJob);
 
   const handleBookmark = () => {
-    onBookmark?.(job.id);
+    onBookmark?.(normalizedJob.id);
   };
 
   const handleQuickView = () => {
-    onQuickView?.(job);
+    onQuickView?.(normalizedJob);
   };
 
 
@@ -95,16 +99,16 @@ export default function EnhancedJobCard({
         <motion.div
           className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 p-3 sm:p-4"
           whileHover={{ y: -2 }}
-          layoutId={`job-card-${job.id}`}
+          layoutId={`job-card-${normalizedJob.id}`}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
-                {showCompanyLogo && job.companyLogo && !imageError && (
+                {showCompanyLogo && normalizedJob.companyLogo && !imageError && (
                   <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                     <Image
-                      src={job.companyLogo}
-                      alt={`${job.company} logo`}
+                      src={normalizedJob.companyLogo}
+                      alt={`${normalizedJob.company} logo`}
                       width={32}
                       height={32}
                       className="w-full h-full object-contain"
@@ -113,13 +117,13 @@ export default function EnhancedJobCard({
                   </div>
                 )}
                 <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
-                  {job.is_urgent && (
+                  {normalizedJob.is_urgent && (
                     <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
                       <FireIcon className="w-3 h-3" />
                       <span className="hidden sm:inline">Urgent</span>
                     </span>
                   )}
-                  {job.is_featured && (
+                  {normalizedJob.is_featured && (
                     <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
                       ⭐ <span className="hidden sm:inline">Featured</span>
                     </span>
@@ -128,24 +132,24 @@ export default function EnhancedJobCard({
               </div>
               
               <h3 className="font-semibold text-gray-900 text-sm sm:text-base mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                {job.title}
+                {normalizedJob.title}
               </h3>
               
               <div className="flex flex-col sm:flex-row sm:items-center text-xs text-gray-600 mb-2 gap-1 sm:gap-0">
                 <div className="flex items-center">
                   <BuildingOffice2Icon className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{job.company}</span>
+                  <span className="truncate">{normalizedJob.company}</span>
                 </div>
                 <span className="hidden sm:inline mx-2">•</span>
                 <div className="flex items-center">
                   <MapPinIcon className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">{job.location}</span>
+                  <span className="truncate">{normalizedJob.location}</span>
                 </div>
               </div>
               
-              {(job.salary_formatted || job.salary) && (
+              {(normalizedJob.salary_formatted || normalizedJob.salary) && (
                 <div className="text-green-600 font-medium text-xs sm:text-sm mb-2">
-                  {job.salary_formatted || job.salary}
+                  {normalizedJob.salary_formatted || normalizedJob.salary}
                 </div>
               )}
             </div>

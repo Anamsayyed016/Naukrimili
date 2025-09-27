@@ -87,16 +87,38 @@ export async function GET(
 
 /**
  * Find job in database by ID or sourceId
+ * Enhanced with multiple lookup strategies for better reliability
  */
 async function findJobInDatabase(id: string) {
   try {
     console.log(`🔍 Searching for job with ID: ${id}`);
     
-    // First try to find by primary key (id) - Job.id is Int type, so convert string to int
+    // Strategy 1: Try direct numeric ID lookup
     const numericId = parseInt(id, 10);
     if (!isNaN(numericId)) {
-      let job = await prisma.job.findUnique({
-        where: { id: numericId as any },
+      try {
+        const job = await prisma.job.findUnique({
+          where: { id: numericId },
+          include: {
+            companyRelation: {
+              select: COMPANY_RELATION_SELECT
+            }
+          }
+        });
+        
+        if (job) {
+          console.log('✅ Job found by primary ID:', job.title);
+          return job;
+        }
+      } catch (error) {
+        console.warn('⚠️ Primary ID lookup failed:', error);
+      }
+    }
+    
+    // Strategy 2: Try sourceId lookup
+    try {
+      const job = await prisma.job.findFirst({
+        where: { sourceId: id },
         include: {
           companyRelation: {
             select: COMPANY_RELATION_SELECT
@@ -105,24 +127,34 @@ async function findJobInDatabase(id: string) {
       });
       
       if (job) {
-        console.log('✅ Job found by primary ID:', job.title);
+        console.log('✅ Job found by sourceId:', job.title);
         return job;
       }
+    } catch (error) {
+      console.warn('⚠️ SourceId lookup failed:', error);
     }
     
-    // If not found by ID, try to find by sourceId
-    const job = await prisma.job.findFirst({
-      where: { sourceId: id },
-      include: {
-        companyRelation: {
-          select: COMPANY_RELATION_SELECT
+    // Strategy 3: Try string ID lookup (for external jobs)
+    try {
+      const job = await prisma.job.findFirst({
+        where: { 
+          OR: [
+            { sourceId: id }
+          ]
+        },
+        include: {
+          companyRelation: {
+            select: COMPANY_RELATION_SELECT
+          }
         }
+      });
+      
+      if (job) {
+        console.log('✅ Job found by string ID:', job.title);
+        return job;
       }
-    });
-    
-    if (job) {
-      console.log('✅ Job found by sourceId:', job.title);
-      return job;
+    } catch (error) {
+      console.warn('⚠️ String ID lookup failed:', error);
     }
     
     // Debug: Check what jobs exist in the database

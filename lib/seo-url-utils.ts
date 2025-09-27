@@ -135,42 +135,50 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
 
 /**
  * Parse SEO URL to extract job ID
+ * Enhanced to handle more URL patterns while maintaining backward compatibility
  */
 export function parseSEOJobUrl(url: string): string | null {
   console.log('🔍 Parsing SEO URL:', url);
   
-  // Extract job ID from the end of the URL
-  // Look for a pattern that matches our job ID format (starts with 'cm' and has specific length)
-  const jobIdMatch = url.match(/-([a-zA-Z0-9]{20,})$/);
-  if (jobIdMatch) {
-    console.log('✅ Found job ID (long format):', jobIdMatch[1]);
-    return jobIdMatch[1];
+  // Handle direct numeric IDs (no SEO formatting)
+  if (/^\d+$/.test(url)) {
+    console.log('✅ Found direct numeric ID:', url);
+    return url;
   }
   
-  // Handle decimal numbers and other formats (like 0.645973689621925)
-  const decimalMatch = url.match(/-([0-9]+\.[0-9]+)$/);
-  if (decimalMatch) {
-    console.log('✅ Found job ID (decimal):', decimalMatch[1]);
-    return decimalMatch[1];
+  // Handle direct string IDs (for external jobs)
+  if (/^[a-zA-Z0-9_-]+$/.test(url) && !url.includes('-')) {
+    console.log('✅ Found direct string ID:', url);
+    return url;
   }
   
-  // Handle integer numbers at the end
-  const integerMatch = url.match(/-([0-9]+)$/);
-  if (integerMatch) {
-    console.log('✅ Found job ID (integer):', integerMatch[1]);
-    return integerMatch[1];
+  // Extract job ID from SEO URL patterns (in order of specificity)
+  const patterns = [
+    /-([a-zA-Z0-9]{20,})$/,           // Long alphanumeric IDs (most specific)
+    /-([0-9]+\.[0-9]+)$/,             // Decimal numbers
+    /-([0-9]+)$/,                     // Integer numbers
+    /-([0-9]+)-([0-9]+)$/,            // Multi-number patterns (take last)
+    /-([a-zA-Z0-9_-]+)$/              // Fallback pattern
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) {
+      const jobId = match[match.length - 1]; // Get last capture group
+      console.log('✅ Found job ID via pattern:', jobId);
+      return jobId;
+    }
   }
   
-  // Handle patterns like "10000-5" where we want the last number
-  const multiNumberMatch = url.match(/-([0-9]+)-([0-9]+)$/);
-  if (multiNumberMatch) {
-    console.log('✅ Found job ID (multi-number, taking last):', multiNumberMatch[2]);
-    return multiNumberMatch[2];
+  // Final fallback: try to extract any ID-like string
+  const fallbackMatch = url.match(/([a-zA-Z0-9_-]+)$/);
+  if (fallbackMatch) {
+    console.log('✅ Found job ID via fallback:', fallbackMatch[1]);
+    return fallbackMatch[1];
   }
   
-  // Fallback: try to find any alphanumeric string at the end after the last hyphen
-  const fallbackMatch = url.match(/-([a-zA-Z0-9_-]+)$/);
-  return fallbackMatch ? fallbackMatch[1] : null;
+  console.log('❌ No job ID found in URL:', url);
+  return null;
 }
 
 /**

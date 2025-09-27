@@ -34,6 +34,7 @@ import {
 import { useSocket } from '@/hooks/useSocket';
 import { toast } from 'sonner';
 import { parseSEOJobUrl } from '@/lib/seo-url-utils';
+import { normalizeJobData, validateJobData } from '@/lib/job-data-normalizer';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -153,23 +154,20 @@ export default function JobApplicationPage() {
         const data = await response.json();
         console.log('🔍 API Response:', data);
         if (data.success && data.data) {
-          // Validate job data before setting
-          if (data.data.title && data.data.company) {
-            // Ensure isExternal is properly set
-            const jobData = {
-              ...data.data,
-              isExternal: data.data.isExternal || data.data.source !== 'manual' || (typeof data.data.id === 'string' && data.data.id.startsWith('ext-'))
-            };
-            console.log('✅ Setting job data:', jobData);
-            setJob(jobData);
+          // Normalize and validate job data
+          const normalizedJob = normalizeJobData(data.data);
+          
+          if (validateJobData(normalizedJob)) {
+            console.log('✅ Setting normalized job data:', normalizedJob);
+            setJob(normalizedJob as any);
             setError(null); // Clear any previous errors
             
             // Fetch AI-enhanced data for better job insights
-            if (jobData && jobData.title) {
-              fetchEnhancedJobData(jobData);
+            if (normalizedJob && normalizedJob.title) {
+              fetchEnhancedJobData(normalizedJob as any);
             }
           } else {
-            console.log('❌ Invalid job data - missing title or company:', data.data);
+            console.log('❌ Invalid job data after normalization:', normalizedJob);
             setError('Invalid job data received');
           }
         } else {
