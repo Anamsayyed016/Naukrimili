@@ -294,53 +294,125 @@ export class UnlimitedJobSearch {
       isActive: true
     };
 
-    // Text search
+    // Enhanced text search with multiple strategies
     if (filters.query) {
+      const searchTerms = filters.query.toLowerCase().split(' ').filter(Boolean);
       where.OR = [
+        // Exact matches (highest priority)
         { title: { contains: filters.query, mode: 'insensitive' } },
-        { description: { contains: filters.query, mode: 'insensitive' } },
         { company: { contains: filters.query, mode: 'insensitive' } },
-        { skills: { contains: filters.query, mode: 'insensitive' } }
+        // Partial matches
+        { description: { contains: filters.query, mode: 'insensitive' } },
+        { skills: { contains: filters.query, mode: 'insensitive' } },
+        { requirements: { contains: filters.query, mode: 'insensitive' } },
+        // Individual term matches for better relevance
+        ...searchTerms.map((term: string) => ({ title: { contains: term, mode: 'insensitive' } })),
+        ...searchTerms.map((term: string) => ({ company: { contains: term, mode: 'insensitive' } })),
+        ...searchTerms.map((term: string) => ({ skills: { contains: term, mode: 'insensitive' } }))
       ];
     }
 
-    // Location filter
+    // Enhanced location filter with fuzzy matching
     if (filters.location) {
-      where.location = { contains: filters.location, mode: 'insensitive' };
-    }
-
-    // Country filter
-    if (filters.country) {
-      where.country = filters.country;
-    }
-
-    // Job type filter
-    if (filters.jobType) {
-      where.jobType = { contains: filters.jobType, mode: 'insensitive' };
-    }
-
-    // Experience level filter
-    if (filters.experienceLevel) {
-      where.experienceLevel = { contains: filters.experienceLevel, mode: 'insensitive' };
-    }
-
-    // Remote work filter
-    if (filters.isRemote) {
-      where.isRemote = true;
-    }
-
-    // Salary filters
-    if (filters.salaryMin || filters.salaryMax) {
+      const locationTerms = filters.location.toLowerCase().split(/[,\s]+/).filter(Boolean);
       where.OR = [
         ...(where.OR || []),
-        ...(filters.salaryMin ? [{ salaryMin: { gte: filters.salaryMin } }] : []),
-        ...(filters.salaryMax ? [{ salaryMax: { lte: filters.salaryMax } }] : [])
+        { location: { contains: filters.location, mode: 'insensitive' } },
+        ...locationTerms.map((term: string) => ({ location: { contains: term, mode: 'insensitive' } }))
       ];
     }
 
-    // Sector filter
-    if (filters.sector) {
-      where.sector = { contains: filters.sector, mode: 'insensitive' };
+    // Country filter with fallback
+    if (filters.country) {
+      where.OR = [
+        ...(where.OR || []),
+        { country: filters.country },
+        { country: { contains: filters.country, mode: 'insensitive' } }
+      ];
+    }
+
+    // Enhanced job type filter
+    if (filters.jobType && filters.jobType !== 'all') {
+      const jobTypeTerms = [
+        filters.jobType,
+        filters.jobType.replace('-', ' '),
+        filters.jobType.replace('-', '')
+      ];
+      where.OR = [
+        ...(where.OR || []),
+        ...jobTypeTerms.map((term: string) => ({ jobType: { contains: term, mode: 'insensitive' } }))
+      ];
+    }
+
+    // Enhanced experience level filter
+    if (filters.experienceLevel && filters.experienceLevel !== 'all') {
+      const experienceMapping: { [key: string]: string[] } = {
+        'entry': ['entry', 'junior', 'associate', 'trainee', 'intern'],
+        'mid': ['mid', 'middle', 'intermediate', 'experienced'],
+        'senior': ['senior', 'lead', 'principal', 'staff'],
+        'executive': ['executive', 'director', 'manager', 'head', 'chief']
+      };
+      
+      const experienceTerms = experienceMapping[filters.experienceLevel] || [filters.experienceLevel];
+      where.OR = [
+        ...(where.OR || []),
+        ...experienceTerms.map((term: string) => ({ experienceLevel: { contains: term, mode: 'insensitive' } }))
+      ];
+    }
+
+    // Remote work filter with hybrid options
+    if (filters.isRemote) {
+      where.OR = [
+        ...(where.OR || []),
+        { isRemote: true },
+        { description: { contains: 'remote', mode: 'insensitive' } },
+        { description: { contains: 'work from home', mode: 'insensitive' } },
+        { description: { contains: 'hybrid', mode: 'insensitive' } }
+      ];
+    }
+
+    // Enhanced salary filters
+    if (filters.salaryMin || filters.salaryMax) {
+      const salaryConditions: any[] = [];
+      
+      if (filters.salaryMin) {
+        salaryConditions.push(
+          { salaryMin: { gte: filters.salaryMin } },
+          { salary: { contains: filters.salaryMin.toString(), mode: 'insensitive' } }
+        );
+      }
+      
+      if (filters.salaryMax) {
+        salaryConditions.push(
+          { salaryMax: { lte: filters.salaryMax } },
+          { salary: { contains: filters.salaryMax.toString(), mode: 'insensitive' } }
+        );
+      }
+      
+      where.OR = [
+        ...(where.OR || []),
+        ...salaryConditions
+      ];
+    }
+
+    // Enhanced sector filter
+    if (filters.sector && filters.sector !== 'all') {
+      const sectorTerms = [
+        filters.sector,
+        filters.sector.toLowerCase(),
+        filters.sector.replace('-', ' '),
+        filters.sector.replace('-', '')
+      ];
+      where.OR = [
+        ...(where.OR || []),
+        ...sectorTerms.map((term: string) => ({ 
+          OR: [
+            { sector: { contains: term, mode: 'insensitive' } },
+            { title: { contains: term, mode: 'insensitive' } },
+            { description: { contains: term, mode: 'insensitive' } }
+          ]
+        }))
+      ];
     }
 
     const jobs = await prisma.job.findMany({

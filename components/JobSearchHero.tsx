@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import LocationCategories from './LocationCategories';
+import SmartFilterSuggestions from './SmartFilterSuggestions';
 
 interface JobSearchHeroProps {
   className?: string;
@@ -397,6 +398,19 @@ export default function JobSearchHero({
                   type: 'city'
                 } : null}
               />
+
+              {/* Smart Filter Suggestions */}
+              <div className="mt-6">
+                <SmartFilterSuggestions
+                  currentFilters={filters}
+                  onSuggestionSelect={(suggestion) => {
+                    console.log('Suggestion selected:', suggestion);
+                  }}
+                  onFiltersChange={(newFilters) => {
+                    setFilters(prev => ({ ...prev, ...newFilters }));
+                  }}
+                />
+              </div>
 
               {/* Manual Location Selection Help */}
               {locationError && (
