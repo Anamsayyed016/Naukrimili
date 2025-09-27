@@ -5,7 +5,6 @@
 
 import { prisma } from '@/lib/prisma';
 import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from '@/lib/jobs/providers';
-import { getSocketService } from '@/lib/socket-server';
 import { createNotification } from '@/lib/notification-service';
 
 export interface AutomationConfig {
@@ -689,6 +688,7 @@ export class JobAutomationSystem {
    */
   private async sendSyncNotifications(stats: AutomationStats): Promise<void> {
     try {
+      const { getSocketService } = await import('@/lib/socket-server');
       const socketService = getSocketService();
       if (socketService) {
         await socketService.sendNotificationToRole('admin', {
@@ -723,6 +723,7 @@ export class JobAutomationSystem {
         }
       });
 
+      const { getSocketService } = await import('@/lib/socket-server');
       const socketService = getSocketService();
       if (socketService) {
         await socketService.sendNotificationToUser(userId, {

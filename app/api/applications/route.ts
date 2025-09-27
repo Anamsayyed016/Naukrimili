@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/nextauth-config";
 import { prisma } from "@/lib/prisma";
-import { comprehensiveNotificationService } from "@/lib/comprehensive-notification-service";
 
 // Helper function to get sample job data
 function getSampleJobData(jobId: string, companyId: string | null) {
@@ -412,6 +411,9 @@ export async function POST(request: NextRequest) {
       const jobTitle = (application as any).job?.title || 'the job';
       const companyName = (application as any).job?.company || 'Unknown Company';
       
+      // Dynamic import to avoid circular dependency
+      const { comprehensiveNotificationService } = await import('@/lib/comprehensive-notification-service');
+      
       // Notify jobseeker
       await comprehensiveNotificationService.notifyJobseekerApplicationSubmitted(
         user.id, 
@@ -423,14 +425,13 @@ export async function POST(request: NextRequest) {
       // Notify employer if they exist
       if (application.companyId) {
         const company = await prisma.company.findUnique({
-          where: { id: application.companyId },
-          include: { user: true }
+          where: { id: application.companyId }
         });
 
-        if (company?.user) {
+        if (company?.createdBy) {
           await comprehensiveNotificationService.notifyEmployerNewApplication(
-            company.user.id,
-            `${user.firstName} ${user.lastName}`.trim() || user.email || 'Anonymous',
+            company.createdBy,
+            `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() || user.email || 'Anonymous',
             jobTitle,
             application.id
           );

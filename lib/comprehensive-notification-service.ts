@@ -4,7 +4,6 @@
  * Maintains backward compatibility with existing code
  */
 
-import { getSocketService } from './socket-server';
 import { createNotification } from './notification-service';
 import { prisma } from './prisma';
 import { NotificationType } from './socket-server';
@@ -25,7 +24,10 @@ export interface RoleBasedNotification {
 }
 
 class ComprehensiveNotificationService {
-  private socketService = getSocketService();
+  private async getSocketService() {
+    const { getSocketService } = await import('./socket-server');
+    return getSocketService();
+  }
 
   /**
    * Send notification to specific role with appropriate template
@@ -47,8 +49,9 @@ class ComprehensiveNotificationService {
       });
 
       // Send real-time notification
-      if (this.socketService) {
-        await this.socketService.sendNotificationToUser(userId, {
+      const socketService = await this.getSocketService();
+      if (socketService) {
+        await socketService.sendNotificationToUser(userId, {
           type: template.type,
           title: template.title,
           message: template.message,
@@ -342,12 +345,13 @@ class ComprehensiveNotificationService {
       });
 
       // Update real-time count
-      if (this.socketService) {
+      const socketService = await this.getSocketService();
+      if (socketService) {
         const unreadCount = await prisma.notification.count({
           where: { userId, isRead: false }
         });
 
-        this.socketService.io?.to(`user:${userId}`).emit('notification_count', {
+        socketService.io?.to(`user:${userId}`).emit('notification_count', {
           count: unreadCount,
           userId
         });
