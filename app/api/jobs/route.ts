@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { calculateDistance } from '@/lib/geoUtils';
 import { JobProcessingMiddleware } from '@/lib/services/job-processing-middleware';
+import { trackJobSearch } from '@/lib/analytics/event-integration';
+import { auth } from '@/lib/nextauth-config';
 
 // Interface for job with distance calculation
 interface JobWithDistance {
@@ -44,6 +46,9 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
   
   try {
+    // Get session for analytics tracking
+    const session = await auth();
+    
     // Check if enhanced processing is enabled
     const url = new URL(request.url);
     const searchParams = url.searchParams;
@@ -104,6 +109,8 @@ export async function GET(request: NextRequest) {
       query, location, company, jobType, experienceLevel, isRemote, sector, country,
       page, limit, radius, userLat, userLng, sortByDistance, includeDistance
     });
+
+    // Track job search event (moved after jobs are fetched)
     
     // Build where clause with validation
     const where: any = { isActive: true };
@@ -288,6 +295,25 @@ export async function GET(request: NextRequest) {
         },
         { status: 500 }
       );
+    }
+
+    // Track job search event
+    if (query || location) {
+      try {
+        await trackJobSearch(
+          session?.user?.id,
+          session?.user?.role,
+          query,
+          location,
+          {
+            company, jobType, experienceLevel, isRemote, sector, country,
+            salaryMin, salaryMax, page, limit
+          },
+          jobs.length
+        );
+      } catch (error) {
+        console.error('❌ Failed to track job search:', error);
+      }
     }
     
     // Enhanced location processing with real distance calculation

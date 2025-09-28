@@ -8,6 +8,7 @@ import { NextRequest } from 'next/server';
 import { auth } from './nextauth-config';
 import { prisma } from './prisma';
 import { createNotification } from './notification-service';
+import { realTimeDashboard } from './analytics/real-time-dashboard';
 
 // Comprehensive notification types for job portal
 export type NotificationType = 
@@ -68,6 +69,10 @@ class SocketNotificationService {
     this.io = io;
     this.setupMiddleware();
     this.setupEventHandlers();
+    
+    // Initialize real-time dashboard
+    realTimeDashboard.setSocketServer(io);
+    realTimeDashboard.start();
   }
 
   private setupMiddleware() {
@@ -201,6 +206,9 @@ class SocketNotificationService {
         socket.join('admin:global');
         console.log(`👑 Admin ${user.email} joined admin:global room`);
       }
+      
+      // Subscribe to dashboard updates
+      realTimeDashboard.subscribeUser(socket, userId, user.role || 'jobseeker');
 
       // Send connection confirmation
       socket.emit('connected', {
@@ -224,6 +232,9 @@ class SocketNotificationService {
             this.userRooms.delete(userId);
           }
         }
+        
+        // Unsubscribe from dashboard updates
+        realTimeDashboard.unsubscribeUser(socket, userId, user?.role || 'jobseeker');
       });
 
       // Handle notification acknowledgment

@@ -486,3 +486,50 @@ model NormalizedJob {
   @@index([salaryMin, salaryMax])
   @@index([createdAt])
 }
+
+model AnalyticsEvent {
+  id          String    @id @default(cuid())
+  eventId     String    @unique @map("event_id")
+  userId      String?   @map("user_id")
+  userRole    String?   @map("user_role")
+  eventType   String    @map("event_type")
+  entityType  String?   @map("entity_type")
+  entityId    String?   @map("entity_id")
+  metadata    Json?
+  ipAddress   String?   @map("ip_address")
+  userAgent   String?   @map("user_agent")
+  sessionId   String?   @map("session_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([eventId])
+  @@index([userId])
+  @@index([userRole])
+  @@index([eventType])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([createdAt])
+  @@index([sessionId])
+  @@index([userId, createdAt])
+  @@index([eventType, createdAt])
+  @@index([entityType, entityId])
+  @@index([metadata], type: Gin)
+}
+
+model AnalyticsAggregation {
+  id              String    @id @default(cuid())
+  aggregationType String    @map("aggregation_type")
+  timePeriod      String    @map("time_period")
+  startTime       DateTime  @map("start_time")
+  endTime         DateTime  @map("end_time")
+  metrics         Json
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([aggregationType])
+  @@index([timePeriod])
+  @@index([startTime])
+  @@index([endTime])
+  @@index([createdAt])
+  @@unique([aggregationType, timePeriod, startTime])
+}

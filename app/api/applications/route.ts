@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/nextauth-config";
 import { prisma } from "@/lib/prisma";
+import { trackJobApplication } from '@/lib/analytics/event-integration';
 
 // Helper function to get sample job data
 function getSampleJobData(jobId: string, companyId: string | null) {
@@ -553,6 +554,20 @@ export async function POST(request: NextRequest) {
       } catch (employerNotificationError) {
         console.warn('⚠️ Failed to notify employer:', employerNotificationError);
       }
+    }
+
+    // Track job application event
+    try {
+      await trackJobApplication(
+        session.user.id,
+        session.user.role || 'jobseeker',
+        jobId,
+        job.title,
+        job.company || 'Unknown Company',
+        application.id
+      );
+    } catch (error) {
+      console.error('❌ Failed to track job application:', error);
     }
 
     // Return success response
