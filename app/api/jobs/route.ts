@@ -97,43 +97,92 @@ export async function GET(request: NextRequest) {
     // Build where clause with validation
     const where: any = { isActive: true };
     
+    // Build OR conditions for text search (query and location)
+    const orConditions: any[] = [];
+    
     if (query && query.trim().length > 0) {
-      where.OR = [
+      orConditions.push(
         { title: { contains: query.trim(), mode: 'insensitive' } },
         { company: { contains: query.trim(), mode: 'insensitive' } },
         { description: { contains: query.trim(), mode: 'insensitive' } }
-      ];
+      );
     }
     
     // Enhanced location filtering with smart matching
     if (location && location.trim().length > 0) {
       try {
         const locationVariations = generateLocationVariations(location.trim());
-        where.OR = [
+        orConditions.push(
           { location: { contains: location.trim(), mode: 'insensitive' } },
           ...locationVariations.map(loc => ({ location: { contains: loc, mode: 'insensitive' } }))
-        ];
+        );
       } catch (error) {
         console.warn('⚠️ Location variation generation failed:', error);
         // Fallback to simple location search
-        where.location = { contains: location.trim(), mode: 'insensitive' };
+        orConditions.push({ location: { contains: location.trim(), mode: 'insensitive' } });
       }
+    }
+    
+    // Apply OR conditions if any exist
+    if (orConditions.length > 0) {
+      where.OR = orConditions;
     }
     
     if (company && company.trim().length > 0) {
       where.company = { contains: company.trim(), mode: 'insensitive' };
     }
     
-    if (jobType && jobType.trim().length > 0) {
-      where.jobType = { contains: jobType.trim(), mode: 'insensitive' };
+    if (jobType && jobType.trim().length > 0 && jobType !== 'all') {
+      // Enhanced job type filtering with multiple variations
+      const jobTypeVariations = [
+        jobType.trim(),
+        jobType.trim().replace('-', ' '),
+        jobType.trim().replace('-', ''),
+        jobType.trim().toLowerCase(),
+        jobType.trim().toUpperCase()
+      ];
+      
+      where.OR = [
+        ...(where.OR || []),
+        ...jobTypeVariations.map(term => ({ jobType: { contains: term, mode: 'insensitive' } }))
+      ];
     }
     
-    if (experienceLevel && experienceLevel.trim().length > 0) {
-      where.experienceLevel = { contains: experienceLevel.trim(), mode: 'insensitive' };
+    if (experienceLevel && experienceLevel.trim().length > 0 && experienceLevel !== 'all') {
+      // Enhanced experience level filtering with mapping
+      const experienceMapping: { [key: string]: string[] } = {
+        'entry level': ['entry', 'junior', 'associate', 'trainee', 'intern', 'entry level'],
+        'mid level': ['mid', 'middle', 'intermediate', 'experienced', 'mid level'],
+        'senior level': ['senior', 'lead', 'principal', 'staff', 'senior level'],
+        'lead': ['lead', 'senior', 'principal', 'staff'],
+        'executive': ['executive', 'director', 'manager', 'head', 'chief', 'executive']
+      };
+      
+      const experienceTerms = experienceMapping[experienceLevel.toLowerCase()] || [experienceLevel.trim()];
+      const allExperienceTerms = [
+        ...experienceTerms,
+        experienceLevel.trim(),
+        experienceLevel.trim().toLowerCase(),
+        experienceLevel.trim().toUpperCase()
+      ];
+      
+      where.OR = [
+        ...(where.OR || []),
+        ...allExperienceTerms.map(term => ({ experienceLevel: { contains: term, mode: 'insensitive' } }))
+      ];
     }
     
     if (isRemote) {
-      where.isRemote = true;
+      // Enhanced remote work filtering
+      where.OR = [
+        ...(where.OR || []),
+        { isRemote: true },
+        { isHybrid: true },
+        { description: { contains: 'remote', mode: 'insensitive' } },
+        { description: { contains: 'work from home', mode: 'insensitive' } },
+        { description: { contains: 'wfh', mode: 'insensitive' } },
+        { title: { contains: 'remote', mode: 'insensitive' } }
+      ];
     }
     
     if (sector && sector.trim().length > 0) {
@@ -146,16 +195,16 @@ export async function GET(request: NextRequest) {
     
     // Add salary filtering
     if (salaryMin || salaryMax) {
-      where.salaryRange = {};
       if (salaryMin) {
-        where.salaryRange.gte = parseInt(salaryMin);
+        where.salaryMin = { gte: parseInt(salaryMin) };
       }
       if (salaryMax) {
-        where.salaryRange.lte = parseInt(salaryMax);
+        where.salaryMax = { lte: parseInt(salaryMax) };
       }
     }
     
     console.log(`🔍 Jobs API: Searching with filters:`, { query, location, company, jobType, experienceLevel, isRemote, sector, country, salaryMin, salaryMax, page, limit });
+    console.log(`🔍 Jobs API: Where clause:`, JSON.stringify(where, null, 2));
     
     // Get jobs with pagination and error handling
     let jobs: any[] = [];

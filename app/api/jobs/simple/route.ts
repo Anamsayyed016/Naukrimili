@@ -32,28 +32,77 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: any = { isActive: true };
     
+    // Build OR conditions for text search (query and location)
+    const orConditions: any[] = [];
+    
     if (query) {
-      where.OR = [
+      orConditions.push(
         { title: { contains: query, mode: 'insensitive' } },
         { description: { contains: query, mode: 'insensitive' } },
         { company: { contains: query, mode: 'insensitive' } }
-      ];
+      );
     }
     
     if (location) {
-      where.location = { contains: location, mode: 'insensitive' };
+      orConditions.push({ location: { contains: location, mode: 'insensitive' } });
     }
     
-    if (jobType) {
-      where.jobType = { contains: jobType, mode: 'insensitive' };
+    // Apply OR conditions if any exist
+    if (orConditions.length > 0) {
+      where.OR = orConditions;
     }
     
-    if (experienceLevel) {
-      where.experienceLevel = { contains: experienceLevel, mode: 'insensitive' };
+    if (jobType && jobType !== 'all') {
+      // Enhanced job type filtering with multiple variations
+      const jobTypeVariations = [
+        jobType,
+        jobType.replace('-', ' '),
+        jobType.replace('-', ''),
+        jobType.toLowerCase(),
+        jobType.toUpperCase()
+      ];
+      
+      where.OR = [
+        ...(where.OR || []),
+        ...jobTypeVariations.map(term => ({ jobType: { contains: term, mode: 'insensitive' } }))
+      ];
+    }
+    
+    if (experienceLevel && experienceLevel !== 'all') {
+      // Enhanced experience level filtering with mapping
+      const experienceMapping: { [key: string]: string[] } = {
+        'entry level': ['entry', 'junior', 'associate', 'trainee', 'intern', 'entry level'],
+        'mid level': ['mid', 'middle', 'intermediate', 'experienced', 'mid level'],
+        'senior level': ['senior', 'lead', 'principal', 'staff', 'senior level'],
+        'lead': ['lead', 'senior', 'principal', 'staff'],
+        'executive': ['executive', 'director', 'manager', 'head', 'chief', 'executive']
+      };
+      
+      const experienceTerms = experienceMapping[experienceLevel.toLowerCase()] || [experienceLevel];
+      const allExperienceTerms = [
+        ...experienceTerms,
+        experienceLevel,
+        experienceLevel.toLowerCase(),
+        experienceLevel.toUpperCase()
+      ];
+      
+      where.OR = [
+        ...(where.OR || []),
+        ...allExperienceTerms.map(term => ({ experienceLevel: { contains: term, mode: 'insensitive' } }))
+      ];
     }
     
     if (isRemote) {
-      where.isRemote = true;
+      // Enhanced remote work filtering
+      where.OR = [
+        ...(where.OR || []),
+        { isRemote: true },
+        { isHybrid: true },
+        { description: { contains: 'remote', mode: 'insensitive' } },
+        { description: { contains: 'work from home', mode: 'insensitive' } },
+        { description: { contains: 'wfh', mode: 'insensitive' } },
+        { title: { contains: 'remote', mode: 'insensitive' } }
+      ];
     }
     
     if (country) {
@@ -62,12 +111,11 @@ export async function GET(request: NextRequest) {
     
     // Add salary filtering
     if (salaryMin || salaryMax) {
-      where.salaryRange = {};
       if (salaryMin) {
-        where.salaryRange.gte = parseInt(salaryMin);
+        where.salaryMin = { gte: parseInt(salaryMin) };
       }
       if (salaryMax) {
-        where.salaryRange.lte = parseInt(salaryMax);
+        where.salaryMax = { lte: parseInt(salaryMax) };
       }
     }
     
