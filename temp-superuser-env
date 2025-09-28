@@ -1,7 +1,0 @@
-# Temporary superuser environment for database migration
-# Replace with your actual PostgreSQL superuser credentials
-
-DATABASE_URL="postgresql://postgres:your_postgres_password@localhost:5432/jobportal"
-
-# After migration, switch back to your regular user
-# DATABASE_URL="postgresql://your_regular_user:password@localhost:5432/jobportal"
