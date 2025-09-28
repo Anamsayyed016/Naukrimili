@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { calculateDistance } from '@/lib/geoUtils';
+import { JobProcessingMiddleware } from '@/lib/services/job-processing-middleware';
 
 // Interface for job with distance calculation
 interface JobWithDistance {
@@ -43,6 +44,15 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
   
   try {
+    // Check if enhanced processing is enabled
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    const useEnhancedProcessing = searchParams.get('enhanced') === 'true';
+    
+    if (useEnhancedProcessing) {
+      return await handleEnhancedJobSearch(request);
+    }
+    
     // Validate request
     if (!request.url) {
       console.error('❌ Invalid request URL in jobs API');
@@ -52,19 +62,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
+    const url2 = new URL(request.url);
+    const searchParams2 = url2.searchParams;
     
     // Validate and parse parameters with defaults - support both parameter names
-    const query = searchParams.get('query') || searchParams.get('q') || '';
-    const location = searchParams.get('location') || '';
-    const company = searchParams.get('company') || '';
-    const jobType = searchParams.get('jobType') || '';
-    const experienceLevel = searchParams.get('experienceLevel') || '';
-    const isRemote = searchParams.get('isRemote') === 'true' || searchParams.get('remote') === 'true' || searchParams.get('remote_only') === 'true';
-    const sector = searchParams.get('sector') || '';
-    const country = searchParams.get('country') || 'IN';
-    const salaryMin = searchParams.get('salaryMin') || '';
-    const salaryMax = searchParams.get('salaryMax') || '';
+    const query = searchParams2.get('query') || searchParams2.get('q') || '';
+    const location = searchParams2.get('location') || '';
+    const company = searchParams2.get('company') || '';
+    const jobType = searchParams2.get('jobType') || '';
+    const experienceLevel = searchParams2.get('experienceLevel') || '';
+    const isRemote = searchParams2.get('isRemote') === 'true' || searchParams2.get('remote') === 'true' || searchParams2.get('remote_only') === 'true';
+    const sector = searchParams2.get('sector') || '';
+    const country = searchParams2.get('country') || 'IN';
+    const salaryMin = searchParams2.get('salaryMin') || '';
+    const salaryMax = searchParams2.get('salaryMax') || '';
     
     // Validate numeric parameters
     let page = 1;
@@ -74,17 +85,17 @@ export async function GET(request: NextRequest) {
     let userLng = 0;
     
     try {
-      page = Math.max(1, parseInt(searchParams.get('page') || '1'));
-      limit = Math.min(1000, Math.max(1, parseInt(searchParams.get('limit') || '20')));
-      radius = Math.min(100, Math.max(1, parseInt(searchParams.get('radius') || '25')));
-      userLat = parseFloat(searchParams.get('lat') || '0');
-      userLng = parseFloat(searchParams.get('lng') || '0');
+      page = Math.max(1, parseInt(searchParams2.get('page') || '1'));
+      limit = Math.min(1000, Math.max(1, parseInt(searchParams2.get('limit') || '20')));
+      radius = Math.min(100, Math.max(1, parseInt(searchParams2.get('radius') || '25')));
+      userLat = parseFloat(searchParams2.get('lat') || '0');
+      userLng = parseFloat(searchParams2.get('lng') || '0');
     } catch (parseError) {
       console.warn('⚠️ Parameter parsing error, using defaults:', parseError);
     }
     
-    const sortByDistance = searchParams.get('sortByDistance') === 'true';
-    const includeDistance = searchParams.get('includeDistance') === 'true';
+    const sortByDistance = searchParams2.get('sortByDistance') === 'true';
+    const includeDistance = searchParams2.get('includeDistance') === 'true';
     
     const skip = (page - 1) * limit;
     
@@ -645,4 +656,96 @@ function generateSampleJobs(options: {
   }
   
   return sampleJobs;
+}
+
+/**
+ * Enhanced job search using the new processing pipeline
+ */
+async function handleEnhancedJobSearch(request: NextRequest): Promise<NextResponse> {
+  try {
+    const { searchParams } = new URL(request.url);
+    
+    // Extract search parameters
+    const query = searchParams.get('q') || searchParams.get('query') || '';
+    const location = searchParams.get('location') || '';
+    const userId = searchParams.get('userId') || undefined;
+    const includeExternal = searchParams.get('includeExternal') !== 'false';
+    const includeDatabase = searchParams.get('includeDatabase') !== 'false';
+    const includeSample = searchParams.get('includeSample') !== 'false';
+    const limit = Math.min(1000, Math.max(1, parseInt(searchParams.get('limit') || '200')));
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+    
+    // Custom ranking weights
+    const rankingWeights = {
+      keywordMatch: parseFloat(searchParams.get('keywordWeight') || '0.4'),
+      locationMatch: parseFloat(searchParams.get('locationWeight') || '0.3'),
+      freshness: parseFloat(searchParams.get('freshnessWeight') || '0.2'),
+      userHistory: parseFloat(searchParams.get('userHistoryWeight') || '0.1')
+    };
+
+    console.log(`🚀 Enhanced Job Search:`, {
+      query, location, userId, includeExternal, includeDatabase, includeSample, limit, page
+    });
+
+    // Process jobs through the enhanced pipeline
+    const jobProcessor = JobProcessingMiddleware.getInstance();
+    const result = await jobProcessor.processJobs({
+      query,
+      location,
+      userId,
+      includeExternal,
+      includeDatabase,
+      includeSample,
+      limit,
+      page,
+      rankingWeights
+    });
+
+    // Format response
+    const response = {
+      success: true,
+      jobs: result.jobs,
+      pagination: {
+        page,
+        limit,
+        total: result.totalJobs,
+        totalPages: Math.ceil(result.totalJobs / limit),
+        hasNext: page < Math.ceil(result.totalJobs / limit),
+        hasPrev: page > 1
+      },
+      sources: result.sources,
+      processing: {
+        time: result.processingTime,
+        duplicatesRemoved: result.duplicatesRemoved,
+        categories: result.categories
+      },
+      meta: {
+        timestamp: new Date().toISOString(),
+        endpoint: '/api/jobs?enhanced=true',
+        searchTimeMs: Date.now() - Date.now(),
+        source: 'enhanced-pipeline'
+      }
+    };
+
+    console.log(`✅ Enhanced Job Search Complete:`, {
+      jobsReturned: result.jobs.length,
+      totalJobs: result.totalJobs,
+      processingTime: `${result.processingTime}ms`,
+      duplicatesRemoved: result.duplicatesRemoved,
+      categories: result.categories
+    });
+
+    return NextResponse.json(response);
+
+  } catch (error: any) {
+    console.error('❌ Enhanced job search failed:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Enhanced job search failed',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
+      { status: 500 }
+    );
+  }
 }

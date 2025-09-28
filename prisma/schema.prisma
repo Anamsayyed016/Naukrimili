@@ -432,3 +432,57 @@ model SearchHistory {
   @@index([searchType])
   @@index([userId, createdAt])
 }
+
+model NormalizedJob {
+  id                  String    @id @default(cuid())
+  title               String
+  company             String
+  location            String
+  type                String
+  salaryMin           Int?
+  salaryMax           Int?
+  salaryCurrency      String    @default("USD")
+  salaryDisplay       String?
+  category            String    @default("General")
+  subcategories       String[]
+  postedDate          DateTime
+  source              String
+  sourceId            String
+  description         String
+  requirements        String?
+  applyUrl            String?
+  sourceUrl           String?
+  isRemote            Boolean   @default(false)
+  isHybrid            Boolean   @default(false)
+  experienceLevel     String    @default("Mid Level")
+  skills              String[]
+  sector              String    @default("General")
+  isFeatured          Boolean   @default(false)
+  isUrgent            Boolean   @default(false)
+  country             String    @default("IN")
+  rawData             Json?
+  relevanceScore      Float?
+  rankingBreakdown    Json?
+  categoryConfidence  Float?
+  matchedKeywords     String[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([title])
+  @@index([company])
+  @@index([location])
+  @@index([category])
+  @@index([sector])
+  @@index([source])
+  @@index([postedDate])
+  @@index([relevanceScore])
+  @@index([isRemote])
+  @@index([isHybrid])
+  @@index([experienceLevel])
+  @@index([country])
+  @@index([source, sourceId])
+  @@index([category, sector])
+  @@index([location, country])
+  @@index([salaryMin, salaryMax])
+  @@index([createdAt])
+}
