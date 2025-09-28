@@ -197,6 +197,8 @@ export async function PATCH(
         try {
           const { getSocketService } = await import('@/lib/socket-server');
           const socketService = getSocketService();
+          console.log('🔍 Socket service status:', socketService ? 'Available' : 'Not available');
+          
           if (socketService) {
             await socketService.sendNotificationToUser(updatedApplication.user.id, {
               type: 'APPLICATION_UPDATE',

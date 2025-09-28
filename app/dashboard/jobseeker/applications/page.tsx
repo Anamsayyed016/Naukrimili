@@ -185,15 +185,23 @@ export default function JobSeekerApplicationsPage() {
         ...(filters.search && { search: filters.search })
       });
 
+      console.log('🔍 Fetching applications with params:', params.toString());
       const response = await fetch(`/api/applications?${params}`);
+      console.log('📊 Applications API response status:', response.status);
+      
       if (!response.ok) {
         throw new Error('Failed to fetch applications');
       }
 
       const data: ApplicationsResponse = await response.json();
+      console.log('📊 Applications data received:', data);
+      
       if (data.success) {
         setApplications(data.data.applications);
         setPagination(data.data.pagination);
+        console.log('✅ Applications updated:', data.data.applications.length, 'applications');
+      } else {
+        console.error('❌ Applications API returned error:', data.error);
       }
     } catch (error) {
       console.error('Error fetching applications:', error);

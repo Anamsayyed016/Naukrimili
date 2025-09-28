@@ -680,3 +680,93 @@ async function findJobWithFallback(jobId: string) {
     return null;
   }
 }
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const status = searchParams.get('status');
+    const search = searchParams.get('search');
+
+    const skip = (page - 1) * limit;
+
+    // Build where clause
+    const where: any = {
+      userId: session.user.id
+    };
+
+    if (status && status !== 'all') {
+      where.status = status;
+    }
+
+    if (search) {
+      where.OR = [
+        { job: { title: { contains: search, mode: 'insensitive' } } },
+        { job: { company: { contains: search, mode: 'insensitive' } } }
+      ];
+    }
+
+    // Get applications with pagination
+    const [applications, total] = await Promise.all([
+      prisma.application.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { appliedAt: 'desc' },
+        include: {
+          job: {
+            select: {
+              id: true,
+              title: true,
+              company: true,
+              location: true,
+              jobType: true,
+              salary: true,
+              isRemote: true,
+              postedAt: true
+            }
+          }
+        }
+      }),
+      prisma.application.count({ where })
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        applications,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1
+        }
+      }
+    });
+
+  } catch (error: any) {
+    console.error('❌ Applications GET API error:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to fetch applications',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
+      { status: 500 }
+    );
+  }
+}
