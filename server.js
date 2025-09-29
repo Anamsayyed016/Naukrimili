@@ -55,21 +55,26 @@ app.prepare().then(async () => {
     cors: {
       origin: [
         'http://localhost:3000',
+        'http://localhost:3001',
         'https://aftionix.in',
-        'https://www.aftionix.in'
+        'https://www.aftionix.in',
+        'https://jobportal.aftionix.in'
       ],
-      methods: ['GET', 'POST'],
-      credentials: true
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      credentials: true,
+      allowedHeaders: ['Authorization', 'Content-Type']
     },
     transports: ['websocket', 'polling'],
-    allowEIO3: true
+    allowEIO3: true,
+    pingTimeout: 60000,
+    pingInterval: 25000
   });
 
   console.log('✅ Socket.io server initialized successfully');
 
   // Initialize the notification service
   try {
-    const { initializeSocketService } = await import('./lib/socket-server.js');
+    const { initializeSocketService } = await import('./lib/socket-server.ts');
     const socketService = initializeSocketService(io);
     console.log('✅ Socket notification service initialized');
     

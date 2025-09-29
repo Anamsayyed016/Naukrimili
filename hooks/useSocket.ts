@@ -55,7 +55,13 @@ export function useSocket(): UseSocketReturn {
       console.log('🔌 Initializing socket connection for:', session.user.email);
 
       // Create socket connection with authentication
-      const newSocket = io(process.env.NEXT_PUBLIC_BASE_URL || 'https://aftionix.in', {
+      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 
+                       process.env.NEXT_PUBLIC_BASE_URL || 
+                       (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+      
+      console.log('🔌 Connecting to socket server:', socketUrl);
+      
+      const newSocket = io(socketUrl, {
         auth: {
           // Try multiple token sources for better compatibility
           token: (session as any).accessToken || 
@@ -67,8 +73,9 @@ export function useSocket(): UseSocketReturn {
         forceNew: true, // Force new connection to prevent reconnection issues
         timeout: 10000, // 10 second timeout
         reconnection: true,
-        reconnectionAttempts: 3,
-        reconnectionDelay: 1000,
+        reconnectionAttempts: 5, // Increased attempts
+        reconnectionDelay: 2000, // Increased delay
+        reconnectionDelayMax: 10000, // Max delay
       });
 
       // Connection events
@@ -83,13 +90,24 @@ export function useSocket(): UseSocketReturn {
       });
 
       newSocket.on('connect_error', (error) => {
-        console.warn('⚠️ Socket connection error (will retry):', error.message);
+        console.error('❌ Socket connection error:', error);
+        console.error('❌ Error details:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack
+        });
         setIsConnected(false);
         // Don't show error to user, just log it
       });
 
       newSocket.on('connected', (data) => {
         console.log('🎯 Socket authenticated:', data);
+      });
+
+      // Handle authentication errors
+      newSocket.on('auth_error', (error) => {
+        console.error('❌ Socket authentication failed:', error);
+        setIsConnected(false);
       });
 
       // Notification events

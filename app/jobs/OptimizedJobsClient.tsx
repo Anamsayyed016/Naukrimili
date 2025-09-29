@@ -487,10 +487,6 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center mt-8">
-              {/* Debug info */}
-              <div className="mb-4 text-sm text-gray-500">
-                Debug: totalPages={totalPages}, currentPage={currentPage}, totalJobs={totalJobs}
-              </div>
               <EnhancedPagination
                 config={{
                   page: currentPage,
