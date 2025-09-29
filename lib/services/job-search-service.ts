@@ -144,23 +144,35 @@ export class JobSearchService {
   private static buildOptimizedQuery(filters: JobSearchFilters) {
     const where: any = { isActive: true };
 
+    // Build AND conditions for proper filtering
+    const andConditions: any[] = [];
+
     // Text search with full-text indexing
     if (filters.query?.trim()) {
-      where.OR = [
-        { title: { contains: filters.query.trim(), mode: 'insensitive' } },
-        { description: { contains: filters.query.trim(), mode: 'insensitive' } },
-        { company: { contains: filters.query.trim(), mode: 'insensitive' } },
-        { skills: { has: filters.query.trim() } }
-      ];
+      andConditions.push({
+        OR: [
+          { title: { contains: filters.query.trim(), mode: 'insensitive' } },
+          { description: { contains: filters.query.trim(), mode: 'insensitive' } },
+          { company: { contains: filters.query.trim(), mode: 'insensitive' } },
+          { skills: { has: filters.query.trim() } }
+        ]
+      });
     }
 
     // Location filtering with smart matching
     if (filters.location?.trim()) {
       const location = filters.location.trim();
-      where.OR = [
-        { location: { contains: location, mode: 'insensitive' } },
-        { location: { contains: location.split(',')[0], mode: 'insensitive' } }
-      ];
+      andConditions.push({
+        OR: [
+          { location: { contains: location, mode: 'insensitive' } },
+          { location: { contains: location.split(',')[0], mode: 'insensitive' } }
+        ]
+      });
+    }
+
+    // Apply AND conditions if any exist
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     // Salary range filtering
@@ -290,13 +302,14 @@ export class JobSearchService {
 
       // Skills matching
       if (filters.skills?.length) {
+        const filterSkills = Array.isArray(filters.skills) ? filters.skills : [filters.skills];
         const aSkillsMatch = a.skills?.filter((skill: string) => 
-          filters.skills!.some(filterSkill => 
+          filterSkills.some(filterSkill => 
             skill.toLowerCase().includes(filterSkill.toLowerCase())
           )
         ).length || 0;
         const bSkillsMatch = b.skills?.filter((skill: string) => 
-          filters.skills!.some(filterSkill => 
+          filterSkills.some(filterSkill => 
             skill.toLowerCase().includes(filterSkill.toLowerCase())
           )
         ).length || 0;

@@ -294,41 +294,53 @@ export class UnlimitedJobSearch {
       isActive: true
     };
 
+    // Build AND conditions for proper filtering
+    const andConditions: any[] = [];
+
     // Enhanced text search with multiple strategies
     if (filters.query) {
       const searchTerms = filters.query.toLowerCase().split(' ').filter(Boolean);
-      where.OR = [
-        // Exact matches (highest priority)
-        { title: { contains: filters.query, mode: 'insensitive' } },
-        { company: { contains: filters.query, mode: 'insensitive' } },
-        // Partial matches
-        { description: { contains: filters.query, mode: 'insensitive' } },
-        { skills: { contains: filters.query, mode: 'insensitive' } },
-        { requirements: { contains: filters.query, mode: 'insensitive' } },
-        // Individual term matches for better relevance
-        ...searchTerms.map((term: string) => ({ title: { contains: term, mode: 'insensitive' } })),
-        ...searchTerms.map((term: string) => ({ company: { contains: term, mode: 'insensitive' } })),
-        ...searchTerms.map((term: string) => ({ skills: { contains: term, mode: 'insensitive' } }))
-      ];
+      andConditions.push({
+        OR: [
+          // Exact matches (highest priority)
+          { title: { contains: filters.query, mode: 'insensitive' } },
+          { company: { contains: filters.query, mode: 'insensitive' } },
+          // Partial matches
+          { description: { contains: filters.query, mode: 'insensitive' } },
+          { skills: { contains: filters.query, mode: 'insensitive' } },
+          { requirements: { contains: filters.query, mode: 'insensitive' } },
+          // Individual term matches for better relevance
+          ...searchTerms.map((term: string) => ({ title: { contains: term, mode: 'insensitive' } })),
+          ...searchTerms.map((term: string) => ({ company: { contains: term, mode: 'insensitive' } })),
+          ...searchTerms.map((term: string) => ({ skills: { contains: term, mode: 'insensitive' } }))
+        ]
+      });
     }
 
     // Enhanced location filter with fuzzy matching
     if (filters.location) {
       const locationTerms = filters.location.toLowerCase().split(/[,\s]+/).filter(Boolean);
-      where.OR = [
-        ...(where.OR || []),
-        { location: { contains: filters.location, mode: 'insensitive' } },
-        ...locationTerms.map((term: string) => ({ location: { contains: term, mode: 'insensitive' } }))
-      ];
+      andConditions.push({
+        OR: [
+          { location: { contains: filters.location, mode: 'insensitive' } },
+          ...locationTerms.map((term: string) => ({ location: { contains: term, mode: 'insensitive' } }))
+        ]
+      });
+    }
+
+    // Apply AND conditions if any exist
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     // Country filter with fallback
     if (filters.country) {
-      where.OR = [
-        ...(where.OR || []),
-        { country: filters.country },
-        { country: { contains: filters.country, mode: 'insensitive' } }
-      ];
+      andConditions.push({
+        OR: [
+          { country: filters.country },
+          { country: { contains: filters.country, mode: 'insensitive' } }
+        ]
+      });
     }
 
     // Enhanced job type filter

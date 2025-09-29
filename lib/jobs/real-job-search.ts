@@ -169,17 +169,30 @@ export class RealJobSearch {
       source: { not: 'sample' }
     };
 
-    // Build where clause
+    // Build AND conditions for proper filtering
+    const andConditions: any[] = [];
+
+    // Text search (query) - multiple field search with OR within this condition
     if (filters.query) {
-      where.OR = [
-        { title: { contains: filters.query, mode: 'insensitive' } },
-        { description: { contains: filters.query, mode: 'insensitive' } },
-        { company: { contains: filters.query, mode: 'insensitive' } }
-      ];
+      andConditions.push({
+        OR: [
+          { title: { contains: filters.query, mode: 'insensitive' } },
+          { description: { contains: filters.query, mode: 'insensitive' } },
+          { company: { contains: filters.query, mode: 'insensitive' } }
+        ]
+      });
     }
 
+    // Location filtering - separate AND condition
     if (filters.location) {
-      where.location = { contains: filters.location, mode: 'insensitive' };
+      andConditions.push({
+        location: { contains: filters.location, mode: 'insensitive' }
+      });
+    }
+
+    // Apply AND conditions if any exist
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     if (filters.country) {

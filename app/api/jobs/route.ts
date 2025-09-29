@@ -115,35 +115,41 @@ export async function GET(request: NextRequest) {
     // Build where clause with validation
     const where: any = { isActive: true };
     
-    // Build OR conditions for text search (query and location)
-    const orConditions: any[] = [];
+    // Build AND conditions for proper filtering
+    const andConditions: any[] = [];
     
+    // Text search (query) - multiple field search with OR within this condition
     if (query && query.trim().length > 0) {
-      orConditions.push(
-        { title: { contains: query.trim(), mode: 'insensitive' } },
-        { company: { contains: query.trim(), mode: 'insensitive' } },
-        { description: { contains: query.trim(), mode: 'insensitive' } }
-      );
+      andConditions.push({
+        OR: [
+          { title: { contains: query.trim(), mode: 'insensitive' } },
+          { company: { contains: query.trim(), mode: 'insensitive' } },
+          { description: { contains: query.trim(), mode: 'insensitive' } },
+          { skills: { contains: query.trim(), mode: 'insensitive' } }
+        ]
+      });
     }
     
-    // Enhanced location filtering with smart matching
+    // Location filtering with smart matching - separate AND condition
     if (location && location.trim().length > 0) {
       try {
         const locationVariations = generateLocationVariations(location.trim());
-        orConditions.push(
-          { location: { contains: location.trim(), mode: 'insensitive' } },
-          ...locationVariations.map(loc => ({ location: { contains: loc, mode: 'insensitive' } }))
-        );
+        andConditions.push({
+          OR: [
+            { location: { contains: location.trim(), mode: 'insensitive' } },
+            ...locationVariations.map(loc => ({ location: { contains: loc, mode: 'insensitive' } }))
+          ]
+        });
       } catch (error) {
         console.warn('⚠️ Location variation generation failed:', error);
         // Fallback to simple location search
-        orConditions.push({ location: { contains: location.trim(), mode: 'insensitive' } });
+        andConditions.push({ location: { contains: location.trim(), mode: 'insensitive' } });
       }
     }
     
-    // Apply OR conditions if any exist
-    if (orConditions.length > 0) {
-      where.OR = orConditions;
+    // Apply AND conditions if any exist
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
     
     if (company && company.trim().length > 0) {
@@ -161,12 +167,13 @@ export async function GET(request: NextRequest) {
     }
     
     if (isRemote) {
-      // Simplified remote work filtering for better performance
-      where.OR = [
-        ...(where.OR || []),
-        { isRemote: true },
-        { isHybrid: true }
-      ];
+      // Remote work filtering - add as AND condition
+      andConditions.push({
+        OR: [
+          { isRemote: true },
+          { isHybrid: true }
+        ]
+      });
     }
     
     if (sector && sector.trim().length > 0) {
