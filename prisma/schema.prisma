@@ -91,6 +91,9 @@ model User {
   profilePicture     String?
   isVerified         Boolean        @default(false)
   isActive           Boolean        @default(true)
+  phoneVerified      Boolean        @default(false) @map("phone_verified")
+  otpRequired        Boolean        @default(false) @map("otp_required")
+  lastOtpSent        DateTime?      @map("last_otp_sent")
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   benefits     String?
@@ -122,6 +125,7 @@ model User {
   searchHistory      SearchHistory[]
   sessions           Session[]
   settings           Settings[]
+  otpVerifications   OtpVerification[]
 }
 
 model Account {
@@ -532,4 +536,40 @@ model AnalyticsAggregation {
   @@index([endTime])
   @@index([createdAt])
   @@unique([aggregationType, timePeriod, startTime])
+}
+
+model OtpVerification {
+  id          String    @id @default(cuid())
+  userId      String?   // Optional for phone-only verification
+  phoneNumber String    @map("phone_number")
+  email       String?   // Optional for email-based OTP
+  otpCode     String    @map("otp_code")
+  otpType     String    @default("login") // login, signup, password_reset, etc.
+  purpose     String    @default("verification") // verification, authentication, etc.
+  isUsed      Boolean   @default(false) @map("is_used")
+  isVerified  Boolean   @default(false) @map("is_verified")
+  expiresAt   DateTime  @map("expires_at")
+  verifiedAt  DateTime? @map("verified_at")
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3) @map("max_attempts")
+  ipAddress   String?   @map("ip_address")
+  userAgent   String?   @map("user_agent")
+  metadata    Json?     // Additional data like source, channel, etc.
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  // Relations
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([phoneNumber])
+  @@index([email])
+  @@index([otpCode])
+  @@index([otpType])
+  @@index([isUsed])
+  @@index([isVerified])
+  @@index([expiresAt])
+  @@index([createdAt])
+  @@index([userId])
+  @@index([phoneNumber, otpType, isUsed])
+  @@index([email, otpType, isUsed])
 }

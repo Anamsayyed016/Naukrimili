@@ -236,8 +236,19 @@ export async function GET(request: NextRequest) {
         totalJobs: total,
         query: where,
         skip,
-        limit
+        limit,
+        searchParams: { query, location, company, jobType, experienceLevel, isRemote, sector, country }
       });
+      
+      // Debug: Show sample of found jobs
+      if (jobs.length > 0) {
+        console.log(`🔍 Sample jobs found:`, jobs.slice(0, 3).map(j => ({
+          title: j.title,
+          company: j.company,
+          location: j.location,
+          source: j.source
+        })));
+      }
       
       // If we have very few jobs, generate sample jobs to fill the gap
       if (jobs.length < 10 && limit > 10) {
@@ -610,8 +621,10 @@ function generateSampleJobs(options: {
     const finalExperienceLevel = experienceLevel && experienceLevel !== 'all' ? experienceLevel :
       ['Entry Level', 'Mid Level', 'Senior Level', 'Lead', 'Executive'][Math.floor(Math.random() * 5)];
     
-    // Match location if provided
-    const finalLocation = location || jobLocation;
+    // Match location if provided - prioritize user's location search
+    const finalLocation = location ? 
+      (isRemoteJob ? 'Remote' : location) : 
+      (isRemoteJob ? 'Remote' : jobLocation);
     
     // Match remote if requested
     const isRemoteJob = isRemote ? true : Math.random() > 0.7;
