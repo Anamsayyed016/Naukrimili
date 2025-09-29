@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight, UserCheck, Building2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight, UserCheck, Building2, Phone } from 'lucide-react';
 import Link from 'next/link';
 import ConditionalOAuthButton from '@/components/auth/ConditionalOAuthButton';
 
@@ -190,7 +190,23 @@ export default function SignInPage() {
 
             {/* Enhanced Gmail OAuth Section */}
             <div className="space-y-4">
-              <ConditionalOAuthButton loading={loading} />
+              <Button
+                onClick={() => signIn('google', { callbackUrl: '/auth/role-selection', redirect: true })}
+                disabled={loading}
+                className="w-full h-12 text-base font-medium bg-white border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700 hover:text-blue-700 transition-all duration-200 rounded-xl"
+              >
+                <Mail className="w-5 h-5 mr-3" />
+                Continue with Gmail
+              </Button>
+              
+              <Button
+                onClick={() => window.location.href = '/auth/signin-with-otp'}
+                disabled={loading}
+                className="w-full h-12 text-base font-medium bg-green-600 hover:bg-green-700 text-white transition-all duration-200 rounded-xl"
+              >
+                <Phone className="w-5 h-5 mr-3" />
+                Continue with Phone (OTP)
+              </Button>
             </div>
 
             {/* Enhanced Divider */}
