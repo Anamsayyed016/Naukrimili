@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     
     try {
       page = Math.max(1, parseInt(searchParams2.get('page') || '1'));
-      limit = Math.min(1000, Math.max(1, parseInt(searchParams2.get('limit') || '20')));
+      limit = Math.min(100, Math.max(1, parseInt(searchParams2.get('limit') || '20'))); // Reduced max from 1000 to 100
       radius = Math.min(100, Math.max(1, parseInt(searchParams2.get('radius') || '25')));
       userLat = parseFloat(searchParams2.get('lat') || '0');
       userLng = parseFloat(searchParams2.get('lng') || '0');
@@ -151,55 +151,21 @@ export async function GET(request: NextRequest) {
     }
     
     if (jobType && jobType.trim().length > 0 && jobType !== 'all') {
-      // Enhanced job type filtering with multiple variations
-      const jobTypeVariations = [
-        jobType.trim(),
-        jobType.trim().replace('-', ' '),
-        jobType.trim().replace('-', ''),
-        jobType.trim().toLowerCase(),
-        jobType.trim().toUpperCase()
-      ];
-      
-      where.OR = [
-        ...(where.OR || []),
-        ...jobTypeVariations.map(term => ({ jobType: { contains: term, mode: 'insensitive' } }))
-      ];
+      // Simplified job type filtering for better performance
+      where.jobType = { contains: jobType.trim(), mode: 'insensitive' };
     }
     
     if (experienceLevel && experienceLevel.trim().length > 0 && experienceLevel !== 'all') {
-      // Enhanced experience level filtering with mapping
-      const experienceMapping: { [key: string]: string[] } = {
-        'entry level': ['entry', 'junior', 'associate', 'trainee', 'intern', 'entry level'],
-        'mid level': ['mid', 'middle', 'intermediate', 'experienced', 'mid level'],
-        'senior level': ['senior', 'lead', 'principal', 'staff', 'senior level'],
-        'lead': ['lead', 'senior', 'principal', 'staff'],
-        'executive': ['executive', 'director', 'manager', 'head', 'chief', 'executive']
-      };
-      
-      const experienceTerms = experienceMapping[experienceLevel.toLowerCase()] || [experienceLevel.trim()];
-      const allExperienceTerms = [
-        ...experienceTerms,
-        experienceLevel.trim(),
-        experienceLevel.trim().toLowerCase(),
-        experienceLevel.trim().toUpperCase()
-      ];
-      
-      where.OR = [
-        ...(where.OR || []),
-        ...allExperienceTerms.map(term => ({ experienceLevel: { contains: term, mode: 'insensitive' } }))
-      ];
+      // Simplified experience level filtering for better performance
+      where.experienceLevel = { contains: experienceLevel.trim(), mode: 'insensitive' };
     }
     
     if (isRemote) {
-      // Enhanced remote work filtering
+      // Simplified remote work filtering for better performance
       where.OR = [
         ...(where.OR || []),
         { isRemote: true },
-        { isHybrid: true },
-        { description: { contains: 'remote', mode: 'insensitive' } },
-        { description: { contains: 'work from home', mode: 'insensitive' } },
-        { description: { contains: 'wfh', mode: 'insensitive' } },
-        { title: { contains: 'remote', mode: 'insensitive' } }
+        { isHybrid: true }
       ];
     }
     
@@ -698,7 +664,7 @@ async function handleEnhancedJobSearch(request: NextRequest): Promise<NextRespon
     const includeExternal = searchParams.get('includeExternal') !== 'false';
     const includeDatabase = searchParams.get('includeDatabase') !== 'false';
     const includeSample = searchParams.get('includeSample') !== 'false';
-    const limit = Math.min(1000, Math.max(1, parseInt(searchParams.get('limit') || '200')));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50'))); // Reduced max from 1000 to 100, default from 200 to 50
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     
     // Custom ranking weights

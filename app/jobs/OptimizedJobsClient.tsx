@@ -82,7 +82,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         ...(location && { location }),
         country: country,
         page: page.toString(),
-        limit: '500', // Truly unlimited jobs per page
+        limit: '50', // Optimized: Reduced from 500 to 50 for better performance
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),
@@ -143,8 +143,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           totalPages: data.pagination?.totalPages,
           hasMore: data.pagination?.hasMore,
           currentPage: page,
-          limit: 500,
-          shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || jobs.length) > 500
+          limit: 50,
+          shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || jobs.length) > 50
         });
 
       } else {
@@ -165,7 +165,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           limit: '200'
         });
         
-        const fallbackResponse = await fetch(`/api/jobs/simple-unlimited?${fallbackParams.toString()}`);
+        const fallbackResponse = await fetch(`/api/jobs/simple?${fallbackParams.toString()}`);
         if (fallbackResponse.ok) {
           const fallbackData = await fallbackResponse.json();
           const fallbackJobs = (fallbackData.jobs || []).map(convertToSimpleJob);
@@ -485,12 +485,16 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           </div>
 
           {/* Pagination */}
-          {(totalPages > 1 || hasNextPage || totalJobs > jobs.length) && (
+          {totalPages > 1 && (
             <div className="flex justify-center mt-8">
+              {/* Debug info */}
+              <div className="mb-4 text-sm text-gray-500">
+                Debug: totalPages={totalPages}, currentPage={currentPage}, totalJobs={totalJobs}
+              </div>
               <EnhancedPagination
                 config={{
                   page: currentPage,
-                  limit: 500,
+                  limit: 50,
                   total: totalJobs,
                   maxVisiblePages: 5,
                   showFirstLast: true,
