@@ -382,6 +382,7 @@ export default function TestOTPPage() {
                         purpose="testing"
                         onSuccess={handleOTPSuccess}
                         onResend={() => testOTPGeneration()}
+                        expiresAt={otpData?.expiresAt ? new Date(otpData.expiresAt) : undefined}
                       />
                     ) : (
                       <div className="text-center py-8">

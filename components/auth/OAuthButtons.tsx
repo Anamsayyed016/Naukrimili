@@ -112,7 +112,19 @@ export function OAuthButtons({
   );
 
   if (oauthProviders.length === 0) {
-    return null;
+    return (
+      <div className={`space-y-4 ${className}`}>
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2">
+            <Monitor className="h-4 w-4 text-amber-600" />
+            <span className="text-sm font-medium text-amber-800">OAuth Authentication</span>
+          </div>
+          <p className="text-xs text-amber-700 mt-1">
+            Google OAuth is not configured. Please use email/password authentication or contact support.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

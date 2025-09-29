@@ -24,6 +24,7 @@ interface OTPVerificationFormProps {
   onResend?: () => void;
   autoFocus?: boolean;
   className?: string;
+  expiresAt?: Date;
 }
 
 export function OTPVerificationForm({
@@ -35,7 +36,8 @@ export function OTPVerificationForm({
   onBack,
   onResend,
   autoFocus = true,
-  className = ''
+  className = '',
+  expiresAt: propExpiresAt
 }: OTPVerificationFormProps) {
   const [otpCode, setOtpCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -45,7 +47,7 @@ export function OTPVerificationForm({
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(0);
   const [otpId, setOtpId] = useState<string | null>(null);
-  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
+  const [expiresAt, setExpiresAt] = useState<Date | null>(propExpiresAt || null);
 
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);

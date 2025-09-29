@@ -13,6 +13,7 @@ import Link from 'next/link';
 import ConditionalOAuthButton from '@/components/auth/ConditionalOAuthButton';
 import { PhoneNumberInput } from '@/components/auth/PhoneNumberInput';
 import { OTPVerificationForm } from '@/components/auth/OTPVerificationForm';
+import { OAuthButtons } from '@/components/auth/OAuthButtons';
 
 type AuthMethod = 'gmail' | 'phone' | 'otp' | 'email';
 
@@ -109,9 +110,9 @@ export default function SignInPage() {
     setError('');
   };
 
-  const handleOTPSent = (phone: string, otpId: string, expiresAt: string) => {
-    setPhoneNumber(phone);
-    setOtpData({ otpId, expiresAt });
+  const handleOTPSent = (data: any) => {
+    setPhoneNumber(data.phoneNumber);
+    setOtpData({ otpId: data.otpId, expiresAt: data.expiresAt });
     setAuthMethod('otp');
     setError('');
   };
@@ -276,16 +277,12 @@ export default function SignInPage() {
               </Alert>
             )}
 
-            {/* Enhanced Gmail OAuth Section */}
+            {/* Enhanced Authentication Options */}
             <div className="space-y-4">
-              <Button
-                onClick={() => signIn('google', { callbackUrl: '/auth/role-selection', redirect: true })}
+              <OAuthButtons 
+                callbackUrl="/auth/role-selection"
                 disabled={loading}
-                className="w-full h-12 text-base font-medium bg-white border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700 hover:text-blue-700 transition-all duration-200 rounded-xl"
-              >
-                <Mail className="w-5 h-5 mr-3" />
-                Continue with Gmail
-              </Button>
+              />
               
               <Button
                 onClick={handlePhoneOTPStart}
@@ -450,6 +447,7 @@ export default function SignInPage() {
               onResend={handleResendOTP}
               otpType="login"
               purpose="verification"
+              expiresAt={otpData?.expiresAt ? new Date(otpData.expiresAt) : undefined}
             />
           </div>
         )}
