@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Phone, ArrowLeft, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, Phone, ArrowLeft, RefreshCw, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface OTPVerificationFormProps {
@@ -243,13 +243,13 @@ export function OTPVerificationForm({
   }
 
   return (
-    <Card className={`w-full max-w-md mx-auto ${className}`}>
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-          <Phone className="h-6 w-6 text-blue-600" />
+    <Card className={`w-full max-w-md mx-auto shadow-2xl border-0 rounded-3xl overflow-hidden modern-card ${className}`}>
+      <CardHeader className="text-center pb-8 pt-8 px-8">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 shadow-lg">
+          <Shield className="h-8 w-8 text-white" />
         </div>
-        <CardTitle className="text-xl">Verify Your Phone Number</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-3xl font-bold font-heading text-gray-900 mb-2">Verify Your Phone Number</CardTitle>
+        <CardDescription className="text-gray-600 text-base">
           We've sent a 6-digit verification code to
           <br />
           <span className="font-medium text-gray-900">
@@ -258,10 +258,10 @@ export function OTPVerificationForm({
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="px-8 pb-8 space-y-6">
         <form onSubmit={(e) => { e.preventDefault(); handleVerifyOTP(); }} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="otp">Enter Verification Code</Label>
+          <div className="space-y-3">
+            <Label htmlFor="otp" className="text-sm font-semibold text-gray-700">Enter Verification Code</Label>
             <Input
               ref={inputRef}
               id="otp"
@@ -271,7 +271,7 @@ export function OTPVerificationForm({
               value={otpCode}
               onChange={(e) => handleOTPChange(e.target.value)}
               placeholder="000000"
-              className="text-center text-2xl tracking-widest font-mono"
+              className="text-center text-2xl tracking-widest font-mono h-16 rounded-xl border-2 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
               maxLength={6}
               disabled={isVerifying}
             />
@@ -293,16 +293,19 @@ export function OTPVerificationForm({
 
           <Button
             type="submit"
-            className="w-full"
+            className="btn-primary w-full h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 bg-green-600 hover:bg-green-700"
             disabled={isVerifying || otpCode.length !== 6}
           >
             {isVerifying ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                 Verifying...
-              </>
+              </div>
             ) : (
-              'Verify OTP'
+              <div className="flex items-center justify-center">
+                <CheckCircle className="mr-2 h-5 w-5" />
+                Verify OTP
+              </div>
             )}
           </Button>
         </form>
@@ -320,13 +323,13 @@ export function OTPVerificationForm({
             variant="outline"
             onClick={handleResendOTP}
             disabled={isResending || countdown > 0}
-            className="w-full"
+            className="w-full h-12 text-base font-medium border-2 border-green-200 hover:border-green-300 hover:bg-green-50 text-green-700 hover:text-green-800 transition-all duration-200 rounded-xl"
           >
             {isResending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 mr-2"></div>
                 Sending...
-              </>
+              </div>
             ) : (
               <>
                 <RefreshCw className="mr-2 h-4 w-4" />
@@ -337,9 +340,9 @@ export function OTPVerificationForm({
 
           {onBack && (
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={handleBack}
-              className="w-full"
+              className="w-full h-12 text-base font-medium border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 hover:text-gray-800 transition-all duration-200 rounded-xl"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back

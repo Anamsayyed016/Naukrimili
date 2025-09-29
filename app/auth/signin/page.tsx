@@ -8,12 +8,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight, UserCheck, Building2, Phone } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight, UserCheck, Building2, Phone, Shield, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import ConditionalOAuthButton from '@/components/auth/ConditionalOAuthButton';
+import { PhoneNumberInput } from '@/components/auth/PhoneNumberInput';
+import { OTPVerificationForm } from '@/components/auth/OTPVerificationForm';
+
+type AuthMethod = 'gmail' | 'phone' | 'otp' | 'email';
 
 export default function SignInPage() {
   const { data: session, status } = useSession();
+  const [authMethod, setAuthMethod] = useState<AuthMethod>('gmail');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -22,6 +27,8 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [roleLockError, setRoleLockError] = useState<any>(null);
+  const [otpData, setOtpData] = useState<any>(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
   const router = useRouter();
 
   // Handle OAuth users who are already authenticated
@@ -94,6 +101,87 @@ export default function SignInPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handle phone OTP flow
+  const handlePhoneOTPStart = () => {
+    setAuthMethod('phone');
+    setError('');
+  };
+
+  const handleOTPSent = (phone: string, otpId: string, expiresAt: string) => {
+    setPhoneNumber(phone);
+    setOtpData({ otpId, expiresAt });
+    setAuthMethod('otp');
+    setError('');
+  };
+
+  const handleOTPVerified = async (verifiedOtpId: string) => {
+    try {
+      // Verify phone number in database
+      const response = await fetch('/api/auth/verify-phone', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phoneNumber
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Create a session for the phone-verified user
+        // For now, redirect to role selection
+        router.push('/auth/role-selection');
+      } else {
+        setError('Phone verification failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Phone verification error:', error);
+      setError('Phone verification failed. Please try again.');
+    }
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phoneNumber,
+          otpType: 'login',
+          purpose: 'verification'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setOtpData({
+          otpId: data.data.otpId,
+          expiresAt: data.data.expiresAt
+        });
+        setError('');
+      } else {
+        setError(data.message || 'Failed to resend OTP');
+      }
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      setError('Failed to resend OTP. Please try again.');
+    }
+  };
+
+  const handleBack = () => {
+    if (authMethod === 'otp') {
+      setAuthMethod('phone');
+    } else if (authMethod === 'phone') {
+      setAuthMethod('gmail');
+    }
+    setError('');
   };
 
   // Show loading if session is being checked
@@ -200,12 +288,12 @@ export default function SignInPage() {
               </Button>
               
               <Button
-                onClick={() => window.location.href = '/auth/signin-with-otp'}
+                onClick={handlePhoneOTPStart}
                 disabled={loading}
                 className="w-full h-12 text-base font-medium bg-green-600 hover:bg-green-700 text-white transition-all duration-200 rounded-xl"
               >
-                <Phone className="w-5 h-5 mr-3" />
-                Continue with Phone (OTP)
+                <MessageSquare className="w-5 h-5 mr-3" />
+                Continue with WhatsApp OTP
               </Button>
             </div>
 
@@ -338,6 +426,33 @@ export default function SignInPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* OTP Flow Components */}
+        {authMethod === 'phone' && (
+          <div className="w-full max-w-md mx-auto">
+            <PhoneNumberInput
+              onSuccess={handleOTPSent}
+              onBack={handleBack}
+              otpType="login"
+              purpose="verification"
+              title="Enter Your Phone Number"
+              description="We'll send you a verification code via WhatsApp"
+            />
+          </div>
+        )}
+
+        {authMethod === 'otp' && (
+          <div className="w-full max-w-md mx-auto">
+            <OTPVerificationForm
+              phoneNumber={phoneNumber}
+              onSuccess={handleOTPVerified}
+              onBack={handleBack}
+              onResend={handleResendOTP}
+              otpType="login"
+              purpose="verification"
+            />
+          </div>
+        )}
 
         {/* Enhanced Footer */}
         <div className="text-center space-y-4">

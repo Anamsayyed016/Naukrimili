@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Phone, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, Phone, ArrowLeft, CheckCircle, XCircle, MessageSquare, Mail } from 'lucide-react';
 import { OTPVerificationForm } from './OTPVerificationForm';
 
 interface PhoneNumberInputProps {
@@ -167,45 +167,55 @@ export function PhoneNumberInput({
   }
 
   return (
-    <Card className={`w-full max-w-md mx-auto ${className}`}>
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-          <Phone className="h-6 w-6 text-blue-600" />
+    <Card className={`w-full max-w-md mx-auto shadow-2xl border-0 rounded-3xl overflow-hidden modern-card ${className}`}>
+      <CardHeader className="text-center pb-8 pt-8 px-8">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 shadow-lg">
+          <MessageSquare className="h-8 w-8 text-white" />
         </div>
-        <CardTitle className="text-xl">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle className="text-3xl font-bold font-heading text-gray-900 mb-2">{title}</CardTitle>
+        <CardDescription className="text-gray-600 text-base">{description}</CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="px-8 pb-8 space-y-6">
         <form onSubmit={(e) => { e.preventDefault(); handleSendOTP(); }} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number *</Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => handlePhoneChange(e.target.value)}
-              placeholder="+91 98765 43210"
-              className="text-center"
-              disabled={isSending}
-              required
-            />
+          <div className="space-y-3">
+            <Label htmlFor="phone" className="text-sm font-semibold text-gray-700">
+              Phone Number *
+            </Label>
+            <div className="relative group">
+              <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors" />
+              <Input
+                id="phone"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                placeholder="+91 98765 43210"
+                className="auth-input pl-12 h-14 text-base rounded-xl border-2 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                disabled={isSending}
+                required
+              />
+            </div>
             <p className="text-xs text-gray-500 text-center">
               Enter your phone number with country code
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email (Optional)</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => handleEmailChange(e.target.value)}
-              placeholder="your@email.com"
-              className="text-center"
-              disabled={isSending}
-            />
+          <div className="space-y-3">
+            <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+              Email (Optional)
+            </Label>
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors" />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => handleEmailChange(e.target.value)}
+                placeholder="your@email.com"
+                className="auth-input pl-12 h-14 text-base rounded-xl border-2 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 transition-all duration-300"
+                disabled={isSending}
+              />
+            </div>
             <p className="text-xs text-gray-500 text-center">
               We'll also send verification to your email
             </p>
@@ -220,28 +230,28 @@ export function PhoneNumberInput({
 
           <Button
             type="submit"
-            className="w-full"
+            className="btn-primary w-full h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 bg-green-600 hover:bg-green-700"
             disabled={isSending || !validatePhoneNumber(phoneNumber)}
           >
             {isSending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                 Sending OTP...
-              </>
+              </div>
             ) : (
-              <>
-                <Phone className="mr-2 h-4 w-4" />
+              <div className="flex items-center justify-center">
+                <MessageSquare className="mr-2 h-5 w-5" />
                 Send OTP via WhatsApp
-              </>
+              </div>
             )}
           </Button>
         </form>
 
         <div className="text-center">
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={handleBack}
-            className="w-full"
+            className="w-full h-12 text-base font-medium border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 hover:text-gray-800 transition-all duration-200 rounded-xl"
             disabled={isSending}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
