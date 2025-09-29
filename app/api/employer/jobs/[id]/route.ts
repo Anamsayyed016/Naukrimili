@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 // GET - Fetch single job
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireEmployerAuth();
@@ -14,11 +14,19 @@ export async function GET(
     }
 
     const { user } = auth;
-    const jobId = params.id;
+    const { id: jobIdString } = await params;
 
-    if (!jobId) {
+    if (!jobIdString) {
       return NextResponse.json(
         { error: "Invalid job ID" },
+        { status: 400 }
+      );
+    }
+
+    const jobId = parseInt(jobIdString, 10);
+    if (isNaN(jobId)) {
+      return NextResponse.json(
+        { error: "Invalid job ID format" },
         { status: 400 }
       );
     }
@@ -70,7 +78,7 @@ export async function GET(
 // PUT - Update job
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireEmployerAuth();
@@ -79,7 +87,15 @@ export async function PUT(
     }
 
     const { user } = auth;
-    const jobId = params.id;
+    const { id: jobIdString } = await params;
+    
+    const jobId = parseInt(jobIdString, 10);
+    if (isNaN(jobId)) {
+      return NextResponse.json(
+        { error: "Invalid job ID format" },
+        { status: 400 }
+      );
+    }
     const body = await request.json();
 
     if (!jobId) {
@@ -115,7 +131,7 @@ export async function PUT(
       salaryMin,
       salaryMax,
       salaryCurrency = "INR",
-      skills = [],
+      skills = "",
       isRemote = false,
       isHybrid = false,
       isUrgent = false,
@@ -147,13 +163,13 @@ export async function PUT(
         salaryMin,
         salaryMax,
         salaryCurrency,
-        skills,
+        skills: Array.isArray(skills) ? skills.join(', ') : skills,
         isRemote,
         isHybrid,
         isUrgent,
         isFeatured,
         sector,
-        requirements: requirements ? [requirements] : existingJob.requirements,
+        requirements: Array.isArray(requirements) ? requirements.join('\n') : (requirements || existingJob.requirements),
         // applicationDeadline: applicationDeadline ? new Date(applicationDeadline) : null,
         updatedAt: new Date()
       }
@@ -176,7 +192,7 @@ export async function PUT(
 // DELETE - Delete job
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await requireEmployerAuth();
@@ -185,7 +201,15 @@ export async function DELETE(
     }
 
     const { user } = auth;
-    const jobId = params.id;
+    const { id: jobIdString } = await params;
+    
+    const jobId = parseInt(jobIdString, 10);
+    if (isNaN(jobId)) {
+      return NextResponse.json(
+        { error: "Invalid job ID format" },
+        { status: 400 }
+      );
+    }
 
     if (!jobId) {
       return NextResponse.json(

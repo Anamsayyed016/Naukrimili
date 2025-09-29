@@ -9,6 +9,7 @@ import { auth } from './nextauth-config';
 import { prisma } from './prisma';
 import { createNotification } from './notification-service';
 import { realTimeDashboard } from './analytics/real-time-dashboard';
+import jwt from 'jsonwebtoken';
 
 // Comprehensive notification types for job portal
 export type NotificationType = 
@@ -135,10 +136,9 @@ class SocketNotificationService {
 
       // Try JWT verification
       try {
-        const jwt = require('jsonwebtoken');
         const secret = process.env.NEXTAUTH_SECRET || 'fallback_secret';
         
-        const decoded = jwt.verify(token, secret);
+        const decoded = jwt.verify(token, secret) as any;
         
         // Get user from database
         const user = await prisma.user.findUnique({
@@ -596,4 +596,5 @@ export function getServerSocket(): SocketIOServer | null {
   return socketService?.io || null;
 }
 
+// Export the class as default
 export default SocketNotificationService;
