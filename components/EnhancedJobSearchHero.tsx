@@ -39,6 +39,7 @@ import {
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { useEnhancedSuggestions } from '@/hooks/useEnhancedSuggestions';
+import { useDebounce } from '@/hooks/useDebounce';
 import LocationCategories from './LocationCategories';
 import SmartFilterSuggestions from './SmartFilterSuggestions';
 
@@ -89,6 +90,10 @@ export default function EnhancedJobSearchHero({
     salaryMin: '',
     salaryMax: ''
   });
+
+  // Debounced filters for auto-search (fast response)
+  const debouncedQuery = useDebounce(filters.query, 500);
+  const debouncedLocation = useDebounce(filters.location, 500);
   
   // UI state
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -302,6 +307,29 @@ export default function EnhancedJobSearchHero({
       });
     }
   }, [session?.user?.id, showSuggestions, getDetailedSuggestions]);
+
+  // Auto-search when debounced filters change (fast dynamic filtering)
+  useEffect(() => {
+    // Only auto-search if we have both query and location
+    if (debouncedQuery.trim() && debouncedLocation.trim()) {
+      console.log('🔄 Auto-searching with debounced filters:', { query: debouncedQuery, location: debouncedLocation });
+      
+      // Build search URL with debounced parameters
+      const searchParams = new URLSearchParams();
+      searchParams.set('query', debouncedQuery);
+      searchParams.set('location', debouncedLocation);
+      
+      // Add other filters if they're not default values
+      if (filters.jobType !== 'all') searchParams.set('jobType', filters.jobType);
+      if (filters.experienceLevel !== 'all') searchParams.set('experienceLevel', filters.experienceLevel);
+      if (filters.isRemote) searchParams.set('isRemote', 'true');
+      if (filters.salaryMin) searchParams.set('salaryMin', filters.salaryMin);
+      if (filters.salaryMax) searchParams.set('salaryMax', filters.salaryMax);
+
+      // Navigate to search results (this will trigger OptimizedJobsClient to fetch new results)
+      router.push(`/jobs?${searchParams.toString()}`);
+    }
+  }, [debouncedQuery, debouncedLocation, filters.jobType, filters.experienceLevel, filters.isRemote, filters.salaryMin, filters.salaryMax, router]);
 
   return (
     <div className={`w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
