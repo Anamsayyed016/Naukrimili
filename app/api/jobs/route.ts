@@ -147,6 +147,16 @@ export async function GET(request: NextRequest) {
       }
     }
     
+    if (isRemote) {
+      // Remote work filtering - add as AND condition
+      andConditions.push({
+        OR: [
+          { isRemote: true },
+          { isHybrid: true }
+        ]
+      });
+    }
+    
     // Apply AND conditions if any exist
     if (andConditions.length > 0) {
       where.AND = andConditions;
@@ -164,16 +174,6 @@ export async function GET(request: NextRequest) {
     if (experienceLevel && experienceLevel.trim().length > 0 && experienceLevel !== 'all') {
       // Simplified experience level filtering for better performance
       where.experienceLevel = { contains: experienceLevel.trim(), mode: 'insensitive' };
-    }
-    
-    if (isRemote) {
-      // Remote work filtering - add as AND condition
-      andConditions.push({
-        OR: [
-          { isRemote: true },
-          { isHybrid: true }
-        ]
-      });
     }
     
     if (sector && sector.trim().length > 0) {
@@ -195,7 +195,8 @@ export async function GET(request: NextRequest) {
     }
     
     console.log(`🔍 Jobs API: Searching with filters:`, { query, location, company, jobType, experienceLevel, isRemote, sector, country, salaryMin, salaryMax, page, limit });
-    console.log(`🔍 Jobs API: Where clause:`, JSON.stringify(where, null, 2));
+    console.log(`🔍 Jobs API: AND conditions:`, JSON.stringify(andConditions, null, 2));
+    console.log(`🔍 Jobs API: Final where clause:`, JSON.stringify(where, null, 2));
     
     // Debug: Check if database has any jobs at all
     const totalJobsInDb = await prisma.job.count();
