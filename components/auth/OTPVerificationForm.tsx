@@ -49,6 +49,10 @@ export function OTPVerificationForm({
   const [otpId, setOtpId] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<Date | null>(propExpiresAt || null);
 
+  // Debug logging
+  console.log('OTPVerificationForm - propExpiresAt:', propExpiresAt);
+  console.log('OTPVerificationForm - expiresAt state:', expiresAt);
+
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
@@ -352,7 +356,7 @@ export function OTPVerificationForm({
           )}
         </div>
 
-        {expiresAt && (
+        {expiresAt && expiresAt instanceof Date && !isNaN(expiresAt.getTime()) && (
           <div className="text-center text-xs text-gray-500">
             OTP expires at {expiresAt.toLocaleTimeString()}
           </div>

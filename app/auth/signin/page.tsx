@@ -111,8 +111,12 @@ export default function SignInPage() {
   };
 
   const handleOTPSent = (data: any) => {
+    console.log('handleOTPSent - data:', data);
     setPhoneNumber(data.phoneNumber);
-    setOtpData({ otpId: data.otpId, expiresAt: data.expiresAt });
+    setOtpData({ 
+      otpId: data.otpId, 
+      expiresAt: data.expiresAt ? new Date(data.expiresAt) : null 
+    });
     setAuthMethod('otp');
     setError('');
   };
@@ -447,7 +451,7 @@ export default function SignInPage() {
               onResend={handleResendOTP}
               otpType="login"
               purpose="verification"
-              expiresAt={otpData?.expiresAt ? new Date(otpData.expiresAt) : undefined}
+              expiresAt={otpData?.expiresAt || undefined}
             />
           </div>
         )}

@@ -178,7 +178,7 @@ export default function SignInWithOTPPage() {
           purpose="authentication"
           onSuccess={handleOTPSuccess}
           onBack={handleBackToGmail}
-          expiresAt={otpData?.expiresAt ? new Date(otpData.expiresAt) : undefined}
+          expiresAt={otpData?.expiresAt || undefined}
         />
       </div>
     );
