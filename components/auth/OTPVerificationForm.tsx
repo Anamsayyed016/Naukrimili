@@ -42,10 +42,10 @@ export function OTPVerificationForm({
   const [otpCode, setOtpCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [countdown, setCountdown] = useState(0);
+  const [attemptsRemaining, setAttemptsRemaining] = useState(3);
   const [otpId, setOtpId] = useState<string | null>(null);
   const [expiresAt, setExpiresAt] = useState<Date | null>(propExpiresAt || null);
 
@@ -55,9 +55,8 @@ export function OTPVerificationForm({
 
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-focus input
+  // Auto-focus on mount
   useEffect(() => {
     if (autoFocus && inputRef.current) {
       inputRef.current.focus();
@@ -67,51 +66,36 @@ export function OTPVerificationForm({
   // Countdown timer
   useEffect(() => {
     if (countdown > 0) {
-      countdownRef.current = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
-    } else {
-      if (countdownRef.current) {
-        clearTimeout(countdownRef.current);
-      }
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
     }
-
-    return () => {
-      if (countdownRef.current) {
-        clearTimeout(countdownRef.current);
-      }
-    };
   }, [countdown]);
 
-  // Start countdown when component mounts
-  useEffect(() => {
-    setCountdown(60); // 1 minute countdown
-  }, []);
-
-  // Handle OTP input change
-  const handleOTPChange = (value: string) => {
-    // Only allow numbers and limit to 6 digits
-    const numericValue = value.replace(/\D/g, '').slice(0, 6);
-    setOtpCode(numericValue);
-    setError(null);
-
-    // Auto-submit when 6 digits are entered
-    if (numericValue.length === 6) {
-      handleVerifyOTP(numericValue);
+  const maskPhoneNumber = (phone: string) => {
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length >= 10) {
+      const last4 = cleaned.slice(-4);
+      return `+${cleaned.slice(0, -4).replace(/\d/g, '*')}${last4}`;
     }
+    return phone;
   };
 
-  // Handle OTP verification
-  const handleVerifyOTP = async (code?: string) => {
-    const codeToVerify = code || otpCode;
-    
-    if (codeToVerify.length !== 6) {
-      setError('Please enter a 6-digit OTP');
+  const handleOTPChange = (value: string) => {
+    // Only allow digits and limit to 6 characters
+    const digits = value.replace(/\D/g, '').slice(0, 6);
+    setOtpCode(digits);
+    setError('');
+  };
+
+  const handleVerifyOTP = async () => {
+    if (otpCode.length !== 6) {
+      setError('Please enter a valid 6-digit OTP');
       return;
     }
 
     setIsVerifying(true);
-    setError(null);
+    setError('');
+    setSuccess('');
 
     try {
       const response = await fetch('/api/auth/verify-otp', {
@@ -121,54 +105,36 @@ export function OTPVerificationForm({
         },
         body: JSON.stringify({
           phoneNumber,
-          otpCode: codeToVerify,
-          otpType,
-          purpose
+          otpCode,
+          otpType
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setSuccess(true);
-        setOtpId(data.data.otpId);
-        
-        // Call success callback
+        setSuccess('OTP verified successfully!');
         if (onSuccess) {
           onSuccess(data.data);
-        } else {
-          // Default success behavior
-          setTimeout(() => {
-            router.push('/dashboard');
-          }, 2000);
         }
       } else {
-        setError(data.message || 'Invalid OTP');
-        setAttemptsRemaining(data.data?.attemptsRemaining || null);
-        
-        // Clear OTP on error
-        setOtpCode('');
-        if (inputRef.current) {
-          inputRef.current.focus();
+        setError(data.message || 'OTP verification failed');
+        if (data.data?.attemptsRemaining !== undefined) {
+          setAttemptsRemaining(data.data.attemptsRemaining);
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('OTP verification error:', error);
-      setError('Failed to verify OTP. Please try again.');
+      setError('Network error. Please try again.');
     } finally {
       setIsVerifying(false);
     }
   };
 
-  // Handle resend OTP
   const handleResendOTP = async () => {
-    if (countdown > 0) {
-      setError(`Please wait ${countdown} seconds before requesting another OTP`);
-      return;
-    }
-
     setIsResending(true);
-    setError(null);
+    setError('');
+    setSuccess('');
 
     try {
       const response = await fetch('/api/auth/send-otp', {
@@ -187,62 +153,31 @@ export function OTPVerificationForm({
       const data = await response.json();
 
       if (data.success) {
-        setOtpId(data.data.otpId);
-        setExpiresAt(new Date(data.data.expiresAt));
+        setSuccess('New OTP sent successfully!');
         setCountdown(60); // Reset countdown
-        setError(null);
-        
-        // Call resend callback
-        if (onResend) {
-          onResend();
-        }
+        setAttemptsRemaining(3); // Reset attempts
       } else {
         setError(data.message || 'Failed to resend OTP');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Resend OTP error:', error);
-      setError('Failed to resend OTP. Please try again.');
+      setError('Network error. Please try again.');
     } finally {
       setIsResending(false);
     }
   };
 
-  // Handle back button
-  const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      router.back();
-    }
-  };
-
-  // Mask phone number for display
-  const maskPhoneNumber = (phone: string) => {
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length >= 10) {
-      const last4 = cleaned.slice(-4);
-      return `+${cleaned.slice(0, -4).replace(/\d/g, '*')}${last4}`;
-    }
-    return phone;
-  };
-
-  if (success) {
+  // If verification was successful, show success message
+  if (success && onSuccess) {
     return (
-      <Card className={`w-full max-w-md mx-auto ${className}`}>
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-green-700 mb-2">
-              OTP Verified Successfully!
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Your phone number has been verified.
-            </p>
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500 mx-auto"></div>
-            <p className="text-xs text-gray-500 mt-2">
-              Redirecting...
-            </p>
+      <Card className={`w-full max-w-md mx-auto shadow-2xl border-0 rounded-3xl overflow-hidden modern-card ${className}`}>
+        <CardContent className="px-8 py-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 shadow-lg">
+            <CheckCircle className="h-8 w-8 text-white" />
           </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">Verification Successful!</h3>
+          <p className="text-gray-600 mb-6">Your phone number has been verified successfully.</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
         </CardContent>
       </Card>
     );
@@ -288,7 +223,7 @@ export function OTPVerificationForm({
               <XCircle className="h-4 w-4" />
               <AlertDescription>
                 {error}
-                {attemptsRemaining !== null && (
+                {attemptsRemaining !== null && attemptsRemaining < 3 && (
                   <span className="block mt-1 text-sm">
                     {attemptsRemaining} attempts remaining
                   </span>
@@ -347,7 +282,7 @@ export function OTPVerificationForm({
           {onBack && (
             <Button
               variant="outline"
-              onClick={handleBack}
+              onClick={onBack}
               className="w-full h-12 text-base font-medium border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 hover:text-gray-800 transition-all duration-200 rounded-xl"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
