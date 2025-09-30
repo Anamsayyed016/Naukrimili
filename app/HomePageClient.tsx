@@ -132,7 +132,7 @@ export default function HomePageClient({
           <div className="mb-8 sm:mb-12">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Trending Searches</h3>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {trendingSearches.map((search, index) => (
+              {(trendingSearches || []).map((search, index) => (
                 <Link
                   key={index}
                   href={`/jobs?q=${encodeURIComponent(search)}&unlimited=true&includeExternal=true&includeDatabase=true&includeSample=true&limit=100`}
@@ -148,7 +148,7 @@ export default function HomePageClient({
           <div className="mb-8 sm:mb-12">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Popular Locations</h3>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {popularLocations.map((location, index) => (
+              {(popularLocations || []).map((location, index) => (
                 <Link
                   key={index}
                   href={`/jobs?location=${encodeURIComponent(location)}&unlimited=true&includeExternal=true&includeDatabase=true&includeSample=true&limit=100`}
@@ -227,8 +227,8 @@ export default function HomePageClient({
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {featuredJobs.length > 0 ? (
-              featuredJobs.map((job) => (
+            {(featuredJobs || []).length > 0 ? (
+              (featuredJobs || []).map((job) => (
                 <div key={job.id} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -311,8 +311,8 @@ export default function HomePageClient({
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {topCompanies.length > 0 ? (
-              topCompanies.map((company) => (
+            {(topCompanies || []).length > 0 ? (
+              (topCompanies || []).map((company) => (
                 <div key={company.id} className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">

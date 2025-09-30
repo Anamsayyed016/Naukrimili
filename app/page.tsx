@@ -77,10 +77,10 @@ export default async function HomePage() {
 
   return (
     <HomePageClient 
-      featuredJobs={featuredJobs}
-      topCompanies={topCompanies}
-      trendingSearches={trendingSearches}
-      popularLocations={popularLocations}
+      featuredJobs={featuredJobs || []}
+      topCompanies={topCompanies || []}
+      trendingSearches={trendingSearches || []}
+      popularLocations={popularLocations || []}
     />
   );
 }
