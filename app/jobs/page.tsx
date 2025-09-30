@@ -14,7 +14,7 @@ export default function JobsPage() {
           showAdvancedFilters={false}
           showSuggestions={false}
           showLocationCategories={false}
-          autoSearch={true}
+          autoSearch={false}
         />
       </div>
 

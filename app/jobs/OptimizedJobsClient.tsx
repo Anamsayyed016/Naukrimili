@@ -76,7 +76,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         }
       }
 
-      // Use main jobs API with all filters - FIXED: Use correct endpoint
+      // Use real jobs API instead of main API to avoid sample jobs
       const mainParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
@@ -93,13 +93,13 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       });
 
       const startTime = Date.now();
-      let response = await fetch(`/api/jobs?${mainParams.toString()}`);
+      let response = await fetch(`/api/jobs/real?${mainParams.toString()}`);
       const responseTime = Date.now() - startTime;
 
-      // Fallback to simple API if main API fails
+      // Fallback to main API if real API fails
       if (!response.ok) {
-        console.warn(`⚠️ Main API failed (${response.status}), trying simple API...`);
-        response = await fetch(`/api/jobs/simple?${mainParams.toString()}`);
+        console.warn(`⚠️ Real API failed (${response.status}), trying main API...`);
+        response = await fetch(`/api/jobs?${mainParams.toString()}`);
         
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -154,9 +154,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     } catch (error) {
       console.error('❌ Error fetching unlimited jobs, trying fallback:', error);
       
-      // Fallback to simple unlimited API
+      // Fallback to main API
       try {
-        console.log('🔄 Trying fallback to simple unlimited API...');
+        console.log('🔄 Trying fallback to main API...');
         const fallbackParams = new URLSearchParams({
           ...(query && { query }),
           ...(location && { location }),
@@ -165,7 +165,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           limit: '200'
         });
         
-        const fallbackResponse = await fetch(`/api/jobs/simple?${fallbackParams.toString()}`);
+        const fallbackResponse = await fetch(`/api/jobs?${fallbackParams.toString()}`);
         if (fallbackResponse.ok) {
           const fallbackData = await fallbackResponse.json();
           const fallbackJobs = (fallbackData.jobs || []).map(convertToSimpleJob);

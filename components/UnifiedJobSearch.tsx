@@ -175,9 +175,9 @@ export default function UnifiedJobSearch({
     fetchDynamicConstants();
   }, [fetchDynamicConstants]);
 
-  // Auto-search when debounced filters change
+  // Auto-search when debounced filters change - Only for jobs page variant
   useEffect(() => {
-    if (autoSearch && (debouncedQuery.trim() || debouncedLocation.trim())) {
+    if (autoSearch && variant === 'jobs-page' && (debouncedQuery.trim() || debouncedLocation.trim())) {
       console.log('🔄 Auto-searching with debounced filters:', { query: debouncedQuery, location: debouncedLocation });
       
       const searchParams = new URLSearchParams();
@@ -196,7 +196,7 @@ export default function UnifiedJobSearch({
       // Navigate to search results
       router.push(`/jobs?${searchParams.toString()}`);
     }
-  }, [debouncedQuery, debouncedLocation, filters.jobType, filters.experienceLevel, filters.isRemote, filters.salaryMin, filters.salaryMax, filters.sector, filters.country, autoSearch, router]);
+  }, [debouncedQuery, debouncedLocation, filters.jobType, filters.experienceLevel, filters.isRemote, filters.salaryMin, filters.salaryMax, filters.sector, filters.country, autoSearch, router, variant]);
 
   // ===== HANDLERS =====
 
