@@ -7,7 +7,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
 import { Button } from "@/components/ui/button";
-import JobSearchHero from '@/components/JobSearchHero';
 import SEOJobLink from '@/components/SEOJobLink';
 
 interface Job {
