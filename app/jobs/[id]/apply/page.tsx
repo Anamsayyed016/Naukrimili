@@ -141,6 +141,14 @@ export default function JobApplicationPage() {
       console.log('🔍 Apply page - Raw ID:', rawId);
       console.log('🔍 Apply page - Parsed Job ID:', jobId);
       
+      // Check if this is a sample job
+      if (jobId.startsWith('sample-')) {
+        console.log('❌ Sample job detected - redirecting to jobs page');
+        setError('This is a sample job and cannot be applied to. Please search for real jobs.');
+        setLoading(false);
+        return;
+      }
+      
       // Add timeout to prevent hanging
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
@@ -644,14 +652,18 @@ export default function JobApplicationPage() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
-            <h2 className="text-xl font-bold text-red-800 mb-2">Job Not Found</h2>
-            <p className="text-red-600 mb-6">{error || 'The job you are looking for does not exist or may have been removed.'}</p>
+            <h2 className="text-xl font-bold text-red-800 mb-2">
+              {error?.includes('sample job') ? 'Sample Job' : 'Job Not Found'}
+            </h2>
+            <p className="text-red-600 mb-6">
+              {error || 'The job you are looking for does not exist or may have been removed.'}
+            </p>
             <div className="space-y-3">
               <Link
                 href="/jobs"
                 className="block w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
               >
-                Back to Jobs
+                {error?.includes('sample job') ? 'Browse Real Jobs' : 'Back to Jobs'}
               </Link>
               <button
                 onClick={() => window.location.reload()}

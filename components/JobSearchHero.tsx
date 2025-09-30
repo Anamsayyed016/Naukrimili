@@ -229,14 +229,14 @@ export default function JobSearchHero({
 
   // Auto-search when debounced filters change (fast dynamic filtering)
   useEffect(() => {
-    // Only auto-search if we have both query and location
-    if (debouncedQuery.trim() && debouncedLocation.trim()) {
+    // Auto-search if we have either query or location (or both)
+    if (debouncedQuery.trim() || debouncedLocation.trim()) {
       console.log('🔄 Auto-searching with debounced filters:', { query: debouncedQuery, location: debouncedLocation });
       
       // Build search URL with debounced parameters
       const searchParams = new URLSearchParams();
-      searchParams.set('query', debouncedQuery);
-      searchParams.set('location', debouncedLocation);
+      if (debouncedQuery.trim()) searchParams.set('query', debouncedQuery);
+      if (debouncedLocation.trim()) searchParams.set('location', debouncedLocation);
       
       // Add other filters if they're not default values
       if (filters.jobType !== 'all') searchParams.set('jobType', filters.jobType);
@@ -263,11 +263,11 @@ export default function JobSearchHero({
           {/* Enhanced Header */}
           <div className="mb-8">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              Discover the 
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent"> Career You Deserve</span>
+              Find Your 
+              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent"> Dream Job</span>
             </h1>
             <p className="text-lg sm:text-xl text-blue-100 mb-6 max-w-3xl mx-auto leading-relaxed">
-              Connect with top companies worldwide through our AI-powered job matching platform
+              Search millions of jobs worldwide with our AI-powered matching system
             </p>
           </div>
           
@@ -287,7 +287,7 @@ export default function JobSearchHero({
                     </Badge>
                   </h2>
                   <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                    Find your perfect job with intelligent matching
+                    Search by title, location, or company • Auto-search as you type
                   </p>
                 </div>
               </div>
