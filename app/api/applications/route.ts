@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/nextauth-config";
 import { prisma } from "@/lib/prisma";
 import { trackJobApplication } from '@/lib/analytics/event-integration';
+import { join } from 'path';
+import { mkdir, writeFile } from 'fs/promises';
 
 // Helper function to get sample job data
 function getSampleJobData(jobId: string, companyId: string | null) {
@@ -333,8 +335,15 @@ export async function POST(request: NextRequest) {
         // Create a simple file name
         const fileName = `resume_${user.id}_${Date.now()}.pdf`;
         
-        // For now, we'll just store the file info without actual upload
-        // In a real implementation, you'd upload to cloud storage
+        // Create uploads directory if it doesn't exist
+        const uploadsDir = join(process.cwd(), 'uploads', 'resumes');
+        await mkdir(uploadsDir, { recursive: true }).catch(() => {});
+        
+        // Save file to filesystem
+        const filePath = join(uploadsDir, fileName);
+        const fileBuffer = await resumeFile.arrayBuffer();
+        await writeFile(filePath, Buffer.from(fileBuffer));
+        
         resumeUrl = `/uploads/resumes/${fileName}`;
         
         // Create Resume record in database
