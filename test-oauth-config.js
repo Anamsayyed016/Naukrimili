@@ -30,6 +30,8 @@ envContent.split('\n').forEach(line => {
   }
 });
 
+
+
 console.log('📋 Environment Variables Check:');
 console.log('================================');
 

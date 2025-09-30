@@ -40,7 +40,6 @@ import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { useEnhancedSuggestions } from '@/hooks/useEnhancedSuggestions';
 import { useDebounce } from '@/hooks/useDebounce';
-import LocationCategories from './LocationCategories';
 import SmartFilterSuggestions from './SmartFilterSuggestions';
 
 interface EnhancedJobSearchHeroProps {
@@ -650,13 +649,6 @@ export default function EnhancedJobSearchHero({
         />
       </div>
 
-      {/* Location Categories */}
-      <LocationCategories 
-        className="mt-8" 
-        onLocationSelect={(location) => {
-          setFilters(prev => ({ ...prev, location: location.name }));
-        }}
-      />
     </div>
   );
 }
