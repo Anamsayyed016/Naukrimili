@@ -34,41 +34,40 @@ export function OAuthButtons({
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadProviders = async () => {
+    // Immediately set Google provider since we know it's configured
+    setProviders({
+      google: {
+        id: 'google',
+        name: 'Google',
+        type: 'oauth'
+      }
+    });
+    
+    // Optional: Try to get additional providers from NextAuth
+    const loadAdditionalProviders = async () => {
       try {
-        // Always set Google provider since we know it's configured
-        setProviders({
-          google: {
-            id: 'google',
-            name: 'Google',
-            type: 'oauth'
-          }
-        });
-        
-        // Try NextAuth getProviders as additional check
         const availableProviders = await getProviders();
         console.log('🔍 Available providers from NextAuth:', availableProviders);
         
         if (availableProviders && Object.keys(availableProviders).length > 0) {
-          setProviders(availableProviders);
-          return;
+          // Only update if we have actual OAuth providers
+          const oauthProviders = Object.values(availableProviders).filter(
+            (provider: any) => provider.type === 'oauth'
+          );
+          if (oauthProviders.length > 0) {
+            setProviders(availableProviders);
+            return;
+          }
         }
         
         console.log('🔍 Using fallback Google provider');
       } catch (error) {
-        console.error('❌ Error loading providers:', error);
-        // Final fallback: assume Google is available since we know it's configured
-        setProviders({
-          google: {
-            id: 'google',
-            name: 'Google',
-            type: 'oauth'
-          }
-        });
+        console.error('❌ Error loading additional providers:', error);
       }
     };
     
-    loadProviders();
+    // Load additional providers in background
+    loadAdditionalProviders();
   }, []);
 
   const handleOAuthSignIn = async (providerId: string) => {
