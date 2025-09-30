@@ -45,6 +45,9 @@ export default function EnhancedJobCard({
   // Normalize job data to ensure consistency
   const normalizedJob = normalizeJobData(job);
   const seoJobUrl = useSEOJobUrl(normalizedJob);
+  
+  // Check if this is a sample job
+  const isSampleJob = normalizedJob.id.startsWith('sample-') || normalizedJob.source === 'sample';
 
   const handleBookmark = () => {
     onBookmark?.(normalizedJob.id);
@@ -128,6 +131,12 @@ export default function EnhancedJobCard({
                       ⭐ <span className="hidden sm:inline">Featured</span>
                     </span>
                   )}
+                  {isSampleJob && (
+                    <span className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                      <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                      <span className="hidden sm:inline">Sample</span>
+                    </span>
+                  )}
                 </div>
               </div>
               
@@ -171,14 +180,26 @@ export default function EnhancedJobCard({
                 )}
               </button>
               
-              <Link
-                href={`${seoJobUrl}/apply`}
-                className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
-              >
-                <span className="hidden sm:inline">Apply</span>
-                <span className="sm:hidden">Apply</span>
-                <ChevronRightIcon className="w-3 h-3" />
-              </Link>
+              {isSampleJob ? (
+                <button
+                  disabled
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-400 text-white text-xs font-medium rounded-lg cursor-not-allowed flex items-center gap-1"
+                  title="Sample job - not available for application"
+                >
+                  <span className="hidden sm:inline">Sample</span>
+                  <span className="sm:hidden">Sample</span>
+                  <ChevronRightIcon className="w-3 h-3" />
+                </button>
+              ) : (
+                <Link
+                  href={`${seoJobUrl}/apply`}
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                >
+                  <span className="hidden sm:inline">Apply</span>
+                  <span className="sm:hidden">Apply</span>
+                  <ChevronRightIcon className="w-3 h-3" />
+                </Link>
+              )}
             </div>
           </div>
         </motion.div>
@@ -216,6 +237,12 @@ export default function EnhancedJobCard({
                 {job.is_featured && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full">
                     ⭐ Featured
+                  </span>
+                )}
+                {isSampleJob && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                    <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    Sample Job
                   </span>
                 )}
                 {job.is_remote && (
@@ -368,13 +395,24 @@ export default function EnhancedJobCard({
 
         {/* Card Footer Actions */}
         <div className="px-6 py-4 bg-gray-50 flex gap-3">
-          <Link
-            href={`${seoJobUrl}/apply`}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
-          >
-            Apply Now
-            <ChevronRightIcon className="w-4 h-4" />
-          </Link>
+          {isSampleJob ? (
+            <button
+              disabled
+              className="flex-1 bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg cursor-not-allowed flex items-center justify-center gap-2"
+              title="Sample job - not available for application"
+            >
+              Sample Job
+              <ChevronRightIcon className="w-4 h-4" />
+            </button>
+          ) : (
+            <Link
+              href={`${seoJobUrl}/apply`}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
+            >
+              Apply Now
+              <ChevronRightIcon className="w-4 h-4" />
+            </Link>
+          )}
           
           <button 
             onClick={handleQuickView}

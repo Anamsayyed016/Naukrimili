@@ -45,6 +45,17 @@ export async function GET(
       });
     }
     
+    // Check if this is a sample job ID
+    if (trimmedId.startsWith('sample-')) {
+      console.log('🔍 Sample job ID detected:', trimmedId);
+      return NextResponse.json({
+        success: false,
+        error: 'Sample job not found',
+        details: 'This is a sample job that cannot be accessed directly. Please search for real jobs.',
+        isSample: true
+      }, { status: 404 });
+    }
+    
     // Check if this is an external job ID
     if (trimmedId.startsWith('ext-')) {
       const externalJob = await handleExternalJob(trimmedId);
