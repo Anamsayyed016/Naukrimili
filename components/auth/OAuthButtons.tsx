@@ -36,7 +36,16 @@ export function OAuthButtons({
   useEffect(() => {
     const loadProviders = async () => {
       try {
-        // Try NextAuth getProviders first
+        // Always set Google provider since we know it's configured
+        setProviders({
+          google: {
+            id: 'google',
+            name: 'Google',
+            type: 'oauth'
+          }
+        });
+        
+        // Try NextAuth getProviders as additional check
         const availableProviders = await getProviders();
         console.log('🔍 Available providers from NextAuth:', availableProviders);
         
@@ -45,27 +54,7 @@ export function OAuthButtons({
           return;
         }
         
-        // Fallback: use server-side check
-        const response = await fetch('/api/debug/providers');
-        const data = await response.json();
-        console.log('🔍 Available providers from server:', data);
-        
-        if (data.success && data.providers) {
-          // Filter out null providers
-          const filteredProviders = Object.fromEntries(
-            Object.entries(data.providers).filter(([key, value]) => value !== null)
-          );
-          setProviders(filteredProviders);
-        } else {
-          // Final fallback: assume Google is available since we know it's configured
-          setProviders({
-            google: {
-              id: 'google',
-              name: 'Google',
-              type: 'oauth'
-            }
-          });
-        }
+        console.log('🔍 Using fallback Google provider');
       } catch (error) {
         console.error('❌ Error loading providers:', error);
         // Final fallback: assume Google is available since we know it's configured
