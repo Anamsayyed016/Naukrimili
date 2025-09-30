@@ -55,7 +55,6 @@ export function OTPVerificationForm({
 
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   // Auto-focus on mount
   useEffect(() => {
