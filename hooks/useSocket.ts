@@ -61,6 +61,12 @@ export function useSocket(): UseSocketReturn {
       
       console.log('🔌 Connecting to socket server:', socketUrl);
       
+      // Skip socket connection if we're in development and no socket server is configured
+      if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_SOCKET_URL) {
+        console.log('⚠️ Skipping socket connection in development mode (no socket server configured)');
+        return;
+      }
+      
       const newSocket = io(socketUrl, {
         auth: {
           // Try multiple token sources for better compatibility
@@ -90,12 +96,7 @@ export function useSocket(): UseSocketReturn {
       });
 
       newSocket.on('connect_error', (error) => {
-        console.error('❌ Socket connection error:', error);
-        console.error('❌ Error details:', {
-          message: error.message,
-          name: error.name,
-          stack: error.stack
-        });
+        console.warn('⚠️ Socket connection error (this is normal if socket server is not running):', error.message);
         setIsConnected(false);
         // Don't show error to user, just log it
       });

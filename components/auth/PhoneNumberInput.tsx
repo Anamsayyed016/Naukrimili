@@ -162,6 +162,7 @@ export function PhoneNumberInput({
         onBack={handleBack}
         onResend={handleResendOTP}
         className={className}
+        expiresAt={otpData?.expiresAt ? new Date(otpData.expiresAt) : undefined}
       />
     );
   }

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
+import { join } from 'path';
+import { mkdir, writeFile } from 'fs/promises';
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,6 +44,15 @@ export async function POST(request: NextRequest) {
     } else {
       extractedText = `Resume: ${file.name}`;
     }
+
+    // Save file to filesystem
+    const uploadsDir = join(process.cwd(), 'uploads', 'resumes');
+    await mkdir(uploadsDir, { recursive: true }).catch(() => {});
+    
+    const timestamp = Date.now();
+    const filename = `${timestamp}_${file.name}`;
+    const filepath = join(uploadsDir, filename);
+    await writeFile(filepath, Buffer.from(bytes));
 
     // Create a basic profile response that matches what the frontend expects
     const profile = {
@@ -92,7 +103,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: user.id,
         fileName: file.name,
-        fileUrl: `/uploads/resumes/${file.name}`,
+        fileUrl: `/uploads/resumes/${filename}`,
         fileSize: file.size,
         mimeType: file.type,
         parsedData: profile,

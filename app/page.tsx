@@ -35,7 +35,7 @@ export default async function HomePage() {
     const jobsData = await jobsResponse.json();
     
     // Fetch top companies with caching
-    const companiesResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/companies?limit=6`, {
+    const companiesResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/companies/public?limit=6`, {
       next: { revalidate: 600 } // Cache for 10 minutes
     });
     const companiesData = await companiesResponse.json();

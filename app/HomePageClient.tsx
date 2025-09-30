@@ -7,8 +7,8 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
 import { Button } from "@/components/ui/button";
-import JobSearchHero from '@/components/JobSearchHero';
 import SEOJobLink from '@/components/SEOJobLink';
+import UnifiedJobSearch from '@/components/UnifiedJobSearch';
 
 interface Job {
   id: number;
@@ -73,8 +73,14 @@ export default function HomePageClient({
 
 
 
-      {/* Job Search Hero Section */}
-      <JobSearchHero className="mb-0" />
+      {/* Unified Job Search Hero */}
+      <UnifiedJobSearch 
+        variant="homepage"
+        showAdvancedFilters={true}
+        showSuggestions={true}
+        showLocationCategories={true}
+        autoSearch={true}
+      />
 
       {/* Main Content Section */}
       <section className="relative py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">

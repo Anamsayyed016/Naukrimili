@@ -150,7 +150,7 @@ export default function SmartFilterSuggestions({
 
       // Fetch company suggestions with fallback
       try {
-        const companyResponse = await fetch('/api/companies?limit=8');
+        const companyResponse = await fetch('/api/companies/public?limit=8');
         const companyData = await companyResponse.json();
         
         if (companyData.success && companyData.companies) {

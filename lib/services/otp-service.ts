@@ -140,7 +140,7 @@ export class OTPService {
             data: {
               phoneNumber: options.phoneNumber,
               otpType: options.otpType,
-              expiresAt: expiresAt.toISOString()
+              expiresAt: expiresAt?.toISOString()
             }
           });
 

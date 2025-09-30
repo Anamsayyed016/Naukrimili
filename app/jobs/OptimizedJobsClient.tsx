@@ -353,48 +353,33 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         </div>
       )}
 
-      {/* Current Search Filters Display */}
-      {!loading && !error && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      {/* Simple Search Results Header */}
+      {!loading && !error && (searchParams.get('q') || searchParams.get('query') || searchParams.get('location')) && (
+        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-medium text-blue-900 mb-2">Current Search:</h3>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                {totalJobs > 0 ? `${totalJobs} Jobs Found` : 'No Jobs Found'}
+              </h2>
               <div className="flex flex-wrap gap-2">
                 {searchParams.get('q') && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    Keyword: {searchParams.get('q')}
+                    {searchParams.get('q')}
                   </span>
                 )}
                 {searchParams.get('location') && (
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Location: {searchParams.get('location')}
-                  </span>
-                )}
-                {searchParams.get('jobType') && searchParams.get('jobType') !== 'all' && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    Type: {searchParams.get('jobType')}
-                  </span>
-                )}
-                {searchParams.get('experienceLevel') && searchParams.get('experienceLevel') !== 'all' && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                    Level: {searchParams.get('experienceLevel')}
-                  </span>
-                )}
-                {searchParams.get('isRemote') === 'true' && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
-                    Remote
-                  </span>
-                )}
-                {searchParams.get('salaryMin') && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    Salary: {searchParams.get('salaryMin')}+
+                    {searchParams.get('location')}
                   </span>
                 )}
               </div>
             </div>
-            <div className="text-sm text-blue-600">
-              {totalJobs} jobs found
-            </div>
+            <button
+              onClick={() => window.history.back()}
+              className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+            >
+              ← Back to Search
+            </button>
           </div>
         </div>
       )}
@@ -519,3 +504,4 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     </div>
   );
 }
+

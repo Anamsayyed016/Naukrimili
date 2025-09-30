@@ -152,6 +152,14 @@ export function parseSEOJobUrl(url: string): string | null {
     return url;
   }
   
+  // Special handling for sample job IDs that contain hyphens
+  const sampleJobMatch = url.match(/-sample-([a-zA-Z0-9_-]+)$/);
+  if (sampleJobMatch) {
+    const jobId = `sample-${sampleJobMatch[1]}`;
+    console.log('✅ Found sample job ID:', jobId);
+    return jobId;
+  }
+  
   // Extract job ID from SEO URL patterns (in order of specificity)
   const patterns = [
     /-([a-zA-Z0-9]{20,})$/,           // Long alphanumeric IDs (most specific)

@@ -24,6 +24,7 @@ interface OTPVerificationFormProps {
   onResend?: () => void;
   autoFocus?: boolean;
   className?: string;
+  expiresAt?: Date;
 }
 
 export function OTPVerificationForm({
@@ -35,7 +36,8 @@ export function OTPVerificationForm({
   onBack,
   onResend,
   autoFocus = true,
-  className = ''
+  className = '',
+  expiresAt: propExpiresAt
 }: OTPVerificationFormProps) {
   const [otpCode, setOtpCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -44,6 +46,14 @@ export function OTPVerificationForm({
   const [success, setSuccess] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [attemptsRemaining, setAttemptsRemaining] = useState(3);
+  const [otpId, setOtpId] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<Date | null>(propExpiresAt || null);
+
+  // Debug logging
+  console.log('OTPVerificationForm - propExpiresAt:', propExpiresAt);
+  console.log('OTPVerificationForm - expiresAt state:', expiresAt);
+
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -282,7 +292,7 @@ export function OTPVerificationForm({
           )}
         </div>
 
-        {expiresAt && (
+        {expiresAt && expiresAt instanceof Date && !isNaN(expiresAt.getTime()) && (
           <div className="text-center text-xs text-gray-500">
             OTP expires at {expiresAt.toLocaleTimeString()}
           </div>

@@ -1,15 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Slider } from '@/components/ui/slider';
-import { Card, CardContent } from '@/components/ui/card';
+import { useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
   MapPin, 
@@ -20,16 +14,49 @@ import {
   SlidersHorizontal,
   ChevronDown,
   Map,
-  Target
+  Target,
+  Building,
+  Briefcase,
+  DollarSign,
+  Clock,
+  Globe
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
 import LocationCategories from './LocationCategories';
 import SmartFilterSuggestions from './SmartFilterSuggestions';
 
-interface JobSearchHeroProps {
+// ===== INTERFACES =====
+
+interface UnifiedJobSearchProps {
   className?: string;
+  variant?: 'homepage' | 'jobs-page' | 'minimal';
   showAdvancedFilters?: boolean;
+  showSuggestions?: boolean;
+  showLocationCategories?: boolean;
+  autoSearch?: boolean;
+  onSearch?: (filters: JobSearchFilters) => void;
+  initialFilters?: Partial<JobSearchFilters>;
+}
+
+interface JobSearchFilters {
+  query: string;
+  location: string;
+  jobType: string;
+  experienceLevel: string;
+  isRemote: boolean;
+  salaryMin: string;
+  salaryMax: string;
+  sector: string;
+  country: string;
 }
 
 interface UserLocation {
@@ -53,24 +80,37 @@ interface LocationData {
   type: 'area' | 'state' | 'country' | 'city';
 }
 
-export default function JobSearchHero({ 
-  className = '', 
-  showAdvancedFilters = true 
-}: JobSearchHeroProps) {
+// ===== MAIN COMPONENT =====
+
+export default function UnifiedJobSearch({
+  className = '',
+  variant = 'homepage',
+  showAdvancedFilters = true,
+  showSuggestions = true,
+  showLocationCategories = true,
+  autoSearch = true,
+  onSearch,
+  initialFilters = {}
+}: UnifiedJobSearchProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   
-  // Search filters state
-  const [filters, setFilters] = useState({
+  // ===== STATE =====
+  
+  const [filters, setFilters] = useState<JobSearchFilters>({
     query: '',
     location: '',
     jobType: 'all',
     experienceLevel: 'all',
     isRemote: false,
     salaryMin: '',
-    salaryMax: ''
+    salaryMax: '',
+    sector: '',
+    country: 'IN',
+    ...initialFilters
   });
 
-  // Debounced filters for auto-search (fast response)
+  // Debounced filters for auto-search
   const debouncedQuery = useDebounce(filters.query, 500);
   const debouncedLocation = useDebounce(filters.location, 500);
   
@@ -89,6 +129,32 @@ export default function JobSearchHero({
     locations: []
   });
 
+  // ===== EFFECTS =====
+
+  // Initialize filters from URL params
+  useEffect(() => {
+    const query = searchParams.get('query') || searchParams.get('q') || '';
+    const location = searchParams.get('location') || '';
+    const jobType = searchParams.get('jobType') || 'all';
+    const experienceLevel = searchParams.get('experienceLevel') || 'all';
+    const isRemote = searchParams.get('isRemote') === 'true';
+    const salaryMin = searchParams.get('salaryMin') || '';
+    const salaryMax = searchParams.get('salaryMax') || '';
+    const sector = searchParams.get('sector') || '';
+    const country = searchParams.get('country') || 'IN';
+
+    setFilters({
+      query,
+      location,
+      jobType,
+      experienceLevel,
+      isRemote,
+      salaryMin,
+      salaryMax,
+      sector,
+      country
+    });
+  }, [searchParams]);
 
   // Fetch dynamic constants
   const fetchDynamicConstants = useCallback(async () => {
@@ -105,21 +171,51 @@ export default function JobSearchHero({
     }
   }, []);
 
-  // Handle search submission with unlimited search
+  useEffect(() => {
+    fetchDynamicConstants();
+  }, [fetchDynamicConstants]);
+
+  // Auto-search when debounced filters change
+  useEffect(() => {
+    if (autoSearch && (debouncedQuery.trim() || debouncedLocation.trim())) {
+      console.log('🔄 Auto-searching with debounced filters:', { query: debouncedQuery, location: debouncedLocation });
+      
+      const searchParams = new URLSearchParams();
+      if (debouncedQuery.trim()) searchParams.set('query', debouncedQuery);
+      if (debouncedLocation.trim()) searchParams.set('location', debouncedLocation);
+      
+      // Add other filters if they're not default values
+      if (filters.jobType !== 'all') searchParams.set('jobType', filters.jobType);
+      if (filters.experienceLevel !== 'all') searchParams.set('experienceLevel', filters.experienceLevel);
+      if (filters.isRemote) searchParams.set('isRemote', 'true');
+      if (filters.salaryMin) searchParams.set('salaryMin', filters.salaryMin);
+      if (filters.salaryMax) searchParams.set('salaryMax', filters.salaryMax);
+      if (filters.sector) searchParams.set('sector', filters.sector);
+      if (filters.country) searchParams.set('country', filters.country);
+
+      // Navigate to search results
+      router.push(`/jobs?${searchParams.toString()}`);
+    }
+  }, [debouncedQuery, debouncedLocation, filters.jobType, filters.experienceLevel, filters.isRemote, filters.salaryMin, filters.salaryMax, filters.sector, filters.country, autoSearch, router]);
+
+  // ===== HANDLERS =====
+
+  // Handle search submission
   const handleSearch = useCallback(() => {
     const params = new URLSearchParams();
     
-    // Use unlimited search parameters - FIXED: Use correct parameter names
-    if (filters.query) params.set('query', filters.query); // Fixed: was 'q'
+    if (filters.query) params.set('query', filters.query);
     if (filters.location) params.set('location', filters.location);
     if (filters.jobType !== 'all') params.set('jobType', filters.jobType);
     if (filters.experienceLevel !== 'all') params.set('experienceLevel', filters.experienceLevel);
     if (filters.isRemote) params.set('isRemote', 'true');
     if (filters.salaryMin) params.set('salaryMin', filters.salaryMin);
     if (filters.salaryMax) params.set('salaryMax', filters.salaryMax);
+    if (filters.sector) params.set('sector', filters.sector);
+    if (filters.country) params.set('country', filters.country);
     
-    // Add unlimited search parameters - FIXED: Use correct API endpoint
-    params.set('limit', '100'); // Increased limit for unlimited search
+    // Add unlimited search parameters
+    params.set('limit', '100');
     params.set('includeExternal', 'true');
     params.set('includeDatabase', 'true');
     params.set('includeSample', 'true');
@@ -132,13 +228,17 @@ export default function JobSearchHero({
       if (sortByDistance) params.set('sortByDistance', 'true');
     }
 
-    // FIXED: Use the unlimited search API endpoint directly
     const searchUrl = `/jobs?${params.toString()}`;
-    console.log('🔍 Search URL:', searchUrl); // Debug log
-    router.push(searchUrl);
-  }, [filters, userLocation, searchRadius, sortByDistance, router]);
+    console.log('🔍 Search URL:', searchUrl);
+    
+    if (onSearch) {
+      onSearch(filters);
+    } else {
+      router.push(searchUrl);
+    }
+  }, [filters, userLocation, searchRadius, sortByDistance, router, onSearch]);
 
-  // Location detection with improved error handling
+  // Location detection
   const detectCurrentLocation = useCallback(async () => {
     try {
       setIsDetectingLocation(true);
@@ -162,10 +262,8 @@ export default function JobSearchHero({
         setFilters(prev => ({ ...prev, location: locationData.city }));
         console.log('✅ Enhanced location detected:', locationData);
       } else {
-        // Provide more helpful error messages
         let errorMessage = result.error || 'Failed to detect location';
         
-        // Check if it's an HTTPS issue
         if (typeof window !== 'undefined') {
           const isHTTPS = window.location.protocol === 'https:';
           const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -193,7 +291,7 @@ export default function JobSearchHero({
   // Handle location selection
   const handleLocationSelect = useCallback((location: LocationData) => {
     const locationData: UserLocation = {
-      lat: 0, // We don't have coordinates for popular locations
+      lat: 0,
       lng: 0,
       city: location.name,
       country: location.country,
@@ -214,7 +312,9 @@ export default function JobSearchHero({
       experienceLevel: 'all',
       isRemote: false,
       salaryMin: '',
-      salaryMax: ''
+      salaryMax: '',
+      sector: '',
+      country: 'IN'
     });
     setUserLocation(null);
     setSearchRadius(25);
@@ -222,58 +322,75 @@ export default function JobSearchHero({
     setLocationError(null);
   }, []);
 
-  // Initialize dynamic constants
-  useEffect(() => {
-    fetchDynamicConstants();
-  }, [fetchDynamicConstants]);
+  // ===== RENDER HELPERS =====
 
-  // Auto-search when debounced filters change (fast dynamic filtering)
-  useEffect(() => {
-    // Auto-search if we have either query or location (or both)
-    if (debouncedQuery.trim() || debouncedLocation.trim()) {
-      console.log('🔄 Auto-searching with debounced filters:', { query: debouncedQuery, location: debouncedLocation });
-      
-      // Build search URL with debounced parameters
-      const searchParams = new URLSearchParams();
-      if (debouncedQuery.trim()) searchParams.set('query', debouncedQuery);
-      if (debouncedLocation.trim()) searchParams.set('location', debouncedLocation);
-      
-      // Add other filters if they're not default values
-      if (filters.jobType !== 'all') searchParams.set('jobType', filters.jobType);
-      if (filters.experienceLevel !== 'all') searchParams.set('experienceLevel', filters.experienceLevel);
-      if (filters.isRemote) searchParams.set('isRemote', 'true');
-      if (filters.salaryMin) searchParams.set('salaryMin', filters.salaryMin);
-      if (filters.salaryMax) searchParams.set('salaryMax', filters.salaryMax);
-
-      // Navigate to search results (this will trigger OptimizedJobsClient to fetch new results)
-      router.push(`/jobs?${searchParams.toString()}`);
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'homepage':
+        return {
+          container: 'relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900',
+          searchBox: 'bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-4 sm:p-6 lg:p-8',
+          title: 'text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight',
+          subtitle: 'text-lg sm:text-xl text-blue-100 mb-6 max-w-3xl mx-auto leading-relaxed'
+        };
+      case 'jobs-page':
+        return {
+          container: 'bg-white rounded-xl shadow-lg border border-gray-200',
+          searchBox: 'p-6',
+          title: 'text-2xl font-bold text-gray-900 mb-4',
+          subtitle: 'text-gray-600 mb-6'
+        };
+      case 'minimal':
+        return {
+          container: 'bg-white rounded-lg shadow-sm border border-gray-200',
+          searchBox: 'p-4',
+          title: 'text-lg font-semibold text-gray-900 mb-3',
+          subtitle: 'text-sm text-gray-600 mb-4'
+        };
+      default:
+        return {
+          container: 'bg-white rounded-lg shadow-sm border border-gray-200',
+          searchBox: 'p-4',
+          title: 'text-lg font-semibold text-gray-900 mb-3',
+          subtitle: 'text-sm text-gray-600 mb-4'
+        };
     }
-  }, [debouncedQuery, debouncedLocation, filters.jobType, filters.experienceLevel, filters.isRemote, filters.salaryMin, filters.salaryMax, router]);
+  };
+
+  const styles = getVariantStyles();
+
+  // ===== RENDER =====
 
   return (
-    <div className={`relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 ${className}`}>
-      {/* Animated background elements */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20"></div>
-      <div className="absolute inset-0 opacity-30">
-        <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
-      </div>
-      
-      <div className="relative container mx-auto px-4 py-12 sm:py-16 lg:py-20">
-        <div className="text-center max-w-6xl mx-auto">
-          {/* Enhanced Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              Find Your 
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent"> Dream Job</span>
-            </h1>
-            <p className="text-lg sm:text-xl text-blue-100 mb-6 max-w-3xl mx-auto leading-relaxed">
-              Search millions of jobs worldwide with our AI-powered matching system
-            </p>
+    <div className={`${styles.container} ${className}`}>
+      {/* Animated background for homepage variant */}
+      {variant === 'homepage' && (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20"></div>
+          <div className="absolute inset-0 opacity-30">
+            <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
           </div>
-          
-          {/* Unified Enhanced Search Interface */}
-          <div className="max-w-5xl mx-auto">
-            <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-4 sm:p-6 lg:p-8">
+        </>
+      )}
+
+      <div className={`relative ${variant === 'homepage' ? 'container mx-auto px-4 py-12 sm:py-16 lg:py-20' : ''}`}>
+        <div className={`${variant === 'homepage' ? 'text-center max-w-6xl mx-auto' : ''}`}>
+          {/* Header */}
+          {variant === 'homepage' && (
+            <div className="mb-8">
+              <h1 className={styles.title}>
+                Find Your 
+                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent"> Dream Job</span>
+              </h1>
+              <p className={styles.subtitle}>
+                Search millions of jobs worldwide with our AI-powered matching system
+              </p>
+            </div>
+          )}
+
+          {/* Search Interface */}
+          <div className={`${variant === 'homepage' ? 'max-w-5xl mx-auto' : ''}`}>
+            <div className={styles.searchBox}>
               {/* Search Header */}
               <div className="flex items-center justify-center gap-3 mb-6">
                 <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
@@ -307,7 +424,7 @@ export default function JobSearchHero({
                     />
                   </div>
 
-                  {/* Location Search with Enhanced Geolocation */}
+                  {/* Location Search */}
                   <div className="relative">
                     <MapPin className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10" />
                     <Input
@@ -346,8 +463,8 @@ export default function JobSearchHero({
                   </Button>
                 </div>
               </div>
-              
-              {/* Enhanced Location Status Display */}
+
+              {/* Location Status Display */}
               {userLocation && (
                 <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl shadow-sm">
                   <div className="flex items-center justify-between">
@@ -380,8 +497,8 @@ export default function JobSearchHero({
                   </div>
                 </div>
               )}
-              
-              {/* Enhanced Error Display with Retry */}
+
+              {/* Error Display */}
               {locationError && (
                 <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-xl shadow-sm">
                   <div className="flex items-center justify-between">
@@ -415,38 +532,33 @@ export default function JobSearchHero({
                 </div>
               )}
 
-              {/* AI-Powered Location Categories */}
-              <LocationCategories 
-                onLocationSelect={handleLocationSelect}
-                selectedLocation={userLocation ? {
-                  id: userLocation.city,
-                  name: userLocation.city,
-                  country: userLocation.country,
-                  flag: '📍',
-                  jobCount: 0,
-                  type: 'city'
-                } : null}
-              />
+              {/* Location Categories */}
+              {showLocationCategories && (
+                <LocationCategories 
+                  onLocationSelect={handleLocationSelect}
+                  selectedLocation={userLocation ? {
+                    id: userLocation.city,
+                    name: userLocation.city,
+                    country: userLocation.country,
+                    flag: '📍',
+                    jobCount: 0,
+                    type: 'city'
+                  } : null}
+                />
+              )}
 
               {/* Smart Filter Suggestions */}
-              <div className="mt-6">
-                <SmartFilterSuggestions
-                  currentFilters={filters}
-                  onSuggestionSelect={(suggestion) => {
-                    console.log('Suggestion selected:', suggestion);
-                  }}
-                  onFiltersChange={(newFilters) => {
-                    setFilters(prev => ({ ...prev, ...newFilters }));
-                  }}
-                />
-              </div>
-
-              {/* Manual Location Selection Help */}
-              {locationError && (
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="text-sm text-blue-800">
-                    <strong>💡 Tip:</strong> You can also type your city name in the location field above, or select from the popular locations below.
-                  </div>
+              {showSuggestions && (
+                <div className="mt-6">
+                  <SmartFilterSuggestions
+                    currentFilters={filters}
+                    onSuggestionSelect={(suggestion) => {
+                      console.log('Suggestion selected:', suggestion);
+                    }}
+                    onFiltersChange={(newFilters) => {
+                      setFilters(prev => ({ ...prev, ...newFilters }));
+                    }}
+                  />
                 </div>
               )}
 
@@ -528,7 +640,6 @@ export default function JobSearchHero({
                         />
                       </div>
 
-                      {/* Remote Work */}
                       <div className="space-y-2 sm:space-y-3">
                         <Label className="text-sm sm:text-base font-bold text-gray-800 flex items-center gap-2">
                           Max Salary

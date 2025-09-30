@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
+import { join } from 'path';
+import { mkdir, writeFile } from 'fs/promises';
 
 /**
  * POST /api/resumes/simple-upload
@@ -39,6 +41,24 @@ export async function POST(request: NextRequest) {
       textLength: resumeText?.length 
     });
 
+    // Handle file upload if provided
+    let fileUrl = '';
+    if (file) {
+      // Save file to filesystem
+      const uploadsDir = join(process.cwd(), 'uploads', 'resumes');
+      await mkdir(uploadsDir, { recursive: true }).catch(() => {});
+      
+      const timestamp = Date.now();
+      const filename = `${timestamp}_${file.name}`;
+      const filepath = join(uploadsDir, filename);
+      
+      const bytes = await file.arrayBuffer();
+      await writeFile(filepath, Buffer.from(bytes));
+      
+      fileUrl = `/uploads/resumes/${filename}`;
+      console.log('✅ File saved to:', fileUrl);
+    }
+
     // Get or create user
     let user;
     try {
@@ -76,7 +96,7 @@ export async function POST(request: NextRequest) {
       const resumeData = {
         userId: user.id,
         fileName: file ? file.name : 'text-resume.txt',
-        fileUrl: '',
+        fileUrl: fileUrl,
         fileSize: file ? file.size : resumeText?.length || 0,
         mimeType: file ? file.type : 'text/plain',
         parsedData: {
