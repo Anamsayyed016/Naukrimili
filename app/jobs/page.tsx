@@ -2,13 +2,21 @@
 
 import React from "react";
 import OptimizedJobsClient from "./OptimizedJobsClient";
-import JobSearchHero from "@/components/JobSearchHero";
+import UnifiedJobSearch from "@/components/UnifiedJobSearch";
 
 export default function JobsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Search Hero Section - No Advanced Filters */}
-      <JobSearchHero className="mb-0" showAdvancedFilters={false} />
+      {/* Unified Search - Jobs Page Variant */}
+      <div className="container mx-auto px-4 py-8">
+        <UnifiedJobSearch 
+          variant="jobs-page"
+          showAdvancedFilters={false}
+          showSuggestions={false}
+          showLocationCategories={false}
+          autoSearch={true}
+        />
+      </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Jobs Results */}

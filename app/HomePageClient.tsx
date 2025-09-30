@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
 import { Button } from "@/components/ui/button";
 import SEOJobLink from '@/components/SEOJobLink';
+import UnifiedJobSearch from '@/components/UnifiedJobSearch';
 
 interface Job {
   id: number;
@@ -72,34 +73,14 @@ export default function HomePageClient({
 
 
 
-      {/* Hero Section - No Filters */}
-      <section className="relative py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
-        <div className="relative max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-            Find Your 
-            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"> Dream Job</span>
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Discover thousands of job opportunities with AI-powered search and personalized suggestions
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href="/jobs"
-              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
-            >
-              <Search className="w-5 h-5 mr-2" />
-              Browse All Jobs
-            </Link>
-            <Link 
-              href="/auth/signin"
-              className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl"
-            >
-              <User className="w-5 h-5 mr-2" />
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Unified Job Search Hero */}
+      <UnifiedJobSearch 
+        variant="homepage"
+        showAdvancedFilters={true}
+        showSuggestions={true}
+        showLocationCategories={true}
+        autoSearch={true}
+      />
 
       {/* Main Content Section */}
       <section className="relative py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
