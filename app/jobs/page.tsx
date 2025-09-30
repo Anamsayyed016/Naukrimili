@@ -13,7 +13,7 @@ export default function JobsPage() {
         <EnhancedJobSearchHero
           showHistory={true}
           showSuggestions={true}
-          showAdvancedFilters={true}
+          showAdvancedFilters={false}
         />
       </div>
 
