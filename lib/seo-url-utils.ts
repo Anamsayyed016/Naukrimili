@@ -164,7 +164,7 @@ export function parseSEOJobUrl(url: string): string | null {
   const patterns = [
     /-([a-zA-Z0-9]{20,})$/,           // Long alphanumeric IDs (most specific)
     /-([0-9]+\.[0-9]+)$/,             // Decimal numbers
-    /-([0-9]+)$/,                     // Integer numbers
+    /-([0-9]+)$/,                     // Integer numbers (most common)
     /-([0-9]+)-([0-9]+)$/,            // Multi-number patterns (take last)
     /-([a-zA-Z0-9_-]+)$/              // Fallback pattern
   ];
