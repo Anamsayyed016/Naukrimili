@@ -315,7 +315,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
             )}
             {totalPages > 1 && (
               <p className="text-sm text-gray-500 mt-1">
-                Page {currentPage} of {totalPages} • Showing {jobs.length} jobs
+                Page {currentPage} of {totalPages} • Showing {(jobs || []).length} jobs
               </p>
             )}
           </div>
@@ -371,7 +371,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         )}
 
         {/* Loading State */}
-        {loading && jobs.length === 0 && (
+        {loading && (jobs || []).length === 0 && (
           <div className="space-y-4">
             <div className="text-center py-8">
               <div className="inline-flex items-center gap-2 text-blue-600">
@@ -396,7 +396,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         )}
 
         {/* Jobs List */}
-        {!loading && jobs.length > 0 && (
+        {!loading && (jobs || []).length > 0 && (
           <div className={
             viewMode === 'grid' 
               ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
@@ -420,7 +420,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         )}
 
         {/* Enhanced Pagination */}
-        {!loading && jobs.length > 0 && totalPages > 1 && (
+        {!loading && (jobs || []).length > 0 && totalPages > 1 && (
           <div className="mt-8">
             <EnhancedPagination
               config={{
@@ -444,7 +444,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         )}
 
         {/* No Results */}
-        {!loading && jobs.length === 0 && !error && (
+        {!loading && (jobs || []).length === 0 && !error && (
           <div className="text-center py-16">
             <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md mx-auto">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">

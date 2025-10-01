@@ -465,7 +465,7 @@ export default function LocationBasedJobSearch() {
                   </Card>
                 ))}
               </div>
-            ) : jobs.length > 0 ? (
+            ) : (jobs || []).length > 0 ? (
               jobs.map((job) => (
                 <motion.div
                   key={job.id}
@@ -623,7 +623,7 @@ export default function LocationBasedJobSearch() {
                     </div>
                     <div className="text-sm text-slate-600">
                       <p>🔍 Searching within {filters.radius} km radius</p>
-                      <p>📊 {jobs.length} jobs found</p>
+                      <p>📊 {(jobs || []).length} jobs found</p>
                       <p>📍 Coordinates: {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}</p>
                     </div>
                   </div>
@@ -635,7 +635,7 @@ export default function LocationBasedJobSearch() {
                     </div>
                     <div className="text-sm text-slate-600">
                       <p>🔍 Showing jobs by relevance</p>
-                      <p>📊 {jobs.length} jobs found</p>
+                      <p>📊 {(jobs || []).length} jobs found</p>
                     </div>
                     <Button
                       size="sm"

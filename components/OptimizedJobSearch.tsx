@@ -654,7 +654,7 @@ export default function OptimizedJobSearch({
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 {pagination.total > 0
-                  ? `Showing ${jobs.length} results with ${searchStats.appliedFiltersCount} filters applied`
+                  ? `Showing ${(jobs || []).length} results with ${searchStats.appliedFiltersCount} filters applied`
                   : 'Try adjusting your search criteria or filters'
                 }
               </p>

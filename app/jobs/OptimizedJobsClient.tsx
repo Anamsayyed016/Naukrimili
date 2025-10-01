@@ -112,7 +112,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         const jobs = (data.jobs || []).map(convertToSimpleJob);
         
         setJobs(jobs as any);
-        setTotalJobs(data.pagination?.totalJobs || jobs.length);
+        setTotalJobs(data.pagination?.totalJobs || (jobs || []).length);
         setTotalPages(data.pagination?.totalPages || 1);
         setHasNextPage(data.pagination?.hasMore || false);
         setHasPrevPage(page > 1);
@@ -128,8 +128,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         setLastRefresh(new Date());
 
         console.log('✅ Main API jobs loaded successfully:', {
-          jobsCount: jobs.length,
-          totalJobs: data.pagination?.totalJobs || jobs.length,
+          jobsCount: (jobs || []).length,
+          totalJobs: data.pagination?.totalJobs || (jobs || []).length,
           currentPage: page,
           totalPages: data.pagination?.totalPages || 1,
           hasMore: data.pagination?.hasMore || false,
@@ -144,7 +144,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           hasMore: data.pagination?.hasMore,
           currentPage: page,
           limit: 50,
-          shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || jobs.length) > 50
+          shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || (jobs || []).length) > 50
         });
 
       } else {
@@ -171,7 +171,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           const fallbackJobs = (fallbackData.jobs || []).map(convertToSimpleJob);
           
           setJobs(fallbackJobs as any);
-          setTotalJobs(fallbackData.pagination?.totalJobs || fallbackJobs.length);
+          setTotalJobs(fallbackData.pagination?.totalJobs || (fallbackJobs || []).length);
           setTotalPages(fallbackData.pagination?.totalPages || 1);
           setHasNextPage(fallbackData.pagination?.hasMore || false);
           setHasPrevPage(page > 1);
@@ -307,7 +307,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     <div className="space-y-6">
 
       {/* Loading State */}
-      {loading && jobs.length === 0 && (
+      {loading && (jobs || []).length === 0 && (
         <div className="space-y-4">
           <div className="text-center py-8">
             <div className="inline-flex items-center gap-2 text-blue-600">
@@ -385,7 +385,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       )}
 
       {/* Jobs List */}
-      {!loading && !error && jobs.length > 0 && (
+      {!loading && !error && (jobs || []).length > 0 && (
         <div className="space-y-4">
           {/* View Mode Toggle and Refresh */}
           <div className="flex items-center justify-between">
@@ -490,7 +490,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       )}
 
       {/* No Jobs State */}
-      {!loading && !error && jobs.length === 0 && (
+      {!loading && !error && (jobs || []).length === 0 && (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
