@@ -49,8 +49,8 @@ export const MobileJobApplication: React.FC<MobileJobApplicationProps> = ({
         
         window.open(job.source_url, '_blank', 'noopener,noreferrer');
       } else {
-        // Internal job - route to apply page
-        window.open(`/jobs/${job.id}/apply`, '_blank');
+        // Internal job - route to details page first
+        window.open(`/jobs/${job.id}`, '_blank');
       }
       
       onApply?.();
