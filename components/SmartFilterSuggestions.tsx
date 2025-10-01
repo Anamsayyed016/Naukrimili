@@ -62,18 +62,29 @@ export default function SmartFilterSuggestions({
       
       // Build query parameters based on current filters
       const params = new URLSearchParams();
-      if (currentFilters.query) params.set('q', currentFilters.query);
-      if (currentFilters.location) params.set('location', currentFilters.location);
-      if (currentFilters.jobType && currentFilters.jobType !== 'all') params.set('jobType', currentFilters.jobType);
-      if (currentFilters.experienceLevel && currentFilters.experienceLevel !== 'all') params.set('experienceLevel', currentFilters.experienceLevel);
-      if (currentFilters.isRemote) params.set('isRemote', 'true');
+      if (currentFilters?.query) params.set('q', currentFilters.query);
+      if (currentFilters?.location) params.set('location', currentFilters.location);
+      if (currentFilters?.jobType && currentFilters.jobType !== 'all') params.set('jobType', currentFilters.jobType);
+      if (currentFilters?.experienceLevel && currentFilters.experienceLevel !== 'all') params.set('experienceLevel', currentFilters.experienceLevel);
+      if (currentFilters?.isRemote) params.set('isRemote', 'true');
       
       params.set('limit', '50');
       params.set('includeExternal', 'true');
       params.set('includeDatabase', 'true');
 
-      // Fetch trending job suggestions
-      const trendingResponse = await fetch(`/api/jobs/unlimited?${params.toString()}`);
+      // Fetch trending job suggestions with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const trendingResponse = await fetch(`/api/jobs/unlimited?${params.toString()}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
+      if (!trendingResponse.ok) {
+        throw new Error(`API request failed: ${trendingResponse.status}`);
+      }
+      
       const trendingData = await trendingResponse.json();
       
       if (trendingData.success && trendingData.jobs && Array.isArray(trendingData.jobs)) {
@@ -115,7 +126,18 @@ export default function SmartFilterSuggestions({
 
       // Fetch location suggestions with fallback
       try {
-        const locationResponse = await fetch('/api/locations');
+        const locationController = new AbortController();
+        const locationTimeoutId = setTimeout(() => locationController.abort(), 5000);
+        
+        const locationResponse = await fetch('/api/locations', {
+          signal: locationController.signal
+        });
+        clearTimeout(locationTimeoutId);
+        
+        if (!locationResponse.ok) {
+          throw new Error(`Location API failed: ${locationResponse.status}`);
+        }
+        
         const locationData = await locationResponse.json();
         
         if (locationData.success && locationData.locations) {
@@ -150,7 +172,18 @@ export default function SmartFilterSuggestions({
 
       // Fetch company suggestions with fallback
       try {
-        const companyResponse = await fetch('/api/companies/public?limit=8');
+        const companyController = new AbortController();
+        const companyTimeoutId = setTimeout(() => companyController.abort(), 5000);
+        
+        const companyResponse = await fetch('/api/companies/public?limit=8', {
+          signal: companyController.signal
+        });
+        clearTimeout(companyTimeoutId);
+        
+        if (!companyResponse.ok) {
+          throw new Error(`Company API failed: ${companyResponse.status}`);
+        }
+        
         const companyData = await companyResponse.json();
         
         if (companyData.success && companyData.companies) {
@@ -184,15 +217,43 @@ export default function SmartFilterSuggestions({
 
     } catch (error) {
       console.error('Failed to fetch suggestions:', error);
+      // Set fallback data on complete failure
+      const fallbackSuggestions: Suggestion[] = [
+        { id: 'trending-1', text: 'Software Engineer', type: 'job', count: 45, category: 'Trending Jobs' },
+        { id: 'trending-2', text: 'Data Analyst', type: 'job', count: 32, category: 'Trending Jobs' },
+        { id: 'trending-3', text: 'Product Manager', type: 'job', count: 28, category: 'Trending Jobs' },
+        { id: 'trending-4', text: 'Frontend Developer', type: 'job', count: 25, category: 'Trending Jobs' }
+      ];
+      setTrendingJobs(fallbackSuggestions);
+      
+      const fallbackLocations: Suggestion[] = [
+        { id: 'location-1', text: 'Bangalore', type: 'location', count: 45, category: 'Popular Locations' },
+        { id: 'location-2', text: 'Mumbai', type: 'location', count: 38, category: 'Popular Locations' },
+        { id: 'location-3', text: 'Delhi', type: 'location', count: 42, category: 'Popular Locations' },
+        { id: 'location-4', text: 'Hyderabad', type: 'location', count: 28, category: 'Popular Locations' }
+      ];
+      setPopularLocations(fallbackLocations);
+      
+      const fallbackCompanies: Suggestion[] = [
+        { id: 'company-1', text: 'Boeing', type: 'company', count: 25, category: 'Top Companies' },
+        { id: 'company-2', text: 'Ensono', type: 'company', count: 18, category: 'Top Companies' },
+        { id: 'company-3', text: 'HRT Technology', type: 'company', count: 15, category: 'Top Companies' },
+        { id: 'company-4', text: 'Jobot', type: 'company', count: 12, category: 'Top Companies' }
+      ];
+      setTopCompanies(fallbackCompanies);
     } finally {
       setLoading(false);
     }
   }, [currentFilters]);
 
-  // Update suggestions when filters change
+  // Update suggestions when filters change (with debounce)
   useEffect(() => {
-    fetchSuggestions();
-  }, [fetchSuggestions]);
+    const timeoutId = setTimeout(() => {
+      fetchSuggestions();
+    }, 300); // 300ms debounce
+    
+    return () => clearTimeout(timeoutId);
+  }, [currentFilters?.query, currentFilters?.location, currentFilters?.jobType, currentFilters?.experienceLevel, currentFilters?.isRemote]);
 
   // Handle suggestion selection
   const handleSuggestionClick = (suggestion: Suggestion) => {

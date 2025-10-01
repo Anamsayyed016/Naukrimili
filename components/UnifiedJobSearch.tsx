@@ -33,6 +33,7 @@ import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
 import LocationCategories from './LocationCategories';
 import SmartFilterSuggestions from './SmartFilterSuggestions';
+import ErrorBoundary from './ErrorBoundary';
 
 // ===== INTERFACES =====
 
@@ -174,15 +175,26 @@ export default function UnifiedJobSearch({
     if (!isMounted) return;
     
     try {
-      const response = await fetch('/api/jobs/constants');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch('/api/jobs/constants', {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
+        if (data.success && data.data) {
           setDynamicConstants(data.data);
         }
+      } else {
+        console.warn('Failed to fetch dynamic constants, using defaults');
       }
     } catch (error) {
-      console.error('Error fetching dynamic constants:', error);
+      if (error.name !== 'AbortError') {
+        console.warn('Error fetching dynamic constants, using defaults:', error);
+      }
     }
   }, [isMounted]);
 
@@ -380,6 +392,11 @@ export default function UnifiedJobSearch({
 
   // ===== RENDER =====
 
+  // Add error boundary wrapper
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <div className={`${styles.container} ${className}`}>
       {/* Animated background for homepage variant */}
@@ -567,19 +584,21 @@ export default function UnifiedJobSearch({
               )}
 
                {/* Smart Filter Suggestions */}
-               {showSuggestions && filters && (
-                 <div className="mt-6">
-                   <SmartFilterSuggestions
-                     currentFilters={filters}
-                     onSuggestionSelect={(suggestion) => {
-                       console.log('Suggestion selected:', suggestion);
-                     }}
-                     onFiltersChange={(newFilters) => {
-                       setFilters(prev => ({ ...prev, ...newFilters }));
-                     }}
-                   />
-                 </div>
-               )}
+            {showSuggestions && filters && (
+              <div className="mt-6">
+                <ErrorBoundary fallback={<div className="text-sm text-gray-500">Suggestions unavailable</div>}>
+                  <SmartFilterSuggestions
+                    currentFilters={filters}
+                    onSuggestionSelect={(suggestion) => {
+                      console.log('Suggestion selected:', suggestion);
+                    }}
+                    onFiltersChange={(newFilters) => {
+                      setFilters(prev => ({ ...prev, ...newFilters }));
+                    }}
+                  />
+                </ErrorBoundary>
+              </div>
+            )}
 
               {/* Advanced Filters Toggle */}
               {showAdvancedFilters && (
