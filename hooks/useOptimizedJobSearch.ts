@@ -123,7 +123,9 @@ export class SearchParamsBuilder {
     return this;
   }
 
-  addAll(filters: OptimizedSearchFilters, page = 1, limit = 20): this {
+  addAll(filters: OptimizedSearchFilters = {}, page = 1, limit = 20): this {
+    if (!filters) return this;
+    
     return this
       .add('query', filters.query)
       .add('location', filters.location)
@@ -155,9 +157,9 @@ export class SearchParamsBuilder {
 
 // ===== SEARCH FUNCTION =====
 
-async function searchJobs(filters: OptimizedSearchFilters, page = 1, pageSize = 20): Promise<OptimizedSearchResponse> {
+async function searchJobs(filters: OptimizedSearchFilters = {}, page = 1, pageSize = 20): Promise<OptimizedSearchResponse> {
   const searchParams = new SearchParamsBuilder()
-    .addAll(filters, page, pageSize)
+    .addAll(filters || {}, page, pageSize)
     .toString();
 
   const response = await fetch(`/api/jobs/search?${searchParams}`);
@@ -168,7 +170,7 @@ async function searchJobs(filters: OptimizedSearchFilters, page = 1, pageSize = 
 // ===== MAIN SEARCH HOOK =====
 
 export function useOptimizedJobSearch(
-  filters: OptimizedSearchFilters,
+  filters: OptimizedSearchFilters = {},
   options: OptimizedSearchOptions = {}
 ) {
   const {
@@ -182,15 +184,18 @@ export function useOptimizedJobSearch(
   } = options;
 
   // Debounce search query and location for better UX
-  const debouncedQuery = useDebounce(filters.query || '', debounceMs);
-  const debouncedLocation = useDebounce(filters.location || '', debounceMs);
+  const debouncedQuery = useDebounce(filters?.query || '', debounceMs);
+  const debouncedLocation = useDebounce(filters?.location || '', debounceMs);
 
   // Create debounced filters
-  const debouncedFilters = useMemo(() => ({
-    ...filters,
-    query: debouncedQuery,
-    location: debouncedLocation
-  }), [filters, debouncedQuery, debouncedLocation]);
+  const debouncedFilters = useMemo(() => {
+    if (!filters) return { query: debouncedQuery, location: debouncedLocation };
+    return {
+      ...filters,
+      query: debouncedQuery,
+      location: debouncedLocation
+    };
+  }, [filters, debouncedQuery, debouncedLocation]);
 
   // Generate query key for React Query
   const queryKey = useMemo(() => [
@@ -222,7 +227,7 @@ export function useOptimizedJobSearch(
 
       return response.json();
     },
-    enabled: enabled && (!!debouncedQuery || (debouncedFilters ? Object.keys(debouncedFilters).length > 2 : false)),
+    enabled: enabled && (!!debouncedQuery || (debouncedFilters && Object.keys(debouncedFilters).length > 2)),
     staleTime,
     gcTime,
     refetchOnWindowFocus,
@@ -264,7 +269,7 @@ export function useOptimizedJobSearch(
 // ===== PAGINATED SEARCH HOOK =====
 
 export function usePaginatedJobSearch(
-  filters: OptimizedSearchFilters,
+  filters: OptimizedSearchFilters = {},
   initialPage = 1,
   pageSize = 20,
   options: OptimizedSearchOptions = {}
@@ -308,11 +313,11 @@ export function usePaginatedJobSearch(
 // ===== INFINITE SCROLL SEARCH HOOK =====
 
 export function useInfiniteJobSearch(
-  filters: OptimizedSearchFilters,
+  filters: OptimizedSearchFilters = {},
   pageSize = 20,
   options: OptimizedSearchOptions = {}
 ) {
-  const infiniteQuery = useInfiniteQuery<OptimizedSearchResponse>({
+  const infiniteQuery = useInfiniteQuery({
     queryKey: ['jobs', 'infinite', filters, pageSize],
     queryFn: ({ pageParam = 1 }) => searchJobs(filters, pageParam as number, pageSize),
     getNextPageParam: (lastPage: OptimizedSearchResponse) => {
@@ -323,7 +328,7 @@ export function useInfiniteJobSearch(
     initialPageParam: 1,
     staleTime: options.staleTime || 2 * 60 * 1000,
     gcTime: options.gcTime || 5 * 60 * 1000
-  });
+  } as any);
 
   // Flatten all pages into single array
   const allJobs = useMemo(() => {
@@ -345,7 +350,7 @@ export function useInfiniteJobSearch(
 // ===== SEARCH SUGGESTIONS HOOK =====
 
 export function useSearchSuggestions(query: string, enabled = true) {
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounce(query || '', 300);
 
   return useQuery<string[]>({
     queryKey: ['search', 'suggestions', debouncedQuery],
@@ -361,7 +366,7 @@ export function useSearchSuggestions(query: string, enabled = true) {
       const data = await response.json();
       return data.meta?.suggestions || [];
     },
-    enabled: enabled && debouncedQuery && debouncedQuery.length >= 2,
+    enabled: enabled && !!debouncedQuery && debouncedQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000 // 10 minutes
   });
@@ -374,7 +379,7 @@ export function useFilterOptions(baseFilters?: Partial<OptimizedSearchFilters>) 
     queryKey: ['jobs', 'filter-options', baseFilters],
     queryFn: async () => {
       const searchParams = new SearchParamsBuilder()
-        .addAll({ ...baseFilters, include_stats: true } as OptimizedSearchFilters, 1, 1)
+        .addAll({ ...(baseFilters || {}), include_stats: true } as OptimizedSearchFilters, 1, 1)
         .toString();
 
       const response = await fetch(`/api/jobs/search?${searchParams}`);
