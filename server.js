@@ -74,7 +74,7 @@ app.prepare().then(async () => {
 
   // Initialize the notification service
   try {
-    const { initializeSocketService } = await import('./lib/socket-server.ts');
+    const { initializeSocketService } = await import('./lib/socket-server.js');
     const socketService = initializeSocketService(io);
     console.log('✅ Socket notification service initialized');
     
