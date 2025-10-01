@@ -86,7 +86,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/jobs/:path*',
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/jobs/:path*'
   ],
 };
