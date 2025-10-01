@@ -202,7 +202,7 @@ export function useSearchHistory() {
   const loadMore = useCallback(async () => {
     if (!data.hasMore || isLoading) return;
 
-    const currentOffset = data.history.length;
+    const currentOffset = (data.history || []).length;
     const newOptions: SearchHistoryOptions = {
       limit: 20,
       offset: currentOffset
@@ -237,7 +237,7 @@ export function useSearchHistory() {
     } finally {
       setIsLoading(false);
     }
-  }, [data.history.length, data.hasMore, isLoading]);
+  }, [(data.history || []).length, data.hasMore, isLoading]);
 
   /**
    * Search within history
@@ -248,10 +248,10 @@ export function useSearchHistory() {
 
   // Auto-fetch on mount if user is authenticated
   useEffect(() => {
-    if (session?.user?.id && data.history.length === 0) {
+    if (session?.user?.id && (data.history || []).length === 0) {
       fetchSearchHistory();
     }
-  }, [session?.user?.id, fetchSearchHistory, data.history.length]);
+  }, [session?.user?.id, fetchSearchHistory, (data.history || []).length]);
 
   return {
     // Data
@@ -268,7 +268,7 @@ export function useSearchHistory() {
     searchHistory,
     
     // Utilities
-    hasHistory: data.history.length > 0,
+    hasHistory: (data.history || []).length > 0,
     hasMore: data.hasMore,
     totalCount: data.total
   };

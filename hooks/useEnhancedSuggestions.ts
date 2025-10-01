@@ -176,7 +176,7 @@ export function useEnhancedSuggestions() {
     getHighConfidenceSuggestions,
     
     // State
-    hasSuggestions: suggestions.length > 0,
+    hasSuggestions: (suggestions || []).length > 0,
     hasError: !!error,
     isAuthenticated: !!session?.user?.id
   };

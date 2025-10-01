@@ -267,7 +267,7 @@ export default function OptimizedJobSearch({
   };
 
   const renderSuggestions = () => {
-    if (!searchSuggestions.data || searchSuggestions.data.length === 0) return null;
+    if (!searchSuggestions.data || (searchSuggestions.data || []).length === 0) return null;
 
     return (
       <motion.div
@@ -668,11 +668,11 @@ export default function OptimizedJobSearch({
                   </div>
                   <div className="flex items-center space-x-2 text-blue-600">
                     <BuildingOfficeIcon className="h-4 w-4" />
-                    <span>{availableFilters?.companies?.length || 0} Companies</span>
+                    <span>{(availableFilters?.companies || []).length || 0} Companies</span>
                   </div>
                   <div className="flex items-center space-x-2 text-purple-600">
                     <AcademicCapIcon className="h-4 w-4" />
-                    <span>{availableFilters?.sectors?.length || 0} Sectors</span>
+                    <span>{(availableFilters?.sectors || []).length || 0} Sectors</span>
                   </div>
                 </div>
               )}

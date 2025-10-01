@@ -47,7 +47,7 @@ export function useSocket(): UseSocketReturn {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // Calculate unread count
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = (notifications || []).filter(n => !n.isRead).length;
 
   // Initialize socket connection
   useEffect(() => {
@@ -234,7 +234,7 @@ export function useSocket(): UseSocketReturn {
               notification.message
             );
             setNotifications(validNotifications);
-            console.log('✅ Set initial notifications:', validNotifications.length);
+            console.log('✅ Set initial notifications:', (validNotifications || []).length);
           } else {
             console.log('⚠️ Invalid notification data structure:', data);
             setNotifications([]);
