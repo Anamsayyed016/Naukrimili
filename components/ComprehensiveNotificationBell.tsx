@@ -74,7 +74,7 @@ export function ComprehensiveNotificationBell() {
   }, [session?.user?.id, getNotificationStats]);
 
   // Filter notifications
-  const filteredNotifications = notifications.filter((notification: Notification) => {
+  const filteredNotifications = (notifications || []).filter((notification: Notification) => {
     if (filter === 'all') return true;
     if (filter === 'unread') return !notification.isRead;
     return notification.type.toLowerCase().includes(filter.toLowerCase());
@@ -257,7 +257,7 @@ export function ComprehensiveNotificationBell() {
           {/* Footer */}
           <div className="p-4 border-t border-gray-200 bg-gray-50">
             <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>Total: {notifications.length} notifications</span>
+              <span>Total: {(notifications || []).length} notifications</span>
               <a
                 href="/dashboard/notifications"
                 className="text-blue-600 hover:text-blue-800"

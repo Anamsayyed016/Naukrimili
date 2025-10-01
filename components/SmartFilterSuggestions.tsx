@@ -295,11 +295,11 @@ export default function SmartFilterSuggestions({
   const getCurrentSuggestions = () => {
     switch (activeTab) {
       case 'trending':
-        return trendingJobs;
+        return trendingJobs || [];
       case 'locations':
-        return popularLocations;
+        return popularLocations || [];
       case 'companies':
-        return topCompanies;
+        return topCompanies || [];
       default:
         return [];
     }
@@ -395,7 +395,7 @@ export default function SmartFilterSuggestions({
               ))}
             </div>
 
-            {getCurrentSuggestions().length === 0 && (
+            {(getCurrentSuggestions() || []).length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 <Search className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                 <p>No suggestions available</p>
