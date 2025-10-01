@@ -83,7 +83,7 @@ export function AffiliateWidget() {
           <h4 className="font-medium text-gray-900 dark:text-gray-100">
             Recent Referrals
           </h4>
-          {data.referrals.length === 0 ? (
+          {(data.referrals || []).length === 0 ? (
             <p className="text-sm text-gray-500 dark:text-gray-400">
               No referrals yet
             </p>

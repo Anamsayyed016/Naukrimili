@@ -149,7 +149,7 @@ export const AIResumeForm = () => {
             <Button
               type="button"
               onClick={generateResume}
-              disabled={isLoading || !formData.targetJob || formData.skills.length === 0}
+              disabled={isLoading || !formData.targetJob || (formData.skills || []).length === 0}
             >
               {isLoading ? "Generating..." : "Generate Optimized Resume"}
             </Button>

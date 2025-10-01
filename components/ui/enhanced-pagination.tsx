@@ -263,7 +263,7 @@ export function EnhancedPagination({
       )}
 
       {/* Quick Jump Suggestions */}
-      {showJumpToPage && pagination.jumpSuggestions.length > 0 && !showJumpInput && (
+      {showJumpToPage && (pagination.jumpSuggestions || []).length > 0 && !showJumpInput && (
         <div className="flex items-center justify-center space-x-1">
           <span className="text-sm text-gray-500">Quick jump:</span>
           {pagination.jumpSuggestions.slice(0, 5).map((page) => (

@@ -258,7 +258,7 @@ export function MessageBell() {
             )}
           </ScrollArea>
           
-          {messages.length > 0 && (
+          {(messages || []).length > 0 && (
             <div className="p-3 border-t bg-gray-50">
               <Button
                 variant="ghost"

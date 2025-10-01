@@ -73,7 +73,7 @@ export function OTPVerificationForm({
 
   const maskPhoneNumber = (phone: string) => {
     const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length >= 10) {
+    if (cleaned && cleaned.length >= 10) {
       const last4 = cleaned.slice(-4);
       return `+${cleaned.slice(0, -4).replace(/\d/g, '*')}${last4}`;
     }
@@ -88,7 +88,7 @@ export function OTPVerificationForm({
   };
 
   const handleVerifyOTP = async () => {
-    if (otpCode.length !== 6) {
+    if (!otpCode || otpCode.length !== 6) {
       setError('Please enter a valid 6-digit OTP');
       return;
     }
@@ -235,7 +235,7 @@ export function OTPVerificationForm({
           <Button
             type="submit"
             className="btn-primary w-full h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 bg-green-600 hover:bg-green-700"
-            disabled={isVerifying || otpCode.length !== 6}
+            disabled={isVerifying || !otpCode || otpCode.length !== 6}
           >
             {isVerifying ? (
               <div className="flex items-center justify-center">

@@ -55,7 +55,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 
 	// Auto-fill form when initialData changes
 	useEffect(() => {
-		if (initialData && Object.keys(initialData).length > 0) {
+		if (initialData && typeof initialData === 'object' && Object.keys(initialData || {}).length > 0) {
 			console.log('🔄 ProfileCompletionForm received initial data:', initialData);
 			console.log('🔍 Initial data keys:', Object.keys(initialData));
 			console.log('📧 Email from initialData:', initialData.email);
@@ -107,7 +107,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 	// Optional AI suggestions - completely user choice
 	const optionalAISuggestions = (field: string, value: string) => {
 		// Only fetch if user explicitly requests it and has enough input
-		if (value && value.trim().length >= 1) {
+		if (value && value.trim && value.trim().length >= 1) {
 			fetchAISuggestions(field, value);
 		}
 	};
@@ -126,16 +126,16 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 		// Professional Information (40 points)
 		if (data.jobTitle) { score += 15; totalFields += 1; }
 		if (data.summary) { score += 15; totalFields += 1; }
-		if (data.skills && data.skills.length > 0) { score += 10; totalFields += 1; }
+		if (data.skills && (data.skills || []).length > 0) { score += 10; totalFields += 1; }
 
 		// Experience & Education (20 points)
-		if (data.experience && data.experience.length > 0) { score += 15; totalFields += 1; }
-		if (data.education && data.education.length > 0) { score += 5; totalFields += 1; }
+		if (data.experience && (data.experience || []).length > 0) { score += 15; totalFields += 1; }
+		if (data.education && (data.education || []).length > 0) { score += 5; totalFields += 1; }
 
 		// Additional Sections (10 points)
-		if (data.projects && data.projects.length > 0) { score += 5; totalFields += 1; }
-		if (data.certifications && data.certifications.length > 0) { score += 3; totalFields += 1; }
-		if (data.languages && data.languages.length > 0) { score += 2; totalFields += 1; }
+		if (data.projects && (data.projects || []).length > 0) { score += 5; totalFields += 1; }
+		if (data.certifications && (data.certifications || []).length > 0) { score += 3; totalFields += 1; }
+		if (data.languages && (data.languages || []).length > 0) { score += 2; totalFields += 1; }
 
 		// Calculate percentage
 		const maxScore = 100;

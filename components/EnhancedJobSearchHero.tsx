@@ -192,7 +192,7 @@ export default function EnhancedJobSearchHero({
     setFilters(prev => ({ ...prev, query: value }));
     
     // Show suggestions if user is typing
-    if (value.length >= 2 && showSuggestions) {
+    if (value && value.length >= 2 && showSuggestions) {
       setShowSuggestionsDropdown(true);
       getSuggestions({
         query: value,
@@ -210,7 +210,7 @@ export default function EnhancedJobSearchHero({
     setFilters(prev => ({ ...prev, location: value }));
     
     // Update suggestions if query exists
-    if (filters.query.length >= 2 && showSuggestions) {
+    if (filters.query && filters.query.length >= 2 && showSuggestions) {
       getSuggestions({
         query: filters.query,
         location: value,
