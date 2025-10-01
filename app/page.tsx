@@ -23,35 +23,9 @@ interface Company {
 }
 
 export default async function HomePage() {
-  // Fetch data server-side
-  let featuredJobs: Job[] = [];
-  let topCompanies: Company[] = [];
-  
-  try {
-    // Fetch featured jobs using optimized search with caching
-    const jobsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/jobs/optimized?limit=6&includeExternal=false&includeDatabase=true&includeSample=true&country=IN`, {
-      cache: 'force-cache',
-      next: { revalidate: 300 } // Cache for 5 minutes
-    });
-    const jobsData = await jobsResponse.json();
-    
-    // Fetch top companies with caching
-    const companiesResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/companies/public?limit=6`, {
-      cache: 'force-cache',
-      next: { revalidate: 600 } // Cache for 10 minutes
-    });
-    const companiesData = await companiesResponse.json();
-
-    if (jobsData.success) {
-      featuredJobs = jobsData.jobs;
-    }
-    
-    if (companiesData.success) {
-      topCompanies = companiesData.companies;
-    }
-  } catch (error) {
-    console.error('Error fetching home data:', error);
-  }
+  // Use static data instead of fetching during build to prevent build errors
+  const featuredJobs: Job[] = [];
+  const topCompanies: Company[] = [];
 
   const trendingSearches = [
     'Software Engineer',

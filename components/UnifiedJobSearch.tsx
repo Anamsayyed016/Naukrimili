@@ -108,7 +108,7 @@ export default function UnifiedJobSearch({
   
   // ===== STATE =====
   
-  const [filters, setFilters] = useState<JobSearchFilters>({
+  const [filters, setFilters] = useState<JobSearchFilters>(() => ({
     query: '',
     location: '',
     jobType: 'all',
@@ -119,7 +119,7 @@ export default function UnifiedJobSearch({
     sector: '',
     country: 'IN',
     ...initialFilters
-  });
+  }));
 
   // Debounced filters for auto-search
   const debouncedQuery = useDebounce(filters.query, 500);
@@ -134,11 +134,11 @@ export default function UnifiedJobSearch({
   const [sortByDistance, setSortByDistance] = useState(false);
   
   // Dynamic constants
-  const [dynamicConstants, setDynamicConstants] = useState({
+  const [dynamicConstants, setDynamicConstants] = useState(() => ({
     jobTypes: ['Full-time', 'Part-time', 'Contract', 'Internship'],
     experienceLevels: ['Entry Level', 'Mid Level', 'Senior Level', 'Lead', 'Executive'],
     locations: []
-  });
+  }));
 
   // ===== EFFECTS =====
 
@@ -171,6 +171,8 @@ export default function UnifiedJobSearch({
 
   // Fetch dynamic constants
   const fetchDynamicConstants = useCallback(async () => {
+    if (!isMounted) return;
+    
     try {
       const response = await fetch('/api/jobs/constants');
       if (response.ok) {
@@ -182,7 +184,7 @@ export default function UnifiedJobSearch({
     } catch (error) {
       console.error('Error fetching dynamic constants:', error);
     }
-  }, []);
+  }, [isMounted]);
 
   useEffect(() => {
     fetchDynamicConstants();
