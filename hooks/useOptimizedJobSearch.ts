@@ -115,7 +115,7 @@ export class SearchParamsBuilder {
   add(key: string, value: any): this {
     if (value !== undefined && value !== null && value !== '') {
       if (Array.isArray(value)) {
-        this.params.append(key, value.join(','));
+        this.params.append(key, (value || []).join(','));
       } else {
         this.params.append(key, String(value));
       }
@@ -124,7 +124,7 @@ export class SearchParamsBuilder {
   }
 
   addAll(filters: OptimizedSearchFilters = {}, page = 1, limit = 20): this {
-    if (!filters) return this;
+    if (!filters || typeof filters !== 'object') return this;
     
     return this
       .add('query', filters.query)
@@ -189,7 +189,9 @@ export function useOptimizedJobSearch(
 
   // Create debounced filters
   const debouncedFilters = useMemo(() => {
-    if (!filters) return { query: debouncedQuery, location: debouncedLocation };
+    if (!filters || typeof filters !== 'object') {
+      return { query: debouncedQuery, location: debouncedLocation };
+    }
     return {
       ...(filters || {}),
       query: debouncedQuery,
@@ -227,7 +229,7 @@ export function useOptimizedJobSearch(
 
       return response.json();
     },
-    enabled: enabled && (!!debouncedQuery || (debouncedFilters && Object.keys(debouncedFilters || {}).length > 2)),
+    enabled: enabled && (!!debouncedQuery || (debouncedFilters && typeof debouncedFilters === 'object' && Object.keys(debouncedFilters || {}).length > 2)),
     staleTime,
     gcTime,
     refetchOnWindowFocus,

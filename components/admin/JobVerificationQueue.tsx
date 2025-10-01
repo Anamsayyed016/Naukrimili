@@ -75,7 +75,7 @@ export default function JobVerificationQueue() {
         <div className="flex justify-center p-6">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-gray-800" />
         </div>
-      ) : jobs.length === 0 ? (
+      ) : (jobs || []).length === 0 ? (
         <div className="text-sm text-gray-600">No jobs awaiting verification.</div>
       ) : (
         <Table>

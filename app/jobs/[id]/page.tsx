@@ -292,7 +292,7 @@ export default function JobDetailsPage() {
                 </div>
 
                 {/* Skills */}
-                {skillsArray.length > 0 && (
+                {(skillsArray || []).length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-3">Required Skills</h3>
                     <div className="flex flex-wrap gap-2">

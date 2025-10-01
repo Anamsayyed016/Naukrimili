@@ -88,7 +88,7 @@ export function JobList({
     );
   }
 
-  if (!jobs.length) {
+  if (!(jobs || []).length) {
     return (
       <Card className="p-6">
         <div className="text-center text-gray-500">
