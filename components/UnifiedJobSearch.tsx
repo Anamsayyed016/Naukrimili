@@ -624,22 +624,22 @@ export default function UnifiedJobSearch({
                 </div>
               )}
 
-               {/* Smart Filter Suggestions */}
-            {showSuggestions && filters && (
-              <div className="mt-6">
-                <ErrorBoundary fallback={<div className="text-sm text-gray-500">Suggestions unavailable</div>}>
-                  <SmartFilterSuggestions
-                    currentFilters={filters}
-                    onSuggestionSelect={(suggestion) => {
-                      console.log('Suggestion selected:', suggestion);
-                    }}
-                    onFiltersChange={(newFilters) => {
-                      setFilters(prev => ({ ...prev, ...newFilters }));
-                    }}
-                  />
-                </ErrorBoundary>
-              </div>
-            )}
+                   {/* Smart Filter Suggestions - Temporarily Disabled */}
+                   {/* {showSuggestions && filters && (
+                     <div className="mt-6">
+                       <ErrorBoundary fallback={<div className="text-sm text-gray-500">Suggestions unavailable</div>}>
+                         <SmartFilterSuggestions
+                           currentFilters={filters}
+                           onSuggestionSelect={(suggestion) => {
+                             console.log('Suggestion selected:', suggestion);
+                           }}
+                           onFiltersChange={(newFilters) => {
+                             setFilters(prev => ({ ...prev, ...newFilters }));
+                           }}
+                         />
+                       </ErrorBoundary>
+                     </div>
+                   )} */}
 
               {/* Advanced Filters Toggle */}
               {showAdvancedFilters && (
