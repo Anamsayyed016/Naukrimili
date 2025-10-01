@@ -31,7 +31,7 @@ import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
-import SmartFilterSuggestions from './SmartFilterSuggestions';
+// import SmartFilterSuggestions from './SmartFilterSuggestions'; // Removed - causing infinite re-render
 import ErrorBoundary from './ErrorBoundary';
 
 // ===== INTERFACES =====

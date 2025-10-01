@@ -25,7 +25,7 @@ import {
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
 import LocationCategories from './LocationCategories';
-import SmartFilterSuggestions from './SmartFilterSuggestions';
+// import SmartFilterSuggestions from './SmartFilterSuggestions'; // Removed - causing infinite re-render
 
 interface JobSearchHeroProps {
   className?: string;
@@ -428,8 +428,8 @@ export default function JobSearchHero({
                 } : null}
               />
 
-              {/* Smart Filter Suggestions */}
-              <div className="mt-6">
+              {/* Smart Filter Suggestions - Removed to fix infinite re-render */}
+              {/* <div className="mt-6">
                 <SmartFilterSuggestions
                   currentFilters={filters}
                   onSuggestionSelect={(suggestion) => {
@@ -439,7 +439,7 @@ export default function JobSearchHero({
                     setFilters(prev => ({ ...prev, ...newFilters }));
                   }}
                 />
-              </div>
+              </div> */}
 
               {/* Manual Location Selection Help */}
               {locationError && (

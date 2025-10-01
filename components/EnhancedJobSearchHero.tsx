@@ -40,7 +40,7 @@ import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { useEnhancedSuggestions } from '@/hooks/useEnhancedSuggestions';
 import { useDebounce } from '@/hooks/useDebounce';
-import SmartFilterSuggestions from './SmartFilterSuggestions';
+// import SmartFilterSuggestions from './SmartFilterSuggestions'; // Removed - causing infinite re-render
 
 interface EnhancedJobSearchHeroProps {
   className?: string;
@@ -648,8 +648,8 @@ export default function EnhancedJobSearchHero({
           </div>
         )}
 
-        {/* Smart Filter Suggestions */}
-        <SmartFilterSuggestions
+        {/* Smart Filter Suggestions - Removed to fix infinite re-render */}
+        {/* <SmartFilterSuggestions
           currentFilters={filters}
           onSuggestionSelect={(suggestion) => {
             // Handle suggestion selection if needed
@@ -657,7 +657,7 @@ export default function EnhancedJobSearchHero({
           }}
           onFiltersChange={(newFilters) => setFilters(prev => ({ ...prev, ...newFilters }))}
           className="mt-6"
-        />
+        /> */}
       </div>
 
     </div>
