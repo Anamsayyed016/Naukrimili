@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
 import { Button } from "@/components/ui/button";
 import SEOJobLink from '@/components/SEOJobLink';
-import EnhancedJobSearchHero from '@/components/EnhancedJobSearchHero';
+import UnifiedJobSearch from '@/components/UnifiedJobSearch';
 
 interface Job {
   id: number;
@@ -73,11 +73,13 @@ export default function HomePageClient({
 
 
 
-      {/* Enhanced Job Search Hero with AI & History */}
-      <EnhancedJobSearchHero 
+      {/* Original Job Search Hero with Dynamic Features */}
+      <UnifiedJobSearch 
+        variant="homepage"
         showAdvancedFilters={true}
-        showHistory={true}
         showSuggestions={true}
+        showLocationCategories={true}
+        autoSearch={true}
       />
 
       {/* Main Content Section */}

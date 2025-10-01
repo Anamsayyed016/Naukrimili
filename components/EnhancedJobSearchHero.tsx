@@ -78,6 +78,17 @@ export default function EnhancedJobSearchHero({
 }: EnhancedJobSearchHeroProps) {
   const router = useRouter();
   const { data: session } = useSession();
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Don't render until mounted
+  if (!isMounted) {
+    return null;
+  }
   
   // Search filters state
   const [filters, setFilters] = useState({

@@ -94,6 +94,17 @@ export default function UnifiedJobSearch({
 }: UnifiedJobSearchProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Don't render until mounted
+  if (!isMounted) {
+    return null;
+  }
   
   // ===== STATE =====
   

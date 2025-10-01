@@ -61,6 +61,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // This prevents auto-login behavior
   }, []);
 
+  // Only render children after component is mounted to prevent hydration mismatch
+  if (!isMounted) {
+    return null;
+  }
+
   // Sync with NextAuth session when available
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
