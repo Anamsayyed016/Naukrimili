@@ -199,7 +199,7 @@ export function ComprehensiveNotificationBell() {
 
           {/* Notifications List */}
           <div className="max-h-64 overflow-y-auto">
-            {filteredNotifications.length === 0 ? (
+            {safeLength(filteredNotifications) === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                 <p>No notifications found</p>

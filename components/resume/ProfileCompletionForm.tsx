@@ -55,7 +55,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 
 	// Auto-fill form when initialData changes
 	useEffect(() => {
-		if (initialData && typeof initialData === 'object' && Object.keys(initialData || {}).length > 0) {
+		if (initialData && typeof initialData === 'object' && initialData !== null && Object.keys(initialData).length > 0) {
 			console.log('🔄 ProfileCompletionForm received initial data:', initialData);
 			console.log('🔍 Initial data keys:', Object.keys(initialData));
 			console.log('📧 Email from initialData:', initialData.email);

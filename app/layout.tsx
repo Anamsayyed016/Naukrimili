@@ -8,7 +8,6 @@ import SessionProvider from '@/components/providers/SessionProvider';
 import BufferPolyfill from '@/components/BufferPolyfill';
 import { Toaster } from '@/components/ui/toaster';
 import AuthDebugPanel from '@/components/debug/AuthDebugPanel';
-import MobileErrorBoundary from '@/components/MobileErrorBoundary';
 import GlobalErrorHandler from '@/components/GlobalErrorHandler';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -27,14 +26,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} font-body`}>
         <SessionProvider>
-          <MobileErrorBoundary>
-            <GlobalErrorHandler />
-            <BufferPolyfill />
-            <MainNavigation />
-            {children}
-            <Footer />
-            <Toaster />
-          </MobileErrorBoundary>
+          <GlobalErrorHandler />
+          <BufferPolyfill />
+          <MainNavigation />
+          {children}
+          <Footer />
+          <Toaster />
         </SessionProvider>
       </body>
     </html>

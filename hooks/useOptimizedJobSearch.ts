@@ -334,7 +334,15 @@ export function useInfiniteJobSearch(
 
   // Flatten all pages into single array
   const allJobs = useMemo(() => {
-    return infiniteQuery.data?.pages?.flatMap((page: any) => page.data?.jobs || []) || [];
+    if (!infiniteQuery.data?.pages || !Array.isArray(infiniteQuery.data.pages)) {
+      return [];
+    }
+    return infiniteQuery.data.pages.flatMap((page: any) => {
+      if (!page?.data?.jobs || !Array.isArray(page.data.jobs)) {
+        return [];
+      }
+      return page.data.jobs;
+    });
   }, [infiniteQuery.data]);
 
   return {

@@ -49,7 +49,7 @@ export function OAuthButtons({
         const availableProviders = await getProviders();
         console.log('🔍 Available providers from NextAuth:', availableProviders);
         
-        if (availableProviders && typeof availableProviders === 'object' && Object.keys(availableProviders || {}).length > 0) {
+        if (availableProviders && typeof availableProviders === 'object' && availableProviders !== null && Object.keys(availableProviders).length > 0) {
           // Only update if we have actual OAuth providers
           const oauthProviders = Object.values(availableProviders).filter(
             (provider: any) => provider.type === 'oauth'
