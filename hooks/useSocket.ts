@@ -3,10 +3,13 @@
  * Handles authentication and real-time notifications
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import io from 'socket.io-client';
 import { useSession } from 'next-auth/react';
 import { useMobileNotifications } from '@/hooks/useMobileNotifications';
+import { safeLength, safeArray } from '@/lib/safe-array-utils';
+
+type Socket = ReturnType<typeof io>;
 
 interface SocketUser {
   userId: string;
@@ -46,8 +49,11 @@ export function useSocket(): UseSocketReturn {
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // Calculate unread count
-  const unreadCount = (notifications || []).filter(n => !n.isRead).length;
+  // Calculate unread count with additional safety checks
+  const unreadCount = useMemo(() => {
+    const safeNotifications = safeArray(notifications);
+    return safeNotifications.filter((n: any) => n && !n.isRead).length;
+  }, [notifications]);
 
   // Initialize socket connection
   useEffect(() => {

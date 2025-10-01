@@ -5,11 +5,12 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Bell, Check, X, AlertCircle, CheckCircle, Info, Star, Calendar, Briefcase, User, Building, Settings } from 'lucide-react';
 import { useSocket } from '@/hooks/useSocket';
 import { useComprehensiveNotifications } from '@/hooks/useComprehensiveNotifications';
 import { useSession } from 'next-auth/react';
+import { safeLength, safeArray } from '@/lib/safe-array-utils';
 
 interface Notification {
   id: string;
@@ -73,12 +74,16 @@ export function ComprehensiveNotificationBell() {
     }
   }, [session?.user?.id, getNotificationStats]);
 
-  // Filter notifications
-  const filteredNotifications = (notifications || []).filter((notification: Notification) => {
-    if (filter === 'all') return true;
-    if (filter === 'unread') return !notification.isRead;
-    return notification.type.toLowerCase().includes(filter.toLowerCase());
-  });
+  // Filter notifications with additional safety checks
+  const filteredNotifications = useMemo(() => {
+    const safeNotifications = safeArray(notifications);
+    return safeNotifications.filter((notification: Notification) => {
+      if (!notification || typeof notification !== 'object') return false;
+      if (filter === 'all') return true;
+      if (filter === 'unread') return !notification.isRead;
+      return notification.type && notification.type.toLowerCase().includes(filter.toLowerCase());
+    });
+  }, [notifications, filter]);
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.isRead) {
@@ -257,7 +262,7 @@ export function ComprehensiveNotificationBell() {
           {/* Footer */}
           <div className="p-4 border-t border-gray-200 bg-gray-50">
             <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>Total: {(notifications || []).length} notifications</span>
+              <span>Total: {safeLength(notifications)} notifications</span>
               <a
                 href="/dashboard/notifications"
                 className="text-blue-600 hover:text-blue-800"

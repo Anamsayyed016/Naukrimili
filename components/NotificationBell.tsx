@@ -224,7 +224,7 @@ export function NotificationBell() {
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
                 Loading notifications...
               </div>
-            ) : notifications.length === 0 ? (
+            ) : (!notifications || notifications.length === 0) ? (
               <div className="p-8 text-center">
                 <Bell className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                 <p className="text-sm text-gray-500 font-medium">No notifications yet</p>
@@ -274,7 +274,7 @@ export function NotificationBell() {
             )}
           </ScrollArea>
           
-          {notifications.length > 0 && (
+          {notifications && notifications.length > 0 && (
             <div className="p-3 border-t bg-gray-50">
               <Button
                 variant="ghost"
