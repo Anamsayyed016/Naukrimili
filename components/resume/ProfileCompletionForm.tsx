@@ -126,16 +126,16 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 		// Professional Information (40 points)
 		if (data.jobTitle) { score += 15; totalFields += 1; }
 		if (data.summary) { score += 15; totalFields += 1; }
-		if (data.skills && (data.skills || []).length > 0) { score += 10; totalFields += 1; }
+		if (data.skills && Array.isArray(data.skills) && data.skills.length > 0) { score += 10; totalFields += 1; }
 
 		// Experience & Education (20 points)
-		if (data.experience && (data.experience || []).length > 0) { score += 15; totalFields += 1; }
-		if (data.education && (data.education || []).length > 0) { score += 5; totalFields += 1; }
+		if (data.experience && Array.isArray(data.experience) && data.experience.length > 0) { score += 15; totalFields += 1; }
+		if (data.education && Array.isArray(data.education) && data.education.length > 0) { score += 5; totalFields += 1; }
 
 		// Additional Sections (10 points)
-		if (data.projects && (data.projects || []).length > 0) { score += 5; totalFields += 1; }
-		if (data.certifications && (data.certifications || []).length > 0) { score += 3; totalFields += 1; }
-		if (data.languages && (data.languages || []).length > 0) { score += 2; totalFields += 1; }
+		if (data.projects && Array.isArray(data.projects) && data.projects.length > 0) { score += 5; totalFields += 1; }
+		if (data.certifications && Array.isArray(data.certifications) && data.certifications.length > 0) { score += 3; totalFields += 1; }
+		if (data.languages && Array.isArray(data.languages) && data.languages.length > 0) { score += 2; totalFields += 1; }
 
 		// Calculate percentage
 		const maxScore = 100;
@@ -187,7 +187,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 				const result = await response.json();
 				console.log(`✅ AI suggestions response:`, result);
 				
-				if (result.success && result.suggestions && result.suggestions.length > 0) {
+				if (result.success && result.suggestions && Array.isArray(result.suggestions) && result.suggestions.length > 0) {
 					setSuggestions(prev => ({ ...prev, [field]: result.suggestions }));
 					// Don't auto-show - let user manually open
 					console.log(`✨ ${result.suggestions.length} suggestions available for ${field}`);
@@ -275,7 +275,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						<button
 							type="button"
 							onClick={() => {
-								if (fieldSuggestions.length > 0) {
+								if (Array.isArray(fieldSuggestions) && fieldSuggestions.length > 0) {
 									// Toggle existing suggestions
 									setShowSuggestions(prev => ({ ...prev, [field]: !prev[field] }));
 								} else {
