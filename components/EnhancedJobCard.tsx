@@ -350,7 +350,7 @@ export default function EnhancedJobCard({
               }
               return [];
             })();
-            return skillsArray.length > 0 && (
+            return (skillsArray || []).length > 0 && (
               <div className="mb-4">
                 <div className="flex flex-wrap gap-1">
                   {skillsArray.slice(0, 6).map((skill, index) => (
@@ -361,9 +361,9 @@ export default function EnhancedJobCard({
                       {skill}
                     </span>
                   ))}
-                  {skillsArray.length > 6 && (
+                  {(skillsArray || []).length > 6 && (
                     <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-md">
-                      +{skillsArray.length - 6} more
+                      +{(skillsArray || []).length - 6} more
                     </span>
                   )}
                 </div>

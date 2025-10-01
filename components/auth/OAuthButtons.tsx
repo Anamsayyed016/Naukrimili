@@ -49,12 +49,12 @@ export function OAuthButtons({
         const availableProviders = await getProviders();
         console.log('🔍 Available providers from NextAuth:', availableProviders);
         
-        if (availableProviders && Object.keys(availableProviders).length > 0) {
+        if (availableProviders && typeof availableProviders === 'object' && Object.keys(availableProviders || {}).length > 0) {
           // Only update if we have actual OAuth providers
           const oauthProviders = Object.values(availableProviders).filter(
             (provider: any) => provider.type === 'oauth'
           );
-          if (oauthProviders.length > 0) {
+          if ((oauthProviders || []).length > 0) {
             setProviders(availableProviders);
             return;
           }
@@ -139,7 +139,7 @@ export function OAuthButtons({
     (provider: any) => provider.type === 'oauth'
   );
 
-  if (oauthProviders.length === 0) {
+  if ((oauthProviders || []).length === 0) {
     // Don't show warning, just show nothing if no OAuth providers
     return null;
   }

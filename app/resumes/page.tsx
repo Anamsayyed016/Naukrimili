@@ -143,7 +143,7 @@ export default function ResumesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Resumes</p>
-                  <p className="text-2xl font-bold text-gray-900">{resumes.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">{(resumes || []).length}</p>
                 </div>
                 <FileText className="h-8 w-8 text-blue-500" />
               </div>
@@ -156,7 +156,7 @@ export default function ResumesPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Active Resumes</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {resumes.filter(r => (r as ExtendedResume).isActive ?? true).length}
+                    {(resumes || []).filter(r => (r as ExtendedResume).isActive ?? true).length}
                   </p>
                 </div>
                 <Star className="h-8 w-8 text-yellow-500" />
@@ -170,8 +170,8 @@ export default function ResumesPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Avg ATS Score</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {resumes.length > 0 
-                      ? Math.round(resumes.reduce((acc, r) => acc + ((r as ExtendedResume).atsScore || 0), 0) / resumes.length)
+                    {(resumes || []).length > 0 
+                      ? Math.round((resumes || []).reduce((acc, r) => acc + ((r as ExtendedResume).atsScore || 0), 0) / (resumes || []).length)
                       : 0}
                   </p>
                 </div>
@@ -186,7 +186,7 @@ export default function ResumesPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">This Month</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {resumes.filter(r => {
+                    {(resumes || []).filter(r => {
                       if (!r.createdAt) return false;
                       const createdAt = new Date(r.createdAt);
                       const now = new Date();
@@ -202,7 +202,7 @@ export default function ResumesPage() {
         </div>
 
         {/* Resumes Grid */}
-        {resumes.length > 0 ? (
+        {(resumes || []).length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {resumes.map((resume: ExtendedResume) => (
               <Card key={resume.id} className="hover:shadow-lg transition-shadow">

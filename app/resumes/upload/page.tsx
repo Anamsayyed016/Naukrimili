@@ -98,7 +98,7 @@ export default function ResumeUploadPage() {
     }
     
     // Check for insufficient skills
-    if (!data.skills || data.skills.length < 3) {
+    if (!data.skills || (data.skills || []).length < 3) {
       suggestions.push({
         title: 'Add more skills',
         description: `Add ${3 - (data.skills?.length || 0)} more relevant skills to improve ATS matching`,
@@ -114,7 +114,7 @@ export default function ResumeUploadPage() {
     }
     
     // Check for missing experience
-    if (!data.experience || data.experience.length === 0) {
+    if (!data.experience || (data.experience || []).length === 0) {
       suggestions.push({
         title: 'Add work experience',
         description: 'Include your professional experience to showcase your background',
@@ -130,7 +130,7 @@ export default function ResumeUploadPage() {
     }
     
     // Check for missing education
-    if (!data.education || data.education.length === 0) {
+    if (!data.education || (data.education || []).length === 0) {
       suggestions.push({
         title: 'Add education details',
         description: 'Include your educational background to complete your profile',
@@ -500,7 +500,7 @@ export default function ResumeUploadPage() {
                       </div>
                     ))}
 
-                    {generateDynamicSuggestions(resumeData).length === 0 && (
+                    {(generateDynamicSuggestions(resumeData) || []).length === 0 && (
                       <div className="text-center py-8">
                         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                           <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -512,9 +512,9 @@ export default function ResumeUploadPage() {
                       </div>
                     )}
 
-                    {generateDynamicSuggestions(resumeData).length > 0 && (
+                    {(generateDynamicSuggestions(resumeData) || []).length > 0 && (
                       <button className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                        Complete {generateDynamicSuggestions(resumeData).length} recommended improvements
+                        Complete {(generateDynamicSuggestions(resumeData) || []).length} recommended improvements
                       </button>
                     )}
                   </div>

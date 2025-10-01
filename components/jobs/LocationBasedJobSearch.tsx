@@ -177,7 +177,7 @@ export default function LocationBasedJobSearch() {
 
   // Location suggestions
   const getLocationSuggestions = useCallback((query: string) => {
-    if (query.length < 2) {
+    if (!query || query.length < 2) {
       setLocationSuggestions([]);
       return;
     }
@@ -331,7 +331,7 @@ export default function LocationBasedJobSearch() {
                     <Navigation className="h-3 w-3" />
                   )}
                 </Button>
-                {locationSuggestions.length > 0 && (
+                {(locationSuggestions || []).length > 0 && (
                   <div className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg z-10 mt-1">
                     {locationSuggestions.map((location, index) => (
                       <button
@@ -545,9 +545,9 @@ export default function LocationBasedJobSearch() {
                                 {skill}
                               </Badge>
                             ))}
-                            {job.skills.length > 5 && (
+                            {(job.skills || []).length > 5 && (
                               <Badge variant="secondary" className="text-xs">
-                                +{job.skills.length - 5} more
+                                +{(job.skills || []).length - 5} more
                               </Badge>
                             )}
                           </div>
@@ -651,7 +651,7 @@ export default function LocationBasedJobSearch() {
                   <div className="text-sm text-slate-600">
                     <p>📍 Location not detected</p>
                     <p>🔍 Showing jobs by relevance</p>
-                    <p>📊 {jobs.length} jobs found</p>
+                    <p>📊 {(jobs || []).length} jobs found</p>
                     <Button
                       size="sm"
                       variant="outline"

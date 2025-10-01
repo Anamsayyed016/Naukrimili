@@ -328,7 +328,7 @@ export default function TestSearchFeaturesPage() {
                     </CardTitle>
                     <div className="flex items-center space-x-2">
                       <Badge variant="secondary">
-                        {suggestions.length} suggestions
+                        {(suggestions || []).length} suggestions
                       </Badge>
                       {suggestionsLoading && (
                         <RefreshCw className="w-4 h-4 animate-spin" />
@@ -404,7 +404,7 @@ export default function TestSearchFeaturesPage() {
                       </Badge>
                     </div>
 
-                    {context.userSkills && context.userSkills.length > 0 && (
+                    {context.userSkills && (context.userSkills || []).length > 0 && (
                       <div>
                         <span className="text-sm font-medium block mb-2">User Skills</span>
                         <div className="flex flex-wrap gap-1">
@@ -417,7 +417,7 @@ export default function TestSearchFeaturesPage() {
                       </div>
                     )}
 
-                    {context.recentSearches && context.recentSearches.length > 0 && (
+                    {context.recentSearches && (context.recentSearches || []).length > 0 && (
                       <div>
                         <span className="text-sm font-medium block mb-2">Recent Searches</span>
                         <div className="space-y-1">
@@ -456,7 +456,7 @@ export default function TestSearchFeaturesPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{suggestions.length}</div>
+                  <div className="text-2xl font-bold">{(suggestions || []).length}</div>
                 </CardContent>
               </Card>
 
@@ -468,7 +468,7 @@ export default function TestSearchFeaturesPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {suggestions.filter(s => s.confidence >= 0.7).length}
+                    {(suggestions || []).filter(s => s.confidence >= 0.7).length}
                   </div>
                 </CardContent>
               </Card>
@@ -481,7 +481,7 @@ export default function TestSearchFeaturesPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {suggestions.filter(s => s.source === 'ai_generated').length}
+                    {(suggestions || []).filter(s => s.source === 'ai_generated').length}
                   </div>
                 </CardContent>
               </Card>

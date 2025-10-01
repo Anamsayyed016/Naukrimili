@@ -250,7 +250,7 @@ function getFallbackJobData(id: string) {
     }
   ];
   
-  const template = jobTemplates[numericId % jobTemplates.length];
+  const template = jobTemplates[numericId % (jobTemplates || []).length];
   const companyName = `Company${numericId}`;
   
   return {
@@ -406,7 +406,7 @@ async function handleExternalJob(id: string) {
     
     const externalJobs = await fetchExternalJobById(sourceId, source);
     
-    if (externalJobs && externalJobs.length > 0) {
+    if (externalJobs && (externalJobs || []).length > 0) {
       const job = externalJobs[0];
       const formattedJob = formatExternalJob(job, id, source);
       

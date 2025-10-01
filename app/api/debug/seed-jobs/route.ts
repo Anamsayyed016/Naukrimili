@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Jobs seeded successfully',
-      count: sampleJobs.length,
+      count: (sampleJobs || []).length,
       jobs: sampleJobs.map(job => ({
         title: job.title,
         company: job.company,
@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
       success: true,
       totalJobs: jobCount,
       manualJobs: manualJobs,
-      message: `Found ${jobCount} total jobs, ${manualJobs.length} manual jobs`
+      message: `Found ${jobCount} total jobs, ${(manualJobs || []).length} manual jobs`
     });
 
   } catch (error: any) {

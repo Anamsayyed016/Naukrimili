@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
       for (const pattern of patterns) {
         const match = slug.match(pattern);
         if (match) {
-          jobId = match[match.length - 1]; // Get last capture group
+          jobId = match[(match || []).length - 1]; // Get last capture group
           break;
         }
       }

@@ -115,7 +115,7 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
   }
 
   // Add salary if available (limit length)
-  if (salarySlug && salarySlug.length <= 20) {
+  if (salarySlug && (salarySlug || '').length <= 20) {
     urlParts.push(salarySlug);
   }
 
@@ -124,7 +124,7 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
   const finalUrl = `/jobs/${seoPath}-${id}`;
 
   // Ensure URL doesn't exceed reasonable length (SEO best practice)
-  if (finalUrl.length > 200) {
+  if ((finalUrl || '').length > 200) {
     // Fallback to shorter version
     const shortPath = [titleSlug, companySlug, locationSlug].join('-');
     return `/jobs/${shortPath}-${id}`;
@@ -180,7 +180,7 @@ export function parseSEOJobUrl(url: string): string | null {
   for (const pattern of patterns) {
     const match = cleanUrl.match(pattern);
     if (match) {
-      const jobId = match[match.length - 1]; // Get last capture group
+      const jobId = match[(match || []).length - 1]; // Get last capture group
       console.log('✅ Found job ID via pattern:', jobId, 'from pattern:', pattern);
       return jobId;
     }

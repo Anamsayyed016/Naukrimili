@@ -49,7 +49,7 @@ export function MessageBell() {
         
         if (data.success) {
           setMessages(data.data || []);
-          setUnreadCount(data.data?.filter((m: Message) => !m.isRead).length || 0);
+          setUnreadCount((data.data || []).filter((m: Message) => !m.isRead).length || 0);
         }
       } catch (error) {
         console.error('Failed to fetch messages:', error);
@@ -192,7 +192,7 @@ export function MessageBell() {
           <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-gray-900">Messages</h3>
-              {messages.length > 0 && (
+              {(messages || []).length > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -212,7 +212,7 @@ export function MessageBell() {
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
                 Loading messages...
               </div>
-            ) : messages.length === 0 ? (
+            ) : (messages || []).length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <MessageSquare className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                 <p className="font-medium">No messages yet</p>
