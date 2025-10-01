@@ -222,7 +222,7 @@ export function useOptimizedJobSearch(
 
       return response.json();
     },
-    enabled: enabled && (!!debouncedQuery || Object.keys(debouncedFilters).length > 2),
+    enabled: enabled && (!!debouncedQuery || (debouncedFilters ? Object.keys(debouncedFilters).length > 2 : false)),
     staleTime,
     gcTime,
     refetchOnWindowFocus,
@@ -361,7 +361,7 @@ export function useSearchSuggestions(query: string, enabled = true) {
       const data = await response.json();
       return data.meta?.suggestions || [];
     },
-    enabled: enabled && debouncedQuery.length >= 2,
+    enabled: enabled && debouncedQuery && debouncedQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000 // 10 minutes
   });

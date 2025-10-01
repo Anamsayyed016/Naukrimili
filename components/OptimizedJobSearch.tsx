@@ -154,11 +154,11 @@ export default function OptimizedJobSearch({
     totalJobs: pagination.total,
     searchTime,
     queryType,
-    appliedFiltersCount: Object.keys(appliedFilters).length
+    appliedFiltersCount: appliedFilters ? Object.keys(appliedFilters).length : 0
   }), [pagination.total, searchTime, queryType, appliedFilters]);
 
   const hasActiveFilters = useMemo(() => {
-    return Object.keys(appliedFilters).length > 0;
+    return appliedFilters ? Object.keys(appliedFilters).length > 0 : false;
   }, [appliedFilters]);
 
   // ===== EFFECTS =====
@@ -313,7 +313,7 @@ export default function OptimizedJobSearch({
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {Object.entries(appliedFilters).map(([key, value]) => (
+          {appliedFilters ? Object.entries(appliedFilters).map(([key, value]) => (
             <Badge 
               key={key} 
               variant="secondary"
@@ -325,7 +325,7 @@ export default function OptimizedJobSearch({
                 onClick={() => updateFilter(key as keyof OptimizedSearchFilters, undefined)}
               />
             </Badge>
-          ))}
+          )) : null}
         </div>
       </motion.div>
     );
