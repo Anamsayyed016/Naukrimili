@@ -93,7 +93,7 @@ export default function UnifiedJobSearch({
   initialFilters = {}
 }: UnifiedJobSearchProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = isMounted ? useSearchParams() : null;
   const [isMounted, setIsMounted] = useState(false);
 
   // Prevent hydration mismatch
@@ -144,6 +144,7 @@ export default function UnifiedJobSearch({
 
   // Initialize filters from URL params
   useEffect(() => {
+    if (!isMounted || !searchParams) return;
     const query = searchParams.get('query') || searchParams.get('q') || '';
     const location = searchParams.get('location') || '';
     const jobType = searchParams.get('jobType') || 'all';
