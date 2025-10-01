@@ -16,6 +16,7 @@ import {
   Map,
   Target,
   Building,
+  Building2,
   Briefcase,
   DollarSign,
   Clock,
@@ -414,12 +415,8 @@ export default function UnifiedJobSearch({
           {/* Header */}
           {variant === 'homepage' && (
             <div className="mb-8">
-              <h1 className={styles.title}>
-                Find Your 
-                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent"> Dream Job</span>
-              </h1>
-              <p className={styles.subtitle}>
-                Search millions of jobs worldwide with our AI-powered matching system
+              <p className="text-center text-white text-lg sm:text-xl mb-8 max-w-4xl mx-auto leading-relaxed">
+                Connect with top companies worldwide through our AI-powered job matching platform
               </p>
             </div>
           )}
@@ -428,21 +425,16 @@ export default function UnifiedJobSearch({
           <div className={`${variant === 'homepage' ? 'max-w-5xl mx-auto' : ''}`}>
             <div className={styles.searchBox}>
               {/* Search Header */}
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
-                  <Search className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <div className="text-center">
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
-                    Smart Job Search
-                    <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-0 font-bold text-xs">
-                      AI Powered
-                    </Badge>
-                  </h2>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                    Search by title, location, or company • Auto-search as you type
-                  </p>
-                </div>
+              <div className="text-center mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center justify-center gap-2 mb-2">
+                  Smart Job Search
+                  <Badge className="bg-blue-100 text-blue-800 border-0 font-bold text-xs">
+                    AI Powered
+                  </Badge>
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Find your perfect job with intelligent matching
+                </p>
               </div>
 
               {/* Main Search Form */}
@@ -497,6 +489,16 @@ export default function UnifiedJobSearch({
                     <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Search Jobs
                   </Button>
+                </div>
+
+                {/* AI-Powered Locations Indicator */}
+                <div className="text-center mt-4">
+                  <div className="inline-flex items-center gap-2 text-sm text-gray-600">
+                    <span>AI-Powered Locations</span>
+                    <Badge className="bg-blue-100 text-blue-800 border-0 font-bold text-xs">
+                      Smart
+                    </Badge>
+                  </div>
                 </div>
               </div>
 
@@ -570,17 +572,70 @@ export default function UnifiedJobSearch({
 
               {/* Location Categories */}
               {showLocationCategories && (
-                <LocationCategories 
-                  onLocationSelect={handleLocationSelect}
-                  selectedLocation={userLocation ? {
-                    id: userLocation.city,
-                    name: userLocation.city,
-                    country: userLocation.country,
-                    flag: '📍',
-                    jobCount: 0,
-                    type: 'city'
-                  } : null}
-                />
+                <div className="mt-8">
+                  <LocationCategories 
+                    onLocationSelect={handleLocationSelect}
+                    selectedLocation={userLocation ? {
+                      id: userLocation.city,
+                      name: userLocation.city,
+                      country: userLocation.country,
+                      flag: '📍',
+                      jobCount: 0,
+                      type: 'city'
+                    } : null}
+                  />
+                  
+                  {/* Custom Location Category Cards */}
+                  <div className="mt-6 space-y-3">
+                    {/* Metropolitan Areas Card */}
+                    <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-4 flex items-center justify-between hover:from-slate-700 hover:to-slate-800 transition-all duration-200 cursor-pointer shadow-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
+                          <Building className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Metropolitan Areas</h3>
+                          <p className="text-gray-300 text-sm">6 locations • 58,370 jobs</p>
+                        </div>
+                      </div>
+                      <div className="text-white">
+                        <ChevronDown className="w-5 h-5" />
+                      </div>
+                    </div>
+
+                    {/* States & Provinces Card */}
+                    <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-4 flex items-center justify-between hover:from-slate-700 hover:to-slate-800 transition-all duration-200 cursor-pointer shadow-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
+                          <Building2 className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">States & Provinces</h3>
+                          <p className="text-gray-300 text-sm">6 locations • 105,530 jobs</p>
+                        </div>
+                      </div>
+                      <div className="text-white">
+                        <ChevronDown className="w-5 h-5" />
+                      </div>
+                    </div>
+
+                    {/* Countries Card */}
+                    <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-4 flex items-center justify-between hover:from-slate-700 hover:to-slate-800 transition-all duration-200 cursor-pointer shadow-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
+                          <Globe className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold text-lg">Countries</h3>
+                          <p className="text-gray-300 text-sm">8 locations • 484,380 jobs</p>
+                        </div>
+                      </div>
+                      <div className="text-white">
+                        <ChevronDown className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
 
                {/* Smart Filter Suggestions */}
