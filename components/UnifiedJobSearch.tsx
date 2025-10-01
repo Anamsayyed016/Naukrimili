@@ -93,8 +93,8 @@ export default function UnifiedJobSearch({
   initialFilters = {}
 }: UnifiedJobSearchProps) {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
   const searchParams = isMounted ? useSearchParams() : null;
+  const [isMounted, setIsMounted] = useState(false);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -145,7 +145,6 @@ export default function UnifiedJobSearch({
   // Initialize filters from URL params
   useEffect(() => {
     if (!isMounted || !searchParams) return;
-    
     const query = searchParams.get('query') || searchParams.get('q') || '';
     const location = searchParams.get('location') || '';
     const jobType = searchParams.get('jobType') || 'all';
@@ -167,7 +166,7 @@ export default function UnifiedJobSearch({
       sector,
       country
     });
-  }, [searchParams, isMounted]);
+  }, [searchParams]);
 
   // Fetch dynamic constants
   const fetchDynamicConstants = useCallback(async () => {
