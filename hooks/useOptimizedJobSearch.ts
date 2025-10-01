@@ -334,7 +334,7 @@ export function useInfiniteJobSearch(
 
   // Flatten all pages into single array
   const allJobs = useMemo(() => {
-    return infiniteQuery.data?.pages?.flatMap(page => page.data.jobs) || [];
+    return infiniteQuery.data?.pages?.flatMap((page: any) => page.data?.jobs || []) || [];
   }, [infiniteQuery.data]);
 
   return {
