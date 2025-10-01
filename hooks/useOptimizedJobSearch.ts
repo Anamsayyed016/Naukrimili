@@ -227,7 +227,7 @@ export function useOptimizedJobSearch(
 
       return response.json();
     },
-    enabled: enabled && (!!debouncedQuery || (debouncedFilters && Object.keys(debouncedFilters).length > 2)),
+    enabled: enabled && (!!debouncedQuery || (debouncedFilters && Object.keys(debouncedFilters || {}).length > 2)),
     staleTime,
     gcTime,
     refetchOnWindowFocus,
