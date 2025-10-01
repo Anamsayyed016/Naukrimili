@@ -140,20 +140,27 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
 export function parseSEOJobUrl(url: string): string | null {
   console.log('🔍 Parsing SEO URL:', url);
   
+  // Clean the URL: remove trailing slashes and path segments like /apply
+  let cleanUrl = url.trim().replace(/\/+$/, ''); // Remove trailing slashes
+  cleanUrl = cleanUrl.replace(/\/apply$/, ''); // Remove /apply suffix
+  cleanUrl = cleanUrl.replace(/\/details$/, ''); // Remove /details suffix
+  
+  console.log('🧹 Cleaned URL:', cleanUrl);
+  
   // Handle direct numeric IDs (no SEO formatting)
-  if (/^\d+$/.test(url)) {
-    console.log('✅ Found direct numeric ID:', url);
-    return url;
+  if (/^\d+$/.test(cleanUrl)) {
+    console.log('✅ Found direct numeric ID:', cleanUrl);
+    return cleanUrl;
   }
   
   // Handle direct string IDs (for external jobs)
-  if (/^[a-zA-Z0-9_-]+$/.test(url) && !url.includes('-')) {
-    console.log('✅ Found direct string ID:', url);
-    return url;
+  if (/^[a-zA-Z0-9_-]+$/.test(cleanUrl) && !cleanUrl.includes('-')) {
+    console.log('✅ Found direct string ID:', cleanUrl);
+    return cleanUrl;
   }
   
   // Special handling for sample job IDs that contain hyphens
-  const sampleJobMatch = url.match(/-sample-([a-zA-Z0-9_-]+)$/);
+  const sampleJobMatch = cleanUrl.match(/-sample-([a-zA-Z0-9_-]+)$/);
   if (sampleJobMatch) {
     const jobId = `sample-${sampleJobMatch[1]}`;
     console.log('✅ Found sample job ID:', jobId);
@@ -161,25 +168,26 @@ export function parseSEOJobUrl(url: string): string | null {
   }
   
   // Extract job ID from SEO URL patterns (in order of specificity)
+  // For URLs like: cloud-engineer-devstudio-san-francisco-usa-entry-level-800000-2000000-diverse-1759317579085-9
   const patterns = [
-    /-([a-zA-Z0-9]{20,})$/,           // Long alphanumeric IDs (most specific)
+    /-([a-zA-Z0-9]{20,})$/,           // Long alphanumeric IDs (timestamp-id format)
     /-([0-9]+\.[0-9]+)$/,             // Decimal numbers
-    /-([0-9]+)$/,                     // Integer numbers (most common)
-    /-([0-9]+)-([0-9]+)$/,            // Multi-number patterns (take last)
+    /-([0-9]+)$/,                     // Integer numbers (most common - matches "9" at the end)
+    /-([0-9]+)-([0-9]+)$/,            // Multi-number patterns (take last number)
     /-([a-zA-Z0-9_-]+)$/              // Fallback pattern
   ];
   
   for (const pattern of patterns) {
-    const match = url.match(pattern);
+    const match = cleanUrl.match(pattern);
     if (match) {
       const jobId = match[match.length - 1]; // Get last capture group
-      console.log('✅ Found job ID via pattern:', jobId);
+      console.log('✅ Found job ID via pattern:', jobId, 'from pattern:', pattern);
       return jobId;
     }
   }
   
-  // Final fallback: try to extract any ID-like string
-  const fallbackMatch = url.match(/([a-zA-Z0-9_-]+)$/);
+  // Final fallback: try to extract any ID-like string from the end
+  const fallbackMatch = cleanUrl.match(/([a-zA-Z0-9_-]+)$/);
   if (fallbackMatch) {
     console.log('✅ Found job ID via fallback:', fallbackMatch[1]);
     return fallbackMatch[1];
