@@ -122,8 +122,8 @@ export default function UnifiedJobSearch({
   }));
 
   // Debounced filters for auto-search
-  const debouncedQuery = useDebounce(filters.query, 500);
-  const debouncedLocation = useDebounce(filters.location, 500);
+  const debouncedQuery = useDebounce(filters?.query || '', 500);
+  const debouncedLocation = useDebounce(filters?.location || '', 500);
   
   // Advanced filters state
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -192,12 +192,14 @@ export default function UnifiedJobSearch({
 
   // Auto-search when debounced filters change - Only for jobs page variant
   useEffect(() => {
-    if (autoSearch && variant === 'jobs-page' && (debouncedQuery.trim() || debouncedLocation.trim())) {
+    if (!isMounted || !filters) return;
+    
+    if (autoSearch && variant === 'jobs-page' && (debouncedQuery?.trim() || debouncedLocation?.trim())) {
       console.log('🔄 Auto-searching with debounced filters:', { query: debouncedQuery, location: debouncedLocation });
       
       const searchParams = new URLSearchParams();
-      if (debouncedQuery.trim()) searchParams.set('query', debouncedQuery);
-      if (debouncedLocation.trim()) searchParams.set('location', debouncedLocation);
+      if (debouncedQuery?.trim()) searchParams.set('query', debouncedQuery);
+      if (debouncedLocation?.trim()) searchParams.set('location', debouncedLocation);
       
       // Add other filters if they're not default values
       if (filters.jobType !== 'all') searchParams.set('jobType', filters.jobType);
@@ -211,12 +213,14 @@ export default function UnifiedJobSearch({
       // Navigate to search results
       router.push(`/jobs?${searchParams.toString()}`);
     }
-  }, [debouncedQuery, debouncedLocation, filters.jobType, filters.experienceLevel, filters.isRemote, filters.salaryMin, filters.salaryMax, filters.sector, filters.country, autoSearch, router, variant]);
+  }, [debouncedQuery, debouncedLocation, filters, autoSearch, router, variant, isMounted]);
 
   // ===== HANDLERS =====
 
   // Handle search submission
   const handleSearch = useCallback(() => {
+    if (!filters) return;
+    
     const params = new URLSearchParams();
     
     if (filters.query) params.set('query', filters.query);
@@ -430,25 +434,25 @@ export default function UnifiedJobSearch({
                   {/* Job Title Search */}
                   <div className="relative">
                     <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10" />
-                    <Input
-                      type="text"
-                      placeholder="Job title, keywords, or company name"
-                      value={filters.query}
-                      onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
-                      className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-sm sm:text-base font-medium transition-all duration-200 shadow-sm"
-                    />
+                     <Input
+                       type="text"
+                       placeholder="Job title, keywords, or company name"
+                       value={filters?.query || ''}
+                       onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
+                       className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-sm sm:text-base font-medium transition-all duration-200 shadow-sm"
+                     />
                   </div>
 
                   {/* Location Search */}
                   <div className="relative">
                     <MapPin className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10" />
-                    <Input
-                      type="text"
-                      placeholder="City, state, country, or remote"
-                      value={filters.location}
-                      onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                      className="w-full pl-10 sm:pl-12 pr-16 sm:pr-20 py-3 sm:py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-sm sm:text-base font-medium transition-all duration-200 shadow-sm"
-                    />
+                     <Input
+                       type="text"
+                       placeholder="City, state, country, or remote"
+                       value={filters?.location || ''}
+                       onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                       className="w-full pl-10 sm:pl-12 pr-16 sm:pr-20 py-3 sm:py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-sm sm:text-base font-medium transition-all duration-200 shadow-sm"
+                     />
                     <Button
                       type="button"
                       onClick={detectCurrentLocation}
@@ -562,20 +566,20 @@ export default function UnifiedJobSearch({
                 />
               )}
 
-              {/* Smart Filter Suggestions */}
-              {showSuggestions && (
-                <div className="mt-6">
-                  <SmartFilterSuggestions
-                    currentFilters={filters}
-                    onSuggestionSelect={(suggestion) => {
-                      console.log('Suggestion selected:', suggestion);
-                    }}
-                    onFiltersChange={(newFilters) => {
-                      setFilters(prev => ({ ...prev, ...newFilters }));
-                    }}
-                  />
-                </div>
-              )}
+               {/* Smart Filter Suggestions */}
+               {showSuggestions && filters && (
+                 <div className="mt-6">
+                   <SmartFilterSuggestions
+                     currentFilters={filters}
+                     onSuggestionSelect={(suggestion) => {
+                       console.log('Suggestion selected:', suggestion);
+                     }}
+                     onFiltersChange={(newFilters) => {
+                       setFilters(prev => ({ ...prev, ...newFilters }));
+                     }}
+                   />
+                 </div>
+               )}
 
               {/* Advanced Filters Toggle */}
               {showAdvancedFilters && (
@@ -605,7 +609,7 @@ export default function UnifiedJobSearch({
                           Job Type
                           <Badge className="bg-blue-100 text-blue-800 border-0 text-xs">Required</Badge>
                         </Label>
-                        <Select value={filters.jobType} onValueChange={(value) => setFilters(prev => ({ ...prev, jobType: value }))}>
+                         <Select value={filters?.jobType || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, jobType: value }))}>
                           <SelectTrigger className="h-12 sm:h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200">
                             <SelectValue placeholder="Select job type" />
                           </SelectTrigger>
@@ -625,7 +629,7 @@ export default function UnifiedJobSearch({
                           Experience
                           <Badge className="bg-purple-100 text-purple-800 border-0 text-xs">Smart</Badge>
                         </Label>
-                        <Select value={filters.experienceLevel} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceLevel: value }))}>
+                         <Select value={filters?.experienceLevel || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, experienceLevel: value }))}>
                           <SelectTrigger className="h-12 sm:h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200">
                             <SelectValue placeholder="Select experience" />
                           </SelectTrigger>
@@ -646,13 +650,13 @@ export default function UnifiedJobSearch({
                           Min Salary
                           <Badge className="bg-green-100 text-green-800 border-0 text-xs">Optional</Badge>
                         </Label>
-                        <Input
-                          placeholder="e.g., 50000"
-                          value={filters.salaryMin}
-                          onChange={(e) => setFilters(prev => ({ ...prev, salaryMin: e.target.value }))}
-                          type="number"
-                          className="h-12 sm:h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200"
-                        />
+                         <Input
+                           placeholder="e.g., 50000"
+                           value={filters?.salaryMin || ''}
+                           onChange={(e) => setFilters(prev => ({ ...prev, salaryMin: e.target.value }))}
+                           type="number"
+                           className="h-12 sm:h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                         />
                       </div>
 
                       <div className="space-y-2 sm:space-y-3">
@@ -660,13 +664,13 @@ export default function UnifiedJobSearch({
                           Max Salary
                           <Badge className="bg-green-100 text-green-800 border-0 text-xs">Optional</Badge>
                         </Label>
-                        <Input
-                          placeholder="e.g., 100000"
-                          value={filters.salaryMax}
-                          onChange={(e) => setFilters(prev => ({ ...prev, salaryMax: e.target.value }))}
-                          type="number"
-                          className="h-12 sm:h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200"
-                        />
+                         <Input
+                           placeholder="e.g., 100000"
+                           value={filters?.salaryMax || ''}
+                           onChange={(e) => setFilters(prev => ({ ...prev, salaryMax: e.target.value }))}
+                           type="number"
+                           className="h-12 sm:h-14 border-2 border-gray-300 bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-900 font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                         />
                       </div>
                     </div>
 
@@ -675,12 +679,12 @@ export default function UnifiedJobSearch({
                       <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-4 sm:p-6 border-2 border-gray-200 shadow-lg">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <div className="flex items-center space-x-3">
-                            <Checkbox
-                              id="remote"
-                              checked={filters.isRemote}
-                              onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isRemote: !!checked }))}
-                              className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-gray-400 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white"
-                            />
+                             <Checkbox
+                               id="remote"
+                               checked={filters?.isRemote || false}
+                               onCheckedChange={(checked) => setFilters(prev => ({ ...prev, isRemote: !!checked }))}
+                               className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-gray-400 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white"
+                             />
                             <Label htmlFor="remote" className="text-sm sm:text-base font-bold text-gray-800 cursor-pointer flex items-center gap-2">
                               Remote Work
                               <Badge className="bg-orange-100 text-orange-800 border-0 text-xs">Popular</Badge>
