@@ -293,15 +293,20 @@ export default function SmartFilterSuggestions({
 
   // Get current suggestions based on active tab
   const getCurrentSuggestions = () => {
-    switch (activeTab) {
-      case 'trending':
-        return trendingJobs || [];
-      case 'locations':
-        return popularLocations || [];
-      case 'companies':
-        return topCompanies || [];
-      default:
-        return [];
+    try {
+      switch (activeTab) {
+        case 'trending':
+          return Array.isArray(trendingJobs) ? trendingJobs : [];
+        case 'locations':
+          return Array.isArray(popularLocations) ? popularLocations : [];
+        case 'companies':
+          return Array.isArray(topCompanies) ? topCompanies : [];
+        default:
+          return [];
+      }
+    } catch (error) {
+      console.error('Error in getCurrentSuggestions:', error);
+      return [];
     }
   };
 
@@ -371,7 +376,7 @@ export default function SmartFilterSuggestions({
         ) : (
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
-              {getCurrentSuggestions().map((suggestion) => (
+              {(getCurrentSuggestions() || []).map((suggestion) => (
                 <Button
                   key={suggestion.id}
                   variant="outline"
