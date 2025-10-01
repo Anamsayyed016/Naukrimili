@@ -191,7 +191,7 @@ export function useOptimizedJobSearch(
   const debouncedFilters = useMemo(() => {
     if (!filters) return { query: debouncedQuery, location: debouncedLocation };
     return {
-      ...filters,
+      ...(filters || {}),
       query: debouncedQuery,
       location: debouncedLocation
     };
