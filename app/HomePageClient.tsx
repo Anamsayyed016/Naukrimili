@@ -75,28 +75,13 @@ export default function HomePageClient({
 
 
       {/* Original Job Search Hero with Dynamic Features */}
-      <ErrorBoundary fallback={
-        <div className="min-h-[400px] flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-          <div className="text-center text-white">
-            <h2 className="text-2xl font-bold mb-4">Search Temporarily Unavailable</h2>
-            <p className="text-blue-100 mb-6">Please try refreshing the page or use the navigation menu.</p>
-            <Button 
-              onClick={() => window.location.reload()} 
-              className="bg-white text-blue-900 hover:bg-gray-100"
-            >
-              Refresh Page
-            </Button>
-          </div>
-        </div>
-      }>
-        <UnifiedJobSearch 
-          variant="homepage"
-          showAdvancedFilters={true}
-          showSuggestions={true}
-          showLocationCategories={true}
-          autoSearch={true}
-        />
-      </ErrorBoundary>
+      <UnifiedJobSearch 
+        variant="homepage"
+        showAdvancedFilters={true}
+        showSuggestions={true}
+        showLocationCategories={true}
+        autoSearch={true}
+      />
 
       {/* Main Content Section */}
       <section className="relative py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">

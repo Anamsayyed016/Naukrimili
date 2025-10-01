@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
   MapPin, 
@@ -32,7 +31,6 @@ import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
-import LocationCategories from './LocationCategories';
 import SmartFilterSuggestions from './SmartFilterSuggestions';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -573,18 +571,6 @@ export default function UnifiedJobSearch({
               {/* Location Categories */}
               {showLocationCategories && (
                 <div className="mt-8">
-                  <LocationCategories 
-                    onLocationSelect={handleLocationSelect}
-                    selectedLocation={userLocation ? {
-                      id: userLocation.city,
-                      name: userLocation.city,
-                      country: userLocation.country,
-                      flag: '📍',
-                      jobCount: 0,
-                      type: 'city'
-                    } : null}
-                  />
-                  
                   {/* Custom Location Category Cards */}
                   <div className="mt-6 space-y-3">
                     {/* Metropolitan Areas Card */}
