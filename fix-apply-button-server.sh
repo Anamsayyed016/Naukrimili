@@ -1,3 +1,230 @@
+#!/bin/bash
+set -e
+
+echo "🔧 Fixing Apply Now Button Issues on Server..."
+
+# Check if we're in the right directory
+if [ "$(pwd)" != "/var/www/jobportal" ]; then
+    echo "❌ Wrong directory! Switching to /var/www/jobportal"
+    cd /var/www/jobportal
+fi
+
+echo "📝 Creating debug script to check job data..."
+cat > debug-job-data.cjs << 'DEBUG'
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
+
+async function debugJobData() {
+  try {
+    console.log('🔍 Debugging job data...');
+    
+    // Get a sample of jobs to check their structure
+    const jobs = await prisma.job.findMany({
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+        company: true,
+        source: true,
+        sourceId: true,
+        source_url: true,
+        apply_url: true,
+        applyUrl: true,
+        redirect_url: true,
+        location: true,
+        description: true
+      }
+    });
+    
+    console.log('📊 Sample jobs data:');
+    console.log(JSON.stringify(jobs, null, 2));
+    
+    // Check for jobs with missing source_url
+    const jobsWithoutSourceUrl = await prisma.job.count({
+      where: {
+        source: { not: 'manual' },
+        source_url: null
+      }
+    });
+    
+    console.log(`\n⚠️  Jobs without source_url: ${jobsWithoutSourceUrl}`);
+    
+    // Check for external jobs
+    const externalJobs = await prisma.job.findMany({
+      where: {
+        source: { not: 'manual' }
+      },
+      take: 3,
+      select: {
+        id: true,
+        title: true,
+        source: true,
+        source_url: true,
+        applyUrl: true,
+        redirect_url: true
+      }
+    });
+    
+    console.log('\n🌐 External jobs:');
+    console.log(JSON.stringify(externalJobs, null, 2));
+    
+    // Check for jobs with applyUrl but no source_url
+    const jobsWithApplyUrl = await prisma.job.findMany({
+      where: {
+        source: { not: 'manual' },
+        applyUrl: { not: null },
+        source_url: null
+      },
+      take: 3,
+      select: {
+        id: true,
+        title: true,
+        source: true,
+        applyUrl: true,
+        source_url: true
+      }
+    });
+    
+    console.log('\n🔗 Jobs with applyUrl but no source_url:');
+    console.log(JSON.stringify(jobsWithApplyUrl, null, 2));
+    
+    // Count jobs by source
+    const jobsBySource = await prisma.job.groupBy({
+      by: ['source'],
+      _count: {
+        id: true
+      }
+    });
+    
+    console.log('\n📊 Jobs by source:');
+    console.log(JSON.stringify(jobsBySource, null, 2));
+    
+  } catch (error) {
+    console.error('❌ Error debugging job data:', error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+debugJobData();
+DEBUG
+
+echo "🔧 Running job data debug..."
+node debug-job-data.cjs
+
+echo "📝 Creating fix for Apply Now button..."
+cat > fix-apply-urls.cjs << 'FIX'
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
+
+async function fixApplyUrls() {
+  try {
+    console.log('🔧 Fixing Apply URL issues...');
+    
+    // Fix jobs that have applyUrl but no source_url
+    const jobsToFix = await prisma.job.findMany({
+      where: {
+        source: { not: 'manual' },
+        applyUrl: { not: null },
+        source_url: null
+      }
+    });
+    
+    console.log(`📊 Found ${jobsToFix.length} jobs to fix (applyUrl -> source_url)`);
+    
+    for (const job of jobsToFix) {
+      await prisma.job.update({
+        where: { id: job.id },
+        data: {
+          source_url: job.applyUrl
+        }
+      });
+      console.log(`✅ Fixed job ${job.id}: ${job.title}`);
+    }
+    
+    // Fix jobs that are external but marked as manual
+    const manualJobsToFix = await prisma.job.findMany({
+      where: {
+        source: 'manual',
+        OR: [
+          { source_url: { not: null } },
+          { applyUrl: { not: null } }
+        ]
+      }
+    });
+    
+    console.log(`📊 Found ${manualJobsToFix.length} manual jobs that should be external`);
+    
+    for (const job of manualJobsToFix) {
+      await prisma.job.update({
+        where: { id: job.id },
+        data: {
+          source: 'external',
+          source_url: job.source_url || job.applyUrl
+        }
+      });
+      console.log(`✅ Fixed manual job ${job.id}: ${job.title}`);
+    }
+    
+    // Fix jobs that have redirect_url but no source_url
+    const redirectJobsToFix = await prisma.job.findMany({
+      where: {
+        redirect_url: { not: null },
+        source_url: null
+      }
+    });
+    
+    console.log(`📊 Found ${redirectJobsToFix.length} jobs with redirect_url to fix`);
+    
+    for (const job of redirectJobsToFix) {
+      await prisma.job.update({
+        where: { id: job.id },
+        data: {
+          source_url: job.redirect_url
+        }
+      });
+      console.log(`✅ Fixed redirect job ${job.id}: ${job.title}`);
+    }
+    
+    // Summary
+    const totalFixed = jobsToFix.length + manualJobsToFix.length + redirectJobsToFix.length;
+    console.log(`\n✅ Apply URL fixes completed! Total jobs fixed: ${totalFixed}`);
+    
+    // Show sample of fixed jobs
+    const sampleFixedJobs = await prisma.job.findMany({
+      where: {
+        source_url: { not: null }
+      },
+      take: 5,
+      select: {
+        id: true,
+        title: true,
+        source: true,
+        source_url: true,
+        applyUrl: true
+      }
+    });
+    
+    console.log('\n📋 Sample of jobs with source_url:');
+    console.log(JSON.stringify(sampleFixedJobs, null, 2));
+    
+  } catch (error) {
+    console.error('❌ Error fixing apply URLs:', error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+fixApplyUrls();
+FIX
+
+echo "🔧 Running apply URL fix..."
+node fix-apply-urls.cjs
+
+echo "📝 Updating job details page with enhanced Apply Now button logic..."
+cat > app/jobs/[id]/page.tsx << 'JOBPAGE'
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -88,6 +315,7 @@ export default function JobDetailsPage() {
       
       if (data.success && data.data) {
         setJob(data.data);
+        console.log('✅ Job data loaded:', data.data);
       } else {
         setError(data.error || 'Failed to load job details');
       }
@@ -452,4 +680,28 @@ export default function JobDetailsPage() {
     </div>
   );
 }
+JOBPAGE
 
+echo "🔄 Building application with Apply Now button fixes..."
+export NODE_ENV=production
+export NEXT_PUBLIC_BUILD_TIME=$(date +%s)000
+export NEXT_PUBLIC_DEPLOYMENT_ID=$(date +%s)
+
+npm run build
+
+echo "🔄 Restarting PM2 application..."
+pm2 stop jobportal 2>/dev/null || true
+pm2 start ecosystem.config.cjs --name jobportal
+pm2 save
+
+sleep 5
+
+echo "✅ Checking application status..."
+pm2 list | grep jobportal
+
+echo "🧹 Cleaning up temporary files..."
+rm -f debug-job-data.cjs fix-apply-urls.cjs
+
+echo "✅ Apply Now button fixes completed!"
+echo "🔍 Check the debug output above for any issues"
+echo "🌐 Visit your website to test the Apply Now button functionality"
