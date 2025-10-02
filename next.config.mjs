@@ -108,31 +108,52 @@ const nextConfig = {
     scrollRestoration: true
   },
 
-  // Webpack configuration for cache busting
+  // Webpack configuration for aggressive cache busting
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {
-      // Force new chunk names with timestamp
-      config.output.chunkFilename = `static/chunks/[name]-${BUILD_TIMESTAMP}.[contenthash].js`;
-      config.output.filename = `static/chunks/[name]-${BUILD_TIMESTAMP}.[contenthash].js`;
+      // Force completely new chunk names with unique identifiers
+      const CHUNK_VERSION = process.env.NEXT_PUBLIC_CHUNK_VERSION || Date.now();
+      const RANDOM_ID = Math.random().toString(36).substring(7);
       
-      // Optimize chunk splitting
+      // Override Next.js default chunk naming
+      config.output.chunkFilename = `static/chunks/[name]-${CHUNK_VERSION}-${RANDOM_ID}.[contenthash].js`;
+      config.output.filename = `static/chunks/[name]-${CHUNK_VERSION}-${RANDOM_ID}.[contenthash].js`;
+      
+      // Force new chunk splitting with unique names
       config.optimization.splitChunks = {
         chunks: 'all',
+        maxInitialRequests: Infinity,
+        maxAsyncRequests: Infinity,
         cacheGroups: {
           default: {
-            name: `chunk-${BUILD_TIMESTAMP}`,
+            name: `chunk-${CHUNK_VERSION}-${RANDOM_ID}`,
             chunks: 'async',
             priority: 10,
-            reuseExistingChunk: true,
+            reuseExistingChunk: false, // Force new chunks
           },
           vendor: {
-            name: `vendor-${BUILD_TIMESTAMP}`,
+            name: `vendor-${CHUNK_VERSION}-${RANDOM_ID}`,
             test: /[\\/]node_modules[\\/]/,
             chunks: 'all',
             priority: 20,
+            reuseExistingChunk: false, // Force new chunks
+          },
+          framework: {
+            name: `framework-${CHUNK_VERSION}-${RANDOM_ID}`,
+            test: /[\\/]node_modules[\\/](react|react-dom|next)[\\/]/,
+            chunks: 'all',
+            priority: 30,
+            reuseExistingChunk: false,
           },
         },
       };
+      
+      // Disable chunk caching
+      config.cache = false;
+      
+      // Force new module IDs
+      config.optimization.moduleIds = 'deterministic';
+      config.optimization.chunkIds = 'deterministic';
     }
     
     return config;
