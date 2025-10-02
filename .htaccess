@@ -12,9 +12,18 @@ Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
-# Cache control for static assets
-<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
-    Header set Cache-Control "max-age=31536000, public"
+# Cache control for static assets - Aggressive cache busting for JS/CSS
+<FilesMatch "\.(js|css)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+    Header set ETag ""
+    Header unset Last-Modified
+</FilesMatch>
+
+# Cache control for other static assets (images, fonts) - Long cache for performance
+<FilesMatch "\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+    Header set Cache-Control "max-age=31536000, public, immutable"
 </FilesMatch>
 
 # Cache control for API routes

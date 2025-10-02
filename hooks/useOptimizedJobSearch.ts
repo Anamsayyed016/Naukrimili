@@ -191,12 +191,13 @@ export function useOptimizedJobSearch(
   // Create debounced filters
   const debouncedFilters = useMemo(() => {
     if (!filters || typeof filters !== 'object') {
-      return { query: debouncedQuery, location: debouncedLocation };
+      return { query: debouncedQuery || '', location: debouncedLocation || '' };
     }
+    const safeFilters = filters || {};
     return {
-      ...(filters || {}),
-      query: debouncedQuery,
-      location: debouncedLocation
+      ...safeFilters,
+      query: debouncedQuery || '',
+      location: debouncedLocation || ''
     };
   }, [filters, debouncedQuery, debouncedLocation]);
 
