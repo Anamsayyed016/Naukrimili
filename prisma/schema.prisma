@@ -22,7 +22,7 @@ model Job {
   apply_url         String?
   source_url        String?
   postedAt          DateTime?
-  expiryDate        DateTime?     // New field for job expiration
+  expiryDate        DateTime?
   salary            String?
   salaryMin         Int?
   salaryMax         Int?
@@ -43,11 +43,11 @@ model Job {
   rawJson           Json?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
+  benefits          String?
+  specialties       String?
+  culture           String?
+  mission           String?
+  vision            String?
   applications      Application[]
   companyRelation   Company?      @relation(fields: [companyId], references: [id])
   creator           User?         @relation(fields: [createdBy], references: [id])
@@ -70,42 +70,41 @@ model Job {
 }
 
 model User {
-  id                 String         @id @default(cuid())
-  email              String         @unique
+  id                 String            @id @default(cuid())
+  email              String            @unique
   emailVerified      DateTime?
-  // name String? (computed from firstName + lastName)
   image              String?
   password           String?
   firstName          String?
   lastName           String?
   role               String?
-  roleLocked         Boolean        @default(false)
+  roleLocked         Boolean           @default(false)
   lockedRole         String?
   roleLockReason     String?
   phone              String?
   location           String?
   bio                String?
-  skills             String         @default("[]")
+  skills             String            @default("[]")
   experience         String?
   education          String?
   profilePicture     String?
-  isVerified         Boolean        @default(false)
-  isActive           Boolean        @default(true)
-  phoneVerified      Boolean        @default(false) @map("phone_verified")
-  otpRequired        Boolean        @default(false) @map("otp_required")
-  lastOtpSent        DateTime?      @map("last_otp_sent")
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
+  isVerified         Boolean           @default(false)
+  isActive           Boolean           @default(true)
+  phoneVerified      Boolean           @default(false) @map("phone_verified")
+  otpRequired        Boolean           @default(false) @map("otp_required")
+  lastOtpSent        DateTime?         @map("last_otp_sent")
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  benefits           String?
+  specialties        String?
+  culture            String?
+  mission            String?
+  vision             String?
   resumeUrl          String?
   locationPreference String?
   salaryExpectation  Int?
   jobTypePreference  String?
-  remotePreference   Boolean        @default(false)
+  remotePreference   Boolean           @default(false)
   companyName        String?
   recruiterName      String?
   companyWebsite     String?
@@ -117,15 +116,15 @@ model User {
   createdCompanies   Company[]
   createdJobs        Job[]
   bookmarks          JobBookmark[]
-  receivedMessages   Message[]      @relation("ReceivedMessages")
-  sentMessages       Message[]      @relation("SentMessages")
+  receivedMessages   Message[]         @relation("ReceivedMessages")
+  sentMessages       Message[]         @relation("SentMessages")
   notifications      Notification[]
+  otpVerifications   OtpVerification[]
   resumes            Resume[]
   resumeViews        ResumeView[]
   searchHistory      SearchHistory[]
   sessions           Session[]
   settings           Settings[]
-  otpVerifications   OtpVerification[]
 }
 
 model Account {
@@ -211,9 +210,9 @@ model Company {
   mission      String?
   vision       String?
   applications Application[]
-  resumeViews  ResumeView[]
   creator      User?         @relation(fields: [createdBy], references: [id])
   jobs         Job[]
+  resumeViews  ResumeView[]
 
   @@index([createdBy])
   @@index([industry])
@@ -232,44 +231,44 @@ model Resume {
   isActive      Boolean       @default(true)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
+  benefits      String?
+  specialties   String?
+  culture       String?
+  mission       String?
+  vision        String?
   isBuilder     Boolean       @default(false)
   templateStyle String?
   builderData   Json?
   colorScheme   String?
   applications  Application[]
-  views         ResumeView[]
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  views         ResumeView[]
 
   @@index([userId])
 }
 
 model Application {
-  id          String   @id @default(cuid())
-  userId      String
-  jobId       Int
-  companyId   String?
-  resumeId    String?
-  status      String   @default("submitted")
-  coverLetter String?
-  notes       String?
-  isFavorite  Boolean  @default(false)
-  appliedAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
-  applicationData Json? // Store additional application form data
-  company     Company? @relation(fields: [companyId], references: [id])
-  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  resume      Resume?  @relation(fields: [resumeId], references: [id])
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String   @id @default(cuid())
+  userId          String
+  jobId           Int
+  companyId       String?
+  resumeId        String?
+  status          String   @default("submitted")
+  coverLetter     String?
+  notes           String?
+  isFavorite      Boolean  @default(false)
+  appliedAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  benefits        String?
+  specialties     String?
+  culture         String?
+  mission         String?
+  vision          String?
+  applicationData Json?
+  company         Company? @relation(fields: [companyId], references: [id])
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  resume          Resume?  @relation(fields: [resumeId], references: [id])
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, jobId])
   @@index([userId])
@@ -301,64 +300,64 @@ model Category {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
+  benefits    String?
+  specialties String?
+  culture     String?
+  mission     String?
+  vision      String?
 }
 
 model Settings {
-  id        String   @id @default(cuid())
-  userId    String
-  key       String
-  value     Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  userId      String
+  key         String
+  value       Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  benefits    String?
+  specialties String?
+  culture     String?
+  mission     String?
+  vision      String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, key])
   @@index([userId])
 }
 
 model StaticContent {
-  id        String   @id @default(cuid())
-  key       String   @unique
-  title     String
-  content   String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
+  id          String   @id @default(cuid())
+  key         String   @unique
+  title       String
+  content     String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  benefits    String?
+  specialties String?
+  culture     String?
+  mission     String?
+  vision      String?
 
   @@index([key])
 }
 
 model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  title     String
-  message   String
-  isRead    Boolean  @default(false)
-  data      Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  data        Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  benefits    String?
+  specialties String?
+  culture     String?
+  mission     String?
+  vision      String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([type])
@@ -367,46 +366,45 @@ model Notification {
 }
 
 model ResumeView {
-  id          String   @id @default(cuid())
-  resumeId    String
-  viewerId    String
-  viewerType  String   // 'employer', 'admin', 'other'
-  companyId   String?
-  viewedAt    DateTime @default(now())
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  resumeId   String
+  viewerId   String
+  viewerType String
+  companyId  String?
+  viewedAt   DateTime @default(now())
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  company    Company? @relation(fields: [companyId], references: [id])
+  resume     Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  viewer     User     @relation(fields: [viewerId], references: [id], onDelete: Cascade)
 
-  resume      Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  viewer      User     @relation(fields: [viewerId], references: [id], onDelete: Cascade)
-  company     Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
-
+  @@unique([resumeId, viewerId, viewedAt], name: "unique_view_per_hour")
   @@index([resumeId])
   @@index([viewerId])
   @@index([viewedAt])
   @@index([companyId])
-  @@unique([resumeId, viewerId, viewedAt], name: "unique_view_per_hour")
 }
 
 model MobileError {
-  id                String    @id @default(cuid())
-  errorId           String    @unique
-  message           String
-  stack             String?
-  componentStack    String?
-  isMobile          Boolean   @default(false)
-  userAgent         String?
-  timestamp         DateTime
-  url               String?
-  screenSize        String?
-  viewport          String?
-  devicePixelRatio  Float?
-  touchSupport      Boolean   @default(false)
-  protocol          String?
-  hostname String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id               String   @id @default(cuid())
+  errorId          String   @unique
+  message          String
+  stack            String?
+  componentStack   String?
+  isMobile         Boolean  @default(false)
+  userAgent        String?
+  timestamp        DateTime
+  url              String?
+  screenSize       String?
+  viewport         String?
+  devicePixelRatio Float?
+  touchSupport     Boolean  @default(false)
+  protocol         String?
+  hostname         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@index([timestamp])
   @@index([isMobile])
@@ -418,16 +416,14 @@ model SearchHistory {
   userId      String
   query       String
   location    String?
-  filters     Json?    // Store search filters as JSON
+  filters     Json?
   resultCount Int      @default(0)
-  searchType  String   @default("job") // job, company, etc.
-  source      String   @default("web") // web, mobile, api
+  searchType  String   @default("job")
+  source      String   @default("web")
   userAgent   String?
   ipAddress   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -438,39 +434,39 @@ model SearchHistory {
 }
 
 model NormalizedJob {
-  id                  String    @id @default(cuid())
-  title               String
-  company             String
-  location            String
-  type                String
-  salaryMin           Int?
-  salaryMax           Int?
-  salaryCurrency      String    @default("USD")
-  salaryDisplay       String?
-  category            String    @default("General")
-  subcategories       String[]
-  postedDate          DateTime
-  source              String
-  sourceId            String
-  description         String
-  requirements        String?
-  applyUrl            String?
-  sourceUrl           String?
-  isRemote            Boolean   @default(false)
-  isHybrid            Boolean   @default(false)
-  experienceLevel     String    @default("Mid Level")
-  skills              String[]
-  sector              String    @default("General")
-  isFeatured          Boolean   @default(false)
-  isUrgent            Boolean   @default(false)
-  country             String    @default("IN")
-  rawData             Json?
-  relevanceScore      Float?
-  rankingBreakdown    Json?
-  categoryConfidence  Float?
-  matchedKeywords     String[]
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                 String   @id @default(cuid())
+  title              String
+  company            String
+  location           String
+  type               String
+  salaryMin          Int?
+  salaryMax          Int?
+  salaryCurrency     String   @default("USD")
+  salaryDisplay      String?
+  category           String   @default("General")
+  subcategories      String[]
+  postedDate         DateTime
+  source             String
+  sourceId           String
+  description        String
+  requirements       String?
+  applyUrl           String?
+  sourceUrl          String?
+  isRemote           Boolean  @default(false)
+  isHybrid           Boolean  @default(false)
+  experienceLevel    String   @default("Mid Level")
+  skills             String[]
+  sector             String   @default("General")
+  isFeatured         Boolean  @default(false)
+  isUrgent           Boolean  @default(false)
+  country            String   @default("IN")
+  rawData            Json?
+  relevanceScore     Float?
+  rankingBreakdown   Json?
+  categoryConfidence Float?
+  matchedKeywords    String[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@index([title])
   @@index([company])
@@ -492,19 +488,19 @@ model NormalizedJob {
 }
 
 model AnalyticsEvent {
-  id          String    @id @default(cuid())
-  eventId     String    @unique @map("event_id")
-  userId      String?   @map("user_id")
-  userRole    String?   @map("user_role")
-  eventType   String    @map("event_type")
-  entityType  String?   @map("entity_type")
-  entityId    String?   @map("entity_id")
-  metadata    Json?
-  ipAddress   String?   @map("ip_address")
-  userAgent   String?   @map("user_agent")
-  sessionId   String?   @map("session_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id         String   @id @default(cuid())
+  eventId    String   @unique @map("event_id")
+  userId     String?  @map("user_id")
+  userRole   String?  @map("user_role")
+  eventType  String   @map("event_type")
+  entityType String?  @map("entity_type")
+  entityId   String?  @map("entity_id")
+  metadata   Json?
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  sessionId  String?  @map("session_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@index([eventId])
   @@index([userId])
@@ -521,31 +517,31 @@ model AnalyticsEvent {
 }
 
 model AnalyticsAggregation {
-  id              String    @id @default(cuid())
-  aggregationType String    @map("aggregation_type")
-  timePeriod      String    @map("time_period")
-  startTime       DateTime  @map("start_time")
-  endTime         DateTime  @map("end_time")
+  id              String   @id @default(cuid())
+  aggregationType String   @map("aggregation_type")
+  timePeriod      String   @map("time_period")
+  startTime       DateTime @map("start_time")
+  endTime         DateTime @map("end_time")
   metrics         Json
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
+  @@unique([aggregationType, timePeriod, startTime])
   @@index([aggregationType])
   @@index([timePeriod])
   @@index([startTime])
   @@index([endTime])
   @@index([createdAt])
-  @@unique([aggregationType, timePeriod, startTime])
 }
 
 model OtpVerification {
   id          String    @id @default(cuid())
-  userId      String?   // Optional for phone-only verification
+  userId      String?
   phoneNumber String    @map("phone_number")
-  email       String?   // Optional for email-based OTP
+  email       String?
   otpCode     String    @map("otp_code")
-  otpType     String    @default("login") // login, signup, password_reset, etc.
-  purpose     String    @default("verification") // verification, authentication, etc.
+  otpType     String    @default("login")
+  purpose     String    @default("verification")
   isUsed      Boolean   @default(false) @map("is_used")
   isVerified  Boolean   @default(false) @map("is_verified")
   expiresAt   DateTime  @map("expires_at")
@@ -554,13 +550,11 @@ model OtpVerification {
   maxAttempts Int       @default(3) @map("max_attempts")
   ipAddress   String?   @map("ip_address")
   userAgent   String?   @map("user_agent")
-  metadata    Json?     // Additional data like source, channel, etc.
+  metadata    Json?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
-  
-  // Relations
   user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([phoneNumber])
   @@index([email])
   @@index([otpCode])
