@@ -186,11 +186,11 @@ export default function UnifiedJobSearch({
     fetchDynamicConstants();
   }, [fetchDynamicConstants]);
 
-  // Auto-search when debounced filters change - Only for jobs page variant
+  // Auto-search when debounced filters change - Enhanced for better dynamic filtering
   useEffect(() => {
     if (!isMounted || !filters) return;
     
-    if (autoSearch && variant === 'jobs-page' && (debouncedQuery?.trim() || debouncedLocation?.trim())) {
+    if (autoSearch && (debouncedQuery?.trim() || debouncedLocation?.trim())) {
       console.log('🔄 Auto-searching with debounced filters:', { query: debouncedQuery, location: debouncedLocation });
       
       const searchParams = new URLSearchParams();
@@ -430,7 +430,13 @@ export default function UnifiedJobSearch({
                        type="text"
                        placeholder="Job title, keywords, or company name"
                        value={filters?.query || ''}
-                       onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
+                       onChange={(e) => {
+                         setFilters(prev => ({ ...prev, query: e.target.value }));
+                         // Trigger dynamic search callback if provided
+                         if (onSearch && e.target.value.trim()) {
+                           setTimeout(() => onSearch({ ...filters, query: e.target.value }), 100);
+                         }
+                       }}
                        className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-sm sm:text-base font-medium transition-all duration-200 shadow-sm"
                      />
                   </div>
@@ -442,7 +448,13 @@ export default function UnifiedJobSearch({
                        type="text"
                        placeholder="City, state, country, or remote"
                        value={filters?.location || ''}
-                       onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                       onChange={(e) => {
+                         setFilters(prev => ({ ...prev, location: e.target.value }));
+                         // Trigger dynamic search callback if provided
+                         if (onSearch && e.target.value.trim()) {
+                           setTimeout(() => onSearch({ ...filters, location: e.target.value }), 100);
+                         }
+                       }}
                        className="w-full pl-10 sm:pl-12 pr-16 sm:pr-20 py-3 sm:py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-xl text-sm sm:text-base font-medium transition-all duration-200 shadow-sm"
                      />
                     <Button

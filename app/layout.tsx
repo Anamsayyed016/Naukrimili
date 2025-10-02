@@ -8,7 +8,6 @@ import SessionProvider from '@/components/providers/SessionProvider';
 import BufferPolyfill from '@/components/BufferPolyfill';
 import { Toaster } from '@/components/ui/toaster';
 import GlobalErrorHandler from '@/components/GlobalErrorHandler';
-import CacheBustingInitializer from '@/components/CacheBustingInitializer';
 import ForceNewHash from '@/components/ForceNewHash';
 // FORCE HASH CHANGE - Build timestamp: 2025-10-02 14:30:00 - MAJOR CHANGE
 
@@ -30,7 +29,6 @@ export default function RootLayout({
             <SessionProvider>
               <GlobalErrorHandler />
               <BufferPolyfill />
-              <CacheBustingInitializer />
               <ForceNewHash />
               <MainNavigation />
               {children}

@@ -75,7 +75,22 @@ export default function HomePageClient({
 
 
 
-      {/* Original Job Search Hero with Dynamic Features */}
+      {/* Hero Section with "Discover the Career You Deserve" */}
+      <section className="relative py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900"></div>
+        <div className="relative max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+            <span className="text-white">Discover</span>
+            <span className="text-blue-300"> the Career</span>
+            <span className="text-purple-300"> You Deserve</span>
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+            Connect with top companies worldwide through our AI-powered job matching platform
+          </p>
+        </div>
+      </section>
+
+      {/* Smart Job Search with Fixed Dynamic Filters */}
       <UnifiedJobSearch 
         variant="homepage"
         showAdvancedFilters={true}
@@ -84,54 +99,9 @@ export default function HomePageClient({
         autoSearch={true}
       />
 
-      {/* Main Content Section */}
+      {/* Popular Locations Section */}
       <section className="relative py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
         <div className="relative max-w-7xl mx-auto">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg">
-              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-3 mx-auto">
-                <Briefcase className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">10K+</div>
-                <div className="text-sm text-gray-600">Active Jobs</div>
-              </div>
-            </div>
-            
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg">
-              <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-3 mx-auto">
-                <Building className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">500+</div>
-                <div className="text-sm text-gray-600">Companies</div>
-              </div>
-            </div>
-            
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg">
-              <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-3 mx-auto">
-                <Users className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">50K+</div>
-                <div className="text-sm text-gray-600">Job Seekers</div>
-              </div>
-            </div>
-            
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-white/20 shadow-lg">
-              <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-lg mb-3 mx-auto">
-                <TrendingUp className="w-6 h-6 text-orange-600" />
-              </div>
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">95%</div>
-                <div className="text-sm text-gray-600">Success Rate</div>
-              </div>
-            </div>
-          </div>
-
-
-          {/* Popular Locations */}
           <div className="mb-8 sm:mb-12">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Popular Locations</h3>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
