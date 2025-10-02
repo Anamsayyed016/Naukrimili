@@ -27,7 +27,8 @@ fi
 
 # 4. Generate fresh build
 echo "🔨 Building application..."
-NODE_OPTIONS="--max-old-space-size=4096" npm run build
+# Use production build with increased memory and ignore engine warnings
+NODE_OPTIONS="--max-old-space-size=4096" NODE_ENV=production npm run build:production
 
 # 5. Clear any service worker registrations (if they exist)
 echo "🔧 Clearing service workers..."

@@ -46,8 +46,9 @@ This guide addresses the issue where browsers load old cached JavaScript bundles
 ```bash
 # On Hostinger server
 cd /var/www/jobportal
-chmod +x scripts/deploy-with-cache-bust.sh
-./scripts/deploy-with-cache-bust.sh
+chmod +x scripts/build-production.sh
+./scripts/build-production.sh
+pm2 restart jobportal
 ```
 
 ### Option 2: Manual Deployment
@@ -59,10 +60,19 @@ rm -rf node_modules/.cache
 # 2. Clear npm cache
 npm cache clean --force
 
-# 3. Build with timestamp
-NEXT_PUBLIC_BUILD_TIME=$(date +%s)000 npm run build
+# 3. Set environment variables and build
+export NODE_ENV=production
+export NODE_OPTIONS="--max-old-space-size=4096"
+export NEXT_TELEMETRY_DISABLED=1
+export NEXT_PUBLIC_BUILD_TIME=$(date +%s)000
 
-# 4. Restart application
+# 4. Install dependencies (ignore engine warnings)
+npm ci --legacy-peer-deps --ignore-engines
+
+# 5. Build the application
+npm run build
+
+# 6. Restart application
 pm2 restart jobportal
 ```
 
