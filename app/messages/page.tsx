@@ -336,7 +336,7 @@ export default function MessagesPage() {
             >
               <MessageCircle className="h-4 w-4 inline mr-2" />
               Messages
-              {conversations && conversations.filter(c => c.unreadCount > 0).length > 0 && (
+              {conversations && conversations.length > 0 && conversations.some(c => c.unreadCount > 0) && (
                 <Badge className="ml-2 bg-red-500 text-white text-xs">
                   {conversations.filter(c => c.unreadCount > 0).length}
                 </Badge>
@@ -352,7 +352,7 @@ export default function MessagesPage() {
             >
               <Users className="h-4 w-4 inline mr-2" />
               Activities
-              {activityNotifications && activityNotifications.filter(a => !a.isRead).length > 0 && (
+              {activityNotifications && activityNotifications.length > 0 && activityNotifications.some(a => !a.isRead) && (
                 <Badge className="ml-2 bg-orange-500 text-white text-xs">
                   {activityNotifications.filter(a => !a.isRead).length}
                 </Badge>
