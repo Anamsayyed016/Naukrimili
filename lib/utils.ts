@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { safeLength } from "./safe-array-utils"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -19,7 +20,7 @@ export function formatCurrency(amount: number, currency = '₹') {
 // Text truncation utility
 export function truncateText(text: string, maxLength: number) {
   if (typeof text !== 'string') return '';
-  if (text.length <= maxLength) return text;
+  if (safeLength(text) <= maxLength) return text;
   return `${text.substring(0, Math.max(0, maxLength))}...`;
 }
 
@@ -31,5 +32,5 @@ export function isValidEmail(email: string) {
 
 // Password validation utility
 export function isValidPassword(password: string) {
-  return String(password || '').length >= 6;
+  return safeLength(String(password || '')) >= 6;
 }

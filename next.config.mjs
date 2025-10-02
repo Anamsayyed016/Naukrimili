@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
-// FORCE HASH CHANGE - Build timestamp: 2025-10-02 14:28:00
+// FORCE HASH CHANGE - Build timestamp: 2025-01-02 15:30:00
+const BUILD_TIMESTAMP = Date.now();
 const nextConfig = {
   // Performance
   reactStrictMode: true,
@@ -70,7 +71,37 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     scrollRestoration: true
-  }
+  },
+
+  // Webpack configuration for cache busting
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      // Force new chunk names with timestamp
+      config.output.chunkFilename = `static/chunks/[name]-${BUILD_TIMESTAMP}.[contenthash].js`;
+      config.output.filename = `static/chunks/[name]-${BUILD_TIMESTAMP}.[contenthash].js`;
+      
+      // Optimize chunk splitting
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          default: {
+            name: `chunk-${BUILD_TIMESTAMP}`,
+            chunks: 'async',
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+          vendor: {
+            name: `vendor-${BUILD_TIMESTAMP}`,
+            test: /[\\/]node_modules[\\/]/,
+            chunks: 'all',
+            priority: 20,
+          },
+        },
+      };
+    }
+    
+    return config;
+  },
 };
 
 export default nextConfig;

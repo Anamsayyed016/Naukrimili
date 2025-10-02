@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "NEXT_PUBLIC_BUILD_TIME=\"$(date +%s)000\" next build",
+    "build": "cross-env NEXT_PUBLIC_BUILD_TIME=$(date +%s)000 next build",
+    "build:win": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=4096 NEXT_TELEMETRY_DISABLED=1 NEXT_PUBLIC_BUILD_TIME=%DATE:~10,4%%DATE:~4,2%%DATE:~7,2%%TIME:~0,2%%TIME:~3,2%%TIME:~6,2% next build",
+    "build:cache-bust": "./scripts/deploy-with-cache-bust.sh",
     "build:fast": "NODE_OPTIONS=\"--max-old-space-size=4096\" NEXT_TELEMETRY_DISABLED=1 next build --no-lint",
     "build:production": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" NEXT_TELEMETRY_DISABLED=1 next build",
     "build:optimized": "node optimize-build.js",

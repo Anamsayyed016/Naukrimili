@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { safeLength } from '@/lib/safe-array-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -62,20 +63,20 @@ export function PhoneNumberInput({
   // Validate phone number
   const validatePhoneNumber = (phone: string): boolean => {
     const cleaned = phone.replace(/\D/g, '');
-    return cleaned.length >= 10 && cleaned.length <= 15;
+    return safeLength(cleaned) >= 10 && safeLength(cleaned) <= 15;
   };
 
   // Format phone number for display
   const formatPhoneNumber = (phone: string): string => {
     const cleaned = phone.replace(/\D/g, '');
     
-    if (cleaned.length === 10) {
+    if (safeLength(cleaned) === 10) {
       // Indian format: +91 98765 43210
       return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`;
-    } else if (cleaned.length === 12 && cleaned.startsWith('91')) {
+    } else if (safeLength(cleaned) === 12 && cleaned.startsWith('91')) {
       // Indian format with country code: +91 98765 43210
       return `+91 ${cleaned.slice(2, 7)} ${cleaned.slice(7)}`;
-    } else if (cleaned.length === 11 && cleaned.startsWith('0')) {
+    } else if (safeLength(cleaned) === 11 && cleaned.startsWith('0')) {
       // Indian format with leading 0: +91 98765 43210
       return `+91 ${cleaned.slice(1, 6)} ${cleaned.slice(6)}`;
     }

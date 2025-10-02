@@ -1,54 +1,45 @@
+/**
+ * Cache Busting Initializer Component
+ * Ensures fresh JavaScript chunks are loaded on each deployment
+ */
+
 'use client';
 
 import { useEffect } from 'react';
-import { initializeCacheBusting, clearBrowserCache } from '@/lib/cache-busting';
+import { initializeCacheBusting, BUILD_VERSION, BUILD_TIMESTAMP } from '@/lib/cache-busting';
 
-/**
- * Cache Busting Initializer Component
- * Runs on app load to ensure fresh content
- */
 export default function CacheBustingInitializer() {
   useEffect(() => {
-    // Initialize cache busting logic
+    // Initialize cache busting on component mount
     initializeCacheBusting();
     
-    // Check for cache busting parameter in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const shouldClearCache = urlParams.get('clear_cache') === 'true';
-    
-    if (shouldClearCache) {
-      console.log('🧹 Cache clearing requested via URL parameter');
-      clearBrowserCache();
-      
-      // Remove the parameter from URL without reload
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('clear_cache');
-      window.history.replaceState({}, '', newUrl.toString());
-    }
-    
-    // Check for version mismatch in localStorage
-    const currentVersion = process.env.NEXT_PUBLIC_BUILD_TIME || Date.now().toString();
-    const storedVersion = localStorage.getItem('app_version');
-    
-    if (storedVersion && storedVersion !== currentVersion) {
-      console.log('🔄 Version mismatch detected - clearing cache');
-      clearBrowserCache();
-    }
-    
-    // Store current version
-    localStorage.setItem('app_version', currentVersion);
-    
-    // Log cache status for debugging
-    console.log('📦 Cache status:', {
-      currentVersion,
-      storedVersion,
-      userAgent: navigator.userAgent,
-      timestamp: new Date().toISOString()
+    // Log build information for debugging
+    console.log('🚀 App initialized with build:', {
+      version: BUILD_VERSION,
+      timestamp: new Date(BUILD_TIMESTAMP).toISOString(),
+      userAgent: navigator.userAgent
     });
+    
+    // Check for old problematic chunks
+    const checkForOldChunks = () => {
+      const scripts = document.querySelectorAll('script[src]');
+      scripts.forEach(script => {
+        const src = script.getAttribute('src');
+        if (src && src.includes('4bd1b696-100b9d70ed4e49c1.js')) {
+          console.warn('🚨 Detected old problematic chunk:', src);
+          // Force reload to get fresh chunks
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
+      });
+    };
+    
+    // Run check after a short delay to ensure all scripts are loaded
+    setTimeout(checkForOldChunks, 2000);
     
   }, []);
 
   // This component doesn't render anything
-  // Build timestamp: 2025-10-02 13:10:00 - Force new hash generation
   return null;
 }

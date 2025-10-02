@@ -18,6 +18,7 @@ import {
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
 import { formatDate } from "@/lib/utils";
+import { safeLength, safeArray } from "@/lib/safe-array-utils";
 
 interface Resume {
   id: number;
@@ -203,7 +204,7 @@ export default function UserResumesPage() {
                   <p className="text-gray-900">{userProfile.location}</p>
                 </div>
               )}
-              {userProfile.skills && userProfile.skills.length > 0 && (
+              {userProfile.skills && safeLength(userProfile.skills) > 0 && (
                 <div className="md:col-span-2">
                   <p className="text-sm font-medium text-gray-500 mb-2">Skills</p>
                   <div className="flex flex-wrap gap-2">
@@ -238,7 +239,7 @@ export default function UserResumesPage() {
       {/* Resumes Section */}
       <div className="mb-6 flex justify-between items-center">
         <h2 className="text-2xl font-semibold text-gray-900">
-          My Resumes ({resumes.length})
+          My Resumes ({safeLength(resumes)})
         </h2>
         <Link href="/resumes/upload">
           <Button>
@@ -248,7 +249,7 @@ export default function UserResumesPage() {
         </Link>
       </div>
 
-      {resumes.length === 0 ? (
+      {safeLength(resumes) === 0 ? (
         <Card className="text-center py-12">
           <CardContent>
             <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -275,7 +276,7 @@ export default function UserResumesPage() {
                   <div className="flex items-center gap-2">
                     <FileText className="h-5 w-5 text-blue-600" />
                     <CardTitle className="text-lg">
-                      {resume.fileName.length > 30 
+                      {safeLength(resume.fileName) > 30 
                         ? resume.fileName.substring(0, 30) + '...' 
                         : resume.fileName
                       }

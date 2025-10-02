@@ -1,107 +1,52 @@
 /**
  * Cache Busting Utilities
- * Ensures fresh content loads after deployments
+ * Forces browser cache invalidation for JavaScript chunks and static assets
  */
+
+// Force new build timestamp for cache busting
+export const BUILD_TIMESTAMP = Date.now();
+export const BUILD_VERSION = process.env.NEXT_PUBLIC_BUILD_TIME || BUILD_TIMESTAMP.toString();
 
 /**
- * Clear all possible browser caches
+ * Add cache-busting parameters to URLs
  */
-export function clearBrowserCache(): void {
-  try {
-    // Clear service workers (if any)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(registrations => {
-        registrations.forEach(registration => {
-          registration.unregister();
-          console.log('🔧 Service Worker unregistered for cache busting');
-        });
-      });
-    }
-
-    // Clear IndexedDB (if used)
-    if ('indexedDB' in window) {
-      try {
-        indexedDB.databases?.().then(databases => {
-          databases.forEach(db => {
-            if (db.name) {
-              indexedDB.deleteDatabase(db.name);
-            }
-          });
-        });
-      } catch (error) {
-        console.log('🔧 IndexedDB clearing not supported in this browser');
-      }
-    }
-
-    // Clear localStorage (be careful with this)
-    try {
-      const keysToKeep = ['theme', 'language', 'user-preferences']; // Keep important user data
-      const allKeys = Object.keys(localStorage);
-      allKeys.forEach(key => {
-        if (!keysToKeep.includes(key)) {
-          localStorage.removeItem(key);
-        }
-      });
-      console.log('🔧 LocalStorage cleared (keeping user preferences)');
-    } catch (error) {
-      console.log('🔧 LocalStorage clearing failed:', error);
-    }
-
-    // Clear sessionStorage
-    try {
-      sessionStorage.clear();
-      console.log('🔧 SessionStorage cleared');
-    } catch (error) {
-      console.log('🔧 SessionStorage clearing failed:', error);
-    }
-
-    console.log('✅ Browser cache clearing completed');
-  } catch (error) {
-    console.error('❌ Error clearing browser cache:', error);
-  }
+export function addCacheBusting(url: string): string {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}v=${BUILD_VERSION}&t=${BUILD_TIMESTAMP}`;
 }
 
 /**
- * Force reload with cache busting
+ * Check if current build is outdated
  */
-export function forceReloadWithCacheBust(): void {
+export function isBuildOutdated(): boolean {
+  const currentBuild = localStorage.getItem('app_build_version');
+  return currentBuild !== BUILD_VERSION;
+}
+
+/**
+ * Force cache invalidation
+ */
+export function invalidateCache(): void {
+  if (typeof window === 'undefined') return;
+  
   try {
-    // Add cache busting parameter
-    const url = new URL(window.location.href);
-    url.searchParams.set('_cb', Date.now().toString());
+    // Clear localStorage cache markers
+    localStorage.removeItem('app_build_version');
+    localStorage.removeItem('app_cache_timestamp');
     
-    // Force reload
-    window.location.href = url.toString();
-  } catch (error) {
-    console.error('❌ Error forcing reload:', error);
-    // Fallback to simple reload
+    // Clear service worker cache if available
+    if ('serviceWorker' in navigator && 'caches' in window) {
+      caches.keys().then(cacheNames => {
+        cacheNames.forEach(cacheName => {
+          caches.delete(cacheName);
+        });
+      });
+    }
+    
+    // Force reload with cache busting
     window.location.reload();
-  }
-}
-
-/**
- * Check if we're running an old version
- */
-export function checkForOldVersion(): boolean {
-  try {
-    const buildTime = process.env.NEXT_PUBLIC_BUILD_TIME;
-    const currentTime = Date.now();
-    
-    if (buildTime) {
-      const buildTimestamp = parseInt(buildTime);
-      const hoursSinceBuild = (currentTime - buildTimestamp) / (1000 * 60 * 60);
-      
-      // If build is older than 24 hours, suggest cache clear
-      if (hoursSinceBuild > 24) {
-        console.warn('⚠️ Build is older than 24 hours, consider clearing cache');
-        return true;
-      }
-    }
-    
-    return false;
   } catch (error) {
-    console.log('🔧 Version check failed:', error);
-    return false;
+    console.warn('Failed to invalidate cache:', error);
   }
 }
 
@@ -109,28 +54,97 @@ export function checkForOldVersion(): boolean {
  * Initialize cache busting on app load
  */
 export function initializeCacheBusting(): void {
+  if (typeof window === 'undefined') return;
+  
   try {
-    // Check if this is a hard refresh
-    const isHardRefresh = performance.navigation.type === 1; // TYPE_RELOAD
+    const currentBuild = localStorage.getItem('app_build_version');
+    const currentTimestamp = localStorage.getItem('app_cache_timestamp');
     
-    if (isHardRefresh) {
-      console.log('🔄 Hard refresh detected - cache should be fresh');
-    } else {
-      console.log('📱 Normal navigation - checking for stale cache');
+    // Check if build is outdated
+    if (currentBuild !== BUILD_VERSION || !currentTimestamp) {
+      console.log('🔄 New build detected, updating cache markers');
+      localStorage.setItem('app_build_version', BUILD_VERSION);
+      localStorage.setItem('app_cache_timestamp', Date.now().toString());
       
-      // Check for old version
-      if (checkForOldVersion()) {
-        console.warn('⚠️ Old version detected - consider hard refresh');
+      // Optional: Force cache invalidation for major version changes
+      if (currentBuild && currentBuild !== BUILD_VERSION) {
+        console.log('🔄 Build version changed, invalidating cache');
+        setTimeout(() => {
+          if (isBuildOutdated()) {
+            invalidateCache();
+          }
+        }, 1000);
       }
     }
-    
-    // Log current build info
-    if (process.env.NEXT_PUBLIC_BUILD_TIME) {
-      const buildDate = new Date(parseInt(process.env.NEXT_PUBLIC_BUILD_TIME));
-      console.log(`📦 Build time: ${buildDate.toISOString()}`);
-    }
-    
   } catch (error) {
-    console.error('❌ Error initializing cache busting:', error);
+    console.warn('Failed to initialize cache busting:', error);
   }
 }
+
+/**
+ * Create cache-busting script tag
+ */
+export function createCacheBustingScript(): string {
+  return `
+    <script>
+      (function() {
+        var BUILD_VERSION = '${BUILD_VERSION}';
+        var BUILD_TIMESTAMP = ${BUILD_TIMESTAMP};
+        
+        function checkBuildVersion() {
+          var currentBuild = localStorage.getItem('app_build_version');
+          if (currentBuild !== BUILD_VERSION) {
+            console.log('🔄 New build detected, clearing cache');
+            localStorage.removeItem('app_build_version');
+            localStorage.removeItem('app_cache_timestamp');
+            
+            // Clear all caches
+            if ('caches' in window) {
+              caches.keys().then(function(cacheNames) {
+                cacheNames.forEach(function(cacheName) {
+                  caches.delete(cacheName);
+                });
+              });
+            }
+          }
+          
+          localStorage.setItem('app_build_version', BUILD_VERSION);
+          localStorage.setItem('app_cache_timestamp', Date.now());
+        }
+        
+        // Run on load
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', checkBuildVersion);
+        } else {
+          checkBuildVersion();
+        }
+      })();
+    </script>
+  `;
+}
+
+/**
+ * Generate unique chunk names with timestamp
+ */
+export function generateChunkName(baseName: string): string {
+  return `${baseName}-${BUILD_TIMESTAMP}`;
+}
+
+/**
+ * Webpack cache busting configuration
+ */
+export const webpackCacheBusting = {
+  output: {
+    chunkFilename: `static/chunks/[name]-${BUILD_TIMESTAMP}.[contenthash].js`,
+    filename: `static/chunks/[name]-${BUILD_TIMESTAMP}.[contenthash].js`,
+  },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        default: {
+          name: `chunk-${BUILD_TIMESTAMP}`,
+        },
+      },
+    },
+  },
+};

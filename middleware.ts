@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { safeLength } from '@/lib/safe-array-utils';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -42,7 +43,7 @@ export function middleware(request: NextRequest) {
       for (const pattern of patterns) {
         const match = slug.match(pattern);
         if (match) {
-          jobId = match[(match || []).length - 1]; // Get last capture group
+          jobId = match[safeLength(match || []) - 1]; // Get last capture group
           break;
         }
       }
