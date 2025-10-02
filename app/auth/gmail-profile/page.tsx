@@ -72,7 +72,7 @@ export default function GmailProfilePage() {
     console.log('🔔 Notifications Debug - Unread:', unreadCount);
     console.log('🔔 Notifications Debug - List:', notifications);
     
-    if (notifications.length > 0) {
+    if (notifications && notifications.length > 0 && notifications[0]) {
       console.log('🔔 Latest notification:', notifications[0]);
     }
   }, [socket, isConnected, notifications, unreadCount]);
@@ -186,13 +186,13 @@ export default function GmailProfilePage() {
                 </div>
               </div>
               <p className="text-xs text-blue-700 mt-1">
-                {notifications.length > 0 
+                {notifications && notifications.length > 0 
                   ? `${notifications.length} notifications received` 
                   : 'No notifications yet'
                 }
               </p>
               <div className="flex space-x-2 mt-2">
-                {notifications.length > 0 && (
+                {notifications && notifications.length > 0 && (
                   <button
                     onClick={() => setShowNotifications(!showNotifications)}
                     className="text-xs text-blue-600 hover:underline"
@@ -332,7 +332,7 @@ export default function GmailProfilePage() {
             </div>
 
             {/* Notifications Display */}
-            {showNotifications && notifications.length > 0 && (
+            {showNotifications && notifications && notifications.length > 0 && (
               <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">Recent Notifications</h3>
                 {notifications.slice(0, 3).map((notification, index) => (

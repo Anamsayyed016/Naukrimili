@@ -49,5 +49,6 @@ export default function CacheBustingInitializer() {
   }, []);
 
   // This component doesn't render anything
+  // Build timestamp: 2025-10-02 13:10:00 - Force new hash generation
   return null;
 }

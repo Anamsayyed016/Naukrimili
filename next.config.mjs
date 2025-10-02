@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// FORCE HASH CHANGE - Build timestamp: 2025-10-02 14:28:00
 const nextConfig = {
   // Performance
   reactStrictMode: true,

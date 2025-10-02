@@ -177,7 +177,7 @@ export default function LocationBasedJobSearch() {
 
   // Location suggestions
   const getLocationSuggestions = useCallback((query: string) => {
-    if (!query || query.length < 2) {
+    if (!query || (query && query.length < 2)) {
       setLocationSuggestions([]);
       return;
     }

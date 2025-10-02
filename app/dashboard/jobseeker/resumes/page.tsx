@@ -246,7 +246,7 @@ export default function JobSeekerResumesPage() {
 
           {/* Resumes List */}
           <div className="space-y-6">
-            {resumes.length > 0 ? (
+            {resumes && resumes.length > 0 ? (
               resumes.map((resume) => (
                 <Card key={resume.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
@@ -292,7 +292,7 @@ export default function JobSeekerResumesPage() {
                         </div>
 
                         {/* Recent Applications */}
-                        {resume.applications.length > 0 && (
+                        {resume.applications && resume.applications.length > 0 && (
                           <div className="mt-4">
                             <h4 className="text-sm font-medium text-gray-700 mb-2">Recent Applications</h4>
                             <div className="space-y-2">
@@ -395,7 +395,7 @@ export default function JobSeekerResumesPage() {
           </div>
 
           {/* Resume View Statistics */}
-          {resumes.length > 0 && (
+          {resumes && resumes.length > 0 && resumes[0] && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-6">Resume View Analytics</h3>
               <div className="grid grid-cols-1 gap-6">
