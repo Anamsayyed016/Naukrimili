@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Eye, EyeOff, Loader2, Mail, Lock, User, AlertCircle, Smartphone, Monitor, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Mail, Lock, User, AlertCircle, Smartphone, AlertTriangle, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { 
   getMobileAuthMethodWithFallback,

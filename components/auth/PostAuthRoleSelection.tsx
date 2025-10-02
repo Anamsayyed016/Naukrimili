@@ -207,17 +207,6 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
     }
   };
 
-  const _handleJobSeekerOptions = (option: 'upload' | 'build') => {
-    if (option === 'upload') {
-      router.push('/resumes/upload');
-    } else {
-      router.push('/resumes/builder');
-    }
-  };
-
-  const _handleEmployerSetup = () => {
-    router.push('/employer/options');
-  };
 
   // If user is role-locked, show locked message
   if (user.roleLocked && user.lockedRole) {

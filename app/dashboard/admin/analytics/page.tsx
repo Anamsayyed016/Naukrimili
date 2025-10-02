@@ -5,8 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  TrendingUp, 
-  TrendingDown,
   Users, 
   Briefcase, 
   Building2, 
@@ -14,7 +12,6 @@ import {
   Activity,
   BarChart3,
   PieChart,
-  Calendar,
   ArrowUpRight,
   ArrowDownRight
 } from "lucide-react";

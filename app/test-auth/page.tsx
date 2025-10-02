@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useAuth } from '@/hooks/useAuth';
 import { clearAllBrowserAuthData } from '@/lib/auth-utils';
+import Link from 'next/link';
 
 export default function TestAuthPage() {
   const { data: session, status } = useSession();
@@ -75,12 +76,12 @@ export default function TestAuthPage() {
                 🔐 Go to Auth Reset Page
               </a>
               
-              <a
+              <Link
                 href="/"
-                className="w-full py-3 px-4 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors text-center"
+                className="w-full py-3 px-4 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors text-center block"
               >
                 🏠 Go to Homepage
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -91,7 +92,7 @@ export default function TestAuthPage() {
               <p>1. <strong>Check Status:</strong> Verify current authentication state</p>
               <p>2. <strong>Test Force Clear:</strong> Use the red button to clear all auth data</p>
               <p>3. <strong>Test Browser Clear:</strong> Use the orange button for browser-only clear</p>
-              <p>4. <strong>Verify Reset:</strong> Check that you're redirected to unauthenticated state</p>
+              <p>4. <strong>Verify Reset:</strong> Check that you&apos;re redirected to unauthenticated state</p>
             </div>
           </div>
         </div>

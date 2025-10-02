@@ -18,7 +18,7 @@ import {
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
 import { formatDate } from "@/lib/utils";
-import { safeLength, safeArray } from "@/lib/safe-array-utils";
+import { safeLength } from "@/lib/safe-array-utils";
 
 interface Resume {
   id: number;

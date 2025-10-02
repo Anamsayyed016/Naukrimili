@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, Search, ArrowLeft } from 'lucide-react';
+import { Home, Search } from 'lucide-react';
 
 export default function NotFound() {
   return (
@@ -26,8 +26,8 @@ export default function NotFound() {
           <div className="text-8xl font-bold text-gray-300 mb-4">404</div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Page Not Found</h1>
           <p className="text-gray-600 mb-8">
-            Oops! The page you're looking for seems to have wandered off. 
-            Don't worry, let's get you back on track to finding your dream job!
+            Oops! The page you&apos;re looking for seems to have wandered off. 
+            Don&apos;t worry, let&apos;s get you back on track to finding your dream job!
           </p>
           
           {/* Action Buttons */}

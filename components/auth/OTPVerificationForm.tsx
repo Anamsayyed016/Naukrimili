@@ -47,7 +47,7 @@ export function OTPVerificationForm({
   const [success, setSuccess] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [attemptsRemaining, setAttemptsRemaining] = useState(3);
-  const [expiresAt, _setExpiresAt] = useState<Date | null>(propExpiresAt || null);
+  const [expiresAt] = useState<Date | null>(propExpiresAt || null);
 
   // Debug logging
   console.log('OTPVerificationForm - propExpiresAt:', propExpiresAt);

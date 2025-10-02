@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare, MessageSquareMore, X, Check } from 'lucide-react';
 import { useSocket } from '@/hooks/useSocket';
-import { safeLength, safeArray } from '@/lib/safe-array-utils';
+import { safeLength } from '@/lib/safe-array-utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {

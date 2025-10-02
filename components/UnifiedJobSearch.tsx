@@ -12,13 +12,8 @@ import {
   X,
   SlidersHorizontal,
   ChevronDown,
-  Map,
-  Target,
   Building,
   Building2,
-  Briefcase,
-  DollarSign,
-  Clock,
   Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,12 +22,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Slider } from '@/components/ui/slider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
 // import SmartFilterSuggestions from './SmartFilterSuggestions'; // Removed - causing infinite re-render
-import ErrorBoundary from './ErrorBoundary';
 
 // ===== INTERFACES =====
 
@@ -124,7 +116,7 @@ export default function UnifiedJobSearch({
   const [sortByDistance, setSortByDistance] = useState(false);
   
   // Dynamic constants
-  const [_dynamicConstants, setDynamicConstants] = useState(() => ({
+  const [, setDynamicConstants] = useState(() => ({
     jobTypes: ['Full-time', 'Part-time', 'Contract', 'Internship'],
     experienceLevels: ['Entry Level', 'Mid Level', 'Senior Level', 'Lead', 'Executive'],
     locations: []
@@ -134,13 +126,6 @@ export default function UnifiedJobSearch({
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  // Don't render until mounted
-  if (!isMounted) {
-    return null;
-  }
-
-  // ===== EFFECTS =====
 
   // Initialize filters from URL params
   useEffect(() => {
@@ -319,7 +304,7 @@ export default function UnifiedJobSearch({
   }, []);
 
   // Handle location selection
-  const _handleLocationSelect = useCallback((location: LocationData) => {
+  const handleLocationSelect = useCallback((location: LocationData) => {
     const locationData: UserLocation = {
       lat: 0,
       lng: 0,
@@ -334,7 +319,7 @@ export default function UnifiedJobSearch({
   }, []);
 
   // Clear filters
-  const _clearFilters = useCallback(() => {
+  const clearFilters = useCallback(() => {
     setFilters({
       query: '',
       location: '',

@@ -203,7 +203,7 @@ export default function ExpiredJobHandler({ expiredJob, similarJobs }: ExpiredJo
           <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
             <CardContent className="py-8">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Didn't find what you're looking for?
+                Didn&apos;t find what you&apos;re looking for?
               </h3>
               <p className="text-gray-600 mb-6">
                 Explore more job opportunities or set up job alerts to get notified about new openings.
