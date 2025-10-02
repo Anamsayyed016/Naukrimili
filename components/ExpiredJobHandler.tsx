@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, AlertTriangle, ArrowRight, MapPin, Building2, DollarSign } from "lucide-react";
 import Link from 'next/link';
+import { safeLength, safeArray } from "@/lib/safe-array-utils";
 
 interface ExpiredJob {
   id: string;
@@ -118,13 +119,13 @@ export default function ExpiredJobHandler({ expiredJob, similarJobs }: ExpiredJo
             Similar Jobs You Might Like 👇
           </h2>
           <p className="text-gray-600 mb-6">
-            We found {similarJobs.length} similar job opportunities that match your interests.
+            We found {safeLength(similarJobs || [])} similar job opportunities that match your interests.
           </p>
         </div>
 
         {/* Similar Jobs Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {similarJobs.map((job) => (
+          {safeArray(similarJobs).map((job) => (
             <Card key={job.id} className="hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
                 <div className="flex items-start justify-between">

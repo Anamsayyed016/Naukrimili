@@ -17,6 +17,7 @@ import {
   checkMobileFeatureCompatibility,
   detectMobileWithFallback
 } from '@/lib/mobile-auth-fixes';
+import { safeLength, safeArray } from '@/lib/safe-array-utils';
 import { Badge } from '@/components/ui/badge';
 
 interface ModernAuthCardProps {
@@ -203,11 +204,11 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
                 </Badge>
               </div>
             </div>
-            {mobileCompatibility.recommendations.length > 0 && (
+            {mobileCompatibility?.recommendations && safeLength(mobileCompatibility.recommendations) > 0 && (
               <div className="mt-3 pt-3 border-t border-gray-200">
                 <p className="text-xs text-gray-600 mb-2">Recommendations:</p>
                 <ul className="text-xs text-gray-600 space-y-1">
-                  {mobileCompatibility.recommendations.map((rec, index) => (
+                  {safeArray(mobileCompatibility?.recommendations).map((rec, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="text-gray-400">•</span>
                       <span>{rec}</span>

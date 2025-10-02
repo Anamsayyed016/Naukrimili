@@ -5,6 +5,7 @@ import { BarChart3, Settings, Bell, User, Briefcase, Building, Shield, LogOut } 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { safeLength, safeArray } from "@/lib/safe-array-utils";
 
 export interface DashboardStats {
   title: string;
@@ -135,14 +136,14 @@ export default function DashboardLayout({
         </motion.div>
 
         {/* Stats */}
-        {stats.length > 0 && (
+        {stats && safeLength(stats) > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
           >
-            {stats.map((stat, index) => (
+            {safeArray(stats).map((stat, index) => (
               <motion.div
                 key={stat.title}
                 initial={{ opacity: 0, y: 20 }}
