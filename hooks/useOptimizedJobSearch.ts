@@ -10,6 +10,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { safeLength } from '@/lib/safe-array-utils';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from '@/hooks/useDebounce';
 
@@ -229,7 +230,7 @@ export function useOptimizedJobSearch(
 
       return response.json();
     },
-    enabled: enabled && (!!debouncedQuery || (debouncedFilters && typeof debouncedFilters === 'object' && debouncedFilters !== null && Object.keys(debouncedFilters).length > 2)),
+    enabled: enabled && (!!debouncedQuery || (debouncedFilters && typeof debouncedFilters === 'object' && debouncedFilters !== null && safeLength(Object.keys(debouncedFilters)) > 2)),
     staleTime,
     gcTime,
     refetchOnWindowFocus,
@@ -365,7 +366,7 @@ export function useSearchSuggestions(query: string, enabled = true) {
   return useQuery<string[]>({
     queryKey: ['search', 'suggestions', debouncedQuery],
     queryFn: async () => {
-      if (!debouncedQuery || typeof debouncedQuery !== 'string' || debouncedQuery.length < 2) return [];
+      if (!debouncedQuery || typeof debouncedQuery !== 'string' || safeLength(debouncedQuery) < 2) return [];
 
       const response = await fetch(
         `/api/jobs/search?query=${encodeURIComponent(debouncedQuery)}&limit=1&include_suggestions=true`
@@ -376,7 +377,7 @@ export function useSearchSuggestions(query: string, enabled = true) {
       const data = await response.json();
       return data.meta?.suggestions || [];
     },
-    enabled: enabled && !!debouncedQuery && typeof debouncedQuery === 'string' && debouncedQuery.length >= 2,
+    enabled: enabled && !!debouncedQuery && typeof debouncedQuery === 'string' && safeLength(debouncedQuery) >= 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000 // 10 minutes
   });

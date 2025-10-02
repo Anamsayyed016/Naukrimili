@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { safeLength } from '@/lib/safe-array-utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -192,7 +193,7 @@ export default function EnhancedJobSearchHero({
     setFilters(prev => ({ ...prev, query: value }));
     
     // Show suggestions if user is typing
-    if (value && value.length >= 2 && showSuggestions) {
+    if (value && safeLength(value) >= 2 && showSuggestions) {
       setShowSuggestionsDropdown(true);
       getSuggestions({
         query: value,
@@ -210,7 +211,7 @@ export default function EnhancedJobSearchHero({
     setFilters(prev => ({ ...prev, location: value }));
     
     // Update suggestions if query exists
-    if (filters.query && filters.query.length >= 2 && showSuggestions) {
+    if (filters.query && safeLength(filters.query) >= 2 && showSuggestions) {
       getSuggestions({
         query: filters.query,
         location: value,

@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, BellRing, X, Check } from 'lucide-react';
 import { useSocket } from '@/hooks/useSocket';
+import { safeLength, safeArray } from '@/lib/safe-array-utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -52,20 +53,9 @@ export function NotificationBell() {
         const data = await response.json();
         
         if (data.success) {
-          // Merge with socket notifications (socket notifications take priority)
-          setNotifications(prev => {
-            const apiNotifications = data.data || [];
-            const socketNotificationIds = new Set(prev.map(n => n.id));
-            
-            // Add API notifications that aren't already in socket notifications
-            const newApiNotifications = apiNotifications.filter((n: Notification) => 
-              !socketNotificationIds.has(n.id)
-            );
-            
-            return [...prev, ...newApiNotifications].sort((a, b) => 
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-          });
+          // The socket hook handles notification state management
+          // We just trigger a refresh if needed
+          console.log('📬 Fetched notifications from API:', safeLength(data.data));
         }
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
@@ -101,10 +91,8 @@ export function NotificationBell() {
       });
       
       if (response.ok) {
-        // Update local state
-        setNotifications(prev => 
-          prev.map(n => ({ ...n, isRead: true }))
-        );
+        // The socket hook will handle updating the notification state
+        console.log('✅ Marked all notifications as read');
       }
     } catch (error) {
       console.error('Failed to mark all as read:', error);
@@ -224,7 +212,7 @@ export function NotificationBell() {
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
                 Loading notifications...
               </div>
-            ) : (!notifications || notifications.length === 0) ? (
+            ) : (!notifications || safeLength(notifications) === 0) ? (
               <div className="p-8 text-center">
                 <Bell className="h-8 w-8 mx-auto text-gray-400 mb-2" />
                 <p className="text-sm text-gray-500 font-medium">No notifications yet</p>
@@ -274,7 +262,7 @@ export function NotificationBell() {
             )}
           </ScrollArea>
           
-          {notifications && notifications.length > 0 && (
+          {notifications && safeLength(notifications) > 0 && (
             <div className="p-3 border-t bg-gray-50">
               <Button
                 variant="ghost"

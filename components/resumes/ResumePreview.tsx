@@ -2,6 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { safeLength, safeArray, hasItems } from '@/lib/safe-array-utils';
 
 interface ResumeData {
   personalInfo: {
@@ -133,7 +134,7 @@ export default function ResumePreview({ data, template, colorScheme, className =
           )}
 
           {/* Experience */}
-          {(data.experience || []).length > 0 && (
+          {hasItems(data.experience) && (
             <div>
               <h2 className={`text-lg font-semibold ${colorClasses} mb-3`}>
                 Professional Experience
@@ -156,7 +157,7 @@ export default function ResumePreview({ data, template, colorScheme, className =
                     {exp.description && (
                       <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>
                     )}
-                    {exp.achievements && (exp.achievements || []).length > 0 && (
+                    {hasItems(exp.achievements) && (
                       <ul className="mt-2 space-y-1">
                         {exp.achievements.map((achievement, index) => (
                           <li key={index} className="text-sm text-gray-700 flex items-start">
@@ -173,7 +174,7 @@ export default function ResumePreview({ data, template, colorScheme, className =
           )}
 
           {/* Education */}
-          {(data.education || []).length > 0 && (
+          {hasItems(data.education) && (
             <div>
               <h2 className={`text-lg font-semibold ${colorClasses} mb-3`}>
                 Education
@@ -205,7 +206,7 @@ export default function ResumePreview({ data, template, colorScheme, className =
           )}
 
           {/* Skills */}
-          {(data.skills || []).length > 0 && (
+          {hasItems(data.skills) && (
             <div>
               <h2 className={`text-lg font-semibold ${colorClasses} mb-3`}>
                 Skills
@@ -221,7 +222,7 @@ export default function ResumePreview({ data, template, colorScheme, className =
           )}
 
           {/* Projects */}
-          {(data.projects || []).length > 0 && (
+          {hasItems(data.projects) && (
             <div>
               <h2 className={`text-lg font-semibold ${colorClasses} mb-3`}>
                 Projects
@@ -236,7 +237,7 @@ export default function ResumePreview({ data, template, colorScheme, className =
                       </p>
                     </div>
                     <p className="text-gray-700 text-sm mb-2">{project.description}</p>
-                    {project.technologies && (project.technologies || []).length > 0 && (
+                    {hasItems(project.technologies) && (
                       <div className="flex flex-wrap gap-1 mb-2">
                         {project.technologies.map((tech, index) => (
                           <Badge key={index} variant="secondary" className="text-xs">
@@ -262,7 +263,7 @@ export default function ResumePreview({ data, template, colorScheme, className =
           )}
 
           {/* Certifications */}
-          {(data.certifications || []).length > 0 && (
+          {hasItems(data.certifications) && (
             <div>
               <h2 className={`text-lg font-semibold ${colorClasses} mb-3`}>
                 Certifications

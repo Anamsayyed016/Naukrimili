@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { safeLength, safeArray } from '@/lib/safe-array-utils';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,7 +84,7 @@ export function AffiliateWidget() {
           <h4 className="font-medium text-gray-900 dark:text-gray-100">
             Recent Referrals
           </h4>
-          {(data.referrals || []).length === 0 ? (
+          {safeLength(data.referrals) === 0 ? (
             <p className="text-sm text-gray-500 dark:text-gray-400">
               No referrals yet
             </p>

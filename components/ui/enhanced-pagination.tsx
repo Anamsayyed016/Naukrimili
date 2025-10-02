@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { safeLength, safeArray } from '@/lib/safe-array-utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MoreHorizontal } from 'lucide-react';
@@ -263,7 +264,7 @@ export function EnhancedPagination({
       )}
 
       {/* Quick Jump Suggestions */}
-      {showJumpToPage && (pagination.jumpSuggestions || []).length > 0 && !showJumpInput && (
+      {showJumpToPage && safeLength(pagination.jumpSuggestions) > 0 && !showJumpInput && (
         <div className="flex items-center justify-center space-x-1">
           <span className="text-sm text-gray-500">Quick jump:</span>
           {pagination.jumpSuggestions.slice(0, 5).map((page) => (

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Edit3, Save, CheckCircle, AlertCircle, X, Plus, Star, Briefcase, GraduationCap, User, Sparkles, Lightbulb, TrendingUp, RefreshCw, Upload } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useSession } from 'next-auth/react';
+import { safeLength, safeArray, hasItems } from '@/lib/safe-array-utils';
 
 interface Props {
 	initialData?: any;
@@ -55,7 +56,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 
 	// Auto-fill form when initialData changes
 	useEffect(() => {
-		if (initialData && typeof initialData === 'object' && initialData !== null && Object.keys(initialData).length > 0) {
+		if (initialData && typeof initialData === 'object' && initialData !== null && safeLength(Object.keys(initialData)) > 0) {
 			console.log('🔄 ProfileCompletionForm received initial data:', initialData);
 			console.log('🔍 Initial data keys:', Object.keys(initialData));
 			console.log('📧 Email from initialData:', initialData.email);
@@ -74,16 +75,16 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 				phone: initialData.phone || '',
 				location: initialData.location || '',
 				jobTitle: initialData.jobTitle || initialData.summary?.split(' ').slice(0, 3).join(' ') || '',
-				skills: Array.isArray(initialData.skills) ? initialData.skills : [],
-				education: Array.isArray(initialData.education) ? initialData.education : [],
-				experience: Array.isArray(initialData.experience) ? initialData.experience : [],
+				skills: safeArray(initialData.skills),
+				education: safeArray(initialData.education),
+				experience: safeArray(initialData.experience),
 				expectedSalary: initialData.expectedSalary || initialData.salary || '',
 				linkedin: initialData.linkedin || '',
 				portfolio: initialData.portfolio || '',
 				summary: initialData.summary || '',
-				projects: Array.isArray(initialData.projects) ? initialData.projects : [],
-				certifications: Array.isArray(initialData.certifications) ? initialData.certifications : [],
-				languages: Array.isArray(initialData.languages) ? initialData.languages : [],
+				projects: safeArray(initialData.projects),
+				certifications: safeArray(initialData.certifications),
+				languages: safeArray(initialData.languages),
 				preferredJobType: initialData.preferredJobType || '',
 			};
 			
@@ -107,7 +108,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 	// Optional AI suggestions - completely user choice
 	const optionalAISuggestions = (field: string, value: string) => {
 		// Only fetch if user explicitly requests it and has enough input
-		if (value && value.trim && value.trim().length >= 1) {
+		if (value && value.trim && safeLength(value.trim()) >= 1) {
 			fetchAISuggestions(field, value);
 		}
 	};
@@ -126,16 +127,16 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 		// Professional Information (40 points)
 		if (data.jobTitle) { score += 15; totalFields += 1; }
 		if (data.summary) { score += 15; totalFields += 1; }
-		if (data.skills && Array.isArray(data.skills) && data.skills.length > 0) { score += 10; totalFields += 1; }
+		if (hasItems(data.skills)) { score += 10; totalFields += 1; }
 
 		// Experience & Education (20 points)
-		if (data.experience && Array.isArray(data.experience) && data.experience.length > 0) { score += 15; totalFields += 1; }
-		if (data.education && Array.isArray(data.education) && data.education.length > 0) { score += 5; totalFields += 1; }
+		if (hasItems(data.experience)) { score += 15; totalFields += 1; }
+		if (hasItems(data.education)) { score += 5; totalFields += 1; }
 
 		// Additional Sections (10 points)
-		if (data.projects && Array.isArray(data.projects) && data.projects.length > 0) { score += 5; totalFields += 1; }
-		if (data.certifications && Array.isArray(data.certifications) && data.certifications.length > 0) { score += 3; totalFields += 1; }
-		if (data.languages && Array.isArray(data.languages) && data.languages.length > 0) { score += 2; totalFields += 1; }
+		if (hasItems(data.projects)) { score += 5; totalFields += 1; }
+		if (hasItems(data.certifications)) { score += 3; totalFields += 1; }
+		if (hasItems(data.languages)) { score += 2; totalFields += 1; }
 
 		// Calculate percentage
 		const maxScore = 100;
@@ -187,10 +188,10 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 				const result = await response.json();
 				console.log(`✅ AI suggestions response:`, result);
 				
-				if (result.success && result.suggestions && Array.isArray(result.suggestions) && result.suggestions.length > 0) {
+				if (result.success && hasItems(result.suggestions)) {
 					setSuggestions(prev => ({ ...prev, [field]: result.suggestions }));
 					// Don't auto-show - let user manually open
-					console.log(`✨ ${result.suggestions.length} suggestions available for ${field}`);
+					console.log(`✨ ${safeLength(result.suggestions)} suggestions available for ${field}`);
 				}
 			} else {
 				console.error(`❌ API error: ${response.status} ${response.statusText}`);
@@ -275,14 +276,14 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						<button
 							type="button"
 							onClick={() => {
-								if (Array.isArray(fieldSuggestions) && fieldSuggestions.length > 0) {
+								if (hasItems(fieldSuggestions)) {
 									// Toggle existing suggestions
 									setShowSuggestions(prev => ({ ...prev, [field]: !prev[field] }));
 								} else {
 									// Get current value from DOM element
 									const inputElement = document.getElementById(field) as HTMLInputElement;
 									const currentValue = inputElement?.value || '';
-									if (currentValue && currentValue.trim().length >= 1) {
+									if (currentValue && safeLength(currentValue.trim()) >= 1) {
 										// Fetch new suggestions manually
 										optionalAISuggestions(field, currentValue);
 									}
@@ -297,12 +298,12 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 				</div>
 				
 				{/* AI Suggestions Dropdown */}
-				{showFieldSuggestions && fieldSuggestions.length > 0 && (
+				{showFieldSuggestions && hasItems(fieldSuggestions) && (
 					<div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-xl max-h-48 overflow-y-auto">
 						<div className="p-2 border-b border-gray-200 bg-blue-50 rounded-t-lg">
 							<div className="flex items-center gap-2 text-sm text-blue-700">
 								<Lightbulb className="h-4 w-4" />
-								AI Suggestions ({fieldSuggestions.length})
+								AI Suggestions ({safeLength(fieldSuggestions)})
 							</div>
 						</div>
 						{fieldSuggestions.map((suggestion, index) => (
@@ -488,7 +489,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 				body: JSON.stringify({
 					fileName: resumeFileName,
 					fileUrl: `/uploads/resumes/${resumeFileName}`, // Virtual URL for profile-based resume
-					fileSize: JSON.stringify(profileData).length,
+					fileSize: safeLength(JSON.stringify(profileData)),
 					mimeType: 'application/json',
 					parsedData: profileData,
 					atsScore: calculateATSScore(profileData),
@@ -720,7 +721,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						</div>
 
 						{/* AI Skill Suggestions */}
-						{suggestions.skills && suggestions.skills.length > 0 && (
+						{hasItems(suggestions.skills) && (
 							<div className="mb-4 p-3 bg-white rounded-lg border border-purple-200">
 								<div className="flex items-center gap-2 mb-2">
 									<Sparkles className="h-4 w-4 text-purple-600" />
@@ -776,7 +777,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						<div className="flex justify-between items-center mb-4">
 							<h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
 								<Briefcase className="h-5 w-5 text-orange-600" />
-								Work Experience ({profileData.experience.length})
+								Work Experience ({safeLength(profileData.experience)})
 							</h3>
 							<Button
 								type="button"
@@ -805,7 +806,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 							</Button>
 						</div>
 						<div className="space-y-4">
-							{profileData.experience.length > 0 ? (
+							{hasItems(profileData.experience) ? (
 								profileData.experience.map((exp: any, index: number) => (
 									<div key={index} className="bg-white p-4 rounded-lg border border-orange-200">
 										<div className="flex justify-between items-start mb-4">
@@ -916,7 +917,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						<div className="flex justify-between items-center mb-4">
 							<h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
 								<GraduationCap className="h-5 w-5 text-indigo-600" />
-								Education ({profileData.education.length})
+								Education ({safeLength(profileData.education)})
 							</h3>
 							<Button
 								type="button"
@@ -944,7 +945,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 							</Button>
 						</div>
 						<div className="space-y-4">
-							{profileData.education.length > 0 ? (
+							{hasItems(profileData.education) ? (
 								profileData.education.map((edu: any, index: number) => (
 									<div key={index} className="bg-white p-4 rounded-lg border border-indigo-200">
 										<div className="flex justify-between items-start mb-4">
@@ -1072,7 +1073,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						</h3>
 						
 						{/* AI Summary Suggestions */}
-						{suggestions.summary && suggestions.summary.length > 0 && (
+						{hasItems(suggestions.summary) && (
 							<div className="mb-4 p-3 bg-white rounded-lg border border-teal-200">
 								<div className="flex items-center gap-2 mb-2">
 									<Sparkles className="h-4 w-4 text-teal-600" />
@@ -1155,7 +1156,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 							Projects & Portfolio
 						</h3>
 						<div className="space-y-4">
-							{profileData.projects && profileData.projects.length > 0 ? (
+							{hasItems(profileData.projects) ? (
 								profileData.projects.map((project: any, index: number) => (
 									<div key={index} className="bg-white p-3 sm:p-4 rounded-lg border border-violet-200">
 										<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
@@ -1175,7 +1176,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 												</button>
 											</div>
 										</div>
-										{project.technologies && project.technologies.length > 0 && (
+										{hasItems(project.technologies) && (
 											<p className="text-xs sm:text-sm text-gray-600 mb-2">{project.technologies.join(', ')}</p>
 										)}
 										<p className="text-xs sm:text-sm text-gray-700">{project.description}</p>
@@ -1206,7 +1207,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 											onClick={() => {
 												const inputElement = document.getElementById('project-name') as HTMLInputElement;
 												const currentValue = inputElement?.value || '';
-												if (currentValue && currentValue.trim().length >= 1) {
+												if (currentValue && safeLength(currentValue.trim()) >= 1) {
 													optionalAISuggestions('project-name', currentValue);
 												}
 											}}
@@ -1240,7 +1241,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 											onClick={() => {
 												const inputElement = document.getElementById('project-technologies') as HTMLInputElement;
 												const currentValue = inputElement?.value || '';
-												if (currentValue && currentValue.trim().length >= 1) {
+												if (currentValue && safeLength(currentValue.trim()) >= 1) {
 													optionalAISuggestions('project-technologies', currentValue);
 												}
 											}}
@@ -1280,7 +1281,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 							Certifications
 						</h3>
 						<div className="space-y-4">
-							{profileData.certifications && profileData.certifications.length > 0 ? (
+							{hasItems(profileData.certifications) ? (
 								profileData.certifications.map((cert: any, index: number) => (
 									<div key={index} className="bg-white p-3 sm:p-4 rounded-lg border border-emerald-200">
 										<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
@@ -1329,7 +1330,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 											onClick={() => {
 												const inputElement = document.getElementById('cert-name') as HTMLInputElement;
 												const currentValue = inputElement?.value || '';
-												if (currentValue && currentValue.trim().length >= 1) {
+												if (currentValue && safeLength(currentValue.trim()) >= 1) {
 													optionalAISuggestions('cert-name', currentValue);
 												}
 											}}
@@ -1389,7 +1390,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 							Languages
 						</h3>
 						<div className="space-y-4">
-							{profileData.languages && profileData.languages.length > 0 ? (
+							{hasItems(profileData.languages) ? (
 								<div className="flex flex-wrap gap-2 sm:gap-3">
 									{profileData.languages.map((lang: any, index: number) => (
 										<div key={index} className="inline-flex items-center rounded-full border-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-rose-700 bg-rose-100 border-rose-300">
@@ -1429,7 +1430,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 											onClick={() => {
 												const inputElement = document.getElementById('language-name') as HTMLInputElement;
 												const currentValue = inputElement?.value || '';
-												if (currentValue && currentValue.trim().length >= 1) {
+												if (currentValue && safeLength(currentValue.trim()) >= 1) {
 													optionalAISuggestions('language-name', currentValue);
 												}
 											}}

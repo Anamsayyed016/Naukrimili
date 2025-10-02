@@ -240,7 +240,7 @@ export function useSocket(): UseSocketReturn {
               notification.message
             );
             setNotifications(validNotifications);
-            console.log('✅ Set initial notifications:', (validNotifications || []).length);
+            console.log('✅ Set initial notifications:', safeLength(validNotifications));
           } else {
             console.log('⚠️ Invalid notification data structure:', data);
             setNotifications([]);

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { safeLength, safeArray } from '@/lib/safe-array-utils';
 import { Search, Building, Briefcase, Users, TrendingUp, ArrowRight, Shield, Zap, Globe, Award, Clock, User, Sparkles, Upload, FileText, Building2, BriefcaseIcon, Target, Star, MapPin, Brain } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -228,7 +229,7 @@ export default function HomePageClient({
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {(featuredJobs || []).length > 0 ? (
+            {safeLength(featuredJobs) > 0 ? (
               (featuredJobs || []).map((job) => (
                 <div key={job.id} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
                   <div className="flex items-start justify-between mb-4">
@@ -312,7 +313,7 @@ export default function HomePageClient({
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {(topCompanies || []).length > 0 ? (
+            {safeLength(topCompanies) > 0 ? (
               (topCompanies || []).map((company) => (
                 <div key={company.id} className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
                   <div className="flex items-start gap-4 mb-4">

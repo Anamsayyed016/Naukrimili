@@ -8,6 +8,7 @@
 import { signIn, getProviders } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { safeLength, safeArray } from '@/lib/safe-array-utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { FaGoogle, FaLinkedin } from 'react-icons/fa';
@@ -49,12 +50,12 @@ export function OAuthButtons({
         const availableProviders = await getProviders();
         console.log('🔍 Available providers from NextAuth:', availableProviders);
         
-        if (availableProviders && typeof availableProviders === 'object' && availableProviders !== null && Object.keys(availableProviders).length > 0) {
+        if (availableProviders && typeof availableProviders === 'object' && availableProviders !== null && safeLength(Object.keys(availableProviders)) > 0) {
           // Only update if we have actual OAuth providers
           const oauthProviders = Object.values(availableProviders).filter(
             (provider: any) => provider.type === 'oauth'
           );
-          if ((oauthProviders || []).length > 0) {
+          if (safeLength(oauthProviders) > 0) {
             setProviders(availableProviders);
             return;
           }
@@ -139,7 +140,7 @@ export function OAuthButtons({
     (provider: any) => provider.type === 'oauth'
   );
 
-  if ((oauthProviders || []).length === 0) {
+  if (safeLength(oauthProviders) === 0) {
     // Don't show warning, just show nothing if no OAuth providers
     return null;
   }
