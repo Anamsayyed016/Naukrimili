@@ -130,21 +130,6 @@ export default function HomePageClient({
             </div>
           </div>
 
-          {/* Trending Searches */}
-          <div className="mb-8 sm:mb-12">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Trending Searches</h3>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {(trendingSearches || []).map((search, index) => (
-                <Link
-                  key={index}
-                  href={`/jobs?q=${encodeURIComponent(search)}&unlimited=true&includeExternal=true&includeDatabase=true&includeSample=true&limit=100`}
-                  className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-white hover:border-blue-300 hover:text-blue-600 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md"
-                >
-                  {search}
-                </Link>
-              ))}
-            </div>
-          </div>
 
           {/* Popular Locations */}
           <div className="mb-8 sm:mb-12">

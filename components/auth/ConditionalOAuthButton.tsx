@@ -52,9 +52,25 @@ export default function ConditionalOAuthButton({ loading = false, className = ''
     return null;
   }
 
-  // Don't show Google button if not available
+  // Show helpful message if Google OAuth is not available
   if (!isGoogleAvailable) {
-    return null;
+    return (
+      <div className="space-y-4">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Gmail Authentication
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Gmail sign-in is not currently configured. Please use one of the other authentication methods below.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left">
+            <p className="text-xs text-blue-700">
+              <strong>For Developers:</strong> To enable Gmail authentication, run <code className="bg-blue-100 px-1 rounded">node setup-oauth.js</code> and follow the setup instructions.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

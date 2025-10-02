@@ -76,13 +76,13 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         }
       }
 
-      // Use real jobs API instead of main API to avoid sample jobs
-      const mainParams = new URLSearchParams({
+      // Optimized job fetching with multiple fallbacks to prevent chunk issues
+      const apiParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
         country: country,
         page: page.toString(),
-        limit: '50', // Optimized: Reduced from 500 to 50 for better performance
+        limit: '50', // Optimized: Reasonable limit to prevent chunk overflow
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),
@@ -93,18 +93,37 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       });
 
       const startTime = Date.now();
-      let response = await fetch(`/api/jobs/real?${mainParams.toString()}`);
-      const responseTime = Date.now() - startTime;
+      let response;
+      let apiUsed = 'real';
 
-      // Fallback to main API if real API fails
-      if (!response.ok) {
-        console.warn(`⚠️ Real API failed (${response.status}), trying main API...`);
-        response = await fetch(`/api/jobs?${mainParams.toString()}`);
-        
+      // Multi-tier fallback system to prevent chunk issues
+      try {
+        // Try real jobs API first
+        response = await fetch(`/api/jobs/real?${apiParams.toString()}`);
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          throw new Error(`Real API failed: ${response.status}`);
+        }
+      } catch (realError) {
+        console.warn('⚠️ Real API failed, trying unified API...', realError);
+        try {
+          // Fallback to unified API
+          apiUsed = 'unified';
+          response = await fetch(`/api/jobs/unified?${apiParams.toString()}`);
+          if (!response.ok) {
+            throw new Error(`Unified API failed: ${response.status}`);
+          }
+        } catch (unifiedError) {
+          console.warn('⚠️ Unified API failed, trying main API...', unifiedError);
+          // Final fallback to main API
+          apiUsed = 'main';
+          response = await fetch(`/api/jobs?${apiParams.toString()}`);
+          if (!response.ok) {
+            throw new Error(`All APIs failed. Last error: ${response.status} ${response.statusText}`);
+          }
         }
       }
+
+      const responseTime = Date.now() - startTime;
 
       const data = await response.json();
       
@@ -117,11 +136,14 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         setHasNextPage(data.pagination?.hasMore || false);
         setHasPrevPage(page > 1);
 
-        // Update performance metrics
+        // Update performance metrics with API tracking
         setPerformanceMetrics({
           responseTime,
           cached: data.metadata?.cached || false,
-          sources: data.sources
+          sources: {
+            ...data.sources,
+            apiUsed: apiUsed // Track which API was successful
+          }
         });
 
         // Update last refresh time
@@ -152,7 +174,73 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       }
 
     } catch (error) {
-      console.error('❌ Error fetching unlimited jobs, trying fallback:', error);
+      console.error('❌ Error fetching jobs from all APIs, using sample jobs fallback:', error);
+      const fallbackStartTime = Date.now();
+      
+      // Final fallback: Generate sample jobs to prevent empty state
+      const sampleJobs = [
+        {
+          id: 'sample-1',
+          title: 'Software Engineer',
+          company: 'Tech Solutions Inc',
+          location: 'Bangalore, India',
+          salary: '₹8,00,000 - ₹12,00,000',
+          jobType: 'full-time',
+          experienceLevel: 'mid',
+          isRemote: false,
+          description: 'Join our dynamic team as a Software Engineer and work on cutting-edge projects.',
+          requirements: ['React', 'Node.js', 'TypeScript'],
+          skills: ['JavaScript', 'React', 'Node.js', 'TypeScript'],
+          postedAt: new Date().toISOString(),
+          isActive: true
+        },
+        {
+          id: 'sample-2',
+          title: 'Product Manager',
+          company: 'Innovation Labs',
+          location: 'Mumbai, India',
+          salary: '₹10,00,000 - ₹15,00,000',
+          jobType: 'full-time',
+          experienceLevel: 'senior',
+          isRemote: true,
+          description: 'Lead product development and strategy for our next-generation platform.',
+          requirements: ['Product Management', 'Agile', 'Analytics'],
+          skills: ['Product Strategy', 'User Research', 'Analytics', 'Leadership'],
+          postedAt: new Date(Date.now() - 86400000).toISOString(),
+          isActive: true
+        },
+        {
+          id: 'sample-3',
+          title: 'UX Designer',
+          company: 'Design Studio',
+          location: 'Delhi, India',
+          salary: '₹6,00,000 - ₹9,00,000',
+          jobType: 'full-time',
+          experienceLevel: 'mid',
+          isRemote: false,
+          description: 'Create beautiful and intuitive user experiences for our mobile and web applications.',
+          requirements: ['Figma', 'User Research', 'Prototyping'],
+          skills: ['UI/UX Design', 'Figma', 'Adobe Creative Suite', 'User Research'],
+          postedAt: new Date(Date.now() - 172800000).toISOString(),
+          isActive: true
+        }
+      ];
+
+      const jobs = sampleJobs.map(convertToSimpleJob);
+      setJobs(jobs as any);
+      setTotalJobs(sampleJobs.length);
+      setTotalPages(1);
+      setHasNextPage(false);
+      setHasPrevPage(false);
+
+      // Update performance metrics for sample jobs
+      setPerformanceMetrics({
+        responseTime: Date.now() - fallbackStartTime,
+        cached: false,
+        sources: { database: 0, external: 0, sample: sampleJobs.length, apiUsed: 'sample-fallback' }
+      });
+
+      setError('Using sample jobs - API services temporarily unavailable');
       
       // Fallback to main API
       try {
@@ -353,36 +441,97 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         </div>
       )}
 
-      {/* Simple Search Results Header */}
-      {!loading && !error && (searchParams.get('q') || searchParams.get('query') || searchParams.get('location')) && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-1">
-                {totalJobs > 0 ? `${totalJobs} Jobs Found` : 'No Jobs Found'}
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {searchParams.get('q') && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {searchParams.get('q')}
-                  </span>
-                )}
-                {searchParams.get('location') && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    {searchParams.get('location')}
-                  </span>
-                )}
-              </div>
+      {/* Search Results Header with Filters */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">
+              {totalJobs > 0 ? `${totalJobs} Jobs Found` : 'No Jobs Found'}
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {searchParams.get('q') && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {searchParams.get('q')}
+                </span>
+              )}
+              {searchParams.get('location') && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  {searchParams.get('location')}
+                </span>
+              )}
             </div>
+          </div>
+          <button
+            onClick={() => window.history.back()}
+            className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+          >
+            ← Back to Search
+          </button>
+        </div>
+
+        {/* Quick Filters */}
+        <div className="border-t pt-4">
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm font-medium text-gray-700 mr-2">Quick Filters:</span>
             <button
-              onClick={() => window.history.back()}
-              className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+              onClick={() => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('jobType', url.searchParams.get('jobType') === 'full-time' ? '' : 'full-time');
+                window.location.href = url.toString();
+              }}
+              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                searchParams.get('jobType') === 'full-time' 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
             >
-              ← Back to Search
+              Full-time
+            </button>
+            <button
+              onClick={() => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('isRemote', url.searchParams.get('isRemote') === 'true' ? '' : 'true');
+                window.location.href = url.toString();
+              }}
+              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                searchParams.get('isRemote') === 'true' 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Remote
+            </button>
+            <button
+              onClick={() => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('experienceLevel', url.searchParams.get('experienceLevel') === 'senior' ? '' : 'senior');
+                window.location.href = url.toString();
+              }}
+              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                searchParams.get('experienceLevel') === 'senior' 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Senior Level
+            </button>
+            <button
+              onClick={() => {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('jobType');
+                url.searchParams.delete('isRemote');
+                url.searchParams.delete('experienceLevel');
+                url.searchParams.delete('salaryMin');
+                url.searchParams.delete('salaryMax');
+                window.location.href = url.toString();
+              }}
+              className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600 hover:bg-red-200"
+            >
+              Clear All
             </button>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Jobs List */}
       {!loading && !error && (jobs || []).length > 0 && (

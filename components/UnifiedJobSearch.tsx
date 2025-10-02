@@ -115,8 +115,8 @@ export default function UnifiedJobSearch({
   const debouncedQuery = useDebounce(filters?.query || '', 500);
   const debouncedLocation = useDebounce(filters?.location || '', 500);
   
-  // Advanced filters state
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  // Advanced filters state - Show by default on homepage
+  const [showAdvanced, setShowAdvanced] = useState(variant === 'homepage');
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
