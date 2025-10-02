@@ -234,7 +234,7 @@ export default function JobSeekerResumesPage() {
                     <div>
                       <p className="text-sm font-medium text-gray-600">Total Applications</p>
                       <p className="text-2xl font-bold text-purple-600">
-                        {resumes.reduce((sum, resume) => sum + resume._count.applications, 0)}
+                        {resumes?.reduce((sum, resume) => sum + (resume._count?.applications || 0), 0) || 0}
                       </p>
                     </div>
                     <BarChart3 className="h-8 w-8 text-purple-500" />
@@ -246,7 +246,7 @@ export default function JobSeekerResumesPage() {
 
           {/* Resumes List */}
           <div className="space-y-6">
-            {resumes && resumes.length > 0 ? (
+            {resumes?.length > 0 ? (
               resumes.map((resume) => (
                 <Card key={resume.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
@@ -292,11 +292,11 @@ export default function JobSeekerResumesPage() {
                         </div>
 
                         {/* Recent Applications */}
-                        {resume.applications && resume.applications.length > 0 && (
+                        {resume.applications?.length > 0 && (
                           <div className="mt-4">
                             <h4 className="text-sm font-medium text-gray-700 mb-2">Recent Applications</h4>
                             <div className="space-y-2">
-                              {resume.applications.slice(0, 3).map((application) => (
+                              {resume.applications?.slice(0, 3).map((application) => (
                                 <div key={application.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                                   <div>
                                     <p className="text-sm font-medium">{application.job.title}</p>
@@ -395,7 +395,7 @@ export default function JobSeekerResumesPage() {
           </div>
 
           {/* Resume View Statistics */}
-          {resumes && resumes.length > 0 && resumes[0] && (
+          {resumes?.length > 0 && resumes[0] && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-6">Resume View Analytics</h3>
               <div className="grid grid-cols-1 gap-6">
