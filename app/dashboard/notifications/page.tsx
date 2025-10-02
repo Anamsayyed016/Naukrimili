@@ -242,7 +242,7 @@ export default function NotificationsPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Unread</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {notifications.filter(n => !n.isRead).length}
+                  {notifications ? notifications.filter(n => !n.isRead).length : 0}
                 </p>
               </div>
             </div>
@@ -256,7 +256,7 @@ export default function NotificationsPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Read</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {notifications.filter(n => n.isRead).length}
+                  {notifications ? notifications.filter(n => n.isRead).length : 0}
                 </p>
               </div>
             </div>

@@ -284,7 +284,7 @@ export default function EmployerJobsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Active Jobs</p>
-                    <p className="text-3xl font-bold text-gray-900">{jobs.filter(job => job.isActive).length}</p>
+                    <p className="text-3xl font-bold text-gray-900">{jobs ? jobs.filter(job => job.isActive).length : 0}</p>
                   </div>
                   <CheckCircle className="h-8 w-8 text-green-500" />
                 </div>

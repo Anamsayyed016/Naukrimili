@@ -336,7 +336,7 @@ export default function MessagesPage() {
             >
               <MessageCircle className="h-4 w-4 inline mr-2" />
               Messages
-              {conversations.filter(c => c.unreadCount > 0).length > 0 && (
+              {conversations && conversations.filter(c => c.unreadCount > 0).length > 0 && (
                 <Badge className="ml-2 bg-red-500 text-white text-xs">
                   {conversations.filter(c => c.unreadCount > 0).length}
                 </Badge>
@@ -352,7 +352,7 @@ export default function MessagesPage() {
             >
               <Users className="h-4 w-4 inline mr-2" />
               Activities
-              {activityNotifications.filter(a => !a.isRead).length > 0 && (
+              {activityNotifications && activityNotifications.filter(a => !a.isRead).length > 0 && (
                 <Badge className="ml-2 bg-orange-500 text-white text-xs">
                   {activityNotifications.filter(a => !a.isRead).length}
                 </Badge>
@@ -371,8 +371,8 @@ export default function MessagesPage() {
                 </CardTitle>
                 <Badge variant="secondary">
                   {activeTab === 'messages' 
-                    ? `${conversations.filter(c => c.unreadCount > 0).length} unread`
-                    : `${activityNotifications.filter(a => !a.isRead).length} new`
+                    ? `${conversations ? conversations.filter(c => c.unreadCount > 0).length : 0} unread`
+                    : `${activityNotifications ? activityNotifications.filter(a => !a.isRead).length : 0} new`
                   }
                 </Badge>
               </div>
