@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import UserEditModal from "./components/UserEditModal";
+import { formatDate } from "@/lib/utils";
 
 interface User {
   id: string;
@@ -253,9 +254,7 @@ export default function AdminUsersPage() {
     return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" />Active</Badge>;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
+
 
   if (loading && users.length === 0) {
     return (
@@ -576,3 +575,4 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+

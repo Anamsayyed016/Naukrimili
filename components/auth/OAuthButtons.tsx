@@ -8,11 +8,10 @@
 import { signIn, getProviders } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { safeLength, safeArray } from '@/lib/safe-array-utils';
-import { Card, CardContent } from '@/components/ui/card';
+import { safeLength } from '@/lib/safe-array-utils';
 import { Separator } from '@/components/ui/separator';
 import { FaGoogle, FaLinkedin } from 'react-icons/fa';
-import { Loader2, Smartphone, Monitor } from 'lucide-react';
+import { Loader2, Smartphone } from 'lucide-react';
 
 // Simplified mobile detection
 const isMobileDevice = () => {

@@ -3,6 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Protect debug routes in production
+  if (pathname.startsWith('/api/debug') || pathname.startsWith('/debug') || pathname.startsWith('/mobile-debug')) {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+    // In development, allow access but log it
+    console.log(`🔧 Debug route accessed: ${pathname}`);
+  }
+
   // Handle SEO-friendly job URLs
   // Pattern: /jobs/job-title-company-location-experience-salary-jobId or /jobs/job-title-company-location-experience-salary-jobId/apply
   const jobUrlPattern = /^\/jobs\/([^\/]+)(?:\/(apply|external))?$/;

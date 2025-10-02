@@ -86,7 +86,7 @@ export default function UnifiedJobSearch({
   className = '',
   variant = 'homepage',
   showAdvancedFilters = true,
-  showSuggestions = true,
+  showSuggestions: _showSuggestions = true,
   showLocationCategories = true,
   autoSearch = true,
   onSearch,
@@ -94,18 +94,8 @@ export default function UnifiedJobSearch({
 }: UnifiedJobSearchProps) {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
-  const searchParams = isMounted ? useSearchParams() : null;
+  const searchParams = useSearchParams();
 
-  // Prevent hydration mismatch
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Don't render until mounted
-  if (!isMounted) {
-    return null;
-  }
-  
   // ===== STATE =====
   
   const [filters, setFilters] = useState<JobSearchFilters>(() => ({
@@ -134,11 +124,21 @@ export default function UnifiedJobSearch({
   const [sortByDistance, setSortByDistance] = useState(false);
   
   // Dynamic constants
-  const [dynamicConstants, setDynamicConstants] = useState(() => ({
+  const [_dynamicConstants, setDynamicConstants] = useState(() => ({
     jobTypes: ['Full-time', 'Part-time', 'Contract', 'Internship'],
     experienceLevels: ['Entry Level', 'Mid Level', 'Senior Level', 'Lead', 'Executive'],
     locations: []
   }));
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Don't render until mounted
+  if (!isMounted) {
+    return null;
+  }
 
   // ===== EFFECTS =====
 
@@ -319,7 +319,7 @@ export default function UnifiedJobSearch({
   }, []);
 
   // Handle location selection
-  const handleLocationSelect = useCallback((location: LocationData) => {
+  const _handleLocationSelect = useCallback((location: LocationData) => {
     const locationData: UserLocation = {
       lat: 0,
       lng: 0,
@@ -334,7 +334,7 @@ export default function UnifiedJobSearch({
   }, []);
 
   // Clear filters
-  const clearFilters = useCallback(() => {
+  const _clearFilters = useCallback(() => {
     setFilters({
       query: '',
       location: '',

@@ -19,6 +19,7 @@ import {
   Calendar
 } from "lucide-react";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 
 interface Application {
   id: string;
@@ -163,9 +164,6 @@ export default function EmployerApplicationsPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
 
   if (loading && applications.length === 0) {
     return (

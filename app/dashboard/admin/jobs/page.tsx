@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import AuthGuard from "@/components/auth/AuthGuard";
+import { formatDate } from "@/lib/utils";
 
 interface Job {
   id: number;
@@ -200,9 +201,7 @@ export default function AdminJobsPage() {
     setCurrentPage(1);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
+
 
   const getStatusBadge = (job: Job) => {
     if (!job.isActive) {
@@ -589,3 +588,4 @@ export default function AdminJobsPage() {
     </AuthGuard>
   );
 }
+

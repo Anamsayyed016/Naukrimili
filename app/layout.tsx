@@ -7,7 +7,6 @@ import Footer from '@/components/Footer';
 import SessionProvider from '@/components/providers/SessionProvider';
 import BufferPolyfill from '@/components/BufferPolyfill';
 import { Toaster } from '@/components/ui/toaster';
-import AuthDebugPanel from '@/components/debug/AuthDebugPanel';
 import GlobalErrorHandler from '@/components/GlobalErrorHandler';
 import CacheBustingInitializer from '@/components/CacheBustingInitializer';
 import ForceNewHash from '@/components/ForceNewHash';

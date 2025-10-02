@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
+import { formatDate } from "@/lib/utils";
 
 interface Resume {
   id: number;
@@ -24,7 +25,7 @@ interface Resume {
   fileUrl: string;
   fileSize: number;
   mimeType: string;
-  parsedData: any;
+  parsedData: Record<string, unknown>;
   atsScore: number | null;
   isActive: boolean;
   createdAt: string;
@@ -39,7 +40,7 @@ interface UserProfile {
   phone: string | null;
   location: string | null;
   bio: string | null;
-  skills: string[];
+  skills: string[] | string;
   experience: string | null;
   education: string | null;
   profilePicture: string | null;
@@ -89,16 +90,6 @@ export default function UserResumesPage() {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   const handleDeleteResume = async (resumeId: number) => {
@@ -216,7 +207,14 @@ export default function UserResumesPage() {
                 <div className="md:col-span-2">
                   <p className="text-sm font-medium text-gray-500 mb-2">Skills</p>
                   <div className="flex flex-wrap gap-2">
-                    {(Array.isArray(userProfile.skills) ? userProfile.skills : (typeof userProfile.skills === 'string' ? userProfile.skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
+                    {(() => {
+                      if (Array.isArray(userProfile.skills)) {
+                        return userProfile.skills;
+                      } else if (typeof userProfile.skills === 'string') {
+                        return userProfile.skills.split(',').map(s => s.trim()).filter(s => s);
+                      }
+                      return [];
+                    })().map((skill: string, index: number) => (
                       <Badge key={index} variant="secondary">
                         {skill}
                       </Badge>
@@ -310,7 +308,7 @@ export default function UserResumesPage() {
                   {resume.parsedData?.targetRole && (
                     <div className="text-sm">
                       <p className="text-gray-500">Target Role:</p>
-                      <p className="font-medium">{resume.parsedData.targetRole}</p>
+                      <p className="font-medium">{String(resume.parsedData.targetRole)}</p>
                     </div>
                   )}
 
@@ -398,3 +396,4 @@ export default function UserResumesPage() {
     </div>
   );
 }
+

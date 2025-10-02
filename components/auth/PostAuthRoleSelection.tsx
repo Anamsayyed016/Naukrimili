@@ -9,13 +9,13 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, UserCheck, Briefcase, Upload, FileText, ArrowRight } from 'lucide-react';
+import { Loader2, UserCheck, Briefcase } from 'lucide-react';
 
 interface PostAuthRoleSelectionProps {
-  user: any;
-  onComplete?: (user: any) => void;
+  user: Record<string, unknown>;
+  onComplete?: (user: Record<string, unknown>) => void;
 }
 
 export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRoleSelectionProps) {
@@ -207,7 +207,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
     }
   };
 
-  const handleJobSeekerOptions = (option: 'upload' | 'build') => {
+  const _handleJobSeekerOptions = (option: 'upload' | 'build') => {
     if (option === 'upload') {
       router.push('/resumes/upload');
     } else {
@@ -215,7 +215,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
     }
   };
 
-  const handleEmployerSetup = () => {
+  const _handleEmployerSetup = () => {
     router.push('/employer/options');
   };
 
@@ -230,11 +230,11 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
               Role Locked
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Your account is locked as a <strong>{user.lockedRole}</strong>. Role switching is not allowed after initial selection.
+              Your account is locked as a <strong>{String(user.lockedRole)}</strong>. Role switching is not allowed after initial selection.
             </p>
             {user.roleLockReason && (
               <p className="text-lg text-gray-500 mt-4">
-                Reason: {user.roleLockReason}
+                Reason: {String(user.roleLockReason)}
               </p>
             )}
           </div>
@@ -280,7 +280,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
               Change Your Role
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              You are currently registered as a <strong>{user.role}</strong>. You can change your role or continue with your current role.
+              You are currently registered as a <strong>{String(user.role)}</strong>. You can change your role or continue with your current role.
             </p>
           </div>
 
@@ -301,7 +301,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                   <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl ${user.role === 'jobseeker' ? 'bg-blue-200' : 'bg-blue-100'}`}>
                     <UserCheck className="h-8 w-8 text-blue-600" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">I'm a Job Seeker</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">I&apos;m a Job Seeker</h3>
                   <p className="text-gray-600 mb-6">
                     Find your dream job, upload your resume, and get matched with opportunities.
                   </p>
@@ -359,7 +359,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                   <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl ${user.role === 'employer' ? 'bg-green-200' : 'bg-green-100'}`}>
                     <Briefcase className="h-8 w-8 text-green-600" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">I'm an Employer</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">I&apos;m an Employer</h3>
                   <p className="text-gray-600 mb-6">
                     Post jobs, find talent, and manage your hiring process efficiently.
                   </p>
@@ -463,7 +463,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100">
                   <UserCheck className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">I'm a Job Seeker</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">I&apos;m a Job Seeker</h3>
                 <p className="text-gray-600 mb-6">
                   Find your dream job, upload your resume, and get matched with opportunities.
                 </p>
@@ -504,7 +504,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-green-100">
                   <Briefcase className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">I'm an Employer</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">I&apos;m an Employer</h3>
                 <p className="text-gray-600 mb-6">
                   Post jobs, find talent, and manage your hiring process efficiently.
                 </p>

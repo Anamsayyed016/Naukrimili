@@ -12,15 +12,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Phone, ArrowLeft, RefreshCw, CheckCircle, XCircle, Shield } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ArrowLeft, RefreshCw, CheckCircle, XCircle, Shield } from 'lucide-react';
+// import { useRouter } from 'next/navigation';
 
 interface OTPVerificationFormProps {
   phoneNumber: string;
   email?: string;
   otpType?: 'login' | 'signup' | 'password_reset' | 'verification';
   purpose?: string;
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: Record<string, unknown>) => void;
   onBack?: () => void;
   onResend?: () => void;
   autoFocus?: boolean;
@@ -35,7 +35,7 @@ export function OTPVerificationForm({
   purpose = 'verification',
   onSuccess,
   onBack,
-  onResend,
+  onResend: _onResend,
   autoFocus = true,
   className = '',
   expiresAt: propExpiresAt
@@ -47,14 +47,13 @@ export function OTPVerificationForm({
   const [success, setSuccess] = useState('');
   const [countdown, setCountdown] = useState(0);
   const [attemptsRemaining, setAttemptsRemaining] = useState(3);
-  const [otpId, setOtpId] = useState<string | null>(null);
-  const [expiresAt, setExpiresAt] = useState<Date | null>(propExpiresAt || null);
+  const [expiresAt, _setExpiresAt] = useState<Date | null>(propExpiresAt || null);
 
   // Debug logging
   console.log('OTPVerificationForm - propExpiresAt:', propExpiresAt);
   console.log('OTPVerificationForm - expiresAt state:', expiresAt);
 
-  const router = useRouter();
+  // const router = useRouter(); // Unused for now
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-focus on mount
@@ -192,7 +191,7 @@ export function OTPVerificationForm({
         </div>
         <CardTitle className="text-3xl font-bold font-heading text-gray-900 mb-2">Verify Your Phone Number</CardTitle>
         <CardDescription className="text-gray-600 text-base">
-          We've sent a 6-digit verification code to
+          We&apos;ve sent a 6-digit verification code to
           <br />
           <span className="font-medium text-gray-900">
             {maskPhoneNumber(phoneNumber)}
@@ -257,7 +256,7 @@ export function OTPVerificationForm({
             {countdown > 0 ? (
               <span>Resend OTP in {countdown}s</span>
             ) : (
-              <span>Didn't receive the code?</span>
+              <span>Didn&apos;t receive the code?</span>
             )}
           </div>
 

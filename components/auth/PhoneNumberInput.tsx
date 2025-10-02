@@ -5,17 +5,17 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Phone, ArrowLeft, CheckCircle, XCircle, MessageSquare, Mail } from 'lucide-react';
+import { Phone, ArrowLeft, XCircle, MessageSquare, Mail } from 'lucide-react';
 import { OTPVerificationForm } from './OTPVerificationForm';
 
 interface PhoneNumberInputProps {
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: Record<string, unknown>) => void;
   onBack?: () => void;
   otpType?: 'login' | 'signup' | 'password_reset' | 'verification';
   purpose?: string;
@@ -30,7 +30,7 @@ export function PhoneNumberInput({
   otpType = 'login',
   purpose = 'verification',
   title = 'Enter Your Phone Number',
-  description = 'We\'ll send you a verification code via WhatsApp',
+  description = 'We&apos;ll send you a verification code via WhatsApp',
   className = ''
 }: PhoneNumberInputProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -116,7 +116,7 @@ export function PhoneNumberInput({
       } else {
         setError(data.message || 'Failed to send OTP');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Send OTP error:', error);
       setError('Failed to send OTP. Please try again.');
     } finally {
@@ -125,7 +125,7 @@ export function PhoneNumberInput({
   };
 
   // Handle OTP verification success
-  const handleOTPSuccess = (data: any) => {
+  const handleOTPSuccess = (data: Record<string, unknown>) => {
     if (onSuccess) {
       onSuccess({
         phoneNumber,
@@ -218,7 +218,7 @@ export function PhoneNumberInput({
               />
             </div>
             <p className="text-xs text-gray-500 text-center">
-              We'll also send verification to your email
+              We&apos;ll also send verification to your email
             </p>
           </div>
 
@@ -261,7 +261,7 @@ export function PhoneNumberInput({
         </div>
 
         <div className="text-center text-xs text-gray-500">
-          <p>We'll send a 6-digit verification code to your WhatsApp</p>
+          <p>We&apos;ll send a 6-digit verification code to your WhatsApp</p>
           <p className="mt-1">
             {phoneNumber && validatePhoneNumber(phoneNumber) && (
               <span className="text-blue-600 font-medium">

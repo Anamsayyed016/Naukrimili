@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,6 @@ import {
   Briefcase, 
   MapPin, 
   DollarSign, 
-  Calendar,
   ArrowRight,
   CheckCircle,
   Sparkles,
@@ -29,7 +28,6 @@ import {
   Brain,
   Map,
   Users,
-  Building2,
   FileText,
   Navigation,
   AlertCircle
@@ -122,7 +120,7 @@ export default function AIJobPostingForm() {
   const router = useRouter();
   
   // Initialize form data from localStorage or default values
-  const getInitialFormData = (): JobFormData => {
+  const initialFormData = useMemo((): JobFormData => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('jobPostingFormData');
       if (saved) {
@@ -159,10 +157,10 @@ export default function AIJobPostingForm() {
       radiusDistance: 25,
       radiusCenter: ''
     };
-  };
+  }, []);
 
   // Initialize current step from sessionStorage or default
-  const getInitialStep = (): number => {
+  const initialStep = useMemo((): number => {
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('jobPostingCurrentStep');
       if (saved) {
@@ -172,23 +170,21 @@ export default function AIJobPostingForm() {
       }
     }
     return 1;
-  };
+  }, []);
 
-  const [currentStep, setCurrentStep] = useState(getInitialStep);
+  // All hooks must be at the top level
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [skillsInput, setSkillsInput] = useState('');
   const [locationInput, setLocationInput] = useState('');
   const [locationSuggestions, setLocationSuggestions] = useState<LocationOption[]>([]);
-  const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
-  const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [activeField, setActiveField] = useState<string | null>(null);
   const [fieldSuggestions, setFieldSuggestions] = useState<{[key: string]: AISuggestion}>({});
-  // Removed typingTimeout - no longer needed for manual typing
   
-  const [formData, setFormData] = useState<JobFormData>(getInitialFormData);
+  const [formData, setFormData] = useState<JobFormData>(initialFormData);
 
   // Instant fallback suggestions for professional feel
   const getInstantSuggestions = (field: string, value: string): AISuggestion => {
@@ -504,11 +500,7 @@ export default function AIJobPostingForm() {
     setActiveField(null);
   };
 
-  const addSkill = (skill: string) => {
-    if (skill && !formData.skills.includes(skill)) {
-      setFormData(prev => ({ ...prev, skills: [...prev.skills, skill] }));
-    }
-  };
+  // Removed unused addSkill function
 
   const removeSkill = (skillToRemove: string) => {
     setFormData(prev => ({ 
@@ -792,7 +784,7 @@ export default function AIJobPostingForm() {
           }
         } catch (notificationError) {
           console.error('❌ Failed to send job creation notification:', notificationError);
-          // Don't fail the job posting if notification fails
+          // Don&apos;t fail the job posting if notification fails
         }
         
         // Clear form data and redirect to dashboard
@@ -823,7 +815,7 @@ export default function AIJobPostingForm() {
       } else {
         toast.error(data.error || 'Failed to post job');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to post job. Please try again.');
     } finally {
       setLoading(false);
@@ -1170,7 +1162,7 @@ export default function AIJobPostingForm() {
                 >
                   <div className="text-center mb-6">
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">Requirements & Skills</h2>
-                    <p className="text-slate-600">Define what you're looking for with AI optimization</p>
+                    <p className="text-slate-600">Define what you&apos;re looking for with AI optimization</p>
                   </div>
 
                   <div className="space-y-6">

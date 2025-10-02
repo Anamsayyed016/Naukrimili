@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import CompanyEditModal from "./components/CompanyEditModal";
+import { formatDate } from "@/lib/utils";
 
 interface Company {
   id: string;
@@ -259,9 +260,7 @@ export default function AdminCompaniesPage() {
     return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" />Verified</Badge>;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
+
 
   if (loading && companies.length === 0) {
     return (
@@ -573,3 +572,4 @@ export default function AdminCompaniesPage() {
     </div>
   );
 }
+

@@ -26,6 +26,7 @@ import {
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
 import { useSocket } from "@/hooks/useSocket";
+import { formatDate } from "@/lib/utils";
 
 interface Application {
   id: string;
@@ -251,9 +252,7 @@ export default function JobSeekerApplicationsPage() {
     return counts;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
+
 
   const statusCounts = getStatusCounts();
 
@@ -549,3 +548,4 @@ export default function JobSeekerApplicationsPage() {
     </div>
   );
 }
+

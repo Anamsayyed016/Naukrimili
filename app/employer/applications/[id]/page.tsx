@@ -26,6 +26,7 @@ import {
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import AuthGuard from "@/components/auth/AuthGuard";
+import { formatDate } from "@/lib/utils";
 
 interface ApplicationDetail {
   id: string;
@@ -470,15 +471,6 @@ export default function ApplicationDetailPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   if (loading) {
     return (
