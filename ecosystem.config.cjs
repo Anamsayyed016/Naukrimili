@@ -49,6 +49,10 @@ module.exports = {
       exec_mode: 'fork',
       merge_logs: true,
       
+      // Ensure proper startup
+      wait_ready: true,
+      listen_timeout: 10000,
+      
       // Auto restart on file changes (disabled for production)
       watch: false,
       ignore_watch: [
