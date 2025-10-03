@@ -16,16 +16,28 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
         
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules
+          .next/cache
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
     - name: Install dependencies
       run: |
         echo "📦 Installing dependencies..."
         
-        # Clean up
+        # Clean up only if not cached
+        if [ ! -d "node_modules" ]; then
         rm -rf node_modules package-lock.json .next .npm .tsbuildinfo
         npm cache clean --force
+        fi
         
         # Create .npmrc for better compatibility
         cat > .npmrc << 'EOF'
@@ -36,33 +48,8 @@ jobs:
         auto-install-peers=true
         EOF
         
-        # Install dependencies
-        npm install --legacy-peer-deps --engine-strict=false --force
-        
-        # Install TailwindCSS and UI dependencies
-        npm install --legacy-peer-deps --engine-strict=false \
-          tailwindcss@3.4.18 \
-          postcss@8.4.47 \
-          autoprefixer@10.4.20 \
-          @radix-ui/react-slot@1.2.3 \
-          @radix-ui/react-dialog@1.1.15 \
-          @radix-ui/react-dropdown-menu@2.1.16 \
-          @radix-ui/react-toast@1.2.15 \
-          @radix-ui/react-label@2.1.1 \
-          @radix-ui/react-checkbox@1.1.2 \
-          @radix-ui/react-progress@1.1.1 \
-          @radix-ui/react-select@2.2.5 \
-          class-variance-authority@0.7.1 \
-          clsx@2.1.1 \
-          tailwind-merge@2.6.0 \
-          lucide-react@0.525.0 \
-          @heroicons/react@2.2.0
-        
-        # Install as dev dependencies
-        npm install --save-dev --legacy-peer-deps --engine-strict=false \
-          tailwindcss@3.4.18 \
-          postcss@8.4.47 \
-          autoprefixer@10.4.20
+        # Install all dependencies in one command
+        npm ci --legacy-peer-deps --engine-strict=false --force || npm install --legacy-peer-deps --engine-strict=false --force
         
         # Generate Prisma client
         npx prisma generate
@@ -74,14 +61,12 @@ jobs:
       run: |
         echo "🔨 Building application..."
         
-        # Set build environment
-        export NODE_ENV=production
-        export NODE_OPTIONS="--max-old-space-size=4096"
-        export NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
-        export NEXT_TELEMETRY_DISABLED=1
-        export NEXT_PUBLIC_BUILD_TIME=$(date +%s)000
-        
-        # Build the application
+        # Build the application with optimized settings
+        NODE_ENV=production \
+        NODE_OPTIONS="--max-old-space-size=4096" \
+        NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true \
+        NEXT_TELEMETRY_DISABLED=1 \
+        NEXT_PUBLIC_BUILD_TIME=$(date +%s)000 \
         npx next build
         
         # Verify build
@@ -98,6 +83,28 @@ jobs:
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true"
         NEXT_TELEMETRY_DISABLED: "1"
         
+    - name: Verify build artifacts
+      run: |
+        echo "🔍 Verifying build artifacts..."
+        
+        # Check if build directory exists
+        if [ ! -d ".next" ]; then
+          echo "❌ Build directory not found"
+          exit 1
+        fi
+        
+        # Check if static files exist
+        if [ ! -d ".next/static" ]; then
+          echo "❌ Static files not found"
+          exit 1
+        fi
+        
+        # Check build size
+        BUILD_SIZE=$(du -sh .next | cut -f1)
+        echo "📊 Build size: $BUILD_SIZE"
+        
+        echo "✅ Build artifacts verified successfully"
+        
     - name: Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -105,8 +112,9 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 15m
-        command_timeout: 10m
+        timeout: 20m
+        command_timeout: 15m
+        debug: true
         script: |
           echo "🚀 Starting deployment to Hostinger VPS..."
           
@@ -135,12 +143,12 @@ jobs:
           echo "legacy-peer-deps=true" >> .npmrc
           echo "fund=false" >> .npmrc
           echo "audit=false" >> .npmrc
+          echo "auto-install-peers=true" >> .npmrc
+          
+          # Install all dependencies in one command
           npm install --legacy-peer-deps --engine-strict=false --force
           
-          # Install UI dependencies
-          npm install --legacy-peer-deps --engine-strict=false \
-            tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast @radix-ui/react-label @radix-ui/react-checkbox @radix-ui/react-progress @radix-ui/react-select class-variance-authority clsx tailwind-merge lucide-react @heroicons/react
-          
+          # Generate Prisma client
           npx prisma generate
           
           # Build with increased memory
@@ -151,16 +159,24 @@ jobs:
           
           # Start PM2 process with production environment
           echo "▶️ Starting application..."
-          pm2 start ecosystem.config.cjs --env production --no-daemon
+          pm2 start ecosystem.config.cjs --env production --no-daemon || {
+            echo "❌ Failed to start PM2 process"
+            pm2 logs jobportal --lines 10
+            exit 1
+          }
           
-          # Wait a moment for startup
-          sleep 5
+          # Wait for startup
+          sleep 10
           
           # Check if process started successfully
           if ! pm2 list | grep -q "online"; then
             echo "⚠️ Process not online, trying to restart..."
-            pm2 restart jobportal
-            sleep 5
+            pm2 restart jobportal || {
+              echo "❌ Failed to restart PM2 process"
+              pm2 logs jobportal --lines 20
+              exit 1
+            }
+            sleep 10
           fi
           
           # Check status
@@ -186,5 +202,13 @@ jobs:
           # Show PM2 logs for debugging
           echo "📋 PM2 logs:"
           pm2 logs jobportal --lines 20
+          
+          # Final status check
+          echo "🔍 Final status check..."
+          pm2 status
+          
+          # Clean up old builds if needed
+          echo "🧹 Cleaning up old builds..."
+          find /root/jobportal -name "*.log" -mtime +7 -delete 2>/dev/null || true
           
           echo "✅ Deployment completed successfully!"
