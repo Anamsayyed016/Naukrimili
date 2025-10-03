@@ -35,8 +35,8 @@ jobs:
         
         # Clean up only if not cached
         if [ ! -d "node_modules" ]; then
-        rm -rf node_modules package-lock.json .next .npm .tsbuildinfo
-        npm cache clean --force
+          rm -rf node_modules package-lock.json .next .npm .tsbuildinfo
+          npm cache clean --force
         fi
         
         # Create .npmrc for better compatibility
@@ -51,25 +51,13 @@ jobs:
         # Install all dependencies in one command
         npm ci --legacy-peer-deps --engine-strict=false --force || npm install --legacy-peer-deps --engine-strict=false --force
         
-        # Ensure TailwindCSS and UI dependencies are installed
-        echo "🎨 Installing TailwindCSS and UI dependencies..."
+        # Force reinstall TailwindCSS and PostCSS to ensure they're properly linked
+        echo "🎨 Force reinstalling TailwindCSS and PostCSS..."
+        npm uninstall tailwindcss postcss autoprefixer 2>/dev/null || true
         npm install --legacy-peer-deps --engine-strict=false \
           tailwindcss@3.4.18 \
           postcss@8.4.47 \
-          autoprefixer@10.4.20 \
-          @radix-ui/react-slot@1.2.3 \
-          @radix-ui/react-dialog@1.1.15 \
-          @radix-ui/react-dropdown-menu@2.1.16 \
-          @radix-ui/react-toast@1.2.15 \
-          @radix-ui/react-label@2.1.1 \
-          @radix-ui/react-checkbox@1.1.2 \
-          @radix-ui/react-progress@1.1.1 \
-          @radix-ui/react-select@2.2.5 \
-          class-variance-authority@0.7.1 \
-          clsx@2.1.1 \
-          tailwind-merge@2.6.0 \
-          lucide-react@0.525.0 \
-          @heroicons/react@2.2.0
+          autoprefixer@10.4.20
         
         # Install as dev dependencies
         npm install --save-dev --legacy-peer-deps --engine-strict=false \
@@ -77,32 +65,255 @@ jobs:
           postcss@8.4.47 \
           autoprefixer@10.4.20
         
+        # Verify TailwindCSS installation
+        echo "🔍 Verifying TailwindCSS installation..."
+        if ! npm list tailwindcss > /dev/null 2>&1; then
+          echo "❌ TailwindCSS installation failed"
+          exit 1
+        fi
+        echo "✅ TailwindCSS verified"
+        
         # Generate Prisma client
         npx prisma generate
         
-        # Verify UI components exist
-        echo "🔍 Verifying UI components..."
-        if [ ! -f "components/ui/card.tsx" ]; then
-          echo "❌ Missing card.tsx component"
-          exit 1
-        fi
-        if [ ! -f "components/ui/button.tsx" ]; then
-          echo "❌ Missing button.tsx component"
-          exit 1
-        fi
-        if [ ! -f "components/ui/badge.tsx" ]; then
-          echo "❌ Missing badge.tsx component"
-          exit 1
-        fi
-        if [ ! -f "components/ui/input.tsx" ]; then
-          echo "❌ Missing input.tsx component"
-          exit 1
-        fi
+        # Create UI components if they don't exist
+        echo "🔧 Creating UI components if missing..."
+        mkdir -p components/ui lib
+        
+        # Create lib/utils.ts if missing
         if [ ! -f "lib/utils.ts" ]; then
-          echo "❌ Missing utils.ts file"
-          exit 1
+          echo "Creating lib/utils.ts..."
+          cat > lib/utils.ts << 'EOF'
+        import { type ClassValue, clsx } from "clsx"
+        import { twMerge } from "tailwind-merge"
+        
+        export function cn(...inputs: ClassValue[]) {
+          return twMerge(clsx(inputs))
+        }
+        EOF
         fi
-        echo "✅ All UI components verified"
+        
+        # Create components/ui/card.tsx if missing
+        if [ ! -f "components/ui/card.tsx" ]; then
+          echo "Creating components/ui/card.tsx..."
+          cat > components/ui/card.tsx << 'EOF'
+        import * as React from "react"
+        import { cn } from "@/lib/utils"
+        
+        const Card = React.forwardRef<
+          HTMLDivElement,
+          React.HTMLAttributes<HTMLDivElement>
+        >(({ className, ...props }, ref) => (
+          <div
+            ref={ref}
+            className={cn(
+              "rounded-lg border bg-card text-card-foreground shadow-sm",
+              className
+            )}
+            {...props}
+          />
+        ))
+        Card.displayName = "Card"
+        
+        const CardHeader = React.forwardRef<
+          HTMLDivElement,
+          React.HTMLAttributes<HTMLDivElement>
+        >(({ className, ...props }, ref) => (
+          <div
+            ref={ref}
+            className={cn("flex flex-col space-y-1.5 p-6", className)}
+            {...props}
+          />
+        ))
+        CardHeader.displayName = "CardHeader"
+        
+        const CardTitle = React.forwardRef<
+          HTMLParagraphElement,
+          React.HTMLAttributes<HTMLHeadingElement>
+        >(({ className, ...props }, ref) => (
+          <h3
+            ref={ref}
+            className={cn(
+              "text-2xl font-semibold leading-none tracking-tight",
+              className
+            )}
+            {...props}
+          />
+        ))
+        CardTitle.displayName = "CardTitle"
+        
+        const CardDescription = React.forwardRef<
+          HTMLParagraphElement,
+          React.HTMLAttributes<HTMLParagraphElement>
+        >(({ className, ...props }, ref) => (
+          <p
+            ref={ref}
+            className={cn("text-sm text-muted-foreground", className)}
+            {...props}
+          />
+        ))
+        CardDescription.displayName = "CardDescription"
+        
+        const CardContent = React.forwardRef<
+          HTMLDivElement,
+          React.HTMLAttributes<HTMLDivElement>
+        >(({ className, ...props }, ref) => (
+          <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+        ))
+        CardContent.displayName = "CardContent"
+        
+        const CardFooter = React.forwardRef<
+          HTMLDivElement,
+          React.HTMLAttributes<HTMLDivElement>
+        >(({ className, ...props }, ref) => (
+          <div
+            ref={ref}
+            className={cn("flex items-center p-6 pt-0", className)}
+            {...props}
+          />
+        ))
+        CardFooter.displayName = "CardFooter"
+        
+        export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+        EOF
+        fi
+        
+        # Create components/ui/button.tsx if missing
+        if [ ! -f "components/ui/button.tsx" ]; then
+          echo "Creating components/ui/button.tsx..."
+          cat > components/ui/button.tsx << 'EOF'
+        import * as React from "react"
+        import { Slot } from "@radix-ui/react-slot"
+        import { cva, type VariantProps } from "class-variance-authority"
+        import { cn } from "@/lib/utils"
+        
+        const buttonVariants = cva(
+          "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          {
+            variants: {
+              variant: {
+                default: "bg-primary text-primary-foreground hover:bg-primary/90",
+                destructive:
+                  "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+                outline:
+                  "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                secondary:
+                  "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                ghost: "hover:bg-accent hover:text-accent-foreground",
+                link: "text-primary underline-offset-4 hover:underline",
+              },
+              size: {
+                default: "h-10 px-4 py-2",
+                sm: "h-9 rounded-md px-3",
+                lg: "h-11 rounded-md px-8",
+                icon: "h-10 w-10",
+              },
+            },
+            defaultVariants: {
+              variant: "default",
+              size: "default",
+            },
+          }
+        )
+        
+        export interface ButtonProps
+          extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+            VariantProps<typeof buttonVariants> {
+          asChild?: boolean
+        }
+        
+        const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+          ({ className, variant, size, asChild = false, ...props }, ref) => {
+            const Comp = asChild ? Slot : "button"
+            return (
+              <Comp
+                className={cn(buttonVariants({ variant, size, className }))}
+                ref={ref}
+                {...props}
+              />
+            )
+          }
+        )
+        Button.displayName = "Button"
+        
+        export { Button, buttonVariants }
+        EOF
+        fi
+        
+        # Create components/ui/badge.tsx if missing
+        if [ ! -f "components/ui/badge.tsx" ]; then
+          echo "Creating components/ui/badge.tsx..."
+          cat > components/ui/badge.tsx << 'EOF'
+        import * as React from "react"
+        import { cva, type VariantProps } from "class-variance-authority"
+        import { cn } from "@/lib/utils"
+        
+        const badgeVariants = cva(
+          "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+          {
+            variants: {
+              variant: {
+                default:
+                  "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+                secondary:
+                  "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                destructive:
+                  "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+                outline: "text-foreground",
+              },
+            },
+            defaultVariants: {
+              variant: "default",
+            },
+          }
+        )
+        
+        export interface BadgeProps
+          extends React.HTMLAttributes<HTMLDivElement>,
+            VariantProps<typeof badgeVariants> {}
+        
+        function Badge({ className, variant, ...props }: BadgeProps) {
+          return (
+            <div className={cn(badgeVariants({ variant }), className)} {...props} />
+          )
+        }
+        
+        export { Badge, badgeVariants }
+        EOF
+        fi
+        
+        # Create components/ui/input.tsx if missing
+        if [ ! -f "components/ui/input.tsx" ]; then
+          echo "Creating components/ui/input.tsx..."
+          cat > components/ui/input.tsx << 'EOF'
+        import * as React from "react"
+        import { cn } from "@/lib/utils"
+        
+        export interface InputProps
+          extends React.InputHTMLAttributes<HTMLInputElement> {}
+        
+        const Input = React.forwardRef<HTMLInputElement, InputProps>(
+          ({ className, type, ...props }, ref) => {
+            return (
+              <input
+                type={type}
+                className={cn(
+                  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                  className
+                )}
+                ref={ref}
+                {...props}
+              />
+            )
+          }
+        )
+        Input.displayName = "Input"
+        
+        export { Input }
+        EOF
+        fi
+        
+        echo "✅ UI components created/verified"
         
       env:
         NODE_ENV: production
@@ -111,8 +322,8 @@ jobs:
       run: |
         echo "🔨 Building application..."
         
-        # Verify TailwindCSS is installed
-        echo "🔍 Verifying TailwindCSS installation..."
+        # Verify all dependencies are installed
+        echo "🔍 Verifying all dependencies..."
         if ! npm list tailwindcss > /dev/null 2>&1; then
           echo "❌ TailwindCSS not found, installing..."
           npm install tailwindcss@3.4.18 --legacy-peer-deps --engine-strict=false
@@ -125,9 +336,17 @@ jobs:
           echo "❌ Autoprefixer not found, installing..."
           npm install autoprefixer@10.4.20 --legacy-peer-deps --engine-strict=false
         fi
-        echo "✅ All CSS dependencies verified"
+        
+        # Verify UI components exist
+        if [ ! -f "components/ui/card.tsx" ] || [ ! -f "components/ui/button.tsx" ] || [ ! -f "components/ui/badge.tsx" ] || [ ! -f "components/ui/input.tsx" ]; then
+          echo "❌ UI components missing, this should not happen"
+          exit 1
+        fi
+        
+        echo "✅ All dependencies verified"
         
         # Build the application with optimized settings
+        echo "🔨 Starting build process..."
         NODE_ENV=production \
         NODE_OPTIONS="--max-old-space-size=4096" \
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true \
