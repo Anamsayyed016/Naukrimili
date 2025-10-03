@@ -25,23 +25,52 @@ jobs:
         echo "🚀 Starting nuclear CI fix..."
         
         # Complete cleanup
-        rm -rf node_modules package-lock.json .next .npm
+        rm -rf node_modules package-lock.json .next .npm .tsbuildinfo
         npm cache clean --force
         
-        # Create .npmrc
-        echo "engine-strict=false" > .npmrc
-        echo "legacy-peer-deps=true" >> .npmrc
-        echo "fund=false" >> .npmrc
-        echo "audit=false" >> .npmrc
+        # Create .npmrc with comprehensive settings
+        cat > .npmrc << 'EOF'
+        engine-strict=false
+        legacy-peer-deps=true
+        fund=false
+        audit=false
+        auto-install-peers=true
+        prefer-offline=false
+        cache-max=0
+        EOF
         
-        # Install ALL dependencies
-        npm install --legacy-peer-deps --engine-strict=false --force
+        # Install ALL dependencies with maximum compatibility
+        npm install --legacy-peer-deps --engine-strict=false --force --no-optional
         
-        # Install missing packages as both regular and dev dependencies
-        npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false
-        npm install --save-dev tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false
+        # Install missing packages explicitly
+        npm install --legacy-peer-deps --engine-strict=false \
+          tailwindcss \
+          postcss \
+          autoprefixer \
+          @radix-ui/react-slot \
+          @radix-ui/react-dialog \
+          @radix-ui/react-dropdown-menu \
+          @radix-ui/react-toast \
+          class-variance-authority \
+          clsx \
+          tailwind-merge \
+          lucide-react
         
-        # Verify tailwindcss installation
+        # Install as dev dependencies
+        npm install --save-dev --legacy-peer-deps --engine-strict=false \
+          tailwindcss \
+          postcss \
+          autoprefixer \
+          @radix-ui/react-slot \
+          @radix-ui/react-dialog \
+          @radix-ui/react-dropdown-menu \
+          @radix-ui/react-toast \
+          class-variance-authority \
+          clsx \
+          tailwind-merge \
+          lucide-react
+        
+        # Verify critical packages
         if [ -d "node_modules/tailwindcss" ]; then
           echo "✅ tailwindcss found"
         else
@@ -49,10 +78,21 @@ jobs:
           npm install tailwindcss@latest --legacy-peer-deps --engine-strict=false --force
         fi
         
+        if [ -d "node_modules/lucide-react" ]; then
+          echo "✅ lucide-react found"
+        else
+          echo "❌ Installing lucide-react manually..."
+          npm install lucide-react@latest --legacy-peer-deps --engine-strict=false --force
+        fi
+        
+        # Create missing directories
+        mkdir -p .next components/ui lib components/auth
+        
         # Generate Prisma client
         npx prisma generate
         
-        # Build application
+        # Build application with proper environment
+        export NEXT_PUBLIC_BUILD_TIME=$(date +%s)000
         npm run build
       env:
         NODE_ENV: production
