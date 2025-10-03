@@ -27,7 +27,7 @@ const customPrismaAdapter = {
         firstName,
         lastName,
         // Set default values for required fields
-        role: userData.role || 'jobseeker',
+        role: userData.role || null, // Don't default to jobseeker - user must select
         isActive: userData.isActive ?? true,
         isVerified: userData.isVerified ?? false,
       }
@@ -504,10 +504,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       console.log('🔍 NextAuth Redirect - URL:', url);
       console.log('🔍 NextAuth Redirect - BaseURL:', baseUrl);
       
-      // For OAuth callbacks, redirect to Gmail profile confirmation first
-      // This shows the user their Google account details before role selection
+      // For OAuth callbacks, redirect to role selection
       if (url.includes('/api/auth/callback/')) {
-        const redirectUrl = `${baseUrl}/auth/gmail-profile`;
+        const redirectUrl = `${baseUrl}/roles/choose`;
         console.log('🔍 NextAuth Redirect - OAuth callback redirecting to:', redirectUrl);
         return redirectUrl;
       }
@@ -523,8 +522,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return url;
       }
       
-      // Default redirect to Gmail profile for OAuth users
-      const defaultRedirect = `${baseUrl}/auth/gmail-profile`;
+      // Default redirect to role selection for OAuth users
+      const defaultRedirect = `${baseUrl}/roles/choose`;
       console.log('🔍 NextAuth Redirect - Default redirecting to:', defaultRedirect);
       return defaultRedirect;
     }

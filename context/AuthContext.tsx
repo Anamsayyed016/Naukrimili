@@ -74,6 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const user = session.user as any;
       
       // Only authenticate if user has a valid role and is active
+      // If user has no role (NULL), they need to select one first
       if (user.role && user.isActive !== false) {
         // Check if user requires OTP verification for Google OAuth
         if (user.requiresOTP && user.otpPurpose === 'gmail-oauth') {
@@ -87,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: session.user.id || '',
             name: session.user.name || '',
             email: session.user.email || '',
-            role: user?.role || 'jobseeker',
+            role: user?.role || null, // Don't default to jobseeker
             isVerified: user?.isVerified !== false, // Use session verification status
             isActive: true,
             isNewUser: user?.isNewUser || false, // Track if user is new (OAuth registration)
@@ -112,9 +113,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.removeItem('user');
           localStorage.removeItem('token');
         }
+      } else if (!user.role) {
+        // User has no role - redirect to role selection
+        console.log('🔐 User has no role, redirecting to role selection');
+        setUser(null);
+        setToken(null);
+        // Redirect to role selection page
+        window.location.href = '/roles/choose';
       } else {
-        // User doesn't have a role or is inactive, clear auth state
-        console.log('🔐 User has no role or is inactive, clearing auth state');
+        // User is inactive, clear auth state
+        console.log('🔐 User is inactive, clearing auth state');
         setUser(null);
         setToken(null);
       }
