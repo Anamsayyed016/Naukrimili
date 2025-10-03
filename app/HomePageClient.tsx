@@ -84,7 +84,7 @@ export default function HomePageClient({
             <span className="text-blue-300"> the Career</span>
             <span className="text-purple-300"> You Deserve</span>
           </h1>
-          <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+          <p key="hero-description" className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
             Connect with top companies worldwide through our AI-powered job matching platform
           </p>
         </div>

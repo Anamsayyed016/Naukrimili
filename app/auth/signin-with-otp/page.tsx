@@ -84,7 +84,7 @@ export default function SignInWithOTPPage() {
 
     try {
       await signIn('google', {
-        callbackUrl: '/auth/gmail-profile',
+        callbackUrl: '/roles/choose',
         redirect: true
       });
     } catch (error: any) {

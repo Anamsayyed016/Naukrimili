@@ -105,13 +105,13 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
       if (shouldRedirect) {
         // Use redirect flow
         await signIn(provider, {
-          callbackUrl: '/auth/gmail-profile',
+          callbackUrl: '/roles/choose',
           redirect: true
         });
       } else {
         // Use popup flow
         const result = await signIn(provider, {
-          callbackUrl: '/auth/gmail-profile',
+          callbackUrl: '/roles/choose',
           redirect: false
         });
 
@@ -121,8 +121,8 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
           setError(`${mobileError.message}. ${mobileError.solution}`);
           console.error('❌ OAuth error:', mobileError);
         } else if (result?.ok) {
-          // Success - redirect to Gmail profile
-          window.location.href = '/auth/gmail-profile';
+          // Success - redirect to role selection
+          window.location.href = '/roles/choose';
         }
       }
     } catch (err: any) {
@@ -211,7 +211,7 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
                   {safeArray(mobileCompatibility?.recommendations).map((rec, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="text-gray-400">•</span>
-                      <span>{rec}</span>
+                      <span>{String(rec)}</span>
                     </li>
                   ))}
                 </ul>
