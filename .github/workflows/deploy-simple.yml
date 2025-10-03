@@ -1,0 +1,43 @@
+name: 🚀 Simple Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🚀 Deploy to Production Server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        timeout: 30m
+        command_timeout: 25m
+        debug: true
+        script: |
+          set -e
+          echo "🚀 Starting production deployment..."
+          
+          # Navigate to project directory
+          cd /var/www/jobportal
+          echo "📁 Working in: $(pwd)"
+          
+          # Pull latest changes
+          git fetch origin
+          git reset --hard origin/main
+          git clean -fd
+          git pull origin main
+          
+          # Make script executable and run it
+          chmod +x scripts/server-deploy.sh
+          ./scripts/server-deploy.sh
