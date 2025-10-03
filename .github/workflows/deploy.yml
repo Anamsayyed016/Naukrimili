@@ -21,23 +21,33 @@ jobs:
         
     - name: Build application
       run: |
-        # Remove package-lock.json to force fresh install
-        rm -f package-lock.json
+        # Nuclear fix for CI build issues
+        echo "🚀 Starting nuclear CI fix..."
         
-        # Create .npmrc for engine bypass
+        # Complete cleanup
+        rm -rf node_modules package-lock.json .next .npm
+        npm cache clean --force
+        
+        # Create .npmrc
         echo "engine-strict=false" > .npmrc
         echo "legacy-peer-deps=true" >> .npmrc
         echo "fund=false" >> .npmrc
         echo "audit=false" >> .npmrc
         
-        # Install dependencies with engine bypass
+        # Install ALL dependencies
         npm install --legacy-peer-deps --engine-strict=false --force
         
-        # Install missing packages
+        # Install missing packages as both regular and dev dependencies
         npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false
+        npm install --save-dev tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false
         
-        # Install as dev dependencies to ensure they're available during build
-        npm install --save-dev tailwindcss postcss autoprefixer --legacy-peer-deps --engine-strict=false
+        # Verify tailwindcss installation
+        if [ -d "node_modules/tailwindcss" ]; then
+          echo "✅ tailwindcss found"
+        else
+          echo "❌ Installing tailwindcss manually..."
+          npm install tailwindcss@latest --legacy-peer-deps --engine-strict=false --force
+        fi
         
         # Generate Prisma client
         npx prisma generate
