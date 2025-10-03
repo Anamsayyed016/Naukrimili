@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "NEXT_PUBLIC_BUILD_TIME=$(date +%s)000 next build",
-    "build:ci": "rm -f package-lock.json && echo 'engine-strict=false' > .npmrc && echo 'legacy-peer-deps=true' >> .npmrc && echo 'fund=false' >> .npmrc && echo 'audit=false' >> .npmrc && npm install --legacy-peer-deps --engine-strict=false --force && npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false && npx prisma generate && NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' npm run build",
+    "build:ci": "node -e \"const fs=require('fs'); fs.unlinkSync('package-lock.json');\" 2>nul || echo \"No package-lock.json\" && echo engine-strict=false > .npmrc && echo legacy-peer-deps=true >> .npmrc && echo fund=false >> .npmrc && echo audit=false >> .npmrc && npm install --legacy-peer-deps --engine-strict=false --force && npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false && npx prisma generate && set NODE_ENV=production && set NODE_OPTIONS=--max-old-space-size=4096 && npm run build",
     "build:production": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" NEXT_TELEMETRY_DISABLED=1 next build",
     "build:cache-bust": "./scripts/deploy-with-cache-bust.sh",
     "build:fast": "NODE_OPTIONS=\"--max-old-space-size=4096\" NEXT_TELEMETRY_DISABLED=1 next build --no-lint",
