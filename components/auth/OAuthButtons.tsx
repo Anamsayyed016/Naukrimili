@@ -46,3 +46,6 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
     </div>
   );
 }
+
+// Named export for compatibility
+export { OAuthButtons };
