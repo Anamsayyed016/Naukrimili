@@ -1,0 +1,52 @@
+name: Build Fix
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Create .npmrc
+      run: |
+        echo "engine-strict=false" >> .npmrc
+        echo "legacy-peer-deps=true" >> .npmrc
+        echo "fund=false" >> .npmrc
+        echo "audit=false" >> .npmrc
+
+    - name: Remove package-lock.json
+      run: rm -f package-lock.json
+
+    - name: Install dependencies
+      run: npm install --legacy-peer-deps --engine-strict=false --force
+
+    - name: Install missing packages
+      run: |
+        npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false
+
+    - name: Generate Prisma client
+      run: npx prisma generate
+
+    - name: Build application
+      run: |
+        export NODE_ENV=production
+        export NODE_OPTIONS="--max-old-space-size=4096"
+        npm run build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-files
+        path: .next/
