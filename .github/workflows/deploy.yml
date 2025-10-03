@@ -67,6 +67,7 @@ jobs:
         fi
         
         # Install UI dependencies
+        echo "📦 Installing UI dependencies..."
         npm install --legacy-peer-deps --engine-strict=false \
           @radix-ui/react-slot@1.2.3 \
           @radix-ui/react-dialog@1.1.15 \
@@ -81,6 +82,19 @@ jobs:
           tailwind-merge@2.6.0 \
           lucide-react@0.525.0 \
           @heroicons/react@2.2.0
+        
+        # Verify UI components exist
+        echo "🔍 Verifying UI components..."
+        if [ ! -f "components/ui/card.tsx" ]; then
+          echo "❌ UI components missing - this should not happen if components are committed to git"
+          echo "📋 Checking git status..."
+          git status
+          echo "📋 Checking if components directory exists..."
+          ls -la components/ || echo "components directory not found"
+          exit 1
+        else
+          echo "✅ UI components exist"
+        fi
         
         # Generate Prisma client
         npx prisma generate
