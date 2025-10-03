@@ -169,7 +169,7 @@ jobs:
         echo "- HOST: ${{ secrets.HOST }}"
         echo "- SSH_USER: ${{ secrets.SSH_USER }}"
         echo "- SSH_PORT: ${{ secrets.SSH_PORT }}"
-        echo "- SSH_KEY: ${#{{ secrets.SSH_KEY }}} characters"
+        echo "- SSH_KEY: Configured (length hidden for security)"
         
     - name: 🚀 Deploy to Production Server
       uses: appleboy/ssh-action@v1.0.3
