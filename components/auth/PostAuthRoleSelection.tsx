@@ -121,7 +121,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       }
       
       // Update user role in database
-      const apiUrl = '/api/auth/update-role';
+      const apiUrl = '/api/auth/set-role';
       console.log('📡 PostAuthRoleSelection - Making API request to:', apiUrl);
       
       const response = await fetch(apiUrl, {
