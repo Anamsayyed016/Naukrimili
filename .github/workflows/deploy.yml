@@ -41,12 +41,30 @@ jobs:
         echo "📦 Installing all dependencies..."
         npm install --legacy-peer-deps --engine-strict=false --force
         
-        # Install specific versions of critical packages as regular dependencies
-        echo "🎨 Installing critical packages..."
-        npm install --legacy-peer-deps --engine-strict=false \
+        # Force install TailwindCSS and PostCSS as regular dependencies
+        echo "🎨 Force installing TailwindCSS and PostCSS..."
+        npm install --save --legacy-peer-deps --engine-strict=false \
           tailwindcss@3.4.18 \
           postcss@8.4.47 \
           autoprefixer@10.4.20
+        
+        # Verify TailwindCSS is installed
+        echo "🔍 Verifying TailwindCSS installation..."
+        if ! node -e "require('tailwindcss')" > /dev/null 2>&1; then
+          echo "❌ TailwindCSS not found after installation, trying alternative method..."
+          npm uninstall tailwindcss 2>/dev/null || true
+          npm install --save --legacy-peer-deps --engine-strict=false tailwindcss@3.4.18
+        fi
+        
+        # Final verification
+        if node -e "require('tailwindcss')" > /dev/null 2>&1; then
+          echo "✅ TailwindCSS is properly installed"
+        else
+          echo "❌ TailwindCSS installation failed"
+          echo "📋 Available packages:"
+          npm list | grep -i tailwind || echo "No TailwindCSS packages found"
+          exit 1
+        fi
         
         # Install UI dependencies
         npm install --legacy-peer-deps --engine-strict=false \
@@ -295,15 +313,6 @@ jobs:
         export { Input }
         EOF
         
-        # Verify TailwindCSS installation
-        echo "🔍 Verifying TailwindCSS installation..."
-        if ! node -e "require('tailwindcss')" > /dev/null 2>&1; then
-          echo "❌ TailwindCSS not found, installing..."
-          npm install --legacy-peer-deps --engine-strict=false tailwindcss@3.4.18
-        else
-          echo "✅ TailwindCSS is properly installed"
-        fi
-        
         echo "✅ Dependencies and UI components ready"
         
       env:
@@ -402,12 +411,30 @@ jobs:
           npm cache clean --force
           npm install --legacy-peer-deps --engine-strict=false --force
           
-          # Install critical packages as regular dependencies
-          echo "🎨 Installing critical packages..."
-          npm install --legacy-peer-deps --engine-strict=false \
+          # Force install TailwindCSS and PostCSS as regular dependencies
+          echo "🎨 Force installing TailwindCSS and PostCSS..."
+          npm install --save --legacy-peer-deps --engine-strict=false \
             tailwindcss@3.4.18 \
             postcss@8.4.47 \
             autoprefixer@10.4.20
+          
+          # Verify TailwindCSS is installed
+          echo "🔍 Verifying TailwindCSS installation..."
+          if ! node -e "require('tailwindcss')" > /dev/null 2>&1; then
+            echo "❌ TailwindCSS not found after installation, trying alternative method..."
+            npm uninstall tailwindcss 2>/dev/null || true
+            npm install --save --legacy-peer-deps --engine-strict=false tailwindcss@3.4.18
+          fi
+          
+          # Final verification
+          if node -e "require('tailwindcss')" > /dev/null 2>&1; then
+            echo "✅ TailwindCSS is properly installed"
+          else
+            echo "❌ TailwindCSS installation failed"
+            echo "📋 Available packages:"
+            npm list | grep -i tailwind || echo "No TailwindCSS packages found"
+            exit 1
+          fi
           
           npm install --legacy-peer-deps --engine-strict=false \
             @radix-ui/react-slot@1.2.3 \
@@ -654,15 +681,6 @@ jobs:
           
           export { Input }
           EOF
-          
-          # Verify TailwindCSS installation
-          echo "🔍 Verifying TailwindCSS installation..."
-          if ! node -e "require('tailwindcss')" > /dev/null 2>&1; then
-            echo "❌ TailwindCSS not found, installing..."
-            npm install --legacy-peer-deps --engine-strict=false tailwindcss@3.4.18
-          else
-            echo "✅ TailwindCSS is properly installed"
-          fi
           
           # Build application
           echo "🔨 Building application..."
