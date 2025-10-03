@@ -336,19 +336,22 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 20m
-        command_timeout: 15m
+        timeout: 30m
+        command_timeout: 25m
         debug: true
         script: |
+          set -e
           echo "🚀 Starting deployment to Hostinger VPS..."
           
           # Navigate to project directory
           cd /root/jobportal
+          echo "📁 Current directory: $(pwd)"
           
           # Stop PM2 process
           echo "⏹️ Stopping PM2 process..."
           pm2 stop jobportal || true
           pm2 delete jobportal || true
+          pm2 kill || true
           
           # Handle git conflicts
           echo "🔄 Resetting git state..."
@@ -371,6 +374,9 @@ jobs:
           auto-install-peers=true
           EOF
           
+          # Clean install
+          rm -rf node_modules .next
+          npm cache clean --force
           npm install --legacy-peer-deps --engine-strict=false --force
           
           # Install TailwindCSS and UI dependencies
@@ -624,18 +630,29 @@ jobs:
           echo "🔨 Building application..."
           export NODE_OPTIONS="--max-old-space-size=4096"
           export NEXT_TELEMETRY_DISABLED=1
-          npm run build:fast
+          export NODE_ENV=production
+          
+          # Use the build command from package.json
+          npm run build
+          
+          # Verify build
+          if [ ! -d ".next" ]; then
+            echo "❌ Build failed on server"
+            exit 1
+          fi
+          echo "✅ Build completed on server"
+          
+          # Create log directory
+          mkdir -p /var/log/jobportal
+          chmod 755 /var/log/jobportal
           
           # Start PM2 process
           echo "▶️ Starting application..."
-          pm2 start ecosystem.config.cjs --env production --no-daemon || {
-            echo "❌ Failed to start PM2 process"
-            pm2 logs jobportal --lines 10
-            exit 1
-          }
+          pm2 start ecosystem.config.cjs --env production --no-daemon
           
           # Wait for startup
-          sleep 10
+          echo "⏳ Waiting for application to start..."
+          sleep 15
           
           # Check status
           echo "📊 Checking application status..."
@@ -643,22 +660,31 @@ jobs:
           
           # Test application
           echo "🧪 Testing application..."
-          sleep 15
+          sleep 10
           
-          # Health check
-          for i in {1..3}; do
-            echo "Health check attempt $i/3..."
-            if curl -f http://localhost:3000/api/health; then
+          # Health check with better error handling
+          echo "🏥 Performing health check..."
+          for i in {1..5}; do
+            echo "Health check attempt $i/5..."
+            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
               echo "✅ Health check passed!"
               break
             else
-              echo "❌ Health check failed, waiting 10 seconds..."
-              sleep 10
+              echo "❌ Health check failed (attempt $i/5), waiting 15 seconds..."
+              sleep 15
             fi
           done
           
-          # Show logs
+          # Show logs for debugging
           echo "📋 PM2 logs:"
-          pm2 logs jobportal --lines 20
+          pm2 logs jobportal --lines 30
+          
+          # Final status check
+          echo "🔍 Final status check..."
+          pm2 status
+          
+          # Show process info
+          echo "📊 Process information:"
+          ps aux | grep node | grep -v grep || true
           
           echo "✅ Deployment completed successfully!"
