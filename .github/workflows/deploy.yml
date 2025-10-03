@@ -145,6 +145,32 @@ jobs:
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true"
         NEXT_TELEMETRY_DISABLED: "1"
         
+    - name: 🔐 Verify GitHub Secrets
+      run: |
+        echo "🔍 Verifying GitHub secrets..."
+        if [ -z "${{ secrets.HOST }}" ]; then
+          echo "❌ HOST secret is missing"
+          exit 1
+        fi
+        if [ -z "${{ secrets.SSH_USER }}" ]; then
+          echo "❌ SSH_USER secret is missing"
+          exit 1
+        fi
+        if [ -z "${{ secrets.SSH_KEY }}" ]; then
+          echo "❌ SSH_KEY secret is missing"
+          exit 1
+        fi
+        if [ -z "${{ secrets.SSH_PORT }}" ]; then
+          echo "❌ SSH_PORT secret is missing"
+          exit 1
+        fi
+        echo "✅ All required secrets are configured"
+        echo "📋 Configuration:"
+        echo "- HOST: ${{ secrets.HOST }}"
+        echo "- SSH_USER: ${{ secrets.SSH_USER }}"
+        echo "- SSH_PORT: ${{ secrets.SSH_PORT }}"
+        echo "- SSH_KEY: ${#{{ secrets.SSH_KEY }}} characters"
+        
     - name: 🚀 Deploy to Production Server
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -159,9 +185,23 @@ jobs:
           set -e
           echo "🚀 Starting production deployment..."
           
+          # Test SSH connection
+          echo "🔍 Testing SSH connection..."
+          echo "Current user: $(whoami)"
+          echo "Current directory: $(pwd)"
+          echo "Available space: $(df -h . | tail -1)"
+          
           # Navigate to project directory
           cd /var/www/jobportal
           echo "📁 Working in: $(pwd)"
+          
+          # Verify we can access the directory
+          if [ ! -d "/var/www/jobportal" ]; then
+            echo "❌ Project directory /var/www/jobportal not found"
+            echo "📋 Creating directory..."
+            mkdir -p /var/www/jobportal
+            cd /var/www/jobportal
+          fi
           
           # Check Node version and install if needed
           NODE_VERSION=$(node --version 2>/dev/null || echo "not-installed")
