@@ -19,16 +19,15 @@ jobs:
         node-version: '18'
         cache: 'npm'
         
-    - name: Build application
+    - name: Install dependencies
       run: |
-        # ULTIMATE CI FIX - Final comprehensive solution
-        echo "🚀 ULTIMATE CI FIX - Final comprehensive solution..."
+        echo "📦 Installing dependencies..."
         
-        # Complete cleanup
+        # Clean up
         rm -rf node_modules package-lock.json .next .npm .tsbuildinfo
         npm cache clean --force
         
-        # Create .npmrc with proper settings
+        # Create .npmrc for better compatibility
         cat > .npmrc << 'EOF'
         engine-strict=false
         legacy-peer-deps=true
@@ -40,108 +39,34 @@ jobs:
         # Install dependencies
         npm install --legacy-peer-deps --engine-strict=false --force
         
-        # Install ALL required packages with specific versions
-        npm install --legacy-peer-deps --engine-strict=false \
-          tailwindcss@3.4.18 \
-          postcss@8.4.47 \
-          autoprefixer@10.4.20 \
-          @radix-ui/react-slot@1.2.3 \
-          @radix-ui/react-dialog@1.1.15 \
-          @radix-ui/react-dropdown-menu@2.1.16 \
-          @radix-ui/react-toast@1.2.15 \
-          class-variance-authority@0.7.1 \
-          clsx@2.1.1 \
-          tailwind-merge@2.6.0 \
-          lucide-react@0.525.0
-        
-        # Install as dev dependencies
-        npm install --save-dev --legacy-peer-deps --engine-strict=false \
-          tailwindcss@3.4.18 \
-          postcss@8.4.47 \
-          autoprefixer@10.4.20
-        
-        # Create all UI components using the dedicated script
-        if [ -f "scripts/create-all-ui-components.sh" ]; then
-          chmod +x scripts/create-all-ui-components.sh
-          ./scripts/create-all-ui-components.sh
-        else
-          echo "Script not found, creating components inline..."
-          # Fallback: create components inline if script doesn't exist
-          mkdir -p components/ui lib components/auth components
-          
-          # Create basic components inline
-          cat > components/ui/card.tsx << 'EOF'
-          import * as React from "react"
-          import { cn } from "@/lib/utils"
-          
-          const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-            ({ className, ...props }, ref) => (
-              <div ref={ref} className={cn("rounded-lg border bg-card text-card-foreground shadow-sm", className)} {...props} />
-            )
-          )
-          Card.displayName = "Card"
-          
-          const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-            ({ className, ...props }, ref) => (
-              <div ref={ref} className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />
-            )
-          )
-          CardHeader.displayName = "CardHeader"
-          
-          const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
-            ({ className, ...props }, ref) => (
-              <h3 ref={ref} className={cn("text-2xl font-semibold leading-none tracking-tight", className)} {...props} />
-            )
-          )
-          CardTitle.displayName = "CardTitle"
-          
-          const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-            ({ className, ...props }, ref) => (
-              <p ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />
-            )
-          )
-          CardDescription.displayName = "CardDescription"
-          
-          const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-            ({ className, ...props }, ref) => (
-              <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
-            )
-          )
-          CardContent.displayName = "CardContent"
-          
-          const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-            ({ className, ...props }, ref) => (
-              <div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />
-            )
-          )
-          CardFooter.displayName = "CardFooter"
-          
-          export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
-          EOF
-          
-          # Create other essential components...
-          echo "✅ Fallback components created"
-        fi
-        
         # Generate Prisma client
         npx prisma generate
         
-        # Verify all components exist before building
-        echo "Verifying all components exist..."
-        ls -la components/ui/card.tsx || echo "❌ Missing card.tsx"
-        ls -la components/ui/button.tsx || echo "❌ Missing button.tsx"
-        ls -la components/ui/badge.tsx || echo "❌ Missing badge.tsx"
-        ls -la components/ui/input.tsx || echo "❌ Missing input.tsx"
-        ls -la components/ui/select.tsx || echo "❌ Missing select.tsx"
-        ls -la components/ui/table.tsx || echo "❌ Missing table.tsx"
-        ls -la lib/utils.ts || echo "❌ Missing utils.ts"
-        ls -la lib/safe-array-utils.ts || echo "❌ Missing safe-array-utils.ts"
+      env:
+        NODE_ENV: production
         
-        # Build the application
+    - name: Build application
+      run: |
+        echo "🔨 Building application..."
+        
+        # Set build environment
+        export NODE_ENV=production
+        export NODE_OPTIONS="--max-old-space-size=4096"
         export NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
         export NEXT_TELEMETRY_DISABLED=1
         export NEXT_PUBLIC_BUILD_TIME=$(date +%s)000
+        
+        # Build the application
         npm run build
+        
+        # Verify build
+        if [ ! -d ".next" ]; then
+          echo "❌ Build failed - .next directory not found"
+          exit 1
+        fi
+        
+        echo "✅ Build completed successfully"
+        
       env:
         NODE_ENV: production
         NODE_OPTIONS: "--max-old-space-size=4096"
@@ -149,7 +74,7 @@ jobs:
         NEXT_TELEMETRY_DISABLED: "1"
         
     - name: Deploy to Hostinger VPS
-      uses: appleboy/ssh-action@v0.1.9
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.SSH_USER }}
@@ -161,7 +86,7 @@ jobs:
           echo "🚀 Starting deployment to Hostinger VPS..."
           
           # Navigate to project directory
-          cd /var/www/jobportal
+          cd /root/jobportal
           
           # Stop PM2 process
           echo "⏹️ Stopping PM2 process..."
@@ -180,13 +105,12 @@ jobs:
           echo "fund=false" >> .npmrc
           echo "audit=false" >> .npmrc
           npm install --legacy-peer-deps --engine-strict=false --force
-          npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false
-          npm install --save-dev tailwindcss postcss autoprefixer --legacy-peer-deps --engine-strict=false
           npx prisma generate
           
           # Build with increased memory
           echo "🔨 Building application..."
           export NODE_OPTIONS="--max-old-space-size=4096"
+          export NEXT_TELEMETRY_DISABLED=1
           npm run build:fast
           
           # Start PM2 process with production environment
