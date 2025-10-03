@@ -18,3 +18,13 @@ export default function SEOJobLink({ href, children, className, title }: SEOJobL
     </Link>
   );
 }
+
+// Hook for generating SEO job URLs
+export const useSEOJobUrl = (job: any) => {
+  return `/jobs/${job.id}`;
+};
+
+// Function for generating job URLs
+export const getJobUrl = (job: any) => {
+  return `/jobs/${job.id}`;
+};
