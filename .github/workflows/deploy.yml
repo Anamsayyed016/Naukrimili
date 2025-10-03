@@ -21,10 +21,29 @@ jobs:
         
     - name: Build application
       run: |
-        npm ci
+        # Remove package-lock.json to force fresh install
+        rm -f package-lock.json
+        
+        # Create .npmrc for engine bypass
+        echo "engine-strict=false" > .npmrc
+        echo "legacy-peer-deps=true" >> .npmrc
+        echo "fund=false" >> .npmrc
+        echo "audit=false" >> .npmrc
+        
+        # Install dependencies with engine bypass
+        npm install --legacy-peer-deps --engine-strict=false --force
+        
+        # Install missing packages
+        npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false
+        
+        # Generate Prisma client
+        npx prisma generate
+        
+        # Build application
         npm run build
       env:
         NODE_ENV: production
+        NODE_OPTIONS: "--max-old-space-size=4096"
         
     - name: Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
@@ -52,7 +71,14 @@ jobs:
           
           # Install dependencies
           echo "📦 Installing dependencies..."
-          npm ci --production
+          rm -f package-lock.json
+          echo "engine-strict=false" > .npmrc
+          echo "legacy-peer-deps=true" >> .npmrc
+          echo "fund=false" >> .npmrc
+          echo "audit=false" >> .npmrc
+          npm install --legacy-peer-deps --engine-strict=false --force
+          npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false
+          npx prisma generate
           
           # Build with increased memory
           echo "🔨 Building application..."

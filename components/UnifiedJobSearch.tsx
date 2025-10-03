@@ -6,11 +6,21 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
 interface UnifiedJobSearchProps {
+  variant?: 'default' | 'hero' | 'homepage';
+  showAdvancedFilters?: boolean;
+  showSuggestions?: boolean;
+  showLocationCategories?: boolean;
+  autoSearch?: boolean;
   className?: string;
   placeholder?: string;
 }
 
 export default function UnifiedJobSearch({ 
+  variant = 'default',
+  showAdvancedFilters = true,
+  showSuggestions = true,
+  showLocationCategories = true,
+  autoSearch = false,
   className = '', 
   placeholder = 'Search jobs...' 
 }: UnifiedJobSearchProps) {
