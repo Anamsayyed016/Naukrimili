@@ -11,9 +11,7 @@ import GlobalErrorHandler from '@/components/GlobalErrorHandler';
 import ForceNewHash from '@/components/ForceNewHash';
 // FORCE HASH CHANGE - Build timestamp: 2025-10-02 14:30:00 - MAJOR CHANGE
 
-const inter = process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_SKIP_GOOGLE_FONTS 
-  ? { className: 'font-sans' }
-  : Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Job Portal - Find Your Dream Job',
