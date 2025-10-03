@@ -19,27 +19,15 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
-    - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          node_modules
-          .next/cache
-        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-          
     - name: Install dependencies
       run: |
         echo "📦 Installing dependencies..."
         
-        # Clean up only if not cached
-        if [ ! -d "node_modules" ]; then
-          rm -rf node_modules package-lock.json .next .npm .tsbuildinfo
-          npm cache clean --force
-        fi
+        # Clean up
+        rm -rf node_modules .next .npm .tsbuildinfo
+        npm cache clean --force
         
-        # Create .npmrc for better compatibility
+        # Create .npmrc
         cat > .npmrc << 'EOF'
         engine-strict=false
         legacy-peer-deps=true
@@ -48,42 +36,43 @@ jobs:
         auto-install-peers=true
         EOF
         
-        # Install all dependencies in one command
-        npm ci --legacy-peer-deps --engine-strict=false --force || npm install --legacy-peer-deps --engine-strict=false --force
+        # Install all dependencies
+        echo "📦 Installing all dependencies..."
+        npm install --legacy-peer-deps --engine-strict=false --force
         
-        # Force reinstall TailwindCSS and PostCSS to ensure they're properly linked
-        echo "🎨 Force reinstalling TailwindCSS and PostCSS..."
-        npm uninstall tailwindcss postcss autoprefixer 2>/dev/null || true
-        npm install --legacy-peer-deps --engine-strict=false \
-          tailwindcss@3.4.18 \
-          postcss@8.4.47 \
-          autoprefixer@10.4.20
-        
-        # Install as dev dependencies
+        # Install TailwindCSS and PostCSS explicitly
+        echo "🎨 Installing TailwindCSS and PostCSS..."
         npm install --save-dev --legacy-peer-deps --engine-strict=false \
           tailwindcss@3.4.18 \
           postcss@8.4.47 \
           autoprefixer@10.4.20
         
-        # Verify TailwindCSS installation
-        echo "🔍 Verifying TailwindCSS installation..."
-        if ! npm list tailwindcss > /dev/null 2>&1; then
-          echo "❌ TailwindCSS installation failed"
-          exit 1
-        fi
-        echo "✅ TailwindCSS verified"
+        # Install UI dependencies
+        echo "🎨 Installing UI dependencies..."
+        npm install --legacy-peer-deps --engine-strict=false \
+          @radix-ui/react-slot@1.2.3 \
+          @radix-ui/react-dialog@1.1.15 \
+          @radix-ui/react-dropdown-menu@2.1.16 \
+          @radix-ui/react-toast@1.2.15 \
+          @radix-ui/react-label@2.1.1 \
+          @radix-ui/react-checkbox@1.1.2 \
+          @radix-ui/react-progress@1.1.1 \
+          @radix-ui/react-select@2.2.5 \
+          class-variance-authority@0.7.1 \
+          clsx@2.1.1 \
+          tailwind-merge@2.6.0 \
+          lucide-react@0.525.0 \
+          @heroicons/react@2.2.0
         
         # Generate Prisma client
         npx prisma generate
         
-        # Create UI components if they don't exist
-        echo "🔧 Creating UI components if missing..."
+        # Create UI components
+        echo "🔧 Creating UI components..."
         mkdir -p components/ui lib
         
-        # Create lib/utils.ts if missing
-        if [ ! -f "lib/utils.ts" ]; then
-          echo "Creating lib/utils.ts..."
-          cat > lib/utils.ts << 'EOF'
+        # Create lib/utils.ts
+        cat > lib/utils.ts << 'EOF'
         import { type ClassValue, clsx } from "clsx"
         import { twMerge } from "tailwind-merge"
         
@@ -91,12 +80,9 @@ jobs:
           return twMerge(clsx(inputs))
         }
         EOF
-        fi
         
-        # Create components/ui/card.tsx if missing
-        if [ ! -f "components/ui/card.tsx" ]; then
-          echo "Creating components/ui/card.tsx..."
-          cat > components/ui/card.tsx << 'EOF'
+        # Create components/ui/card.tsx
+        cat > components/ui/card.tsx << 'EOF'
         import * as React from "react"
         import { cn } from "@/lib/utils"
         
@@ -176,12 +162,9 @@ jobs:
         
         export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
         EOF
-        fi
         
-        # Create components/ui/button.tsx if missing
-        if [ ! -f "components/ui/button.tsx" ]; then
-          echo "Creating components/ui/button.tsx..."
-          cat > components/ui/button.tsx << 'EOF'
+        # Create components/ui/button.tsx
+        cat > components/ui/button.tsx << 'EOF'
         import * as React from "react"
         import { Slot } from "@radix-ui/react-slot"
         import { cva, type VariantProps } from "class-variance-authority"
@@ -238,12 +221,9 @@ jobs:
         
         export { Button, buttonVariants }
         EOF
-        fi
         
-        # Create components/ui/badge.tsx if missing
-        if [ ! -f "components/ui/badge.tsx" ]; then
-          echo "Creating components/ui/badge.tsx..."
-          cat > components/ui/badge.tsx << 'EOF'
+        # Create components/ui/badge.tsx
+        cat > components/ui/badge.tsx << 'EOF'
         import * as React from "react"
         import { cva, type VariantProps } from "class-variance-authority"
         import { cn } from "@/lib/utils"
@@ -280,12 +260,9 @@ jobs:
         
         export { Badge, badgeVariants }
         EOF
-        fi
         
-        # Create components/ui/input.tsx if missing
-        if [ ! -f "components/ui/input.tsx" ]; then
-          echo "Creating components/ui/input.tsx..."
-          cat > components/ui/input.tsx << 'EOF'
+        # Create components/ui/input.tsx
+        cat > components/ui/input.tsx << 'EOF'
         import * as React from "react"
         import { cn } from "@/lib/utils"
         
@@ -311,9 +288,18 @@ jobs:
         
         export { Input }
         EOF
-        fi
         
-        echo "✅ UI components created/verified"
+        # Verify installation
+        echo "🔍 Verifying installation..."
+        if ! npm list tailwindcss > /dev/null 2>&1; then
+          echo "❌ TailwindCSS not found"
+          exit 1
+        fi
+        if [ ! -f "components/ui/card.tsx" ]; then
+          echo "❌ UI components not created"
+          exit 1
+        fi
+        echo "✅ Installation verified"
         
       env:
         NODE_ENV: production
@@ -322,41 +308,16 @@ jobs:
       run: |
         echo "🔨 Building application..."
         
-        # Verify all dependencies are installed
-        echo "🔍 Verifying all dependencies..."
-        if ! npm list tailwindcss > /dev/null 2>&1; then
-          echo "❌ TailwindCSS not found, installing..."
-          npm install tailwindcss@3.4.18 --legacy-peer-deps --engine-strict=false
-        fi
-        if ! npm list postcss > /dev/null 2>&1; then
-          echo "❌ PostCSS not found, installing..."
-          npm install postcss@8.4.47 --legacy-peer-deps --engine-strict=false
-        fi
-        if ! npm list autoprefixer > /dev/null 2>&1; then
-          echo "❌ Autoprefixer not found, installing..."
-          npm install autoprefixer@10.4.20 --legacy-peer-deps --engine-strict=false
-        fi
-        
-        # Verify UI components exist
-        if [ ! -f "components/ui/card.tsx" ] || [ ! -f "components/ui/button.tsx" ] || [ ! -f "components/ui/badge.tsx" ] || [ ! -f "components/ui/input.tsx" ]; then
-          echo "❌ UI components missing, this should not happen"
-          exit 1
-        fi
-        
-        echo "✅ All dependencies verified"
-        
-        # Build the application with optimized settings
-        echo "🔨 Starting build process..."
+        # Build with optimized settings
         NODE_ENV=production \
         NODE_OPTIONS="--max-old-space-size=4096" \
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true \
         NEXT_TELEMETRY_DISABLED=1 \
-        NEXT_PUBLIC_BUILD_TIME=$(date +%s)000 \
         npx next build
         
         # Verify build
         if [ ! -d ".next" ]; then
-          echo "❌ Build failed - .next directory not found"
+          echo "❌ Build failed"
           exit 1
         fi
         
@@ -367,28 +328,6 @@ jobs:
         NODE_OPTIONS: "--max-old-space-size=4096"
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true"
         NEXT_TELEMETRY_DISABLED: "1"
-        
-    - name: Verify build artifacts
-      run: |
-        echo "🔍 Verifying build artifacts..."
-        
-        # Check if build directory exists
-        if [ ! -d ".next" ]; then
-          echo "❌ Build directory not found"
-          exit 1
-        fi
-        
-        # Check if static files exist
-        if [ ! -d ".next/static" ]; then
-          echo "❌ Static files not found"
-          exit 1
-        fi
-        
-        # Check build size
-        BUILD_SIZE=$(du -sh .next | cut -f1)
-        echo "📊 Build size: $BUILD_SIZE"
-        
-        echo "✅ Build artifacts verified successfully"
         
     - name: Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v1.0.3
@@ -411,7 +350,7 @@ jobs:
           pm2 stop jobportal || true
           pm2 delete jobportal || true
           
-          # Handle git conflicts by resetting to clean state
+          # Handle git conflicts
           echo "🔄 Resetting git state..."
           git fetch origin
           git reset --hard origin/main
@@ -424,21 +363,24 @@ jobs:
           # Install dependencies
           echo "📦 Installing dependencies..."
           rm -f package-lock.json
-          echo "engine-strict=false" > .npmrc
-          echo "legacy-peer-deps=true" >> .npmrc
-          echo "fund=false" >> .npmrc
-          echo "audit=false" >> .npmrc
-          echo "auto-install-peers=true" >> .npmrc
+          cat > .npmrc << 'EOF'
+          engine-strict=false
+          legacy-peer-deps=true
+          fund=false
+          audit=false
+          auto-install-peers=true
+          EOF
           
-          # Install all dependencies in one command
           npm install --legacy-peer-deps --engine-strict=false --force
           
-          # Ensure TailwindCSS and UI dependencies are installed on server
-          echo "🎨 Installing TailwindCSS and UI dependencies on server..."
-          npm install --legacy-peer-deps --engine-strict=false \
+          # Install TailwindCSS and UI dependencies
+          echo "🎨 Installing TailwindCSS and UI dependencies..."
+          npm install --save-dev --legacy-peer-deps --engine-strict=false \
             tailwindcss@3.4.18 \
             postcss@8.4.47 \
-            autoprefixer@10.4.20 \
+            autoprefixer@10.4.20
+          
+          npm install --legacy-peer-deps --engine-strict=false \
             @radix-ui/react-slot@1.2.3 \
             @radix-ui/react-dialog@1.1.15 \
             @radix-ui/react-dropdown-menu@2.1.16 \
@@ -456,25 +398,235 @@ jobs:
           # Generate Prisma client
           npx prisma generate
           
-          # Verify dependencies on server
-          echo "🔍 Verifying server dependencies..."
-          if ! npm list tailwindcss > /dev/null 2>&1; then
-            echo "❌ TailwindCSS not found on server, installing..."
-            npm install tailwindcss@3.4.18 --legacy-peer-deps --engine-strict=false
-          fi
-          if [ ! -f "components/ui/card.tsx" ]; then
-            echo "❌ Missing UI components on server"
-            exit 1
-          fi
-          echo "✅ Server dependencies verified"
+          # Create UI components on server
+          echo "🔧 Creating UI components on server..."
+          mkdir -p components/ui lib
           
-          # Build with increased memory
+          # Create lib/utils.ts
+          cat > lib/utils.ts << 'EOF'
+          import { type ClassValue, clsx } from "clsx"
+          import { twMerge } from "tailwind-merge"
+          
+          export function cn(...inputs: ClassValue[]) {
+            return twMerge(clsx(inputs))
+          }
+          EOF
+          
+          # Create components/ui/card.tsx
+          cat > components/ui/card.tsx << 'EOF'
+          import * as React from "react"
+          import { cn } from "@/lib/utils"
+          
+          const Card = React.forwardRef<
+            HTMLDivElement,
+            React.HTMLAttributes<HTMLDivElement>
+          >(({ className, ...props }, ref) => (
+            <div
+              ref={ref}
+              className={cn(
+                "rounded-lg border bg-card text-card-foreground shadow-sm",
+                className
+              )}
+              {...props}
+            />
+          ))
+          Card.displayName = "Card"
+          
+          const CardHeader = React.forwardRef<
+            HTMLDivElement,
+            React.HTMLAttributes<HTMLDivElement>
+          >(({ className, ...props }, ref) => (
+            <div
+              ref={ref}
+              className={cn("flex flex-col space-y-1.5 p-6", className)}
+              {...props}
+            />
+          ))
+          CardHeader.displayName = "CardHeader"
+          
+          const CardTitle = React.forwardRef<
+            HTMLParagraphElement,
+            React.HTMLAttributes<HTMLHeadingElement>
+          >(({ className, ...props }, ref) => (
+            <h3
+              ref={ref}
+              className={cn(
+                "text-2xl font-semibold leading-none tracking-tight",
+                className
+              )}
+              {...props}
+            />
+          ))
+          CardTitle.displayName = "CardTitle"
+          
+          const CardDescription = React.forwardRef<
+            HTMLParagraphElement,
+            React.HTMLAttributes<HTMLParagraphElement>
+          >(({ className, ...props }, ref) => (
+            <p
+              ref={ref}
+              className={cn("text-sm text-muted-foreground", className)}
+              {...props}
+            />
+          ))
+          CardDescription.displayName = "CardDescription"
+          
+          const CardContent = React.forwardRef<
+            HTMLDivElement,
+            React.HTMLAttributes<HTMLDivElement>
+          >(({ className, ...props }, ref) => (
+            <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+          ))
+          CardContent.displayName = "CardContent"
+          
+          const CardFooter = React.forwardRef<
+            HTMLDivElement,
+            React.HTMLAttributes<HTMLDivElement>
+          >(({ className, ...props }, ref) => (
+            <div
+              ref={ref}
+              className={cn("flex items-center p-6 pt-0", className)}
+              {...props}
+            />
+          ))
+          CardFooter.displayName = "CardFooter"
+          
+          export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+          EOF
+          
+          # Create components/ui/button.tsx
+          cat > components/ui/button.tsx << 'EOF'
+          import * as React from "react"
+          import { Slot } from "@radix-ui/react-slot"
+          import { cva, type VariantProps } from "class-variance-authority"
+          import { cn } from "@/lib/utils"
+          
+          const buttonVariants = cva(
+            "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+            {
+              variants: {
+                variant: {
+                  default: "bg-primary text-primary-foreground hover:bg-primary/90",
+                  destructive:
+                    "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+                  outline:
+                    "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+                  secondary:
+                    "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                  ghost: "hover:bg-accent hover:text-accent-foreground",
+                  link: "text-primary underline-offset-4 hover:underline",
+                },
+                size: {
+                  default: "h-10 px-4 py-2",
+                  sm: "h-9 rounded-md px-3",
+                  lg: "h-11 rounded-md px-8",
+                  icon: "h-10 w-10",
+                },
+              },
+              defaultVariants: {
+                variant: "default",
+                size: "default",
+              },
+            }
+          )
+          
+          export interface ButtonProps
+            extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+              VariantProps<typeof buttonVariants> {
+            asChild?: boolean
+          }
+          
+          const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+            ({ className, variant, size, asChild = false, ...props }, ref) => {
+              const Comp = asChild ? Slot : "button"
+              return (
+                <Comp
+                  className={cn(buttonVariants({ variant, size, className }))}
+                  ref={ref}
+                  {...props}
+                />
+              )
+            }
+          )
+          Button.displayName = "Button"
+          
+          export { Button, buttonVariants }
+          EOF
+          
+          # Create components/ui/badge.tsx
+          cat > components/ui/badge.tsx << 'EOF'
+          import * as React from "react"
+          import { cva, type VariantProps } from "class-variance-authority"
+          import { cn } from "@/lib/utils"
+          
+          const badgeVariants = cva(
+            "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            {
+              variants: {
+                variant: {
+                  default:
+                    "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+                  secondary:
+                    "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                  destructive:
+                    "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+                  outline: "text-foreground",
+                },
+              },
+              defaultVariants: {
+                variant: "default",
+              },
+            }
+          )
+          
+          export interface BadgeProps
+            extends React.HTMLAttributes<HTMLDivElement>,
+              VariantProps<typeof badgeVariants> {}
+          
+          function Badge({ className, variant, ...props }: BadgeProps) {
+            return (
+              <div className={cn(badgeVariants({ variant }), className)} {...props} />
+            )
+          }
+          
+          export { Badge, badgeVariants }
+          EOF
+          
+          # Create components/ui/input.tsx
+          cat > components/ui/input.tsx << 'EOF'
+          import * as React from "react"
+          import { cn } from "@/lib/utils"
+          
+          export interface InputProps
+            extends React.InputHTMLAttributes<HTMLInputElement> {}
+          
+          const Input = React.forwardRef<HTMLInputElement, InputProps>(
+            ({ className, type, ...props }, ref) => {
+              return (
+                <input
+                  type={type}
+                  className={cn(
+                    "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                    className
+                  )}
+                  ref={ref}
+                  {...props}
+                />
+              )
+            }
+          )
+          Input.displayName = "Input"
+          
+          export { Input }
+          EOF
+          
+          # Build application
           echo "🔨 Building application..."
           export NODE_OPTIONS="--max-old-space-size=4096"
           export NEXT_TELEMETRY_DISABLED=1
           npm run build:fast
           
-          # Start PM2 process with production environment
+          # Start PM2 process
           echo "▶️ Starting application..."
           pm2 start ecosystem.config.cjs --env production --no-daemon || {
             echo "❌ Failed to start PM2 process"
@@ -485,26 +637,15 @@ jobs:
           # Wait for startup
           sleep 10
           
-          # Check if process started successfully
-          if ! pm2 list | grep -q "online"; then
-            echo "⚠️ Process not online, trying to restart..."
-            pm2 restart jobportal || {
-              echo "❌ Failed to restart PM2 process"
-              pm2 logs jobportal --lines 20
-              exit 1
-            }
-            sleep 10
-          fi
-          
           # Check status
           echo "📊 Checking application status..."
           pm2 status
           
-          # Test application with retries
+          # Test application
           echo "🧪 Testing application..."
           sleep 15
           
-          # Try health check multiple times
+          # Health check
           for i in {1..3}; do
             echo "Health check attempt $i/3..."
             if curl -f http://localhost:3000/api/health; then
@@ -516,16 +657,8 @@ jobs:
             fi
           done
           
-          # Show PM2 logs for debugging
+          # Show logs
           echo "📋 PM2 logs:"
           pm2 logs jobportal --lines 20
-          
-          # Final status check
-          echo "🔍 Final status check..."
-          pm2 status
-          
-          # Clean up old builds if needed
-          echo "🧹 Cleaning up old builds..."
-          find /root/jobportal -name "*.log" -mtime +7 -delete 2>/dev/null || true
           
           echo "✅ Deployment completed successfully!"
