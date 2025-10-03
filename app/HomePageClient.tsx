@@ -6,7 +6,7 @@ import { safeLength, safeArray } from '@/lib/safe-array-utils';
 import { Search, Building, Briefcase, Users, TrendingUp, ArrowRight, Shield, Zap, Globe, Award, Clock, User, Sparkles, Upload, FileText, Building2, BriefcaseIcon, Target, Star, MapPin, Brain } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { OAuthButtons } from '@/components/auth/OAuthButtons';
+import OAuthButtons from '@/components/auth/OAuthButtons';
 import { Button } from "@/components/ui/button";
 import SEOJobLink from '@/components/SEOJobLink';
 import UnifiedJobSearch from '@/components/UnifiedJobSearch';
