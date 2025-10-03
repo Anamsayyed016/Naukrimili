@@ -1,31 +1,3 @@
 #!/bin/bash
-
-# Quick Server Fix - Run these commands on your server
-
-echo "🔧 QUICK SERVER FIX"
-echo "==================="
-
-cd /var/www/jobportal
-
-# Stop PM2
-pm2 stop all 2>/dev/null || true
-pm2 delete all 2>/dev/null || true
-
-# Clean and install
-rm -rf .next node_modules package-lock.json
-npm install --legacy-peer-deps --engine-strict=false
-
-# Generate Prisma and build
-npx prisma generate
-NODE_ENV=production NODE_OPTIONS="--max-old-space-size=4096" npm run build
-
-# Start application
-pm2 start ecosystem.config.cjs
-sleep 10
-pm2 status
-
-# Test and restart nginx
-curl -f http://localhost:3000/health && echo "✅ App working" || echo "❌ App not responding"
-systemctl restart nginx
-
-echo "✅ Fix completed! Check https://aftionix.in"
+# Quick Server Fix - One Command
+git pull origin main && pm2 stop all && pm2 delete all && rm -rf .next node_modules package-lock.json && echo "engine-strict=false\nlegacy-peer-deps=true\nfund=false\naudit=false" > .npmrc && npm install --legacy-peer-deps --engine-strict=false --force && npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false && npx prisma generate && NODE_ENV=production NODE_OPTIONS="--max-old-space-size=4096" NEXT_PUBLIC_BUILD_TIME=$(date +%s)000 npx next build && pm2 start npm --name "jobportal" -- start && systemctl restart nginx && echo "✅ Server fix complete! Check: pm2 list"
