@@ -40,7 +40,7 @@ module.exports = {
       
       // Advanced features
       kill_timeout: 5000,
-      listen_timeout: 10000,
+      listen_timeout: 15000,
       shutdown_with_message: true,
       
       // Memory and CPU monitoring
@@ -53,7 +53,7 @@ module.exports = {
       
       // Ensure proper startup
       wait_ready: true,
-      listen_timeout: 15000,
+      listen_timeout: 20000,
       
       // Auto restart on file changes (disabled for production)
       watch: false,
@@ -76,7 +76,7 @@ module.exports = {
       repo: 'your-git-repo-url',
       path: '/root/jobportal',
       'pre-deploy-local': '',
-      'post-deploy': 'npm install --legacy-peer-deps --engine-strict=false --force && npx prisma generate && npm run build && pm2 reload ecosystem.config.cjs --env production',
+      'post-deploy': 'chmod +x scripts/universal-deploy.sh && ./scripts/universal-deploy.sh',
       'pre-setup': ''
     }
   }

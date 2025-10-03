@@ -1,4 +1,4 @@
-name: Deploy to Hostinger VPS
+name: Production Deployment
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Setup Node.js
+    - name: Setup Node.js 20.x
       uses: actions/setup-node@v4
       with:
         node-version: '20'
@@ -21,13 +21,13 @@ jobs:
         
     - name: Install dependencies
       run: |
-        echo "📦 Installing dependencies..."
+        echo "📦 Installing dependencies with Node $(node --version)..."
         
         # Clean up
         rm -rf node_modules .next .npm .tsbuildinfo
         npm cache clean --force
         
-        # Create .npmrc
+        # Create .npmrc for compatibility
         cat > .npmrc << 'EOF'
         engine-strict=false
         legacy-peer-deps=true
@@ -306,7 +306,7 @@ jobs:
         
     - name: Build application
       run: |
-        echo "🔨 Building application..."
+        echo "🔨 Building application with Node $(node --version)..."
         
         # Build with optimized settings
         NODE_ENV=production \
@@ -329,7 +329,7 @@ jobs:
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true"
         NEXT_TELEMETRY_DISABLED: "1"
         
-    - name: Deploy to Hostinger VPS
+    - name: Deploy to Production Server
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.HOST }}
@@ -341,11 +341,32 @@ jobs:
         debug: true
         script: |
           set -e
-          echo "🚀 Starting deployment to Hostinger VPS..."
+          echo "🚀 Starting production deployment..."
           
           # Navigate to project directory
           cd /root/jobportal
           echo "📁 Current directory: $(pwd)"
+          
+          # Check Node version
+          echo "🔍 Checking Node version..."
+          NODE_VERSION=$(node --version)
+          echo "Current Node version: $NODE_VERSION"
+          
+          # Install Node 20 if not already installed
+          if [[ ! "$NODE_VERSION" =~ ^v20\. ]]; then
+            echo "⚠️ Node 20 required, current version: $NODE_VERSION"
+            echo "📦 Installing Node 20..."
+            
+            # Install Node 20 using NodeSource repository
+            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            
+            # Verify installation
+            NEW_NODE_VERSION=$(node --version)
+            echo "✅ Node updated to: $NEW_NODE_VERSION"
+          else
+            echo "✅ Node version is correct: $NODE_VERSION"
+          fi
           
           # Stop PM2 process
           echo "⏹️ Stopping PM2 process..."
@@ -353,14 +374,11 @@ jobs:
           pm2 delete jobportal || true
           pm2 kill || true
           
-          # Handle git conflicts
-          echo "🔄 Resetting git state..."
+          # Force clean git pull - overwrite local changes
+          echo "🔄 Force cleaning git state..."
           git fetch origin
           git reset --hard origin/main
           git clean -fd
-          
-          # Pull latest changes
-          echo "📥 Pulling latest changes..."
           git pull origin main
           
           # Install dependencies
@@ -652,7 +670,7 @@ jobs:
           
           # Wait for startup
           echo "⏳ Waiting for application to start..."
-          sleep 15
+          sleep 20
           
           # Check status
           echo "📊 Checking application status..."
@@ -664,20 +682,22 @@ jobs:
           
           # Health check with better error handling
           echo "🏥 Performing health check..."
-          for i in {1..5}; do
-            echo "Health check attempt $i/5..."
+          HEALTH_CHECK_PASSED=false
+          for i in {1..10}; do
+            echo "Health check attempt $i/10..."
             if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
               echo "✅ Health check passed!"
+              HEALTH_CHECK_PASSED=true
               break
             else
-              echo "❌ Health check failed (attempt $i/5), waiting 15 seconds..."
+              echo "❌ Health check failed (attempt $i/10), waiting 15 seconds..."
               sleep 15
             fi
           done
           
           # Show logs for debugging
           echo "📋 PM2 logs:"
-          pm2 logs jobportal --lines 30
+          pm2 logs jobportal --lines 50
           
           # Final status check
           echo "🔍 Final status check..."
@@ -687,4 +707,12 @@ jobs:
           echo "📊 Process information:"
           ps aux | grep node | grep -v grep || true
           
-          echo "✅ Deployment completed successfully!"
+          # Check if health check passed
+          if [ "$HEALTH_CHECK_PASSED" = false ]; then
+            echo "❌ Health check failed after 10 attempts"
+            echo "📋 Final PM2 logs:"
+            pm2 logs jobportal --lines 100
+            exit 1
+          fi
+          
+          echo "✅ Production deployment completed successfully!"
