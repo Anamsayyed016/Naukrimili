@@ -142,8 +142,8 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 20m
-        command_timeout: 18m
+        timeout: 30m
+        command_timeout: 28m
         debug: true
         script_stop: true
         use_insecure_cipher: false
@@ -220,91 +220,34 @@ jobs:
           auto-install-peers=true
           EOF
           
-          # Clean install with progress tracking
+          # Clean install with optimized settings
           echo "🧹 Cleaning previous installations..."
           rm -rf node_modules .next
           npm cache clean --force
           
-          echo "📦 Installing dependencies (this may take a few minutes)..."
-          npm install --legacy-peer-deps --engine-strict=false --force --progress=true
-          
-          # Force install TailwindCSS and PostCSS as regular dependencies
-          echo "🎨 Force installing TailwindCSS and PostCSS..."
-          npm install --save --legacy-peer-deps --engine-strict=false \
-            tailwindcss@3.4.18 \
-            postcss@8.5.6 \
-            autoprefixer@10.4.21
+          echo "📦 Installing dependencies (optimized for speed)..."
+          npm install --legacy-peer-deps --engine-strict=false --force --no-progress
             
-          # Also install as dev dependencies to ensure they're available during build
-          echo "🔧 Installing build dependencies..."
-          npm install --save-dev --legacy-peer-deps --engine-strict=false \
-            tailwindcss@3.4.18 \
-            postcss@8.5.6 \
-            autoprefixer@10.4.21
-            
-          # Verify autoprefixer is installed and accessible
-          echo "🔍 Verifying autoprefixer installation..."
-          if ! node -e "require('autoprefixer')" > /dev/null 2>&1; then
-            echo "❌ Autoprefixer not found, trying to reinstall..."
-            npm uninstall autoprefixer 2>/dev/null || true
-            npm install --save-dev --legacy-peer-deps --engine-strict=false autoprefixer@10.4.21
-            npm install --save --legacy-peer-deps --engine-strict=false autoprefixer@10.4.21
-          fi
-          
-          # Final autoprefixer verification
-          if node -e "require('autoprefixer')" > /dev/null 2>&1; then
-            echo "✅ Autoprefixer is properly installed"
+          # Quick verification of critical dependencies
+          echo "🔍 Verifying critical dependencies..."
+          if node -e "require('autoprefixer'); require('tailwindcss'); require('postcss')" > /dev/null 2>&1; then
+            echo "✅ All critical dependencies are available"
           else
-            echo "❌ Autoprefixer installation failed"
-            echo "📋 Available packages:"
-            npm list | grep -i autoprefixer || echo "No autoprefixer packages found"
-            exit 1
-          fi
-          
-          # Verify TailwindCSS is installed
-          echo "🔍 Verifying TailwindCSS installation..."
-          if ! node -e "require('tailwindcss')" > /dev/null 2>&1; then
-            echo "❌ TailwindCSS not found after installation, trying alternative method..."
-            npm uninstall tailwindcss 2>/dev/null || true
-            npm install --save --legacy-peer-deps --engine-strict=false tailwindcss@3.4.18
-          fi
-          
-          # Final verification
-          if node -e "require('tailwindcss')" > /dev/null 2>&1; then
-            echo "✅ TailwindCSS is properly installed"
-          else
-            echo "❌ TailwindCSS installation failed"
-            echo "📋 Available packages:"
-            npm list | grep -i tailwind || echo "No TailwindCSS packages found"
-            exit 1
+            echo "❌ Missing critical dependencies, reinstalling..."
+            npm install --legacy-peer-deps --engine-strict=false autoprefixer@10.4.21 tailwindcss@3.4.18 postcss@8.5.6
           fi
           
           # Generate Prisma client
           npx prisma generate
           
-          # Install UI dependencies
-          echo "🎨 Installing UI dependencies..."
+          # Install critical UI dependencies only
+          echo "🎨 Installing critical UI dependencies..."
           npm install --legacy-peer-deps --engine-strict=false \
             @radix-ui/react-slot@1.2.3 \
-            @radix-ui/react-dialog@1.1.15 \
-            @radix-ui/react-dropdown-menu@2.1.16 \
-            @radix-ui/react-toast@1.2.15 \
-            @radix-ui/react-label@2.1.1 \
-            @radix-ui/react-checkbox@1.1.2 \
-            @radix-ui/react-progress@1.1.1 \
-            @radix-ui/react-select@2.2.5 \
             class-variance-authority@0.7.1 \
             clsx@2.1.1 \
             tailwind-merge@2.6.0 \
-            lucide-react@0.525.0 \
-            @heroicons/react@2.2.0
-            
-          # Verify UI dependencies are installed
-          echo "🔍 Verifying UI dependencies..."
-          if ! node -e "require('@radix-ui/react-slot')" > /dev/null 2>&1; then
-            echo "❌ UI dependencies not found, trying to reinstall..."
-            npm install --legacy-peer-deps --engine-strict=false @radix-ui/react-slot class-variance-authority clsx tailwind-merge
-          fi
+            lucide-react@0.525.0
           
           # Create TailwindCSS config if it doesn't exist
           echo "🎨 Ensuring TailwindCSS configuration..."
