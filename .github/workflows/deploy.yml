@@ -62,6 +62,14 @@ jobs:
             echo "📋 Creating directory..."
             mkdir -p /var/www/jobportal
             cd /var/www/jobportal
+            # Initialize git if directory is empty
+            if [ ! -d ".git" ]; then
+              echo "📋 Initializing git repository..."
+              git init
+              git remote add origin https://github.com/anamsayyed58/jobportal.git
+              git fetch origin main
+              git reset --hard origin/main
+            fi
           fi
           
           # Check Node version and install if needed
@@ -83,13 +91,17 @@ jobs:
           echo "🧹 Cleaning up previous build artifacts..."
           rm -rf /var/www/jobportal/.next
           rm -rf /var/www/jobportal/node_modules
-          rm -rf /var/www/jobportal/package-lock.json
           
-          # Copy new code from GitHub
+          # Copy new code from GitHub (using HTTPS to avoid SSH issues)
           echo "📥 Copying new code from GitHub..."
-          git pull origin main || {
-            echo "❌ Git pull failed, trying to reset..."
+          git fetch origin main || {
+            echo "❌ Git fetch failed, trying to reset remote..."
+            git remote set-url origin https://github.com/anamsayyed58/jobportal.git
             git fetch origin main
+          }
+          git reset --hard origin/main || {
+            echo "❌ Git reset failed, trying clean checkout..."
+            git clean -fd
             git reset --hard origin/main
           }
           
@@ -107,63 +119,99 @@ jobs:
           export NEXT_TELEMETRY_DISABLED=1
           npm run build
           
+          # Create log directory
+          echo "📁 Creating log directory..."
+          sudo mkdir -p /var/log/jobportal
+          sudo chown -R $USER:$USER /var/log/jobportal
+          
           # Start the application with PM2
           echo "🚀 Starting application with PM2..."
           pm2 start ecosystem.config.cjs --env production --no-daemon
           
-          # Health check with retries and timeout
-          echo "🏥 Performing health check..."
+          # Wait for PM2 to fully start
+          echo "⏳ Waiting for PM2 to fully start..."
+          sleep 15
+          
+          # Comprehensive PM2 status check
+          echo "🔍 PM2 Status Check..."
+          pm2 status
+          pm2 describe jobportal || echo "⚠️ PM2 describe failed"
+          
+          # Health check with retries and comprehensive logging
+          echo "🏥 Performing comprehensive health check..."
           HEALTH_CHECK_PASSED=false
-          for i in {1..5}; do
-            echo "Health check attempt $i/5..."
+          for i in {1..10}; do
+            echo "Health check attempt $i/10..."
             
-            # Check if PM2 process is still running
-            PM2_STATUS=$(pm2 list --format json | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
+            # Check PM2 process status
+            PM2_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
+            echo "📊 PM2 Status: $PM2_STATUS"
+            
             if [ "$PM2_STATUS" != "online" ]; then
-              echo "⚠️ PM2 process is not online (status: $PM2_STATUS), attempting restart..."
-              pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production --no-daemon
-              sleep 10
-              continue
+              echo "⚠️ PM2 process is not online (status: $PM2_STATUS)"
+              echo "📋 PM2 Error Logs:"
+              pm2 logs jobportal --err --lines 10 || echo "No error logs available"
+              
+              if [ $i -lt 5 ]; then
+                echo "🔄 Attempting PM2 restart..."
+                pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production --no-daemon
+                sleep 15
+                continue
+              fi
             fi
             
-            # Try health check with timeout
-            if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
+            # Try health check endpoint
+            echo "🔍 Testing health endpoint..."
+            HEALTH_RESPONSE=$(curl -f -s --max-time 15 http://localhost:3000/api/health 2>/dev/null || echo "failed")
+            
+            if [ "$HEALTH_RESPONSE" != "failed" ]; then
               echo "✅ Health check passed!"
+              echo "📋 Health Response: $HEALTH_RESPONSE"
               HEALTH_CHECK_PASSED=true
               break
             else
-              echo "❌ Health check failed (attempt $i/5), waiting 10 seconds..."
+              echo "❌ Health check failed (attempt $i/10)"
+              echo "📋 Application Logs:"
+              pm2 logs jobportal --lines 5 || echo "No logs available"
+              echo "📋 Network Check:"
+              netstat -tlnp | grep :3000 || echo "Port 3000 not listening"
               sleep 10
             fi
           done
           
-          # Show logs for debugging
-          echo "📋 PM2 logs:"
-          pm2 logs jobportal --lines 20
-          
-          # Final status check
-          echo "🔍 Final status check..."
+          # Comprehensive final status
+          echo "📋 Final PM2 Status:"
           pm2 status
+          echo "📋 PM2 Process Details:"
+          pm2 describe jobportal || echo "PM2 describe failed"
+          echo "📋 Recent Application Logs:"
+          pm2 logs jobportal --lines 20 || echo "No logs available"
+          echo "📋 Network Status:"
+          netstat -tlnp | grep :3000 || echo "Port 3000 not listening"
           
           # Check if health check passed
           if [ "$HEALTH_CHECK_PASSED" = false ]; then
-            echo "⚠️ Health check failed after 5 attempts, but deployment may still be successful"
-            echo "📋 Final PM2 status:"
-            pm2 status
-            echo "📋 Final PM2 logs:"
-            pm2 logs jobportal --lines 20
+            echo "❌ Health check failed after 10 attempts"
+            echo "📋 Final Error Analysis:"
             
             # Check if PM2 process is at least running
-            PM2_FINAL_STATUS=$(pm2 list --format json | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
+            PM2_FINAL_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
+            echo "📊 Final PM2 Status: $PM2_FINAL_STATUS"
+            
             if [ "$PM2_FINAL_STATUS" = "online" ]; then
-              echo "✅ PM2 process is running, deployment completed with warnings"
-              echo "🌐 Application should be available at: http://localhost:3000"
+              echo "⚠️ PM2 process is running but health check failed"
+              echo "🌐 Application may be available at: http://localhost:3000"
+              echo "📋 Check application logs for runtime errors"
               exit 0
             else
-              echo "❌ PM2 process is not running properly. Status: $PM2_FINAL_STATUS"
+              echo "❌ PM2 process failed to start properly"
+              echo "📋 Error logs:"
+              pm2 logs jobportal --err --lines 20 || echo "No error logs available"
               exit 1
             fi
           fi
           
           echo "✅ Production deployment completed successfully!"
           echo "🌐 Application is available at: http://localhost:3000"
+          echo "📊 Final Status:"
+          pm2 status
