@@ -9,7 +9,7 @@ export class PDFExtractor {
       // Check if it's a PDF and try pdf-parse with error handling
       if (mimeType === 'application/pdf') {
         try {
-          const pdf = require('pdf-parse');
+          const { default: pdf } = await import('pdf-parse');
           const data = await pdf(buffer);
           const text = data.text;
           

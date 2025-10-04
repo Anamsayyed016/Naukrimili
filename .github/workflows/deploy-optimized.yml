@@ -142,8 +142,8 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 15m
-        command_timeout: 12m
+        timeout: 20m
+        command_timeout: 18m
         debug: true
         script_stop: true
         use_insecure_cipher: false
@@ -220,10 +220,13 @@ jobs:
           auto-install-peers=true
           EOF
           
-          # Clean install
+          # Clean install with progress tracking
+          echo "🧹 Cleaning previous installations..."
           rm -rf node_modules .next
           npm cache clean --force
-          npm install --legacy-peer-deps --engine-strict=false --force
+          
+          echo "📦 Installing dependencies (this may take a few minutes)..."
+          npm install --legacy-peer-deps --engine-strict=false --force --progress=true
           
           # Force install TailwindCSS and PostCSS as regular dependencies
           echo "🎨 Force installing TailwindCSS and PostCSS..."
@@ -267,14 +270,22 @@ jobs:
           export NEXT_TELEMETRY_DISABLED=1
           export NODE_ENV=production
           
-          # Build with error handling
+          # Build with error handling and progress tracking
+          echo "🔨 Starting build process..."
           set +e
-          npm run build
+          npm run build 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           set -e
           
+          echo "📋 Build output:"
+          cat build.log | tail -50
+          
           if [ $BUILD_EXIT_CODE -ne 0 ]; then
             echo "⚠️ Build completed with warnings (exit code: $BUILD_EXIT_CODE)"
+            echo "📋 Full build log:"
+            cat build.log
+          else
+            echo "✅ Build completed successfully!"
           fi
           
           # Verify build
