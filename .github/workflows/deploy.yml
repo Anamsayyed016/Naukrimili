@@ -44,6 +44,7 @@ jobs:
         timeout: 15m
         command_timeout: 12m
         debug: true
+        script_stop: true
         script: |
           set -e
           echo "🚀 Starting production deployment..."
@@ -96,8 +97,20 @@ jobs:
             echo "❌ package.json not found after copy"
             echo "📋 Directory contents:"
             ls -la /var/www/jobportal/ || echo "Directory not accessible"
+            echo "📋 Checking source directory:"
+            ls -la /github/workspace/ || echo "Source directory not accessible"
             exit 1
           fi
+          
+          # Check for other critical files
+          if [ ! -f "next.config.js" ] && [ ! -f "next.config.mjs" ]; then
+            echo "⚠️ Next.js config not found, but continuing..."
+          fi
+          
+          if [ ! -d "prisma" ]; then
+            echo "⚠️ Prisma directory not found, but continuing..."
+          fi
+          
           echo "✅ Files copied successfully"
           
           # Install dependencies
@@ -112,14 +125,18 @@ jobs:
             exit 1
           fi
           
-          # Generate Prisma client
-          echo "🗄️ Generating Prisma client..."
-          if ! npx prisma generate; then
-            echo "❌ Prisma client generation failed"
-            echo "📋 Checking Prisma schema..."
-            ls -la prisma/ || echo "No prisma directory found"
-            cat prisma/schema.prisma || echo "No schema file found"
-            exit 1
+          # Generate Prisma client (if Prisma is used)
+          if [ -d "prisma" ] && [ -f "prisma/schema.prisma" ]; then
+            echo "🗄️ Generating Prisma client..."
+            if ! npx prisma generate; then
+              echo "❌ Prisma client generation failed"
+              echo "📋 Checking Prisma schema..."
+              ls -la prisma/ || echo "No prisma directory found"
+              cat prisma/schema.prisma || echo "No schema file found"
+              exit 1
+            fi
+          else
+            echo "⚠️ Prisma not found, skipping Prisma client generation"
           fi
           
           # Build the application
