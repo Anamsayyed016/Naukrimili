@@ -4,7 +4,7 @@ module.exports = {
       name: 'jobportal',
       script: 'npm',
       args: 'start',
-      cwd: '/root/jobportal',
+      cwd: '/var/www/jobportal',
       instances: 1,
       autorestart: true,
       watch: false,
@@ -74,7 +74,7 @@ module.exports = {
       host: 'your-server-ip',
       ref: 'origin/main',
       repo: 'your-git-repo-url',
-      path: '/root/jobportal',
+      path: '/var/www/jobportal',
       'pre-deploy-local': '',
       'post-deploy': 'chmod +x scripts/universal-deploy.sh && ./scripts/universal-deploy.sh',
       'pre-setup': ''
