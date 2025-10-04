@@ -145,6 +145,8 @@ jobs:
         timeout: 15m
         command_timeout: 12m
         debug: true
+        script_stop: true
+        use_insecure_cipher: false
         script: |
           set -e
           echo "🚀 Starting production deployment..."
