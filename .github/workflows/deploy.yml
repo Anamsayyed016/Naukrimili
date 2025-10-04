@@ -260,11 +260,19 @@ jobs:
           
           # Start the application with PM2
           echo "🚀 Starting application with PM2..."
-          pm2 start ecosystem.config.cjs --env production --no-daemon
+          pm2 start ecosystem.config.cjs --env production
           
           # Wait for PM2 to fully start
           echo "⏳ Waiting for PM2 to fully start..."
           sleep 15
+          
+          # Save PM2 configuration and setup startup
+          echo "💾 Saving PM2 configuration..."
+          pm2 save
+          
+          # Setup PM2 to start on boot
+          echo "🔄 Setting up PM2 startup..."
+          pm2 startup systemd -u $USER --hp $HOME || echo "⚠️ PM2 startup setup failed, but continuing..."
           
           # Comprehensive PM2 status check
           echo "🔍 PM2 Status Check..."
@@ -295,8 +303,8 @@ jobs:
               pm2 logs jobportal --err --lines 10 || echo "No error logs available"
               
               if [ $i -lt 5 ]; then
-                echo "🔄 Attempting PM2 restart..."
-                pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production --no-daemon
+      echo "🔄 Attempting PM2 restart..."
+      pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production
                 sleep 15
                 continue
               fi
