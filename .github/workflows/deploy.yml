@@ -34,6 +34,24 @@ jobs:
         export NODE_ENV=production
         npm run build
         
+    - name: 📥 Prepare SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+        
+    - name: 📥 Copy files to server
+      run: |
+        echo "📥 Copying files to server..."
+        rsync -avz --delete \
+          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+          ./ ${{ secrets.SSH_USER }}@${{ secrets.HOST }}:/var/www/jobportal/ \
+          --exclude='.git' \
+          --exclude='node_modules' \
+          --exclude='.next' \
+          --exclude='.github'
+
     - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
       with:
@@ -59,13 +77,18 @@ jobs:
           cd /var/www/jobportal
           echo "📁 Working in: $(pwd)"
           
-          # Verify we can access the directory
+          # Verify we can access the directory and files
           if [ ! -d "/var/www/jobportal" ]; then
             echo "❌ Project directory /var/www/jobportal not found"
-            echo "📋 Creating directory..."
-            mkdir -p /var/www/jobportal
-            cd /var/www/jobportal
+            exit 1
           fi
+          
+          if [ ! -f "/var/www/jobportal/package.json" ]; then
+            echo "❌ package.json not found - files not copied properly"
+            exit 1
+          fi
+          
+          echo "✅ Files successfully copied to server"
           
           # Check Node version and install if needed
           NODE_VERSION=$(node --version 2>/dev/null || echo "not-installed")
@@ -86,10 +109,6 @@ jobs:
           echo "🧹 Cleaning up previous build artifacts..."
           rm -rf /var/www/jobportal/.next
           rm -rf /var/www/jobportal/node_modules
-          
-          # Copy new code from GitHub Actions workspace
-          echo "📥 Copying new code from GitHub Actions workspace..."
-          rsync -av --delete /github/workspace/ /var/www/jobportal/ --exclude='.git' --exclude='node_modules' --exclude='.next'
           
           # Verify files were copied
           echo "🔍 Verifying copied files..."
