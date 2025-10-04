@@ -44,17 +44,37 @@ app.prepare().then(async () => {
   // Create HTTP server
   const server = createServer(async (req, res) => {
     try {
-      // Simple health check endpoint
+      // Enhanced health check endpoint
       if (req.url === '/api/health' && req.method === 'GET') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          status: 'healthy',
-          timestamp: new Date().toISOString(),
-          uptime: process.uptime(),
-          version: '1.0.0',
-          environment: process.env.NODE_ENV || 'development'
-        }));
-        return;
+        try {
+          const healthData = {
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            version: '1.0.0',
+            environment: process.env.NODE_ENV || 'development',
+            memory: process.memoryUsage(),
+            pid: process.pid,
+            port: port,
+            hostname: hostname
+          };
+          
+          res.writeHead(200, { 
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
+          });
+          res.end(JSON.stringify(healthData));
+          return;
+        } catch (error) {
+          console.error('Health check error:', error);
+          res.writeHead(503, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            status: 'unhealthy',
+            error: error.message,
+            timestamp: new Date().toISOString()
+          }));
+          return;
+        }
       }
       
       const parsedUrl = parse(req.url, true);
@@ -109,6 +129,38 @@ app.prepare().then(async () => {
     }
     console.log(`✅ Server ready on http://${hostname}:${port}`);
     console.log(`🔌 Socket.io ready and listening for connections`);
+    
+    // Test health endpoint after startup
+    setTimeout(() => {
+      console.log('🔍 Testing health endpoint after startup...');
+      const http = require('http');
+      const options = {
+        hostname: hostname === '0.0.0.0' ? 'localhost' : hostname,
+        port: port,
+        path: '/api/health',
+        method: 'GET',
+        timeout: 5000
+      };
+      
+      const req = http.request(options, (res) => {
+        if (res.statusCode === 200) {
+          console.log('✅ Health endpoint verified after startup');
+        } else {
+          console.log(`⚠️ Health endpoint returned status ${res.statusCode}`);
+        }
+      });
+      
+      req.on('error', (error) => {
+        console.log(`⚠️ Health endpoint test failed: ${error.message}`);
+      });
+      
+      req.on('timeout', () => {
+        console.log('⚠️ Health endpoint test timed out');
+        req.destroy();
+      });
+      
+      req.end();
+    }, 2000);
   });
 
   // Handle server shutdown
