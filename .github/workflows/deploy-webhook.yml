@@ -1,4 +1,4 @@
-name: 🚀 Production Deployment
+name: 🚀 Production Deployment (Webhook)
 
 on:
   push:
@@ -13,8 +13,6 @@ jobs:
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
       
     - name: 🔧 Setup Node.js 20.x
       uses: actions/setup-node@v4
