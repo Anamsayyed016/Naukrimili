@@ -1,4 +1,4 @@
-name: 🚀 SSH Deployment
+name: 🚀 Password SSH Deployment
 
 on:
   push:
@@ -10,16 +10,20 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: 🚀 Deploy via SSH
+    - name: 🚀 Deploy via SSH with Password
       uses: appleboy/ssh-action@v1.0.0
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.SSH_PORT }}
+        host: 69.62.73.84
+        username: root
+        password: 'job123'
+        port: 22
         script: |
-          cd /var/www/jobportal
-          git pull origin main
+          cd /var/www/jobportal || mkdir -p /var/www/jobportal && cd /var/www/jobportal
+          if [ ! -d ".git" ]; then
+            git clone https://github.com/Anamsayyed016/Naukrimili.git .
+          else
+            git pull origin main
+          fi
           npm install --force
           npm run build
           pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production
