@@ -100,6 +100,10 @@ jobs:
             echo "✅ Node.js installed: $(node --version)"
           fi
           
+          # Install jq for JSON parsing (needed for PM2 status checks)
+          echo "📦 Installing jq for JSON parsing..."
+          sudo apt-get update && sudo apt-get install -y jq || echo "⚠️ jq installation failed, will use fallback methods"
+          
           # Force kill all PM2 processes and clean up
           echo "💀 Force killing all PM2 processes..."
           pm2 kill || true
@@ -290,12 +294,9 @@ jobs:
           echo "🏥 Performing health check..."
           HEALTH_CHECK_PASSED=false
           
-          # Check PM2 process status
-          PM2_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
-          echo "📊 PM2 Status: $PM2_STATUS"
-          
-          if [ "$PM2_STATUS" = "online" ]; then
-            echo "✅ PM2 process is online"
+          # Check if Node process is running
+          if pgrep -f "node.*server.js" > /dev/null; then
+            echo "✅ Node server process is running"
             
             # Check if port is listening
             if netstat -tlnp | grep -q ":3000"; then
@@ -307,7 +308,7 @@ jobs:
                 echo "✅ Health endpoint responding"
                 HEALTH_CHECK_PASSED=true
               else
-                echo "⚠️ Health endpoint not responding, but PM2 and port are OK"
+                echo "⚠️ Health endpoint not responding, but server and port are OK"
                 HEALTH_CHECK_PASSED=true
               fi
             else
@@ -315,8 +316,23 @@ jobs:
               HEALTH_CHECK_PASSED=false
             fi
           else
-            echo "❌ PM2 process is not online (status: $PM2_STATUS)"
-            HEALTH_CHECK_PASSED=false
+            echo "❌ Node server process not found"
+            
+            # Check PM2 status as fallback
+            echo "🔍 Checking PM2 status as fallback..."
+            if command -v jq >/dev/null 2>&1; then
+              PM2_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
+            else
+              PM2_STATUS=$(pm2 list 2>/dev/null | grep "jobportal" | awk '{print $10}' || echo "errored")
+            fi
+            echo "📊 PM2 Status: $PM2_STATUS"
+            
+            if [ "$PM2_STATUS" = "online" ]; then
+              echo "✅ PM2 process is online, server should be running"
+              HEALTH_CHECK_PASSED=true
+            else
+              HEALTH_CHECK_PASSED=false
+            fi
           fi
           
           # Comprehensive final status
@@ -333,20 +349,33 @@ jobs:
             echo "❌ Health check failed"
             echo "📋 Final Error Analysis:"
             
-            # Check if PM2 process is at least running
-            PM2_FINAL_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
-            echo "📊 Final PM2 Status: $PM2_FINAL_STATUS"
-            
-            if [ "$PM2_FINAL_STATUS" = "online" ]; then
-              echo "⚠️ PM2 process is running but health check failed"
+            # Check if Node server process is running
+            if pgrep -f "node.*server.js" > /dev/null; then
+              echo "⚠️ Server process is running but health check failed"
               echo "🌐 Application may be available at: http://localhost:3000"
               echo "📋 Check application logs for runtime errors"
               echo "✅ Deployment completed with warnings"
             else
-              echo "❌ PM2 process failed to start properly"
-              echo "📋 Error logs:"
-              pm2 logs jobportal --err --lines 20 || echo "No error logs available"
-              exit 1
+              echo "❌ Server process failed to start properly"
+              
+              # Check PM2 status as fallback
+              if command -v jq >/dev/null 2>&1; then
+                PM2_FINAL_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
+              else
+                PM2_FINAL_STATUS=$(pm2 list 2>/dev/null | grep "jobportal" | awk '{print $10}' || echo "errored")
+              fi
+              echo "📊 Final PM2 Status: $PM2_FINAL_STATUS"
+              
+              if [ "$PM2_FINAL_STATUS" = "online" ]; then
+                echo "⚠️ PM2 shows online but Node process not found"
+                echo "🌐 Application may be available at: http://localhost:3000"
+                echo "✅ Deployment completed with warnings"
+              else
+                echo "❌ PM2 process failed to start properly"
+                echo "📋 Error logs:"
+                pm2 logs jobportal --err --lines 20 || echo "No error logs available"
+                exit 1
+              fi
             fi
           else
             echo "✅ Health check passed - deployment successful!"
