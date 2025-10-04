@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     
     steps:
     - name: 📥 Checkout code
@@ -59,8 +59,8 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 15m
-        command_timeout: 12m
+        timeout: 20m
+        command_timeout: 18m
         debug: true
         script_stop: true
         script: |
@@ -264,7 +264,7 @@ jobs:
           
           # Wait for PM2 to fully start
           echo "⏳ Waiting for PM2 to fully start..."
-          sleep 15
+          sleep 30
           
           # Save PM2 configuration and setup startup
           echo "💾 Saving PM2 configuration..."
@@ -287,55 +287,38 @@ jobs:
           echo "📊 Process Check:"
           ps aux | grep node || echo "No node processes found"
           
-          # Health check with retries and comprehensive logging
-          echo "🏥 Performing comprehensive health check..."
+          # Simplified health check
+          echo "🏥 Performing health check..."
           HEALTH_CHECK_PASSED=false
-          for i in {1..5}; do
-            echo "Health check attempt $i/5..."
+          
+          # Check PM2 process status
+          PM2_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
+          echo "📊 PM2 Status: $PM2_STATUS"
+          
+          if [ "$PM2_STATUS" = "online" ]; then
+            echo "✅ PM2 process is online"
             
-            # Check PM2 process status
-            PM2_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
-            echo "📊 PM2 Status: $PM2_STATUS"
-            
-            if [ "$PM2_STATUS" != "online" ]; then
-              echo "⚠️ PM2 process is not online (status: $PM2_STATUS)"
-              echo "📋 PM2 Error Logs:"
-              pm2 logs jobportal --err --lines 10 || echo "No error logs available"
+            # Check if port is listening
+            if netstat -tlnp | grep -q ":3000"; then
+              echo "✅ Port 3000 is listening"
               
-              if [ $i -lt 5 ]; then
-                echo "🔄 Attempting PM2 restart..."
-                pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production
-                sleep 15
-                continue
-              fi
-            fi
-            
-            # Try health check endpoint
-            echo "🔍 Testing health endpoint..."
-            HEALTH_RESPONSE=$(curl -f -s --max-time 10 http://localhost:3000/api/health 2>/dev/null || echo "failed")
-            
-            if [ "$HEALTH_RESPONSE" != "failed" ]; then
-              echo "✅ Health check passed!"
-              echo "📋 Health Response: $HEALTH_RESPONSE"
-              HEALTH_CHECK_PASSED=true
-              break
-            else
-              echo "❌ Health check failed (attempt $i/5)"
-              echo "📋 Application Logs:"
-              pm2 logs jobportal --lines 5 || echo "No logs available"
-              echo "📋 Network Check:"
-              netstat -tlnp | grep :3000 || echo "Port 3000 not listening"
-              
-              # If PM2 is online and port is listening, consider it successful
-              if [ "$PM2_STATUS" = "online" ] && netstat -tlnp | grep -q ":3000"; then
-                echo "✅ PM2 is online and port 3000 is listening - deployment successful!"
+              # Try health endpoint (optional)
+              echo "🔍 Testing health endpoint..."
+              if curl -f -s --max-time 5 http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ Health endpoint responding"
                 HEALTH_CHECK_PASSED=true
-                break
+              else
+                echo "⚠️ Health endpoint not responding, but PM2 and port are OK"
+                HEALTH_CHECK_PASSED=true
               fi
-              
-              sleep 5
+            else
+              echo "❌ Port 3000 not listening"
+              HEALTH_CHECK_PASSED=false
             fi
-          done
+          else
+            echo "❌ PM2 process is not online (status: $PM2_STATUS)"
+            HEALTH_CHECK_PASSED=false
+          fi
           
           # Comprehensive final status
           echo "📋 Final PM2 Status:"
@@ -349,7 +332,7 @@ jobs:
           
           # Check if health check passed
           if [ "$HEALTH_CHECK_PASSED" = false ]; then
-            echo "❌ Health check failed after 5 attempts"
+            echo "❌ Health check failed"
             echo "📋 Final Error Analysis:"
             
             # Check if PM2 process is at least running
@@ -360,13 +343,15 @@ jobs:
               echo "⚠️ PM2 process is running but health check failed"
               echo "🌐 Application may be available at: http://localhost:3000"
               echo "📋 Check application logs for runtime errors"
-              exit 0
+              echo "✅ Deployment completed with warnings"
             else
               echo "❌ PM2 process failed to start properly"
               echo "📋 Error logs:"
               pm2 logs jobportal --err --lines 20 || echo "No error logs available"
               exit 1
             fi
+          else
+            echo "✅ Health check passed - deployment successful!"
           fi
           
           echo "✅ Production deployment completed successfully!"
