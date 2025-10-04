@@ -75,21 +75,6 @@ export default function HomePageClient({
 
 
 
-      {/* Hero Section with "Discover the Career You Deserve" */}
-      <section className="relative py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900"></div>
-        <div className="relative max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-            <span className="text-white">Discover</span>
-            <span className="text-blue-300"> the Career</span>
-            <span className="text-purple-300"> You Deserve</span>
-          </h1>
-          <p key="hero-description" className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
-            Connect with top companies worldwide through our AI-powered job matching platform
-          </p>
-        </div>
-      </section>
-
       {/* Smart Job Search with Advanced Dynamic Filters */}
       <JobSearchHero 
         showAdvancedFilters={true}
