@@ -348,7 +348,7 @@ async function checkDomainHealth() {
 }
 
 // Run the health check
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   checkDomainHealth()
     .then(() => {
       log('\n🏁 Domain health check completed!', 'green');
@@ -360,4 +360,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { checkDomainHealth };
+export { checkDomainHealth };

@@ -75,8 +75,8 @@ async function testUnlimitedJobs() {
 }
 
 // Run the test
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   testUnlimitedJobs().catch(console.error);
 }
 
-module.exports = { testUnlimitedJobs };
+export { testUnlimitedJobs };

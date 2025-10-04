@@ -100,8 +100,8 @@ async function testPerformance() {
 }
 
 // Run the test
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   testPerformance().catch(console.error);
 }
 
-module.exports = { testPerformance };
+export { testPerformance };
