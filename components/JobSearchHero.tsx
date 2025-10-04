@@ -227,28 +227,7 @@ export default function JobSearchHero({
     fetchDynamicConstants();
   }, [fetchDynamicConstants]);
 
-  // Auto-search when debounced filters change (fast dynamic filtering)
-  useEffect(() => {
-    // Auto-search if we have either query or location (or both)
-    if (debouncedQuery.trim() || debouncedLocation.trim()) {
-      console.log('🔄 Auto-searching with debounced filters:', { query: debouncedQuery, location: debouncedLocation });
-      
-      // Build search URL with debounced parameters
-      const searchParams = new URLSearchParams();
-      if (debouncedQuery.trim()) searchParams.set('query', debouncedQuery);
-      if (debouncedLocation.trim()) searchParams.set('location', debouncedLocation);
-      
-      // Add other filters if they're not default values
-      if (filters.jobType !== 'all') searchParams.set('jobType', filters.jobType);
-      if (filters.experienceLevel !== 'all') searchParams.set('experienceLevel', filters.experienceLevel);
-      if (filters.isRemote) searchParams.set('isRemote', 'true');
-      if (filters.salaryMin) searchParams.set('salaryMin', filters.salaryMin);
-      if (filters.salaryMax) searchParams.set('salaryMax', filters.salaryMax);
-
-      // Navigate to search results (this will trigger OptimizedJobsClient to fetch new results)
-      router.push(`/jobs?${searchParams.toString()}`);
-    }
-  }, [debouncedQuery, debouncedLocation, filters.jobType, filters.experienceLevel, filters.isRemote, filters.salaryMin, filters.salaryMax, router]);
+  // Manual search only - no auto-redirect
 
   return (
     <div className={`relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 ${className}`}>
@@ -263,12 +242,8 @@ export default function JobSearchHero({
           {/* Enhanced Header */}
           <div className="mb-8">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              Find Your 
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent"> Dream Job</span>
+              Discover the Career You Deserve
             </h1>
-            <p className="text-lg sm:text-xl text-blue-100 mb-6 max-w-3xl mx-auto leading-relaxed">
-              Search millions of jobs worldwide with our AI-powered matching system
-            </p>
           </div>
           
           {/* Unified Enhanced Search Interface */}
@@ -287,7 +262,7 @@ export default function JobSearchHero({
                     </Badge>
                   </h2>
                   <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                    Search by title, location, or company • Auto-search as you type
+                    Search by title, location, or company • Click Search Jobs to find results
                   </p>
                 </div>
               </div>

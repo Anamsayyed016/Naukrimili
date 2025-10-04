@@ -18,7 +18,9 @@ module.exports = {
         NEXTAUTH_URL: 'https://aftionix.in',
         NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
         JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
-        DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal'
+        DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal',
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
       },
       env_production: {
         NODE_ENV: 'production',
@@ -30,7 +32,9 @@ module.exports = {
         NEXTAUTH_URL: 'https://aftionix.in',
         NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
         JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
-        DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal'
+        DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal',
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
       },
       // Logging configuration
       log_file: '/var/log/jobportal/combined.log',
