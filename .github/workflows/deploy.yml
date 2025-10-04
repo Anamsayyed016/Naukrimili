@@ -10,12 +10,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: 🚀 Deploy via SSH with Password
+    - name: 🚀 Deploy via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: 69.62.73.84
         username: root
-        password: 'job123'
+        key: |
+          -----BEGIN OPENSSH PRIVATE KEY-----
+          b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAFwAAAAdzc2gtcn
+          NhAAAAAwEAAQAAAQEA2K8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8x
+          -----END OPENSSH PRIVATE KEY-----
         port: 22
         script: |
           cd /var/www/jobportal || mkdir -p /var/www/jobportal && cd /var/www/jobportal
