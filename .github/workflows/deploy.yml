@@ -279,9 +279,8 @@ jobs:
           pm2 status
           pm2 describe jobportal || echo "⚠️ PM2 describe failed"
           
-          # Show detailed PM2 logs
-          echo "📋 PM2 Application Logs:"
-          pm2 logs jobportal --lines 30 || echo "No logs available"
+          # Skip PM2 logs to avoid hanging
+          echo "📋 PM2 logs available via: pm2 logs jobportal"
           
           # Check if process is actually running
           echo "📊 Process Check:"
@@ -325,8 +324,7 @@ jobs:
           pm2 status
           echo "📋 PM2 Process Details:"
           pm2 describe jobportal || echo "PM2 describe failed"
-          echo "📋 Recent Application Logs:"
-          pm2 logs jobportal --lines 20 || echo "No logs available"
+          echo "📋 PM2 logs available via: pm2 logs jobportal"
           echo "📋 Network Status:"
           netstat -tlnp | grep :3000 || echo "Port 3000 not listening"
           
