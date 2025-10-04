@@ -39,7 +39,7 @@ cd /var/www/jobportal
 if [ ! -d ".git" ]; then
     echo "📋 Initializing git repository..."
     git init
-    git remote add origin https://github.com/anamsayyed58/jobportal.git
+    git remote add origin https://github.com/Anamsayyed016/Naukrimili.git
     git fetch origin main
     git reset --hard origin/main
 else

@@ -73,7 +73,7 @@ module.exports = {
       user: 'root',
       host: 'aftionix.in',
       ref: 'origin/main',
-      repo: 'https://github.com/anamsayyed58/jobportal',
+      repo: 'https://github.com/Anamsayyed016/Naukrimili',
       path: '/var/www/jobportal',
       'pre-deploy-local': '',
       'post-deploy': 'chmod +x scripts/universal-deploy.sh && ./scripts/universal-deploy.sh',

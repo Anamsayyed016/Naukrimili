@@ -13,6 +13,8 @@ jobs:
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
       
     - name: 🔧 Setup Node.js 20.x
       uses: actions/setup-node@v4
@@ -62,14 +64,6 @@ jobs:
             echo "📋 Creating directory..."
             mkdir -p /var/www/jobportal
             cd /var/www/jobportal
-            # Initialize git if directory is empty
-            if [ ! -d ".git" ]; then
-              echo "📋 Initializing git repository..."
-              git init
-              git remote add origin https://github.com/anamsayyed58/jobportal.git
-              git fetch origin main
-              git reset --hard origin/main
-            fi
           fi
           
           # Check Node version and install if needed
@@ -92,18 +86,9 @@ jobs:
           rm -rf /var/www/jobportal/.next
           rm -rf /var/www/jobportal/node_modules
           
-          # Copy new code from GitHub (using HTTPS to avoid SSH issues)
-          echo "📥 Copying new code from GitHub..."
-          git fetch origin main || {
-            echo "❌ Git fetch failed, trying to reset remote..."
-            git remote set-url origin https://github.com/anamsayyed58/jobportal.git
-            git fetch origin main
-          }
-          git reset --hard origin/main || {
-            echo "❌ Git reset failed, trying clean checkout..."
-            git clean -fd
-            git reset --hard origin/main
-          }
+          # Copy new code from GitHub Actions workspace
+          echo "📥 Copying new code from GitHub Actions workspace..."
+          rsync -av --delete /github/workspace/ /var/www/jobportal/ --exclude='.git' --exclude='node_modules' --exclude='.next'
           
           # Install dependencies
           echo "📦 Installing dependencies..."
