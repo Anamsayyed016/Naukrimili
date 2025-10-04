@@ -102,12 +102,25 @@ jobs:
           echo "🔨 Building application..."
           export NODE_ENV=production
           export NEXT_TELEMETRY_DISABLED=1
+          export NEXT_PUBLIC_APP_URL=https://aftionix.in
+          export NEXTAUTH_URL=https://aftionix.in
           npm run build
           
           # Create log directory
           echo "📁 Creating log directory..."
           sudo mkdir -p /var/log/jobportal
           sudo chown -R $USER:$USER /var/log/jobportal
+          
+          # Set environment variables for production
+          echo "🔧 Setting environment variables..."
+          export NODE_ENV=production
+          export PORT=3000
+          export NEXT_TELEMETRY_DISABLED=1
+          export NEXT_PUBLIC_APP_URL=https://aftionix.in
+          export NEXTAUTH_URL=https://aftionix.in
+          export NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
+          export JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
+          export DATABASE_URL="postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal"
           
           # Start the application with PM2
           echo "🚀 Starting application with PM2..."

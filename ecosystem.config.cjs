@@ -2,8 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'jobportal',
-      script: 'npm',
-      args: 'start',
+      script: 'server.js',
       cwd: '/var/www/jobportal',
       instances: 1,
       autorestart: true,
@@ -14,14 +13,24 @@ module.exports = {
         PORT: 3000,
         NODE_OPTIONS: '--max-old-space-size=4096',
         NEXT_TELEMETRY_DISABLED: '1',
-        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true'
+        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
+        NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
+        NEXTAUTH_URL: 'https://aftionix.in',
+        NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
+        JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
+        DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal'
       },
       env_production: {
         NODE_ENV: 'production',
         PORT: 3000,
         NODE_OPTIONS: '--max-old-space-size=4096',
         NEXT_TELEMETRY_DISABLED: '1',
-        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true'
+        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
+        NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
+        NEXTAUTH_URL: 'https://aftionix.in',
+        NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
+        JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
+        DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal'
       },
       // Logging configuration
       log_file: '/var/log/jobportal/combined.log',
