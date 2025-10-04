@@ -32,7 +32,7 @@ jobs:
         export NODE_ENV=production
         npm run build
         
-    - name: 🚀 Deploy to Production Server
+    - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
       with:
         host: ${{ secrets.HOST }}
@@ -41,6 +41,7 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         timeout: 15m
         command_timeout: 12m
+        debug: true
         script: |
           set -e
           echo "🚀 Starting production deployment..."
