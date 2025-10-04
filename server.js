@@ -7,6 +7,7 @@ import { createServer } from 'http';
 import { parse } from 'url';
 import next from 'next';
 import { Server as SocketIOServer } from 'socket.io';
+import { existsSync } from 'fs';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOSTNAME || (dev ? 'localhost' : '0.0.0.0');
@@ -17,12 +18,28 @@ console.log(`Environment: ${process.env.NODE_ENV}`);
 console.log(`Port: ${port}`);
 console.log(`Hostname: ${hostname}`);
 
+// Check required environment variables
+const requiredEnvVars = ['NODE_ENV'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+if (missingEnvVars.length > 0) {
+  console.error(`❌ Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  process.exit(1);
+}
+console.log('✅ Environment variables verified');
+
 // Create Next.js app
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(async () => {
   console.log('✅ Next.js app prepared');
+  
+  // Verify .next directory exists
+  if (!existsSync('.next')) {
+    console.error('❌ .next directory not found! Make sure the app is built.');
+    process.exit(1);
+  }
+  console.log('✅ .next directory verified');
 
   // Create HTTP server
   const server = createServer(async (req, res) => {

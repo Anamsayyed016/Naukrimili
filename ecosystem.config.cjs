@@ -37,6 +37,8 @@ module.exports = {
       out_file: '/var/log/jobportal/out.log',
       error_file: '/var/log/jobportal/error.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      log_type: 'json',
       
       // Process management
       min_uptime: '10s',
