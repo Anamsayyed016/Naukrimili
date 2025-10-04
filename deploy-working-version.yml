@@ -1,0 +1,93 @@
+name: 🚀 Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        echo "📦 Installing dependencies with Node $(node --version)..."
+        npm install --legacy-peer-deps --engine-strict=false --force
+        
+    - name: 🔨 Build application
+      run: |
+        echo "🔨 Building application with Node $(node --version)..."
+        export NEXT_TELEMETRY_DISABLED=1
+        export NODE_ENV=production
+        npm run build
+        
+    - name: 🚀 Deploy to Hostinger VPS
+      uses: appleboy/ssh-action@v0.1.9
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        timeout: 15m
+        command_timeout: 12m
+        debug: true
+        script: |
+          set -e
+          echo "🚀 Starting production deployment..."
+          
+          # Navigate to project directory
+          cd /var/www/jobportal
+          echo "📁 Working in: $(pwd)"
+          
+          # Kill existing PM2 processes
+          pm2 kill || true
+          
+          # Clean up
+          rm -rf /var/www/jobportal/.next
+          rm -rf /var/www/jobportal/node_modules
+          
+          # Copy new code
+          rsync -av --delete /github/workspace/ /var/www/jobportal/ --exclude='.git' --exclude='node_modules' --exclude='.next'
+          
+          # Install dependencies
+          npm install --legacy-peer-deps --engine-strict=false --force
+          
+          # Generate Prisma client
+          npx prisma generate
+          
+          # Build application
+          export NODE_ENV=production
+          export NEXT_TELEMETRY_DISABLED=1
+          npm run build
+          
+          # Start with PM2
+          pm2 start ecosystem.config.cjs --env production --no-daemon
+          
+          # Wait and check
+          sleep 10
+          pm2 status
+          
+          # Health check
+          for i in {1..5}; do
+            if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
+              echo "✅ Health check passed!"
+              break
+            else
+              echo "❌ Health check failed (attempt $i/5)"
+              sleep 5
+            fi
+          done
+          
+          echo "✅ Deployment completed!"
+          pm2 status
