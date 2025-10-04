@@ -153,15 +153,15 @@ jobs:
           export NODE_OPTIONS="--max-old-space-size=4096"
           
           # Run build with error handling
-          echo "🔨 Running npm run build..."
-          if ! npm run build; then
+          echo "🔨 Running npm run build:production..."
+          if ! npm run build:production; then
             echo "❌ Build failed, checking for errors..."
             echo "📋 Node version: $(node --version)"
             echo "📋 NPM version: $(npm --version)"
             echo "📋 Available space: $(df -h . | tail -1)"
             echo "📋 Memory usage: $(free -h)"
             echo "📋 Build logs:"
-            npm run build 2>&1 || true
+            npm run build:production 2>&1 || true
             exit 1
           fi
           
