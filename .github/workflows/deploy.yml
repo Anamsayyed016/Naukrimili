@@ -170,14 +170,17 @@ jobs:
           if ! npm run build:simple; then
             echo "❌ Simple build failed, trying build:deploy..."
             if ! npm run build:deploy; then
-              echo "❌ Both builds failed, checking for errors..."
-              echo "📋 Node version: $(node --version)"
-              echo "📋 NPM version: $(npm --version)"
-              echo "📋 Available space: $(df -h . | tail -1)"
-              echo "📋 Memory usage: $(free -h)"
-              echo "📋 Build logs:"
-              npm run build:simple 2>&1 || true
-              exit 1
+              echo "❌ Deploy build failed, trying minimal build..."
+              if ! npm run build:minimal; then
+                echo "❌ All builds failed, checking for errors..."
+                echo "📋 Node version: $(node --version)"
+                echo "📋 NPM version: $(npm --version)"
+                echo "📋 Available space: $(df -h . | tail -1)"
+                echo "📋 Memory usage: $(free -h)"
+                echo "📋 Build logs:"
+                npm run build:minimal 2>&1 || true
+                exit 1
+              fi
             fi
           fi
           
@@ -207,24 +210,31 @@ jobs:
           
           # Test server startup manually first
           echo "🧪 Testing server startup..."
-          timeout 15s node server.js &
+          timeout 20s node server.js &
           SERVER_PID=$!
-          sleep 10
+          sleep 15
           
           # Check if server started successfully
           if ps -p $SERVER_PID > /dev/null; then
             echo "✅ Server started successfully"
             # Test health endpoint
             echo "🔍 Testing health endpoint..."
-            if curl -f -s --max-time 5 http://localhost:3000/api/health; then
+            if curl -f -s --max-time 10 http://localhost:3000/api/health; then
               echo "✅ Health endpoint working"
             else
               echo "⚠️ Health endpoint not responding, but server is running"
+              echo "📋 Checking if server is listening on port 3000..."
+              netstat -tlnp | grep :3000 || echo "Port 3000 not listening"
             fi
             kill $SERVER_PID
+            sleep 2
           else
             echo "❌ Server failed to start"
             echo "📋 Testing server startup manually..."
+            echo "📋 Checking .next directory..."
+            ls -la .next/ || echo "No .next directory found"
+            echo "📋 Checking server.js..."
+            head -20 server.js || echo "Cannot read server.js"
             node server.js || echo "Server startup test failed"
             exit 1
           fi

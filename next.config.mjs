@@ -108,39 +108,23 @@ const nextConfig = {
     scrollRestoration: true
   },
 
-  // Webpack configuration for aggressive cache busting
+  // Simplified webpack configuration
   webpack: (config, { dev, isServer }) => {
+    // Basic optimizations only
     if (!dev && !isServer) {
-      // Force completely random chunk names to avoid deterministic naming
-      const RANDOM_SUFFIX = Math.random().toString(36).substring(2, 15);
-      
-      // Override Next.js default chunk naming with random suffix
-      config.output.chunkFilename = `static/chunks/[name]-${RANDOM_SUFFIX}.[contenthash].js`;
-      config.output.filename = `static/chunks/[name]-${RANDOM_SUFFIX}.[contenthash].js`;
-      
-      // Disable chunk caching completely
-      config.cache = false;
-      
-      // Force random module and chunk IDs
-      config.optimization.moduleIds = 'size';
-      config.optimization.chunkIds = 'size';
-      
-      // Override split chunks to force new names
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
           default: {
-            name: `chunk-${RANDOM_SUFFIX}`,
-            chunks: 'async',
-            priority: 10,
-            reuseExistingChunk: false,
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
           },
           vendor: {
-            name: `vendor-${RANDOM_SUFFIX}`,
             test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: -10,
             chunks: 'all',
-            priority: 20,
-            reuseExistingChunk: false,
           },
         },
       };

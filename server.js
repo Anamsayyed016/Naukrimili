@@ -94,12 +94,11 @@ app.prepare().then(async () => {
     const { initializeSocketService } = await import('./lib/socket-server.js');
     const socketService = initializeSocketService(io);
     console.log('✅ Socket notification service initialized');
-    
-    // Socket service is now available via getSocketService()
     console.log('✅ Socket service linked to notification service');
   } catch (error) {
     console.error('❌ Failed to initialize socket service:', error);
     console.log('⚠️ Continuing without socket service...');
+    // Don't fail the entire server if socket service fails
   }
 
   // Start the server
