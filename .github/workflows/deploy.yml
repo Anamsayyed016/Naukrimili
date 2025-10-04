@@ -20,115 +20,22 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
-    - name: 📦 Install and Build
-      run: |
-        echo "📦 Installing dependencies with Node $(node --version)..."
-        
-        # Clean up everything
-        rm -rf node_modules .next .npm .tsbuildinfo package-lock.json
-        npm cache clean --force
-        
-        # Create .npmrc for compatibility
-        cat > .npmrc << 'EOF'
-        engine-strict=false
-        legacy-peer-deps=true
-        fund=false
-        audit=false
-        auto-install-peers=true
-        EOF
-        
-        # Install all dependencies
-        echo "📦 Installing all dependencies..."
-        npm install --legacy-peer-deps --engine-strict=false --force
-        
-        # Force install TailwindCSS and PostCSS as regular dependencies
-        echo "🎨 Force installing TailwindCSS and PostCSS..."
-        npm install --save --legacy-peer-deps --engine-strict=false \
-          tailwindcss@3.4.18 \
-          postcss@8.5.6 \
-          autoprefixer@10.4.21
-        
-        # Verify TailwindCSS is installed
-        echo "🔍 Verifying TailwindCSS installation..."
-        if ! node -e "require('tailwindcss')" > /dev/null 2>&1; then
-          echo "❌ TailwindCSS not found after installation, trying alternative method..."
-          npm uninstall tailwindcss 2>/dev/null || true
-          npm install --save --legacy-peer-deps --engine-strict=false tailwindcss@3.4.18
-        fi
-        
-        # Final verification
-        if node -e "require('tailwindcss')" > /dev/null 2>&1; then
-          echo "✅ TailwindCSS is properly installed"
-        else
-          echo "❌ TailwindCSS installation failed"
-          echo "📋 Available packages:"
-          npm list | grep -i tailwind || echo "No TailwindCSS packages found"
-          exit 1
-        fi
-        
-        # Install UI dependencies
-        echo "📦 Installing UI dependencies..."
-        npm install --legacy-peer-deps --engine-strict=false \
-          @radix-ui/react-slot@1.2.3 \
-          @radix-ui/react-dialog@1.1.15 \
-          @radix-ui/react-dropdown-menu@2.1.16 \
-          @radix-ui/react-toast@1.2.15 \
-          @radix-ui/react-label@2.1.1 \
-          @radix-ui/react-checkbox@1.1.2 \
-          @radix-ui/react-progress@1.1.1 \
-          @radix-ui/react-select@2.2.5 \
-          class-variance-authority@0.7.1 \
-          clsx@2.1.1 \
-          tailwind-merge@2.6.0 \
-          lucide-react@0.525.0 \
-          @heroicons/react@2.2.0
-        
-        # Verify UI components exist
-        echo "🔍 Verifying UI components..."
-        if [ ! -f "components/ui/card.tsx" ]; then
-          echo "❌ UI components missing - this should not happen if components are committed to git"
-          echo "📋 Checking git status..."
-          git status
-          echo "📋 Checking if components directory exists..."
-          ls -la components/ || echo "components directory not found"
-          exit 1
-        else
-          echo "✅ UI components exist"
-        fi
-        
-        # Generate Prisma client
-        npx prisma generate
-        
-        # Create TailwindCSS config if it doesn't exist
-        echo "🎨 Ensuring TailwindCSS configuration..."
-        if [ ! -f "tailwind.config.cjs" ]; then
-          npx tailwindcss init -p
-          mv tailwind.config.js tailwind.config.cjs
-          mv postcss.config.js postcss.config.cjs
-        fi
-        
-        echo "✅ Dependencies ready"
-        
     - name: 🔨 Build application
       run: |
         echo "🔨 Building application with Node $(node --version)..."
-        export NODE_OPTIONS="--max-old-space-size=4096"
         export NEXT_TELEMETRY_DISABLED=1
         export NODE_ENV=production
         npm run build
         
     - name: 🚀 Deploy to Production Server
-      uses: appleboy/ssh-action@v1.0.3
+      uses: appleboy/ssh-action@v0.1.9
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 25m
-        command_timeout: 23m
-        debug: true
-        script_stop: true
-        use_insecure_cipher: false
+        timeout: 15m
+        command_timeout: 12m
         script: |
           set -e
           echo "🚀 Starting production deployment..."
@@ -154,7 +61,6 @@ jobs:
           # Check Node version and install if needed
           NODE_VERSION=$(node --version 2>/dev/null || echo "not-installed")
           echo "🔍 Current Node version: $NODE_VERSION"
-          
           if [[ ! "$NODE_VERSION" =~ ^v20\. ]]; then
             echo "📦 Installing Node.js 20.x..."
             curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
@@ -164,148 +70,40 @@ jobs:
           
           # Force kill all PM2 processes and clean up
           echo "💀 Force killing all PM2 processes..."
-          pm2 kill 2>/dev/null || true
-          pkill -f "pm2" 2>/dev/null || true
-          sleep 3
+          pm2 kill || true
+          pm2 flush || true
           
-          # Clear PM2 logs
-          pm2 flush 2>/dev/null || true
+          # Clean up previous build artifacts
+          echo "🧹 Cleaning up previous build artifacts..."
+          rm -rf /var/www/jobportal/.next
+          rm -rf /var/www/jobportal/node_modules
+          rm -rf /var/www/jobportal/package-lock.json
           
-          # Check if port 3000 is in use and kill processes
-          if lsof -i :3000 > /dev/null 2>&1; then
-            echo "🔌 Killing processes on port 3000..."
-            lsof -ti :3000 | xargs kill -9 2>/dev/null || true
-            sleep 2
-          fi
-          
-          # Force clean git pull
-          echo "🔄 Force cleaning git state..."
-          git fetch origin
-          git reset --hard origin/main
-          git clean -fd
-          git pull origin main
+          # Copy new code from GitHub
+          echo "📥 Copying new code from GitHub..."
+          git pull origin main || {
+            echo "❌ Git pull failed, trying to reset..."
+            git fetch origin main
+            git reset --hard origin/main
+          }
           
           # Install dependencies
           echo "📦 Installing dependencies..."
-          rm -f package-lock.json
-          cat > .npmrc << 'EOF'
-          engine-strict=false
-          legacy-peer-deps=true
-          fund=false
-          audit=false
-          auto-install-peers=true
-          EOF
-          
-          # Clean install
-          rm -rf node_modules .next
-          npm cache clean --force
           npm install --legacy-peer-deps --engine-strict=false --force
           
-          # Force install TailwindCSS and PostCSS as regular dependencies
-          echo "🎨 Force installing TailwindCSS and PostCSS..."
-          npm install --save --legacy-peer-deps --engine-strict=false \
-            tailwindcss@3.4.18 \
-            postcss@8.5.6 \
-            autoprefixer@10.4.21
-          
-          # Verify TailwindCSS is installed
-          echo "🔍 Verifying TailwindCSS installation..."
-          if ! node -e "require('tailwindcss')" > /dev/null 2>&1; then
-            echo "❌ TailwindCSS not found after installation, trying alternative method..."
-            npm uninstall tailwindcss 2>/dev/null || true
-            npm install --save --legacy-peer-deps --engine-strict=false tailwindcss@3.4.18
-          fi
-          
-          # Final verification
-          if node -e "require('tailwindcss')" > /dev/null 2>&1; then
-            echo "✅ TailwindCSS is properly installed"
-          else
-            echo "❌ TailwindCSS installation failed"
-            echo "📋 Available packages:"
-            npm list | grep -i tailwind || echo "No TailwindCSS packages found"
-            exit 1
-          fi
-          
-          # Install UI dependencies
-          echo "📦 Installing UI dependencies..."
-          npm install --legacy-peer-deps --engine-strict=false \
-            @radix-ui/react-slot@1.2.3 \
-            @radix-ui/react-dialog@1.1.15 \
-            @radix-ui/react-dropdown-menu@2.1.16 \
-            @radix-ui/react-toast@1.2.15 \
-            @radix-ui/react-label@2.1.1 \
-            @radix-ui/react-checkbox@1.1.2 \
-            @radix-ui/react-progress@1.1.1 \
-            @radix-ui/react-select@2.2.5 \
-            class-variance-authority@0.7.1 \
-            clsx@2.1.1 \
-            tailwind-merge@2.6.0 \
-            lucide-react@0.525.0 \
-            @heroicons/react@2.2.0
-          
           # Generate Prisma client
+          echo "🗄️ Generating Prisma client..."
           npx prisma generate
           
-          # Create TailwindCSS config if it doesn't exist
-          echo "🎨 Ensuring TailwindCSS configuration..."
-          if [ ! -f "tailwind.config.cjs" ]; then
-            npx tailwindcss init -p
-            mv tailwind.config.js tailwind.config.cjs
-            mv postcss.config.js postcss.config.cjs
-          fi
-          
-          echo "✅ Dependencies ready"
-          
-          # Build application
+          # Build the application
           echo "🔨 Building application..."
-          export NODE_OPTIONS="--max-old-space-size=4096"
-          export NEXT_TELEMETRY_DISABLED=1
           export NODE_ENV=production
-          
-          # Build with error handling
-          set +e
+          export NEXT_TELEMETRY_DISABLED=1
           npm run build
-          BUILD_EXIT_CODE=$?
-          set -e
-          if [ $BUILD_EXIT_CODE -ne 0 ]; then
-            echo "⚠️ Build completed with warnings (exit code: $BUILD_EXIT_CODE)"
-          fi
           
-          # Verify build
-          if [ ! -d ".next" ]; then
-            echo "❌ Build failed - .next directory not found"
-            echo "📋 Directory contents:"
-            ls -la
-            exit 1
-          fi
-          echo "✅ Build completed on server"
-          
-          # Create log directory
-          mkdir -p /var/log/jobportal
-          chmod 755 /var/log/jobportal
-          
-          # Start PM2 process
-          echo "▶️ Starting application with PM2..."
+          # Start the application with PM2
+          echo "🚀 Starting application with PM2..."
           pm2 start ecosystem.config.cjs --env production --no-daemon
-          
-          # Wait for startup
-          echo "⏳ Waiting for application to start..."
-          sleep 10
-          
-          # Check PM2 status
-          echo "📊 PM2 Status:"
-          pm2 status
-          
-          # Check if PM2 process is actually running
-          PM2_PROCESSES=$(pm2 list --format json | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
-          if [ "$PM2_PROCESSES" != "online" ]; then
-            echo "⚠️ PM2 process is not running properly. Status: $PM2_PROCESSES"
-            echo "📋 PM2 logs:"
-            pm2 logs jobportal --lines 20
-            echo "🔄 Attempting to restart PM2 process..."
-            pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production --no-daemon
-            sleep 10
-          fi
           
           # Health check with retries and timeout
           echo "🏥 Performing health check..."
