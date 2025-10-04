@@ -319,29 +319,29 @@ class LogCleanupService {
     console.log('\n📁 Cleaning temporary files...');
     
     try {
-      const fs = require('fs');
-      const path = require('path');
+      const { readdirSync, statSync, unlinkSync, existsSync } = await import('fs');
+      const { join, extname } = await import('path');
       
       const tempDirs = [
-        path.join(process.cwd(), 'logs'),
-        path.join(process.cwd(), 'temp'),
-        path.join(process.cwd(), 'uploads', 'temp')
+        join(process.cwd(), 'logs'),
+        join(process.cwd(), 'temp'),
+        join(process.cwd(), 'uploads', 'temp')
       ];
 
       for (const dir of tempDirs) {
-        if (fs.existsSync(dir)) {
-          const files = fs.readdirSync(dir);
+        if (existsSync(dir)) {
+          const files = readdirSync(dir);
           const now = Date.now();
           const oneDayAgo = now - (24 * 60 * 60 * 1000);
 
           let deletedCount = 0;
           for (const file of files) {
-            const filePath = path.join(dir, file);
-            const stats = fs.statSync(filePath);
+            const filePath = join(dir, file);
+            const stats = statSync(filePath);
             
             if (stats.isFile() && stats.mtime.getTime() < oneDayAgo) {
               if (!this.config.dryRun) {
-                fs.unlinkSync(filePath);
+                unlinkSync(filePath);
               }
               deletedCount++;
             }

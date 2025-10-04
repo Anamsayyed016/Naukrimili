@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
 	content: [
 		'./app/**/*.{js,ts,jsx,tsx,mdx}',
 		'./components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -13,6 +13,6 @@ module.exports = {
 		},
 	},
 	plugins: [
-		require('tailwindcss-animate'),
+		// Note: tailwindcss-animate is loaded via dynamic import in Next.js
 	],
 }

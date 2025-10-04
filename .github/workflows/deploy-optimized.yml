@@ -258,10 +258,10 @@ jobs:
           
           # Create TailwindCSS config if it doesn't exist
           echo "🎨 Ensuring TailwindCSS configuration..."
-          if [ ! -f "tailwind.config.cjs" ]; then
+          if [ ! -f "tailwind.config.mjs" ]; then
             npx tailwindcss init -p
-            mv tailwind.config.js tailwind.config.cjs
-            mv postcss.config.js postcss.config.cjs
+            mv tailwind.config.js tailwind.config.mjs
+            mv postcss.config.js postcss.config.mjs
           fi
           
           # Build application

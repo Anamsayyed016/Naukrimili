@@ -37,7 +37,6 @@ interface DailyReport {
   topJobTitles: Array<{
     title: string;
     count: number;
-    applications: number;
   }>;
   locationStats: Array<{
     location: string;
@@ -153,8 +152,7 @@ class DailyReportGenerator {
     const topJobTitles = await this.prisma.job.groupBy({
       by: ['title'],
       _count: {
-        id: true,
-        applications: true
+        id: true
       },
       orderBy: {
         _count: {
@@ -229,8 +227,7 @@ class DailyReportGenerator {
       })),
       topJobTitles: topJobTitles.map(job => ({
         title: job.title,
-        count: job._count.id,
-        applications: job._count.applications
+        count: job._count.id
       })),
       locationStats: locationStatsWithUsers,
       systemHealth
@@ -308,7 +305,7 @@ class DailyReportGenerator {
 
     console.log('\n💼 Top Job Titles:');
     report.topJobTitles.slice(0, 5).forEach((job, index) => {
-      console.log(`${index + 1}. ${job.title} - ${job.count} jobs, ${job.applications} applications`);
+      console.log(`${index + 1}. ${job.title} - ${job.count} jobs`);
     });
 
     console.log('\n📍 Top Locations:');
@@ -325,16 +322,16 @@ class DailyReportGenerator {
   /**
    * Save report to file
    */
-  public saveReport(report: DailyReport): void {
+  public async saveReport(report: DailyReport): Promise<void> {
     const reportsDir = join(process.cwd(), 'logs', 'reports');
     const filename = `daily-report-${report.date}.json`;
     const filepath = join(reportsDir, filename);
 
     try {
       // Ensure reports directory exists
-      const fs = require('fs');
-      if (!fs.existsSync(reportsDir)) {
-        fs.mkdirSync(reportsDir, { recursive: true });
+      const { existsSync, mkdirSync } = await import('fs');
+      if (!existsSync(reportsDir)) {
+        mkdirSync(reportsDir, { recursive: true });
       }
 
       // Save report
@@ -353,7 +350,7 @@ class DailyReportGenerator {
       await this.initialize();
       const report = await this.generateReport();
       this.displayReport(report);
-      this.saveReport(report);
+      await this.saveReport(report);
 
       console.log('\n🎉 Daily report generated successfully!');
     } catch (error) {
