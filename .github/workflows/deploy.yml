@@ -20,6 +20,11 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
+    - name: 📦 Install dependencies
+      run: |
+        echo "📦 Installing dependencies with Node $(node --version)..."
+        npm install --legacy-peer-deps --engine-strict=false --force
+        
     - name: 🔨 Build application
       run: |
         echo "🔨 Building application with Node $(node --version)..."
