@@ -253,9 +253,44 @@ jobs:
           echo "🎨 Ensuring TailwindCSS configuration..."
           if [ ! -f "tailwind.config.mjs" ]; then
             npx tailwindcss init -p
-            mv tailwind.config.js tailwind.config.mjs
-            mv postcss.config.js postcss.config.mjs
+            mv tailwind.config.js tailwind.config.mjs 2>/dev/null || true
+            mv postcss.config.js postcss.config.mjs 2>/dev/null || true
           fi
+          
+          # Ensure autoprefixer is available as regular dependency for build
+          echo "🔧 Ensuring autoprefixer is available for build..."
+          
+          # Remove from devDependencies first
+          npm uninstall autoprefixer postcss tailwindcss 2>/dev/null || true
+          
+          # Install as regular dependencies with --save flag
+          npm install --save --force --legacy-peer-deps --engine-strict=false autoprefixer@10.4.21
+          npm install --save --force --legacy-peer-deps --engine-strict=false postcss@8.5.6
+          npm install --save --force --legacy-peer-deps --engine-strict=false tailwindcss@3.4.18
+          
+          # Force move to dependencies if npm tries to move to devDependencies
+          echo "🔧 Forcing dependencies to stay in dependencies section..."
+          if [ -d "node_modules/autoprefixer" ]; then
+            echo "✅ Autoprefixer found in node_modules"
+          else
+            echo "❌ Autoprefixer not found, installing directly..."
+            npm install --save --force autoprefixer@10.4.21
+          fi
+          
+          # Final verification before build
+          echo "🔍 Final verification before build..."
+          if ! node -e "require('autoprefixer'); require('postcss'); require('tailwindcss')" > /dev/null 2>&1; then
+            echo "❌ Critical dependencies still missing, trying emergency fix..."
+            npm install --save --force autoprefixer postcss tailwindcss
+          fi
+          
+          # Verify autoprefixer can be required
+          echo "🔍 Testing autoprefixer require..."
+          node -e "console.log('Autoprefixer version:', require('autoprefixer').info())" || {
+            echo "❌ Autoprefixer require failed, installing fresh copy..."
+            rm -rf node_modules/autoprefixer
+            npm install --save --force autoprefixer@10.4.21
+          }
           
           # Build application
           echo "🔨 Building application..."
