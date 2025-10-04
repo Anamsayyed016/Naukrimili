@@ -71,9 +71,9 @@ module.exports = {
   deploy: {
     production: {
       user: 'root',
-      host: 'your-server-ip',
+      host: 'aftionix.in',
       ref: 'origin/main',
-      repo: 'your-git-repo-url',
+      repo: 'https://github.com/anamsayyed58/jobportal',
       path: '/var/www/jobportal',
       'pre-deploy-local': '',
       'post-deploy': 'chmod +x scripts/universal-deploy.sh && ./scripts/universal-deploy.sh',

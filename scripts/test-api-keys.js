@@ -8,9 +8,9 @@
  */
 
 // Your API keys (copy these from your .env.local file)
-const ADZUNA_APP_ID = 'bdd02427';
-const ADZUNA_APP_KEY = 'abf03277d13e4cb39b24bf236ad29299';
-const RAPIDAPI_KEY = '3c767d3998msha8933e5d0c4a9b1p187000jsnd04d13d1e9bc';
+const ADZUNA_APP_ID = process.env.ADZUNA_APP_ID || 'your-adzuna-app-id';
+const ADZUNA_APP_KEY = process.env.ADZUNA_APP_KEY || 'your-adzuna-app-key';
+const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || 'your-rapidapi-key';
 
 async function testAPIKeys() {
   console.log('🔑 Testing Your API Keys...\n');

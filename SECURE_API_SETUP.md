@@ -23,8 +23,8 @@ RAPIDAPI_KEY="your-rapidapi-key"
 RAPIDAPI_HOST="jsearch.p.rapidapi.com"
 
 # Google Jobs API (ADD YOUR KEYS HERE)
-GOOGLE_JOBS_API_KEY="AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY"
-GOOGLE_GEOLOCATION_API_KEY="AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY"
+GOOGLE_JOBS_API_KEY="your-google-jobs-api-key"
+GOOGLE_GEOLOCATION_API_KEY="your-google-geolocation-api-key"
 
 # AI Services (ADD YOUR KEY HERE)
 OPENAI_API_KEY="your-openai-api-key"

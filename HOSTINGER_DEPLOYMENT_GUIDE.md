@@ -104,14 +104,14 @@ Your project is now ready for deployment! Here's what we've prepared:
 
    # AI Services (Optional)
 OPENAI_API_KEY=your-openai-api-key
-GEMINI_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
+GEMINI_API_KEY=your-gemini-api-key
 
 # Job APIs (Optional)
 ADZUNA_APP_ID=your-adzuna-app-id
 ADZUNA_API_KEY=your-adzuna-api-key
 REED_API_KEY=your-reed-api-key
-GOOGLE_JOBS_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
-GOOGLE_CSE_API_KEY=AIzaSyDYhmLEfBFlowxKZQ4qHZOkbq0NLSqOCoY
+GOOGLE_JOBS_API_KEY=your-google-jobs-api-key
+GOOGLE_CSE_API_KEY=your-google-cse-api-key
 
    # AWS S3 (Optional for file uploads)
    AWS_ACCESS_KEY_ID=your-aws-access-key
