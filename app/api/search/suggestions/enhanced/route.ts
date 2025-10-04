@@ -11,7 +11,7 @@ import { prisma } from '@/lib/prisma';
 let openai: any = null;
 if (process.env.OPENAI_API_KEY) {
   try {
-    const OpenAI = require('openai').default;
+    const { default: OpenAI } = await import('openai');
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
@@ -215,10 +215,9 @@ async function getUserContext(userId: string, options: {
     options.includeResume ? prisma.resume.findFirst({
       where: { userId, isActive: true },
       select: {
-        // skills: true, // Commented out as skills field doesn't exist in Resume model
-        experience: true,
-        education: true,
-        fileName: true
+        parsedData: true,
+        fileName: true,
+        specialties: true
       }
     }) : null,
     
@@ -270,10 +269,7 @@ async function generateAISuggestions(params: {
           content: `You are an AI job search assistant. Generate personalized search suggestions based on the user's context.
 
           User Context:
-          - Search History: ${contextData.searchHistory}
-          - Skills: ${contextData.skills}
-          - Recent Applications: ${contextData.applications}
-          - Location: ${location || 'Not specified'}
+          ${contextData}
 
           Generate 5-8 search suggestions that are:
           1. Relevant to the user's background and interests

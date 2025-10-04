@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 let openai: any = null;
 if (process.env.OPENAI_API_KEY) {
   try {
-    const OpenAI = require('openai').default;
+    const { default: OpenAI } = await import('openai');
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });

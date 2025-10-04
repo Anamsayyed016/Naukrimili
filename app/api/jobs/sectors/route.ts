@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const rootModule = require('../route.ts');
-const jobsStore = rootModule?.jobsStore || [];
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-  const sectors = Array.from(new Set(jobsStore.map((j: any) => j.sector).filter(Boolean)));
-  return NextResponse.json({ success: true, count: sectors.length, sectors });
+  try {
+    // Fetch sectors directly from database
+    const jobs = await prisma.job.findMany({
+      select: { sector: true },
+      where: { isActive: true }
+    });
+    
+    const sectors = Array.from(new Set(jobs.map(j => j.sector).filter(Boolean)));
+    return NextResponse.json({ success: true, count: sectors.length, sectors });
+  } catch (error) {
+    console.error('Error in sectors route:', error);
+    return NextResponse.json({ success: false, sectors: [] }, { status: 500 });
+  }
 }
 
 export const dynamic = 'force-dynamic';

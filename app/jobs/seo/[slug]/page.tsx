@@ -118,10 +118,14 @@ export default function SEOJobDetailsPage() {
           // Update canonical URL
           const canonical = document.querySelector('link[rel="canonical"]');
           if (canonical) {
-            const { generateSEOJobUrl, cleanJobDataForSEO } = require('@/lib/seo-url-utils');
-            const cleanJob = cleanJobDataForSEO(data.data);
-            const seoUrl = generateSEOJobUrl(cleanJob);
-            canonical.setAttribute('href', `${window.location.origin}${seoUrl}`);
+            try {
+              const { generateSEOJobUrl, cleanJobDataForSEO } = await import('@/lib/seo-url-utils');
+              const cleanJob = cleanJobDataForSEO(data.data);
+              const seoUrl = generateSEOJobUrl(cleanJob);
+              canonical.setAttribute('href', `${window.location.origin}${seoUrl}`);
+            } catch (error) {
+              console.error('Error updating canonical URL:', error);
+            }
           }
         }
       } else {

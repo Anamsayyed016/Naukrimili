@@ -272,9 +272,9 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
   };
 
   // Handle quick view
-  const handleQuickView = (job: JobResult) => {
+  const handleQuickView = async (job: JobResult) => {
     // Generate SEO-friendly URL
-    const { generateSEOJobUrl, cleanJobDataForSEO } = require('@/lib/seo-url-utils');
+    const { generateSEOJobUrl, cleanJobDataForSEO } = await import('@/lib/seo-url-utils');
     const cleanJob = cleanJobDataForSEO(job);
     const seoUrl = generateSEOJobUrl(cleanJob);
     window.open(seoUrl, '_blank');
