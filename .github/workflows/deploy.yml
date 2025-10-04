@@ -1,33 +1,55 @@
-name: 🚀 Password SSH Deployment
+name: 🚀 Production Deployment
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
+    timeout-minutes: 25
     
-    - name: 🚀 Deploy via SSH
-      uses: appleboy/ssh-action@v1.0.0
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
       with:
-        host: 69.62.73.84
-        username: root
-        key: |
-          -----BEGIN OPENSSH PRIVATE KEY-----
-          b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAFwAAAAdzc2gtcn
-          NhAAAAAwEAAQAAAQEA2K8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8xK8x
-          -----END OPENSSH PRIVATE KEY-----
-        port: 22
+        token: ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: 🚀 Deploy to Hostinger VPS
+      uses: appleboy/ssh-action@v0.1.9
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        timeout: 15m
+        command_timeout: 12m
         script: |
-          cd /var/www/jobportal || mkdir -p /var/www/jobportal && cd /var/www/jobportal
-          if [ ! -d ".git" ]; then
-            git clone https://github.com/Anamsayyed016/Naukrimili.git .
-          else
-            git pull origin main
-          fi
-          npm install --force
+          echo "🚀 Starting deployment..."
+          cd /var/www/jobportal
+          
+          # Force reset any local changes
+          echo "🔄 Resetting local changes..."
+          git reset --hard HEAD
+          git clean -fd
+          
+          # Pull latest changes
+          echo "📥 Pulling latest changes..."
+          git pull origin main
+          
+          # Kill processes and clean ports
+          pm2 delete all || true
+          fuser -k 3000/tcp || true
+          
+          # Install and build
+          npm ci --force
           npm run build
-          pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production
+          
+          # Start with PM2
+          pm2 start ecosystem.config.cjs --env production
+          sleep 10
+          
+          # Verify
+          pm2 status
+          curl -f http://localhost:3000/api/health || echo "Starting..."
