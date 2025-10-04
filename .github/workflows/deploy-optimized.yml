@@ -234,6 +234,13 @@ jobs:
             tailwindcss@3.4.18 \
             postcss@8.5.6 \
             autoprefixer@10.4.21
+            
+          # Also install as dev dependencies to ensure they're available during build
+          echo "🔧 Installing build dependencies..."
+          npm install --save-dev --legacy-peer-deps --engine-strict=false \
+            tailwindcss@3.4.18 \
+            postcss@8.5.6 \
+            autoprefixer@10.4.21
           
           # Verify TailwindCSS is installed
           echo "🔍 Verifying TailwindCSS installation..."
@@ -272,7 +279,14 @@ jobs:
           
           # Build with error handling and progress tracking
           echo "🔨 Starting build process..."
+          echo "📋 Current directory: $(pwd)"
+          echo "📋 Available files:"
+          ls -la
+          echo "📋 Node modules check:"
+          ls -la node_modules | head -10
+          
           set +e
+          echo "🔨 Running: npm run build"
           npm run build 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           set -e
@@ -281,9 +295,17 @@ jobs:
           cat build.log | tail -50
           
           if [ $BUILD_EXIT_CODE -ne 0 ]; then
-            echo "⚠️ Build completed with warnings (exit code: $BUILD_EXIT_CODE)"
+            echo "⚠️ Build failed with exit code: $BUILD_EXIT_CODE"
             echo "📋 Full build log:"
             cat build.log
+            echo "📋 Checking for common issues..."
+            echo "📋 PostCSS config:"
+            cat postcss.config.mjs 2>/dev/null || echo "No postcss.config.mjs found"
+            echo "📋 Tailwind config:"
+            cat tailwind.config.mjs 2>/dev/null || echo "No tailwind.config.mjs found"
+            echo "📋 Package.json scripts:"
+            grep -A 5 -B 5 "build" package.json || echo "No build script found"
+            exit 1
           else
             echo "✅ Build completed successfully!"
           fi
