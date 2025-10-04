@@ -336,13 +336,39 @@ jobs:
           # Generate Prisma client
           npx prisma generate
           
-          # Create TailwindCSS config if it doesn't exist
-          echo "🎨 Ensuring TailwindCSS configuration..."
-          if [ ! -f "tailwind.config.mjs" ]; then
-            npx tailwindcss init -p
-            mv tailwind.config.js tailwind.config.mjs
-            mv postcss.config.js postcss.config.mjs
-          fi
+          # Create config files after dependencies are installed
+          echo "🎨 Creating configuration files..."
+          
+          # Create PostCSS config (CommonJS for compatibility)
+          cat > postcss.config.js << 'EOF'
+          module.exports = {
+            plugins: {
+              tailwindcss: {},
+              autoprefixer: {},
+            },
+          };
+          EOF
+          
+          # Create TailwindCSS config
+          cat > tailwind.config.mjs << 'EOF'
+          /** @type {import('tailwindcss').Config} */
+          const config = {
+            content: [
+              './app/**/*.{js,ts,jsx,tsx,mdx}',
+              './components/**/*.{js,ts,jsx,tsx,mdx}',
+              './pages/**/*.{js,ts,jsx,tsx,mdx}',
+            ],
+            theme: {
+              extend: {
+                screens: {
+                  'xs': '475px',
+                },
+              },
+            },
+            plugins: [],
+          };
+          export default config;
+          EOF
           
           # Build application
           echo "🔨 Building application..."

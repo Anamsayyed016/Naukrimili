@@ -247,15 +247,42 @@ jobs:
             class-variance-authority@0.7.1 \
             clsx@2.1.1 \
             tailwind-merge@2.6.0 \
-            lucide-react@0.525.0
+            lucide-react@0.525.0 \
+            tailwindcss-animate@1.0.7
           
-          # Create TailwindCSS config if it doesn't exist
-          echo "🎨 Ensuring TailwindCSS configuration..."
-          if [ ! -f "tailwind.config.mjs" ]; then
-            npx tailwindcss init -p
-            mv tailwind.config.js tailwind.config.mjs 2>/dev/null || true
-            mv postcss.config.js postcss.config.mjs 2>/dev/null || true
-          fi
+          # Create config files after dependencies are installed
+          echo "🎨 Creating configuration files..."
+          
+          # Create PostCSS config (CommonJS for compatibility)
+          cat > postcss.config.js << 'EOF'
+          module.exports = {
+            plugins: {
+              tailwindcss: {},
+              autoprefixer: {},
+            },
+          };
+          EOF
+          
+          # Create TailwindCSS config
+          cat > tailwind.config.mjs << 'EOF'
+          /** @type {import('tailwindcss').Config} */
+          const config = {
+            content: [
+              './app/**/*.{js,ts,jsx,tsx,mdx}',
+              './components/**/*.{js,ts,jsx,tsx,mdx}',
+              './pages/**/*.{js,ts,jsx,tsx,mdx}',
+            ],
+            theme: {
+              extend: {
+                screens: {
+                  'xs': '475px',
+                },
+              },
+            },
+            plugins: [],
+          };
+          export default config;
+          EOF
           
           # Ensure autoprefixer is available as regular dependency for build
           echo "🔧 Ensuring autoprefixer is available for build..."

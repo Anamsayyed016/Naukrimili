@@ -1,11 +1,10 @@
 /** @type {import('postcss').PostcssConfig} */
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 
+// Use dynamic imports to avoid import errors during initial build
 const config = {
   plugins: [
-    tailwindcss,
-    autoprefixer,
+    'tailwindcss',
+    'autoprefixer',
   ],
 };
 

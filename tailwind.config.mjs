@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
-import tailwindcssAnimate from 'tailwindcss-animate';
 
+// Use dynamic import to avoid import errors during initial build
 const config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
@@ -14,9 +14,7 @@ const config = {
       },
     },
   },
-  plugins: [
-    tailwindcssAnimate,
-  ],
+  plugins: [],
 };
 
 export default config;
