@@ -121,17 +121,20 @@ jobs:
           echo "fund=false" >> .npmrc
           echo "audit=false" >> .npmrc
           
+          # Try different installation methods
+          echo "📋 Trying npm install..."
           if ! npm install --legacy-peer-deps --engine-strict=false --force; then
-            echo "❌ Dependency installation failed"
-            echo "📋 Checking package.json..."
-            cat package.json || echo "No package.json found"
-            echo "📋 Checking node_modules..."
-            ls -la node_modules/ || echo "No node_modules found"
-            echo "📋 Available space: $(df -h . | tail -1)"
-            echo "📋 Trying npm ci instead..."
+            echo "❌ npm install failed, trying npm ci..."
             if ! npm ci --legacy-peer-deps --engine-strict=false --force; then
-              echo "❌ npm ci also failed"
-              exit 1
+              echo "❌ npm ci failed, trying clean install..."
+              rm -rf node_modules package-lock.json
+              if ! npm install --legacy-peer-deps --engine-strict=false --force; then
+                echo "❌ All installation methods failed"
+                echo "📋 Checking package.json..."
+                cat package.json || echo "No package.json found"
+                echo "📋 Available space: $(df -h . | tail -1)"
+                exit 1
+              fi
             fi
           fi
           
@@ -163,16 +166,19 @@ jobs:
           export NODE_OPTIONS="--max-old-space-size=4096"
           
           # Run build with error handling
-          echo "🔨 Running npm run build:deploy..."
-          if ! npm run build:deploy; then
-            echo "❌ Build failed, checking for errors..."
-            echo "📋 Node version: $(node --version)"
-            echo "📋 NPM version: $(npm --version)"
-            echo "📋 Available space: $(df -h . | tail -1)"
-            echo "📋 Memory usage: $(free -h)"
-            echo "📋 Build logs:"
-            npm run build:deploy 2>&1 || true
-            exit 1
+          echo "🔨 Running npm run build:simple..."
+          if ! npm run build:simple; then
+            echo "❌ Simple build failed, trying build:deploy..."
+            if ! npm run build:deploy; then
+              echo "❌ Both builds failed, checking for errors..."
+              echo "📋 Node version: $(node --version)"
+              echo "📋 NPM version: $(npm --version)"
+              echo "📋 Available space: $(df -h . | tail -1)"
+              echo "📋 Memory usage: $(free -h)"
+              echo "📋 Build logs:"
+              npm run build:simple 2>&1 || true
+              exit 1
+            fi
           fi
           
           # Verify build was successful
