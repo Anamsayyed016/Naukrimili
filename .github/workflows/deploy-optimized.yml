@@ -241,6 +241,25 @@ jobs:
             tailwindcss@3.4.18 \
             postcss@8.5.6 \
             autoprefixer@10.4.21
+            
+          # Verify autoprefixer is installed and accessible
+          echo "🔍 Verifying autoprefixer installation..."
+          if ! node -e "require('autoprefixer')" > /dev/null 2>&1; then
+            echo "❌ Autoprefixer not found, trying to reinstall..."
+            npm uninstall autoprefixer 2>/dev/null || true
+            npm install --save-dev --legacy-peer-deps --engine-strict=false autoprefixer@10.4.21
+            npm install --save --legacy-peer-deps --engine-strict=false autoprefixer@10.4.21
+          fi
+          
+          # Final autoprefixer verification
+          if node -e "require('autoprefixer')" > /dev/null 2>&1; then
+            echo "✅ Autoprefixer is properly installed"
+          else
+            echo "❌ Autoprefixer installation failed"
+            echo "📋 Available packages:"
+            npm list | grep -i autoprefixer || echo "No autoprefixer packages found"
+            exit 1
+          fi
           
           # Verify TailwindCSS is installed
           echo "🔍 Verifying TailwindCSS installation..."
@@ -262,6 +281,30 @@ jobs:
           
           # Generate Prisma client
           npx prisma generate
+          
+          # Install UI dependencies
+          echo "🎨 Installing UI dependencies..."
+          npm install --legacy-peer-deps --engine-strict=false \
+            @radix-ui/react-slot@1.2.3 \
+            @radix-ui/react-dialog@1.1.15 \
+            @radix-ui/react-dropdown-menu@2.1.16 \
+            @radix-ui/react-toast@1.2.15 \
+            @radix-ui/react-label@2.1.1 \
+            @radix-ui/react-checkbox@1.1.2 \
+            @radix-ui/react-progress@1.1.1 \
+            @radix-ui/react-select@2.2.5 \
+            class-variance-authority@0.7.1 \
+            clsx@2.1.1 \
+            tailwind-merge@2.6.0 \
+            lucide-react@0.525.0 \
+            @heroicons/react@2.2.0
+            
+          # Verify UI dependencies are installed
+          echo "🔍 Verifying UI dependencies..."
+          if ! node -e "require('@radix-ui/react-slot')" > /dev/null 2>&1; then
+            echo "❌ UI dependencies not found, trying to reinstall..."
+            npm install --legacy-peer-deps --engine-strict=false @radix-ui/react-slot class-variance-authority clsx tailwind-merge
+          fi
           
           # Create TailwindCSS config if it doesn't exist
           echo "🎨 Ensuring TailwindCSS configuration..."
