@@ -8,6 +8,7 @@ import { parse } from 'url';
 import next from 'next';
 import { Server as SocketIOServer } from 'socket.io';
 import { existsSync } from 'fs';
+import http from 'http';
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = process.env.HOSTNAME || (dev ? 'localhost' : '0.0.0.0');
@@ -133,7 +134,6 @@ app.prepare().then(async () => {
     // Test health endpoint after startup
     setTimeout(() => {
       console.log('🔍 Testing health endpoint after startup...');
-      const http = require('http');
       const options = {
         hostname: hostname === '0.0.0.0' ? 'localhost' : hostname,
         port: port,
