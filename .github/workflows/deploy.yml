@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     
     steps:
     - name: 📥 Checkout code
@@ -20,7 +20,7 @@ jobs:
         node-version: '20'
         cache: 'npm'
         
-    - name: 📦 Install dependencies
+    - name: 📦 Install and Build
       run: |
         echo "📦 Installing dependencies with Node $(node --version)..."
         
@@ -109,69 +109,13 @@ jobs:
         
         echo "✅ Dependencies ready"
         
-      env:
-        NODE_ENV: production
-        
     - name: 🔨 Build application
       run: |
         echo "🔨 Building application with Node $(node --version)..."
-        
-        # Build with error handling
-        set +e
-        NODE_ENV=production \
-        NODE_OPTIONS="--max-old-space-size=4096" \
-        NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true \
-        NEXT_TELEMETRY_DISABLED=1 \
-        npx next build
-        BUILD_EXIT_CODE=$?
-        set -e
-        
-        # Check build result
-        if [ $BUILD_EXIT_CODE -ne 0 ]; then
-          echo "⚠️ Build completed with warnings (exit code: $BUILD_EXIT_CODE)"
-        fi
-        
-        # Verify build output
-        if [ ! -d ".next" ]; then
-          echo "❌ Build failed - .next directory not found"
-          echo "📋 Directory contents:"
-          ls -la
-          exit 1
-        fi
-        
-        echo "✅ Build completed successfully"
-        
-      env:
-        NODE_ENV: production
-        NODE_OPTIONS: "--max-old-space-size=4096"
-        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true"
-        NEXT_TELEMETRY_DISABLED: "1"
-        
-    - name: 🔐 Verify GitHub Secrets
-      run: |
-        echo "🔍 Verifying GitHub secrets..."
-        if [ -z "${{ secrets.HOST }}" ]; then
-          echo "❌ HOST secret is missing"
-          exit 1
-        fi
-        if [ -z "${{ secrets.SSH_USER }}" ]; then
-          echo "❌ SSH_USER secret is missing"
-          exit 1
-        fi
-        if [ -z "${{ secrets.SSH_KEY }}" ]; then
-          echo "❌ SSH_KEY secret is missing"
-          exit 1
-        fi
-        if [ -z "${{ secrets.SSH_PORT }}" ]; then
-          echo "❌ SSH_PORT secret is missing"
-          exit 1
-        fi
-        echo "✅ All required secrets are configured"
-        echo "📋 Configuration:"
-        echo "- HOST: ${{ secrets.HOST }}"
-        echo "- SSH_USER: ${{ secrets.SSH_USER }}"
-        echo "- SSH_PORT: ${{ secrets.SSH_PORT }}"
-        echo "- SSH_KEY: Configured (length hidden for security)"
+        export NODE_OPTIONS="--max-old-space-size=4096"
+        export NEXT_TELEMETRY_DISABLED=1
+        export NODE_ENV=production
+        npm run build
         
     - name: 🚀 Deploy to Production Server
       uses: appleboy/ssh-action@v1.0.3
@@ -180,8 +124,8 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 30m
-        command_timeout: 28m
+        timeout: 25m
+        command_timeout: 23m
         debug: true
         script_stop: true
         use_insecure_cipher: false
@@ -263,41 +207,6 @@ jobs:
             tailwindcss@3.4.18 \
             postcss@8.5.6 \
             autoprefixer@10.4.21
-            
-          # Also install as dev dependencies to ensure they're available during build
-          echo "🔧 Installing build dependencies..."
-          npm install --save-dev --legacy-peer-deps --engine-strict=false \
-            tailwindcss@3.4.18 \
-            postcss@8.5.6 \
-            autoprefixer@10.4.21
-            
-          # Aggressive autoprefixer fix
-          echo "🔧 Ensuring autoprefixer is available for build..."
-          
-          # Remove from devDependencies first
-          npm uninstall autoprefixer postcss tailwindcss 2>/dev/null || true
-          
-          # Install as regular dependencies with --save flag
-          npm install --save --force --legacy-peer-deps --engine-strict=false autoprefixer@10.4.21
-          npm install --save --force --legacy-peer-deps --engine-strict=false postcss@8.5.6
-          npm install --save --force --legacy-peer-deps --engine-strict=false tailwindcss@3.4.18
-          
-          # Force move to dependencies if npm tries to move to devDependencies
-          echo "🔧 Forcing dependencies to stay in dependencies section..."
-          if [ -d "node_modules/autoprefixer" ]; then
-            echo "✅ Autoprefixer found in node_modules"
-          else
-            echo "❌ Autoprefixer not found, installing directly..."
-            npm install --save --force autoprefixer@10.4.21
-          fi
-          
-          # Final verification
-          if node -e "require('autoprefixer'); require('postcss'); require('tailwindcss')" > /dev/null 2>&1; then
-            echo "✅ All critical dependencies are available"
-          else
-            echo "❌ Critical dependencies still missing"
-            exit 1
-          fi
           
           # Verify TailwindCSS is installed
           echo "🔍 Verifying TailwindCSS installation..."
@@ -318,6 +227,7 @@ jobs:
           fi
           
           # Install UI dependencies
+          echo "📦 Installing UI dependencies..."
           npm install --legacy-peer-deps --engine-strict=false \
             @radix-ui/react-slot@1.2.3 \
             @radix-ui/react-dialog@1.1.15 \
@@ -336,39 +246,15 @@ jobs:
           # Generate Prisma client
           npx prisma generate
           
-          # Create config files after dependencies are installed
-          echo "🎨 Creating configuration files..."
+          # Create TailwindCSS config if it doesn't exist
+          echo "🎨 Ensuring TailwindCSS configuration..."
+          if [ ! -f "tailwind.config.cjs" ]; then
+            npx tailwindcss init -p
+            mv tailwind.config.js tailwind.config.cjs
+            mv postcss.config.js postcss.config.cjs
+          fi
           
-          # Create PostCSS config (CommonJS for compatibility)
-          cat > postcss.config.js << 'EOF'
-          module.exports = {
-            plugins: {
-              tailwindcss: {},
-              autoprefixer: {},
-            },
-          };
-          EOF
-          
-          # Create TailwindCSS config
-          cat > tailwind.config.mjs << 'EOF'
-          /** @type {import('tailwindcss').Config} */
-          const config = {
-            content: [
-              './app/**/*.{js,ts,jsx,tsx,mdx}',
-              './components/**/*.{js,ts,jsx,tsx,mdx}',
-              './pages/**/*.{js,ts,jsx,tsx,mdx}',
-            ],
-            theme: {
-              extend: {
-                screens: {
-                  'xs': '475px',
-                },
-              },
-            },
-            plugins: [],
-          };
-          export default config;
-          EOF
+          echo "✅ Dependencies ready"
           
           # Build application
           echo "🔨 Building application..."
@@ -381,7 +267,6 @@ jobs:
           npm run build
           BUILD_EXIT_CODE=$?
           set -e
-          
           if [ $BUILD_EXIT_CODE -ne 0 ]; then
             echo "⚠️ Build completed with warnings (exit code: $BUILD_EXIT_CODE)"
           fi
