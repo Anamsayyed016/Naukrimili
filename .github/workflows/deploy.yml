@@ -16,6 +16,24 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
       
+    - name: 🔧 Setup Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        echo "📦 Installing dependencies with Node $(node --version)..."
+        npm install --legacy-peer-deps --engine-strict=false --force
+        
+    - name: 🔨 Build application
+      run: |
+        echo "🔨 Building application with Node $(node --version)..."
+        export NEXT_TELEMETRY_DISABLED=1
+        export NODE_ENV=production
+        npm run build
+        
     - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
       with:
@@ -25,31 +43,206 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         timeout: 15m
         command_timeout: 12m
+        debug: true
         script: |
-          echo "🚀 Starting deployment..."
+          set -e
+          echo "🚀 Starting production deployment..."
+          
+          # Test SSH connection
+          echo "🔍 Testing SSH connection..."
+          echo "Current user: $(whoami)"
+          echo "Current directory: $(pwd)"
+          echo "Available space: $(df -h . | tail -1)"
+          
+          # Navigate to project directory
           cd /var/www/jobportal
+          echo "📁 Working in: $(pwd)"
           
-          # Force reset any local changes
-          echo "🔄 Resetting local changes..."
-          git reset --hard HEAD
-          git clean -fd
+          # Verify we can access the directory
+          if [ ! -d "/var/www/jobportal" ]; then
+            echo "❌ Project directory /var/www/jobportal not found"
+            echo "📋 Creating directory..."
+            mkdir -p /var/www/jobportal
+            cd /var/www/jobportal
+          fi
           
-          # Pull latest changes
-          echo "📥 Pulling latest changes..."
-          git pull origin main
+          # Check Node version and install if needed
+          NODE_VERSION=$(node --version 2>/dev/null || echo "not-installed")
+          echo "🔍 Current Node version: $NODE_VERSION"
+          if [[ ! "$NODE_VERSION" =~ ^v20\. ]]; then
+            echo "📦 Installing Node.js 20.x..."
+            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            echo "✅ Node.js installed: $(node --version)"
+          fi
           
-          # Kill processes and clean ports
-          pm2 delete all || true
-          fuser -k 3000/tcp || true
+          # Force kill all PM2 processes and clean up
+          echo "💀 Force killing all PM2 processes..."
+          pm2 kill || true
+          pm2 flush || true
           
-          # Install and build
-          npm ci --force
+          # Clean up previous build artifacts
+          echo "🧹 Cleaning up previous build artifacts..."
+          rm -rf /var/www/jobportal/.next
+          rm -rf /var/www/jobportal/node_modules
+          
+          # Copy new code from GitHub Actions workspace
+          echo "📥 Copying new code from GitHub Actions workspace..."
+          rsync -av --delete /github/workspace/ /var/www/jobportal/ --exclude='.git' --exclude='node_modules' --exclude='.next'
+          
+          # Install dependencies
+          echo "📦 Installing dependencies..."
+          npm install --legacy-peer-deps --engine-strict=false --force
+          
+          # Generate Prisma client
+          echo "🗄️ Generating Prisma client..."
+          npx prisma generate
+          
+          # Build the application
+          echo "🔨 Building application..."
+          export NODE_ENV=production
+          export NEXT_TELEMETRY_DISABLED=1
+          export NEXT_PUBLIC_APP_URL=https://aftionix.in
+          export NEXTAUTH_URL=https://aftionix.in
           npm run build
           
-          # Start with PM2
-          pm2 start ecosystem.config.cjs --env production
-          sleep 10
+          # Verify build was successful
+          echo "🔍 Verifying build..."
+          if [ ! -d ".next" ]; then
+            echo "❌ Build failed - .next directory not found"
+            exit 1
+          fi
+          echo "✅ Build verification passed"
           
-          # Verify
+          # Create log directory
+          echo "📁 Creating log directory..."
+          sudo mkdir -p /var/log/jobportal
+          sudo chown -R $USER:$USER /var/log/jobportal
+          
+          # Set environment variables for production
+          echo "🔧 Setting environment variables..."
+          export NODE_ENV=production
+          export PORT=3000
+          export NEXT_TELEMETRY_DISABLED=1
+          export NEXT_PUBLIC_APP_URL=https://aftionix.in
+          export NEXTAUTH_URL=https://aftionix.in
+          export NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
+          export JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
+          export DATABASE_URL="postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal"
+          
+          # Test server startup manually first
+          echo "🧪 Testing server startup..."
+          timeout 10s node server.js &
+          SERVER_PID=$!
+          sleep 5
+          
+          # Check if server started successfully
+          if ps -p $SERVER_PID > /dev/null; then
+            echo "✅ Server started successfully"
+            kill $SERVER_PID
+          else
+            echo "❌ Server failed to start"
+            echo "📋 Testing server startup manually..."
+            node server.js || echo "Server startup test failed"
+            exit 1
+          fi
+          
+          # Start the application with PM2
+          echo "🚀 Starting application with PM2..."
+          pm2 start ecosystem.config.cjs --env production --no-daemon
+          
+          # Wait for PM2 to fully start
+          echo "⏳ Waiting for PM2 to fully start..."
+          sleep 15
+          
+          # Comprehensive PM2 status check
+          echo "🔍 PM2 Status Check..."
           pm2 status
-          curl -f http://localhost:3000/api/health || echo "Starting..."
+          pm2 describe jobportal || echo "⚠️ PM2 describe failed"
+          
+          # Show detailed PM2 logs
+          echo "📋 PM2 Application Logs:"
+          pm2 logs jobportal --lines 30 || echo "No logs available"
+          
+          # Check if process is actually running
+          echo "📊 Process Check:"
+          ps aux | grep node || echo "No node processes found"
+          
+          # Health check with retries and comprehensive logging
+          echo "🏥 Performing comprehensive health check..."
+          HEALTH_CHECK_PASSED=false
+          for i in {1..10}; do
+            echo "Health check attempt $i/10..."
+            
+            # Check PM2 process status
+            PM2_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
+            echo "📊 PM2 Status: $PM2_STATUS"
+            
+            if [ "$PM2_STATUS" != "online" ]; then
+              echo "⚠️ PM2 process is not online (status: $PM2_STATUS)"
+              echo "📋 PM2 Error Logs:"
+              pm2 logs jobportal --err --lines 10 || echo "No error logs available"
+              
+              if [ $i -lt 5 ]; then
+                echo "🔄 Attempting PM2 restart..."
+                pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production --no-daemon
+                sleep 15
+                continue
+              fi
+            fi
+            
+            # Try health check endpoint
+            echo "🔍 Testing health endpoint..."
+            HEALTH_RESPONSE=$(curl -f -s --max-time 15 http://localhost:3000/api/health 2>/dev/null || echo "failed")
+            
+            if [ "$HEALTH_RESPONSE" != "failed" ]; then
+              echo "✅ Health check passed!"
+              echo "📋 Health Response: $HEALTH_RESPONSE"
+              HEALTH_CHECK_PASSED=true
+              break
+            else
+              echo "❌ Health check failed (attempt $i/10)"
+              echo "📋 Application Logs:"
+              pm2 logs jobportal --lines 5 || echo "No logs available"
+              echo "📋 Network Check:"
+              netstat -tlnp | grep :3000 || echo "Port 3000 not listening"
+              sleep 10
+            fi
+          done
+          
+          # Comprehensive final status
+          echo "📋 Final PM2 Status:"
+          pm2 status
+          echo "📋 PM2 Process Details:"
+          pm2 describe jobportal || echo "PM2 describe failed"
+          echo "📋 Recent Application Logs:"
+          pm2 logs jobportal --lines 20 || echo "No logs available"
+          echo "📋 Network Status:"
+          netstat -tlnp | grep :3000 || echo "Port 3000 not listening"
+          
+          # Check if health check passed
+          if [ "$HEALTH_CHECK_PASSED" = false ]; then
+            echo "❌ Health check failed after 10 attempts"
+            echo "📋 Final Error Analysis:"
+            
+            # Check if PM2 process is at least running
+            PM2_FINAL_STATUS=$(pm2 list --format json 2>/dev/null | jq -r '.[] | select(.name=="jobportal") | .pm2_env.status' 2>/dev/null || echo "errored")
+            echo "📊 Final PM2 Status: $PM2_FINAL_STATUS"
+            
+            if [ "$PM2_FINAL_STATUS" = "online" ]; then
+              echo "⚠️ PM2 process is running but health check failed"
+              echo "🌐 Application may be available at: http://localhost:3000"
+              echo "📋 Check application logs for runtime errors"
+              exit 0
+            else
+              echo "❌ PM2 process failed to start properly"
+              echo "📋 Error logs:"
+              pm2 logs jobportal --err --lines 20 || echo "No error logs available"
+              exit 1
+            fi
+          fi
+          
+          echo "✅ Production deployment completed successfully!"
+          echo "🌐 Application is available at: http://localhost:3000"
+          echo "📊 Final Status:"
+          pm2 status
