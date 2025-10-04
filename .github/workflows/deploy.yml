@@ -303,8 +303,8 @@ jobs:
               pm2 logs jobportal --err --lines 10 || echo "No error logs available"
               
               if [ $i -lt 5 ]; then
-      echo "🔄 Attempting PM2 restart..."
-      pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production
+                echo "🔄 Attempting PM2 restart..."
+                pm2 restart jobportal || pm2 start ecosystem.config.cjs --env production
                 sleep 15
                 continue
               fi
