@@ -21,8 +21,7 @@ import {
   Search,
   ChevronDown,
   Heart,
-  Users,
-  TestTube
+  Users
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -210,13 +209,6 @@ export default function MainNavigation({
               // Desktop Auth Buttons
               <>
                 <Link
-                  href="/test-otp"
-                  className="px-4 py-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-xl transition-all duration-300 font-medium flex items-center"
-                >
-                  <TestTube className="w-4 h-4 mr-2" />
-                  Test OTP
-                </Link>
-                <Link
                   href="/auth/signin"
                   className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                 >
@@ -390,14 +382,6 @@ export default function MainNavigation({
               ) : (
                 // User is not logged in - show auth buttons
                 <div className="px-4 py-3 space-y-3 border-t border-gray-200">
-                  <Link
-                    href="/test-otp"
-                    onClick={closeMenu}
-                    className="w-full flex items-center justify-center px-4 py-4 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-xl transition-all duration-300 font-medium border border-green-200 touch-target"
-                  >
-                    <TestTube className="w-4 h-4 mr-2" />
-                    Test OTP
-                  </Link>
                   <Link
                     href="/auth/signin"
                     onClick={closeMenu}
