@@ -45,15 +45,6 @@ module.exports = {
       max_restarts: 5,
       restart_delay: 4000,
       
-      // Health monitoring
-      health_check_grace_period: 5000,
-      health_check_interval: 30000,
-      
-      // Advanced features
-      kill_timeout: 5000,
-      listen_timeout: 15000,
-      shutdown_with_message: true,
-      
       // Memory and CPU monitoring
       max_memory_restart: '2G',
       node_args: '--max-old-space-size=4096',
@@ -61,10 +52,6 @@ module.exports = {
       // Environment-specific settings
       exec_mode: 'fork',
       merge_logs: true,
-      
-      // Ensure proper startup
-      wait_ready: true,
-      listen_timeout: 20000,
       
       // Auto restart on file changes (disabled for production)
       watch: false,
