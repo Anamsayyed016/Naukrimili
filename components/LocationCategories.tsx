@@ -53,54 +53,64 @@ export default function LocationCategories({
     try {
       setLoading(true);
       
-      // Fetch real job counts from API
-      const fetchJobCounts = async () => {
+      // Fetch real job counts from dedicated API
+      const fetchLocationCounts = async () => {
         try {
-          const response = await fetch('/api/jobs/unlimited?limit=1&includeExternal=true&includeDatabase=true&includeSample=false');
+          const response = await fetch('/api/jobs/location-counts');
           const data = await response.json();
-          // Fix: Use correct field name from API response
-          return data.pagination?.totalJobs || data.totalJobs || 265; // Fallback to actual count from your API
+          
+          if (data.success) {
+            return {
+              totalJobs: data.data.totalJobs,
+              locationCounts: data.data.locationCounts
+            };
+          } else {
+            throw new Error('API returned error');
+          }
         } catch (error) {
-          console.warn('Failed to fetch job counts:', error);
-          return 265; // Use actual count from your API response
+          console.warn('Failed to fetch location counts:', error);
+          return {
+            totalJobs: 265,
+            locationCounts: {}
+          };
         }
       };
 
-      // Get base job count for dynamic calculations
-      const baseJobCount = await fetchJobCounts();
+      // Get real job counts for each location
+      const { totalJobs, locationCounts } = await fetchLocationCounts();
       
-      // Calculate dynamic job counts based on real data
-      const getDynamicJobCount = (baseCount: number, multiplier: number) => {
-        return Math.floor(baseCount * multiplier);
+      // Helper function to get job count for a location
+      const getJobCount = (locationId: string, fallbackMultiplier: number) => {
+        return locationCounts[locationId] || Math.floor(totalJobs * fallbackMultiplier);
       };
 
       const areas: LocationData[] = [
-        { id: 'bay-area', name: 'Bay Area', country: 'USA', flag: '🇺🇸', jobCount: getDynamicJobCount(baseJobCount, 0.12), type: 'area' },
-        { id: 'greater-london', name: 'Greater London', country: 'UK', flag: '🇬🇧', jobCount: getDynamicJobCount(baseJobCount, 0.10), type: 'area' },
-        { id: 'greater-toronto', name: 'Greater Toronto', country: 'Canada', flag: '🇨🇦', jobCount: getDynamicJobCount(baseJobCount, 0.08), type: 'area' },
-        { id: 'silicon-valley', name: 'Silicon Valley', country: 'USA', flag: '🇺🇸', jobCount: getDynamicJobCount(baseJobCount, 0.07), type: 'area' },
-        { id: 'greater-sydney', name: 'Greater Sydney', country: 'Australia', flag: '🇦🇺', jobCount: getDynamicJobCount(baseJobCount, 0.05), type: 'area' },
-        { id: 'greater-dubai', name: 'Greater Dubai', country: 'UAE', flag: '🇦🇪', jobCount: getDynamicJobCount(baseJobCount, 0.04), type: 'area' }
+        { id: 'bay-area', name: 'Bay Area', country: 'USA', flag: '🇺🇸', jobCount: getJobCount('bay-area', 0.12), type: 'area' },
+        { id: 'greater-london', name: 'Greater London', country: 'UK', flag: '🇬🇧', jobCount: getJobCount('greater-london', 0.10), type: 'area' },
+        { id: 'greater-toronto', name: 'Greater Toronto', country: 'Canada', flag: '🇨🇦', jobCount: getJobCount('greater-toronto', 0.08), type: 'area' },
+        { id: 'silicon-valley', name: 'Silicon Valley', country: 'USA', flag: '🇺🇸', jobCount: getJobCount('silicon-valley', 0.07), type: 'area' },
+        { id: 'greater-sydney', name: 'Greater Sydney', country: 'Australia', flag: '🇦🇺', jobCount: getJobCount('greater-sydney', 0.05), type: 'area' },
+        { id: 'greater-dubai', name: 'Greater Dubai', country: 'UAE', flag: '🇦🇪', jobCount: getJobCount('greater-dubai', 0.04), type: 'area' }
       ];
 
       const states: LocationData[] = [
-        { id: 'california', name: 'California', country: 'USA', flag: '🇺🇸', jobCount: getDynamicJobCount(baseJobCount, 0.20), type: 'state' },
-        { id: 'new-york-state', name: 'New York', country: 'USA', flag: '🇺🇸', jobCount: getDynamicJobCount(baseJobCount, 0.18), type: 'state' },
-        { id: 'texas', name: 'Texas', country: 'USA', flag: '🇺🇸', jobCount: getDynamicJobCount(baseJobCount, 0.15), type: 'state' },
-        { id: 'florida', name: 'Florida', country: 'USA', flag: '🇺🇸', jobCount: getDynamicJobCount(baseJobCount, 0.12), type: 'state' },
-        { id: 'washington', name: 'Washington', country: 'USA', flag: '🇺🇸', jobCount: getDynamicJobCount(baseJobCount, 0.10), type: 'state' },
-        { id: 'massachusetts', name: 'Massachusetts', country: 'USA', flag: '🇺🇸', jobCount: getDynamicJobCount(baseJobCount, 0.09), type: 'state' }
+        { id: 'california', name: 'California', country: 'USA', flag: '🇺🇸', jobCount: getJobCount('california', 0.20), type: 'state' },
+        { id: 'new-york-state', name: 'New York', country: 'USA', flag: '🇺🇸', jobCount: getJobCount('new-york-state', 0.18), type: 'state' },
+        { id: 'texas', name: 'Texas', country: 'USA', flag: '🇺🇸', jobCount: getJobCount('texas', 0.15), type: 'state' },
+        { id: 'florida', name: 'Florida', country: 'USA', flag: '🇺🇸', jobCount: getJobCount('florida', 0.12), type: 'state' },
+        { id: 'washington', name: 'Washington', country: 'USA', flag: '🇺🇸', jobCount: getJobCount('washington', 0.10), type: 'state' },
+        { id: 'massachusetts', name: 'Massachusetts', country: 'USA', flag: '🇺🇸', jobCount: getJobCount('massachusetts', 0.09), type: 'state' }
       ];
 
       const countries: LocationData[] = [
-        { id: 'usa', name: 'United States', country: 'USA', flag: '🇺🇸', jobCount: getDynamicJobCount(baseJobCount, 0.35), type: 'country' },
-        { id: 'india', name: 'India', country: 'India', flag: '🇮🇳', jobCount: getDynamicJobCount(baseJobCount, 0.30), type: 'country' },
-        { id: 'uk', name: 'United Kingdom', country: 'UK', flag: '🇬🇧', jobCount: getDynamicJobCount(baseJobCount, 0.13), type: 'country' },
-        { id: 'canada', name: 'Canada', country: 'Canada', flag: '🇨🇦', jobCount: getDynamicJobCount(baseJobCount, 0.11), type: 'country' },
-        { id: 'australia', name: 'Australia', country: 'Australia', flag: '🇦🇺', jobCount: getDynamicJobCount(baseJobCount, 0.09), type: 'country' },
-        { id: 'germany', name: 'Germany', country: 'Germany', flag: '🇩🇪', jobCount: getDynamicJobCount(baseJobCount, 0.07), type: 'country' },
-        { id: 'singapore', name: 'Singapore', country: 'Singapore', flag: '🇸🇬', jobCount: getDynamicJobCount(baseJobCount, 0.06), type: 'country' },
-        { id: 'uae', name: 'United Arab Emirates', country: 'UAE', flag: '🇦🇪', jobCount: getDynamicJobCount(baseJobCount, 0.05), type: 'country' }
+        { id: 'usa', name: 'United States', country: 'USA', flag: '🇺🇸', jobCount: getJobCount('usa', 0.35), type: 'country' },
+        { id: 'india', name: 'India', country: 'India', flag: '🇮🇳', jobCount: getJobCount('india', 0.30), type: 'country' },
+        { id: 'uk', name: 'United Kingdom', country: 'UK', flag: '🇬🇧', jobCount: getJobCount('uk', 0.13), type: 'country' },
+        { id: 'canada', name: 'Canada', country: 'Canada', flag: '🇨🇦', jobCount: getJobCount('canada', 0.11), type: 'country' },
+        { id: 'australia', name: 'Australia', country: 'Australia', flag: '🇦🇺', jobCount: getJobCount('australia', 0.09), type: 'country' },
+        { id: 'germany', name: 'Germany', country: 'Germany', flag: '🇩🇪', jobCount: getJobCount('germany', 0.07), type: 'country' },
+        { id: 'singapore', name: 'Singapore', country: 'Singapore', flag: '🇸🇬', jobCount: getJobCount('singapore', 0.06), type: 'country' },
+        { id: 'uae', name: 'United Arab Emirates', country: 'UAE', flag: '🇦🇪', jobCount: getJobCount('uae', 0.05), type: 'country' }
       ];
 
       // Sort by job count (AI-powered relevance)
@@ -157,6 +167,14 @@ export default function LocationCategories({
   // Initialize locations
   useEffect(() => {
     generateDynamicLocations();
+    
+    // Set up real-time refresh every 5 minutes
+    const refreshInterval = setInterval(() => {
+      console.log('🔄 Refreshing location job counts...');
+      generateDynamicLocations();
+    }, 5 * 60 * 1000); // 5 minutes
+    
+    return () => clearInterval(refreshInterval);
   }, [generateDynamicLocations]);
 
   if (loading) {

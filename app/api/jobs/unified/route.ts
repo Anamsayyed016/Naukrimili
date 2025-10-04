@@ -105,7 +105,8 @@ export async function GET(request: NextRequest) {
         source: 'manual',
         sourceId: 'sample-1',
         postedAt: new Date().toISOString(),
-        applyUrl: '#',
+        applyUrl: 'https://techcorp-india.com/careers/senior-software-engineer',
+        source_url: 'https://techcorp-india.com/careers/senior-software-engineer',
         views: 150,
         applicationsCount: 25
       },
@@ -128,7 +129,8 @@ export async function GET(request: NextRequest) {
         source: 'manual',
         sourceId: 'sample-2',
         postedAt: new Date().toISOString(),
-        applyUrl: '#',
+        applyUrl: 'https://digital-solutions.com/careers/frontend-developer',
+        source_url: 'https://digital-solutions.com/careers/frontend-developer',
         views: 89,
         applicationsCount: 12
       },
@@ -151,7 +153,8 @@ export async function GET(request: NextRequest) {
         source: 'manual',
         sourceId: 'sample-3',
         postedAt: new Date().toISOString(),
-        applyUrl: '#',
+        applyUrl: 'https://analytics-pro.com/careers/data-analyst',
+        source_url: 'https://analytics-pro.com/careers/data-analyst',
         views: 67,
         applicationsCount: 8
       },
@@ -174,7 +177,8 @@ export async function GET(request: NextRequest) {
         source: 'manual',
         sourceId: 'sample-4',
         postedAt: new Date().toISOString(),
-        applyUrl: '#',
+        applyUrl: 'https://innovatetech.com/careers/product-manager',
+        source_url: 'https://innovatetech.com/careers/product-manager',
         views: 203,
         applicationsCount: 45
       },
@@ -197,7 +201,8 @@ export async function GET(request: NextRequest) {
         source: 'manual',
         sourceId: 'sample-5',
         postedAt: new Date().toISOString(),
-        applyUrl: '#',
+        applyUrl: 'https://cloud-systems.com/careers/devops-engineer',
+        source_url: 'https://cloud-systems.com/careers/devops-engineer',
         views: 134,
         applicationsCount: 18
       },
@@ -220,7 +225,8 @@ export async function GET(request: NextRequest) {
         source: 'manual',
         sourceId: 'sample-6',
         postedAt: new Date().toISOString(),
-        applyUrl: '#',
+        applyUrl: 'https://techcorp-india.com/careers/senior-software-engineer',
+        source_url: 'https://techcorp-india.com/careers/senior-software-engineer',
         views: 92,
         applicationsCount: 15
       },
@@ -243,7 +249,8 @@ export async function GET(request: NextRequest) {
         source: 'manual',
         sourceId: 'sample-7',
         postedAt: new Date().toISOString(),
-        applyUrl: '#',
+        applyUrl: 'https://techcorp-india.com/careers/senior-software-engineer',
+        source_url: 'https://techcorp-india.com/careers/senior-software-engineer',
         views: 178,
         applicationsCount: 32
       },
@@ -266,7 +273,8 @@ export async function GET(request: NextRequest) {
         source: 'manual',
         sourceId: 'sample-8',
         postedAt: new Date().toISOString(),
-        applyUrl: '#',
+        applyUrl: 'https://techcorp-india.com/careers/senior-software-engineer',
+        source_url: 'https://techcorp-india.com/careers/senior-software-engineer',
         views: 95,
         applicationsCount: 14
       }

@@ -49,7 +49,7 @@ console.log('\n📋 Next Steps:');
 console.log('1. Update your .env.local file with your actual API keys');
 console.log('2. Run: npx prisma db push');
 console.log('3. Start the development server: npm run dev');
-console.log('4. Test the OTP system at: http://localhost:3000/test-otp');
+console.log('4. Test the OTP system using the production OTP components');
 
 console.log('\n🎯 OTP System Features:');
 console.log('• WhatsApp OTP delivery');

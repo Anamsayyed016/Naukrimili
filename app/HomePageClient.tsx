@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import OAuthButtons from '../components/auth/OAuthButtons';
 import { Button } from "../components/ui/button";
 import SEOJobLink from '../components/SEOJobLink';
-import UnifiedJobSearch from '../components/UnifiedJobSearch';
+import JobSearchHero from '../components/JobSearchHero';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 interface Job {
@@ -91,12 +91,8 @@ export default function HomePageClient({
       </section>
 
       {/* Smart Job Search with Fixed Dynamic Filters */}
-      <UnifiedJobSearch 
-        variant="homepage"
+      <JobSearchHero 
         showAdvancedFilters={true}
-        showSuggestions={true}
-        showLocationCategories={true}
-        autoSearch={true}
       />
 
       {/* Popular Locations Section */}

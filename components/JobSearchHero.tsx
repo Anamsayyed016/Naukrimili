@@ -138,6 +138,20 @@ export default function JobSearchHero({
     router.push(searchUrl);
   }, [filters, userLocation, searchRadius, sortByDistance, router]);
 
+  // Auto-search when filters change (real-time reactivity)
+  useEffect(() => {
+    if (debouncedQuery || debouncedLocation || filters.jobType !== 'all' || filters.experienceLevel !== 'all' || filters.isRemote) {
+      console.log('🔄 Auto-search triggered by filter change:', {
+        query: debouncedQuery,
+        location: debouncedLocation,
+        jobType: filters.jobType,
+        experienceLevel: filters.experienceLevel,
+        isRemote: filters.isRemote
+      });
+      handleSearch();
+    }
+  }, [debouncedQuery, debouncedLocation, filters.jobType, filters.experienceLevel, filters.isRemote, handleSearch]);
+
   // Location detection with improved error handling
   const detectCurrentLocation = useCallback(async () => {
     try {
@@ -176,6 +190,9 @@ export default function JobSearchHero({
             errorMessage = 'Location access denied. Please allow location access in your browser settings and try again.';
           } else if (errorMessage.includes('timeout')) {
             errorMessage = 'Location request timed out. Please check your internet connection and try again.';
+          } else {
+            // For other errors, show a more generic but helpful message
+            errorMessage = 'Unable to detect your location automatically. Please select a location from the options below.';
           }
         }
         
