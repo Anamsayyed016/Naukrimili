@@ -32,7 +32,32 @@ jobs:
         echo "🔨 Building application with Node $(node --version)..."
         export NEXT_TELEMETRY_DISABLED=1
         export NODE_ENV=production
+        export NEXT_PUBLIC_APP_URL=https://aftionix.in
+        export NEXTAUTH_URL=https://aftionix.in
+        export NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
+        export JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
+        export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+        export AUTH_DISABLED=true
+        export NEXT_PUBLIC_BYPASS_OAUTH=true
         npm run build
+        
+    - name: 🔍 Validate build artifacts
+      run: |
+        echo "🔍 Validating build artifacts..."
+        if [ ! -d ".next" ]; then
+          echo "❌ Build failed - .next directory not found"
+          exit 1
+        fi
+        if [ ! -f ".next/BUILD_ID" ]; then
+          echo "❌ Build incomplete - BUILD_ID not found"
+          exit 1
+        fi
+        echo "✅ Build artifacts validated successfully"
+        
+    - name: 🛠️ Generate server.cjs
+      run: |
+        echo "🛠️ Generating server.cjs from template..."
+        node scripts/generate-server.js
         
     - name: 📥 Prepare SSH Key
       run: |
@@ -49,10 +74,7 @@ jobs:
           ./ ${{ secrets.SSH_USER }}@${{ secrets.HOST }}:/var/www/jobportal/ \
           --exclude='.git' \
           --exclude='node_modules' \
-          --exclude='.next' \
           --exclude='.github' \
-          --exclude='server.cjs' \
-          --exclude='server-template.cjs' \
           --exclude='ecosystem.config.cjs'
 
     - name: 🚀 Deploy to Hostinger VPS
@@ -147,21 +169,26 @@ jobs:
           
           echo "✅ Files copied successfully"
           
-          # Remove any corrupted server.js files that might exist
-          echo "🧹 Cleaning up any corrupted server files..."
-          rm -f server.cjs ecosystem.config.cjs
-          
-          # Create a backup of any existing server.js to check what's corrupting it
-          if [ -f "server.js" ]; then
-            echo "⚠️ Found existing server.js - checking content..."
-            echo "📋 First 3 lines of existing server.js:"
-            head -3 server.js || echo "Cannot read server.js"
-            echo "📋 File size: $(wc -c < server.js) bytes"
-            cp server.js server.js.backup || echo "Cannot backup server.js"
-            rm -f server.js
+          # Verify build artifacts were copied correctly
+          echo "🔍 Verifying build artifacts on server..."
+          if [ ! -d ".next" ]; then
+            echo "❌ .next directory not found on server"
+            echo "📋 Directory contents:"
+            ls -la
+            exit 1
+          fi
+          if [ ! -f ".next/BUILD_ID" ]; then
+            echo "❌ BUILD_ID not found - build incomplete"
+            exit 1
+          fi
+          if [ ! -f "server.cjs" ]; then
+            echo "❌ server.cjs not found on server"
+            echo "📋 Available files:"
+            ls -la *.cjs *.js 2>/dev/null || echo "No server files found"
+            exit 1
           fi
           
-          echo "✅ Cleaned up corrupted server files"
+          echo "✅ Build artifacts verified on server"
           
           # Install dependencies with better error handling
           echo "📦 Installing dependencies..."
@@ -174,7 +201,7 @@ jobs:
           
           # Clean install with proper error handling
           echo "📋 Performing clean npm install..."
-          rm -rf node_modules package-lock.json
+              rm -rf node_modules package-lock.json
           
           # Set npm config to ignore optional dependencies and warnings
           npm config set engine-strict false
@@ -191,8 +218,8 @@ jobs:
               echo "❌ Critical dependencies missing - failing deployment"
               echo "📋 npm version: $(npm --version)"
               echo "📋 node version: $(node --version)"
-              echo "📋 Available space: $(df -h . | tail -1)"
-              exit 1
+                echo "📋 Available space: $(df -h . | tail -1)"
+                exit 1
             fi
           }
           
@@ -220,7 +247,7 @@ jobs:
           export NEXTAUTH_URL=https://aftionix.in
           export NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
           export JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
-          export DATABASE_URL="postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal"
+          export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
           
           # Set Node options for build
           export NODE_OPTIONS="--max-old-space-size=4096"
@@ -233,22 +260,22 @@ jobs:
           # Try standard Next.js build first
           if ! npm run build; then
             echo "❌ Standard build failed, trying build:simple..."
-            if ! npm run build:simple; then
-              echo "❌ Simple build failed, trying build:deploy..."
-              if ! npm run build:deploy; then
-                echo "❌ Deploy build failed, trying minimal build..."
-                if ! npm run build:minimal; then
+          if ! npm run build:simple; then
+            echo "❌ Simple build failed, trying build:deploy..."
+            if ! npm run build:deploy; then
+              echo "❌ Deploy build failed, trying minimal build..."
+              if ! npm run build:minimal; then
                   echo "❌ All builds failed - detailed error analysis:"
-                  echo "📋 Node version: $(node --version)"
-                  echo "📋 NPM version: $(npm --version)"
-                  echo "📋 Available space: $(df -h . | tail -1)"
-                  echo "📋 Memory usage: $(free -h)"
+                echo "📋 Node version: $(node --version)"
+                echo "📋 NPM version: $(npm --version)"
+                echo "📋 Available space: $(df -h . | tail -1)"
+                echo "📋 Memory usage: $(free -h)"
                   echo "📋 Dependencies installed: $([ -d node_modules ] && echo 'YES' || echo 'NO')"
                   echo "📋 Package.json scripts:"
                   cat package.json | grep -A 10 '"scripts"' || echo "No scripts found"
                   echo "📋 Trying manual Next.js build:"
                   npx next build 2>&1 || echo "Manual build also failed"
-                  exit 1
+                exit 1
                 fi
               fi
             fi
@@ -290,76 +317,14 @@ jobs:
           export NEXTAUTH_URL=https://aftionix.in
           export NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
           export JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
-          export DATABASE_URL="postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal"
+          export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
           export AUTH_DISABLED=true
           export NEXT_PUBLIC_BYPASS_OAUTH=true
           
-          # Create server.js with OAuth bypass to avoid file corruption
-          echo "🔧 Creating server.js with OAuth bypass..."
-          
-          # Double-check that no server.js exists and create it atomically
-          rm -f server.cjs
-          touch server.cjs
-          chmod 644 server.cjs
-          
-          # Copy server template to avoid shell script injection
-          echo "🔧 Creating server.cjs from template..."
-          if [ -f "server-template.cjs" ]; then
-            cp server-template.cjs server.cjs
-            echo "✅ server.cjs created from template"
-          else
-            echo "❌ server-template.cjs not found - creating fallback..."
-            # Fallback: create a simple server file
-            cat > server.cjs << 'SERVER_EOF'
-          const { createServer } = require('http')
-          const { parse } = require('url')
-          const next = require('next')
-          
-          const dev = process.env.NODE_ENV !== 'production'
-          const hostname = process.env.HOSTNAME || 'localhost'
-          const port = process.env.PORT || 3000
-          
-          const app = next({ dev, hostname, port })
-          const handle = app.getRequestHandler()
-          
-          app.prepare().then(() => {
-            createServer(async (req, res) => {
-              try {
-                const parsedUrl = parse(req.url, true)
-                
-                if (req.url && (req.url.includes('/auth/') || req.url.includes('/api/auth/'))) {
-                  if (req.url.includes('/auth/bypass')) {
-                    await handle(req, res, parsedUrl)
-                  } else {
-                    res.writeHead(302, { 'Location': '/auth/bypass' })
-                    res.end()
-                    return
-                  }
-                }
-                
-                await handle(req, res, parsedUrl)
-              } catch (err) {
-                console.error('Error occurred handling', req.url, err)
-                res.statusCode = 500
-                res.end('internal server error')
-              }
-            })
-              .once('error', (err) => {
-                console.error(err)
-                process.exit(1)
-              })
-              .listen(port, () => {
-                console.log(`> Ready on http://${hostname}:${port}`)
-              })
-          })
-          SERVER_EOF
-            echo "✅ server.cjs created from fallback"
-          fi
-          
-          # Immediate verification that server.cjs was created correctly
-          echo "🔍 Immediate verification of server.cjs..."
+          # Validate server.cjs file
+          echo "🔍 Validating server.cjs file..."
           if [ ! -f "server.cjs" ]; then
-            echo "❌ server.cjs was not created!"
+            echo "❌ server.cjs not found!"
             exit 1
           fi
           
@@ -367,81 +332,23 @@ jobs:
           echo "📋 First 3 lines of server.cjs:"
           head -3 server.cjs || echo "Cannot read server.cjs"
           
-          # Check if the file contains shell script syntax (the corruption we're trying to avoid)
+          # Check for shell script corruption
           if grep -q "DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.cjs; then
             echo "❌ server.cjs contains shell script syntax - corruption detected!"
             echo "📋 Corrupted content:"
-            cat server.cjs || echo "Cannot read corrupted file"
+            head -10 server.cjs
             exit 1
           fi
-          
-          # Check for shell script patterns that shouldn't be in JavaScript
-          if grep -q "^\$? ; if \[ \$DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.cjs; then
-            echo "❌ server.cjs contains shell script variables - corruption detected!"
-            echo "📋 Corrupted content:"
-            cat server.cjs || echo "Cannot read corrupted file"
-            exit 1
-          fi
-          
-          # Check for shell script patterns at start of lines
-          if grep -q "^DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.cjs; then
-            echo "❌ server.cjs contains shell script commands - corruption detected!"
-            echo "📋 Corrupted content:"
-            cat server.cjs || echo "Cannot read corrupted file"
-            exit 1
-          fi
-          
-          echo "✅ server.cjs created with OAuth bypass and verified clean"
           
           # Verify server.cjs is valid JavaScript
           echo "🔍 Verifying server.cjs syntax..."
           if node -c server.cjs; then
             echo "✅ server.cjs syntax is valid"
           else
-            echo "❌ server.cjs syntax error - recreating..."
-            rm -f server.cjs
-            echo 'const { createServer } = require("http")' > server.cjs
-            echo 'const { parse } = require("url")' >> server.cjs
-            echo 'const next = require("next")' >> server.cjs
-            echo '' >> server.cjs
-            echo 'const dev = process.env.NODE_ENV !== "production"' >> server.cjs
-            echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.cjs
-            echo 'const port = process.env.PORT || 3000' >> server.cjs
-            echo '' >> server.cjs
-            echo 'const app = next({ dev, hostname, port })' >> server.cjs
-            echo 'const handle = app.getRequestHandler()' >> server.cjs
-            echo '' >> server.cjs
-            echo 'app.prepare().then(() => {' >> server.cjs
-            echo '  createServer(async (req, res) => {' >> server.cjs
-            echo '    try {' >> server.cjs
-            echo '      const parsedUrl = parse(req.url, true)' >> server.cjs
-            echo '' >> server.cjs
-            echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.cjs
-            echo '        if (req.url.includes("/auth/bypass")) {' >> server.cjs
-            echo '          await handle(req, res, parsedUrl)' >> server.cjs
-            echo '        } else {' >> server.cjs
-            echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.cjs
-            echo '          res.end()' >> server.cjs
-            echo '          return' >> server.cjs
-            echo '        }' >> server.cjs
-            echo '      }' >> server.cjs
-            echo '' >> server.cjs
-            echo '      await handle(req, res, parsedUrl)' >> server.cjs
-            echo '    } catch (err) {' >> server.cjs
-            echo '      console.error("Error occurred handling", req.url, err)' >> server.cjs
-            echo '      res.statusCode = 500' >> server.cjs
-            echo '      res.end("internal server error")' >> server.cjs
-            echo '    }' >> server.cjs
-            echo '  })' >> server.cjs
-            echo '    .once("error", (err) => {' >> server.cjs
-            echo '      console.error(err)' >> server.cjs
-            echo '      process.exit(1)' >> server.cjs
-            echo '    })' >> server.cjs
-            echo '    .listen(port, () => {' >> server.cjs
-            echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.cjs
-            echo '    })' >> server.cjs
-            echo '})' >> server.cjs
-            echo "✅ server.cjs recreated and verified"
+            echo "❌ server.cjs syntax error!"
+            echo "📋 Syntax error details:"
+            node -c server.cjs 2>&1 || true
+            exit 1
           fi
           
           # Create ecosystem.config.cjs with OAuth bypass to avoid file corruption
