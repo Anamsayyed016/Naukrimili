@@ -37,8 +37,8 @@ jobs:
         export NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
         export JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
         export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
-        export AUTH_DISABLED=true
-        export NEXT_PUBLIC_BYPASS_OAUTH=true
+        export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+        export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
         npx next build
         
     - name: 🔍 Validate build artifacts
@@ -69,13 +69,24 @@ jobs:
     - name: 📥 Copy files to server
       run: |
         echo "📥 Copying files to server..."
+        echo "📋 Files to copy:"
+        ls -la | head -10
+        echo "📋 Scripts directory:"
+        ls -la scripts/ || echo "No scripts directory"
+        
         rsync -avz --delete \
           -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
           ./ ${{ secrets.SSH_USER }}@${{ secrets.HOST }}:/var/www/jobportal/ \
           --exclude='.git' \
           --exclude='node_modules' \
           --exclude='.github' \
-          --exclude='ecosystem.config.cjs'
+          --exclude='.next' \
+          --exclude='ecosystem.config.cjs' \
+          --exclude='server.cjs' \
+          --include='scripts/' \
+          --include='scripts/**'
+        
+        echo "✅ File copy completed"
 
     - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
@@ -114,6 +125,37 @@ jobs:
           fi
           
           echo "✅ Files successfully copied to server"
+          
+          # Verify essential files and directories
+          echo "📋 Checking essential files and directories..."
+          echo "📁 Current directory contents:"
+          ls -la
+          
+          echo "📁 Scripts directory:"
+          if [ -d "scripts" ]; then
+            ls -la scripts/
+            if [ -f "scripts/generate-server-files.cjs" ]; then
+              echo "✅ generate-server-files.cjs found"
+            else
+              echo "❌ generate-server-files.cjs not found in scripts directory"
+              exit 1
+            fi
+          else
+            echo "❌ scripts directory not found"
+            exit 1
+          fi
+          
+          echo "📁 Prisma directory:"
+          if [ -d "prisma" ]; then
+            ls -la prisma/
+            if [ -f "prisma/schema.prisma" ]; then
+              echo "✅ Prisma schema found"
+            else
+              echo "⚠️ Prisma schema not found"
+            fi
+          else
+            echo "⚠️ Prisma directory not found"
+          fi
           
           # Check Node version and install if needed
           NODE_VERSION=$(node --version 2>/dev/null || echo "not-installed")
@@ -168,18 +210,37 @@ jobs:
           
           echo "✅ Files copied successfully"
           
-          # Verify build artifacts were copied correctly
-          echo "🔍 Verifying build artifacts on server..."
+          # Build the application on server (since we exclude .next from rsync)
+          echo "🔨 Building application on server..."
+          
+          # Check if we have a build script
+          if grep -q '"build"' package.json; then
+            echo "📋 Found build script in package.json"
+            npm run build
+            echo "✅ Build completed successfully"
+          else
+            echo "⚠️ No build script found, using next build directly"
+            npx next build
+            echo "✅ Next.js build completed"
+          fi
+          
+          # Verify build artifacts were created
+          echo "🔍 Verifying build artifacts..."
           if [ ! -d ".next" ]; then
-            echo "❌ .next directory not found on server"
+            echo "❌ .next directory not found after build"
             echo "📋 Directory contents:"
             ls -la
             exit 1
           fi
+          
           if [ ! -f ".next/BUILD_ID" ]; then
-            echo "❌ BUILD_ID not found - build incomplete"
+            echo "❌ BUILD_ID not found in .next directory"
+            echo "📋 .next directory contents:"
+            ls -la .next/ || echo "Cannot list .next directory"
             exit 1
           fi
+          
+          echo "✅ Build artifacts created successfully"
           if [ ! -f "server.cjs" ]; then
             echo "❌ server.cjs not found on server"
             echo "📋 Available files:"
@@ -217,18 +278,28 @@ jobs:
           
           # Install with error suppression for optional dependencies
           echo "📦 Installing dependencies (ignoring optional dependency errors)..."
+          echo "📋 Node version: $(node --version)"
+          echo "📋 npm version: $(npm --version)"
+          echo "📋 Available space: $(df -h . | tail -1)"
+          
           npm install --legacy-peer-deps --omit=optional --loglevel=error --progress=false || {
-            echo "⚠️ npm install had warnings, but continuing..."
-            # Check if core dependencies are installed
-            if [ -d "node_modules" ] && [ -f "node_modules/next/package.json" ]; then
-              echo "✅ Core dependencies installed successfully"
-            else
-              echo "❌ Critical dependencies missing - failing deployment"
-              echo "📋 npm version: $(npm --version)"
-              echo "📋 node version: $(node --version)"
+            echo "⚠️ npm install had warnings, trying alternative approach..."
+            # Try with force flag
+            npm install --force --legacy-peer-deps || {
+              echo "❌ Alternative install also failed, checking core dependencies..."
+              # Check if core dependencies are installed
+              if [ -d "node_modules" ] && [ -f "node_modules/next/package.json" ]; then
+                echo "✅ Core dependencies are available despite warnings"
+              else
+                echo "❌ Critical dependencies missing - deployment failed"
+                echo "📋 npm version: $(npm --version)"
+                echo "📋 node version: $(node --version)"
                 echo "📋 Available space: $(df -h . | tail -1)"
+                echo "📋 Directory contents:"
+                ls -la
                 exit 1
-            fi
+              fi
+            }
           }
           
           echo "✅ Dependencies installed successfully"
@@ -250,23 +321,8 @@ jobs:
             echo "⚠️ Prisma not found, skipping Prisma client generation"
           fi
           
-          # Build already completed locally, just verify it exists
-          echo "🔍 Verifying build artifacts from local build..."
-          if [ ! -d ".next" ]; then
-            echo "❌ Build artifacts not found - local build may have failed"
-            echo "📋 Directory contents:"
-            ls -la | head -20
-                exit 1
-          fi
-          
-          if [ ! -f ".next/BUILD_ID" ]; then
-            echo "❌ Build incomplete - BUILD_ID not found"
-            echo "📋 .next directory contents:"
-            ls -la .next/ || echo "Cannot list .next directory"
-            exit 1
-          fi
-          
-          echo "✅ Build artifacts verified - using local build"
+          # Build artifacts already verified above
+          echo "✅ Build artifacts already verified"
           
           # Create log directory
           echo "📁 Creating log directory..."
