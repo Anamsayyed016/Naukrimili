@@ -170,7 +170,6 @@ jobs:
           echo "legacy-peer-deps=true" >> .npmrc
           echo "fund=false" >> .npmrc
           echo "audit=false" >> .npmrc
-          echo "optional=false" >> .npmrc
           echo "loglevel=error" >> .npmrc
           
           # Clean install with proper error handling
@@ -180,11 +179,10 @@ jobs:
           # Set npm config to ignore optional dependencies and warnings
           npm config set engine-strict false
           npm config set legacy-peer-deps true
-          npm config set optional false
           
           # Install with error suppression for optional dependencies
           echo "📦 Installing dependencies (ignoring optional dependency errors)..."
-          npm install --legacy-peer-deps --no-optional --loglevel=error --progress=false || {
+          npm install --legacy-peer-deps --omit=optional --loglevel=error --progress=false || {
             echo "⚠️ npm install had warnings, but continuing..."
             # Check if core dependencies are installed
             if [ -d "node_modules" ] && [ -f "node_modules/next/package.json" ]; then
@@ -260,9 +258,23 @@ jobs:
           echo "🔍 Verifying build..."
           if [ ! -d ".next" ]; then
             echo "❌ Build failed - .next directory not found"
+            echo "📋 Checking build artifacts..."
+            ls -la | grep -E "(build|dist|out)" || echo "No build artifacts found"
+            echo "📋 Checking for build errors in logs..."
+            echo "📋 Available space: $(df -h . | tail -1)"
+            echo "📋 Memory usage: $(free -h)"
             exit 1
           fi
-          echo "✅ Build verification passed"
+          
+          # Verify .next has required files
+          if [ ! -f ".next/BUILD_ID" ]; then
+            echo "❌ Build incomplete - BUILD_ID not found"
+            echo "📋 .next directory contents:"
+            ls -la .next/ || echo "Cannot list .next directory"
+            exit 1
+          fi
+          
+          echo "✅ Build verification passed - .next directory created successfully"
           
           # Create log directory
           echo "📁 Creating log directory..."
