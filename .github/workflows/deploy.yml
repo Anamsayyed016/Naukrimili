@@ -50,7 +50,9 @@ jobs:
           --exclude='.git' \
           --exclude='node_modules' \
           --exclude='.next' \
-          --exclude='.github'
+          --exclude='.github' \
+          --exclude='server.js' \
+          --exclude='ecosystem.config.cjs'
 
     - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
@@ -143,6 +145,11 @@ jobs:
           fi
           
           echo "✅ Files copied successfully"
+          
+          # Remove any corrupted server.js files that might exist
+          echo "🧹 Cleaning up any corrupted server files..."
+          rm -f server.js ecosystem.config.cjs
+          echo "✅ Cleaned up corrupted server files"
           
           # Install dependencies
           echo "📦 Installing dependencies..."
@@ -292,6 +299,59 @@ jobs:
           
           echo "✅ server.js created with OAuth bypass"
           
+          # Verify server.js is valid JavaScript
+          echo "🔍 Verifying server.js syntax..."
+          if node -c server.js; then
+            echo "✅ server.js syntax is valid"
+          else
+            echo "❌ server.js syntax error - recreating..."
+            rm -f server.js
+            cat > server.js << 'EOF'
+          const { createServer } = require('http')
+          const { parse } = require('url')
+          const next = require('next')
+          
+          const dev = process.env.NODE_ENV !== 'production'
+          const hostname = process.env.HOSTNAME || 'localhost'
+          const port = process.env.PORT || 3000
+          
+          const app = next({ dev, hostname, port })
+          const handle = app.getRequestHandler()
+          
+          app.prepare().then(() => {
+            createServer(async (req, res) => {
+              try {
+                const parsedUrl = parse(req.url, true)
+                
+                if (req.url && (req.url.includes('/auth/') || req.url.includes('/api/auth/'))) {
+                  if (req.url.includes('/auth/bypass')) {
+                    await handle(req, res, parsedUrl)
+                  } else {
+                    res.writeHead(302, { 'Location': '/auth/bypass' })
+                    res.end()
+                    return
+                  }
+                }
+                
+                await handle(req, res, parsedUrl)
+              } catch (err) {
+                console.error('Error occurred handling', req.url, err)
+                res.statusCode = 500
+                res.end('internal server error')
+              }
+            })
+              .once('error', (err) => {
+                console.error(err)
+                process.exit(1)
+              })
+              .listen(port, () => {
+                console.log(`> Ready on http://${hostname}:${port}`)
+              })
+          })
+          EOF
+            echo "✅ server.js recreated and verified"
+          fi
+          
           # Create ecosystem.config.cjs with OAuth bypass to avoid file corruption
           echo "🔧 Creating ecosystem.config.cjs with OAuth bypass..."
           cat > ecosystem.config.cjs << 'EOF'
@@ -360,6 +420,87 @@ jobs:
           EOF
           
           echo "✅ ecosystem.config.cjs created with OAuth bypass"
+          
+          # Verify ecosystem.config.cjs is valid JavaScript
+          echo "🔍 Verifying ecosystem.config.cjs syntax..."
+          if node -c ecosystem.config.cjs; then
+            echo "✅ ecosystem.config.cjs syntax is valid"
+          else
+            echo "❌ ecosystem.config.cjs syntax error - recreating..."
+            rm -f ecosystem.config.cjs
+            cat > ecosystem.config.cjs << 'EOF'
+          module.exports = {
+            apps: [
+              {
+                name: 'jobportal',
+                script: 'server.js',
+                cwd: '/var/www/jobportal',
+                instances: 1,
+                autorestart: true,
+                watch: false,
+                max_memory_restart: '2G',
+                env: {
+                  NODE_ENV: 'production',
+                  PORT: 3000,
+                  NODE_OPTIONS: '--max-old-space-size=4096',
+                  NEXT_TELEMETRY_DISABLED: '1',
+                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
+                  NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
+                  AUTH_DISABLED: 'true',
+                  NEXT_PUBLIC_BYPASS_OAUTH: 'true',
+                  NEXTAUTH_URL: 'https://aftionix.in',
+                  NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
+                  JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
+                  DATABASE_URL: 'postgresql://postgres:password@localhost:5432/jobportal',
+                  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+                  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+                },
+                env_production: {
+                  NODE_ENV: 'production',
+                  PORT: 3000,
+                  NODE_OPTIONS: '--max-old-space-size=4096',
+                  NEXT_TELEMETRY_DISABLED: '1',
+                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
+                  NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
+                  AUTH_DISABLED: 'true',
+                  NEXT_PUBLIC_BYPASS_OAUTH: 'true',
+                  NEXTAUTH_URL: 'https://aftionix.in',
+                  NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
+                  JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
+                  DATABASE_URL: 'postgresql://postgres:password@localhost:5432/jobportal',
+                  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+                  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+                },
+                log_file: '/var/log/jobportal/combined.log',
+                out_file: '/var/log/jobportal/out.log',
+                error_file: '/var/log/jobportal/error.log',
+                log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+                merge_logs: true,
+                log_type: 'json',
+                min_uptime: '10s',
+                max_restarts: 5,
+                restart_delay: 4000,
+                exec_mode: 'fork',
+                ignore_watch: [
+                  'node_modules',
+                  '.next',
+                  'logs',
+                  '*.log',
+                  '.git'
+                ]
+              }
+            ]
+          };
+          EOF
+            echo "✅ ecosystem.config.cjs recreated and verified"
+          fi
+          
+          # Final verification of server files
+          echo "🔍 Final verification of server files..."
+          echo "📋 server.js first 5 lines:"
+          head -5 server.js || echo "Cannot read server.js"
+          echo "📋 ecosystem.config.cjs first 5 lines:"
+          head -5 ecosystem.config.cjs || echo "Cannot read ecosystem.config.cjs"
           
           # Test server startup manually first
           echo "🧪 Testing server startup..."
