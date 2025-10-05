@@ -232,9 +232,12 @@ jobs:
               echo "❌ Prisma client generation failed"
               echo "📋 Checking Prisma schema..."
               ls -la prisma/ || echo "No prisma directory found"
-              cat prisma/schema.prisma || echo "No schema file found"
+              head -20 prisma/schema.prisma || echo "Cannot read schema file"
+              echo "📋 Checking Prisma version..."
+              npx prisma --version || echo "Prisma not found"
               exit 1
             fi
+            echo "✅ Prisma client generated successfully"
           else
             echo "⚠️ Prisma not found, skipping Prisma client generation"
           fi
@@ -257,25 +260,25 @@ jobs:
           echo "📋 Available build scripts:"
           npm run --silent 2>/dev/null | grep "build" || echo "No build scripts found"
           
-          # Try standard Next.js build first
-          if ! npm run build; then
-            echo "❌ Standard build failed, trying build:simple..."
-          if ! npm run build:simple; then
-            echo "❌ Simple build failed, trying build:deploy..."
-            if ! npm run build:deploy; then
-              echo "❌ Deploy build failed, trying minimal build..."
-              if ! npm run build:minimal; then
+          # Use the most reliable build script
+          if ! npm run build:deploy; then
+            echo "❌ Deploy build failed, trying build:simple..."
+            if ! npm run build:simple; then
+              echo "❌ Simple build failed, trying standard build..."
+              if ! npm run build; then
+                echo "❌ Standard build failed, trying minimal build..."
+                if ! npm run build:minimal; then
                   echo "❌ All builds failed - detailed error analysis:"
-                echo "📋 Node version: $(node --version)"
-                echo "📋 NPM version: $(npm --version)"
-                echo "📋 Available space: $(df -h . | tail -1)"
-                echo "📋 Memory usage: $(free -h)"
+                  echo "📋 Node version: $(node --version)"
+                  echo "📋 NPM version: $(npm --version)"
+                  echo "📋 Available space: $(df -h . | tail -1)"
+                  echo "📋 Memory usage: $(free -h)"
                   echo "📋 Dependencies installed: $([ -d node_modules ] && echo 'YES' || echo 'NO')"
                   echo "📋 Package.json scripts:"
                   cat package.json | grep -A 10 '"scripts"' || echo "No scripts found"
                   echo "📋 Trying manual Next.js build:"
                   npx next build 2>&1 || echo "Manual build also failed"
-                exit 1
+                  exit 1
                 fi
               fi
             fi
@@ -351,143 +354,81 @@ jobs:
             exit 1
           fi
           
-          # Create ecosystem.config.cjs with OAuth bypass to avoid file corruption
-          echo "🔧 Creating ecosystem.config.cjs with OAuth bypass..."
-          echo 'module.exports = {' > ecosystem.config.cjs
-          echo '  apps: [' >> ecosystem.config.cjs
-          echo '    {' >> ecosystem.config.cjs
-          echo '      name: "jobportal",' >> ecosystem.config.cjs
-          echo '      script: "server.cjs",' >> ecosystem.config.cjs
-          echo '      cwd: "/var/www/jobportal",' >> ecosystem.config.cjs
-          echo '      instances: 1,' >> ecosystem.config.cjs
-          echo '      autorestart: true,' >> ecosystem.config.cjs
-          echo '      watch: false,' >> ecosystem.config.cjs
-          echo '      max_memory_restart: "2G",' >> ecosystem.config.cjs
-          echo '      env: {' >> ecosystem.config.cjs
-          echo '        NODE_ENV: "production",' >> ecosystem.config.cjs
-          echo '        PORT: 3000,' >> ecosystem.config.cjs
-          echo '        NODE_OPTIONS: "--max-old-space-size=4096",' >> ecosystem.config.cjs
-          echo '        NEXT_TELEMETRY_DISABLED: "1",' >> ecosystem.config.cjs
-          echo '        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",' >> ecosystem.config.cjs
-          echo '        NEXT_PUBLIC_APP_URL: "https://aftionix.in",' >> ecosystem.config.cjs
-          echo '        AUTH_DISABLED: "true",' >> ecosystem.config.cjs
-          echo '        NEXT_PUBLIC_BYPASS_OAUTH: "true",' >> ecosystem.config.cjs
-          echo '        NEXTAUTH_URL: "https://aftionix.in",' >> ecosystem.config.cjs
-          echo '        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",' >> ecosystem.config.cjs
-          echo '        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",' >> ecosystem.config.cjs
-          echo '        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",' >> ecosystem.config.cjs
-          echo '        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,' >> ecosystem.config.cjs
-          echo '        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET' >> ecosystem.config.cjs
-          echo '      },' >> ecosystem.config.cjs
-          echo '      env_production: {' >> ecosystem.config.cjs
-          echo '        NODE_ENV: "production",' >> ecosystem.config.cjs
-          echo '        PORT: 3000,' >> ecosystem.config.cjs
-          echo '        NODE_OPTIONS: "--max-old-space-size=4096",' >> ecosystem.config.cjs
-          echo '        NEXT_TELEMETRY_DISABLED: "1",' >> ecosystem.config.cjs
-          echo '        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",' >> ecosystem.config.cjs
-          echo '        NEXT_PUBLIC_APP_URL: "https://aftionix.in",' >> ecosystem.config.cjs
-          echo '        AUTH_DISABLED: "true",' >> ecosystem.config.cjs
-          echo '        NEXT_PUBLIC_BYPASS_OAUTH: "true",' >> ecosystem.config.cjs
-          echo '        NEXTAUTH_URL: "https://aftionix.in",' >> ecosystem.config.cjs
-          echo '        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",' >> ecosystem.config.cjs
-          echo '        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",' >> ecosystem.config.cjs
-          echo '        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",' >> ecosystem.config.cjs
-          echo '        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,' >> ecosystem.config.cjs
-          echo '        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET' >> ecosystem.config.cjs
-          echo '      },' >> ecosystem.config.cjs
-          echo '      log_file: "/var/log/jobportal/combined.log",' >> ecosystem.config.cjs
-          echo '      out_file: "/var/log/jobportal/out.log",' >> ecosystem.config.cjs
-          echo '      error_file: "/var/log/jobportal/error.log",' >> ecosystem.config.cjs
-          echo '      log_date_format: "YYYY-MM-DD HH:mm:ss Z",' >> ecosystem.config.cjs
-          echo '      merge_logs: true,' >> ecosystem.config.cjs
-          echo '      log_type: "json",' >> ecosystem.config.cjs
-          echo '      min_uptime: "10s",' >> ecosystem.config.cjs
-          echo '      max_restarts: 5,' >> ecosystem.config.cjs
-          echo '      restart_delay: 4000,' >> ecosystem.config.cjs
-          echo '      exec_mode: "fork",' >> ecosystem.config.cjs
-          echo '      ignore_watch: [' >> ecosystem.config.cjs
-          echo '        "node_modules",' >> ecosystem.config.cjs
-          echo '        ".next",' >> ecosystem.config.cjs
-          echo '        "logs",' >> ecosystem.config.cjs
-          echo '        "*.log",' >> ecosystem.config.cjs
-          echo '        ".git"' >> ecosystem.config.cjs
-          echo '      ]' >> ecosystem.config.cjs
-          echo '    }' >> ecosystem.config.cjs
-          echo '  ]' >> ecosystem.config.cjs
-          echo '};' >> ecosystem.config.cjs
-          
-          echo "✅ ecosystem.config.cjs created with OAuth bypass"
+          # Create ecosystem.config.cjs using Node.js script to avoid corruption
+          echo "🔧 Creating ecosystem.config.cjs..."
+          node -e "
+            const fs = require('fs');
+            const config = {
+              apps: [{
+                name: 'jobportal',
+                script: 'server.cjs',
+                cwd: '/var/www/jobportal',
+                instances: 1,
+                autorestart: true,
+                watch: false,
+                max_memory_restart: '2G',
+                env: {
+                  NODE_ENV: 'production',
+                  PORT: 3000,
+                  NODE_OPTIONS: '--max-old-space-size=4096',
+                  NEXT_TELEMETRY_DISABLED: '1',
+                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
+                  NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
+                  AUTH_DISABLED: 'true',
+                  NEXT_PUBLIC_BYPASS_OAUTH: 'true',
+                  NEXTAUTH_URL: 'https://aftionix.in',
+                  NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
+                  JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
+                  DATABASE_URL: 'postgresql://postgres:password@localhost:5432/jobportal',
+                  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+                  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+                },
+                env_production: {
+                  NODE_ENV: 'production',
+                  PORT: 3000,
+                  NODE_OPTIONS: '--max-old-space-size=4096',
+                  NEXT_TELEMETRY_DISABLED: '1',
+                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
+                  NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
+                  AUTH_DISABLED: 'true',
+                  NEXT_PUBLIC_BYPASS_OAUTH: 'true',
+                  NEXTAUTH_URL: 'https://aftionix.in',
+                  NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
+                  JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
+                  DATABASE_URL: 'postgresql://postgres:password@localhost:5432/jobportal',
+                  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+                  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+                },
+                log_file: '/var/log/jobportal/combined.log',
+                out_file: '/var/log/jobportal/out.log',
+                error_file: '/var/log/jobportal/error.log',
+                log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+                merge_logs: true,
+                log_type: 'json',
+                min_uptime: '10s',
+                max_restarts: 5,
+                restart_delay: 4000,
+                exec_mode: 'fork',
+                ignore_watch: [
+                  'node_modules',
+                  '.next',
+                  'logs',
+                  '*.log',
+                  '.git'
+                ]
+              }]
+            };
+            fs.writeFileSync('ecosystem.config.cjs', 'module.exports = ' + JSON.stringify(config, null, 2) + ';');
+            console.log('✅ ecosystem.config.cjs created successfully');
+          "
           
           # Verify ecosystem.config.cjs is valid JavaScript
           echo "🔍 Verifying ecosystem.config.cjs syntax..."
           if node -c ecosystem.config.cjs; then
             echo "✅ ecosystem.config.cjs syntax is valid"
           else
-            echo "❌ ecosystem.config.cjs syntax error - recreating..."
-            rm -f ecosystem.config.cjs
-            echo 'module.exports = {' > ecosystem.config.cjs
-            echo '  apps: [' >> ecosystem.config.cjs
-            echo '    {' >> ecosystem.config.cjs
-            echo '      name: "jobportal",' >> ecosystem.config.cjs
-            echo '      script: "server.cjs",' >> ecosystem.config.cjs
-            echo '      cwd: "/var/www/jobportal",' >> ecosystem.config.cjs
-            echo '      instances: 1,' >> ecosystem.config.cjs
-            echo '      autorestart: true,' >> ecosystem.config.cjs
-            echo '      watch: false,' >> ecosystem.config.cjs
-            echo '      max_memory_restart: "2G",' >> ecosystem.config.cjs
-            echo '      env: {' >> ecosystem.config.cjs
-            echo '        NODE_ENV: "production",' >> ecosystem.config.cjs
-            echo '        PORT: 3000,' >> ecosystem.config.cjs
-            echo '        NODE_OPTIONS: "--max-old-space-size=4096",' >> ecosystem.config.cjs
-            echo '        NEXT_TELEMETRY_DISABLED: "1",' >> ecosystem.config.cjs
-            echo '        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",' >> ecosystem.config.cjs
-            echo '        NEXT_PUBLIC_APP_URL: "https://aftionix.in",' >> ecosystem.config.cjs
-            echo '        AUTH_DISABLED: "true",' >> ecosystem.config.cjs
-            echo '        NEXT_PUBLIC_BYPASS_OAUTH: "true",' >> ecosystem.config.cjs
-            echo '        NEXTAUTH_URL: "https://aftionix.in",' >> ecosystem.config.cjs
-            echo '        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",' >> ecosystem.config.cjs
-            echo '        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",' >> ecosystem.config.cjs
-            echo '        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",' >> ecosystem.config.cjs
-            echo '        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,' >> ecosystem.config.cjs
-            echo '        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET' >> ecosystem.config.cjs
-            echo '      },' >> ecosystem.config.cjs
-            echo '      env_production: {' >> ecosystem.config.cjs
-            echo '        NODE_ENV: "production",' >> ecosystem.config.cjs
-            echo '        PORT: 3000,' >> ecosystem.config.cjs
-            echo '        NODE_OPTIONS: "--max-old-space-size=4096",' >> ecosystem.config.cjs
-            echo '        NEXT_TELEMETRY_DISABLED: "1",' >> ecosystem.config.cjs
-            echo '        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",' >> ecosystem.config.cjs
-            echo '        NEXT_PUBLIC_APP_URL: "https://aftionix.in",' >> ecosystem.config.cjs
-            echo '        AUTH_DISABLED: "true",' >> ecosystem.config.cjs
-            echo '        NEXT_PUBLIC_BYPASS_OAUTH: "true",' >> ecosystem.config.cjs
-            echo '        NEXTAUTH_URL: "https://aftionix.in",' >> ecosystem.config.cjs
-            echo '        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",' >> ecosystem.config.cjs
-            echo '        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",' >> ecosystem.config.cjs
-            echo '        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",' >> ecosystem.config.cjs
-            echo '        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,' >> ecosystem.config.cjs
-            echo '        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET' >> ecosystem.config.cjs
-            echo '      },' >> ecosystem.config.cjs
-            echo '      log_file: "/var/log/jobportal/combined.log",' >> ecosystem.config.cjs
-            echo '      out_file: "/var/log/jobportal/out.log",' >> ecosystem.config.cjs
-            echo '      error_file: "/var/log/jobportal/error.log",' >> ecosystem.config.cjs
-            echo '      log_date_format: "YYYY-MM-DD HH:mm:ss Z",' >> ecosystem.config.cjs
-            echo '      merge_logs: true,' >> ecosystem.config.cjs
-            echo '      log_type: "json",' >> ecosystem.config.cjs
-            echo '      min_uptime: "10s",' >> ecosystem.config.cjs
-            echo '      max_restarts: 5,' >> ecosystem.config.cjs
-            echo '      restart_delay: 4000,' >> ecosystem.config.cjs
-            echo '      exec_mode: "fork",' >> ecosystem.config.cjs
-            echo '      ignore_watch: [' >> ecosystem.config.cjs
-            echo '        "node_modules",' >> ecosystem.config.cjs
-            echo '        ".next",' >> ecosystem.config.cjs
-            echo '        "logs",' >> ecosystem.config.cjs
-            echo '        "*.log",' >> ecosystem.config.cjs
-            echo '        ".git"' >> ecosystem.config.cjs
-            echo '      ]' >> ecosystem.config.cjs
-            echo '    }' >> ecosystem.config.cjs
-            echo '  ]' >> ecosystem.config.cjs
-            echo '};' >> ecosystem.config.cjs
-            echo "✅ ecosystem.config.cjs recreated and verified"
+            echo "❌ ecosystem.config.cjs syntax error!"
+            exit 1
           fi
           
           # Final verification of server files
