@@ -267,53 +267,48 @@ jobs:
           touch server.js
           chmod 644 server.js
           
-          # Create server.js content atomically
-          cat > server.js << 'EOF'
-          const { createServer } = require('http')
-          const { parse } = require('url')
-          const next = require('next')
-          
-          const dev = process.env.NODE_ENV !== 'production'
-          const hostname = process.env.HOSTNAME || 'localhost'
-          const port = process.env.PORT || 3000
-          
-          // Create Next.js app instance
-          const app = next({ dev, hostname, port })
-          const handle = app.getRequestHandler()
-          
-          app.prepare().then(() => {
-            createServer(async (req, res) => {
-              try {
-                const parsedUrl = parse(req.url, true)
-                
-                // OAuth Bypass Logic: Redirect all auth requests to bypass page
-                if (req.url && (req.url.includes('/auth/') || req.url.includes('/api/auth/'))) {
-                  if (req.url.includes('/auth/bypass')) {
-                    await handle(req, res, parsedUrl)
-                  } else {
-                    res.writeHead(302, { 'Location': '/auth/bypass' })
-                    res.end()
-                    return
-                  }
-                }
-                
-                // Handle the request
-                await handle(req, res, parsedUrl)
-              } catch (err) {
-                console.error('Error occurred handling', req.url, err)
-                res.statusCode = 500
-                res.end('internal server error')
-              }
-            })
-              .once('error', (err) => {
-                console.error(err)
-                process.exit(1)
-              })
-              .listen(port, () => {
-                console.log(`> Ready on http://${hostname}:${port}`)
-              })
-          })
-          EOF
+          # Create server.js content atomically using echo to avoid shell script injection
+          echo 'const { createServer } = require("http")' > server.js
+          echo 'const { parse } = require("url")' >> server.js
+          echo 'const next = require("next")' >> server.js
+          echo '' >> server.js
+          echo 'const dev = process.env.NODE_ENV !== "production"' >> server.js
+          echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.js
+          echo 'const port = process.env.PORT || 3000' >> server.js
+          echo '' >> server.js
+          echo 'const app = next({ dev, hostname, port })' >> server.js
+          echo 'const handle = app.getRequestHandler()' >> server.js
+          echo '' >> server.js
+          echo 'app.prepare().then(() => {' >> server.js
+          echo '  createServer(async (req, res) => {' >> server.js
+          echo '    try {' >> server.js
+          echo '      const parsedUrl = parse(req.url, true)' >> server.js
+          echo '' >> server.js
+          echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.js
+          echo '        if (req.url.includes("/auth/bypass")) {' >> server.js
+          echo '          await handle(req, res, parsedUrl)' >> server.js
+          echo '        } else {' >> server.js
+          echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.js
+          echo '          res.end()' >> server.js
+          echo '          return' >> server.js
+          echo '        }' >> server.js
+          echo '      }' >> server.js
+          echo '' >> server.js
+          echo '      await handle(req, res, parsedUrl)' >> server.js
+          echo '    } catch (err) {' >> server.js
+          echo '      console.error("Error occurred handling", req.url, err)' >> server.js
+          echo '      res.statusCode = 500' >> server.js
+          echo '      res.end("internal server error")' >> server.js
+          echo '    }' >> server.js
+          echo '  })' >> server.js
+          echo '    .once("error", (err) => {' >> server.js
+          echo '      console.error(err)' >> server.js
+          echo '      process.exit(1)' >> server.js
+          echo '    })' >> server.js
+          echo '    .listen(port, () => {' >> server.js
+          echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.js
+          echo '    })' >> server.js
+          echo '})' >> server.js
           
           # Immediate verification that server.js was created correctly
           echo "🔍 Immediate verification of server.js..."
@@ -350,49 +345,47 @@ jobs:
           else
             echo "❌ server.js syntax error - recreating..."
             rm -f server.js
-            cat > server.js << 'EOF'
-          const { createServer } = require('http')
-          const { parse } = require('url')
-          const next = require('next')
-          
-          const dev = process.env.NODE_ENV !== 'production'
-          const hostname = process.env.HOSTNAME || 'localhost'
-          const port = process.env.PORT || 3000
-          
-          const app = next({ dev, hostname, port })
-          const handle = app.getRequestHandler()
-          
-          app.prepare().then(() => {
-            createServer(async (req, res) => {
-              try {
-                const parsedUrl = parse(req.url, true)
-                
-                if (req.url && (req.url.includes('/auth/') || req.url.includes('/api/auth/'))) {
-                  if (req.url.includes('/auth/bypass')) {
-                    await handle(req, res, parsedUrl)
-                  } else {
-                    res.writeHead(302, { 'Location': '/auth/bypass' })
-                    res.end()
-                    return
-                  }
-                }
-                
-                await handle(req, res, parsedUrl)
-              } catch (err) {
-                console.error('Error occurred handling', req.url, err)
-                res.statusCode = 500
-                res.end('internal server error')
-              }
-            })
-              .once('error', (err) => {
-                console.error(err)
-                process.exit(1)
-              })
-              .listen(port, () => {
-                console.log(`> Ready on http://${hostname}:${port}`)
-              })
-          })
-          EOF
+            echo 'const { createServer } = require("http")' > server.js
+            echo 'const { parse } = require("url")' >> server.js
+            echo 'const next = require("next")' >> server.js
+            echo '' >> server.js
+            echo 'const dev = process.env.NODE_ENV !== "production"' >> server.js
+            echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.js
+            echo 'const port = process.env.PORT || 3000' >> server.js
+            echo '' >> server.js
+            echo 'const app = next({ dev, hostname, port })' >> server.js
+            echo 'const handle = app.getRequestHandler()' >> server.js
+            echo '' >> server.js
+            echo 'app.prepare().then(() => {' >> server.js
+            echo '  createServer(async (req, res) => {' >> server.js
+            echo '    try {' >> server.js
+            echo '      const parsedUrl = parse(req.url, true)' >> server.js
+            echo '' >> server.js
+            echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.js
+            echo '        if (req.url.includes("/auth/bypass")) {' >> server.js
+            echo '          await handle(req, res, parsedUrl)' >> server.js
+            echo '        } else {' >> server.js
+            echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.js
+            echo '          res.end()' >> server.js
+            echo '          return' >> server.js
+            echo '        }' >> server.js
+            echo '      }' >> server.js
+            echo '' >> server.js
+            echo '      await handle(req, res, parsedUrl)' >> server.js
+            echo '    } catch (err) {' >> server.js
+            echo '      console.error("Error occurred handling", req.url, err)' >> server.js
+            echo '      res.statusCode = 500' >> server.js
+            echo '      res.end("internal server error")' >> server.js
+            echo '    }' >> server.js
+            echo '  })' >> server.js
+            echo '    .once("error", (err) => {' >> server.js
+            echo '      console.error(err)' >> server.js
+            echo '      process.exit(1)' >> server.js
+            echo '    })' >> server.js
+            echo '    .listen(port, () => {' >> server.js
+            echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.js
+            echo '    })' >> server.js
+            echo '})' >> server.js
             echo "✅ server.js recreated and verified"
           fi
           
@@ -605,49 +598,47 @@ jobs:
           if grep -q "DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.js; then
             echo "❌ server.js corrupted before PM2 start - recreating..."
             rm -f server.js
-            cat > server.js << 'EOF'
-          const { createServer } = require('http')
-          const { parse } = require('url')
-          const next = require('next')
-          
-          const dev = process.env.NODE_ENV !== 'production'
-          const hostname = process.env.HOSTNAME || 'localhost'
-          const port = process.env.PORT || 3000
-          
-          const app = next({ dev, hostname, port })
-          const handle = app.getRequestHandler()
-          
-          app.prepare().then(() => {
-            createServer(async (req, res) => {
-              try {
-                const parsedUrl = parse(req.url, true)
-                
-                if (req.url && (req.url.includes('/auth/') || req.url.includes('/api/auth/'))) {
-                  if (req.url.includes('/auth/bypass')) {
-                    await handle(req, res, parsedUrl)
-                  } else {
-                    res.writeHead(302, { 'Location': '/auth/bypass' })
-                    res.end()
-                    return
-                  }
-                }
-                
-                await handle(req, res, parsedUrl)
-              } catch (err) {
-                console.error('Error occurred handling', req.url, err)
-                res.statusCode = 500
-                res.end('internal server error')
-              }
-            })
-              .once('error', (err) => {
-                console.error(err)
-                process.exit(1)
-              })
-              .listen(port, () => {
-                console.log(`> Ready on http://${hostname}:${port}`)
-              })
-          })
-          EOF
+            echo 'const { createServer } = require("http")' > server.js
+            echo 'const { parse } = require("url")' >> server.js
+            echo 'const next = require("next")' >> server.js
+            echo '' >> server.js
+            echo 'const dev = process.env.NODE_ENV !== "production"' >> server.js
+            echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.js
+            echo 'const port = process.env.PORT || 3000' >> server.js
+            echo '' >> server.js
+            echo 'const app = next({ dev, hostname, port })' >> server.js
+            echo 'const handle = app.getRequestHandler()' >> server.js
+            echo '' >> server.js
+            echo 'app.prepare().then(() => {' >> server.js
+            echo '  createServer(async (req, res) => {' >> server.js
+            echo '    try {' >> server.js
+            echo '      const parsedUrl = parse(req.url, true)' >> server.js
+            echo '' >> server.js
+            echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.js
+            echo '        if (req.url.includes("/auth/bypass")) {' >> server.js
+            echo '          await handle(req, res, parsedUrl)' >> server.js
+            echo '        } else {' >> server.js
+            echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.js
+            echo '          res.end()' >> server.js
+            echo '          return' >> server.js
+            echo '        }' >> server.js
+            echo '      }' >> server.js
+            echo '' >> server.js
+            echo '      await handle(req, res, parsedUrl)' >> server.js
+            echo '    } catch (err) {' >> server.js
+            echo '      console.error("Error occurred handling", req.url, err)' >> server.js
+            echo '      res.statusCode = 500' >> server.js
+            echo '      res.end("internal server error")' >> server.js
+            echo '    }' >> server.js
+            echo '  })' >> server.js
+            echo '    .once("error", (err) => {' >> server.js
+            echo '      console.error(err)' >> server.js
+            echo '      process.exit(1)' >> server.js
+            echo '    })' >> server.js
+            echo '    .listen(port, () => {' >> server.js
+            echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.js
+            echo '    })' >> server.js
+            echo '})' >> server.js
             echo "✅ server.js recreated clean"
           else
             echo "✅ server.js still clean before PM2 start"
