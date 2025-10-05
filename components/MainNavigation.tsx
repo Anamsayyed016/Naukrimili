@@ -209,7 +209,7 @@ export default function MainNavigation({
               // Desktop Auth Buttons
               <>
                 <Link
-                  href="/auth/signin"
+                  href={process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true' || process.env.AUTH_DISABLED === 'true' ? "/auth/bypass" : "/auth/signin"}
                   className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                 >
                   Get Started
@@ -383,7 +383,7 @@ export default function MainNavigation({
                 // User is not logged in - show auth buttons
                 <div className="px-4 py-3 space-y-3 border-t border-gray-200">
                   <Link
-                    href="/auth/signin"
+                    href={process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true' || process.env.AUTH_DISABLED === 'true' ? "/auth/bypass" : "/auth/signin"}
                     onClick={closeMenu}
                     className="w-full flex items-center justify-center px-4 py-4 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl touch-target"
                   >

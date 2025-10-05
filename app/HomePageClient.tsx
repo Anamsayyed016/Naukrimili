@@ -338,10 +338,19 @@ export default function HomePageClient({
             Start your search today and take the first step towards your career goals.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <OAuthButtons 
-              callbackUrl="/"
-              className="!w-auto"
-            />
+            {process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true' || process.env.AUTH_DISABLED === 'true' ? (
+              <Link
+                href="/auth/bypass"
+                className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-lg"
+              >
+                Get Started
+              </Link>
+            ) : (
+              <OAuthButtons 
+                callbackUrl="/"
+                className="!w-auto"
+              />
+            )}
             <Link
               href="/jobs?unlimited=true&includeExternal=true&includeDatabase=true&includeSample=true&limit=100"
               className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-lg"

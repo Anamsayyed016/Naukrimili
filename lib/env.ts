@@ -54,6 +54,7 @@ const envSchema = z.object({
   // Feature Flags
   NEXT_PUBLIC_MOCK_DATA: z.string().transform(val => val === 'true').default('false'),
   NEXT_PUBLIC_DISABLE_AUTH: z.string().transform(val => val === 'true').default('false'),
+  AUTH_DISABLED: z.string().transform(val => val === 'true').default('false'),
   ENABLE_AI_FEATURES: z.string().transform(val => val === 'true').default('false'),
   ENABLE_ANALYTICS: z.string().transform(val => val === 'true').default('false'),
   ENABLE_EMAIL_NOTIFICATIONS: z.string().transform(val => val === 'true').default('false'),
