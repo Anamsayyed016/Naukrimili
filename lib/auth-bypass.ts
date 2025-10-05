@@ -25,23 +25,36 @@ export const createBypassUser = (email: string, role: string) => {
 export const getBypassSession = () => {
   if (!isAuthDisabled()) return null;
   
-  const storedUser = typeof window !== 'undefined' 
-    ? localStorage.getItem('bypass-user')
-    : null;
-    
-  return storedUser ? JSON.parse(storedUser) : null;
+  // Only access localStorage on client side
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const storedUser = localStorage.getItem('bypass-user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch (error) {
+    console.warn('Error reading bypass session:', error);
+    return null;
+  }
 };
 
 export const setBypassSession = (user: any) => {
   if (!isAuthDisabled()) return;
   
   if (typeof window !== 'undefined') {
-    localStorage.setItem('bypass-user', JSON.stringify(user));
+    try {
+      localStorage.setItem('bypass-user', JSON.stringify(user));
+    } catch (error) {
+      console.warn('Error setting bypass session:', error);
+    }
   }
 };
 
 export const clearBypassSession = () => {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('bypass-user');
+    try {
+      localStorage.removeItem('bypass-user');
+    } catch (error) {
+      console.warn('Error clearing bypass session:', error);
+    }
   }
 };
