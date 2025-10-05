@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 // Read the template file
 const templatePath = path.join(__dirname, '..', 'server-template.cjs');
@@ -17,23 +18,18 @@ try {
   
   // Write to server.cjs
   fs.writeFileSync(outputPath, templateContent, 'utf8');
+  console.log('✅ server.cjs created successfully');
   
-  // Verify the file was created and has valid syntax
-  if (fs.existsSync(outputPath)) {
-    console.log('✅ server.cjs created successfully');
-    
-    // Basic syntax check
-    try {
-      require(outputPath);
-      console.log('✅ server.cjs syntax is valid');
-    } catch (syntaxError) {
-      console.error('❌ server.cjs syntax error:', syntaxError.message);
-      process.exit(1);
-    }
-  } else {
-    console.error('❌ Failed to create server.cjs');
+  // Basic syntax check without running the server
+  try {
+    execSync(`node -c "${outputPath}"`, { stdio: 'pipe' });
+    console.log('✅ server.cjs syntax is valid');
+  } catch (syntaxError) {
+    console.error('❌ server.cjs syntax error');
+    console.error(syntaxError.message);
     process.exit(1);
   }
+  
 } catch (error) {
   console.error('❌ Error generating server.cjs:', error.message);
   process.exit(1);
