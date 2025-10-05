@@ -1,4 +1,44 @@
-module.exports = {
+const fs = require('fs');
+const path = require('path');
+
+// Generate clean server.cjs
+const serverContent = `const { createServer } = require('http');
+const { parse } = require('url');
+const next = require('next');
+
+const dev = process.env.NODE_ENV !== 'production';
+const hostname = process.env.HOSTNAME || 'localhost';
+const port = process.env.PORT || 3000;
+
+const app = next({ dev, hostname, port });
+const handle = app.getRequestHandler();
+
+app.prepare().then(() => {
+  createServer(async (req, res) => {
+    try {
+      const parsedUrl = parse(req.url, true);
+      await handle(req, res, parsedUrl);
+    } catch (err) {
+      console.error('Error occurred handling', req.url, err);
+      res.statusCode = 500;
+      res.end('internal server error');
+    }
+  })
+    .once('error', (err) => {
+      console.error(err);
+      process.exit(1);
+    })
+    .listen(port, () => {
+      console.log(\`> Ready on http://\${hostname}:\${port}\`);
+    });
+});`;
+
+// Write server.cjs
+fs.writeFileSync('server.cjs', serverContent);
+console.log('✅ server.cjs generated successfully');
+
+// Generate ecosystem.config.cjs
+const ecosystemContent = `module.exports = {
   apps: [
     {
       name: "jobportal",
@@ -55,4 +95,25 @@ module.exports = {
       ]
     }
   ]
-};
+};`;
+
+// Write ecosystem.config.cjs
+fs.writeFileSync('ecosystem.config.cjs', ecosystemContent);
+console.log('✅ ecosystem.config.cjs generated successfully');
+
+// Generate .env file
+const envContent = `DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+NEXTAUTH_URL="https://aftionix.in"
+NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
+JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
+NODE_ENV=production
+NEXT_TELEMETRY_DISABLED=1
+NEXT_PUBLIC_APP_URL=https://aftionix.in
+GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET`;
+
+// Write .env
+fs.writeFileSync('.env', envContent);
+console.log('✅ .env generated successfully');
+
+console.log('🎉 All server files generated successfully!');

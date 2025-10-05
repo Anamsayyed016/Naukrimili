@@ -13,18 +13,6 @@ app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
       const parsedUrl = parse(req.url, true);
-      
-      // OAuth bypass logic - redirect all auth routes to bypass page
-      if (req.url && (req.url.includes('/auth/') || req.url.includes('/api/auth/'))) {
-        if (req.url.includes('/auth/bypass') || req.url.includes('/api/auth/bypass')) {
-          await handle(req, res, parsedUrl);
-        } else {
-          res.writeHead(302, { 'Location': '/auth/bypass' });
-          res.end();
-          return;
-        }
-      }
-      
       await handle(req, res, parsedUrl);
     } catch (err) {
       console.error('Error occurred handling', req.url, err);
