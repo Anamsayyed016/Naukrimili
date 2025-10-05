@@ -10,7 +10,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User, UserRole, AuthState, BiometricState, Credentials } from '@/types/auth';
 import { clearAllBrowserAuthData, forceRefreshAndClear, clearAuthAndRedirect, checkRemainingAuthData } from '@/lib/auth-utils';
-import { isAuthDisabled, getBypassSession } from '@/lib/auth-bypass';
 
 interface ExtendedUser extends User {
   role: UserRole; // Use the correct UserRole type
@@ -72,12 +71,8 @@ export function useAuth(): AuthState & {
 
   const isLoading = status === 'loading';
   
-  // Check for bypass authentication
-  const bypassUser = getBypassSession();
-  const bypassMode = isAuthDisabled();
-  
-  const isAuthenticated = bypassMode ? !!bypassUser : (status === 'authenticated' && !!session);
-  const user = bypassMode ? bypassUser : (session?.user as ExtendedUser | undefined);
+  const isAuthenticated = status === 'authenticated' && !!session;
+  const user = session?.user as ExtendedUser | undefined;
 
   // Biometric (WebAuthn) state – graceful degradation if unsupported.
   const [biometric, setBiometric] = useState<BiometricState>({
@@ -276,7 +271,7 @@ export function useAuth(): AuthState & {
     user: user || null,
     signIn,
     isAuthenticated: isAuthenticated,
-    isLoading: bypassMode ? false : (status === 'loading'),
+    isLoading: status === 'loading',
     biometric: biometricState,
     
     // OAuth-specific methods

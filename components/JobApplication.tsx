@@ -78,7 +78,7 @@ export const JobApplication: React.FC<JobApplicationProps> = ({
   if (!session?.user?.id) {
     return (
       <Button 
-        onClick={() => window.location.href = '/auth/login'} 
+        onClick={() => window.location.href = '/auth/signin'} 
         variant={variant} 
         size={size} 
         className={className}

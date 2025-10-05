@@ -209,7 +209,7 @@ export default function MainNavigation({
               // Desktop Auth Buttons
               <>
                 <Link
-                  href={process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true' || process.env.AUTH_DISABLED === 'true' ? "/auth/bypass" : "/auth/signin"}
+                  href="/auth/signin"
                   className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                 >
                   Get Started

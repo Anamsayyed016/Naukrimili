@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import Link from 'next/link';
-import { isAuthDisabled } from '@/lib/auth-bypass';
 
 const errorMessages: { [key: string]: string } = {
   Configuration: 'There is a problem with the server configuration.',
@@ -36,13 +35,6 @@ export default function AuthErrorPage() {
   const error = searchParams.get('error') || 'Default';
   const errorMessage = errorMessages[error] || errorMessages.Default;
 
-  // Auto-redirect to bypass page if auth is disabled or OAuth is bypassed
-  useEffect(() => {
-    if (isAuthDisabled() || process.env.NEXT_PUBLIC_BYPASS_OAUTH === 'true' || error === 'Configuration') {
-      console.log('🚀 Auth error detected - redirecting to bypass page');
-      router.push('/auth/bypass');
-    }
-  }, [router, error]);
 
   const handleRetry = () => {
     window.location.href = '/';
