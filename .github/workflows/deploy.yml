@@ -149,6 +149,17 @@ jobs:
           # Remove any corrupted server.js files that might exist
           echo "🧹 Cleaning up any corrupted server files..."
           rm -f server.js ecosystem.config.cjs
+          
+          # Create a backup of any existing server.js to check what's corrupting it
+          if [ -f "server.js" ]; then
+            echo "⚠️ Found existing server.js - checking content..."
+            echo "📋 First 3 lines of existing server.js:"
+            head -3 server.js || echo "Cannot read server.js"
+            echo "📋 File size: $(wc -c < server.js) bytes"
+            cp server.js server.js.backup || echo "Cannot backup server.js"
+            rm -f server.js
+          fi
+          
           echo "✅ Cleaned up corrupted server files"
           
           # Install dependencies
@@ -250,6 +261,13 @@ jobs:
           
           # Create server.js with OAuth bypass to avoid file corruption
           echo "🔧 Creating server.js with OAuth bypass..."
+          
+          # Double-check that no server.js exists and create it atomically
+          rm -f server.js
+          touch server.js
+          chmod 644 server.js
+          
+          # Create server.js content atomically
           cat > server.js << 'EOF'
           const { createServer } = require('http')
           const { parse } = require('url')
@@ -297,7 +315,33 @@ jobs:
           })
           EOF
           
-          echo "✅ server.js created with OAuth bypass"
+          # Immediate verification that server.js was created correctly
+          echo "🔍 Immediate verification of server.js..."
+          if [ ! -f "server.js" ]; then
+            echo "❌ server.js was not created!"
+            exit 1
+          fi
+          
+          echo "📋 server.js file size: $(wc -c < server.js) bytes"
+          echo "📋 First 3 lines of server.js:"
+          head -3 server.js || echo "Cannot read server.js"
+          
+          # Check if the file contains shell script syntax (the corruption we're trying to avoid)
+          if grep -q "DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.js; then
+            echo "❌ server.js contains shell script syntax - corruption detected!"
+            echo "📋 Corrupted content:"
+            cat server.js || echo "Cannot read corrupted file"
+            exit 1
+          fi
+          
+          if grep -q "^\$" server.js; then
+            echo "❌ server.js contains shell variables - corruption detected!"
+            echo "📋 Corrupted content:"
+            cat server.js || echo "Cannot read corrupted file"
+            exit 1
+          fi
+          
+          echo "✅ server.js created with OAuth bypass and verified clean"
           
           # Verify server.js is valid JavaScript
           echo "🔍 Verifying server.js syntax..."
@@ -554,6 +598,59 @@ jobs:
             echo "📋 Attempting to start server for debugging..."
             timeout 10s node server.js 2>&1 | head -20 || echo "Server startup test failed"
             exit 1
+          fi
+          
+          # Final check before PM2 start - ensure server.js is still clean
+          echo "🔍 Final corruption check before PM2 start..."
+          if grep -q "DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.js; then
+            echo "❌ server.js corrupted before PM2 start - recreating..."
+            rm -f server.js
+            cat > server.js << 'EOF'
+          const { createServer } = require('http')
+          const { parse } = require('url')
+          const next = require('next')
+          
+          const dev = process.env.NODE_ENV !== 'production'
+          const hostname = process.env.HOSTNAME || 'localhost'
+          const port = process.env.PORT || 3000
+          
+          const app = next({ dev, hostname, port })
+          const handle = app.getRequestHandler()
+          
+          app.prepare().then(() => {
+            createServer(async (req, res) => {
+              try {
+                const parsedUrl = parse(req.url, true)
+                
+                if (req.url && (req.url.includes('/auth/') || req.url.includes('/api/auth/'))) {
+                  if (req.url.includes('/auth/bypass')) {
+                    await handle(req, res, parsedUrl)
+                  } else {
+                    res.writeHead(302, { 'Location': '/auth/bypass' })
+                    res.end()
+                    return
+                  }
+                }
+                
+                await handle(req, res, parsedUrl)
+              } catch (err) {
+                console.error('Error occurred handling', req.url, err)
+                res.statusCode = 500
+                res.end('internal server error')
+              }
+            })
+              .once('error', (err) => {
+                console.error(err)
+                process.exit(1)
+              })
+              .listen(port, () => {
+                console.log(`> Ready on http://${hostname}:${port}`)
+              })
+          })
+          EOF
+            echo "✅ server.js recreated clean"
+          else
+            echo "✅ server.js still clean before PM2 start"
           fi
           
           # Start the application with PM2
