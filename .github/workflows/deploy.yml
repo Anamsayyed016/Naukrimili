@@ -52,6 +52,7 @@ jobs:
           --exclude='.next' \
           --exclude='.github' \
           --exclude='server.cjs' \
+          --exclude='server-template.cjs' \
           --exclude='ecosystem.config.cjs'
 
     - name: 🚀 Deploy to Hostinger VPS
@@ -162,7 +163,7 @@ jobs:
           
           echo "✅ Cleaned up corrupted server files"
           
-          # Install dependencies
+          # Install dependencies with better error handling
           echo "📦 Installing dependencies..."
           echo "📋 Creating .npmrc for legacy peer deps..."
           echo "engine-strict=false" > .npmrc
@@ -170,22 +171,30 @@ jobs:
           echo "fund=false" >> .npmrc
           echo "audit=false" >> .npmrc
           
-          # Try different installation methods
-          echo "📋 Trying npm install..."
-          if ! npm install --legacy-peer-deps --engine-strict=false --force; then
-            echo "❌ npm install failed, trying npm ci..."
-            if ! npm ci --legacy-peer-deps --engine-strict=false --force; then
-              echo "❌ npm ci failed, trying clean install..."
-              rm -rf node_modules package-lock.json
-              if ! npm install --legacy-peer-deps --engine-strict=false --force; then
-                echo "❌ All installation methods failed"
-                echo "📋 Checking package.json..."
-                cat package.json || echo "No package.json found"
-                echo "📋 Available space: $(df -h . | tail -1)"
-                exit 1
-              fi
+          # Clean install with proper error handling
+          echo "📋 Performing clean npm install..."
+          rm -rf node_modules package-lock.json
+          
+          # Set npm config
+          npm config set engine-strict false
+          npm config set legacy-peer-deps true
+          
+          # Install with verbose output for debugging
+          if ! npm install --legacy-peer-deps --verbose; then
+            echo "❌ npm install failed - checking logs..."
+            echo "📋 npm version: $(npm --version)"
+            echo "📋 node version: $(node --version)"
+            echo "📋 Available space: $(df -h . | tail -1)"
+            echo "📋 Memory usage: $(free -h)"
+            echo "📋 Package.json exists: $([ -f package.json ] && echo 'YES' || echo 'NO')"
+            if [ -f package.json ]; then
+              echo "📋 Package.json content:"
+              head -20 package.json
             fi
+            exit 1
           fi
+          
+          echo "✅ Dependencies installed successfully"
           
           # Generate Prisma client (if Prisma is used)
           if [ -d "prisma" ] && [ -f "prisma/schema.prisma" ]; then
@@ -214,21 +223,31 @@ jobs:
           # Set Node options for build
           export NODE_OPTIONS="--max-old-space-size=4096"
           
-          # Run build with error handling
-          echo "🔨 Running npm run build:simple..."
-          if ! npm run build:simple; then
-            echo "❌ Simple build failed, trying build:deploy..."
-            if ! npm run build:deploy; then
-              echo "❌ Deploy build failed, trying minimal build..."
-              if ! npm run build:minimal; then
-                echo "❌ All builds failed, checking for errors..."
-                echo "📋 Node version: $(node --version)"
-                echo "📋 NPM version: $(npm --version)"
-                echo "📋 Available space: $(df -h . | tail -1)"
-                echo "📋 Memory usage: $(free -h)"
-                echo "📋 Build logs:"
-                npm run build:minimal 2>&1 || true
-                exit 1
+          # Run build with comprehensive error handling
+          echo "🔨 Running Next.js build..."
+          echo "📋 Available build scripts:"
+          npm run --silent 2>/dev/null | grep "build" || echo "No build scripts found"
+          
+          # Try standard Next.js build first
+          if ! npm run build; then
+            echo "❌ Standard build failed, trying build:simple..."
+            if ! npm run build:simple; then
+              echo "❌ Simple build failed, trying build:deploy..."
+              if ! npm run build:deploy; then
+                echo "❌ Deploy build failed, trying minimal build..."
+                if ! npm run build:minimal; then
+                  echo "❌ All builds failed - detailed error analysis:"
+                  echo "📋 Node version: $(node --version)"
+                  echo "📋 NPM version: $(npm --version)"
+                  echo "📋 Available space: $(df -h . | tail -1)"
+                  echo "📋 Memory usage: $(free -h)"
+                  echo "📋 Dependencies installed: $([ -d node_modules ] && echo 'YES' || echo 'NO')"
+                  echo "📋 Package.json scripts:"
+                  cat package.json | grep -A 10 '"scripts"' || echo "No scripts found"
+                  echo "📋 Trying manual Next.js build:"
+                  npx next build 2>&1 || echo "Manual build also failed"
+                  exit 1
+                fi
               fi
             fi
           fi
@@ -267,48 +286,59 @@ jobs:
           touch server.cjs
           chmod 644 server.cjs
           
-          # Create server.cjs content atomically using echo to avoid shell script injection
-          echo 'const { createServer } = require("http")' > server.cjs
-          echo 'const { parse } = require("url")' >> server.cjs
-          echo 'const next = require("next")' >> server.cjs
-          echo '' >> server.cjs
-          echo 'const dev = process.env.NODE_ENV !== "production"' >> server.cjs
-          echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.cjs
-          echo 'const port = process.env.PORT || 3000' >> server.cjs
-          echo '' >> server.cjs
-          echo 'const app = next({ dev, hostname, port })' >> server.cjs
-          echo 'const handle = app.getRequestHandler()' >> server.cjs
-          echo '' >> server.cjs
-          echo 'app.prepare().then(() => {' >> server.cjs
-          echo '  createServer(async (req, res) => {' >> server.cjs
-          echo '    try {' >> server.cjs
-          echo '      const parsedUrl = parse(req.url, true)' >> server.cjs
-          echo '' >> server.cjs
-          echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.cjs
-          echo '        if (req.url.includes("/auth/bypass")) {' >> server.cjs
-          echo '          await handle(req, res, parsedUrl)' >> server.cjs
-          echo '        } else {' >> server.cjs
-          echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.cjs
-          echo '          res.end()' >> server.cjs
-          echo '          return' >> server.cjs
-          echo '        }' >> server.cjs
-          echo '      }' >> server.cjs
-          echo '' >> server.cjs
-          echo '      await handle(req, res, parsedUrl)' >> server.cjs
-          echo '    } catch (err) {' >> server.cjs
-          echo '      console.error("Error occurred handling", req.url, err)' >> server.cjs
-          echo '      res.statusCode = 500' >> server.cjs
-          echo '      res.end("internal server error")' >> server.cjs
-          echo '    }' >> server.cjs
-          echo '  })' >> server.cjs
-          echo '    .once("error", (err) => {' >> server.cjs
-          echo '      console.error(err)' >> server.cjs
-          echo '      process.exit(1)' >> server.cjs
-          echo '    })' >> server.cjs
-          echo '    .listen(port, () => {' >> server.cjs
-          echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.cjs
-          echo '    })' >> server.cjs
-          echo '})' >> server.cjs
+          # Copy server template to avoid shell script injection
+          echo "🔧 Creating server.cjs from template..."
+          if [ -f "server-template.cjs" ]; then
+            cp server-template.cjs server.cjs
+            echo "✅ server.cjs created from template"
+          else
+            echo "❌ server-template.cjs not found - creating fallback..."
+            # Fallback: create a simple server file
+            cat > server.cjs << 'SERVER_EOF'
+          const { createServer } = require('http')
+          const { parse } = require('url')
+          const next = require('next')
+          
+          const dev = process.env.NODE_ENV !== 'production'
+          const hostname = process.env.HOSTNAME || 'localhost'
+          const port = process.env.PORT || 3000
+          
+          const app = next({ dev, hostname, port })
+          const handle = app.getRequestHandler()
+          
+          app.prepare().then(() => {
+            createServer(async (req, res) => {
+              try {
+                const parsedUrl = parse(req.url, true)
+                
+                if (req.url && (req.url.includes('/auth/') || req.url.includes('/api/auth/'))) {
+                  if (req.url.includes('/auth/bypass')) {
+                    await handle(req, res, parsedUrl)
+                  } else {
+                    res.writeHead(302, { 'Location': '/auth/bypass' })
+                    res.end()
+                    return
+                  }
+                }
+                
+                await handle(req, res, parsedUrl)
+              } catch (err) {
+                console.error('Error occurred handling', req.url, err)
+                res.statusCode = 500
+                res.end('internal server error')
+              }
+            })
+              .once('error', (err) => {
+                console.error(err)
+                process.exit(1)
+              })
+              .listen(port, () => {
+                console.log(`> Ready on http://${hostname}:${port}`)
+              })
+          })
+          SERVER_EOF
+            echo "✅ server.cjs created from fallback"
+          fi
           
           # Immediate verification that server.cjs was created correctly
           echo "🔍 Immediate verification of server.cjs..."
