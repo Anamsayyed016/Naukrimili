@@ -57,7 +57,7 @@ jobs:
     - name: 🛠️ Generate server.cjs
       run: |
         echo "🛠️ Generating server.cjs from template..."
-        node scripts/generate-server.js
+        node scripts/generate-server.cjs
         
     - name: 📥 Prepare SSH Key
       run: |
