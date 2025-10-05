@@ -39,7 +39,7 @@ jobs:
         export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
         export AUTH_DISABLED=true
         export NEXT_PUBLIC_BYPASS_OAUTH=true
-        npm run build
+        npx next build
         
     - name: 🔍 Validate build artifacts
       run: |
@@ -260,28 +260,19 @@ jobs:
           echo "📋 Available build scripts:"
           npm run --silent 2>/dev/null | grep "build" || echo "No build scripts found"
           
-          # Use the most reliable build script
-          if ! npm run build:deploy; then
-            echo "❌ Deploy build failed, trying build:simple..."
-            if ! npm run build:simple; then
-              echo "❌ Simple build failed, trying standard build..."
-              if ! npm run build; then
-                echo "❌ Standard build failed, trying minimal build..."
-                if ! npm run build:minimal; then
-                  echo "❌ All builds failed - detailed error analysis:"
-                  echo "📋 Node version: $(node --version)"
-                  echo "📋 NPM version: $(npm --version)"
-                  echo "📋 Available space: $(df -h . | tail -1)"
-                  echo "📋 Memory usage: $(free -h)"
-                  echo "📋 Dependencies installed: $([ -d node_modules ] && echo 'YES' || echo 'NO')"
-                  echo "📋 Package.json scripts:"
-                  cat package.json | grep -A 10 '"scripts"' || echo "No scripts found"
-                  echo "📋 Trying manual Next.js build:"
-                  npx next build 2>&1 || echo "Manual build also failed"
-                  exit 1
-                fi
-              fi
-            fi
+          # Use direct Next.js build (most reliable)
+          if ! npx next build; then
+            echo "❌ Next.js build failed - detailed error analysis:"
+            echo "📋 Node version: $(node --version)"
+            echo "📋 NPM version: $(npm --version)"
+            echo "📋 Available space: $(df -h . | tail -1)"
+            echo "📋 Memory usage: $(free -h)"
+            echo "📋 Dependencies installed: $([ -d node_modules ] && echo 'YES' || echo 'NO')"
+            echo "📋 Package.json scripts:"
+            cat package.json | grep -A 10 '"scripts"' || echo "No scripts found"
+            echo "📋 Environment variables:"
+            env | grep -E "(NODE_ENV|DATABASE_URL|NEXTAUTH)" || echo "No relevant env vars found"
+            exit 1
           fi
           
           # Verify build was successful
