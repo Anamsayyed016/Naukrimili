@@ -329,8 +329,17 @@ jobs:
             exit 1
           fi
           
-          if grep -q "^\$" server.js; then
-            echo "❌ server.js contains shell variables - corruption detected!"
+          # Check for shell script patterns that shouldn't be in JavaScript
+          if grep -q "^\$? ; if \[ \$DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.js; then
+            echo "❌ server.js contains shell script variables - corruption detected!"
+            echo "📋 Corrupted content:"
+            cat server.js || echo "Cannot read corrupted file"
+            exit 1
+          fi
+          
+          # Check for shell script patterns at start of lines
+          if grep -q "^DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.js; then
+            echo "❌ server.js contains shell script commands - corruption detected!"
             echo "📋 Corrupted content:"
             cat server.js || echo "Cannot read corrupted file"
             exit 1
