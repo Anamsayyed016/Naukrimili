@@ -51,7 +51,7 @@ jobs:
           --exclude='node_modules' \
           --exclude='.next' \
           --exclude='.github' \
-          --exclude='server.js' \
+          --exclude='server.cjs' \
           --exclude='ecosystem.config.cjs'
 
     - name: 🚀 Deploy to Hostinger VPS
@@ -148,7 +148,7 @@ jobs:
           
           # Remove any corrupted server.js files that might exist
           echo "🧹 Cleaning up any corrupted server files..."
-          rm -f server.js ecosystem.config.cjs
+          rm -f server.cjs ecosystem.config.cjs
           
           # Create a backup of any existing server.js to check what's corrupting it
           if [ -f "server.js" ]; then
@@ -263,139 +263,139 @@ jobs:
           echo "🔧 Creating server.js with OAuth bypass..."
           
           # Double-check that no server.js exists and create it atomically
-          rm -f server.js
-          touch server.js
-          chmod 644 server.js
+          rm -f server.cjs
+          touch server.cjs
+          chmod 644 server.cjs
           
-          # Create server.js content atomically using echo to avoid shell script injection
-          echo 'const { createServer } = require("http")' > server.js
-          echo 'const { parse } = require("url")' >> server.js
-          echo 'const next = require("next")' >> server.js
-          echo '' >> server.js
-          echo 'const dev = process.env.NODE_ENV !== "production"' >> server.js
-          echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.js
-          echo 'const port = process.env.PORT || 3000' >> server.js
-          echo '' >> server.js
-          echo 'const app = next({ dev, hostname, port })' >> server.js
-          echo 'const handle = app.getRequestHandler()' >> server.js
-          echo '' >> server.js
-          echo 'app.prepare().then(() => {' >> server.js
-          echo '  createServer(async (req, res) => {' >> server.js
-          echo '    try {' >> server.js
-          echo '      const parsedUrl = parse(req.url, true)' >> server.js
-          echo '' >> server.js
-          echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.js
-          echo '        if (req.url.includes("/auth/bypass")) {' >> server.js
-          echo '          await handle(req, res, parsedUrl)' >> server.js
-          echo '        } else {' >> server.js
-          echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.js
-          echo '          res.end()' >> server.js
-          echo '          return' >> server.js
-          echo '        }' >> server.js
-          echo '      }' >> server.js
-          echo '' >> server.js
-          echo '      await handle(req, res, parsedUrl)' >> server.js
-          echo '    } catch (err) {' >> server.js
-          echo '      console.error("Error occurred handling", req.url, err)' >> server.js
-          echo '      res.statusCode = 500' >> server.js
-          echo '      res.end("internal server error")' >> server.js
-          echo '    }' >> server.js
-          echo '  })' >> server.js
-          echo '    .once("error", (err) => {' >> server.js
-          echo '      console.error(err)' >> server.js
-          echo '      process.exit(1)' >> server.js
-          echo '    })' >> server.js
-          echo '    .listen(port, () => {' >> server.js
-          echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.js
-          echo '    })' >> server.js
-          echo '})' >> server.js
+          # Create server.cjs content atomically using echo to avoid shell script injection
+          echo 'const { createServer } = require("http")' > server.cjs
+          echo 'const { parse } = require("url")' >> server.cjs
+          echo 'const next = require("next")' >> server.cjs
+          echo '' >> server.cjs
+          echo 'const dev = process.env.NODE_ENV !== "production"' >> server.cjs
+          echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.cjs
+          echo 'const port = process.env.PORT || 3000' >> server.cjs
+          echo '' >> server.cjs
+          echo 'const app = next({ dev, hostname, port })' >> server.cjs
+          echo 'const handle = app.getRequestHandler()' >> server.cjs
+          echo '' >> server.cjs
+          echo 'app.prepare().then(() => {' >> server.cjs
+          echo '  createServer(async (req, res) => {' >> server.cjs
+          echo '    try {' >> server.cjs
+          echo '      const parsedUrl = parse(req.url, true)' >> server.cjs
+          echo '' >> server.cjs
+          echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.cjs
+          echo '        if (req.url.includes("/auth/bypass")) {' >> server.cjs
+          echo '          await handle(req, res, parsedUrl)' >> server.cjs
+          echo '        } else {' >> server.cjs
+          echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.cjs
+          echo '          res.end()' >> server.cjs
+          echo '          return' >> server.cjs
+          echo '        }' >> server.cjs
+          echo '      }' >> server.cjs
+          echo '' >> server.cjs
+          echo '      await handle(req, res, parsedUrl)' >> server.cjs
+          echo '    } catch (err) {' >> server.cjs
+          echo '      console.error("Error occurred handling", req.url, err)' >> server.cjs
+          echo '      res.statusCode = 500' >> server.cjs
+          echo '      res.end("internal server error")' >> server.cjs
+          echo '    }' >> server.cjs
+          echo '  })' >> server.cjs
+          echo '    .once("error", (err) => {' >> server.cjs
+          echo '      console.error(err)' >> server.cjs
+          echo '      process.exit(1)' >> server.cjs
+          echo '    })' >> server.cjs
+          echo '    .listen(port, () => {' >> server.cjs
+          echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.cjs
+          echo '    })' >> server.cjs
+          echo '})' >> server.cjs
           
-          # Immediate verification that server.js was created correctly
-          echo "🔍 Immediate verification of server.js..."
-          if [ ! -f "server.js" ]; then
-            echo "❌ server.js was not created!"
+          # Immediate verification that server.cjs was created correctly
+          echo "🔍 Immediate verification of server.cjs..."
+          if [ ! -f "server.cjs" ]; then
+            echo "❌ server.cjs was not created!"
             exit 1
           fi
           
-          echo "📋 server.js file size: $(wc -c < server.js) bytes"
-          echo "📋 First 3 lines of server.js:"
-          head -3 server.js || echo "Cannot read server.js"
+          echo "📋 server.cjs file size: $(wc -c < server.cjs) bytes"
+          echo "📋 First 3 lines of server.cjs:"
+          head -3 server.cjs || echo "Cannot read server.cjs"
           
           # Check if the file contains shell script syntax (the corruption we're trying to avoid)
-          if grep -q "DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.js; then
-            echo "❌ server.js contains shell script syntax - corruption detected!"
+          if grep -q "DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.cjs; then
+            echo "❌ server.cjs contains shell script syntax - corruption detected!"
             echo "📋 Corrupted content:"
-            cat server.js || echo "Cannot read corrupted file"
+            cat server.cjs || echo "Cannot read corrupted file"
             exit 1
           fi
           
           # Check for shell script patterns that shouldn't be in JavaScript
-          if grep -q "^\$? ; if \[ \$DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.js; then
-            echo "❌ server.js contains shell script variables - corruption detected!"
+          if grep -q "^\$? ; if \[ \$DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.cjs; then
+            echo "❌ server.cjs contains shell script variables - corruption detected!"
             echo "📋 Corrupted content:"
-            cat server.js || echo "Cannot read corrupted file"
+            cat server.cjs || echo "Cannot read corrupted file"
             exit 1
           fi
           
           # Check for shell script patterns at start of lines
-          if grep -q "^DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.js; then
-            echo "❌ server.js contains shell script commands - corruption detected!"
+          if grep -q "^DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.cjs; then
+            echo "❌ server.cjs contains shell script commands - corruption detected!"
             echo "📋 Corrupted content:"
-            cat server.js || echo "Cannot read corrupted file"
+            cat server.cjs || echo "Cannot read corrupted file"
             exit 1
           fi
           
-          echo "✅ server.js created with OAuth bypass and verified clean"
+          echo "✅ server.cjs created with OAuth bypass and verified clean"
           
-          # Verify server.js is valid JavaScript
-          echo "🔍 Verifying server.js syntax..."
-          if node -c server.js; then
-            echo "✅ server.js syntax is valid"
+          # Verify server.cjs is valid JavaScript
+          echo "🔍 Verifying server.cjs syntax..."
+          if node -c server.cjs; then
+            echo "✅ server.cjs syntax is valid"
           else
-            echo "❌ server.js syntax error - recreating..."
-            rm -f server.js
-            echo 'const { createServer } = require("http")' > server.js
-            echo 'const { parse } = require("url")' >> server.js
-            echo 'const next = require("next")' >> server.js
-            echo '' >> server.js
-            echo 'const dev = process.env.NODE_ENV !== "production"' >> server.js
-            echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.js
-            echo 'const port = process.env.PORT || 3000' >> server.js
-            echo '' >> server.js
-            echo 'const app = next({ dev, hostname, port })' >> server.js
-            echo 'const handle = app.getRequestHandler()' >> server.js
-            echo '' >> server.js
-            echo 'app.prepare().then(() => {' >> server.js
-            echo '  createServer(async (req, res) => {' >> server.js
-            echo '    try {' >> server.js
-            echo '      const parsedUrl = parse(req.url, true)' >> server.js
-            echo '' >> server.js
-            echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.js
-            echo '        if (req.url.includes("/auth/bypass")) {' >> server.js
-            echo '          await handle(req, res, parsedUrl)' >> server.js
-            echo '        } else {' >> server.js
-            echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.js
-            echo '          res.end()' >> server.js
-            echo '          return' >> server.js
-            echo '        }' >> server.js
-            echo '      }' >> server.js
-            echo '' >> server.js
-            echo '      await handle(req, res, parsedUrl)' >> server.js
-            echo '    } catch (err) {' >> server.js
-            echo '      console.error("Error occurred handling", req.url, err)' >> server.js
-            echo '      res.statusCode = 500' >> server.js
-            echo '      res.end("internal server error")' >> server.js
-            echo '    }' >> server.js
-            echo '  })' >> server.js
-            echo '    .once("error", (err) => {' >> server.js
-            echo '      console.error(err)' >> server.js
-            echo '      process.exit(1)' >> server.js
-            echo '    })' >> server.js
-            echo '    .listen(port, () => {' >> server.js
-            echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.js
-            echo '    })' >> server.js
-            echo '})' >> server.js
-            echo "✅ server.js recreated and verified"
+            echo "❌ server.cjs syntax error - recreating..."
+            rm -f server.cjs
+            echo 'const { createServer } = require("http")' > server.cjs
+            echo 'const { parse } = require("url")' >> server.cjs
+            echo 'const next = require("next")' >> server.cjs
+            echo '' >> server.cjs
+            echo 'const dev = process.env.NODE_ENV !== "production"' >> server.cjs
+            echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.cjs
+            echo 'const port = process.env.PORT || 3000' >> server.cjs
+            echo '' >> server.cjs
+            echo 'const app = next({ dev, hostname, port })' >> server.cjs
+            echo 'const handle = app.getRequestHandler()' >> server.cjs
+            echo '' >> server.cjs
+            echo 'app.prepare().then(() => {' >> server.cjs
+            echo '  createServer(async (req, res) => {' >> server.cjs
+            echo '    try {' >> server.cjs
+            echo '      const parsedUrl = parse(req.url, true)' >> server.cjs
+            echo '' >> server.cjs
+            echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.cjs
+            echo '        if (req.url.includes("/auth/bypass")) {' >> server.cjs
+            echo '          await handle(req, res, parsedUrl)' >> server.cjs
+            echo '        } else {' >> server.cjs
+            echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.cjs
+            echo '          res.end()' >> server.cjs
+            echo '          return' >> server.cjs
+            echo '        }' >> server.cjs
+            echo '      }' >> server.cjs
+            echo '' >> server.cjs
+            echo '      await handle(req, res, parsedUrl)' >> server.cjs
+            echo '    } catch (err) {' >> server.cjs
+            echo '      console.error("Error occurred handling", req.url, err)' >> server.cjs
+            echo '      res.statusCode = 500' >> server.cjs
+            echo '      res.end("internal server error")' >> server.cjs
+            echo '    }' >> server.cjs
+            echo '  })' >> server.cjs
+            echo '    .once("error", (err) => {' >> server.cjs
+            echo '      console.error(err)' >> server.cjs
+            echo '      process.exit(1)' >> server.cjs
+            echo '    })' >> server.cjs
+            echo '    .listen(port, () => {' >> server.cjs
+            echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.cjs
+            echo '    })' >> server.cjs
+            echo '})' >> server.cjs
+            echo "✅ server.cjs recreated and verified"
           fi
           
           # Create ecosystem.config.cjs with OAuth bypass to avoid file corruption
@@ -404,7 +404,7 @@ jobs:
           echo '  apps: [' >> ecosystem.config.cjs
           echo '    {' >> ecosystem.config.cjs
           echo '      name: "jobportal",' >> ecosystem.config.cjs
-          echo '      script: "server.js",' >> ecosystem.config.cjs
+          echo '      script: "server.cjs",' >> ecosystem.config.cjs
           echo '      cwd: "/var/www/jobportal",' >> ecosystem.config.cjs
           echo '      instances: 1,' >> ecosystem.config.cjs
           echo '      autorestart: true,' >> ecosystem.config.cjs
@@ -476,7 +476,7 @@ jobs:
             echo '  apps: [' >> ecosystem.config.cjs
             echo '    {' >> ecosystem.config.cjs
             echo '      name: "jobportal",' >> ecosystem.config.cjs
-            echo '      script: "server.js",' >> ecosystem.config.cjs
+            echo '      script: "server.cjs",' >> ecosystem.config.cjs
             echo '      cwd: "/var/www/jobportal",' >> ecosystem.config.cjs
             echo '      instances: 1,' >> ecosystem.config.cjs
             echo '      autorestart: true,' >> ecosystem.config.cjs
@@ -539,14 +539,14 @@ jobs:
           
           # Final verification of server files
           echo "🔍 Final verification of server files..."
-          echo "📋 server.js first 5 lines:"
-          head -5 server.js || echo "Cannot read server.js"
+          echo "📋 server.cjs first 5 lines:"
+          head -5 server.cjs || echo "Cannot read server.cjs"
           echo "📋 ecosystem.config.cjs first 5 lines:"
           head -5 ecosystem.config.cjs || echo "Cannot read ecosystem.config.cjs"
           
           # Test server startup manually first
           echo "🧪 Testing server startup..."
-          timeout 30s node server.js &
+          timeout 30s node server.cjs &
           SERVER_PID=$!
           sleep 20
           
@@ -600,53 +600,53 @@ jobs:
           
           # Final check before PM2 start - ensure server.js is still clean
           echo "🔍 Final corruption check before PM2 start..."
-          if grep -q "DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.js; then
-            echo "❌ server.js corrupted before PM2 start - recreating..."
-            rm -f server.js
-            echo 'const { createServer } = require("http")' > server.js
-            echo 'const { parse } = require("url")' >> server.js
-            echo 'const next = require("next")' >> server.js
-            echo '' >> server.js
-            echo 'const dev = process.env.NODE_ENV !== "production"' >> server.js
-            echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.js
-            echo 'const port = process.env.PORT || 3000' >> server.js
-            echo '' >> server.js
-            echo 'const app = next({ dev, hostname, port })' >> server.js
-            echo 'const handle = app.getRequestHandler()' >> server.js
-            echo '' >> server.js
-            echo 'app.prepare().then(() => {' >> server.js
-            echo '  createServer(async (req, res) => {' >> server.js
-            echo '    try {' >> server.js
-            echo '      const parsedUrl = parse(req.url, true)' >> server.js
-            echo '' >> server.js
-            echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.js
-            echo '        if (req.url.includes("/auth/bypass")) {' >> server.js
-            echo '          await handle(req, res, parsedUrl)' >> server.js
-            echo '        } else {' >> server.js
-            echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.js
-            echo '          res.end()' >> server.js
-            echo '          return' >> server.js
-            echo '        }' >> server.js
-            echo '      }' >> server.js
-            echo '' >> server.js
-            echo '      await handle(req, res, parsedUrl)' >> server.js
-            echo '    } catch (err) {' >> server.js
-            echo '      console.error("Error occurred handling", req.url, err)' >> server.js
-            echo '      res.statusCode = 500' >> server.js
-            echo '      res.end("internal server error")' >> server.js
-            echo '    }' >> server.js
-            echo '  })' >> server.js
-            echo '    .once("error", (err) => {' >> server.js
-            echo '      console.error(err)' >> server.js
-            echo '      process.exit(1)' >> server.js
-            echo '    })' >> server.js
-            echo '    .listen(port, () => {' >> server.js
-            echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.js
-            echo '    })' >> server.js
-            echo '})' >> server.js
-            echo "✅ server.js recreated clean"
+          if grep -q "DRONE_SSH_PREV_COMMAND_EXIT_CODE" server.cjs; then
+            echo "❌ server.cjs corrupted before PM2 start - recreating..."
+            rm -f server.cjs
+            echo 'const { createServer } = require("http")' > server.cjs
+            echo 'const { parse } = require("url")' >> server.cjs
+            echo 'const next = require("next")' >> server.cjs
+            echo '' >> server.cjs
+            echo 'const dev = process.env.NODE_ENV !== "production"' >> server.cjs
+            echo 'const hostname = process.env.HOSTNAME || "localhost"' >> server.cjs
+            echo 'const port = process.env.PORT || 3000' >> server.cjs
+            echo '' >> server.cjs
+            echo 'const app = next({ dev, hostname, port })' >> server.cjs
+            echo 'const handle = app.getRequestHandler()' >> server.cjs
+            echo '' >> server.cjs
+            echo 'app.prepare().then(() => {' >> server.cjs
+            echo '  createServer(async (req, res) => {' >> server.cjs
+            echo '    try {' >> server.cjs
+            echo '      const parsedUrl = parse(req.url, true)' >> server.cjs
+            echo '' >> server.cjs
+            echo '      if (req.url && (req.url.includes("/auth/") || req.url.includes("/api/auth/"))) {' >> server.cjs
+            echo '        if (req.url.includes("/auth/bypass")) {' >> server.cjs
+            echo '          await handle(req, res, parsedUrl)' >> server.cjs
+            echo '        } else {' >> server.cjs
+            echo '          res.writeHead(302, { "Location": "/auth/bypass" })' >> server.cjs
+            echo '          res.end()' >> server.cjs
+            echo '          return' >> server.cjs
+            echo '        }' >> server.cjs
+            echo '      }' >> server.cjs
+            echo '' >> server.cjs
+            echo '      await handle(req, res, parsedUrl)' >> server.cjs
+            echo '    } catch (err) {' >> server.cjs
+            echo '      console.error("Error occurred handling", req.url, err)' >> server.cjs
+            echo '      res.statusCode = 500' >> server.cjs
+            echo '      res.end("internal server error")' >> server.cjs
+            echo '    }' >> server.cjs
+            echo '  })' >> server.cjs
+            echo '    .once("error", (err) => {' >> server.cjs
+            echo '      console.error(err)' >> server.cjs
+            echo '      process.exit(1)' >> server.cjs
+            echo '    })' >> server.cjs
+            echo '    .listen(port, () => {' >> server.cjs
+            echo '      console.log(`> Ready on http://${hostname}:${port}`)' >> server.cjs
+            echo '    })' >> server.cjs
+            echo '})' >> server.cjs
+            echo "✅ server.cjs recreated clean"
           else
-            echo "✅ server.js still clean before PM2 start"
+            echo "✅ server.cjs still clean before PM2 start"
           fi
           
           # Start the application with PM2
