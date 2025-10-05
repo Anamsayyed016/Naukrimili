@@ -400,70 +400,68 @@ jobs:
           
           # Create ecosystem.config.cjs with OAuth bypass to avoid file corruption
           echo "🔧 Creating ecosystem.config.cjs with OAuth bypass..."
-          cat > ecosystem.config.cjs << 'EOF'
-          module.exports = {
-            apps: [
-              {
-                name: 'jobportal',
-                script: 'server.js',
-                cwd: '/var/www/jobportal',
-                instances: 1,
-                autorestart: true,
-                watch: false,
-                max_memory_restart: '2G',
-                env: {
-                  NODE_ENV: 'production',
-                  PORT: 3000,
-                  NODE_OPTIONS: '--max-old-space-size=4096',
-                  NEXT_TELEMETRY_DISABLED: '1',
-                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
-                  NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
-                  AUTH_DISABLED: 'true',
-                  NEXT_PUBLIC_BYPASS_OAUTH: 'true',
-                  NEXTAUTH_URL: 'https://aftionix.in',
-                  NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
-                  JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
-                  DATABASE_URL: 'postgresql://postgres:password@localhost:5432/jobportal',
-                  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-                  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
-                },
-                env_production: {
-                  NODE_ENV: 'production',
-                  PORT: 3000,
-                  NODE_OPTIONS: '--max-old-space-size=4096',
-                  NEXT_TELEMETRY_DISABLED: '1',
-                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
-                  NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
-                  AUTH_DISABLED: 'true',
-                  NEXT_PUBLIC_BYPASS_OAUTH: 'true',
-                  NEXTAUTH_URL: 'https://aftionix.in',
-                  NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
-                  JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
-                  DATABASE_URL: 'postgresql://postgres:password@localhost:5432/jobportal',
-                  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-                  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
-                },
-                log_file: '/var/log/jobportal/combined.log',
-                out_file: '/var/log/jobportal/out.log',
-                error_file: '/var/log/jobportal/error.log',
-                log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-                merge_logs: true,
-                log_type: 'json',
-                min_uptime: '10s',
-                max_restarts: 5,
-                restart_delay: 4000,
-                exec_mode: 'fork',
-                ignore_watch: [
-                  'node_modules',
-                  '.next',
-                  'logs',
-                  '*.log',
-                  '.git'
-                ]
-              }
-            ]
-          };
-          EOF
+          echo 'module.exports = {' > ecosystem.config.cjs
+          echo '  apps: [' >> ecosystem.config.cjs
+          echo '    {' >> ecosystem.config.cjs
+          echo '      name: "jobportal",' >> ecosystem.config.cjs
+          echo '      script: "server.js",' >> ecosystem.config.cjs
+          echo '      cwd: "/var/www/jobportal",' >> ecosystem.config.cjs
+          echo '      instances: 1,' >> ecosystem.config.cjs
+          echo '      autorestart: true,' >> ecosystem.config.cjs
+          echo '      watch: false,' >> ecosystem.config.cjs
+          echo '      max_memory_restart: "2G",' >> ecosystem.config.cjs
+          echo '      env: {' >> ecosystem.config.cjs
+          echo '        NODE_ENV: "production",' >> ecosystem.config.cjs
+          echo '        PORT: 3000,' >> ecosystem.config.cjs
+          echo '        NODE_OPTIONS: "--max-old-space-size=4096",' >> ecosystem.config.cjs
+          echo '        NEXT_TELEMETRY_DISABLED: "1",' >> ecosystem.config.cjs
+          echo '        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",' >> ecosystem.config.cjs
+          echo '        NEXT_PUBLIC_APP_URL: "https://aftionix.in",' >> ecosystem.config.cjs
+          echo '        AUTH_DISABLED: "true",' >> ecosystem.config.cjs
+          echo '        NEXT_PUBLIC_BYPASS_OAUTH: "true",' >> ecosystem.config.cjs
+          echo '        NEXTAUTH_URL: "https://aftionix.in",' >> ecosystem.config.cjs
+          echo '        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",' >> ecosystem.config.cjs
+          echo '        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",' >> ecosystem.config.cjs
+          echo '        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",' >> ecosystem.config.cjs
+          echo '        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,' >> ecosystem.config.cjs
+          echo '        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET' >> ecosystem.config.cjs
+          echo '      },' >> ecosystem.config.cjs
+          echo '      env_production: {' >> ecosystem.config.cjs
+          echo '        NODE_ENV: "production",' >> ecosystem.config.cjs
+          echo '        PORT: 3000,' >> ecosystem.config.cjs
+          echo '        NODE_OPTIONS: "--max-old-space-size=4096",' >> ecosystem.config.cjs
+          echo '        NEXT_TELEMETRY_DISABLED: "1",' >> ecosystem.config.cjs
+          echo '        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",' >> ecosystem.config.cjs
+          echo '        NEXT_PUBLIC_APP_URL: "https://aftionix.in",' >> ecosystem.config.cjs
+          echo '        AUTH_DISABLED: "true",' >> ecosystem.config.cjs
+          echo '        NEXT_PUBLIC_BYPASS_OAUTH: "true",' >> ecosystem.config.cjs
+          echo '        NEXTAUTH_URL: "https://aftionix.in",' >> ecosystem.config.cjs
+          echo '        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",' >> ecosystem.config.cjs
+          echo '        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",' >> ecosystem.config.cjs
+          echo '        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",' >> ecosystem.config.cjs
+          echo '        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,' >> ecosystem.config.cjs
+          echo '        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET' >> ecosystem.config.cjs
+          echo '      },' >> ecosystem.config.cjs
+          echo '      log_file: "/var/log/jobportal/combined.log",' >> ecosystem.config.cjs
+          echo '      out_file: "/var/log/jobportal/out.log",' >> ecosystem.config.cjs
+          echo '      error_file: "/var/log/jobportal/error.log",' >> ecosystem.config.cjs
+          echo '      log_date_format: "YYYY-MM-DD HH:mm:ss Z",' >> ecosystem.config.cjs
+          echo '      merge_logs: true,' >> ecosystem.config.cjs
+          echo '      log_type: "json",' >> ecosystem.config.cjs
+          echo '      min_uptime: "10s",' >> ecosystem.config.cjs
+          echo '      max_restarts: 5,' >> ecosystem.config.cjs
+          echo '      restart_delay: 4000,' >> ecosystem.config.cjs
+          echo '      exec_mode: "fork",' >> ecosystem.config.cjs
+          echo '      ignore_watch: [' >> ecosystem.config.cjs
+          echo '        "node_modules",' >> ecosystem.config.cjs
+          echo '        ".next",' >> ecosystem.config.cjs
+          echo '        "logs",' >> ecosystem.config.cjs
+          echo '        "*.log",' >> ecosystem.config.cjs
+          echo '        ".git"' >> ecosystem.config.cjs
+          echo '      ]' >> ecosystem.config.cjs
+          echo '    }' >> ecosystem.config.cjs
+          echo '  ]' >> ecosystem.config.cjs
+          echo '};' >> ecosystem.config.cjs
           
           echo "✅ ecosystem.config.cjs created with OAuth bypass"
           
@@ -474,70 +472,68 @@ jobs:
           else
             echo "❌ ecosystem.config.cjs syntax error - recreating..."
             rm -f ecosystem.config.cjs
-            cat > ecosystem.config.cjs << 'EOF'
-          module.exports = {
-            apps: [
-              {
-                name: 'jobportal',
-                script: 'server.js',
-                cwd: '/var/www/jobportal',
-                instances: 1,
-                autorestart: true,
-                watch: false,
-                max_memory_restart: '2G',
-                env: {
-                  NODE_ENV: 'production',
-                  PORT: 3000,
-                  NODE_OPTIONS: '--max-old-space-size=4096',
-                  NEXT_TELEMETRY_DISABLED: '1',
-                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
-                  NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
-                  AUTH_DISABLED: 'true',
-                  NEXT_PUBLIC_BYPASS_OAUTH: 'true',
-                  NEXTAUTH_URL: 'https://aftionix.in',
-                  NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
-                  JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
-                  DATABASE_URL: 'postgresql://postgres:password@localhost:5432/jobportal',
-                  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-                  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
-                },
-                env_production: {
-                  NODE_ENV: 'production',
-                  PORT: 3000,
-                  NODE_OPTIONS: '--max-old-space-size=4096',
-                  NEXT_TELEMETRY_DISABLED: '1',
-                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
-                  NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
-                  AUTH_DISABLED: 'true',
-                  NEXT_PUBLIC_BYPASS_OAUTH: 'true',
-                  NEXTAUTH_URL: 'https://aftionix.in',
-                  NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
-                  JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
-                  DATABASE_URL: 'postgresql://postgres:password@localhost:5432/jobportal',
-                  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-                  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
-                },
-                log_file: '/var/log/jobportal/combined.log',
-                out_file: '/var/log/jobportal/out.log',
-                error_file: '/var/log/jobportal/error.log',
-                log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-                merge_logs: true,
-                log_type: 'json',
-                min_uptime: '10s',
-                max_restarts: 5,
-                restart_delay: 4000,
-                exec_mode: 'fork',
-                ignore_watch: [
-                  'node_modules',
-                  '.next',
-                  'logs',
-                  '*.log',
-                  '.git'
-                ]
-              }
-            ]
-          };
-          EOF
+            echo 'module.exports = {' > ecosystem.config.cjs
+            echo '  apps: [' >> ecosystem.config.cjs
+            echo '    {' >> ecosystem.config.cjs
+            echo '      name: "jobportal",' >> ecosystem.config.cjs
+            echo '      script: "server.js",' >> ecosystem.config.cjs
+            echo '      cwd: "/var/www/jobportal",' >> ecosystem.config.cjs
+            echo '      instances: 1,' >> ecosystem.config.cjs
+            echo '      autorestart: true,' >> ecosystem.config.cjs
+            echo '      watch: false,' >> ecosystem.config.cjs
+            echo '      max_memory_restart: "2G",' >> ecosystem.config.cjs
+            echo '      env: {' >> ecosystem.config.cjs
+            echo '        NODE_ENV: "production",' >> ecosystem.config.cjs
+            echo '        PORT: 3000,' >> ecosystem.config.cjs
+            echo '        NODE_OPTIONS: "--max-old-space-size=4096",' >> ecosystem.config.cjs
+            echo '        NEXT_TELEMETRY_DISABLED: "1",' >> ecosystem.config.cjs
+            echo '        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",' >> ecosystem.config.cjs
+            echo '        NEXT_PUBLIC_APP_URL: "https://aftionix.in",' >> ecosystem.config.cjs
+            echo '        AUTH_DISABLED: "true",' >> ecosystem.config.cjs
+            echo '        NEXT_PUBLIC_BYPASS_OAUTH: "true",' >> ecosystem.config.cjs
+            echo '        NEXTAUTH_URL: "https://aftionix.in",' >> ecosystem.config.cjs
+            echo '        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",' >> ecosystem.config.cjs
+            echo '        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",' >> ecosystem.config.cjs
+            echo '        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",' >> ecosystem.config.cjs
+            echo '        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,' >> ecosystem.config.cjs
+            echo '        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET' >> ecosystem.config.cjs
+            echo '      },' >> ecosystem.config.cjs
+            echo '      env_production: {' >> ecosystem.config.cjs
+            echo '        NODE_ENV: "production",' >> ecosystem.config.cjs
+            echo '        PORT: 3000,' >> ecosystem.config.cjs
+            echo '        NODE_OPTIONS: "--max-old-space-size=4096",' >> ecosystem.config.cjs
+            echo '        NEXT_TELEMETRY_DISABLED: "1",' >> ecosystem.config.cjs
+            echo '        NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",' >> ecosystem.config.cjs
+            echo '        NEXT_PUBLIC_APP_URL: "https://aftionix.in",' >> ecosystem.config.cjs
+            echo '        AUTH_DISABLED: "true",' >> ecosystem.config.cjs
+            echo '        NEXT_PUBLIC_BYPASS_OAUTH: "true",' >> ecosystem.config.cjs
+            echo '        NEXTAUTH_URL: "https://aftionix.in",' >> ecosystem.config.cjs
+            echo '        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",' >> ecosystem.config.cjs
+            echo '        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",' >> ecosystem.config.cjs
+            echo '        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",' >> ecosystem.config.cjs
+            echo '        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,' >> ecosystem.config.cjs
+            echo '        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET' >> ecosystem.config.cjs
+            echo '      },' >> ecosystem.config.cjs
+            echo '      log_file: "/var/log/jobportal/combined.log",' >> ecosystem.config.cjs
+            echo '      out_file: "/var/log/jobportal/out.log",' >> ecosystem.config.cjs
+            echo '      error_file: "/var/log/jobportal/error.log",' >> ecosystem.config.cjs
+            echo '      log_date_format: "YYYY-MM-DD HH:mm:ss Z",' >> ecosystem.config.cjs
+            echo '      merge_logs: true,' >> ecosystem.config.cjs
+            echo '      log_type: "json",' >> ecosystem.config.cjs
+            echo '      min_uptime: "10s",' >> ecosystem.config.cjs
+            echo '      max_restarts: 5,' >> ecosystem.config.cjs
+            echo '      restart_delay: 4000,' >> ecosystem.config.cjs
+            echo '      exec_mode: "fork",' >> ecosystem.config.cjs
+            echo '      ignore_watch: [' >> ecosystem.config.cjs
+            echo '        "node_modules",' >> ecosystem.config.cjs
+            echo '        ".next",' >> ecosystem.config.cjs
+            echo '        "logs",' >> ecosystem.config.cjs
+            echo '        "*.log",' >> ecosystem.config.cjs
+            echo '        ".git"' >> ecosystem.config.cjs
+            echo '      ]' >> ecosystem.config.cjs
+            echo '    }' >> ecosystem.config.cjs
+            echo '  ]' >> ecosystem.config.cjs
+            echo '};' >> ecosystem.config.cjs
             echo "✅ ecosystem.config.cjs recreated and verified"
           fi
           
