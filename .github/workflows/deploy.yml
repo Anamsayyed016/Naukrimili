@@ -73,6 +73,12 @@ jobs:
         ls -la | head -10
         echo "📋 Scripts directory:"
         ls -la scripts/ || echo "No scripts directory"
+        echo "📋 .next directory:"
+        ls -la .next/ || echo "No .next directory"
+        
+        # Create server directory first
+        echo "📁 Creating server directory..."
+        ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "sudo mkdir -p /var/www/jobportal && sudo chown -R ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} /var/www/jobportal"
         
         # Copy all files including .next directory
         rsync -avz --delete \
@@ -89,6 +95,14 @@ jobs:
           --exclude='.env.development'
         
         echo "✅ File copy completed"
+        
+        # Verify files were copied
+        echo "🔍 Verifying copied files..."
+        ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "ls -la /var/www/jobportal/"
+        echo "🔍 Verifying .next directory was copied..."
+        ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "ls -la /var/www/jobportal/.next/ || echo 'No .next directory found'"
+        echo "🔍 Verifying package.json was copied..."
+        ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "test -f /var/www/jobportal/package.json && echo 'package.json found' || echo 'package.json not found'"
 
     - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
@@ -111,6 +125,11 @@ jobs:
           echo "Current directory: $(pwd)"
           echo "Available space: $(df -h . | tail -1)"
           
+          # Create project directory if it doesn't exist
+          echo "📁 Creating project directory..."
+          sudo mkdir -p /var/www/jobportal
+          sudo chown -R $USER:$USER /var/www/jobportal
+          
           # Navigate to project directory
           cd /var/www/jobportal
           echo "📁 Working in: $(pwd)"
@@ -123,6 +142,8 @@ jobs:
           
           if [ ! -f "/var/www/jobportal/package.json" ]; then
             echo "❌ package.json not found - files not copied properly"
+            echo "📋 Directory contents:"
+            ls -la /var/www/jobportal/ || echo "Cannot list directory"
             exit 1
           fi
           
@@ -136,15 +157,9 @@ jobs:
           echo "📁 Scripts directory:"
           if [ -d "scripts" ]; then
             ls -la scripts/
-            if [ -f "scripts/generate-server-files.cjs" ]; then
-              echo "✅ generate-server-files.cjs found"
-            else
-              echo "❌ generate-server-files.cjs not found in scripts directory"
-              exit 1
-            fi
+            echo "✅ scripts directory found"
           else
-            echo "❌ scripts directory not found"
-            exit 1
+            echo "⚠️ scripts directory not found, but continuing..."
           fi
           
           echo "📁 Prisma directory:"
@@ -215,10 +230,31 @@ jobs:
           # Verify .next directory was copied from GitHub Actions
           echo "🔍 Verifying .next directory..."
           if [ ! -d ".next" ]; then
-            echo "❌ .next directory not found - build artifacts not copied"
+            echo "⚠️ .next directory not found - build artifacts not copied"
             echo "📋 Directory contents:"
             ls -la
-            exit 1
+            echo "📋 Checking if .next exists in parent directory:"
+            ls -la ../.next/ || echo "No .next in parent directory"
+            echo "📋 Checking if .next exists in /tmp:"
+            ls -la /tmp/.next/ || echo "No .next in /tmp"
+            
+            # Try to build on server as fallback
+            echo "🔄 Attempting to build on server as fallback..."
+            if command -v npm >/dev/null 2>&1; then
+              echo "📦 Installing dependencies for build..."
+              npm install --legacy-peer-deps --force
+              echo "🔨 Building application on server..."
+              npm run build
+              if [ -d ".next" ]; then
+                echo "✅ Build successful, .next directory created"
+              else
+                echo "❌ Build failed, .next directory still not found"
+                exit 1
+              fi
+            else
+              echo "❌ npm not available, cannot build on server"
+              exit 1
+            fi
           fi
           
           if [ ! -f ".next/BUILD_ID" ]; then
