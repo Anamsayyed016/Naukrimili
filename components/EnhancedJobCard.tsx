@@ -192,7 +192,7 @@ export default function EnhancedJobCard({
                 </button>
               ) : (
                 <Link
-                  href={`${seoJobUrl}/apply`}
+                  href={`/jobs/${normalizedJob.id}/apply`}
                   className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
                 >
                   <span className="hidden sm:inline">Apply</span>
@@ -406,7 +406,7 @@ export default function EnhancedJobCard({
             </button>
           ) : (
             <Link
-              href={seoJobUrl}
+              href={`/jobs/${job.id}`}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
             >
               View Details

@@ -67,28 +67,28 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Handle old /jobs/[id] routes - redirect to SEO URLs
-  const oldJobPattern = /^\/jobs\/([a-zA-Z0-9_-]+)(?:\/(apply|external))?$/;
-  const oldJobMatch = pathname.match(oldJobPattern);
+  // Handle direct /jobs/[id] routes - let them pass through to regular job details
+  const directJobPattern = /^\/jobs\/([a-zA-Z0-9_-]+)(?:\/(apply|external))?$/;
+  const directJobMatch = pathname.match(directJobPattern);
 
-  if (oldJobMatch) {
-    const jobId = oldJobMatch[1];
-    const action = oldJobMatch[2]; // 'apply', 'external', or undefined
+  if (directJobMatch) {
+    const jobId = directJobMatch[1];
+    const action = directJobMatch[2]; // 'apply', 'external', or undefined
     
-    if (action === 'apply') {
-      // Route to apply page
-      const newUrl = new URL(`/jobs/${jobId}/apply`, request.url);
-      return NextResponse.rewrite(newUrl);
-    } else if (action === 'external') {
-      // Route to external page
-      const newUrl = new URL(`/jobs/${jobId}/external`, request.url);
-      return NextResponse.rewrite(newUrl);
-    } else {
-      // Route to job details page
-      const newUrl = new URL(`/jobs/seo/job-${jobId}`, request.url);
-      newUrl.searchParams.set('id', jobId);
-      return NextResponse.rewrite(newUrl);
+    // Check if it's a simple numeric ID (direct access)
+    if (/^\d+$/.test(jobId)) {
+      // Let it pass through to the regular job details page
+      return NextResponse.next();
     }
+    
+    // For other IDs, check if they're SEO URLs or direct IDs
+    if (jobId.includes('-') && !jobId.startsWith('sample-') && !jobId.startsWith('ext-')) {
+      // This is likely a SEO URL, let it be handled by the SEO URL pattern above
+      return NextResponse.next();
+    }
+    
+    // For other direct IDs, let them pass through
+    return NextResponse.next();
   }
 
   return NextResponse.next();

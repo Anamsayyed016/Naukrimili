@@ -101,6 +101,7 @@ export default function SEOJobDetailsPage() {
       const data = await response.json();
       
       if (data.success && data.data) {
+        console.log('✅ SEO Job data received:', data.data.title);
         setJob(data.data);
         
         // Update page title and meta for SEO
@@ -129,7 +130,8 @@ export default function SEOJobDetailsPage() {
           }
         }
       } else {
-        setError('Job data not available');
+        console.error('❌ SEO Job API error:', data.error);
+        setError(data.error || 'Job data not available');
       }
     } catch (error) {
       console.error('Error fetching job:', error);

@@ -87,8 +87,10 @@ export default function JobDetailsPage() {
       const data = await response.json();
       
       if (data.success && data.data) {
+        console.log('✅ Job data received:', data.data.title);
         setJob(data.data);
       } else {
+        console.error('❌ Job API error:', data.error);
         setError(data.error || 'Failed to load job details');
       }
     } catch (error) {

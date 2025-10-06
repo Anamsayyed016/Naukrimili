@@ -45,16 +45,6 @@ export async function GET(
       });
     }
     
-    // If database fails, provide fallback sample jobs for any ID
-    console.log('🔍 Database unavailable, providing fallback job data for ID:', trimmedId);
-    const fallbackJob = getFallbackJobData(trimmedId);
-    return NextResponse.json({ 
-      success: true, 
-      data: fallbackJob,
-      isFallback: true,
-      message: 'Database unavailable. Showing sample job data.'
-    });
-    
     // Check if this is a sample job ID
     if (trimmedId.startsWith('sample-')) {
       console.log('🔍 Sample job ID detected:', trimmedId);
@@ -80,37 +70,12 @@ export async function GET(
     // Enhanced error response with helpful information
     console.log(`❌ Job not found anywhere: ${trimmedId}`);
     
-    // For now, always provide sample job data for demonstration
-    // This ensures the job details page works even without database
-    const sampleJob = {
-      id: trimmedId,
-      title: 'UI/UX Designer',
-      company: 'GrowthCorp',
-      location: 'Berlin, Germany',
-      salary: '€60,000 - €150,000',
-      description: 'We are looking for a creative UI/UX Designer to join our growing team in Berlin. You will be responsible for designing user interfaces and experiences for our digital products.',
-      requirements: '3+ years of experience in UI/UX design, proficiency in Figma, Adobe Creative Suite, and design systems.',
-      type: 'Full-time',
-      experience: 'Mid-level',
-      industry: 'Technology',
-      source: 'sample',
-      sourceId: trimmedId,
-      postedAt: new Date().toISOString(),
-      companyRelation: {
-        name: 'GrowthCorp',
-        location: 'Berlin, Germany',
-        industry: 'Technology',
-        website: 'https://growthcorp.com'
-      }
-    };
-    
-    console.log('📋 Providing sample job data for demonstration');
-    return NextResponse.json({ 
-      success: true, 
-      data: sampleJob,
-      isSample: true,
-      message: 'This is sample data. Please seed the database for real jobs.'
-    });
+    return NextResponse.json({
+      success: false,
+      error: 'Job not found',
+      details: `No job found with ID: ${trimmedId}. Please check the job ID and try again.`,
+      code: 'JOB_NOT_FOUND'
+    }, { status: 404 });
     
   } catch (error) {
     console.error('❌ Error fetching job details:', error);
