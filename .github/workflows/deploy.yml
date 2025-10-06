@@ -81,6 +81,7 @@ jobs:
         ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "sudo mkdir -p /var/www/jobportal && sudo chown -R ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} /var/www/jobportal"
         
         # Copy all files including .next directory
+        echo "📦 Copying files with rsync..."
         rsync -avz --delete \
           -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
           ./ ${{ secrets.SSH_USER }}@${{ secrets.HOST }}:/var/www/jobportal/ \
@@ -103,6 +104,25 @@ jobs:
         ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "ls -la /var/www/jobportal/.next/ || echo 'No .next directory found'"
         echo "🔍 Verifying package.json was copied..."
         ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "test -f /var/www/jobportal/package.json && echo 'package.json found' || echo 'package.json not found'"
+        
+        # If files weren't copied properly, try alternative method
+        echo "🔍 Checking if files were copied properly..."
+        if ! ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "test -f /var/www/jobportal/package.json"; then
+          echo "❌ Files not copied properly, trying alternative method..."
+          
+          # Create a tar archive and copy it
+          echo "📦 Creating tar archive..."
+          tar -czf jobportal.tar.gz --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='logs' --exclude='*.log' --exclude='coverage' --exclude='test-results' --exclude='.env.local' --exclude='.env.development' .
+          
+          echo "📤 Copying tar archive..."
+          scp -i ~/.ssh/deploy_key -P ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no jobportal.tar.gz ${{ secrets.SSH_USER }}@${{ secrets.HOST }}:/tmp/
+          
+          echo "📦 Extracting tar archive on server..."
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "cd /var/www/jobportal && tar -xzf /tmp/jobportal.tar.gz && rm /tmp/jobportal.tar.gz"
+          
+          echo "🔍 Verifying files after tar extraction..."
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "ls -la /var/www/jobportal/ && test -f /var/www/jobportal/package.json && echo 'package.json found after tar extraction' || echo 'package.json still not found'"
+        fi
 
     - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
@@ -140,10 +160,22 @@ jobs:
             exit 1
           fi
           
+          # Check if files were copied properly
           if [ ! -f "/var/www/jobportal/package.json" ]; then
             echo "❌ package.json not found - files not copied properly"
             echo "📋 Directory contents:"
             ls -la /var/www/jobportal/ || echo "Cannot list directory"
+            echo "📋 Checking if directory is empty:"
+            if [ -z "$(ls -A /var/www/jobportal/ 2>/dev/null)" ]; then
+              echo "❌ Directory is completely empty - file copy failed"
+              echo "📋 Checking if tar archive exists:"
+              ls -la /tmp/jobportal.tar.gz || echo "No tar archive found"
+              exit 1
+            else
+              echo "⚠️ Directory has some files but package.json is missing"
+              echo "📋 Available files:"
+              find /var/www/jobportal -type f -name "*.json" -o -name "*.js" -o -name "*.ts" | head -10
+            fi
             exit 1
           fi
           
@@ -194,6 +226,18 @@ jobs:
             sudo dnf install -y jq || echo "⚠️ jq installation failed, will use fallback methods"
           else
             echo "⚠️ No compatible package manager found, will use fallback methods"
+          fi
+          
+          # Install curl if not available (needed for health checks)
+          echo "📦 Installing curl for health checks..."
+          if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get install -y curl || echo "⚠️ curl installation failed"
+          elif command -v yum >/dev/null 2>&1; then
+            sudo yum install -y curl || echo "⚠️ curl installation failed"
+          elif command -v dnf >/dev/null 2>&1; then
+            sudo dnf install -y curl || echo "⚠️ curl installation failed"
+          else
+            echo "⚠️ No compatible package manager found for curl"
           fi
           
           # Force kill all PM2 processes and clean up
@@ -249,12 +293,21 @@ jobs:
                 echo "✅ Build successful, .next directory created"
               else
                 echo "❌ Build failed, .next directory still not found"
+                echo "📋 Checking build logs..."
+                echo "📋 Directory contents after build:"
+                ls -la
                 exit 1
               fi
             else
               echo "❌ npm not available, cannot build on server"
+              echo "📋 Node version: $(node --version 2>/dev/null || echo 'not available')"
+              echo "📋 npm version: $(npm --version 2>/dev/null || echo 'not available')"
               exit 1
             fi
+          else
+            echo "✅ .next directory found"
+            echo "📋 .next directory contents:"
+            ls -la .next/ | head -10
           fi
           
           if [ ! -f ".next/BUILD_ID" ]; then
@@ -448,11 +501,22 @@ jobs:
           
           # Start the application with PM2
           echo "🚀 Starting application with PM2..."
+          
+          # Ensure PM2 is available
+          if ! command -v pm2 >/dev/null 2>&1; then
+            echo "❌ PM2 not available, installing..."
+            npm install -g pm2 || {
+              echo "❌ Failed to install PM2"
+              exit 1
+            }
+          fi
+          
+          # Start the application
           pm2 start ecosystem.config.cjs --env production
           
           # Wait for PM2 to start
           echo "⏳ Waiting for PM2 to start..."
-          sleep 10
+          sleep 15
           
           # Save PM2 configuration
           echo "💾 Saving PM2 configuration..."
@@ -477,11 +541,29 @@ jobs:
               echo "✅ Application is responding"
             else
               echo "⚠️ Application not responding yet - may need more time"
+              echo "📋 Checking PM2 logs for errors..."
+              pm2 logs jobportal --lines 20 --nostream || echo "Could not retrieve PM2 logs"
             fi
           else
             echo "❌ Port 3000 not listening"
             echo "📋 Checking PM2 logs..."
-            pm2 logs jobportal --lines 10 --nostream || echo "Could not retrieve PM2 logs"
+            pm2 logs jobportal --lines 20 --nostream || echo "Could not retrieve PM2 logs"
+            echo "📋 Checking if server.cjs exists and is valid..."
+            if [ -f "server.cjs" ]; then
+              echo "✅ server.cjs exists"
+              echo "📋 server.cjs size: $(wc -c < server.cjs) bytes"
+              echo "📋 First 5 lines of server.cjs:"
+              head -5 server.cjs
+            else
+              echo "❌ server.cjs not found"
+            fi
+            echo "📋 Checking if ecosystem.config.cjs exists and is valid..."
+            if [ -f "ecosystem.config.cjs" ]; then
+              echo "✅ ecosystem.config.cjs exists"
+              echo "📋 ecosystem.config.cjs size: $(wc -c < ecosystem.config.cjs) bytes"
+            else
+              echo "❌ ecosystem.config.cjs not found"
+            fi
             exit 1
           fi
           
