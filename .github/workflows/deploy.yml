@@ -66,25 +66,19 @@ jobs:
         chmod 600 ~/.ssh/deploy_key
         ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts
         
-    - name: 📥 Copy files to server
+    - name: 📦 Create deployment package
       run: |
-        echo "📥 Copying files to server..."
-        echo "📋 Files to copy:"
+        echo "📦 Creating deployment package..."
+        echo "📋 Files to package:"
         ls -la | head -10
         echo "📋 Scripts directory:"
         ls -la scripts/ || echo "No scripts directory"
         echo "📋 .next directory:"
         ls -la .next/ || echo "No .next directory"
         
-        # Create server directory first
-        echo "📁 Creating server directory..."
-        ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "sudo mkdir -p /var/www/jobportal && sudo chown -R ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} /var/www/jobportal"
-        
-        # Copy all files including .next directory
-        echo "📦 Copying files with rsync..."
-        rsync -avz --delete \
-          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
-          ./ ${{ secrets.SSH_USER }}@${{ secrets.HOST }}:/var/www/jobportal/ \
+        # Create a tar archive with all necessary files
+        echo "📦 Creating tar archive..."
+        tar -czf jobportal-deployment.tar.gz \
           --exclude='.git' \
           --exclude='node_modules' \
           --exclude='.github' \
@@ -93,36 +87,11 @@ jobs:
           --exclude='coverage' \
           --exclude='test-results' \
           --exclude='.env.local' \
-          --exclude='.env.development'
+          --exclude='.env.development' \
+          .
         
-        echo "✅ File copy completed"
-        
-        # Verify files were copied
-        echo "🔍 Verifying copied files..."
-        ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "ls -la /var/www/jobportal/"
-        echo "🔍 Verifying .next directory was copied..."
-        ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "ls -la /var/www/jobportal/.next/ || echo 'No .next directory found'"
-        echo "🔍 Verifying package.json was copied..."
-        ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "test -f /var/www/jobportal/package.json && echo 'package.json found' || echo 'package.json not found'"
-        
-        # If files weren't copied properly, try alternative method
-        echo "🔍 Checking if files were copied properly..."
-        if ! ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "test -f /var/www/jobportal/package.json"; then
-          echo "❌ Files not copied properly, trying alternative method..."
-          
-          # Create a tar archive and copy it
-          echo "📦 Creating tar archive..."
-          tar -czf jobportal.tar.gz --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='logs' --exclude='*.log' --exclude='coverage' --exclude='test-results' --exclude='.env.local' --exclude='.env.development' .
-          
-          echo "📤 Copying tar archive..."
-          scp -i ~/.ssh/deploy_key -P ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no jobportal.tar.gz ${{ secrets.SSH_USER }}@${{ secrets.HOST }}:/tmp/
-          
-          echo "📦 Extracting tar archive on server..."
-          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "cd /var/www/jobportal && tar -xzf /tmp/jobportal.tar.gz && rm /tmp/jobportal.tar.gz"
-          
-          echo "🔍 Verifying files after tar extraction..."
-          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "ls -la /var/www/jobportal/ && test -f /var/www/jobportal/package.json && echo 'package.json found after tar extraction' || echo 'package.json still not found'"
-        fi
+        echo "✅ Deployment package created: jobportal-deployment.tar.gz"
+        echo "📋 Package size: $(du -h jobportal-deployment.tar.gz)"
 
     - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
@@ -131,8 +100,8 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 20m
-        command_timeout: 18m
+        timeout: 30m
+        command_timeout: 28m
         debug: true
         script_stop: true
         script: |
@@ -145,7 +114,7 @@ jobs:
           echo "Current directory: $(pwd)"
           echo "Available space: $(df -h . | tail -1)"
           
-          # Create project directory if it doesn't exist
+          # Create project directory
           echo "📁 Creating project directory..."
           sudo mkdir -p /var/www/jobportal
           sudo chown -R $USER:$USER /var/www/jobportal
@@ -154,32 +123,57 @@ jobs:
           cd /var/www/jobportal
           echo "📁 Working in: $(pwd)"
           
-          # Verify we can access the directory and files
-          if [ ! -d "/var/www/jobportal" ]; then
-            echo "❌ Project directory /var/www/jobportal not found"
-            exit 1
+          # Download and extract deployment package
+          echo "📥 Downloading deployment package..."
+          curl -L -o jobportal-deployment.tar.gz "https://github.com/${{ github.repository }}/archive/${{ github.sha }}.tar.gz" || {
+            echo "❌ Failed to download from GitHub, trying alternative method..."
+            # Alternative: create a simple deployment package
+            echo "📦 Creating deployment package on server..."
+            mkdir -p /tmp/jobportal-source
+            cd /tmp/jobportal-source
+            
+            # Clone the repository
+            git clone https://github.com/${{ github.repository }}.git .
+            git checkout ${{ github.sha }}
+            
+            # Build the application
+            echo "🔨 Building application on server..."
+            npm install --legacy-peer-deps --force
+            npm run build
+            
+            # Copy files to deployment directory
+            echo "📦 Copying files to deployment directory..."
+            cp -r . /var/www/jobportal/
+            cd /var/www/jobportal
+          }
+          
+          # If we downloaded the tar.gz, extract it
+          if [ -f "jobportal-deployment.tar.gz" ]; then
+            echo "📦 Extracting deployment package..."
+            tar -xzf jobportal-deployment.tar.gz --strip-components=1
+            rm jobportal-deployment.tar.gz
           fi
           
-          # Check if files were copied properly
-          if [ ! -f "/var/www/jobportal/package.json" ]; then
-            echo "❌ package.json not found - files not copied properly"
+          # Verify essential files exist
+          echo "🔍 Verifying essential files..."
+          if [ ! -f "package.json" ]; then
+            echo "❌ package.json not found"
             echo "📋 Directory contents:"
-            ls -la /var/www/jobportal/ || echo "Cannot list directory"
-            echo "📋 Checking if directory is empty:"
-            if [ -z "$(ls -A /var/www/jobportal/ 2>/dev/null)" ]; then
-              echo "❌ Directory is completely empty - file copy failed"
-              echo "📋 Checking if tar archive exists:"
-              ls -la /tmp/jobportal.tar.gz || echo "No tar archive found"
-              exit 1
-            else
-              echo "⚠️ Directory has some files but package.json is missing"
-              echo "📋 Available files:"
-              find /var/www/jobportal -type f -name "*.json" -o -name "*.js" -o -name "*.ts" | head -10
-            fi
+            ls -la
             exit 1
           fi
           
-          echo "✅ Files successfully copied to server"
+          if [ ! -d ".next" ]; then
+            echo "⚠️ .next directory not found, building on server..."
+            npm install --legacy-peer-deps --force
+            npm run build
+            if [ ! -d ".next" ]; then
+              echo "❌ Build failed, .next directory still not found"
+            exit 1
+            fi
+          fi
+          
+          echo "✅ Files successfully prepared on server"
           
           # Verify essential files and directories
           echo "📋 Checking essential files and directories..."
@@ -240,6 +234,159 @@ jobs:
             echo "⚠️ No compatible package manager found for curl"
           fi
           
+          # Create BUILD_ID if missing
+          echo "🔍 Checking BUILD_ID..."
+          if [ ! -f ".next/BUILD_ID" ]; then
+            echo "⚠️ BUILD_ID not found, creating it..."
+            echo $(date +%s) > .next/BUILD_ID
+            echo "✅ BUILD_ID created: $(cat .next/BUILD_ID)"
+          else
+            echo "✅ BUILD_ID found: $(cat .next/BUILD_ID)"
+          fi
+          
+          # Create server.cjs file
+          echo "🔧 Creating server.cjs..."
+          cat > server.cjs << 'EOF'
+          const { createServer } = require('http');
+          const { parse } = require('url');
+          const next = require('next');
+          
+          const dev = process.env.NODE_ENV !== 'production';
+          const hostname = process.env.HOSTNAME || '0.0.0.0';
+          const port = parseInt(process.env.PORT, 10) || 3000;
+          
+          console.log('🚀 Starting server...');
+          console.log('Environment:', process.env.NODE_ENV);
+          console.log('Port:', port);
+          console.log('Hostname:', hostname);
+          
+          const app = next({ 
+            dev, 
+            hostname, 
+            port,
+            dir: process.cwd()
+          });
+          
+          const handle = app.getRequestHandler();
+          
+          app.prepare().then(() => {
+            console.log('✅ Next.js app prepared');
+            
+            const server = createServer(async (req, res) => {
+              try {
+                const parsedUrl = parse(req.url, true);
+                await handle(req, res, parsedUrl);
+              } catch (err) {
+                console.error('❌ Error handling request:', req.url, err);
+                res.statusCode = 500;
+                res.end('Internal server error');
+              }
+            });
+          
+            server.on('error', (err) => {
+              console.error('❌ Server error:', err);
+              process.exit(1);
+            });
+          
+            server.listen(port, hostname, (err) => {
+              if (err) {
+                console.error('❌ Failed to start server:', err);
+                process.exit(1);
+              }
+              console.log(\`🎉 Server ready on http://\${hostname}:\${port}\`);
+              console.log(\`📊 Environment: \${process.env.NODE_ENV}\`);
+            });
+          }).catch((err) => {
+            console.error('❌ Failed to prepare Next.js app:', err);
+            process.exit(1);
+          });
+          EOF
+          
+          # Create ecosystem.config.cjs file
+          echo "🔧 Creating ecosystem.config.cjs..."
+          cat > ecosystem.config.cjs << 'EOF'
+          module.exports = {
+            apps: [
+              {
+                name: "jobportal",
+                script: "server.cjs",
+                cwd: "/var/www/jobportal",
+                instances: 1,
+                autorestart: true,
+                watch: false,
+                max_memory_restart: "2G",
+                env: {
+                  NODE_ENV: "production",
+                  PORT: 3000,
+                  NODE_OPTIONS: "--max-old-space-size=4096",
+                  NEXT_TELEMETRY_DISABLED: "1",
+                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
+                  NEXT_PUBLIC_APP_URL: "https://aftionix.in",
+                  NEXTAUTH_URL: "https://aftionix.in",
+                  NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
+                  JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
+                  DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+                },
+                env_production: {
+                  NODE_ENV: "production",
+                  PORT: 3000,
+                  NODE_OPTIONS: "--max-old-space-size=4096",
+                  NEXT_TELEMETRY_DISABLED: "1",
+                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
+                  NEXT_PUBLIC_APP_URL: "https://aftionix.in",
+                  NEXTAUTH_URL: "https://aftionix.in",
+                  NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
+                  JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
+                  DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+                },
+                log_file: "/var/log/jobportal/combined.log",
+                out_file: "/var/log/jobportal/out.log",
+                error_file: "/var/log/jobportal/error.log",
+                log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+                merge_logs: true,
+                log_type: "json",
+                min_uptime: "10s",
+                max_restarts: 5,
+                restart_delay: 4000,
+                exec_mode: "fork",
+                ignore_watch: [
+                  "node_modules",
+                  ".next",
+                  "logs",
+                  "*.log",
+                  ".git"
+                ]
+              }
+            ]
+          };
+          EOF
+          
+          # Create production .env file
+          echo "🔧 Creating production .env file..."
+          cat > .env << 'EOF'
+          DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+          NEXTAUTH_URL="https://aftionix.in"
+          NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
+          JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
+          NODE_ENV=production
+          NEXT_TELEMETRY_DISABLED=1
+          NEXT_PUBLIC_APP_URL=https://aftionix.in
+          NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
+          EOF
+          
+          # Create .npmrc file
+          echo "🔧 Creating .npmrc file..."
+          cat > .npmrc << 'EOF'
+          engine-strict=false
+          legacy-peer-deps=true
+          fund=false
+          audit=false
+          loglevel=error
+          auto-install-peers=true
+          EOF
+          
+          echo "✅ Server files created successfully"
+          
           # Force kill all PM2 processes and clean up
           echo "💀 Force killing all PM2 processes..."
           pm2 kill || true
@@ -247,7 +394,7 @@ jobs:
           
           # Clean up previous build artifacts (but preserve .next from local build)
           echo "🧹 Cleaning up previous build artifacts..."
-          rm -rf /var/www/jobportal/node_modules
+          rm -rf node_modules
           
           # Verify files were copied
           echo "🔍 Verifying copied files..."
@@ -302,7 +449,7 @@ jobs:
               echo "❌ npm not available, cannot build on server"
               echo "📋 Node version: $(node --version 2>/dev/null || echo 'not available')"
               echo "📋 npm version: $(npm --version 2>/dev/null || echo 'not available')"
-              exit 1
+            exit 1
             fi
           else
             echo "✅ .next directory found"
@@ -450,22 +597,6 @@ jobs:
           
           # Install dependencies
           echo "📦 Installing dependencies..."
-          echo "📋 Creating .npmrc for legacy peer deps..."
-          cat > .npmrc << 'EOF'
-          engine-strict=false
-          legacy-peer-deps=true
-          fund=false
-          audit=false
-          loglevel=error
-          auto-install-peers=true
-          EOF
-          
-          # Clean install
-          echo "📋 Performing clean npm install..."
-          rm -rf node_modules package-lock.json
-          
-          # Install dependencies
-          echo "📦 Installing dependencies..."
           npm install --legacy-peer-deps --force
           
           echo "✅ Dependencies installed successfully"
@@ -484,19 +615,6 @@ jobs:
           sudo mkdir -p /var/log/jobportal
           sudo chown -R $USER:$USER /var/log/jobportal
           
-          # Create production .env file
-          echo "🔧 Creating production .env file..."
-          cat > .env << 'EOF'
-          DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
-          NEXTAUTH_URL="https://aftionix.in"
-          NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
-          JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
-          NODE_ENV=production
-          NEXT_TELEMETRY_DISABLED=1
-          NEXT_PUBLIC_APP_URL=https://aftionix.in
-          NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
-          EOF
-          
           echo "✅ Environment variables configured"
           
           # Start the application with PM2
@@ -510,6 +628,30 @@ jobs:
               exit 1
             }
           fi
+          
+          # Verify server files exist
+          echo "🔍 Verifying server files..."
+          if [ ! -f "server.cjs" ]; then
+            echo "❌ server.cjs not found"
+            exit 1
+          fi
+          
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "❌ ecosystem.config.cjs not found"
+            exit 1
+          fi
+          
+          if [ ! -f "package.json" ]; then
+            echo "❌ package.json not found"
+            exit 1
+          fi
+          
+          if [ ! -d ".next" ]; then
+            echo "❌ .next directory not found"
+            exit 1
+          fi
+          
+          echo "✅ All server files verified"
           
           # Start the application
           pm2 start ecosystem.config.cjs --env production
@@ -529,12 +671,12 @@ jobs:
           # Check PM2 status
           echo "🔍 PM2 Status:"
           pm2 status
-          
-          # Check if port is listening
-          echo "🔍 Checking if port 3000 is listening..."
-          if netstat -tlnp | grep -q ":3000"; then
-            echo "✅ Port 3000 is listening"
             
+            # Check if port is listening
+          echo "🔍 Checking if port 3000 is listening..."
+            if netstat -tlnp | grep -q ":3000"; then
+              echo "✅ Port 3000 is listening"
+              
             # Test basic connectivity
             echo "🔍 Testing application response..."
             if curl -f -s --max-time 10 http://localhost:3000/ > /dev/null 2>&1; then
@@ -564,7 +706,7 @@ jobs:
             else
               echo "❌ ecosystem.config.cjs not found"
             fi
-            exit 1
+                exit 1
           fi
           
           echo "✅ Production deployment completed successfully!"
