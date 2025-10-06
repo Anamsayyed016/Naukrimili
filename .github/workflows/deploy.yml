@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     
     steps:
     - name: 📥 Checkout code
@@ -261,11 +262,160 @@ jobs:
           echo "📋 .next directory:"
           ls -la .next/ || echo "❌ .next directory not found"
           
+          # Check if files exist in current directory
           if [ ! -f "package.json" ]; then
-            echo "❌ package.json not found - files not copied properly"
-            echo "📋 Directory contents:"
-            ls -la
+            echo "⚠️ package.json not found in current directory, checking if files are in subdirectories..."
+            echo "📋 Searching for package.json:"
+            find . -name "package.json" -type f 2>/dev/null || echo "No package.json found anywhere"
+            echo "📋 Searching for server.cjs:"
+            find . -name "server.cjs" -type f 2>/dev/null || echo "No server.cjs found anywhere"
+            echo "📋 Searching for ecosystem.config.cjs:"
+            find . -name "ecosystem.config.cjs" -type f 2>/dev/null || echo "No ecosystem.config.cjs found anywhere"
+            echo "📋 Searching for .next directory:"
+            find . -name ".next" -type d 2>/dev/null || echo "No .next directory found anywhere"
+            
+            # If files are found in subdirectories, move them to current directory
+            if find . -name "package.json" -type f 2>/dev/null | head -1 | grep -q .; then
+              echo "📦 Found files in subdirectories, moving to current directory..."
+              find . -name "package.json" -type f -exec cp {} . \; 2>/dev/null || true
+              find . -name "server.cjs" -type f -exec cp {} . \; 2>/dev/null || true
+              find . -name "ecosystem.config.cjs" -type f -exec cp {} . \; 2>/dev/null || true
+              find . -name ".next" -type d -exec cp -r {} . \; 2>/dev/null || true
+              echo "✅ Files moved to current directory"
+            else
+              echo "❌ package.json not found anywhere - files not copied properly"
+              echo "📋 Directory contents:"
+              ls -la
+              exit 1
+            fi
+          fi
+          
+          # Verify all required files exist after moving
+          echo "🔍 Verifying all required files exist after file organization..."
+          if [ ! -f "package.json" ]; then
+            echo "❌ package.json still not found after file organization"
             exit 1
+          fi
+          
+          if [ ! -f "server.cjs" ]; then
+            echo "⚠️ server.cjs not found, creating it..."
+            cat > server.cjs << 'EOF'
+          const { createServer } = require('http');
+          const { parse } = require('url');
+          const next = require('next');
+          
+          const dev = process.env.NODE_ENV !== 'production';
+          const hostname = process.env.HOSTNAME || '0.0.0.0';
+          const port = parseInt(process.env.PORT, 10) || 3000;
+          
+          console.log('🚀 Starting server...');
+          console.log('Environment:', process.env.NODE_ENV);
+          console.log('Port:', port);
+          console.log('Hostname:', hostname);
+          
+          const app = next({ 
+            dev, 
+            hostname, 
+            port,
+            dir: process.cwd()
+          });
+          
+          const handle = app.getRequestHandler();
+          
+          app.prepare().then(() => {
+            console.log('✅ Next.js app prepared');
+            
+            const server = createServer(async (req, res) => {
+              try {
+                const parsedUrl = parse(req.url, true);
+                await handle(req, res, parsedUrl);
+              } catch (err) {
+                console.error('❌ Error handling request:', req.url, err);
+                res.statusCode = 500;
+                res.end('Internal server error');
+              }
+            });
+          
+            server.on('error', (err) => {
+              console.error('❌ Server error:', err);
+              process.exit(1);
+            });
+          
+            server.listen(port, hostname, (err) => {
+              if (err) {
+                console.error('❌ Failed to start server:', err);
+                process.exit(1);
+              }
+              console.log(\`🎉 Server ready on http://\${hostname}:\${port}\`);
+              console.log(\`📊 Environment: \${process.env.NODE_ENV}\`);
+            });
+          }).catch((err) => {
+            console.error('❌ Failed to prepare Next.js app:', err);
+            process.exit(1);
+          });
+          EOF
+            echo "✅ server.cjs created"
+          fi
+          
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "⚠️ ecosystem.config.cjs not found, creating it..."
+            cat > ecosystem.config.cjs << 'EOF'
+          module.exports = {
+            apps: [
+              {
+                name: "jobportal",
+                script: "server.cjs",
+                cwd: "/var/www/jobportal",
+                instances: 1,
+                autorestart: true,
+                watch: false,
+                max_memory_restart: "2G",
+                env: {
+                  NODE_ENV: "production",
+                  PORT: 3000,
+                  NODE_OPTIONS: "--max-old-space-size=4096",
+                  NEXT_TELEMETRY_DISABLED: "1",
+                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
+                  NEXT_PUBLIC_APP_URL: "https://aftionix.in",
+                  NEXTAUTH_URL: "https://aftionix.in",
+                  NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
+                  JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
+                  DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+                },
+                env_production: {
+                  NODE_ENV: "production",
+                  PORT: 3000,
+                  NODE_OPTIONS: "--max-old-space-size=4096",
+                  NEXT_TELEMETRY_DISABLED: "1",
+                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
+                  NEXT_PUBLIC_APP_URL: "https://aftionix.in",
+                  NEXTAUTH_URL: "https://aftionix.in",
+                  NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
+                  JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
+                  DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+                },
+                log_file: "/var/log/jobportal/combined.log",
+                out_file: "/var/log/jobportal/out.log",
+                error_file: "/var/log/jobportal/error.log",
+                log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+                merge_logs: true,
+                log_type: "json",
+                min_uptime: "10s",
+                max_restarts: 5,
+                restart_delay: 4000,
+                exec_mode: "fork",
+                ignore_watch: [
+                  "node_modules",
+                  ".next",
+                  "logs",
+                  "*.log",
+                  ".git"
+                ]
+              }
+            ]
+          };
+          EOF
+            echo "✅ ecosystem.config.cjs created"
           fi
           
           if [ ! -d ".next" ]; then
@@ -276,6 +426,36 @@ jobs:
               echo "❌ Build failed, .next directory still not found"
               exit 1
             fi
+          fi
+          
+          # Create .env file if missing
+          if [ ! -f ".env" ]; then
+            echo "⚠️ .env not found, creating it..."
+            cat > .env << 'EOF'
+          DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+          NEXTAUTH_URL="https://aftionix.in"
+          NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
+          JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
+          NODE_ENV=production
+          NEXT_TELEMETRY_DISABLED=1
+          NEXT_PUBLIC_APP_URL=https://aftionix.in
+          NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
+          EOF
+            echo "✅ .env created"
+          fi
+          
+          # Create .npmrc file if missing
+          if [ ! -f ".npmrc" ]; then
+            echo "⚠️ .npmrc not found, creating it..."
+            cat > .npmrc << 'EOF'
+          engine-strict=false
+          legacy-peer-deps=true
+          fund=false
+          audit=false
+          loglevel=error
+          auto-install-peers=true
+          EOF
+            echo "✅ .npmrc created"
           fi
           
           echo "✅ Files successfully prepared on server"
