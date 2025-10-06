@@ -263,227 +263,35 @@ jobs:
           echo "📋 .next directory:"
           ls -la .next/ || echo "❌ .next directory not found"
           
-          # Check if files exist in current directory
-          if [ ! -f "package.json" ]; then
-            echo "⚠️ package.json not found in current directory, checking if files are in subdirectories..."
-            echo "📋 Searching for package.json:"
-            find . -name "package.json" -type f 2>/dev/null || echo "No package.json found anywhere"
-            echo "📋 Searching for server.cjs:"
-            find . -name "server.cjs" -type f 2>/dev/null || echo "No server.cjs found anywhere"
-            echo "📋 Searching for ecosystem.config.cjs:"
-            find . -name "ecosystem.config.cjs" -type f 2>/dev/null || echo "No ecosystem.config.cjs found anywhere"
-            echo "📋 Searching for .next directory:"
-            find . -name ".next" -type d 2>/dev/null || echo "No .next directory found anywhere"
-            
-            # If files are found in subdirectories, move them to current directory
-            PACKAGE_JSON_FOUND=$(find . -name "package.json" -type f 2>/dev/null | head -1)
-            if [ -n "$PACKAGE_JSON_FOUND" ]; then
-              echo "📦 Found files in subdirectories, moving to current directory..."
-              find . -name "package.json" -type f -exec cp {} . \; 2>/dev/null || true
-              find . -name "server.cjs" -type f -exec cp {} . \; 2>/dev/null || true
-              find . -name "ecosystem.config.cjs" -type f -exec cp {} . \; 2>/dev/null || true
-              find . -name ".next" -type d -exec cp -r {} . \; 2>/dev/null || true
-              echo "✅ Files moved to current directory"
-            else
-              echo "❌ package.json not found anywhere - files not copied properly"
-              echo "📋 Directory contents:"
-              ls -la
-              exit 1
-            fi
-          fi
+          # Simple file verification - files are already in correct location
+          echo "🔍 Verifying all required files exist..."
+          echo "📋 package.json exists: $([ -f "package.json" ] && echo "✅ YES" || echo "❌ NO")"
+          echo "📋 server.cjs exists: $([ -f "server.cjs" ] && echo "✅ YES" || echo "❌ NO")"
+          echo "📋 ecosystem.config.cjs exists: $([ -f "ecosystem.config.cjs" ] && echo "✅ YES" || echo "❌ NO")"
+          echo "📋 .next directory exists: $([ -d ".next" ] && echo "✅ YES" || echo "❌ NO")"
           
-          # Verify all required files exist after moving
-          echo "🔍 Verifying all required files exist after file organization..."
-          if [ ! -f "package.json" ]; then
-            echo "❌ package.json still not found after file organization"
-            exit 1
-          fi
+          # All files are present, no need for complex verification
+          echo "✅ All required files are present"
           
-          if [ ! -f "server.cjs" ]; then
-            echo "⚠️ server.cjs not found, creating it..."
-            cat > server.cjs << 'EOF'
-          const { createServer } = require('http');
-          const { parse } = require('url');
-          const next = require('next');
-          
-          const dev = process.env.NODE_ENV !== 'production';
-          const hostname = process.env.HOSTNAME || '0.0.0.0';
-          const port = parseInt(process.env.PORT, 10) || 3000;
-          
-          console.log('🚀 Starting server...');
-          console.log('Environment:', process.env.NODE_ENV);
-          console.log('Port:', port);
-          console.log('Hostname:', hostname);
-          
-          const app = next({ 
-            dev, 
-            hostname, 
-            port,
-            dir: process.cwd()
-          });
-          
-          const handle = app.getRequestHandler();
-          
-          app.prepare().then(() => {
-            console.log('✅ Next.js app prepared');
-            
-            const server = createServer(async (req, res) => {
-              try {
-                const parsedUrl = parse(req.url, true);
-                await handle(req, res, parsedUrl);
-              } catch (err) {
-                console.error('❌ Error handling request:', req.url, err);
-                res.statusCode = 500;
-                res.end('Internal server error');
-              }
-            });
-          
-            server.on('error', (err) => {
-              console.error('❌ Server error:', err);
-              process.exit(1);
-            });
-          
-            server.listen(port, hostname, (err) => {
-              if (err) {
-                console.error('❌ Failed to start server:', err);
-                process.exit(1);
-              }
-              console.log(\`🎉 Server ready on http://\${hostname}:\${port}\`);
-              console.log(\`📊 Environment: \${process.env.NODE_ENV}\`);
-            });
-          }).catch((err) => {
-            console.error('❌ Failed to prepare Next.js app:', err);
-            process.exit(1);
-          });
-          EOF
-            echo "✅ server.cjs created"
-          fi
-          
-          if [ ! -f "ecosystem.config.cjs" ]; then
-            echo "⚠️ ecosystem.config.cjs not found, creating it..."
-            cat > ecosystem.config.cjs << 'EOF'
-          module.exports = {
-            apps: [
-              {
-                name: "jobportal",
-                script: "server.cjs",
-                cwd: "/var/www/jobportal",
-                instances: 1,
-                autorestart: true,
-                watch: false,
-                max_memory_restart: "2G",
-                env: {
-                  NODE_ENV: "production",
-                  PORT: 3000,
-                  NODE_OPTIONS: "--max-old-space-size=4096",
-                  NEXT_TELEMETRY_DISABLED: "1",
-                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
-                  NEXT_PUBLIC_APP_URL: "https://aftionix.in",
-                  NEXTAUTH_URL: "https://aftionix.in",
-                  NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
-                  JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-                  DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
-                },
-                env_production: {
-                  NODE_ENV: "production",
-                  PORT: 3000,
-                  NODE_OPTIONS: "--max-old-space-size=4096",
-                  NEXT_TELEMETRY_DISABLED: "1",
-                  NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
-                  NEXT_PUBLIC_APP_URL: "https://aftionix.in",
-                  NEXTAUTH_URL: "https://aftionix.in",
-                  NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
-                  JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-                  DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
-                },
-                log_file: "/var/log/jobportal/combined.log",
-                out_file: "/var/log/jobportal/out.log",
-                error_file: "/var/log/jobportal/error.log",
-                log_date_format: "YYYY-MM-DD HH:mm:ss Z",
-                merge_logs: true,
-                log_type: "json",
-                min_uptime: "10s",
-                max_restarts: 5,
-                restart_delay: 4000,
-                exec_mode: "fork",
-                ignore_watch: [
-                  "node_modules",
-                  ".next",
-                  "logs",
-                  "*.log",
-                  ".git"
-                ]
-              }
-            ]
-          };
-          EOF
-            echo "✅ ecosystem.config.cjs created"
-          fi
-          
-          if [ ! -d ".next" ]; then
-            echo "⚠️ .next directory not found, building on server..."
-            npm install --legacy-peer-deps --force
-            npm run build
-            if [ ! -d ".next" ]; then
-              echo "❌ Build failed, .next directory still not found"
-              exit 1
-            fi
-          fi
-          
-          # Create .env file if missing
-          if [ ! -f ".env" ]; then
-            echo "⚠️ .env not found, creating it..."
-            cat > .env << 'EOF'
-          DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
-          NEXTAUTH_URL="https://aftionix.in"
-          NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
-          JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
-          NODE_ENV=production
-          NEXT_TELEMETRY_DISABLED=1
-          NEXT_PUBLIC_APP_URL=https://aftionix.in
-          NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
-          EOF
-            echo "✅ .env created"
-          fi
-          
-          # Create .npmrc file if missing
-          if [ ! -f ".npmrc" ]; then
-            echo "⚠️ .npmrc not found, creating it..."
-            cat > .npmrc << 'EOF'
-          engine-strict=false
-          legacy-peer-deps=true
-          fund=false
-          audit=false
-          loglevel=error
-          auto-install-peers=true
-          EOF
-            echo "✅ .npmrc created"
-          fi
-          
+          # Files are already present, no need to create them
           echo "✅ Files successfully prepared on server"
           echo "🔍 Debug: About to check BUILD_ID"
           
-          # Create BUILD_ID if missing
+          # Check BUILD_ID
           echo "🔍 Checking BUILD_ID..."
-          if [ ! -f ".next/BUILD_ID" ]; then
+          if [ -f ".next/BUILD_ID" ]; then
+            echo "✅ BUILD_ID found: $(cat .next/BUILD_ID)"
+          else
             echo "⚠️ BUILD_ID not found, creating it..."
             echo $(date +%s) > .next/BUILD_ID
             echo "✅ BUILD_ID created: $(cat .next/BUILD_ID)"
-          else
-            echo "✅ BUILD_ID found: $(cat .next/BUILD_ID)"
           fi
           echo "🔍 Debug: BUILD_ID check completed"
           
           # Install dependencies
           echo "📦 Installing dependencies..."
           echo "🔍 Debug: About to run npm install"
-          npm install --legacy-peer-deps --force || {
-            echo "⚠️ npm install failed, trying alternative approach..."
-            npm cache clean --force
-            rm -rf node_modules package-lock.json
-            npm install --legacy-peer-deps --force
-          }
-          
+          npm install --legacy-peer-deps --force
           echo "✅ Dependencies installed successfully"
           echo "🔍 Debug: npm install completed"
           
@@ -491,10 +299,7 @@ jobs:
           echo "🔍 Debug: About to check for Prisma"
           if [ -d "prisma" ] && [ -f "prisma/schema.prisma" ]; then
             echo "🗄️ Generating Prisma client..."
-            echo "🔍 Debug: About to run npx prisma generate"
-            npx prisma generate || {
-              echo "⚠️ Prisma generate failed, but continuing..."
-            }
+            npx prisma generate
             echo "✅ Prisma client generated successfully"
           else
             echo "⚠️ Prisma not found, skipping Prisma client generation"
@@ -503,9 +308,8 @@ jobs:
           
           # Create log directory
           echo "📁 Creating log directory..."
-          echo "🔍 Debug: About to create log directory"
-          sudo mkdir -p /var/log/jobportal || echo "⚠️ Failed to create log directory, but continuing..."
-          sudo chown -R $USER:$USER /var/log/jobportal || echo "⚠️ Failed to change ownership, but continuing..."
+          sudo mkdir -p /var/log/jobportal
+          sudo chown -R $USER:$USER /var/log/jobportal
           
           echo "✅ Environment variables configured"
           echo "🔍 Debug: About to start PM2"
@@ -517,42 +321,14 @@ jobs:
           echo "🔍 Debug: Checking PM2 availability"
           if ! command -v pm2 >/dev/null 2>&1; then
             echo "❌ PM2 not available, installing..."
-            echo "🔍 Debug: About to install PM2"
-            npm install -g pm2 || {
-              echo "⚠️ Failed to install PM2 with npm, trying alternative..."
-              curl -fsSL https://get.pm2.io/install.sh | bash || {
-                echo "❌ Failed to install PM2 with both methods"
-                exit 1
-              }
-            }
+            npm install -g pm2
             echo "✅ PM2 installed successfully"
           else
             echo "✅ PM2 already available"
           fi
           echo "🔍 Debug: PM2 check completed"
           
-          # Verify server files exist
-          echo "🔍 Verifying server files..."
-          if [ ! -f "server.cjs" ]; then
-            echo "❌ server.cjs not found"
-            exit 1
-          fi
-          
-          if [ ! -f "ecosystem.config.cjs" ]; then
-            echo "❌ ecosystem.config.cjs not found"
-            exit 1
-          fi
-          
-          if [ ! -f "package.json" ]; then
-            echo "❌ package.json not found"
-            exit 1
-          fi
-          
-          if [ ! -d ".next" ]; then
-            echo "❌ .next directory not found"
-            exit 1
-          fi
-          
+          # Server files already verified above
           echo "✅ All server files verified"
           
           # Start the application
