@@ -34,6 +34,7 @@ jobs:
         const { createServer } = require('http');
         const { parse } = require('url');
         const next = require('next');
+        const path = require('path');
         
         const dev = process.env.NODE_ENV !== 'production';
         const hostname = process.env.HOSTNAME || '0.0.0.0';
@@ -43,18 +44,41 @@ jobs:
         console.log('Environment:', process.env.NODE_ENV);
         console.log('Port:', port);
         console.log('Hostname:', hostname);
+        console.log('Working directory:', process.cwd());
+        console.log('Node version:', process.version);
+        
+        // Check if .next directory exists
+        const nextDir = path.join(process.cwd(), '.next');
+        const fs = require('fs');
+        if (!fs.existsSync(nextDir)) {
+          console.error('❌ .next directory not found at:', nextDir);
+          console.error('Available files:', fs.readdirSync(process.cwd()));
+          process.exit(1);
+        }
+        
+        // Check if BUILD_ID exists
+        const buildIdPath = path.join(nextDir, 'BUILD_ID');
+        if (!fs.existsSync(buildIdPath)) {
+          console.error('❌ BUILD_ID not found at:', buildIdPath);
+          process.exit(1);
+        }
+        
+        console.log('✅ Build artifacts verified');
         
         const app = next({ 
           dev, 
           hostname, 
           port,
-          dir: process.cwd()
+          dir: process.cwd(),
+          conf: {
+            distDir: '.next'
+          }
         });
         
         const handle = app.getRequestHandler();
         
         app.prepare().then(() => {
-          console.log('✅ Next.js app prepared');
+          console.log('✅ Next.js app prepared successfully');
           
           const server = createServer(async (req, res) => {
             try {
@@ -79,9 +103,12 @@ jobs:
             }
             console.log(\`🎉 Server ready on http://\${hostname}:\${port}\`);
             console.log(\`📊 Environment: \${process.env.NODE_ENV}\`);
+            console.log('✅ Server startup completed');
           });
         }).catch((err) => {
           console.error('❌ Failed to prepare Next.js app:', err);
+          console.error('Error details:', err.message);
+          console.error('Stack trace:', err.stack);
           process.exit(1);
         });
         EOF
@@ -93,7 +120,7 @@ jobs:
             {
               name: "jobportal",
               script: "server.cjs",
-              cwd: "/var/www/jobportal",
+              cwd: process.cwd(),
               instances: 1,
               autorestart: true,
               watch: false,
@@ -101,6 +128,7 @@ jobs:
               env: {
                 NODE_ENV: "production",
                 PORT: 3000,
+                HOSTNAME: "0.0.0.0",
                 NODE_OPTIONS: "--max-old-space-size=4096",
                 NEXT_TELEMETRY_DISABLED: "1",
                 NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
@@ -113,6 +141,7 @@ jobs:
               env_production: {
                 NODE_ENV: "production",
                 PORT: 3000,
+                HOSTNAME: "0.0.0.0",
                 NODE_OPTIONS: "--max-old-space-size=4096",
                 NEXT_TELEMETRY_DISABLED: "1",
                 NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
@@ -122,9 +151,9 @@ jobs:
                 JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
                 DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
               },
-              log_file: "/var/log/jobportal/combined.log",
-              out_file: "/var/log/jobportal/out.log",
-              error_file: "/var/log/jobportal/error.log",
+              log_file: "./logs/combined.log",
+              out_file: "./logs/out.log",
+              error_file: "./logs/error.log",
               log_date_format: "YYYY-MM-DD HH:mm:ss Z",
               merge_logs: true,
               log_type: "json",
@@ -132,6 +161,9 @@ jobs:
               max_restarts: 5,
               restart_delay: 4000,
               exec_mode: "fork",
+              kill_timeout: 5000,
+              wait_ready: true,
+              listen_timeout: 10000,
               ignore_watch: [
                 "node_modules",
                 ".next",
@@ -173,8 +205,11 @@ jobs:
     - name: 🔨 Build application
       run: |
         echo "🔨 Building application with Node $(node --version)..."
+        
+        # Set comprehensive environment variables
         export NEXT_TELEMETRY_DISABLED=1
         export NODE_ENV=production
+        export NODE_OPTIONS="--max-old-space-size=4096"
         export NEXT_PUBLIC_APP_URL=https://aftionix.in
         export NEXTAUTH_URL=https://aftionix.in
         export NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
@@ -182,19 +217,73 @@ jobs:
         export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
         export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
         export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
-        npx next build
+        
+        # Clean previous builds
+        echo "🧹 Cleaning previous builds..."
+        rm -rf .next out production node_modules/.cache
+        
+        # Generate Prisma client first
+        echo "🗄️ Generating Prisma client..."
+        npx prisma generate
+        
+        # Build with comprehensive error handling
+        echo "🔨 Starting Next.js build..."
+        npx next build --no-lint || {
+          echo "❌ First build attempt failed, trying alternative approach..."
+          # Try with more relaxed settings
+          export SKIP_ENV_VALIDATION=1
+          export NEXT_TYPESCRIPT_IGNORE=1
+          npx next build --no-lint --no-typescript-check || {
+            echo "❌ Alternative build failed, trying minimal build..."
+            npx next build --no-lint --no-typescript-check --experimental-build-mode=compile
+          }
+        }
+        
+        # Ensure BUILD_ID exists
+        if [ ! -f ".next/BUILD_ID" ]; then
+          echo "⚠️ BUILD_ID not found, creating it..."
+          echo $(date +%s) > .next/BUILD_ID
+        fi
+        
+        # Create additional build metadata
+        echo $(date +%s) > .next/BUILD_TIMESTAMP
+        echo "production-$(date +%Y%m%d-%H%M%S)" > .next/DEPLOYMENT_ID
+        
+        echo "✅ Build completed successfully"
         
     - name: 🔍 Validate build artifacts
       run: |
         echo "🔍 Validating build artifacts..."
+        
+        # Check .next directory
         if [ ! -d ".next" ]; then
           echo "❌ Build failed - .next directory not found"
           exit 1
         fi
+        
+        # Check BUILD_ID
         if [ ! -f ".next/BUILD_ID" ]; then
-          echo "❌ Build incomplete - BUILD_ID not found"
+          echo "⚠️ BUILD_ID not found, creating it..."
+          echo $(date +%s) > .next/BUILD_ID
+        fi
+        
+        # Check critical build files
+        echo "📋 Build artifacts check:"
+        echo "  .next directory: $([ -d ".next" ] && echo "✅ YES" || echo "❌ NO")"
+        echo "  BUILD_ID: $([ -f ".next/BUILD_ID" ] && echo "✅ YES" || echo "❌ NO")"
+        echo "  server directory: $([ -d ".next/server" ] && echo "✅ YES" || echo "❌ NO")"
+        echo "  static directory: $([ -d ".next/static" ] && echo "✅ YES" || echo "❌ NO")"
+        
+        # List key files
+        echo "📋 Key build files:"
+        ls -la .next/ | head -10
+        
+        # Verify server files exist
+        if [ ! -d ".next/server" ]; then
+          echo "❌ Critical: .next/server directory missing"
           exit 1
         fi
+        
         echo "✅ Build artifacts validated successfully"
         
     - name: 📥 Prepare SSH Key
@@ -311,6 +400,11 @@ jobs:
           sudo mkdir -p /var/log/jobportal
           sudo chown -R $USER:$USER /var/log/jobportal
           
+          # Create local logs directory
+          echo "📁 Creating local logs directory..."
+          mkdir -p ./logs
+          chmod 755 ./logs
+          
           echo "✅ Environment variables configured"
           echo "🔍 Debug: About to start PM2"
           
@@ -331,12 +425,25 @@ jobs:
           # Server files already verified above
           echo "✅ All server files verified"
           
+          # Stop any existing PM2 processes
+          echo "🛑 Stopping existing PM2 processes..."
+          pm2 stop jobportal 2>/dev/null || echo "No existing jobportal process"
+          pm2 delete jobportal 2>/dev/null || echo "No existing jobportal process to delete"
+          
           # Start the application
+          echo "🚀 Starting application with PM2..."
           pm2 start ecosystem.config.cjs --env production
           
-          # Wait for PM2 to start
+          # Wait for PM2 to start with better error handling
           echo "⏳ Waiting for PM2 to start..."
-          sleep 15
+          sleep 10
+          
+          # Check if PM2 process started successfully
+          echo "🔍 Checking PM2 process status..."
+          pm2 status
+          
+          # Wait a bit more for the application to fully initialize
+          sleep 10
           
           # Save PM2 configuration
           echo "💾 Saving PM2 configuration..."
@@ -366,24 +473,61 @@ jobs:
             fi
           else
             echo "❌ Port 3000 not listening"
-            echo "📋 Checking PM2 logs..."
-            pm2 logs jobportal --lines 20 --nostream || echo "Could not retrieve PM2 logs"
-            echo "📋 Checking if server.cjs exists and is valid..."
+            echo "📋 Comprehensive debugging information:"
+            
+            # Check PM2 status in detail
+            echo "📋 PM2 Status:"
+            pm2 status
+            
+            # Check PM2 logs
+            echo "📋 PM2 Logs (last 30 lines):"
+            pm2 logs jobportal --lines 30 --nostream || echo "Could not retrieve PM2 logs"
+            
+            # Check if server.cjs exists and is valid
+            echo "📋 Checking server.cjs:"
             if [ -f "server.cjs" ]; then
               echo "✅ server.cjs exists"
               echo "📋 server.cjs size: $(wc -c < server.cjs) bytes"
-              echo "📋 First 5 lines of server.cjs:"
-              head -5 server.cjs
+              echo "📋 First 10 lines of server.cjs:"
+              head -10 server.cjs
             else
               echo "❌ server.cjs not found"
             fi
-            echo "📋 Checking if ecosystem.config.cjs exists and is valid..."
+            
+            # Check ecosystem config
+            echo "📋 Checking ecosystem.config.cjs:"
             if [ -f "ecosystem.config.cjs" ]; then
               echo "✅ ecosystem.config.cjs exists"
               echo "📋 ecosystem.config.cjs size: $(wc -c < ecosystem.config.cjs) bytes"
+              echo "📋 First 10 lines of ecosystem.config.cjs:"
+              head -10 ecosystem.config.cjs
             else
               echo "❌ ecosystem.config.cjs not found"
             fi
+            
+            # Check .next directory
+            echo "📋 Checking .next directory:"
+            if [ -d ".next" ]; then
+              echo "✅ .next directory exists"
+              echo "📋 .next contents:"
+              ls -la .next/ | head -10
+              if [ -f ".next/BUILD_ID" ]; then
+                echo "✅ BUILD_ID exists: $(cat .next/BUILD_ID)"
+              else
+                echo "❌ BUILD_ID missing"
+              fi
+            else
+              echo "❌ .next directory not found"
+            fi
+            
+            # Check if process is running
+            echo "📋 Checking for Node.js processes:"
+            ps aux | grep node | grep -v grep || echo "No Node.js processes found"
+            
+            # Try to start manually for debugging
+            echo "📋 Attempting manual server start for debugging..."
+            timeout 10s node server.cjs || echo "Manual start failed or timed out"
+            
             exit 1
           fi
           

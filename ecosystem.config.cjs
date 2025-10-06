@@ -11,6 +11,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
+        HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
@@ -23,6 +24,7 @@ module.exports = {
       env_production: {
         NODE_ENV: "production",
         PORT: 3000,
+        HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
@@ -42,6 +44,9 @@ module.exports = {
       max_restarts: 5,
       restart_delay: 4000,
       exec_mode: "fork",
+      kill_timeout: 5000,
+      wait_ready: true,
+      listen_timeout: 10000,
       ignore_watch: [
         "node_modules",
         ".next",

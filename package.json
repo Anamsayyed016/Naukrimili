@@ -73,7 +73,9 @@
     "production:build": "npm ci --only=production --legacy-peer-deps && npm run build",
     "production:start": "NODE_ENV=production node server.js",
     "start:server": "node start-server.js",
-    "deploy:production": "bash deploy-production.sh"
+    "deploy:production": "bash deploy-production.sh",
+    "deploy:fix": "bash scripts/deploy-production-fix.sh",
+    "deploy:fix:windows": "node scripts/deploy-production-fix.cjs"
   },
   "dependencies": {
     "@auth/core": "^0.40.0",
