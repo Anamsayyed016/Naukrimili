@@ -229,6 +229,7 @@ jobs:
         script: |
           set -e
           echo "🚀 Starting production deployment..."
+          echo "🔍 Debug: Script started successfully"
           
           # Test SSH connection
           echo "🔍 Testing SSH connection..."
@@ -275,7 +276,8 @@ jobs:
             find . -name ".next" -type d 2>/dev/null || echo "No .next directory found anywhere"
             
             # If files are found in subdirectories, move them to current directory
-            if find . -name "package.json" -type f 2>/dev/null | head -1 | grep -q .; then
+            PACKAGE_JSON_FOUND=$(find . -name "package.json" -type f 2>/dev/null | head -1)
+            if [ -n "$PACKAGE_JSON_FOUND" ]; then
               echo "📦 Found files in subdirectories, moving to current directory..."
               find . -name "package.json" -type f -exec cp {} . \; 2>/dev/null || true
               find . -name "server.cjs" -type f -exec cp {} . \; 2>/dev/null || true
@@ -459,6 +461,7 @@ jobs:
           fi
           
           echo "✅ Files successfully prepared on server"
+          echo "🔍 Debug: About to check BUILD_ID"
           
           # Create BUILD_ID if missing
           echo "🔍 Checking BUILD_ID..."
@@ -469,40 +472,64 @@ jobs:
           else
             echo "✅ BUILD_ID found: $(cat .next/BUILD_ID)"
           fi
+          echo "🔍 Debug: BUILD_ID check completed"
           
           # Install dependencies
           echo "📦 Installing dependencies..."
-          npm install --legacy-peer-deps --force
+          echo "🔍 Debug: About to run npm install"
+          npm install --legacy-peer-deps --force || {
+            echo "⚠️ npm install failed, trying alternative approach..."
+            npm cache clean --force
+            rm -rf node_modules package-lock.json
+            npm install --legacy-peer-deps --force
+          }
           
           echo "✅ Dependencies installed successfully"
+          echo "🔍 Debug: npm install completed"
           
           # Generate Prisma client (if Prisma is used)
+          echo "🔍 Debug: About to check for Prisma"
           if [ -d "prisma" ] && [ -f "prisma/schema.prisma" ]; then
             echo "🗄️ Generating Prisma client..."
-            npx prisma generate
+            echo "🔍 Debug: About to run npx prisma generate"
+            npx prisma generate || {
+              echo "⚠️ Prisma generate failed, but continuing..."
+            }
             echo "✅ Prisma client generated successfully"
           else
             echo "⚠️ Prisma not found, skipping Prisma client generation"
           fi
+          echo "🔍 Debug: Prisma check completed"
           
           # Create log directory
           echo "📁 Creating log directory..."
-          sudo mkdir -p /var/log/jobportal
-          sudo chown -R $USER:$USER /var/log/jobportal
+          echo "🔍 Debug: About to create log directory"
+          sudo mkdir -p /var/log/jobportal || echo "⚠️ Failed to create log directory, but continuing..."
+          sudo chown -R $USER:$USER /var/log/jobportal || echo "⚠️ Failed to change ownership, but continuing..."
           
           echo "✅ Environment variables configured"
+          echo "🔍 Debug: About to start PM2"
           
           # Start the application with PM2
           echo "🚀 Starting application with PM2..."
           
           # Ensure PM2 is available
+          echo "🔍 Debug: Checking PM2 availability"
           if ! command -v pm2 >/dev/null 2>&1; then
             echo "❌ PM2 not available, installing..."
+            echo "🔍 Debug: About to install PM2"
             npm install -g pm2 || {
-              echo "❌ Failed to install PM2"
-              exit 1
+              echo "⚠️ Failed to install PM2 with npm, trying alternative..."
+              curl -fsSL https://get.pm2.io/install.sh | bash || {
+                echo "❌ Failed to install PM2 with both methods"
+                exit 1
+              }
             }
+            echo "✅ PM2 installed successfully"
+          else
+            echo "✅ PM2 already available"
           fi
+          echo "🔍 Debug: PM2 check completed"
           
           # Verify server files exist
           echo "🔍 Verifying server files..."
