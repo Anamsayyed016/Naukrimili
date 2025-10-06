@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "jobportal",
       script: "server.cjs",
-      cwd: "/var/www/jobportal",
+      cwd: process.cwd(),
       instances: 1,
       autorestart: true,
       watch: false,
@@ -18,9 +18,7 @@ module.exports = {
         NEXTAUTH_URL: "https://aftionix.in",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",
-        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
       },
       env_production: {
         NODE_ENV: "production",
@@ -32,13 +30,11 @@ module.exports = {
         NEXTAUTH_URL: "https://aftionix.in",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",
-        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
       },
-      log_file: "/var/log/jobportal/combined.log",
-      out_file: "/var/log/jobportal/out.log",
-      error_file: "/var/log/jobportal/error.log",
+      log_file: "./logs/combined.log",
+      out_file: "./logs/out.log",
+      error_file: "./logs/error.log",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       merge_logs: true,
       log_type: "json",
