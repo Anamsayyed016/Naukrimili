@@ -39,12 +39,21 @@ export function middleware(request: NextRequest) {
     if (sampleJobMatch) {
       jobId = `sample-${sampleJobMatch[1]}`;
     } else {
-      // Try other patterns
-      for (const pattern of patterns) {
-        const match = slug.match(pattern);
-        if (match) {
-          jobId = match[safeLength(match || []) - 1]; // Get last capture group
-          break;
+      // Special handling for sample jobs in SEO URLs
+      // Look for pattern: -1759851700270-18 (timestamp-number) which indicates sample job
+      const sampleTimestampMatch = slug.match(/-(\d{13})-(\d+)$/);
+      if (sampleTimestampMatch) {
+        const timestamp = sampleTimestampMatch[1];
+        const number = sampleTimestampMatch[2];
+        jobId = `sample-${timestamp}-${number}`;
+      } else {
+        // Try other patterns
+        for (const pattern of patterns) {
+          const match = slug.match(pattern);
+          if (match) {
+            jobId = match[safeLength(match || []) - 1]; // Get last capture group
+            break;
+          }
         }
       }
     }

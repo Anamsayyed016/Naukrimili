@@ -250,25 +250,80 @@ export async function GET(request: NextRequest) {
         })));
       }
       
-      // If we have very few jobs, generate sample jobs to fill the gap
-      if (jobs.length < 10 && limit > 10) {
-        console.log(`🔧 Generating sample jobs to fill the gap (found ${jobs.length} jobs, need ${limit})`);
+      // If we have very few jobs, try external APIs first before generating sample jobs
+      if (jobs.length < limit) {
+        console.log(`🔧 Found only ${jobs.length} jobs, trying external APIs before sample jobs...`);
         
-        const sampleJobs = generateSampleJobs({
-          query,
-          location,
-          country,
-          jobType,
-          experienceLevel,
-          isRemote,
-          sector,
-          count: Math.min(limit - jobs.length, 50) // Generate up to 50 sample jobs
-        });
-        
-        jobs = [...jobs, ...sampleJobs];
-        total = Math.max(total, jobs.length);
-        
-        console.log(`✅ Generated ${sampleJobs.length} sample jobs. Total now: ${jobs.length}`);
+        try {
+          // Import external job fetching functions
+          const { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter } = await import('@/lib/jobs/providers');
+          
+          // Try to fetch from external APIs
+          const externalJobs = await Promise.allSettled([
+            fetchFromAdzuna(query || 'software engineer', country, 1),
+            fetchFromIndeed(query || 'software engineer', location || 'India', 1),
+            fetchFromZipRecruiter(query || 'software engineer', location || 'India', 1)
+          ]);
+          
+          // Process external jobs
+          let realExternalJobs: any[] = [];
+          externalJobs.forEach((result, index) => {
+            if (result.status === 'fulfilled' && result.value && Array.isArray(result.value)) {
+              const apiName = ['Adzuna', 'Indeed', 'ZipRecruiter'][index];
+              console.log(`✅ ${apiName}: Found ${result.value.length} external jobs`);
+              realExternalJobs.push(...result.value);
+            }
+          });
+          
+          // Add external jobs to results
+          if (realExternalJobs.length > 0) {
+            jobs = [...jobs, ...realExternalJobs];
+            total = Math.max(total, jobs.length);
+            console.log(`✅ Added ${realExternalJobs.length} external jobs. Total now: ${jobs.length}`);
+          }
+          
+          // Only generate sample jobs if we still don't have enough after trying external APIs
+          if (jobs.length < limit) {
+            console.log(`🔧 Still need more jobs (${jobs.length}), generating sample jobs...`);
+            
+            const sampleJobs = generateSampleJobs({
+              query,
+              location,
+              country,
+              jobType,
+              experienceLevel,
+              isRemote,
+              sector,
+              count: Math.min(limit - jobs.length, 50) // Generate up to 50 sample jobs
+            });
+            
+            jobs = [...jobs, ...sampleJobs];
+            total = Math.max(total, jobs.length);
+            
+            console.log(`✅ Generated ${sampleJobs.length} sample jobs. Total now: ${jobs.length}`);
+          }
+        } catch (externalError) {
+          console.error('❌ External API fetch failed:', externalError);
+          
+          // Fallback to sample jobs if external APIs fail
+          console.log(`🔧 External APIs failed, generating sample jobs...`);
+          
+          const sampleJobs = generateSampleJobs({
+            query,
+            location,
+            country,
+            jobType,
+            experienceLevel,
+            isRemote,
+            sector,
+            count: Math.min(limit - jobs.length, 50)
+          });
+          
+          jobs = [...jobs, ...sampleJobs];
+          total = Math.max(total, jobs.length);
+          
+          console.log(`✅ Generated ${sampleJobs.length} sample jobs. Total now: ${jobs.length}`);
+        }
       }
     } catch (dbError: any) {
       console.error('❌ Database query failed:', dbError);
@@ -621,13 +676,13 @@ function generateSampleJobs(options: {
     const finalExperienceLevel = experienceLevel && experienceLevel !== 'all' ? experienceLevel :
       ['Entry Level', 'Mid Level', 'Senior Level', 'Lead', 'Executive'][Math.floor(Math.random() * 5)];
     
+    // Match remote if requested
+    const isRemoteJob = isRemote ? true : Math.random() > 0.7;
+    
     // Match location if provided - prioritize user's location search
     const finalLocation = location ? 
       (isRemoteJob ? 'Remote' : location) : 
       (isRemoteJob ? 'Remote' : jobLocation);
-    
-    // Match remote if requested
-    const isRemoteJob = isRemote ? true : Math.random() > 0.7;
     
     const job = {
       id: `sample-${Date.now()}-${i}`,

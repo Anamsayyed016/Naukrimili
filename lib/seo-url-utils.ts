@@ -167,6 +167,17 @@ export function parseSEOJobUrl(url: string): string | null {
     return jobId;
   }
   
+  // Special handling for sample jobs in SEO URLs
+  // Look for pattern: -1759851700270-18 (timestamp-number) which indicates sample job
+  const sampleTimestampMatch = cleanUrl.match(/-(\d{13})-(\d+)$/);
+  if (sampleTimestampMatch) {
+    const timestamp = sampleTimestampMatch[1];
+    const number = sampleTimestampMatch[2];
+    const jobId = `sample-${timestamp}-${number}`;
+    console.log('✅ Found sample job ID from timestamp pattern:', jobId);
+    return jobId;
+  }
+  
   // Extract job ID from SEO URL patterns (in order of specificity)
   // For URLs like: cloud-engineer-devstudio-san-francisco-usa-entry-level-800000-2000000-diverse-1759317579085-9
   const patterns = [
