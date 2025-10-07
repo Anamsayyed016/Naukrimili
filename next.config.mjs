@@ -108,12 +108,14 @@ const nextConfig = {
     scrollRestoration: true
   },
 
-  // Simplified webpack configuration
-  webpack: (config, { dev, isServer }) => {
-    // Basic optimizations only
+  // Enhanced webpack configuration for production stability
+  webpack: (config, { dev, isServer, webpack }) => {
+    // Production optimizations
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
+        minSize: 20000,
+        maxSize: 244000,
         cacheGroups: {
           default: {
             minChunks: 2,
@@ -125,10 +127,37 @@ const nextConfig = {
             name: 'vendors',
             priority: -10,
             chunks: 'all',
+            enforce: true,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            priority: -5,
+            reuseExistingChunk: true,
+            enforce: true,
           },
         },
       };
+      
+      // Ensure proper chunk loading
+      config.output.chunkLoadingGlobal = 'webpackChunkjobportal';
+      config.output.globalObject = 'self';
     }
+    
+    // Fix for missing chunks
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+      })
+    );
+    
+    // Ensure proper module resolution
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
     
     return config;
   },

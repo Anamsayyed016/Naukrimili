@@ -1,73 +1,61 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Optimize for production builds
+  // Disable problematic features that cause chunk issues
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false, // Disable CSS optimization
     scrollRestoration: true,
-    // Enable faster builds
-    esmExternals: true,
-    serverComponentsExternalPackages: ['mongoose', 'pg'],
   },
   
-  // Optimize images
-  images: {
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-  },
-
-  // Compiler optimizations
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
-
-  // Webpack optimizations
-  webpack: (config, { dev, isServer }) => {
-    // Production optimizations
-    if (!dev) {
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              chunks: 'all',
-            },
+  // Disable output optimization that can cause chunk issues
+  output: undefined,
+  
+  // Simplified webpack configuration
+  webpack: (config, { dev, isServer, webpack }) => {
+    // Disable chunk splitting in production to prevent missing chunks
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          // Single vendor chunk to prevent missing chunks
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendor',
+            chunks: 'all',
+            enforce: true,
           },
         },
       };
+      
+      // Ensure proper chunk loading
+      config.output.chunkLoadingGlobal = 'webpackChunkjobportal';
+      config.output.globalObject = 'self';
     }
-
-    // Faster builds
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    };
-
+    
+    // Fix for missing chunks
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+      })
+    );
+    
     return config;
   },
-
-  // Output optimizations
-  output: 'standalone',
   
-  // Disable telemetry for faster builds
+  // Disable image optimization that can cause issues
+  images: {
+    unoptimized: true,
+  },
+  
+  // Disable compression that can cause chunk issues
+  compress: false,
+  
+  // Disable telemetry
   telemetry: false,
   
-  // Optimize bundle analyzer
-  bundleAnalyzer: {
-    enabled: process.env.ANALYZE === 'true',
-  },
-
-  // Performance optimizations
+  // Disable powered by header
   poweredByHeader: false,
-  compress: true,
-  
-  // Environment variables
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
 };
 
 export default nextConfig;
