@@ -578,7 +578,13 @@ jobs:
           
           # Ensure PM2 is available
           echo "🔍 Debug: Checking PM2 availability"
-          if ! command -v pm2 >/dev/null 2>&1; then
+          # Temporarily disable exit on error for PM2 check
+          set +e
+          command -v pm2 >/dev/null 2>&1
+          PM2_EXISTS=$?
+          set -e
+          
+          if [ $PM2_EXISTS -ne 0 ]; then
             echo "❌ PM2 not available, installing..."
             
             # Try to install PM2 globally with sudo
@@ -593,12 +599,22 @@ jobs:
             fi
             
             # Verify PM2 is now available
-            if command -v pm2 >/dev/null 2>&1; then
+            set +e
+            command -v pm2 >/dev/null 2>&1
+            PM2_NOW_EXISTS=$?
+            set -e
+            
+            if [ $PM2_NOW_EXISTS -eq 0 ]; then
               echo "✅ PM2 is now available: $(which pm2)"
               pm2 --version
             else
               echo "⚠️ PM2 not in PATH, checking npx..."
-              if npx pm2 --version >/dev/null 2>&1; then
+              set +e
+              npx pm2 --version >/dev/null 2>&1
+              NPX_PM2_EXISTS=$?
+              set -e
+              
+              if [ $NPX_PM2_EXISTS -eq 0 ]; then
                 echo "✅ PM2 available via npx"
                 # Create alias for this session
                 alias pm2='npx pm2'
@@ -623,12 +639,17 @@ jobs:
           
           # Verify server.cjs syntax before starting
           echo "🔍 Verifying server.cjs syntax..."
-          if node -c server.cjs; then
+          set +e
+          node -c server.cjs 2>&1
+          SYNTAX_CHECK=$?
+          set -e
+          
+          if [ $SYNTAX_CHECK -eq 0 ]; then
             echo "✅ server.cjs syntax is valid"
           else
             echo "❌ server.cjs has syntax errors"
-            echo "📋 First 20 lines of server.cjs:"
-            head -20 server.cjs
+            echo "📋 Showing server.cjs content:"
+            cat server.cjs
             exit 1
           fi
           
@@ -672,12 +693,22 @@ jobs:
           
           # Check if port is listening
           echo "🔍 Checking if port 3000 is listening..."
-          if netstat -tlnp | grep -q ":3000"; then
+          set +e
+          netstat -tlnp 2>/dev/null | grep -q ":3000"
+          PORT_CHECK=$?
+          set -e
+          
+          if [ $PORT_CHECK -eq 0 ]; then
             echo "✅ Port 3000 is listening"
             
             # Test basic connectivity
             echo "🔍 Testing application response..."
-            if curl -f -s --max-time 10 http://localhost:3000/ > /dev/null 2>&1; then
+            set +e
+            curl -f -s --max-time 10 http://localhost:3000/ > /dev/null 2>&1
+            CURL_CHECK=$?
+            set -e
+            
+            if [ $CURL_CHECK -eq 0 ]; then
               echo "✅ Application is responding"
             else
               echo "⚠️ Application not responding yet - may need more time"
