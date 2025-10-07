@@ -19,7 +19,7 @@ module.exports = {
         NEXTAUTH_URL: "https://aftionix.in",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+        DATABASE_URL: "postgresql://jobportal_user:job123@localhost:5432/jobportal"
       },
       env_production: {
         NODE_ENV: "production",
@@ -32,7 +32,7 @@ module.exports = {
         NEXTAUTH_URL: "https://aftionix.in",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+        DATABASE_URL: "postgresql://jobportal_user:job123@localhost:5432/jobportal"
       },
       log_file: "./logs/combined.log",
       out_file: "./logs/out.log",
