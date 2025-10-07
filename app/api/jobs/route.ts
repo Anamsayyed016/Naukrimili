@@ -255,36 +255,72 @@ export async function GET(request: NextRequest) {
         console.log(`🔧 Found only ${jobs.length} jobs, trying external APIs before sample jobs...`);
         
         try {
-          // Import external job fetching functions
-          const { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter } = await import('@/lib/jobs/providers');
-          
-          // Try to fetch from external APIs
-          const externalJobs = await Promise.allSettled([
-            fetchFromAdzuna(query || 'software engineer', country, 1),
-            fetchFromIndeed(query || 'software engineer', location || 'India', 1),
-            fetchFromZipRecruiter(query || 'software engineer', location || 'India', 1)
-          ]);
-          
-          // Process external jobs
+          // Import external job fetching functions with error handling
           let realExternalJobs: any[] = [];
-          externalJobs.forEach((result, index) => {
-            if (result.status === 'fulfilled' && result.value && Array.isArray(result.value)) {
-              const apiName = ['Adzuna', 'Indeed', 'ZipRecruiter'][index];
-              console.log(`✅ ${apiName}: Found ${result.value.length} external jobs`);
-              realExternalJobs.push(...result.value);
-            }
-          });
           
-          // Add external jobs to results
-          if (realExternalJobs.length > 0) {
-            jobs = [...jobs, ...realExternalJobs];
-            total = Math.max(total, jobs.length);
-            console.log(`✅ Added ${realExternalJobs.length} external jobs. Total now: ${jobs.length}`);
+          try {
+            const { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter } = await import('@/lib/jobs/providers');
+            
+            // Try to fetch from external APIs with individual error handling
+            const externalPromises = [];
+            
+            // Only call APIs if we have the required environment variables
+            if (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) {
+              externalPromises.push(
+                fetchFromAdzuna(query || 'software engineer', country, 1).catch(err => {
+                  console.log('⚠️ Adzuna API failed:', err.message);
+                  return [];
+                })
+              );
+            }
+            
+            if (process.env.INDEED_API_KEY) {
+              externalPromises.push(
+                fetchFromIndeed(query || 'software engineer', location || 'India', 1).catch(err => {
+                  console.log('⚠️ Indeed API failed:', err.message);
+                  return [];
+                })
+              );
+            }
+            
+            if (process.env.ZIPRECRUITER_API_KEY) {
+              externalPromises.push(
+                fetchFromZipRecruiter(query || 'software engineer', location || 'India', 1).catch(err => {
+                  console.log('⚠️ ZipRecruiter API failed:', err.message);
+                  return [];
+                })
+              );
+            }
+            
+            // Wait for all external API calls
+            if (externalPromises.length > 0) {
+              const externalResults = await Promise.allSettled(externalPromises);
+              
+              // Process external jobs
+              externalResults.forEach((result, index) => {
+                if (result.status === 'fulfilled' && result.value && Array.isArray(result.value)) {
+                  const apiName = ['Adzuna', 'Indeed', 'ZipRecruiter'][index];
+                  console.log(`✅ ${apiName}: Found ${result.value.length} external jobs`);
+                  realExternalJobs.push(...result.value);
+                }
+              });
+            } else {
+              console.log('⚠️ No external API keys configured, skipping external job fetch');
+            }
+            
+            // Add external jobs to results
+            if (realExternalJobs.length > 0) {
+              jobs = [...jobs, ...realExternalJobs];
+              total = Math.max(total, jobs.length);
+              console.log(`✅ Added ${realExternalJobs.length} external jobs. Total now: ${jobs.length}`);
+            }
+          } catch (importError) {
+            console.error('❌ Failed to import external job providers:', importError);
           }
           
-          // Only generate sample jobs if we still don't have enough after trying external APIs
-          if (jobs.length < limit) {
-            console.log(`🔧 Still need more jobs (${jobs.length}), generating sample jobs...`);
+          // Only generate sample jobs if we have NO real jobs at all (not just fewer than limit)
+          if (jobs.length === 0) {
+            console.log(`🔧 No real jobs found, generating minimal sample jobs as fallback...`);
             
             const sampleJobs = generateSampleJobs({
               query,
@@ -294,35 +330,41 @@ export async function GET(request: NextRequest) {
               experienceLevel,
               isRemote,
               sector,
-              count: Math.min(limit - jobs.length, 50) // Generate up to 50 sample jobs
+              count: Math.min(5, limit) // Generate only 5 sample jobs as fallback
             });
             
             jobs = [...jobs, ...sampleJobs];
             total = Math.max(total, jobs.length);
             
-            console.log(`✅ Generated ${sampleJobs.length} sample jobs. Total now: ${jobs.length}`);
+            console.log(`✅ Generated ${sampleJobs.length} sample jobs as fallback. Total now: ${jobs.length}`);
+          } else {
+            console.log(`✅ Found ${jobs.length} real jobs, not generating sample jobs`);
           }
         } catch (externalError) {
           console.error('❌ External API fetch failed:', externalError);
           
-          // Fallback to sample jobs if external APIs fail
-          console.log(`🔧 External APIs failed, generating sample jobs...`);
-          
-          const sampleJobs = generateSampleJobs({
-            query,
-            location,
-            country,
-            jobType,
-            experienceLevel,
-            isRemote,
-            sector,
-            count: Math.min(limit - jobs.length, 50)
-          });
-          
-          jobs = [...jobs, ...sampleJobs];
-          total = Math.max(total, jobs.length);
-          
-          console.log(`✅ Generated ${sampleJobs.length} sample jobs. Total now: ${jobs.length}`);
+          // Fallback to sample jobs if external APIs fail (only if no real jobs)
+          if (jobs.length === 0) {
+            console.log(`🔧 External APIs failed and no real jobs, generating minimal sample jobs...`);
+            
+            const sampleJobs = generateSampleJobs({
+              query,
+              location,
+              country,
+              jobType,
+              experienceLevel,
+              isRemote,
+              sector,
+              count: Math.min(5, limit) // Generate only 5 sample jobs as fallback
+            });
+            
+            jobs = [...jobs, ...sampleJobs];
+            total = Math.max(total, jobs.length);
+            
+            console.log(`✅ Generated ${sampleJobs.length} sample jobs as fallback. Total now: ${jobs.length}`);
+          } else {
+            console.log(`✅ External APIs failed but found ${jobs.length} real jobs, not generating sample jobs`);
+          }
         }
       }
     } catch (dbError: any) {
