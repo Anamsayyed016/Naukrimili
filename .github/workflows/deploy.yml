@@ -450,7 +450,7 @@ jobs:
         timeout: 30m
         command_timeout: 28m
         debug: true
-        script_stop: true
+        script_stop: false
         script: |
           set -e
           echo "🚀 Starting production deployment..."
