@@ -122,7 +122,7 @@ export default function JobSearchHero({
     params.set('limit', '100'); // Increased limit for unlimited search
     params.set('includeExternal', 'true');
     params.set('includeDatabase', 'true');
-    params.set('includeSample', 'true');
+    // Removed includeSample=true to let the API decide when to show sample jobs
     
     // Add location coordinates if available
     if (userLocation) {

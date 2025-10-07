@@ -250,28 +250,42 @@ export async function GET(request: NextRequest) {
         })));
       }
       
-      // Only try external APIs if we have very few jobs AND external API keys are configured
+      // Always try dynamic job providers when there's a search query to get real jobs for any keyword
       const hasExternalApiKeys = !!(process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) || 
                                  !!process.env.INDEED_API_KEY || 
-                                 !!process.env.ZIPRECRUITER_API_KEY;
+                                 !!process.env.ZIPRECRUITER_API_KEY ||
+                                 !!process.env.JSEARCH_API_KEY ||
+                                 !!process.env.RAPIDAPI_KEY;
       
-      if (jobs.length < 5 && hasExternalApiKeys) {
-        console.log(`🔧 Found only ${jobs.length} jobs, trying external APIs...`);
+      // Fetch dynamic jobs for any search query to make it truly dynamic like other job portals
+      if (query) {
+        console.log(`🔧 Searching external APIs for query: "${query}" (found ${jobs.length} database jobs)...`);
         
         try {
-          // Import external job fetching functions with error handling
+          // Import dynamic job fetching functions
           let realExternalJobs: any[] = [];
           
           try {
+            // Use the new dynamic job provider that works for any keyword
+            const { fetchDynamicJobs } = await import('@/lib/jobs/dynamic-providers');
+            
+            console.log(`🔍 Fetching dynamic jobs for query: "${query}"`);
+            const dynamicJobs = await fetchDynamicJobs(query, location || 'India', 1);
+            
+            if (dynamicJobs.length > 0) {
+              realExternalJobs.push(...dynamicJobs);
+              console.log(`✅ Dynamic provider: Found ${dynamicJobs.length} jobs for "${query}"`);
+            }
+            
+            // Also try legacy providers if available
             const { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter } = await import('@/lib/jobs/providers');
             
-            // Try to fetch from external APIs with individual error handling
             const externalPromises = [];
             
-            // Only call APIs if we have the required environment variables
+            // Only call legacy APIs if we have the required environment variables
             if (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) {
               externalPromises.push(
-                fetchFromAdzuna(query || 'software engineer', country, 1).catch(err => {
+                fetchFromAdzuna(query, country, 1).catch(err => {
                   console.log('⚠️ Adzuna API failed:', err.message);
                   return [];
                 })
@@ -280,7 +294,7 @@ export async function GET(request: NextRequest) {
             
             if (process.env.INDEED_API_KEY) {
               externalPromises.push(
-                fetchFromIndeed(query || 'software engineer', location || 'India', 1).catch(err => {
+                fetchFromIndeed(query, location || 'India', 1).catch(err => {
                   console.log('⚠️ Indeed API failed:', err.message);
                   return [];
                 })
@@ -289,14 +303,14 @@ export async function GET(request: NextRequest) {
             
             if (process.env.ZIPRECRUITER_API_KEY) {
               externalPromises.push(
-                fetchFromZipRecruiter(query || 'software engineer', location || 'India', 1).catch(err => {
+                fetchFromZipRecruiter(query, location || 'India', 1).catch(err => {
                   console.log('⚠️ ZipRecruiter API failed:', err.message);
                   return [];
                 })
               );
             }
             
-            // Wait for all external API calls
+            // Wait for all legacy external API calls
             if (externalPromises.length > 0) {
               const externalResults = await Promise.allSettled(externalPromises);
               
@@ -314,21 +328,21 @@ export async function GET(request: NextRequest) {
             if (realExternalJobs.length > 0) {
               jobs = [...jobs, ...realExternalJobs];
               total = Math.max(total, jobs.length);
-              console.log(`✅ Added ${realExternalJobs.length} external jobs. Total now: ${jobs.length}`);
+              console.log(`✅ Added ${realExternalJobs.length} dynamic/external jobs. Total now: ${jobs.length}`);
             }
           } catch (importError) {
-            console.error('❌ Failed to import external job providers:', importError);
+            console.error('❌ Failed to import job providers:', importError);
           }
         } catch (externalError) {
-          console.error('❌ External API fetch failed:', externalError);
+          console.error('❌ Dynamic job fetch failed:', externalError);
         }
-      } else if (!hasExternalApiKeys) {
-        console.log('⚠️ No external API keys configured, using database jobs only');
+      } else {
+        console.log('⚠️ No search query provided, using database jobs only');
       }
       
-      // Only generate sample jobs if we have NO real jobs at all
+      // Only generate sample jobs if we have NO real jobs at all (neither database nor external)
       if (jobs.length === 0) {
-        console.log(`🔧 No real jobs found, generating minimal sample jobs as fallback...`);
+        console.log(`🔧 No real jobs found for query "${query}", generating minimal sample jobs as fallback...`);
         
         const sampleJobs = generateSampleJobs({
           query,
@@ -338,7 +352,7 @@ export async function GET(request: NextRequest) {
           experienceLevel,
           isRemote,
           sector,
-          count: Math.min(10, limit) // Generate up to 10 sample jobs as fallback
+          count: Math.min(5, limit) // Reduced to 5 sample jobs as fallback
         });
         
         jobs = [...jobs, ...sampleJobs];
@@ -346,7 +360,7 @@ export async function GET(request: NextRequest) {
         
         console.log(`✅ Generated ${sampleJobs.length} sample jobs as fallback. Total now: ${jobs.length}`);
       } else {
-        console.log(`✅ Found ${jobs.length} real jobs, not generating sample jobs`);
+        console.log(`✅ Found ${jobs.length} real jobs for query "${query}", not generating sample jobs`);
       }
     } catch (dbError: any) {
       console.error('❌ Database query failed:', dbError);
