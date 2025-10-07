@@ -580,10 +580,36 @@ jobs:
           echo "🔍 Debug: Checking PM2 availability"
           if ! command -v pm2 >/dev/null 2>&1; then
             echo "❌ PM2 not available, installing..."
-            npm install -g pm2
-            echo "✅ PM2 installed successfully"
+            
+            # Try to install PM2 globally with sudo
+            if sudo npm install -g pm2 --force; then
+              echo "✅ PM2 installed successfully with sudo"
+            else
+              echo "⚠️ Sudo install failed, trying without sudo..."
+              npm install -g pm2 --force || {
+                echo "❌ Failed to install PM2 globally"
+                echo "📋 Trying to use npx pm2 as fallback..."
+              }
+            fi
+            
+            # Verify PM2 is now available
+            if command -v pm2 >/dev/null 2>&1; then
+              echo "✅ PM2 is now available: $(which pm2)"
+              pm2 --version
+            else
+              echo "⚠️ PM2 not in PATH, checking npx..."
+              if npx pm2 --version >/dev/null 2>&1; then
+                echo "✅ PM2 available via npx"
+                # Create alias for this session
+                alias pm2='npx pm2'
+              else
+                echo "❌ PM2 installation completely failed"
+                exit 1
+              fi
+            fi
           else
-            echo "✅ PM2 already available"
+            echo "✅ PM2 already available: $(which pm2)"
+            pm2 --version
           fi
           echo "🔍 Debug: PM2 check completed"
           
@@ -595,9 +621,31 @@ jobs:
           pm2 stop jobportal 2>/dev/null || echo "No existing jobportal process"
           pm2 delete jobportal 2>/dev/null || echo "No existing jobportal process to delete"
           
+          # Verify server.cjs syntax before starting
+          echo "🔍 Verifying server.cjs syntax..."
+          if node -c server.cjs; then
+            echo "✅ server.cjs syntax is valid"
+          else
+            echo "❌ server.cjs has syntax errors"
+            echo "📋 First 20 lines of server.cjs:"
+            head -20 server.cjs
+            exit 1
+          fi
+          
           # Start the application
           echo "🚀 Starting application with PM2..."
-          pm2 start ecosystem.config.cjs --env production
+          if pm2 start ecosystem.config.cjs --env production; then
+            echo "✅ PM2 start command succeeded"
+          else
+            echo "❌ PM2 start command failed"
+            echo "📋 Checking server.cjs for errors..."
+            cat server.cjs | head -30
+            echo "📋 Checking ecosystem.config.cjs for errors..."
+            cat ecosystem.config.cjs | head -30
+            echo "📋 Checking PM2 logs..."
+            pm2 logs jobportal --lines 50 --nostream || echo "Could not retrieve logs"
+            exit 1
+          fi
           
           # Wait for PM2 to start with better error handling
           echo "⏳ Waiting for PM2 to start..."
