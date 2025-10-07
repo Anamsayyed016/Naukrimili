@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs } from '@/lib/jobs/providers';
+import { fetchFromAdzuna } from '@/lib/jobs/providers';
 
 // Common company relation select for consistency
 const COMPANY_RELATION_SELECT = {
@@ -10,6 +10,59 @@ const COMPANY_RELATION_SELECT = {
   industry: true,
   website: true
 };
+
+/**
+ * Find job in database by ID
+ */
+async function findJobInDatabase(id: string) {
+  try {
+    const job = await prisma.job.findFirst({
+      where: {
+        OR: [
+          { id: parseInt(id) },
+          { sourceId: id }
+        ],
+        isActive: true
+      },
+      include: {
+        companyRelation: {
+          select: COMPANY_RELATION_SELECT
+        }
+      }
+    });
+    return job;
+  } catch (error) {
+    console.error('Error finding job in database:', error);
+    return null;
+  }
+}
+
+/**
+ * Format job response for API
+ */
+function formatJobResponse(job: any) {
+  return {
+    ...job,
+    skills: typeof job.skills === 'string' ? JSON.parse(job.skills || '[]') : job.skills
+  };
+}
+
+/**
+ * Handle external job lookup
+ */
+async function handleExternalJob(id: string) {
+  const [_, source, sourceId] = id.split('-');
+  if (!source || !sourceId) {
+    return null;
+  }
+  
+  const externalJob = await fetchExternalJobById(sourceId, source);
+  if (externalJob) {
+    return formatExternalJob(externalJob, id, source);
+  }
+  
+  return null;
+}
 
 export async function GET(
   request: NextRequest,
@@ -111,7 +164,6 @@ function formatExternalJob(job: any, id: string, source: string) {
     // Ensure we have a valid redirect URL
     redirectUrl: job.source_url || job.applyUrl || job.redirect_url || job.url || '#'
   };
-};
 }
 
 /**
@@ -125,42 +177,18 @@ async function fetchExternalJobById(sourceId: string, source: string) {
     let externalJobs: any[] = [];
     
     try {
-      switch (source) {
-        case 'adzuna':
-        case 'external':
-          // Try multiple countries for Adzuna to increase chances of finding the job
-          const adzunaPromises = [
-            fetchFromAdzuna('', 'in', 1, {}),
-            fetchFromAdzuna('', 'us', 1, {}),
-            fetchFromAdzuna('', 'gb', 1, {})
-          ];
-          const adzunaResults = await Promise.allSettled(adzunaPromises);
-          adzunaResults.forEach(result => {
-            if (result.status === 'fulfilled') {
-              externalJobs.push(...result.value);
-            }
-          });
-          break;
-        case 'jsearch':
-          externalJobs = await fetchFromJSearch('', 'IN', 1);
-          break;
-        case 'google':
-          externalJobs = await fetchFromGoogleJobs('', 'India', 1);
-          break;
-        default:
-          // Fallback: try all providers
-          const allPromises = [
-            fetchFromAdzuna('', 'in', 1, {}),
-            fetchFromJSearch('', 'IN', 1),
-            fetchFromGoogleJobs('', 'India', 1)
-          ];
-          const allResults = await Promise.allSettled(allPromises);
-          allResults.forEach(result => {
-            if (result.status === 'fulfilled') {
-              externalJobs.push(...result.value);
-            }
-          });
-      }
+      // Try multiple countries for Adzuna to increase chances of finding the job
+      const adzunaPromises = [
+        fetchFromAdzuna('', 'in', 1, {}),
+        fetchFromAdzuna('', 'us', 1, {}),
+        fetchFromAdzuna('', 'gb', 1, {})
+      ];
+      const adzunaResults = await Promise.allSettled(adzunaPromises);
+      adzunaResults.forEach(result => {
+        if (result.status === 'fulfilled') {
+          externalJobs.push(...result.value);
+        }
+      });
     } catch (fetchError) {
       console.warn(`⚠️ Initial fetch failed for source ${source}:`, fetchError);
     }
@@ -191,9 +219,7 @@ async function fetchExternalJobById(sourceId: string, source: string) {
       
       try {
         const broaderSearchPromises = [
-          fetchFromAdzuna(sourceId, 'in', 1, {}),
-          fetchFromJSearch(sourceId, 'IN', 1),
-          fetchFromGoogleJobs(sourceId, 'India', 1)
+          fetchFromAdzuna(sourceId, 'in', 1, {})
         ];
         
         const broaderResults = await Promise.allSettled(broaderSearchPromises);
