@@ -324,8 +324,72 @@ export async function GET(request: NextRequest) {
               });
             }
             
-            // Add external jobs to results
+            // Add external jobs to results and cache them in database
             if (realExternalJobs.length > 0) {
+              // Cache dynamic jobs in database for 24 hours
+              try {
+                const jobsToCache = realExternalJobs.filter(job => 
+                  job.id && job.id.startsWith('dynamic-')
+                );
+                
+                if (jobsToCache.length > 0) {
+                  console.log(`💾 Caching ${jobsToCache.length} dynamic jobs in database...`);
+                  
+                  for (const job of jobsToCache) {
+                    try {
+                      await prisma.job.upsert({
+                        where: { 
+                          source_sourceId: {
+                            source: 'dynamic',
+                            sourceId: job.id
+                          }
+                        },
+                        update: {
+                          isActive: true,
+                          updatedAt: new Date()
+                        },
+                        create: {
+                          sourceId: job.id,
+                          source: 'dynamic',
+                          title: job.title,
+                          company: job.company,
+                          location: job.location,
+                          country: job.country || 'IN',
+                          description: job.description,
+                          requirements: job.requirements || '',
+                          applyUrl: job.applyUrl || job.source_url,
+                          source_url: job.source_url || job.applyUrl,
+                          postedAt: job.postedAt ? new Date(job.postedAt) : new Date(),
+                          salary: job.salary,
+                          salaryMin: job.salaryMin,
+                          salaryMax: job.salaryMax,
+                          salaryCurrency: job.salaryCurrency || 'INR',
+                          jobType: job.jobType || 'Full-time',
+                          experienceLevel: job.experienceLevel,
+                          skills: JSON.stringify(job.skills || []),
+                          isRemote: job.isRemote || false,
+                          isHybrid: job.isHybrid || false,
+                          isUrgent: job.isUrgent || false,
+                          isFeatured: job.isFeatured || false,
+                          isActive: true,
+                          sector: job.sector,
+                          views: 0,
+                          applicationsCount: 0,
+                          // Set expiry to 24 hours from now
+                          expiryDate: new Date(Date.now() + 24 * 60 * 60 * 1000)
+                        }
+                      });
+                    } catch (cacheError) {
+                      console.log(`⚠️ Failed to cache job ${job.id}:`, cacheError.message);
+                    }
+                  }
+                  
+                  console.log(`✅ Successfully cached ${jobsToCache.length} dynamic jobs`);
+                }
+              } catch (cacheError) {
+                console.log('⚠️ Failed to cache dynamic jobs:', cacheError);
+              }
+              
               jobs = [...jobs, ...realExternalJobs];
               total = Math.max(total, jobs.length);
               console.log(`✅ Added ${realExternalJobs.length} dynamic/external jobs. Total now: ${jobs.length}`);

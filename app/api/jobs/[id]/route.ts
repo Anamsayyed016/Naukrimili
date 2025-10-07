@@ -126,6 +126,37 @@ export async function GET(
       }, { status: 404 });
     }
     
+    // Check if this is a dynamic job ID - try to find it in cache or regenerate
+    if (trimmedId.startsWith('dynamic-')) {
+      console.log('🔍 Dynamic job ID detected, attempting to retrieve:', trimmedId);
+      
+      // Try to find in database (might have been cached)
+      const cachedJob = await prisma.job.findFirst({
+        where: {
+          sourceId: trimmedId,
+          isActive: true
+        }
+      });
+      
+      if (cachedJob) {
+        console.log('✅ Found cached dynamic job:', cachedJob.title);
+        return NextResponse.json({ 
+          success: true, 
+          data: formatJobResponse(cachedJob) 
+        });
+      }
+      
+      // If not found, return helpful error
+      console.log('❌ Dynamic job not found in cache:', trimmedId);
+      return NextResponse.json({
+        success: false,
+        error: 'Job not available',
+        details: 'This job listing is no longer available. It may have expired or been filled. Please search for similar jobs.',
+        isDynamic: true,
+        suggestion: 'Try searching with relevant keywords to find similar opportunities.'
+      }, { status: 410 }); // 410 Gone - resource no longer available
+    }
+    
     // Check if this is an external job ID
     if (trimmedId.startsWith('ext-')) {
       const externalJob = await handleExternalJob(trimmedId);
