@@ -41,9 +41,23 @@ async function findJobInDatabase(id: string) {
  * Format job response for API
  */
 function formatJobResponse(job: any) {
+  // Parse skills if they're a string
+  const skills = typeof job.skills === 'string' ? JSON.parse(job.skills || '[]') : job.skills;
+  
+  // Ensure we have all possible URL fields for apply button
+  const isManual = job.source === 'manual';
+  const baseUrl = job.source_url || job.applyUrl || job.apply_url;
+  
   return {
     ...job,
-    skills: typeof job.skills === 'string' ? JSON.parse(job.skills || '[]') : job.skills
+    skills,
+    // Ensure all URL fields are populated
+    applyUrl: baseUrl || (isManual ? null : ''),
+    apply_url: isManual ? `/jobs/${job.id}/apply` : null,
+    source_url: !isManual ? baseUrl : null,
+    // For backward compatibility
+    redirect_url: baseUrl,
+    url: baseUrl
   };
 }
 
@@ -150,22 +164,29 @@ export async function GET(
  * Format external job with required fields and proper URLs
  */
 function formatExternalJob(job: any, id: string, source: string) {
+  // Extract the best available URL from the job data (check all possible fields)
+  const bestUrl = job.source_url || job.applyUrl || job.redirect_url || 
+                  job.url || job.apply_url || job.link || job.jobUrl || job.job_url;
+  
   return {
     ...job,
     id: id,
     isExternal: true,
     source: source,
+    // Populate ALL URL fields to ensure apply button works
+    applyUrl: bestUrl,
     apply_url: null,                    // External jobs don't have internal apply URL
-    source_url: job.source_url || job.applyUrl || job.redirect_url || job.url, // External source URL
+    source_url: bestUrl,                // External source URL
+    redirect_url: bestUrl,              // For backward compatibility
+    url: bestUrl,                       // For backward compatibility
+    link: bestUrl,                      // For backward compatibility
     company: job.company || 'Company not specified',
     location: job.location || 'Location not specified',
     description: job.description || 'No description available',
     skills: Array.isArray(job.skills) ? job.skills : (typeof job.skills === 'string' ? JSON.parse(job.skills || '[]') : []),
     isRemote: job.isRemote || false,
     isFeatured: job.isFeatured || false,
-    createdAt: job.postedAt ? new Date(job.postedAt) : new Date(),
-    // Ensure we have a valid redirect URL
-    redirectUrl: job.source_url || job.applyUrl || job.redirect_url || job.url || '#'
+    createdAt: job.postedAt ? new Date(job.postedAt) : new Date()
   };
 }
 

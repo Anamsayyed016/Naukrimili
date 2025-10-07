@@ -127,8 +127,9 @@ export default function JobDetailsPage() {
       return;
     }
 
-    // Try multiple fallback URLs in order of preference
-    const applyUrl = job.source_url || job.applyUrl || job.apply_url;
+    // Try all possible URL fields in order of preference
+    const applyUrl = job.source_url || job.applyUrl || job.apply_url || 
+                     (job as any).redirect_url || (job as any).url || (job as any).link;
     
     if (!applyUrl) {
       console.error('❌ No apply URL found for job:', {
@@ -137,7 +138,10 @@ export default function JobDetailsPage() {
         source: job.source,
         source_url: job.source_url,
         applyUrl: job.applyUrl,
-        apply_url: job.apply_url
+        apply_url: job.apply_url,
+        redirect_url: (job as any).redirect_url,
+        url: (job as any).url,
+        link: (job as any).link
       });
       
       // Show user-friendly error message
@@ -157,8 +161,8 @@ export default function JobDetailsPage() {
     window.open(applyUrl, '_blank', 'noopener,noreferrer');
     
     // Track the click for analytics
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'job_apply_click', {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'job_apply_click', {
         job_id: job.id,
         job_title: job.title,
         company: job.company,
@@ -210,9 +214,8 @@ export default function JobDetailsPage() {
 
     // Enhanced logic to determine if job is external
   const isExternalJob = job.isExternal || 
-                       job.source !== 'manual' || 
-                       job.source !== 'sample' ||
-                       (job.source_url || job.applyUrl || job.apply_url) !== null;
+                       (job.source !== 'manual' && job.source !== 'sample') ||
+                       !!(job.source_url || job.applyUrl);
   const skillsArray = Array.isArray(job.skills) ? job.skills : (job.skills ? [job.skills] : []);
 
   return (
