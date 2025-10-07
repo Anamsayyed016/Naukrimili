@@ -58,7 +58,10 @@ async function handleExternalJob(id: string) {
   
   const externalJob = await fetchExternalJobById(sourceId, source);
   if (externalJob) {
-    return formatExternalJob(externalJob, id, source);
+    const jobObject = Array.isArray(externalJob) ? externalJob[0] : externalJob;
+    if (jobObject) {
+      return formatExternalJob(jobObject, id, source);
+    }
   }
   
   return null;
@@ -254,14 +257,14 @@ async function fetchExternalJobById(sourceId: string, source: string) {
     
     if (matchingJob) {
       console.log(`✅ Found matching external job: ${matchingJob.title}`);
-      return [matchingJob];
+      return matchingJob;
     } else {
       console.log(`❌ No matching external job found for sourceId: ${sourceId}`);
-      return [];
+      return null;
     }
   } catch (error) {
     console.error('❌ Error fetching external job by ID:', error);
-    return [];
+    return null;
   }
 }
 
