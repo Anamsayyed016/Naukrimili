@@ -250,9 +250,13 @@ export async function GET(request: NextRequest) {
         })));
       }
       
-      // If we have very few jobs, try external APIs first before generating sample jobs
-      if (jobs.length < limit) {
-        console.log(`🔧 Found only ${jobs.length} jobs, trying external APIs before sample jobs...`);
+      // Only try external APIs if we have very few jobs AND external API keys are configured
+      const hasExternalApiKeys = !!(process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) || 
+                                 !!process.env.INDEED_API_KEY || 
+                                 !!process.env.ZIPRECRUITER_API_KEY;
+      
+      if (jobs.length < 5 && hasExternalApiKeys) {
+        console.log(`🔧 Found only ${jobs.length} jobs, trying external APIs...`);
         
         try {
           // Import external job fetching functions with error handling
@@ -304,8 +308,6 @@ export async function GET(request: NextRequest) {
                   realExternalJobs.push(...result.value);
                 }
               });
-            } else {
-              console.log('⚠️ No external API keys configured, skipping external job fetch');
             }
             
             // Add external jobs to results
@@ -317,55 +319,34 @@ export async function GET(request: NextRequest) {
           } catch (importError) {
             console.error('❌ Failed to import external job providers:', importError);
           }
-          
-          // Only generate sample jobs if we have NO real jobs at all (not just fewer than limit)
-          if (jobs.length === 0) {
-            console.log(`🔧 No real jobs found, generating minimal sample jobs as fallback...`);
-            
-            const sampleJobs = generateSampleJobs({
-              query,
-              location,
-              country,
-              jobType,
-              experienceLevel,
-              isRemote,
-              sector,
-              count: Math.min(5, limit) // Generate only 5 sample jobs as fallback
-            });
-            
-            jobs = [...jobs, ...sampleJobs];
-            total = Math.max(total, jobs.length);
-            
-            console.log(`✅ Generated ${sampleJobs.length} sample jobs as fallback. Total now: ${jobs.length}`);
-          } else {
-            console.log(`✅ Found ${jobs.length} real jobs, not generating sample jobs`);
-          }
         } catch (externalError) {
           console.error('❌ External API fetch failed:', externalError);
-          
-          // Fallback to sample jobs if external APIs fail (only if no real jobs)
-          if (jobs.length === 0) {
-            console.log(`🔧 External APIs failed and no real jobs, generating minimal sample jobs...`);
-            
-            const sampleJobs = generateSampleJobs({
-              query,
-              location,
-              country,
-              jobType,
-              experienceLevel,
-              isRemote,
-              sector,
-              count: Math.min(5, limit) // Generate only 5 sample jobs as fallback
-            });
-            
-            jobs = [...jobs, ...sampleJobs];
-            total = Math.max(total, jobs.length);
-            
-            console.log(`✅ Generated ${sampleJobs.length} sample jobs as fallback. Total now: ${jobs.length}`);
-          } else {
-            console.log(`✅ External APIs failed but found ${jobs.length} real jobs, not generating sample jobs`);
-          }
         }
+      } else if (!hasExternalApiKeys) {
+        console.log('⚠️ No external API keys configured, using database jobs only');
+      }
+      
+      // Only generate sample jobs if we have NO real jobs at all
+      if (jobs.length === 0) {
+        console.log(`🔧 No real jobs found, generating minimal sample jobs as fallback...`);
+        
+        const sampleJobs = generateSampleJobs({
+          query,
+          location,
+          country,
+          jobType,
+          experienceLevel,
+          isRemote,
+          sector,
+          count: Math.min(10, limit) // Generate up to 10 sample jobs as fallback
+        });
+        
+        jobs = [...jobs, ...sampleJobs];
+        total = Math.max(total, jobs.length);
+        
+        console.log(`✅ Generated ${sampleJobs.length} sample jobs as fallback. Total now: ${jobs.length}`);
+      } else {
+        console.log(`✅ Found ${jobs.length} real jobs, not generating sample jobs`);
       }
     } catch (dbError: any) {
       console.error('❌ Database query failed:', dbError);

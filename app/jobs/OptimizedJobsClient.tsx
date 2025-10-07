@@ -96,31 +96,11 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       let response;
       let apiUsed = 'real';
 
-      // Multi-tier fallback system to prevent chunk issues
-      try {
-        // Try real jobs API first
-        response = await fetch(`/api/jobs/real?${apiParams.toString()}`);
-        if (!response.ok) {
-          throw new Error(`Real API failed: ${response.status}`);
-        }
-      } catch (realError) {
-        console.warn('⚠️ Real API failed, trying unified API...', realError);
-        try {
-          // Fallback to unified API
-          apiUsed = 'unified';
-          response = await fetch(`/api/jobs/unified?${apiParams.toString()}`);
-          if (!response.ok) {
-            throw new Error(`Unified API failed: ${response.status}`);
-          }
-        } catch (unifiedError) {
-          console.warn('⚠️ Unified API failed, trying main API...', unifiedError);
-          // Final fallback to main API
-          apiUsed = 'main';
-          response = await fetch(`/api/jobs?${apiParams.toString()}`);
-          if (!response.ok) {
-            throw new Error(`All APIs failed. Last error: ${response.status} ${response.statusText}`);
-          }
-        }
+      // Use main API directly - it now handles real jobs properly
+      apiUsed = 'main';
+      response = await fetch(`/api/jobs?${apiParams.toString()}`);
+      if (!response.ok) {
+        throw new Error(`Main API failed: ${response.status} ${response.statusText}`);
       }
 
       const responseTime = Date.now() - startTime;
