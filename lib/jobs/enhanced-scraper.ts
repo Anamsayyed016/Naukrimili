@@ -184,11 +184,11 @@ export class EnhancedJobScraper {
         case 'adzuna':
           jobs = await this.fetchFromAdzuna(query, country);
           break;
-        case 'jsearch':
-          jobs = await this.fetchFromJSearch(query, country);
+        case 'indeed':
+          jobs = await this.fetchFromIndeed(query, country);
           break;
-        case 'reed':
-          jobs = await this.fetchFromReed(query, country);
+        case 'ziprecruiter':
+          jobs = await this.fetchFromZipRecruiter(query, country);
           break;
         default:
           console.warn(`⚠️ Unknown source: ${source}`);
@@ -373,6 +373,118 @@ export class EnhancedJobScraper {
       isFeatured: false,
       isActive: true,
       sector: this.determineSector(job.jobTitle || '', job.jobDescription || ''),
+      raw: job
+    }));
+  }
+
+  /**
+   * Fetch from Indeed API
+   */
+  private async fetchFromIndeed(query: string, country: string): Promise<any[]> {
+    const apiKey = process.env.RAPIDAPI_KEY;
+    
+    if (!apiKey) {
+      throw new Error('RapidAPI key not configured');
+    }
+
+    const { data } = await axios.get('https://indeed11.p.rapidapi.com/', {
+      params: {
+        query: query,
+        location: country,
+        page: 1,
+        limit: 20
+      },
+      headers: {
+        'x-rapidapi-host': 'indeed11.p.rapidapi.com',
+        'x-rapidapi-key': apiKey,
+      },
+      timeout: 15000,
+    });
+
+    return (data?.data || []).map((job: any) => ({
+      source: 'indeed',
+      sourceId: job.jobId || `indeed-${Date.now()}-${Math.random()}`,
+      title: job.jobTitle || job.title || '',
+      company: job.companyName || job.company || '',
+      companyLogo: null,
+      location: job.jobLocation || job.location || country,
+      country: 'IN',
+      description: job.jobDescription || job.description || '',
+      requirements: null,
+      applyUrl: job.jobUrl || job.applyUrl || '',
+      apply_url: null,
+      source_url: job.jobUrl || job.applyUrl || '',
+      postedAt: job.postedAt ? new Date(job.postedAt) : null,
+      expiryDate: null,
+      salary: job.salary || null,
+      salaryMin: null,
+      salaryMax: null,
+      salaryCurrency: 'INR',
+      jobType: 'Full-time',
+      experienceLevel: 'Mid-Level',
+      skills: this.extractSkills(job.jobDescription || job.description || '', job.jobTitle || job.title || ''),
+      isRemote: (job.jobTitle || job.title || '').toLowerCase().includes('remote'),
+      isHybrid: (job.jobTitle || job.title || '').toLowerCase().includes('hybrid'),
+      isUrgent: false,
+      isFeatured: false,
+      isActive: true,
+      sector: this.determineSector(job.jobTitle || job.title || '', job.jobDescription || job.description || ''),
+      raw: job
+    }));
+  }
+
+  /**
+   * Fetch from ZipRecruiter API
+   */
+  private async fetchFromZipRecruiter(query: string, country: string): Promise<any[]> {
+    const apiKey = process.env.RAPIDAPI_KEY;
+    
+    if (!apiKey) {
+      throw new Error('RapidAPI key not configured');
+    }
+
+    const { data } = await axios.get('https://ziprecruiter1.p.rapidapi.com/', {
+      params: {
+        search_terms: query,
+        location: country,
+        page: 1,
+        jobs_per_page: 20
+      },
+      headers: {
+        'x-rapidapi-host': 'ziprecruiter1.p.rapidapi.com',
+        'x-rapidapi-key': apiKey,
+      },
+      timeout: 15000,
+    });
+
+    return (data?.jobs || []).map((job: any) => ({
+      source: 'ziprecruiter',
+      sourceId: job.id || `ziprecruiter-${Date.now()}-${Math.random()}`,
+      title: job.name || job.title || '',
+      company: job.hiring_company?.name || job.company || '',
+      companyLogo: null,
+      location: job.location || country,
+      country: 'IN',
+      description: job.snippet || job.description || '',
+      requirements: null,
+      applyUrl: job.url || job.applyUrl || '',
+      apply_url: null,
+      source_url: job.url || job.applyUrl || '',
+      postedAt: job.posted_time ? new Date(job.posted_time) : null,
+      expiryDate: null,
+      salary: job.salary_min || job.salary_max ? `${job.salary_min || ''}-${job.salary_max || ''}` : null,
+      salaryMin: job.salary_min || null,
+      salaryMax: job.salary_max || null,
+      salaryCurrency: 'INR',
+      jobType: 'Full-time',
+      experienceLevel: 'Mid-Level',
+      skills: this.extractSkills(job.snippet || job.description || '', job.name || job.title || ''),
+      isRemote: (job.name || job.title || '').toLowerCase().includes('remote'),
+      isHybrid: (job.name || job.title || '').toLowerCase().includes('hybrid'),
+      isUrgent: false,
+      isFeatured: false,
+      isActive: true,
+      sector: this.determineSector(job.name || job.title || '', job.snippet || job.description || ''),
       raw: job
     }));
   }

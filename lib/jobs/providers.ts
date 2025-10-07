@@ -82,8 +82,8 @@ export async function fetchFromAdzuna(
       description: r.description || r.redirect_url || '',
       requirements: extractRequirements(r.description || ''),
       applyUrl: r.redirect_url || r.url,  // @deprecated - keep for backward compatibility
-      apply_url: null,                    // External jobs don't have internal apply URL
-      source_url: r.redirect_url || r.url, // External source URL
+      apply_url: null, // External jobs redirect to source                    // External jobs don't have internal apply URL
+      source_url: r.redirect_url || r.url || r.apply_url || r.link, // External source URL
       postedAt: r.created ? new Date(r.created).toISOString() : undefined,
       salary: r.salary_min || r.salary_max ? `${r.salary_min || ''}-${r.salary_max || ''}` : undefined,
       salaryMin: r.salary_min,
@@ -150,7 +150,7 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
       country: safeUpper(r.job_country || countryCode),
       description: r.job_description || (Array.isArray(r.job_highlights) ? r.job_highlights.join('\n') : r.snippet) || '',
       applyUrl: r.job_apply_link || r.job_link || r.url,  // @deprecated - keep for backward compatibility
-      apply_url: null,                                     // External jobs don't have internal apply URL
+      apply_url: null, // External jobs redirect to source                                     // External jobs don't have internal apply URL
       source_url: r.job_apply_link || r.job_link || r.url, // External source URL
       postedAt: r.job_posted_at || undefined,
       salary: r.salary || undefined,
@@ -205,7 +205,7 @@ export async function fetchFromGoogleJobs(
       country: 'IN', // Default to India for Google Jobs
       description: r.job_description || r.snippet || '',
       applyUrl: r.apply_link || r.job_url || '',  // @deprecated - keep for backward compatibility
-      apply_url: null,                             // External jobs don't have internal apply URL
+      apply_url: null, // External jobs redirect to source                             // External jobs don't have internal apply URL
       source_url: r.apply_link || r.job_url || '', // External source URL
       postedAt: undefined,
       salary: undefined,
@@ -282,7 +282,7 @@ export async function fetchFromJooble(
       description: r.snippet || r.description || '',
       requirements: extractRequirements(r.snippet || r.description || ''),
       applyUrl: r.link || '',  // @deprecated - keep for backward compatibility
-      apply_url: null,         // External jobs don't have internal apply URL
+      apply_url: null, // External jobs redirect to source         // External jobs don't have internal apply URL
       source_url: r.link || '', // External source URL
       postedAt: r.updated ? new Date(r.updated).toISOString() : undefined,
       salary: r.salary || undefined,
@@ -324,20 +324,143 @@ export async function fetchFromJooble(
 }
 
 /**
- * Health check for all job providers
+ * Indeed Jobs API fetcher (using RapidAPI)
+ * High-quality job listings from Indeed
+ */
+export async function fetchFromIndeed(
+  query: string,
+  location: string = 'India',
+  page: number = 1
+) {
+  const key = process.env.RAPIDAPI_KEY;
+  
+  if (!key) {
+    console.warn('RapidAPI key not configured, skipping Indeed fetch');
+    return [] as NormalizedJob[];
+  }
+
+  try {
+    const { data } = await axios.get('https://indeed11.p.rapidapi.com/', {
+      params: {
+        query: query,
+        location: location,
+        page: page,
+        limit: 20
+      },
+      headers: {
+        'x-rapidapi-host': 'indeed11.p.rapidapi.com',
+        'x-rapidapi-key': key,
+      },
+      timeout: 15000,
+    });
+
+    const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
+      source: 'external', // Generic external source - hides the provider
+      sourceId: r.jobId || `indeed-${Date.now()}-${Math.random()}`,
+      title: r.jobTitle || r.title || '',
+      company: r.companyName || r.company || '',
+      location: r.jobLocation || r.location || location,
+      country: 'IN', // Default to India for Indeed
+      description: r.jobDescription || r.description || '',
+      applyUrl: r.jobUrl || r.applyUrl || '',  // @deprecated - keep for backward compatibility
+      apply_url: null,                             // External jobs don't have internal apply URL
+      source_url: r.jobUrl || r.applyUrl || '', // External source URL
+      postedAt: r.postedAt || undefined,
+      salary: r.salary || undefined,
+      skills: SkillsExtractionService.extractSkills(r.jobDescription || r.description || '', r.jobTitle || r.title || '', r.companyName || r.company || '').map(s => s.skill),
+      raw: r,
+    }));
+
+    return jobs;
+
+  } catch (error: any) {
+    console.error(`❌ Indeed API error:`, error.message);
+    if (error.response?.status === 403) {
+      console.warn('⚠️ Indeed API subscription required. Visit: https://rapidapi.com/letscrape-6bRBa3QguO5/api/indeed11/');
+    } else if (error.response?.status === 429) {
+      console.warn('⚠️ Indeed API rate limit reached, consider upgrading plan');
+    }
+    return [] as NormalizedJob[];
+  }
+}
+
+/**
+ * ZipRecruiter Jobs API fetcher (using RapidAPI)
+ * High-quality job listings from ZipRecruiter
+ */
+export async function fetchFromZipRecruiter(
+  query: string,
+  location: string = 'India',
+  page: number = 1
+) {
+  const key = process.env.RAPIDAPI_KEY;
+  
+  if (!key) {
+    console.warn('RapidAPI key not configured, skipping ZipRecruiter fetch');
+    return [] as NormalizedJob[];
+  }
+
+  try {
+    const { data } = await axios.get('https://ziprecruiter1.p.rapidapi.com/', {
+      params: {
+        search_terms: query,
+        location: location,
+        page: page,
+        jobs_per_page: 20
+      },
+      headers: {
+        'x-rapidapi-host': 'ziprecruiter1.p.rapidapi.com',
+        'x-rapidapi-key': key,
+      },
+      timeout: 15000,
+    });
+
+    const jobs = (data?.jobs || []).map((r: any): NormalizedJob => ({
+      source: 'external', // Generic external source - hides the provider
+      sourceId: r.id || `ziprecruiter-${Date.now()}-${Math.random()}`,
+      title: r.name || r.title || '',
+      company: r.hiring_company?.name || r.company || '',
+      location: r.location || location,
+      country: 'IN', // Default to India for ZipRecruiter
+      description: r.snippet || r.description || '',
+      applyUrl: r.url || r.applyUrl || '',  // @deprecated - keep for backward compatibility
+      apply_url: null,                             // External jobs don't have internal apply URL
+      source_url: r.url || r.applyUrl || '', // External source URL
+      postedAt: r.posted_time || undefined,
+      salary: r.salary_min || r.salary_max ? `${r.salary_min || ''}-${r.salary_max || ''}` : undefined,
+      salaryMin: r.salary_min,
+      salaryMax: r.salary_max,
+      salaryCurrency: 'INR',
+      skills: SkillsExtractionService.extractSkills(r.snippet || r.description || '', r.name || r.title || '', r.hiring_company?.name || r.company || '').map(s => s.skill),
+      raw: r,
+    }));
+
+    return jobs;
+
+  } catch (error: any) {
+    console.error(`❌ ZipRecruiter API error:`, error.message);
+    if (error.response?.status === 403) {
+      console.warn('⚠️ ZipRecruiter API subscription required. Visit: https://rapidapi.com/letscrape-6bRBa3QguO5/api/ziprecruiter1/');
+    } else if (error.response?.status === 429) {
+      console.warn('⚠️ ZipRecruiter API rate limit reached, consider upgrading plan');
+    }
+    return [] as NormalizedJob[];
+  }
+}
+
+/**
+ * Health check for working job providers
  */
 export async function checkJobProvidersHealth(): Promise<{
   adzuna: boolean;
-  jsearch: boolean;
-  googleJobs: boolean;
-  jooble: boolean;
+  indeed: boolean;
+  ziprecruiter: boolean;
   details: Record<string, any>;
 }> {
   const health = {
     adzuna: false,
-    jsearch: false,
-    googleJobs: false,
-    jooble: false,
+    indeed: false,
+    ziprecruiter: false,
     details: {} as Record<string, any>
   };
 
@@ -354,43 +477,30 @@ export async function checkJobProvidersHealth(): Promise<{
     health.details.adzuna = { status: 'not_configured' };
   }
 
-  // Check JSearch Provider
+  // Check Indeed Provider
   if (process.env.RAPIDAPI_KEY) {
     try {
-      const testJobs = await fetchFromJSearch('test', 'US', 1);
-      health.jsearch = testJobs.length >= 0; // Success if no error
-      health.details.jsearch = { status: 'healthy', jobsFound: testJobs.length };
+      const testJobs = await fetchFromIndeed('test', 'India', 1);
+      health.indeed = testJobs.length >= 0; // Success if no error
+      health.details.indeed = { status: 'healthy', jobsFound: testJobs.length };
     } catch (error: any) {
-      health.details.jsearch = { status: 'error', message: error.message };
+      health.details.indeed = { status: 'error', message: error.message };
     }
   } else {
-    health.details.jsearch = { status: 'not_configured' };
+    health.details.indeed = { status: 'not_configured' };
   }
 
-  // Check Google Jobs Provider
+  // Check ZipRecruiter Provider
   if (process.env.RAPIDAPI_KEY) {
     try {
-      const testJobs = await fetchFromGoogleJobs('test', 'India', 1);
-      health.googleJobs = testJobs.length >= 0; // Success if no error
-      health.details.googleJobs = { status: 'healthy', jobsFound: testJobs.length };
+      const testJobs = await fetchFromZipRecruiter('test', 'India', 1);
+      health.ziprecruiter = testJobs.length >= 0; // Success if no error
+      health.details.ziprecruiter = { status: 'healthy', jobsFound: testJobs.length };
     } catch (error: any) {
-      health.details.googleJobs = { status: 'error', message: error.message };
+      health.details.ziprecruiter = { status: 'error', message: error.message };
     }
   } else {
-    health.details.googleJobs = { status: 'not_configured' };
-  }
-
-  // Check Jooble Provider
-  if (process.env.JOOBLE_API_KEY) {
-    try {
-      const testJobs = await fetchFromJooble('test', 'India', 1);
-      health.jooble = testJobs.length >= 0; // Success if no error
-      health.details.jooble = { status: 'healthy', jobsFound: testJobs.length };
-    } catch (error: any) {
-      health.details.jooble = { status: 'error', message: error.message };
-    }
-  } else {
-    health.details.jooble = { status: 'not_configured' };
+    health.details.ziprecruiter = { status: 'not_configured' };
   }
 
   return health;

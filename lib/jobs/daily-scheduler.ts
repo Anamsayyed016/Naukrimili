@@ -1,14 +1,13 @@
 import { EnhancedJobUpsertService } from './enhanced-upsert';
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from './providers';
+import { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter } from './providers';
 
 export interface SchedulerConfig {
   queries: string[];
   countries: string[];
   maxJobsPerQuery: number;
-  enableAdzuna: boolean;
-  enableJSearch: boolean;
-  enableGoogleJobs: boolean;
-  enableJooble: boolean;
+  enableAdzuna?: boolean;
+  enableIndeed?: boolean;
+  enableZipRecruiter?: boolean;
 }
 
 const DEFAULT_CONFIG: SchedulerConfig = {
@@ -27,9 +26,8 @@ const DEFAULT_CONFIG: SchedulerConfig = {
   countries: ['IN', 'US', 'GB', 'CA', 'AU'],
   maxJobsPerQuery: 50,
   enableAdzuna: true,
-  enableJSearch: true,
-  enableGoogleJobs: true,
-  enableJooble: true
+  enableIndeed: true,
+  enableZipRecruiter: true
 };
 
 export class DailyJobScheduler {
@@ -132,39 +130,25 @@ export class DailyJobScheduler {
             }
           }
 
-          // Fetch from JSearch
-          if (this.config.enableJSearch) {
+          // Indeed API
+          if (this.config.enableIndeed !== false) {
             try {
-              const jsearchJobs = await fetchFromJSearch(query, country.toUpperCase(), 1);
-              allJobs.push(...jsearchJobs.slice(0, maxJobsPerQuery));
-              console.log(`✅ JSearch: ${jsearchJobs.length} jobs for "${query}" in ${country}`);
+              const indeedJobs = await fetchFromIndeed(query, country, 1);
+              allJobs.push(...indeedJobs.slice(0, maxJobsPerQuery));
+              console.log(`✅ Indeed: ${indeedJobs.length} jobs for "${query}" in ${country}`);
             } catch (error) {
-              console.warn(`⚠️ JSearch failed for "${query}" in ${country}:`, error);
+              console.warn(`⚠️ Indeed failed for "${query}" in ${country}:`, error);
             }
           }
 
-          // Fetch from Google Jobs
-          if (this.config.enableGoogleJobs) {
+          // ZipRecruiter API
+          if (this.config.enableZipRecruiter !== false) {
             try {
-              const googleJobs = await fetchFromGoogleJobs(query, country, 1);
-              allJobs.push(...googleJobs.slice(0, maxJobsPerQuery));
-              console.log(`✅ Google Jobs: ${googleJobs.length} jobs for "${query}" in ${country}`);
+              const ziprecruiterJobs = await fetchFromZipRecruiter(query, country, 1);
+              allJobs.push(...ziprecruiterJobs.slice(0, maxJobsPerQuery));
+              console.log(`✅ ZipRecruiter: ${ziprecruiterJobs.length} jobs for "${query}" in ${country}`);
             } catch (error) {
-              console.warn(`⚠️ Google Jobs failed for "${query}" in ${country}:`, error);
-            }
-          }
-
-          // Fetch from Jooble
-          if (this.config.enableJooble) {
-            try {
-              const joobleJobs = await fetchFromJooble(query, country, 1, {
-                radius: 25,
-                countryCode: country.toLowerCase()
-              });
-              allJobs.push(...joobleJobs.slice(0, maxJobsPerQuery));
-              console.log(`✅ Jooble: ${joobleJobs.length} jobs for "${query}" in ${country}`);
-            } catch (error) {
-              console.warn(`⚠️ Jooble failed for "${query}" in ${country}:`, error);
+              console.warn(`⚠️ ZipRecruiter failed for "${query}" in ${country}:`, error);
             }
           }
 

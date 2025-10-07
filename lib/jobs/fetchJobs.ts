@@ -1,4 +1,4 @@
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble, checkJobProvidersHealth } from './providers';
+import { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter, checkJobProvidersHealth } from './providers';
 import { upsertNormalizedJobs } from './upsertJob';
 import { GoogleSearchService } from '../google-search-service';
 
@@ -58,7 +58,7 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
   
   const all: NormalizedJob[] = [];
 
-  // 1. Fetch from External Provider 1
+  // 1. Fetch from Adzuna
   try {
     const adz = await withRetry(() => fetchFromAdzuna(query, adzunaCountry, page, {
       location: location || undefined,
@@ -66,37 +66,26 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
     }));
     all.push(...adz);
   } catch (e: any) {
-    console.error('❌ External provider 1 fetch failed:', e?.message || e);
+    console.error('❌ Adzuna fetch failed:', e?.message || e);
   }
 
-  // 2. Fetch from External Provider 2
+  // 2. Fetch from Indeed
   try {
-    const js = await withRetry(() => fetchFromJSearch(`${query}${location ? ` in ${location}` : ''}`, jsearchCountry, page));
-    all.push(...js);
+    const indeed = await withRetry(() => fetchFromIndeed(query, location || 'India', page));
+    all.push(...indeed);
   } catch (e: any) {
-    console.error('❌ External provider 2 fetch failed:', e?.message || e);
+    console.error('❌ Indeed fetch failed:', e?.message || e);
   }
 
-  // 3. Fetch from External Provider 3
+  // 6. Fetch from ZipRecruiter
   try {
-    const google = await withRetry(() => fetchFromGoogleJobs(query, location || 'India', page));
-    all.push(...google);
+    const ziprecruiter = await withRetry(() => fetchFromZipRecruiter(query, location || 'India', page));
+    all.push(...ziprecruiter);
   } catch (e: any) {
-    console.error('❌ External provider 3 fetch failed:', e?.message || e);
+    console.error('❌ ZipRecruiter fetch failed:', e?.message || e);
   }
 
-  // 4. Fetch from Jooble
-  try {
-    const jooble = await withRetry(() => fetchFromJooble(query, location || 'India', page, {
-      radius: radiusKm,
-      countryCode: options.countryCode || 'in'
-    }));
-    all.push(...jooble);
-  } catch (e: any) {
-    console.error('❌ Jooble fetch failed:', e?.message || e);
-  }
-
-  // 4. Fallback: Google Jobs redirect (if no results from APIs)
+  // 7. Fallback: Google Jobs redirect (if no results from APIs)
   if (all.length === 0) {
     try {
       // // console.log(`🔄 No jobs found from APIs, generating Google Jobs fallback...`);

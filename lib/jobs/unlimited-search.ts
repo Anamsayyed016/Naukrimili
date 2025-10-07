@@ -4,7 +4,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from './providers';
+import { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter } from './providers';
 
 export interface UnlimitedSearchOptions {
   query?: string;
@@ -485,9 +485,9 @@ export class UnlimitedJobSearch {
       
       for (const searchQuery of searchQueries.slice(0, maxQueries)) {
         try {
-          // Use ALL available APIs with multiple pages for unlimited results
+          // Use working APIs with multiple pages for unlimited results
           const apiPromises = [
-            // Adzuna - multiple pages
+            // Adzuna - multiple pages (Working API)
             ...Array.from({ length: maxPages }, (_, i) => 
               fetchFromAdzuna(searchQuery, countryConfig.adzuna, i + 1, {
                 location: location || undefined,
@@ -497,24 +497,17 @@ export class UnlimitedJobSearch {
                 return [];
               })
             ),
-            // JSearch - multiple pages
+            // Indeed - multiple pages (Working API)
             ...Array.from({ length: maxPages }, (_, i) => 
-              fetchFromJSearch(searchQuery, countryConfig.jsearch, i + 1).catch(err => {
-                console.warn(`JSearch page ${i + 1} failed for ${searchCountry}:`, err);
+              fetchFromIndeed(searchQuery, countryConfig.name, i + 1).catch(err => {
+                console.warn(`Indeed page ${i + 1} failed for ${searchCountry}:`, err);
                 return [];
               })
             ),
-            // Google Jobs - multiple pages
+            // ZipRecruiter - multiple pages (Working API)
             ...Array.from({ length: maxPages }, (_, i) => 
-              fetchFromGoogleJobs(searchQuery, countryConfig.google, i + 1).catch(err => {
-                console.warn(`Google Jobs page ${i + 1} failed for ${searchCountry}:`, err);
-                return [];
-              })
-            ),
-            // Jooble - multiple pages
-            ...Array.from({ length: maxPages }, (_, i) => 
-              fetchFromJooble(searchQuery, countryConfig.jooble, i + 1).catch(err => {
-                console.warn(`Jooble page ${i + 1} failed for ${searchCountry}:`, err);
+              fetchFromZipRecruiter(searchQuery, countryConfig.name, i + 1).catch(err => {
+                console.warn(`ZipRecruiter page ${i + 1} failed for ${searchCountry}:`, err);
                 return [];
               })
             )

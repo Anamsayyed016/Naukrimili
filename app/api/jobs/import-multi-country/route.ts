@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from '@/lib/jobs/providers';
+import { fetchFromAdzuna } from '@/lib/jobs/providers';
 import { upsertNormalizedJobs } from '@/lib/jobs/upsertJob';
 
 // Supported countries with their configurations
@@ -66,9 +66,6 @@ export async function POST(request: NextRequest) {
 
       let countryJobs: any[] = [];
       let adzunaCount = 0;
-      let jsearchCount = 0;
-      let googleCount = 0;
-      let joobleCount = 0;
 
       // Fetch jobs for each query in this country
       for (const query of countryQueries) {
@@ -80,24 +77,6 @@ export async function POST(request: NextRequest) {
           });
           countryJobs.push(...adzunaJobs);
           adzunaCount += adzunaJobs.length;
-
-          // Fetch from JSearch
-          const jsearchJobs = await fetchFromJSearch(query, countryConfig.jsearch, page);
-          countryJobs.push(...jsearchJobs);
-          jsearchCount += jsearchJobs.length;
-
-          // Fetch from Google Jobs
-          const googleJobs = await fetchFromGoogleJobs(query, countryConfig.google, page);
-          countryJobs.push(...googleJobs);
-          googleCount += googleJobs.length;
-
-          // Fetch from Jooble
-          const joobleJobs = await fetchFromJooble(query, countryConfig.jooble, page, {
-            radius: radiusKm,
-            countryCode: countryCode.toLowerCase()
-          });
-          countryJobs.push(...joobleJobs);
-          joobleCount += joobleJobs.length;
 
         } catch (error) {
           console.error(`❌ Error fetching jobs for "${query}" in ${countryCode}:`, error);
@@ -123,14 +102,11 @@ export async function POST(request: NextRequest) {
         name: countryConfig.name,
         totalJobs: countryJobs.length,
         providers: {
-          adzuna: adzunaCount,
-          jsearch: jsearchCount,
-          googleJobs: googleCount,
-          jooble: joobleCount
+          adzuna: adzunaCount
         }
       };
 
-      console.log(`✅ ${countryConfig.name}: Found ${countryJobs.length} jobs (Adzuna: ${adzunaCount}, JSearch: ${jsearchCount}, Google: ${googleCount}, Jooble: ${joobleCount})`);
+      console.log(`✅ ${countryConfig.name}: Found ${countryJobs.length} jobs (Adzuna: ${adzunaCount})`);
     }
 
     // Upsert all jobs to database

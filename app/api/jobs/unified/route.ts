@@ -341,7 +341,7 @@ export async function GET(request: NextRequest) {
     let externalJobsCount = 0;
 
     // Fetch from external APIs if includeExternal is true
-    if (includeExternal) {
+    if (includeExternal !== false) {
       try {
         console.log('🌐 Fetching jobs from external APIs...');
         

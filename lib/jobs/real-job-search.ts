@@ -5,7 +5,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from './providers';
+import { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter } from './providers';
 
 export interface RealJobSearchOptions {
   query?: string;
@@ -268,7 +268,7 @@ export class RealJobSearch {
       
       console.log(`🌍 Searching external APIs in ${countryConfig.name} (${searchCountry})`);
 
-      // Parallel API calls
+      // Parallel API calls - Only working APIs
       const apiPromises = [
         fetchFromAdzuna(searchQueries[0], countryConfig.adzuna, 1, {
           location: location || undefined,
@@ -277,12 +277,12 @@ export class RealJobSearch {
           console.warn(`Adzuna failed for ${searchCountry}:`, err);
           return [];
         }),
-        fetchFromJSearch(searchQueries[0], countryConfig.jsearch, 1).catch(err => {
-          console.warn(`JSearch failed for ${searchCountry}:`, err);
+        fetchFromIndeed(searchQueries[0], countryConfig.name, 1).catch(err => {
+          console.warn(`Indeed failed for ${searchCountry}:`, err);
           return [];
         }),
-        fetchFromGoogleJobs(searchQueries[1] || searchQueries[0], countryConfig.google, 1).catch(err => {
-          console.warn(`Google Jobs failed for ${searchCountry}:`, err);
+        fetchFromZipRecruiter(searchQueries[0], countryConfig.name, 1).catch(err => {
+          console.warn(`ZipRecruiter failed for ${searchCountry}:`, err);
           return [];
         })
       ];

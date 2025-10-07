@@ -121,7 +121,7 @@ export default function JobDetailsPage() {
     }
   };
 
-  const handleExternalApply = () => {
+    const handleExternalApply = () => {
     if (!job) {
       console.error('❌ Job data not available for external apply');
       return;
@@ -153,7 +153,18 @@ export default function JobDetailsPage() {
       isExternal: job.isExternal
     });
     
+    // Open in new tab with proper security attributes
     window.open(applyUrl, '_blank', 'noopener,noreferrer');
+    
+    // Track the click for analytics
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'job_apply_click', {
+        job_id: job.id,
+        job_title: job.title,
+        company: job.company,
+        source: job.source
+      });
+    }
   };
 
   const handleInternalApply = () => {
@@ -197,9 +208,10 @@ export default function JobDetailsPage() {
     );
   }
 
-  // Enhanced logic to determine if job is external
+    // Enhanced logic to determine if job is external
   const isExternalJob = job.isExternal || 
                        job.source !== 'manual' || 
+                       job.source !== 'sample' ||
                        (job.source_url || job.applyUrl || job.apply_url) !== null;
   const skillsArray = Array.isArray(job.skills) ? job.skills : (job.skills ? [job.skills] : []);
 

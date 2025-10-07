@@ -4,7 +4,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from './providers';
+import { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter } from './providers';
 
 export interface OptimizedSearchOptions {
   query?: string;
@@ -284,7 +284,7 @@ export class OptimizedJobSearch {
       // Use Promise.all for parallel API calls
       const apiPromises = [];
 
-      // Adzuna
+      // Adzuna - Working API
       apiPromises.push(
         fetchFromAdzuna(searchQueries[0], countryConfig.adzuna, 1, {
           location: location || undefined,
@@ -295,23 +295,21 @@ export class OptimizedJobSearch {
         })
       );
 
-      // JSearch
+      // Indeed - Working API
       apiPromises.push(
-        fetchFromJSearch(searchQueries[0], countryConfig.jsearch, 1).catch(err => {
-          console.warn(`JSearch failed for ${searchCountry}:`, err);
+        fetchFromIndeed(searchQueries[0], countryConfig.name, 1).catch(err => {
+          console.warn(`Indeed failed for ${searchCountry}:`, err);
           return [];
         })
       );
 
-      // Only use 2 APIs to reduce calls
-      if (searchQueries.length > 1) {
-        apiPromises.push(
-          fetchFromGoogleJobs(searchQueries[1], countryConfig.google, 1).catch(err => {
-            console.warn(`Google Jobs failed for ${searchCountry}:`, err);
-            return [];
-          })
-        );
-      }
+      // ZipRecruiter - Working API
+      apiPromises.push(
+        fetchFromZipRecruiter(searchQueries[0], countryConfig.name, 1).catch(err => {
+          console.warn(`ZipRecruiter failed for ${searchCountry}:`, err);
+          return [];
+        })
+      );
 
       try {
         const results = await Promise.all(apiPromises);
