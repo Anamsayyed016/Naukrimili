@@ -153,7 +153,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
             ...(location && { location }),
             country: country,
             page: page.toString(),
-            limit: '200'
+            limit: '1000'
           });
 
           console.log('📡 Fallback: Making API call to simple unlimited API:', `/api/jobs/simple-unlimited?${simpleParams.toString()}`);
@@ -182,7 +182,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
             country: country,
             includeExternal: 'true',
             page: page.toString(),
-            limit: '200'
+            limit: '1000'
           });
 
           console.log('📡 Final fallback: Making API call to unified API:', `/api/jobs/unified?${unifiedParams.toString()}`);

@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
     
     try {
       page = Math.max(1, parseInt(searchParams2.get('page') || '1'));
-      limit = Math.min(1000, Math.max(1, parseInt(searchParams2.get('limit') || '100'))); // Increased for unlimited search
+      limit = Math.min(1000, Math.max(1, parseInt(searchParams2.get('limit') || '500'))); // Increased for unlimited search
       radius = Math.min(100, Math.max(1, parseInt(searchParams2.get('radius') || '25')));
       userLat = parseFloat(searchParams2.get('lat') || '0');
       userLng = parseFloat(searchParams2.get('lng') || '0');
@@ -301,7 +301,10 @@ export async function GET(request: NextRequest) {
             // Only call legacy APIs if we have the required environment variables
             if (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) {
               externalPromises.push(
-                fetchFromAdzuna(query, country, 1).catch(err => {
+                fetchFromAdzuna(query, country, 1, { 
+                  location: location || undefined,
+                  distanceKm: 50 
+                }).catch(err => {
                   console.log('⚠️ Adzuna API failed:', err.message);
                   return [];
                 })
@@ -321,6 +324,16 @@ export async function GET(request: NextRequest) {
               externalPromises.push(
                 fetchFromZipRecruiter(query, location || 'India', 1).catch(err => {
                   console.log('⚠️ ZipRecruiter API failed:', err.message);
+                  return [];
+                })
+              );
+            }
+            
+            // Also try JSearch with location if available
+            if (process.env.RAPIDAPI_KEY) {
+              externalPromises.push(
+                fetchFromJSearch(query, country, 1, location).catch(err => {
+                  console.log('⚠️ JSearch API failed:', err.message);
                   return [];
                 })
               );
@@ -843,7 +856,7 @@ async function handleEnhancedJobSearch(request: NextRequest): Promise<NextRespon
     const includeExternal = searchParams.get('includeExternal') !== 'false';
     const includeDatabase = searchParams.get('includeDatabase') !== 'false';
     const includeSample = searchParams.get('includeSample') !== 'false';
-    const limit = Math.min(1000, Math.max(1, parseInt(searchParams.get('limit') || '100'))); // Increased for unlimited search
+    const limit = Math.min(1000, Math.max(1, parseInt(searchParams.get('limit') || '500'))); // Increased for unlimited search
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     
     // Custom ranking weights

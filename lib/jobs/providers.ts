@@ -69,9 +69,9 @@ export async function fetchFromAdzuna(
       timeout: 15000, // Increased timeout for better reliability
     });
 
-    const jobs = (data.results || []).map((r: any): NormalizedJob => ({
+    const jobs = (data.results || []).map((r: any, index: number): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: `${r.id}`,
+      sourceId: r.id ? `adzuna-${r.id}` : `adzuna-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
       title: r.title || r.position || '',
       company: r.company?.display_name || r.company || '',
       location: [
@@ -118,7 +118,7 @@ export async function fetchFromAdzuna(
  * JSearch (RapidAPI) fetcher with enhanced error handling
  * Note: JSearch sometimes returns different fields; adapt as needed.
  */
-export async function fetchFromJSearch(query: string, countryCode = 'US', page = 1) {
+export async function fetchFromJSearch(query: string, countryCode = 'US', page = 1, location?: string) {
   const key = process.env.RAPIDAPI_KEY;
   
   if (!key) {
@@ -129,10 +129,11 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
   try {
     const { data } = await axios.get('https://jsearch.p.rapidapi.com/search', {
       params: { 
-        query: `${query} jobs ${countryCode}`,
+        query: `${query} jobs ${location ? location + ' ' : ''}${countryCode}`,
         page,
         num_pages: 1,
-        country: countryCode
+        country: countryCode,
+        ...(location ? { location: location } : {})
       },
       headers: {
         'x-rapidapi-host': 'jsearch.p.rapidapi.com',
@@ -141,9 +142,9 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
       timeout: 15000, // Increased timeout for better reliability
     });
 
-    const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
+    const jobs = (data?.data || []).map((r: any, index: number): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.job_id || r.job_link || `${r.job_title}-${r.employer_name}-${r.job_city}`.slice(0, 255),
+      sourceId: r.job_id || r.job_link || `jsearch-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
       title: r.job_title || r.title || '',
       company: r.employer_name || r.employer || '',
       location: [r.job_city, r.job_country].filter(Boolean).join(', '),
