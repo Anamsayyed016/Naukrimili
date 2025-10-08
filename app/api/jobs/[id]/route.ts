@@ -50,6 +50,7 @@ function formatJobResponse(job: any) {
   
   return {
     ...job,
+    isExternal: baseUrl ? true : false,
     skills,
     // Ensure all URL fields are populated
     applyUrl: baseUrl || (isManual ? null : ''),
