@@ -60,9 +60,9 @@
     "deploy:ultra": "bash deploy-server.sh",
     "deploy:quick": "bash quick-deploy.sh",
     "deploy:windows": "powershell -ExecutionPolicy Bypass -File deploy-server.ps1",
-    "deploy:fix": "node scripts/fix-deployment-critical.cjs",
+    "deploy:fix": "bash scripts/deploy-production-fix.sh",
     "deploy:fix:linux": "bash scripts/deploy-fix-complete.sh",
-    "deploy:fix:windows": "node scripts/deploy-fix-windows.cjs",
+    "deploy:fix:windows": "node scripts/deploy-production-fix.cjs",
     "start:production": "set NODE_ENV=production && node server.cjs",
     "pm2:start": "pm2 start ecosystem.config.cjs --env production",
     "pm2:stop": "pm2 stop jobportal",
@@ -73,9 +73,7 @@
     "production:build": "npm ci --only=production --legacy-peer-deps && npm run build",
     "production:start": "NODE_ENV=production node server.js",
     "start:server": "node start-server.js",
-    "deploy:production": "bash deploy-production.sh",
-    "deploy:fix": "bash scripts/deploy-production-fix.sh",
-    "deploy:fix:windows": "node scripts/deploy-production-fix.cjs"
+    "deploy:production": "bash deploy-production.sh"
   },
   "dependencies": {
     "@auth/core": "^0.40.0",

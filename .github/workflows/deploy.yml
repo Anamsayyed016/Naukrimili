@@ -310,6 +310,7 @@ jobs:
         echo "📦 Installing missing dependencies..."
         npm install @types/node @types/react @types/react-dom --save-dev --legacy-peer-deps --force
         npm install clsx tailwind-merge class-variance-authority --legacy-peer-deps --force
+        npm install tailwindcss postcss autoprefixer --save-dev --legacy-peer-deps --force
         
         # Try multiple build strategies with detailed error capture
         BUILD_SUCCESS=false
@@ -547,6 +548,7 @@ jobs:
           npm install tailwindcss postcss autoprefixer --save-dev --legacy-peer-deps --force
           npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast --legacy-peer-deps --force
           npm install class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --force
+          npm install @types/node @types/react @types/react-dom --save-dev --legacy-peer-deps --force
           
           echo "✅ All dependencies installed successfully"
           echo "🔍 Debug: npm install completed"
