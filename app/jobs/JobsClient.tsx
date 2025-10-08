@@ -118,7 +118,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         includeDatabase: 'true',
         includeSample: 'false', // Prioritize real jobs only
         page: page.toString(),
-        limit: '50' // Reduced limit for faster loading
+        limit: '200' // Increased limit for unlimited search
       });
 
       console.log('📡 Making API call to:', `/api/jobs/unlimited?${unlimitedParams.toString()}`);
@@ -153,7 +153,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
             ...(location && { location }),
             country: country,
             page: page.toString(),
-            limit: '50'
+            limit: '200'
           });
 
           console.log('📡 Fallback: Making API call to simple unlimited API:', `/api/jobs/simple-unlimited?${simpleParams.toString()}`);
@@ -182,7 +182,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
             country: country,
             includeExternal: 'true',
             page: page.toString(),
-            limit: '50'
+            limit: '200'
           });
 
           console.log('📡 Final fallback: Making API call to unified API:', `/api/jobs/unified?${unifiedParams.toString()}`);

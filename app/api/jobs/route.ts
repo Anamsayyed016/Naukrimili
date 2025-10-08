@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
     
     try {
       page = Math.max(1, parseInt(searchParams2.get('page') || '1'));
-      limit = Math.min(100, Math.max(1, parseInt(searchParams2.get('limit') || '20'))); // Reduced max from 1000 to 100
+      limit = Math.min(1000, Math.max(1, parseInt(searchParams2.get('limit') || '100'))); // Increased for unlimited search
       radius = Math.min(100, Math.max(1, parseInt(searchParams2.get('radius') || '25')));
       userLat = parseFloat(searchParams2.get('lat') || '0');
       userLng = parseFloat(searchParams2.get('lng') || '0');
@@ -843,7 +843,7 @@ async function handleEnhancedJobSearch(request: NextRequest): Promise<NextRespon
     const includeExternal = searchParams.get('includeExternal') !== 'false';
     const includeDatabase = searchParams.get('includeDatabase') !== 'false';
     const includeSample = searchParams.get('includeSample') !== 'false';
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50'))); // Reduced max from 1000 to 100, default from 200 to 50
+    const limit = Math.min(1000, Math.max(1, parseInt(searchParams.get('limit') || '100'))); // Increased for unlimited search
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     
     // Custom ranking weights

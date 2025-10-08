@@ -82,7 +82,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         ...(location && { location }),
         country: country,
         page: page.toString(),
-        limit: '50', // Optimized: Reasonable limit to prevent chunk overflow
+        limit: '200', // Increased limit for unlimited search
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),
