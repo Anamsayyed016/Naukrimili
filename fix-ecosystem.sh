@@ -1,3 +1,5 @@
+#!/bin/bash
+cat > ecosystem.config.cjs << 'EOF'
 module.exports = {
   apps: [
     {
@@ -19,7 +21,13 @@ module.exports = {
         NEXTAUTH_URL: "https://aftionix.in",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+        DATABASE_URL: "postgresql://postgres:job123@localhost:5432/jobportal",
+        ADZUNA_APP_ID: "bdd02427",
+        ADZUNA_APP_KEY: "abf03277d13e4cb39b24bf236ad29299",
+        RAPIDAPI_KEY: "3c767d3998msha8933e5d0c4a9b1p187000jsnd04d13d1e9bc",
+        RAPIDAPI_HOST: "jsearch.p.rapidapi.com",
+        JSEARCH_API_KEY: "3c767d3998msha8933e5d0c4a9b1p187000jsnd04d13d1e9bc",
+        JOOBLE_API_KEY: "d4d0ab09-32f9-4c37-be17-59629043ca4a"
       },
       env_production: {
         NODE_ENV: "production",
@@ -32,7 +40,13 @@ module.exports = {
         NEXTAUTH_URL: "https://aftionix.in",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+        DATABASE_URL: "postgresql://postgres:job123@localhost:5432/jobportal",
+        ADZUNA_APP_ID: "bdd02427",
+        ADZUNA_APP_KEY: "abf03277d13e4cb39b24bf236ad29299",
+        RAPIDAPI_KEY: "3c767d3998msha8933e5d0c4a9b1p187000jsnd04d13d1e9bc",
+        RAPIDAPI_HOST: "jsearch.p.rapidapi.com",
+        JSEARCH_API_KEY: "3c767d3998msha8933e5d0c4a9b1p187000jsnd04d13d1e9bc",
+        JOOBLE_API_KEY: "d4d0ab09-32f9-4c37-be17-59629043ca4a"
       },
       log_file: "./logs/combined.log",
       out_file: "./logs/out.log",
@@ -57,3 +71,5 @@ module.exports = {
     }
   ]
 };
+EOF
+echo "ecosystem.config.cjs has been fixed!"

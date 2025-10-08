@@ -68,8 +68,8 @@ app.prepare().then(() => {
       console.error('❌ Failed to start server:', err);
       process.exit(1);
     }
-    console.log(`🎉 Server ready on http://${hostname}:${port}`);
-    console.log(`📊 Environment: ${process.env.NODE_ENV}`);
+    console.log('🎉 Server ready on http://' + hostname + ':' + port);
+    console.log('📊 Environment: ' + process.env.NODE_ENV);
     console.log('✅ Server startup completed');
   });
 }).catch((err) => {

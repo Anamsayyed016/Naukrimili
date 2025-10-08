@@ -1,0 +1,410 @@
+name: 🚀 Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        echo "📦 Installing dependencies with Node $(node --version)..."
+        npm install --legacy-peer-deps --engine-strict=false --force
+        
+    - name: 🔧 Create server files
+      run: |
+        echo "🔧 Creating server files..."
+        
+        # Create server.cjs
+        cat > server.cjs << 'EOF'
+        const { createServer } = require('http');
+        const { parse } = require('url');
+        const next = require('next');
+        
+        const dev = process.env.NODE_ENV !== 'production';
+        const hostname = process.env.HOSTNAME || '0.0.0.0';
+        const port = parseInt(process.env.PORT, 10) || 3000;
+        
+        console.log('🚀 Starting server...');
+        console.log('Environment:', process.env.NODE_ENV);
+        console.log('Port:', port);
+        console.log('Hostname:', hostname);
+        
+        const app = next({ 
+          dev, 
+          hostname, 
+          port,
+          dir: process.cwd()
+        });
+        
+        const handle = app.getRequestHandler();
+        
+        app.prepare().then(() => {
+          console.log('✅ Next.js app prepared');
+          
+          const server = createServer(async (req, res) => {
+            try {
+              const parsedUrl = parse(req.url, true);
+              await handle(req, res, parsedUrl);
+            } catch (err) {
+              console.error('❌ Error handling request:', req.url, err);
+              res.statusCode = 500;
+              res.end('Internal server error');
+            }
+          });
+        
+          server.on('error', (err) => {
+            console.error('❌ Server error:', err);
+            process.exit(1);
+          });
+        
+          server.listen(port, hostname, (err) => {
+            if (err) {
+              console.error('❌ Failed to start server:', err);
+              process.exit(1);
+            }
+            console.log(\`🎉 Server ready on http://\${hostname}:\${port}\`);
+            console.log(\`📊 Environment: \${process.env.NODE_ENV}\`);
+          });
+        }).catch((err) => {
+          console.error('❌ Failed to prepare Next.js app:', err);
+          process.exit(1);
+        });
+        EOF
+        
+        # Create ecosystem.config.cjs
+        cat > ecosystem.config.cjs << 'EOF'
+        module.exports = {
+          apps: [
+            {
+              name: "jobportal",
+              script: "server.cjs",
+              cwd: "/var/www/jobportal",
+              instances: 1,
+              autorestart: true,
+              watch: false,
+              max_memory_restart: "2G",
+              env: {
+                NODE_ENV: "production",
+                PORT: 3000,
+                NODE_OPTIONS: "--max-old-space-size=4096",
+                NEXT_TELEMETRY_DISABLED: "1",
+                NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
+                NEXT_PUBLIC_APP_URL: "https://aftionix.in",
+                NEXTAUTH_URL: "https://aftionix.in",
+                NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
+                JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
+                DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+              },
+              env_production: {
+                NODE_ENV: "production",
+                PORT: 3000,
+                NODE_OPTIONS: "--max-old-space-size=4096",
+                NEXT_TELEMETRY_DISABLED: "1",
+                NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
+                NEXT_PUBLIC_APP_URL: "https://aftionix.in",
+                NEXTAUTH_URL: "https://aftionix.in",
+                NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
+                JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
+                DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+              },
+              log_file: "/var/log/jobportal/combined.log",
+              out_file: "/var/log/jobportal/out.log",
+              error_file: "/var/log/jobportal/error.log",
+              log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+              merge_logs: true,
+              log_type: "json",
+              min_uptime: "10s",
+              max_restarts: 5,
+              restart_delay: 4000,
+              exec_mode: "fork",
+              ignore_watch: [
+                "node_modules",
+                ".next",
+                "logs",
+                "*.log",
+                ".git"
+              ]
+            }
+          ]
+        };
+        EOF
+        
+        # Create production .env file
+        cat > .env << 'EOF'
+        DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+        NEXTAUTH_URL="https://aftionix.in"
+        NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
+        JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
+        NODE_ENV=production
+        NEXT_TELEMETRY_DISABLED=1
+        NEXT_PUBLIC_APP_URL=https://aftionix.in
+        NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
+        EOF
+        
+        # Create .npmrc file
+        cat > .npmrc << 'EOF'
+        engine-strict=false
+        legacy-peer-deps=true
+        fund=false
+        audit=false
+        loglevel=error
+        auto-install-peers=true
+        EOF
+        
+        echo "✅ Server files created successfully"
+        echo "📋 Created files:"
+        ls -la server.cjs ecosystem.config.cjs .env .npmrc
+
+    - name: 🔨 Build application
+      run: |
+        echo "🔨 Building application with Node $(node --version)..."
+        export NEXT_TELEMETRY_DISABLED=1
+        export NODE_ENV=production
+        export NEXT_PUBLIC_APP_URL=https://aftionix.in
+        export NEXTAUTH_URL=https://aftionix.in
+        export NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
+        export JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
+        export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+        export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+        export GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
+        npx next build
+        
+    - name: 🔍 Validate build artifacts
+      run: |
+        echo "🔍 Validating build artifacts..."
+        if [ ! -d ".next" ]; then
+          echo "❌ Build failed - .next directory not found"
+          exit 1
+        fi
+        if [ ! -f ".next/BUILD_ID" ]; then
+          echo "❌ Build incomplete - BUILD_ID not found"
+          exit 1
+        fi
+        echo "✅ Build artifacts validated successfully"
+        
+    - name: 📥 Prepare SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+        
+    - name: 📤 Copy files to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        source: "."
+        target: "/var/www/jobportal"
+        strip_components: 0
+
+    - name: 🚀 Deploy to Hostinger VPS
+      uses: appleboy/ssh-action@v0.1.9
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        timeout: 30m
+        command_timeout: 28m
+        debug: true
+        script_stop: true
+        script: |
+          set -e
+          echo "🚀 Starting production deployment..."
+          
+          # Test SSH connection
+          echo "🔍 Testing SSH connection..."
+          echo "Current user: $(whoami)"
+          echo "Current directory: $(pwd)"
+          echo "Available space: $(df -h . | tail -1)"
+          
+          # Create project directory
+          echo "📁 Creating project directory..."
+          sudo mkdir -p /var/www/jobportal
+          sudo chown -R $USER:$USER /var/www/jobportal
+          
+          # Navigate to project directory
+          cd /var/www/jobportal
+          echo "📁 Working in: $(pwd)"
+          
+          # Verify files were copied
+          echo "🔍 Verifying copied files..."
+          echo "📋 Current working directory: $(pwd)"
+          echo "📋 Directory contents:"
+          ls -la | head -20
+          
+          # Check for specific files
+          echo "🔍 Checking for specific files..."
+          echo "📋 package.json:"
+          ls -la package.json || echo "❌ package.json not found"
+          echo "📋 server.cjs:"
+          ls -la server.cjs || echo "❌ server.cjs not found"
+          echo "📋 ecosystem.config.cjs:"
+          ls -la ecosystem.config.cjs || echo "❌ ecosystem.config.cjs not found"
+          echo "📋 .next directory:"
+          ls -la .next/ || echo "❌ .next directory not found"
+          
+          if [ ! -f "package.json" ]; then
+            echo "❌ package.json not found - files not copied properly"
+            echo "📋 Directory contents:"
+            ls -la
+            exit 1
+          fi
+          
+          if [ ! -d ".next" ]; then
+            echo "⚠️ .next directory not found, building on server..."
+            npm install --legacy-peer-deps --force
+            npm run build
+            if [ ! -d ".next" ]; then
+              echo "❌ Build failed, .next directory still not found"
+              exit 1
+            fi
+          fi
+          
+          echo "✅ Files successfully prepared on server"
+          
+          # Create BUILD_ID if missing
+          echo "🔍 Checking BUILD_ID..."
+          if [ ! -f ".next/BUILD_ID" ]; then
+            echo "⚠️ BUILD_ID not found, creating it..."
+            echo $(date +%s) > .next/BUILD_ID
+            echo "✅ BUILD_ID created: $(cat .next/BUILD_ID)"
+          else
+            echo "✅ BUILD_ID found: $(cat .next/BUILD_ID)"
+          fi
+          
+          # Install dependencies
+          echo "📦 Installing dependencies..."
+          npm install --legacy-peer-deps --force
+          
+          echo "✅ Dependencies installed successfully"
+          
+          # Generate Prisma client (if Prisma is used)
+          if [ -d "prisma" ] && [ -f "prisma/schema.prisma" ]; then
+            echo "🗄️ Generating Prisma client..."
+            npx prisma generate
+            echo "✅ Prisma client generated successfully"
+          else
+            echo "⚠️ Prisma not found, skipping Prisma client generation"
+          fi
+          
+          # Create log directory
+          echo "📁 Creating log directory..."
+          sudo mkdir -p /var/log/jobportal
+          sudo chown -R $USER:$USER /var/log/jobportal
+          
+          echo "✅ Environment variables configured"
+          
+          # Start the application with PM2
+          echo "🚀 Starting application with PM2..."
+          
+          # Ensure PM2 is available
+          if ! command -v pm2 >/dev/null 2>&1; then
+            echo "❌ PM2 not available, installing..."
+            npm install -g pm2 || {
+              echo "❌ Failed to install PM2"
+              exit 1
+            }
+          fi
+          
+          # Verify server files exist
+          echo "🔍 Verifying server files..."
+          if [ ! -f "server.cjs" ]; then
+            echo "❌ server.cjs not found"
+            exit 1
+          fi
+          
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "❌ ecosystem.config.cjs not found"
+            exit 1
+          fi
+          
+          if [ ! -f "package.json" ]; then
+            echo "❌ package.json not found"
+            exit 1
+          fi
+          
+          if [ ! -d ".next" ]; then
+            echo "❌ .next directory not found"
+            exit 1
+          fi
+          
+          echo "✅ All server files verified"
+          
+          # Start the application
+          pm2 start ecosystem.config.cjs --env production
+          
+          # Wait for PM2 to start
+          echo "⏳ Waiting for PM2 to start..."
+          sleep 15
+          
+          # Save PM2 configuration
+          echo "💾 Saving PM2 configuration..."
+          pm2 save
+          
+          # Setup PM2 startup
+          echo "🔄 Setting up PM2 startup..."
+          pm2 startup systemd -u $USER --hp $HOME || echo "⚠️ PM2 startup setup failed, but continuing..."
+          
+          # Check PM2 status
+          echo "🔍 PM2 Status:"
+          pm2 status
+          
+          # Check if port is listening
+          echo "🔍 Checking if port 3000 is listening..."
+          if netstat -tlnp | grep -q ":3000"; then
+            echo "✅ Port 3000 is listening"
+            
+            # Test basic connectivity
+            echo "🔍 Testing application response..."
+            if curl -f -s --max-time 10 http://localhost:3000/ > /dev/null 2>&1; then
+              echo "✅ Application is responding"
+            else
+              echo "⚠️ Application not responding yet - may need more time"
+              echo "📋 Checking PM2 logs for errors..."
+              pm2 logs jobportal --lines 20 --nostream || echo "Could not retrieve PM2 logs"
+            fi
+          else
+            echo "❌ Port 3000 not listening"
+            echo "📋 Checking PM2 logs..."
+            pm2 logs jobportal --lines 20 --nostream || echo "Could not retrieve PM2 logs"
+            echo "📋 Checking if server.cjs exists and is valid..."
+            if [ -f "server.cjs" ]; then
+              echo "✅ server.cjs exists"
+              echo "📋 server.cjs size: $(wc -c < server.cjs) bytes"
+              echo "📋 First 5 lines of server.cjs:"
+              head -5 server.cjs
+            else
+              echo "❌ server.cjs not found"
+            fi
+            echo "📋 Checking if ecosystem.config.cjs exists and is valid..."
+            if [ -f "ecosystem.config.cjs" ]; then
+              echo "✅ ecosystem.config.cjs exists"
+              echo "📋 ecosystem.config.cjs size: $(wc -c < ecosystem.config.cjs) bytes"
+            else
+              echo "❌ ecosystem.config.cjs not found"
+            fi
+            exit 1
+          fi
+          
+          echo "✅ Production deployment completed successfully!"
+          echo "🌐 Application is available at: http://localhost:3000"
+          echo "📊 Final Status:"
+          pm2 status

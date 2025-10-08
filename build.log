@@ -1,0 +1,320 @@
+ ⚠ Linting is disabled.
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+   ▲ Next.js 15.5.4
+   - Environments: .env
+   - Experiments (use with caution):
+     ✓ optimizeCss
+     ✓ scrollRestoration
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 34.5s
+   Skipping validation of types
+   Collecting page data ...
+   Generating static pages (0/214) ...
+Merging inline stylesheets into a single <style> tag skipped, no inline stylesheets to merge
+Merging inline stylesheets into a single <style> tag skipped, no inline stylesheets to merge
+   Generating static pages (53/214) 
+   Generating static pages (106/214) 
+   Generating static pages (160/214) 
+ ✓ Generating static pages (214/214)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                         Size  First Load JS
+┌ ○ /                                            8.14 kB         487 kB
+├ ○ /_not-found                                    241 B         479 kB
+├ ○ /about                                         239 B         479 kB
+├ ○ /admin                                         239 B         479 kB
+├ ○ /admin/applications                          1.74 kB         480 kB
+├ ○ /admin/categories                            1.89 kB         481 kB
+├ ○ /admin/dashboard                             1.59 kB         480 kB
+├ ○ /admin/jobs                                    240 B         479 kB
+├ ○ /admin/resumes                                 241 B         479 kB
+├ ○ /admin/scrape-jobs                           3.13 kB         482 kB
+├ ○ /admin/seed-jobs                              1.9 kB         481 kB
+├ ○ /admin/users                                   239 B         479 kB
+├ ƒ /api/admin                                     241 B         479 kB
+├ ƒ /api/admin/activity                            241 B         479 kB
+├ ƒ /api/admin/fraud-reports                       241 B         479 kB
+├ ƒ /api/admin/fraud-reports/[id]                  241 B         479 kB
+├ ƒ /api/admin/jobs                                241 B         479 kB
+├ ƒ /api/admin/notifications                       241 B         479 kB
+├ ƒ /api/admin/stats                               241 B         479 kB
+├ ƒ /api/admin/system/health                       241 B         479 kB
+├ ƒ /api/ads                                       241 B         479 kB
+├ ƒ /api/ai/company-suggestions                    241 B         479 kB
+├ ƒ /api/ai/debug-suggestions                      241 B         479 kB
+├ ƒ /api/ai/form-suggestions                       241 B         479 kB
+├ ƒ /api/ai/search-suggestions                     241 B         479 kB
+├ ƒ /api/analytics/dashboard                       241 B         479 kB
+├ ƒ /api/analytics/events                          238 B         479 kB
+├ ƒ /api/analytics/job-redirect                    240 B         479 kB
+├ ƒ /api/applications                              240 B         479 kB
+├ ƒ /api/auth/[...nextauth]                        241 B         479 kB
+├ ƒ /api/auth/send-otp                             241 B         479 kB
+├ ƒ /api/auth/set-role                             241 B         479 kB
+├ ƒ /api/auth/verify-otp                           241 B         479 kB
+├ ƒ /api/auth/verify-phone                         240 B         479 kB
+├ ƒ /api/automation/start                          241 B         479 kB
+├ ƒ /api/automation/status                         241 B         479 kB
+├ ƒ /api/automation/sync                           241 B         479 kB
+├ ƒ /api/candidates                                241 B         479 kB
+├ ƒ /api/candidates/[id]                           240 B         479 kB
+├ ƒ /api/categories                                241 B         479 kB
+├ ƒ /api/clear-cache                               241 B         479 kB
+├ ƒ /api/companies                                 240 B         479 kB
+├ ƒ /api/companies/[id]                            241 B         479 kB
+├ ƒ /api/companies/[id]/jobs                       239 B         479 kB
+├ ƒ /api/company/applications                      241 B         479 kB
+├ ƒ /api/company/jobs                              241 B         479 kB
+├ ƒ /api/company/profile                           241 B         479 kB
+├ ƒ /api/company/stats                             240 B         479 kB
+├ ƒ /api/content/[key]                             241 B         479 kB
+├ ƒ /api/cookies                                   241 B         479 kB
+├ ƒ /api/csrf                                      241 B         479 kB
+├ ƒ /api/debug-jobs                                240 B         479 kB
+├ ƒ /api/debug/auth-status                         239 B         479 kB
+├ ƒ /api/debug/clear-conflicts                     241 B         479 kB
+├ ƒ /api/debug/clear-oauth-conflicts               240 B         479 kB
+├ ƒ /api/debug/comprehensive-auth                  241 B         479 kB
+├ ƒ /api/debug/database                            240 B         479 kB
+├ ƒ /api/debug/database-test                       241 B         479 kB
+├ ƒ /api/debug/employer-auth                       241 B         479 kB
+├ ƒ /api/debug/env                                 239 B         479 kB
+├ ƒ /api/debug/fix-auth                            241 B         479 kB
+├ ƒ /api/debug/health                              239 B         479 kB
+├ ƒ /api/debug/oauth-status                        241 B         479 kB
+├ ƒ /api/debug/oauth-test                          241 B         479 kB
+├ ƒ /api/debug/providers                           240 B         479 kB
+├ ƒ /api/debug/seed-jobs                           241 B         479 kB
+├ ƒ /api/debug/session                             240 B         479 kB
+├ ƒ /api/debug/simple                              241 B         479 kB
+├ ƒ /api/debug/simple-test                         241 B         479 kB
+├ ƒ /api/debug/test-db                             240 B         479 kB
+├ ƒ /api/debug/user-status                         241 B         479 kB
+├ ƒ /api/deploy                                    241 B         479 kB
+├ ƒ /api/employer/analytics                        241 B         479 kB
+├ ƒ /api/employer/applications                     239 B         479 kB
+├ ƒ /api/employer/applications/[id]                241 B         479 kB
+├ ƒ /api/employer/applications/favorites           241 B         479 kB
+├ ƒ /api/employer/company-profile                  241 B         479 kB
+├ ƒ /api/employer/jobs                             239 B         479 kB
+├ ƒ /api/employer/jobs/[id]                        239 B         479 kB
+├ ƒ /api/employer/post-job                         241 B         479 kB
+├ ƒ /api/employer/resumes/[id]/download            241 B         479 kB
+├ ƒ /api/errors/mobile                             241 B         479 kB
+├ ƒ /api/featured-jobs                             239 B         479 kB
+├ ƒ /api/health                                    241 B         479 kB
+├ ƒ /api/jobs                                      241 B         479 kB
+├ ƒ /api/jobs/[id]                                 241 B         479 kB
+├ ƒ /api/jobs/advanced                             241 B         479 kB
+├ ƒ /api/jobs/bookmarks                            241 B         479 kB
+├ ƒ /api/jobs/bookmarks/[id]                       241 B         479 kB
+├ ƒ /api/jobs/categories                           241 B         479 kB
+├ ƒ /api/jobs/constants                            239 B         479 kB
+├ ƒ /api/jobs/create-sample                        240 B         479 kB
+├ ƒ /api/jobs/debug                                241 B         479 kB
+├ ƒ /api/jobs/debug-counts                         239 B         479 kB
+├ ƒ /api/jobs/debug-unlimited                      241 B         479 kB
+├ ƒ /api/jobs/enhance                              241 B         479 kB
+├ ƒ /api/jobs/enhanced                             239 B         479 kB
+├ ƒ /api/jobs/import                               241 B         479 kB
+├ ƒ /api/jobs/import-live                          240 B         479 kB
+├ ƒ /api/jobs/import-multi-country                 241 B         479 kB
+├ ƒ /api/jobs/performance                          241 B         479 kB
+├ ƒ /api/jobs/real                                 241 B         479 kB
+├ ƒ /api/jobs/salary-stats                         241 B         479 kB
+├ ƒ /api/jobs/scrape                               240 B         479 kB
+├ ƒ /api/jobs/search                               239 B         479 kB
+├ ƒ /api/jobs/sectors                              239 B         479 kB
+├ ƒ /api/jobs/seed                                 241 B         479 kB
+├ ƒ /api/jobs/seed-enhanced                        241 B         479 kB
+├ ƒ /api/jobs/seed-real                            238 B         479 kB
+├ ƒ /api/jobs/seed-unlimited                       241 B         479 kB
+├ ƒ /api/jobs/simple                               241 B         479 kB
+├ ƒ /api/jobs/simple-unlimited                     241 B         479 kB
+├ ƒ /api/jobs/stats                                241 B         479 kB
+├ ƒ /api/jobs/sync                                 240 B         479 kB
+├ ƒ /api/jobs/test                                 241 B         479 kB
+├ ƒ /api/jobs/test-connection                      241 B         479 kB
+├ ƒ /api/jobs/test-external                        240 B         479 kB
+├ ƒ /api/jobs/unified                              241 B         479 kB
+├ ƒ /api/jobs/unlimited                            240 B         479 kB
+├ ƒ /api/jobseeker/applications                    240 B         479 kB
+├ ƒ /api/jobseeker/profile                         241 B         479 kB
+├ ƒ /api/jobseeker/recommendations                 241 B         479 kB
+├ ƒ /api/jobseeker/resumes                         241 B         479 kB
+├ ƒ /api/jobseeker/resumes/[id]                    241 B         479 kB
+├ ƒ /api/locations                                 241 B         479 kB
+├ ƒ /api/messages                                  241 B         479 kB
+├ ƒ /api/messages/[id]/read                        241 B         479 kB
+├ ƒ /api/messages/mark-all-read                    241 B         479 kB
+├ ƒ /api/notifications                             241 B         479 kB
+├ ƒ /api/notifications/[id]                        241 B         479 kB
+├ ƒ /api/notifications/comprehensive               241 B         479 kB
+├ ƒ /api/notifications/socket                      241 B         479 kB
+├ ƒ /api/resumes                                   240 B         479 kB
+├ ƒ /api/resumes/[id]                              241 B         479 kB
+├ ƒ /api/resumes/[id]/download                     241 B         479 kB
+├ ƒ /api/resumes/[id]/export                       241 B         479 kB
+├ ƒ /api/resumes/[id]/stats                        241 B         479 kB
+├ ƒ /api/resumes/[id]/view                         241 B         479 kB
+├ ƒ /api/resumes/advanced-validate                 240 B         479 kB
+├ ƒ /api/resumes/analyze                           241 B         479 kB
+├ ƒ /api/resumes/autofill                          241 B         479 kB
+├ ƒ /api/resumes/check                             240 B         479 kB
+├ ƒ /api/resumes/enhanced-upload                   241 B         479 kB
+├ ƒ /api/resumes/generate                          241 B         479 kB
+├ ƒ /api/resumes/simple-upload                     241 B         479 kB
+├ ƒ /api/resumes/ultimate-upload                   241 B         479 kB
+├ ƒ /api/resumes/upload                            241 B         479 kB
+├ ƒ /api/resumes/views                             239 B         479 kB
+├ ƒ /api/search-suggestions                        241 B         479 kB
+├ ƒ /api/search/google-fallback                    241 B         479 kB
+├ ƒ /api/search/google-fallback/test               241 B         479 kB
+├ ƒ /api/search/history                            240 B         479 kB
+├ ƒ /api/search/history/[id]                       241 B         479 kB
+├ ƒ /api/search/suggestions/enhanced               239 B         479 kB
+├ ƒ /api/seeker/jobs                               240 B         479 kB
+├ ƒ /api/stats                                     241 B         479 kB
+├ ƒ /api/subscribe                                 240 B         479 kB
+├ ƒ /api/test                                      241 B         479 kB
+├ ƒ /api/test-cse                                  241 B         479 kB
+├ ƒ /api/test-email                                241 B         479 kB
+├ ƒ /api/test-import                               241 B         479 kB
+├ ƒ /api/test-notification                         239 B         479 kB
+├ ƒ /api/test-real-data                            240 B         479 kB
+├ ƒ /api/test-reed                                 238 B         479 kB
+├ ƒ /api/test/whatsapp-config                      239 B         479 kB
+├ ƒ /api/user/profile                              240 B         479 kB
+├ ƒ /api/user/stats                                241 B         479 kB
+├ ƒ /api/users                                     238 B         479 kB
+├ ƒ /api/users/[id]                                241 B         479 kB
+├ ○ /apple-icon                                    241 B         479 kB
+├ ○ /auth/debug-mobile                           4.56 kB         483 kB
+├ ○ /auth/error                                  1.44 kB         480 kB
+├ ○ /auth/forgot-password                          241 B         479 kB
+├ ○ /auth/gmail-profile                          3.02 kB         482 kB
+├ ○ /auth/login                                    637 B         479 kB
+├ ○ /auth/register                                 580 B         479 kB
+├ ○ /auth/register/employer                      3.96 kB         483 kB
+├ ○ /auth/register/jobseeker                     3.42 kB         482 kB
+├ ○ /auth/reset                                  2.51 kB         481 kB
+├ ○ /auth/role-selection                         3.11 kB         482 kB
+├ ○ /auth/setup-pin                              2.29 kB         481 kB
+├ ○ /auth/signin                                  3.6 kB         482 kB
+├ ○ /auth/signin-with-otp                        2.33 kB         481 kB
+├ ○ /auth/signup                                 1.79 kB         480 kB
+├ ○ /companies                                   1.06 kB         480 kB
+├ ƒ /companies/[id]                              2.69 kB         481 kB
+├ ○ /companies/dashboard                           240 B         479 kB
+├ ○ /companies/register                            241 B         479 kB
+├ ○ /contact                                       240 B         479 kB
+├ ○ /dashboard                                     891 B         480 kB
+├ ○ /dashboard/admin                             3.68 kB         482 kB
+├ ○ /dashboard/admin/analytics                   2.23 kB         481 kB
+├ ○ /dashboard/admin/automation                  2.31 kB         481 kB
+├ ○ /dashboard/admin/companies                   4.19 kB         483 kB
+├ ○ /dashboard/admin/jobs                        3.47 kB         482 kB
+├ ○ /dashboard/admin/users                       4.41 kB         483 kB
+├ ○ /dashboard/analytics                         3.94 kB         483 kB
+├ ○ /dashboard/company                             596 B         479 kB
+├ ○ /dashboard/jobseeker                         3.63 kB         482 kB
+├ ○ /dashboard/jobseeker/applications            3.21 kB         482 kB
+├ ○ /dashboard/jobseeker/bookmarks               2.46 kB         481 kB
+├ ○ /dashboard/jobseeker/profile                 3.14 kB         482 kB
+├ ○ /dashboard/jobseeker/resumes                 3.63 kB         482 kB
+├ ○ /dashboard/notifications                      2.9 kB         482 kB
+├ ○ /dashboard/user-resumes                      2.76 kB         481 kB
+├ ○ /debug-session                                 862 B         479 kB
+├ ○ /employer/analytics                          2.21 kB         481 kB
+├ ○ /employer/applications                       2.62 kB         481 kB
+├ ƒ /employer/applications/[id]                  4.48 kB         483 kB
+├ ○ /employer/company/create                     7.59 kB         486 kB
+├ ○ /employer/company/profile                    4.01 kB         483 kB
+├ ○ /employer/dashboard                          3.71 kB         482 kB
+├ ○ /employer/jobs                               3.53 kB         482 kB
+├ ƒ /employer/jobs/[id]/edit                     3.61 kB         482 kB
+├ ○ /employer/jobs/create                        11.4 kB         490 kB
+├ ○ /employer/options                            1.93 kB         481 kB
+├ ○ /health                                        241 B         479 kB
+├ ○ /icon                                          241 B         479 kB
+├ ○ /jobs                                        8.53 kB         487 kB
+├ ƒ /jobs/[...slug]                              3.12 kB         482 kB
+├ ƒ /jobs/[id]                                   3.31 kB         482 kB
+├ ƒ /jobs/[id]/apply                             8.26 kB         487 kB
+├ ƒ /jobs/[id]/external                          2.34 kB         481 kB
+├ ƒ /jobs/seo/[slug]                             3.25 kB         482 kB
+├ ○ /jobseeker/options                           1.98 kB         481 kB
+├ ƒ /locations                                   1.94 kB         481 kB
+├ ○ /messages                                    4.08 kB         483 kB
+├ ○ /mobile-debug                                4.12 kB         483 kB
+├ ○ /mobile-notification-test                    2.16 kB         481 kB
+├ ○ /mobile-test                                 4.52 kB         483 kB
+├ ○ /mobile-urgent-fix                           4.19 kB         483 kB
+├ ○ /privacy                                     4.62 kB         483 kB
+├ ○ /profile                                     2.03 kB         481 kB
+├ ○ /profile-setup                               2.78 kB         481 kB
+├ ○ /resumes                                     2.98 kB         482 kB
+├ ○ /resumes/builder                               986 B         480 kB
+├ ○ /resumes/upload                              4.32 kB         483 kB
+├ ○ /roles/choose                                2.15 kB         481 kB
+├ ○ /settings                                      241 B         479 kB
+├ ○ /settings/admin                                239 B         479 kB
+├ ○ /settings/company                              241 B         479 kB
+├ ○ /settings/jobseeker                            241 B         479 kB
+├ ○ /terms                                       4.16 kB         483 kB
+├ ○ /test-auth                                   1.51 kB         480 kB
+├ ○ /test-geolocation                            1.36 kB         480 kB
+├ ○ /test-gmail-profile                            835 B         479 kB
+├ ○ /test-notifications                          2.74 kB         481 kB
+├ ○ /test-oauth                                  1.11 kB         480 kB
+├ ○ /test-otp                                     2.5 kB         481 kB
+└ ○ /test-search-features                        6.82 kB         485 kB
++ First Load JS shared by all                     479 kB
+  ├ chunks/common-27f02048-f39f34f69f8f9086.js     12 kB
+  ├ chunks/common-2898f16f-cf206bf7ef4d8f0a.js   18.9 kB
+  ├ chunks/common-37a93c5f-95ca93ba05023b32.js   19.2 kB
+  ├ chunks/common-7b62ec6d-8236d9b2346c7216.js   16.9 kB
+  ├ chunks/common-abda2f14-174ff8b68c87ff23.js   12.7 kB
+  ├ chunks/common-b49fab05-c543598797ebfc15.js   19.8 kB
+  ├ chunks/common-b9f70e77-56870f41440c632a.js   15.1 kB
+  ├ chunks/common-c0fb0a63-8f7ba5ad5e344ba1.js   12.7 kB
+  ├ chunks/common-cbdef5fd-f7542dfd8918f101.js   16.4 kB
+  ├ chunks/common-f33ddaf2-99aa950c5d36a11c.js   15.8 kB
+  ├ chunks/common-f88dba18-3063ec8126d731ed.js   23.4 kB
+  └ chunks/vendors-2898f16f-aad8219eadee8825.js  17.9 kB
+  ├ chunks/vendors-4497f2ad-e3b14ff08785b8a5.js  13.4 kB
+  ├ chunks/vendors-98a6762f-a1adcf745df81a3b.js  14.9 kB
+  ├ chunks/vendors-aacc2dbb-25533f6c0451776a.js  12.6 kB
+  ├ chunks/vendors-b32ad36f-d7226a64bc870e67.js  49.2 kB
+  ├ chunks/vendors-ff30e0d3-95bcfc7467e707b0.js  54.2 kB
+  └ other shared chunks (total)                   134 kB
+
+Route (pages)                                       Size  First Load JS
+─ ƒ /api/aggregate/jobs                              0 B         479 kB
++ First Load JS shared by all                     480 kB
+  ├ chunks/common-27f02048-f39f34f69f8f9086.js     12 kB
+  ├ chunks/common-2898f16f-cf206bf7ef4d8f0a.js   18.9 kB
+  ├ chunks/common-37a93c5f-95ca93ba05023b32.js   19.2 kB
+  ├ chunks/common-7b62ec6d-8236d9b2346c7216.js   16.9 kB
+  ├ chunks/common-abda2f14-174ff8b68c87ff23.js   12.7 kB
+  ├ chunks/common-b49fab05-c543598797ebfc15.js   19.8 kB
+  ├ chunks/common-b9f70e77-56870f41440c632a.js   15.1 kB
+  ├ chunks/common-c0fb0a63-8f7ba5ad5e344ba1.js   12.7 kB
+  ├ chunks/common-cbdef5fd-f7542dfd8918f101.js   16.4 kB
+  ├ chunks/common-f33ddaf2-99aa950c5d36a11c.js   15.8 kB
+  ├ chunks/common-f88dba18-3063ec8126d731ed.js   23.4 kB
+  ├ chunks/vendors-2898f16f-aad8219eadee8825.js  17.9 kB
+  ├ chunks/vendors-4497f2ad-e3b14ff08785b8a5.js  13.4 kB
+  ├ chunks/vendors-98a6762f-a1adcf745df81a3b.js  14.9 kB
+  ├ chunks/vendors-aacc2dbb-25533f6c0451776a.js  12.6 kB
+  ├ chunks/vendors-b32ad36f-d7226a64bc870e67.js  49.2 kB
+  ├ chunks/vendors-ff30e0d3-95bcfc7467e707b0.js  54.2 kB
+  └ other shared chunks (total)                   134 kB
+
+ƒ Middleware                                     34.4 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
