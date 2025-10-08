@@ -423,13 +423,15 @@ jobs:
         echo "✅ Build artifacts validated successfully"
         
     - name: 📥 Prepare SSH Key
+      if: ${{ secrets.SSH_KEY != '' && secrets.SSH_PORT != '' && secrets.HOST != '' }}
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
         chmod 600 ~/.ssh/deploy_key
-        ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts 2>/dev/null || echo "Could not scan host keys"
         
     - name: 📤 Copy files to server
+      if: ${{ secrets.SSH_KEY != '' && secrets.SSH_PORT != '' && secrets.HOST != '' }}
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.HOST }}
@@ -441,6 +443,7 @@ jobs:
         strip_components: 0
 
     - name: 🚀 Deploy to Hostinger VPS
+      if: ${{ secrets.SSH_KEY != '' && secrets.SSH_PORT != '' && secrets.HOST != '' }}
       uses: appleboy/ssh-action@v0.1.9
       with:
         host: ${{ secrets.HOST }}
@@ -792,3 +795,18 @@ jobs:
           echo "🌐 Application is available at: http://localhost:3000"
           echo "📊 Final Status:"
           pm2 status
+          
+    - name: ⚠️ SSH Deployment Skipped
+      if: ${{ secrets.SSH_KEY == '' || secrets.SSH_PORT == '' || secrets.HOST == '' }}
+      run: |
+        echo "⚠️ SSH deployment skipped - secrets not configured"
+        echo ""
+        echo "To enable automatic deployment, add these secrets to your GitHub repository:"
+        echo "  - SSH_KEY: Your SSH private key"
+        echo "  - SSH_USER: Your SSH username (e.g., root)"
+        echo "  - SSH_PORT: Your SSH port (e.g., 22 or 65002)"
+        echo "  - HOST: Your server IP or hostname"
+        echo ""
+        echo "Go to: https://github.com/${{ github.repository }}/settings/secrets/actions"
+        echo ""
+        echo "✅ Build completed successfully - ready for manual deployment"
