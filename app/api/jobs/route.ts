@@ -5,6 +5,22 @@ import { JobProcessingMiddleware } from '@/lib/services/job-processing-middlewar
 import { trackJobSearch } from '@/lib/analytics/event-integration';
 import { auth } from '@/lib/nextauth-config';
 
+/**
+ * Remove duplicate jobs based on title, company, and location
+ */
+function removeDuplicateJobs(jobs: any[]): any[] {
+  const seen = new Set<string>();
+  return jobs.filter(job => {
+    const key = `${job.title?.toLowerCase()}-${job.company?.toLowerCase()}-${job.location?.toLowerCase()}`;
+    if (seen.has(key)) {
+      console.log(`🔄 Removing duplicate: ${job.title} at ${job.company}`);
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
 // Interface for job with distance calculation
 interface JobWithDistance {
   id: string;
@@ -390,9 +406,11 @@ export async function GET(request: NextRequest) {
                 console.log('⚠️ Failed to cache dynamic jobs:', cacheError);
               }
               
-              jobs = [...jobs, ...realExternalJobs];
+              // Add external jobs and remove duplicates
+              const combinedJobs = [...jobs, ...realExternalJobs];
+              jobs = removeDuplicateJobs(combinedJobs);
               total = Math.max(total, jobs.length);
-              console.log(`✅ Added ${realExternalJobs.length} dynamic/external jobs. Total now: ${jobs.length}`);
+              console.log(`✅ Added ${realExternalJobs.length} external jobs. After deduplication: ${jobs.length} jobs`);
             }
           } catch (importError) {
             console.error('❌ Failed to import job providers:', importError);
@@ -404,27 +422,11 @@ export async function GET(request: NextRequest) {
         console.log('⚠️ No search query provided, using database jobs only');
       }
       
-      // Only generate sample jobs if we have NO real jobs at all (neither database nor external)
+      // NO SAMPLE JOBS - Only show real jobs from APIs or database
       if (jobs.length === 0) {
-        console.log(`🔧 No real jobs found for query "${query}", generating minimal sample jobs as fallback...`);
-        
-        const sampleJobs = generateSampleJobs({
-          query,
-          location,
-          country,
-          jobType,
-          experienceLevel,
-          isRemote,
-          sector,
-          count: Math.min(5, limit) // Reduced to 5 sample jobs as fallback
-        });
-        
-        jobs = [...jobs, ...sampleJobs];
-        total = Math.max(total, jobs.length);
-        
-        console.log(`✅ Generated ${sampleJobs.length} sample jobs as fallback. Total now: ${jobs.length}`);
+        console.log(`⚠️ No real jobs found for query "${query}". Returning empty results (no fake/sample jobs).`);
       } else {
-        console.log(`✅ Found ${jobs.length} real jobs for query "${query}", not generating sample jobs`);
+        console.log(`✅ Found ${jobs.length} real jobs for query "${query}"`);
       }
     } catch (dbError: any) {
       console.error('❌ Database query failed:', dbError);
