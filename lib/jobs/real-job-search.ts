@@ -98,17 +98,9 @@ export class RealJobSearch {
       console.error('❌ External search failed:', error);
     }
 
-    // 3. Generate unlimited diverse jobs
-    try {
-      const additionalJobs = await this.generateDiverseJobs({
-        query, location, country, limit: Math.max(limit * 3, 300)
-      });
-      allJobs.push(...additionalJobs);
-      sources.sample = additionalJobs.length;
-      console.log(`✅ Additional jobs: Generated ${additionalJobs.length} jobs for unlimited search`);
-    } catch (error) {
-      console.error('❌ Additional job generation failed:', error);
-    }
+    // 3. NO FAKE JOBS - Only real jobs from APIs
+    // Disabled diverse job generation - we only want real jobs from external APIs
+    console.log(`⚠️ Skipping fake diverse job generation - only returning real jobs from APIs`);
 
     // 4. Remove duplicates
     const uniqueJobs = this.removeDuplicates(allJobs);

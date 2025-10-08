@@ -39,10 +39,11 @@ export async function fetchFromJSearch(
   location: string = 'India',
   page: number = 1
 ): Promise<DynamicJob[]> {
-  const apiKey = process.env.JSEARCH_API_KEY;
+  // Use RAPIDAPI_KEY for JSearch (they're the same for RapidAPI services)
+  const apiKey = process.env.RAPIDAPI_KEY || process.env.JSEARCH_API_KEY;
   
   if (!apiKey) {
-    console.log('⚠️ JSearch API key not configured');
+    console.log('⚠️ JSearch/RapidAPI key not configured');
     return [];
   }
 
