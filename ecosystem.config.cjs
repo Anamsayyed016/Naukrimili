@@ -19,7 +19,13 @@ module.exports = {
         NEXTAUTH_URL: "https://aftionix.in",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-        DATABASE_URL: "postgresql://jobportal_user:job123@localhost:5432/jobportal"
+        DATABASE_URL: "postgresql://postgres:job123@localhost:5432/jobportal",
+        // External Job APIs
+        RAPIDAPI_KEY: "26a12d7e16msh5d2e7c00f45f929p16b1bdjsndce898a7b70c",
+        RAPIDAPI_HOST: "job-search-api.p.rapidapi.com",
+        ADZUNA_APP_ID: "bdd02427",
+        ADZUNA_APP_KEY: "abf03277d13e4cb39b24bf236ad29299",
+        JOOBLE_API_KEY: "85e30089-6b57-4a15-ab05-549c766a8fc8"
       },
       env_production: {
         NODE_ENV: "production",
@@ -32,7 +38,13 @@ module.exports = {
         NEXTAUTH_URL: "https://aftionix.in",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-        DATABASE_URL: "postgresql://jobportal_user:job123@localhost:5432/jobportal"
+        DATABASE_URL: "postgresql://postgres:job123@localhost:5432/jobportal",
+        // External Job APIs
+        RAPIDAPI_KEY: "26a12d7e16msh5d2e7c00f45f929p16b1bdjsndce898a7b70c",
+        RAPIDAPI_HOST: "job-search-api.p.rapidapi.com",
+        ADZUNA_APP_ID: "bdd02427",
+        ADZUNA_APP_KEY: "abf03277d13e4cb39b24bf236ad29299",
+        JOOBLE_API_KEY: "85e30089-6b57-4a15-ab05-549c766a8fc8"
       },
       log_file: "./logs/combined.log",
       out_file: "./logs/out.log",
