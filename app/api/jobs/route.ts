@@ -324,23 +324,23 @@ export async function GET(request: NextRequest) {
               });
             }
             
-            // Add external jobs to results and cache them in database
+            // Add external jobs to results (DON'T cache fake dynamic jobs)
             if (realExternalJobs.length > 0) {
-              // Cache dynamic jobs in database for 24 hours
+              // Only cache REAL external jobs from actual APIs (not generated ones)
               try {
                 const jobsToCache = realExternalJobs.filter(job => 
-                  job.id && job.id.startsWith('dynamic-')
+                  job.id && !job.id.startsWith('dynamic-') && job.source !== 'dynamic'
                 );
                 
                 if (jobsToCache.length > 0) {
-                  console.log(`💾 Caching ${jobsToCache.length} dynamic jobs in database...`);
+                  console.log(`💾 Caching ${jobsToCache.length} real external jobs in database...`);
                   
                   for (const job of jobsToCache) {
                     try {
                       await prisma.job.upsert({
                         where: { 
                           source_sourceId: {
-                            source: 'dynamic',
+                            source: job.source || 'external',
                             sourceId: job.id
                           }
                         },
@@ -350,7 +350,7 @@ export async function GET(request: NextRequest) {
                         },
                         create: {
                           sourceId: job.id,
-                          source: 'dynamic',
+                          source: job.source || 'external',
                           title: job.title,
                           company: job.company,
                           location: job.location,

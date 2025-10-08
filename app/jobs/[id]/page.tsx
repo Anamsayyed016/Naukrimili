@@ -149,6 +149,26 @@ export default function JobDetailsPage() {
       return;
     }
 
+    // Check if this is a dynamic/sample job with placeholder URL
+    if (job.source === 'dynamic' || applyUrl.includes('/careers/')) {
+      const confirmed = confirm(
+        `⚠️ Note: This appears to be a sample/aggregated job listing.\n\n` +
+        `The URL may not lead to an active job posting on the company website.\n\n` +
+        `Would you like to:\n` +
+        `• Visit the company's general careers page, or\n` +
+        `• Search for this position on job boards like LinkedIn or Indeed?\n\n` +
+        `Click OK to visit the URL anyway, or Cancel to search on job boards.`
+      );
+      
+      if (!confirmed) {
+        // Redirect to job search on LinkedIn or Indeed
+        const searchQuery = encodeURIComponent(`${job.title} ${job.company}`);
+        const linkedInUrl = `https://www.linkedin.com/jobs/search/?keywords=${searchQuery}`;
+        window.open(linkedInUrl, '_blank', 'noopener,noreferrer');
+        return;
+      }
+    }
+
     console.log('🌐 Opening external apply URL:', applyUrl);
     console.log('📊 Job details:', {
       id: job.id,
@@ -244,6 +264,11 @@ export default function JobDetailsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
+                      {job.source === 'dynamic' && (
+                        <Badge className="bg-orange-100 text-orange-800">
+                          ⚠️ Aggregated Listing
+                        </Badge>
+                      )}
                       {job.isFeatured && (
                         <Badge className="bg-yellow-100 text-yellow-800">
                           <Star className="w-3 h-3 mr-1" />

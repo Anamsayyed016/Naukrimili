@@ -330,12 +330,10 @@ export async function fetchDynamicJobs(
     console.log('⚠️ External APIs failed, using dynamic generation');
   }
 
-  // If no external jobs found, generate dynamic jobs
+  // DON'T generate fake jobs - only return real jobs from APIs
   if (allJobs.length === 0) {
-    console.log(`🔧 No external jobs found, generating dynamic jobs for "${query}"`);
-    const dynamicJobs = await generateDynamicJobs(query, location, 10);
-    allJobs.push(...dynamicJobs);
-    console.log(`✅ Generated ${dynamicJobs.length} dynamic jobs`);
+    console.log(`⚠️ No external jobs found for "${query}" - returning empty results (no fake jobs)`);
+    // Return empty array instead of generating fake jobs
   }
 
   return allJobs;
