@@ -23,13 +23,19 @@ jobs:
     - name: 📦 Install dependencies
       run: |
         echo "📦 Installing dependencies with Node $(node --version)..."
+        
+        # Clean install to avoid conflicts
+        rm -f package-lock.json
+        rm -rf node_modules
+        
+        # Install all dependencies including production ones
         npm install --legacy-peer-deps --engine-strict=false --force
         
         # Explicitly install critical dependencies that might be missing
         echo "📦 Installing critical UI dependencies..."
-        npm install tailwindcss postcss autoprefixer --save-dev --legacy-peer-deps
-        npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast --legacy-peer-deps
-        npm install class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps
+        npm install tailwindcss postcss autoprefixer --legacy-peer-deps --force
+        npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast --legacy-peer-deps --force
+        npm install class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --force
         
     - name: 🔍 Verify dependencies and files
       run: |
@@ -448,8 +454,8 @@ jobs:
     - name: 📥 Prepare SSH Key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
-        chmod 600 ~/.ssh/deploy_key
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts 2>/dev/null || echo "Could not scan host keys"
         
     - name: 📤 Copy files to server
@@ -541,14 +547,19 @@ jobs:
           # Install dependencies
           echo "📦 Installing dependencies..."
           echo "🔍 Debug: About to run npm install"
+          
+          # Clean install to avoid conflicts
+          rm -f package-lock.json
+          rm -rf node_modules
+          
           npm install --legacy-peer-deps --force
           
           # Explicitly install critical dependencies
           echo "📦 Installing critical UI dependencies..."
-          npm install tailwindcss postcss autoprefixer --save-dev --legacy-peer-deps --force
+          npm install tailwindcss postcss autoprefixer --legacy-peer-deps --force
           npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast --legacy-peer-deps --force
           npm install class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --force
-          npm install @types/node @types/react @types/react-dom --save-dev --legacy-peer-deps --force
+          npm install @types/node @types/react @types/react-dom --legacy-peer-deps --force
           
           echo "✅ All dependencies installed successfully"
           echo "🔍 Debug: npm install completed"
