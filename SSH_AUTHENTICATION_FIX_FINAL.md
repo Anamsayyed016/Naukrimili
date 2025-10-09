@@ -28,7 +28,7 @@ AAAECyINJdGU5cg1h/zu3YkibJKxQ4ATu7hEyYbHhx4kKGqfUOG48xp5CwgF0G3K7JKXszU
 
 #### **HOST**
 ```
-aftionix.in
+naukrimili.com
 ```
 
 #### **SSH_USER**
@@ -47,7 +47,7 @@ root
 
 ```bash
 # SSH into your server
-ssh root@aftionix.in
+ssh root@naukrimili.com
 
 # Navigate to SSH directory
 cd ~/.ssh
@@ -67,7 +67,7 @@ sudo systemctl restart sshd
 
 **Test the connection manually:**
 ```bash
-ssh -i ~/.ssh/id_ed25519 -p 22 root@aftionix.in "echo 'SSH test successful'"
+ssh -i ~/.ssh/id_ed25519 -p 22 root@naukrimili.com "echo 'SSH test successful'"
 ```
 
 ### **STEP 4: Verify GitHub Secrets**
@@ -105,7 +105,7 @@ Your workflow is now configured to:
 
 3. **Test key manually:**
    ```bash
-   ssh -v root@aftionix.in
+   ssh -v root@naukrimili.com
    ```
 
 ## ✅ **EXPECTED RESULT**

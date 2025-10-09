@@ -130,7 +130,7 @@ curl -X POST http://localhost:3000/api/jobs/import-live \
 ### Step 5: Verify on Production Site
 ```bash
 # Test health endpoint
-curl https://aftionix.in/api/debug/health
+curl https://naukrimili.com/api/debug/health
 
 # Check response
 # Should show status for all 6 APIs

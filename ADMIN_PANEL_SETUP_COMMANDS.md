@@ -40,7 +40,7 @@ nano .env
 DATABASE_URL="postgresql://username:password@localhost:5432/jobportal"
 
 # NextAuth Configuration
-NEXTAUTH_URL=https://aftionix.in
+NEXTAUTH_URL=https://naukrimili.com
 NEXTAUTH_SECRET=your-super-secret-key-here-min-32-characters
 
 # Google OAuth
@@ -49,7 +49,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # Production Settings
 NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://aftionix.in
+NEXT_PUBLIC_APP_URL=https://naukrimili.com
 ```
 
 ### **4. Database Setup**
@@ -80,7 +80,7 @@ pm2 logs jobportal
 ### **6. Nginx Configuration Update**
 ```bash
 # Update Nginx config
-sudo nano /etc/nginx/conf.d/aftionix.conf
+sudo nano /etc/nginx/conf.d/naukrimili.conf
 
 # Test Nginx configuration
 sudo nginx -t
@@ -95,7 +95,7 @@ sudo systemctl reload nginx
 sudo apt install certbot python3-certbot-nginx
 
 # Get SSL certificate
-sudo certbot --nginx -d aftionix.in -d www.aftionix.in
+sudo certbot --nginx -d naukrimili.com -d www.naukrimili.com
 
 # Auto-renewal
 sudo crontab -e
@@ -131,11 +131,11 @@ sudo crontab -e
 
 ## 🔗 **Admin Panel URLs**
 
-- **Main Dashboard**: `https://aftionix.in/dashboard/admin`
-- **User Management**: `https://aftionix.in/dashboard/admin/users`
-- **Company Management**: `https://aftionix.in/dashboard/admin/companies`
-- **Job Management**: `https://aftionix.in/dashboard/admin/jobs`
-- **Analytics**: `https://aftionix.in/dashboard/admin/analytics`
+- **Main Dashboard**: `https://naukrimili.com/dashboard/admin`
+- **User Management**: `https://naukrimili.com/dashboard/admin/users`
+- **Company Management**: `https://naukrimili.com/dashboard/admin/companies`
+- **Job Management**: `https://naukrimili.com/dashboard/admin/jobs`
+- **Analytics**: `https://naukrimili.com/dashboard/admin/analytics`
 
 ## 🚨 **Important Notes**
 
@@ -162,7 +162,7 @@ pm2 restart jobportal
 ### **If Database Connection Fails:**
 ```bash
 # Test database connection
-curl https://aftionix.in/api/admin/test-db
+curl https://naukrimili.com/api/admin/test-db
 
 # Check database status
 sudo systemctl status postgresql

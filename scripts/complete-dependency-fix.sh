@@ -237,4 +237,4 @@ echo "Restarting Nginx..."
 systemctl restart nginx
 
 echo "✅ Complete dependency fix completed!"
-echo "Check your application at: https://aftionix.in"
+echo "Check your application at: https://naukrimili.com"

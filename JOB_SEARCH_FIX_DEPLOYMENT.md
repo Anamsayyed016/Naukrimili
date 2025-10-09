@@ -89,9 +89,9 @@ curl "http://localhost:3000/api/jobs?query=Google&limit=2"
 ```
 
 ### **2. Test in Browser**
-- **Basic Search**: https://aftionix.in/jobs?query=software
-- **Filtered Search**: https://aftionix.in/jobs?query=engineer&jobType=Full-time
-- **Real Jobs**: https://aftionix.in/jobs?query=Google
+- **Basic Search**: https://naukrimili.com/jobs?query=software
+- **Filtered Search**: https://naukrimili.com/jobs?query=engineer&jobType=Full-time
+- **Real Jobs**: https://naukrimili.com/jobs?query=Google
 
 ### **3. Verify Results**
 - ✅ Should show real jobs from Google, Microsoft, Amazon, etc.

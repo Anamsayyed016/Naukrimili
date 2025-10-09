@@ -78,4 +78,4 @@ echo "Restarting Nginx..."
 systemctl restart nginx
 
 echo "✅ Server fix completed!"
-echo "Check your application at: https://aftionix.in"
+echo "Check your application at: https://naukrimili.com"

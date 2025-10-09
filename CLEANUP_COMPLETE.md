@@ -155,10 +155,10 @@ git push origin main
 ### 2. Test
 ```bash
 # Health check
-curl https://aftionix.in/api/debug/health
+curl https://naukrimili.com/api/debug/health
 
 # Import jobs
-curl -X POST https://aftionix.in/api/jobs/import-live \
+curl -X POST https://naukrimili.com/api/jobs/import-live \
   -H "Content-Type: application/json" \
   -d '{"query":"software developer","location":"Bangalore"}'
 ```

@@ -13,8 +13,8 @@ echo "🚀 Starting job detail fix deployment..."
 echo "📝 Setting up environment variables..."
 cat > .env << 'EOF'
 # NextAuth Configuration
-NEXTAUTH_URL=https://aftionix.in
-NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
+NEXTAUTH_URL=https://naukrimili.com
+NEXTAUTH_SECRET=jobportal-secret-key-2024-naukrimili-production-deployment
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
@@ -24,11 +24,11 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
 
 # JWT Secret
-JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
+JWT_SECRET=jobportal-jwt-secret-2024-naukrimili-production
 
 # Production Settings
 NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://aftionix.in
+NEXT_PUBLIC_APP_URL=https://naukrimili.com
 NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
 
 # 3RD PARTY JOB API KEYS - CRITICAL FOR REAL JOBS
@@ -85,6 +85,6 @@ pm2 status
 
 echo "🎉 Job detail fix deployment completed!"
 echo "📝 Test URLs:"
-echo "- Health: https://aftionix.in/api/debug/health"
-echo "- Jobs: https://aftionix.in/jobs"
-echo "- Job ID 56: https://aftionix.in/jobs/56"
+echo "- Health: https://naukrimili.com/api/debug/health"
+echo "- Jobs: https://naukrimili.com/jobs"
+echo "- Job ID 56: https://naukrimili.com/jobs/56"

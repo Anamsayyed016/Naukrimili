@@ -76,10 +76,10 @@ try {
   process.env.NODE_ENV = 'production';
   process.env.NODE_OPTIONS = '--max-old-space-size=4096';
   process.env.NEXT_TELEMETRY_DISABLED = '1';
-  process.env.NEXT_PUBLIC_APP_URL = 'https://aftionix.in';
-  process.env.NEXTAUTH_URL = 'https://aftionix.in';
-  process.env.NEXTAUTH_SECRET = 'jobportal-secret-key-2024-aftionix-production-deployment';
-  process.env.JWT_SECRET = 'jobportal-jwt-secret-2024-aftionix-production';
+  process.env.NEXT_PUBLIC_APP_URL = 'https://naukrimili.com';
+  process.env.NEXTAUTH_URL = 'https://naukrimili.com';
+  process.env.NEXTAUTH_SECRET = 'jobportal-secret-key-2024-naukrimili-production-deployment';
+  process.env.JWT_SECRET = 'jobportal-jwt-secret-2024-naukrimili-production';
   process.env.DATABASE_URL = 'postgresql://postgres:password@localhost:5432/jobportal';
 
   // Step 5: Build the application
@@ -235,10 +235,10 @@ app.prepare().then(() => {
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
-        NEXT_PUBLIC_APP_URL: "https://aftionix.in",
-        NEXTAUTH_URL: "https://aftionix.in",
-        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
-        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
+        NEXT_PUBLIC_APP_URL: "https://naukrimili.com",
+        NEXTAUTH_URL: "https://naukrimili.com",
+        NEXTAUTH_SECRET: "jobportal-secret-key-2024-naukrimili-production-deployment",
+        JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production",
         DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
       },
       env_production: {
@@ -248,10 +248,10 @@ app.prepare().then(() => {
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
-        NEXT_PUBLIC_APP_URL: "https://aftionix.in",
-        NEXTAUTH_URL: "https://aftionix.in",
-        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
-        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
+        NEXT_PUBLIC_APP_URL: "https://naukrimili.com",
+        NEXTAUTH_URL: "https://naukrimili.com",
+        NEXTAUTH_SECRET: "jobportal-secret-key-2024-naukrimili-production-deployment",
+        JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production",
         DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
       },
       log_file: "./logs/combined.log",
@@ -282,12 +282,12 @@ app.prepare().then(() => {
 
   // Create .env file
   const envContent = `DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
-NEXTAUTH_URL="https://aftionix.in"
-NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
-JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
+NEXTAUTH_URL="https://naukrimili.com"
+NEXTAUTH_SECRET="jobportal-secret-key-2024-naukrimili-production-deployment"
+JWT_SECRET="jobportal-jwt-secret-2024-naukrimili-production"
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
-NEXT_PUBLIC_APP_URL=https://aftionix.in
+NEXT_PUBLIC_APP_URL=https://naukrimili.com
 NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true`;
 
   fs.writeFileSync('.env', envContent);

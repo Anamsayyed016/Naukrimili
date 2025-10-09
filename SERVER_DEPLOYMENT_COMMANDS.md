@@ -122,9 +122,9 @@ npm run build
 
 ## 🧪 Test URLs After Deployment
 
-1. **Job Search**: https://aftionix.in/jobs?query=software+engineer
-2. **Job Details**: https://aftionix.in/jobs/56
-3. **API Test**: https://aftionix.in/api/jobs/56
+1. **Job Search**: https://naukrimili.com/jobs?query=software+engineer
+2. **Job Details**: https://naukrimili.com/jobs/56
+3. **API Test**: https://naukrimili.com/api/jobs/56
 
 Check browser console (F12) - should be clean with no errors!
 

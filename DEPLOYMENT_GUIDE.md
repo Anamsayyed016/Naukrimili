@@ -22,8 +22,8 @@
 #### 1. Initial Server Setup
 ```bash
 # Upload and run the setup script on your server
-scp server-setup.sh root@aftionix.in:/root/
-ssh root@aftionix.in
+scp server-setup.sh root@naukrimili.com:/root/
+ssh root@naukrimili.com
 chmod +x server-setup.sh
 ./server-setup.sh
 ```
@@ -31,7 +31,7 @@ chmod +x server-setup.sh
 #### 2. SSL Certificate Setup
 ```bash
 # After server setup, get SSL certificate
-certbot --nginx -d aftionix.in -d www.aftionix.in
+certbot --nginx -d naukrimili.com -d www.naukrimili.com
 ```
 
 #### 3. Daily Management Commands
@@ -84,8 +84,8 @@ systemctl status nginx
 systemctl status postgresql
 
 # View Nginx logs
-tail -f /var/log/nginx/aftionix.in.access.log
-tail -f /var/log/nginx/aftionix.in.error.log
+tail -f /var/log/nginx/naukrimili.com.access.log
+tail -f /var/log/nginx/naukrimili.com.error.log
 
 # Check application logs
 tail -f /var/log/jobportal/combined.log
@@ -159,10 +159,10 @@ PORT=3000
 NODE_OPTIONS=--max-old-space-size=4096
 NEXT_TELEMETRY_DISABLED=1
 NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
-NEXT_PUBLIC_APP_URL=https://aftionix.in
-NEXTAUTH_URL=https://aftionix.in
-NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
-JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
+NEXT_PUBLIC_APP_URL=https://naukrimili.com
+NEXTAUTH_URL=https://naukrimili.com
+NEXTAUTH_SECRET=jobportal-secret-key-2024-naukrimili-production-deployment
+JWT_SECRET=jobportal-jwt-secret-2024-naukrimili-production
 DATABASE_URL=postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal
 ```
 

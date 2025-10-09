@@ -133,17 +133,17 @@ Your Google OAuth authentication system is now **fully implemented and working**
 
 ### **For Production Deployment:**
 1. **Update Google Cloud Console**:
-   - Add `https://aftionix.in/api/auth/callback/google` to authorized redirect URIs
+   - Add `https://naukrimili.com/api/auth/callback/google` to authorized redirect URIs
    - Update OAuth consent screen for production
 
 2. **Update Environment Variables**:
    ```env
-   NEXTAUTH_URL=https://aftionix.in
+   NEXTAUTH_URL=https://naukrimili.com
    NEXTAUTH_SECRET=your-production-secret
    ```
 
 3. **Test Production OAuth**:
-   - Visit `https://aftionix.in/auth/signin`
+   - Visit `https://naukrimili.com/auth/signin`
    - Test Google OAuth flow
    - Verify user creation and role selection
 
@@ -157,7 +157,7 @@ Your Google OAuth authentication system is now **fully implemented and working**
 - ✅ **User Friendly**: One-click authentication like other job portals
 - ✅ **Secure**: Enterprise-grade security implementation
 - ✅ **Mobile Ready**: Optimized for all devices
-- ✅ **Production Ready**: Ready for deployment to aftionix.in
+- ✅ **Production Ready**: Ready for deployment to naukrimili.com
 
 **No more conflicts, duplicates, or corrupted code!** Your authentication system is clean, professional, and ready for production use with PostgreSQL and PM2.
 

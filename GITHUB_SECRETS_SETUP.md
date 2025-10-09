@@ -12,7 +12,7 @@ Your deployment workflow requires these GitHub Secrets to be configured:
 
 #### **HOST**
 - **Name**: `HOST`
-- **Value**: `aftionix.in` (or your server IP address)
+- **Value**: `naukrimili.com` (or your server IP address)
 
 #### **SSH_USER**
 - **Name**: `SSH_USER`

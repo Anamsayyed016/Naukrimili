@@ -43,7 +43,7 @@ Go to: `https://github.com/anamsayyed58/jobportal/settings/secrets/actions`
 
 **SSH into your server:**
 ```bash
-ssh root@aftionix.in
+ssh root@naukrimili.com
 ```
 
 **Add the public key:**
@@ -66,7 +66,7 @@ sudo systemctl restart sshd
 
 **Test from your local machine:**
 ```bash
-ssh -i ~/.ssh/jobportal_deploy_key -p 22 root@aftionix.in "echo 'SSH test successful'"
+ssh -i ~/.ssh/jobportal_deploy_key -p 22 root@naukrimili.com "echo 'SSH test successful'"
 ```
 
 ## 🔧 **ALTERNATIVE: Use the Existing Key**
@@ -95,7 +95,7 @@ AAAECyINJdGU5cg1h/zu3YkibJKxQ4ATu7hEyYbHhx4kKGqfUOG48xp5CwgF0G3K7JKXszU
 **If you want to use the existing key, run this on your server:**
 ```bash
 # SSH into server
-ssh root@aftionix.in
+ssh root@naukrimili.com
 
 # Add the public key
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEOG48xp5CwgF0G3K7JKXszU17lL92z1EPih8LPQ2kH9 anamsayyed58@gmail.com" >> ~/.ssh/authorized_keys

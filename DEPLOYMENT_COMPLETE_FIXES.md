@@ -56,7 +56,7 @@
 - name: 🔨 Build application
   run: |
     export NODE_ENV=production
-    export NEXT_PUBLIC_APP_URL=https://aftionix.in
+    export NEXT_PUBLIC_APP_URL=https://naukrimili.com
     # ... other environment variables ...
     npx next build
 ```

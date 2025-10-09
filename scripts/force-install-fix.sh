@@ -75,4 +75,4 @@ echo "Restarting Nginx..."
 systemctl restart nginx
 
 echo "✅ Force install fix completed!"
-echo "Check your application at: https://aftionix.in"
+echo "Check your application at: https://naukrimili.com"

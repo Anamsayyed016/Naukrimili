@@ -49,9 +49,9 @@ export SKIP_ENV_VALIDATION=1
 export NEXT_TYPESCRIPT_IGNORE=1
 export NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
 export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
-export NEXTAUTH_URL="https://aftionix.in"
-export NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
-export JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
+export NEXTAUTH_URL="https://naukrimili.com"
+export NEXTAUTH_SECRET="jobportal-secret-key-2024-naukrimili-production-deployment"
+export JWT_SECRET="jobportal-jwt-secret-2024-naukrimili-production"
 
 # Set dummy values for missing OAuth credentials
 export GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-dummy-client-id}"

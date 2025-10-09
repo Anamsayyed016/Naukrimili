@@ -1,20 +1,20 @@
-# Online Domain Check Tools for aftionix.in
+# Online Domain Check Tools for naukrimili.com
 
 ## Quick Domain Status Check
 
-Use these online tools to check if your domain `aftionix.in` is activated:
+Use these online tools to check if your domain `naukrimili.com` is activated:
 
 ### 1. DNS Checker
-- **Whatsmydns.net**: https://www.whatsmydns.net/#A/aftionix.in
-- **DNS Checker**: https://dnschecker.org/all-dns-records-of-domain.php?query=aftionix.in
+- **Whatsmydns.net**: https://www.whatsmydns.net/#A/naukrimili.com
+- **DNS Checker**: https://dnschecker.org/all-dns-records-of-domain.php?query=naukrimili.com
 - **MXToolbox**: https://mxtoolbox.com/DNSLookup.aspx
 
 ### 2. Website Accessibility
-- **Down For Everyone Or Just Me**: https://downforeveryoneorjustme.com/aftionix.in
-- **Is It Down**: https://www.isitdownrightnow.com/aftionix.in.html
+- **Down For Everyone Or Just Me**: https://downforeveryoneorjustme.com/naukrimili.com
+- **Is It Down**: https://www.isitdownrightnow.com/naukrimili.com.html
 
 ### 3. SSL Certificate Check
-- **SSL Labs**: https://www.ssllabs.com/ssltest/analyze.html?d=aftionix.in
+- **SSL Labs**: https://www.ssllabs.com/ssltest/analyze.html?d=naukrimili.com
 - **SSL Checker**: https://www.sslshopper.com/ssl-checker.html
 
 ### 4. Performance & Speed
@@ -38,16 +38,16 @@ Use these online tools to check if your domain `aftionix.in` is activated:
 
 ### Windows Command Prompt:
 ```cmd
-nslookup aftionix.in
-ping aftionix.in
-curl http://aftionix.in
+nslookup naukrimili.com
+ping naukrimili.com
+curl http://naukrimili.com
 ```
 
 ### PowerShell:
 ```powershell
-Resolve-DnsName aftionix.in
-Test-NetConnection aftionix.in -Port 80
-Invoke-WebRequest http://aftionix.in
+Resolve-DnsName naukrimili.com
+Test-NetConnection naukrimili.com -Port 80
+Invoke-WebRequest http://naukrimili.com
 ```
 
 ## Troubleshooting Steps
@@ -71,9 +71,9 @@ Invoke-WebRequest http://aftionix.in
 
 Test these URLs to verify your domain:
 
-- `http://aftionix.in` - Main domain (HTTP)
-- `https://aftionix.in` - Main domain (HTTPS)
-- `http://www.aftionix.in` - WWW subdomain
+- `http://naukrimili.com` - Main domain (HTTP)
+- `https://naukrimili.com` - Main domain (HTTPS)
+- `http://www.naukrimili.com` - WWW subdomain
 - `http://69.62.73.84` - Direct VPS IP
 - `http://69.62.73.84:3000` - Direct app port
 

@@ -47,7 +47,7 @@ Go to your domain control panel and update:
 **CNAME Record:**
 - Type: CNAME
 - Name: www
-- Content: `aftionix.in`
+- Content: `naukrimili.com`
 - TTL: 300
 
 ## 🔄 **How Auto-Deployment Works**
@@ -61,7 +61,7 @@ git push origin main
 ```
 
 ### 2. **GitHub Webhook**
-- GitHub sends webhook to `https://aftionix.in/webhook.php`
+- GitHub sends webhook to `https://naukrimili.com/webhook.php`
 - Webhook verifies signature for security
 - Triggers deployment script
 
@@ -83,7 +83,7 @@ git push origin main
 ## 📁 **Project Structure (Lightweight)**
 
 ```
-/var/www/aftionix.in/
+/var/www/jobportal/
 ├── .next/                 # Built application
 ├── public/                # Static assets
 ├── package.json           # Dependencies
@@ -96,7 +96,7 @@ git push origin main
 ## 🎯 **Expected Results**
 
 ### **After Deployment**
-- **Website**: https://aftionix.in (live in 10 minutes)
+- **Website**: https://naukrimili.com (live in 10 minutes)
 - **Auto-deploy**: Push to GitHub → Server updates automatically
 - **Zero Downtime**: Seamless updates
 - **Performance**: Fast loading, optimized
@@ -114,7 +114,7 @@ After deployment, configure GitHub webhook:
 
 1. Go to your GitHub repository
 2. Settings → Webhooks → Add webhook
-3. **Payload URL**: `https://aftionix.in/webhook.php`
+3. **Payload URL**: `https://naukrimili.com/webhook.php`
 4. **Content type**: `application/json`
 5. **Secret**: `your-webhook-secret-here` (change this!)
 6. **Events**: Just the push event
@@ -126,7 +126,7 @@ After deployment, configure GitHub webhook:
 ```bash
 # PM2 status
 pm2 status
-pm2 logs aftionix-jobportal
+pm2 logs naukrimili-jobportal
 
 # Nginx status
 systemctl status nginx
@@ -139,7 +139,7 @@ certbot certificates
 ### **Restart Services**
 ```bash
 # Restart application
-pm2 restart aftionix-jobportal
+pm2 restart naukrimili-jobportal
 
 # Restart Nginx
 systemctl restart nginx
@@ -151,7 +151,7 @@ systemctl reload nginx
 ### **Manual Deployment**
 ```bash
 # If webhook fails, deploy manually
-cd /var/www/aftionix.in
+cd /var/www/jobportal
 ./deploy.sh
 ```
 
@@ -162,7 +162,7 @@ cd /var/www/aftionix.in
 #### 1. **Webhook Not Working**
 ```bash
 # Check webhook endpoint
-curl -X POST https://aftionix.in/webhook.php
+curl -X POST https://naukrimili.com/webhook.php
 
 # Check webhook logs
 tail -f /var/log/webhook.log
@@ -172,10 +172,10 @@ tail -f /var/log/webhook.log
 ```bash
 # Check PM2 status
 pm2 status
-pm2 logs aftionix-jobportal
+pm2 logs naukrimili-jobportal
 
 # Check application logs
-tail -f /var/log/aftionix-error.log
+tail -f /var/log/naukrimili-error.log
 ```
 
 #### 3. **SSL Issues**
@@ -203,7 +203,7 @@ certbot renew --force-renewal
 - [ ] DNS records updated to point to `69.62.73.84`
 - [ ] VPS deployment completed successfully
 - [ ] SSL certificate installed (HTTPS working)
-- [ ] Job portal accessible at https://aftionix.in
+- [ ] Job portal accessible at https://naukrimili.com
 - [ ] All features working (search, upload, dashboard)
 - [ ] Mobile responsive design working
 - [ ] Google OAuth login working
@@ -219,7 +219,7 @@ certbot renew --force-renewal
 **Next Step**: Run `.\quick-deploy.ps1` in PowerShell and watch your professional job portal come to life! 🎯
 
 **Time to Deploy**: ~10 minutes  
-**Result**: A fully functional job portal at https://aftionix.in with automatic updates!
+**Result**: A fully functional job portal at https://naukrimili.com with automatic updates!
 
 ---
 

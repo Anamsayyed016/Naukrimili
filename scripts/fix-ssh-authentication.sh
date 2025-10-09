@@ -73,8 +73,8 @@ echo ""
 log_header "Testing SSH Connection..."
 
 # Get connection details
-read -p "Enter server IP/domain (default: aftionix.in): " SERVER_HOST
-SERVER_HOST=${SERVER_HOST:-aftionix.in}
+read -p "Enter server IP/domain (default: naukrimili.com): " SERVER_HOST
+SERVER_HOST=${SERVER_HOST:-naukrimili.com}
 
 read -p "Enter SSH username (default: root): " SSH_USER
 SSH_USER=${SSH_USER:-root}

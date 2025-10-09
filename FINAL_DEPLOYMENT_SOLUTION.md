@@ -291,7 +291,7 @@ git commit -m "add missing UI components"
 After pushing, you should see:
 
 1. **✅ Green checkmark** on GitHub Actions workflow
-2. **✅ Application running** at https://aftionix.in
+2. **✅ Application running** at https://naukrimili.com
 3. **✅ No console errors** in browser
 4. **✅ All pages loading** correctly
 5. **✅ UI components styled** properly
@@ -301,7 +301,7 @@ After pushing, you should see:
 ## 📞 **Support Information**
 
 ### **If Deployment Succeeds:**
-- Application available at: https://aftionix.in
+- Application available at: https://naukrimili.com
 - PM2 logs: `ssh user@server "pm2 logs jobportal"`
 - PM2 status: `ssh user@server "pm2 status"`
 
@@ -336,7 +336,7 @@ Before pushing:
 After pushing:
 - ✅ Watch GitHub Actions workflow
 - ✅ Verify all steps complete successfully
-- ✅ Test application at https://aftionix.in
+- ✅ Test application at https://naukrimili.com
 - ✅ Check all features work correctly
 
 ---

@@ -302,7 +302,7 @@ git push origin main
 - Deployment should complete in ~10-15 minutes
 
 ### **Step 4: Verify**
-- Visit https://aftionix.in
+- Visit https://naukrimili.com
 - Check all pages load
 - Verify UI components styled correctly
 - Test functionality
@@ -378,7 +378,7 @@ All issues resolved. Your application will now:
 - ✅ Copy to server correctly
 - ✅ Install PM2 automatically
 - ✅ Start without errors
-- ✅ Run at https://aftionix.in
+- ✅ Run at https://naukrimili.com
 - ✅ Have full functionality
 
 **Commit and push to deploy successfully!** 🚀
@@ -388,7 +388,7 @@ All issues resolved. Your application will now:
 ## 📞 **Post-Deployment**
 
 Once deployed:
-- Application URL: https://aftionix.in
+- Application URL: https://naukrimili.com
 - PM2 Status: `ssh user@server "pm2 status"`
 - PM2 Logs: `ssh user@server "pm2 logs jobportal"`
 - Restart: `ssh user@server "pm2 restart jobportal"`

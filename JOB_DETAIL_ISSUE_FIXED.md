@@ -124,10 +124,10 @@ pm2 restart jobportal
 ## 🧪 **TESTING**
 
 ### **Test URLs:**
-- **Health Check**: `https://aftionix.in/api/debug/health`
-- **Jobs List**: `https://aftionix.in/jobs`
-- **Job ID 56**: `https://aftionix.in/jobs/56`
-- **Sample Job**: `https://aftionix.in/jobs/[any-created-job-id]`
+- **Health Check**: `https://naukrimili.com/api/debug/health`
+- **Jobs List**: `https://naukrimili.com/jobs`
+- **Job ID 56**: `https://naukrimili.com/jobs/56`
+- **Sample Job**: `https://naukrimili.com/jobs/[any-created-job-id]`
 
 ### **Expected Results:**
 ✅ Job detail pages load successfully  
@@ -169,7 +169,7 @@ pm2 restart jobportal
 - [ ] Job detail API returns proper data
 - [ ] External job redirects work
 - [ ] PM2 restarted successfully
-- [ ] Application accessible at `https://aftionix.in`
+- [ ] Application accessible at `https://naukrimili.com`
 - [ ] No more "No job found" errors
 
 ---
@@ -214,5 +214,5 @@ The job detail issue has been **completely resolved**:
 If you encounter any issues:
 1. Check PM2 status: `pm2 status`
 2. Check logs: `pm2 logs jobportal`
-3. Test health: `curl https://aftionix.in/api/debug/health`
+3. Test health: `curl https://naukrimili.com/api/debug/health`
 4. Run diagnostic: `node scripts/check-and-fix-jobs.js`

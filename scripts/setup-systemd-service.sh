@@ -21,7 +21,7 @@ echo "📝 Creating systemd service configuration..."
 cat > /etc/systemd/system/jobportal.service << 'SERVICE'
 [Unit]
 Description=Job Portal Next.js Application
-Documentation=https://aftionix.in
+Documentation=https://naukrimili.com
 After=network.target
 Wants=network.target
 

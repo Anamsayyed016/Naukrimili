@@ -46,7 +46,7 @@ npm install socket.io socket.io-client @types/socket.io @types/socket.io-client
 Add to your `.env` file:
 ```env
 # Socket.io Configuration
-NEXT_PUBLIC_BASE_URL=https://aftionix.in
+NEXT_PUBLIC_BASE_URL=https://naukrimili.com
 NEXTAUTH_SECRET=your_secret_key
 ```
 
@@ -196,7 +196,7 @@ pm2 start ecosystem.config.cjs --env production
 
 ### **Check Socket Status**
 ```bash
-curl https://aftionix.in/api/notifications/socket
+curl https://naukrimili.com/api/notifications/socket
 ```
 
 ## 🔧 **TROUBLESHOOTING**
@@ -221,7 +221,7 @@ curl https://aftionix.in/api/notifications/socket
 ### **Debug Commands**
 ```bash
 # Check Socket.io status
-curl https://aftionix.in/api/notifications/socket
+curl https://naukrimili.com/api/notifications/socket
 
 # Check PM2 status
 pm2 status

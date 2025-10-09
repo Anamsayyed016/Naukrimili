@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Linux Server Setup Script for Job Portal
-# Run this script on your production server (aftionix.in)
+# Run this script on your production server (naukrimili.com)
 
 set -e
 
@@ -10,8 +10,8 @@ APP_NAME="jobportal"
 APP_DIR="/var/www/jobportal"
 REPO_URL="https://github.com/Anamsayyed016/Naukrimili.git"
 BRANCH="main"
-DOMAIN="aftionix.in"
-EMAIL="admin@aftionix.in"
+DOMAIN="naukrimili.com"
+EMAIL="admin@naukrimili.com"
 NODE_VERSION="18"
 PM2_USER="www-data"
 
@@ -232,10 +232,10 @@ module.exports = {
         NODE_OPTIONS: '--max-old-space-size=4096',
         NEXT_TELEMETRY_DISABLED: '1',
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
-        NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
-        NEXTAUTH_URL: 'https://aftionix.in',
-        NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
-        JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
+        NEXT_PUBLIC_APP_URL: 'https://naukrimili.com',
+        NEXTAUTH_URL: 'https://naukrimili.com',
+        NEXTAUTH_SECRET: 'jobportal-secret-key-2024-naukrimili-production-deployment',
+        JWT_SECRET: 'jobportal-jwt-secret-2024-naukrimili-production',
         DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal'
       },
       env_production: {
@@ -244,10 +244,10 @@ module.exports = {
         NODE_OPTIONS: '--max-old-space-size=4096',
         NEXT_TELEMETRY_DISABLED: '1',
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: 'true',
-        NEXT_PUBLIC_APP_URL: 'https://aftionix.in',
-        NEXTAUTH_URL: 'https://aftionix.in',
-        NEXTAUTH_SECRET: 'jobportal-secret-key-2024-aftionix-production-deployment',
-        JWT_SECRET: 'jobportal-jwt-secret-2024-aftionix-production',
+        NEXT_PUBLIC_APP_URL: 'https://naukrimili.com',
+        NEXTAUTH_URL: 'https://naukrimili.com',
+        NEXTAUTH_SECRET: 'jobportal-secret-key-2024-naukrimili-production-deployment',
+        JWT_SECRET: 'jobportal-jwt-secret-2024-naukrimili-production',
         DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal'
       },
       log_file: '/var/log/jobportal/combined.log',

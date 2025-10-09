@@ -17,8 +17,8 @@ ssh -o StrictHostKeyChecking=no $VPS_USER@$VPS_IP << 'EOF'
 echo "🔍 Diagnosing DNS issue..."
 
 # 1. Check current DNS resolution
-echo "📊 Current DNS resolution for aftionix.in:"
-dig aftionix.in +short
+echo "📊 Current DNS resolution for naukrimili.com:"
+dig naukrimili.com +short
 
 echo ""
 echo "📊 Expected IP: $VPS_IP"
@@ -75,10 +75,10 @@ echo "   - TTL: 600 (10 minutes)"
 echo "4. Add CNAME record for www:"
 echo "   - Type: CNAME"
 echo "   - Name: www"
-echo "   - Value: aftionix.in"
+echo "   - Value: naukrimili.com"
 echo "   - TTL: 600"
 echo ""
 echo "5. Wait 10-15 minutes for DNS propagation"
-echo "6. Test: http://aftionix.in"
+echo "6. Test: http://naukrimili.com"
 echo ""
 echo "🌐 Your website should then show your job portal instead of GoDaddy parking page"

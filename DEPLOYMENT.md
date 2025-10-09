@@ -160,12 +160,12 @@ npm run build
 
 1. **Test Job Search:**
    ```
-   https://aftionix.in/jobs?query=software+engineer
+   https://naukrimili.com/jobs?query=software+engineer
    ```
 
 2. **Test Job Details:**
    ```
-   https://aftionix.in/jobs/56
+   https://naukrimili.com/jobs/56
    ```
 
 3. **Check Console (F12):**

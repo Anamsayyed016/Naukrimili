@@ -75,12 +75,12 @@ if [ ! -f ".env" ]; then
   echo "⚠️ .env not found, creating it..."
   cat > .env << 'EOF'
   DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
-  NEXTAUTH_URL="https://aftionix.in"
-  NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
-  JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
+  NEXTAUTH_URL="https://naukrimili.com"
+  NEXTAUTH_SECRET="jobportal-secret-key-2024-naukrimili-production-deployment"
+  JWT_SECRET="jobportal-jwt-secret-2024-naukrimili-production"
   NODE_ENV=production
   NEXT_TELEMETRY_DISABLED=1
-  NEXT_PUBLIC_APP_URL=https://aftionix.in
+  NEXT_PUBLIC_APP_URL=https://naukrimili.com
   NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
   EOF
   echo "✅ .env created"

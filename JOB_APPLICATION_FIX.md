@@ -3,7 +3,7 @@
 ## Problem Identified ✅
 
 The "Job not found" error was occurring because:
-- **URL**: `aftionix.in/jobs/ext-1756155505297-0/apply`
+- **URL**: `naukrimili.com/jobs/ext-1756155505297-0/apply`
 - **Job ID**: `ext-1756155505297-0` (external job ID)
 - **Database**: Only contains numeric IDs (1, 2, 3, etc.)
 - **Issue**: API route was trying to parse external ID as numeric, causing failure

@@ -227,7 +227,7 @@ echo "📋 Using pre-built artifacts from CI"
    ```
 
 3. **Check Application:**
-   - Visit https://aftionix.in
+   - Visit https://naukrimili.com
    - UI components should render with proper styling
    - No console errors about missing modules
    - All pages load correctly
@@ -271,7 +271,7 @@ echo "📋 Using pre-built artifacts from CI"
 1. **Commit and push changes** to trigger deployment
 2. **Monitor GitHub Actions** workflow
 3. **Check deployment logs** for verification messages
-4. **Test application** at https://aftionix.in
+4. **Test application** at https://naukrimili.com
 5. **Verify all features** work correctly
 
 ---

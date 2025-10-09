@@ -20,8 +20,8 @@ export function initializeSocket(httpServer: HTTPServer): SocketIOServer {
     cors: {
       origin: [
         'http://localhost:3000',
-        'https://aftionix.in',
-        'https://www.aftionix.in'
+        'https://naukrimili.com',
+        'https://www.naukrimili.com'
       ],
       methods: ['GET', 'POST'],
       credentials: true

@@ -20,7 +20,7 @@
 ### **3. GitHub Secrets Configuration** ✅
 - **Status**: ✅ **COMPLETED**
 - **Required Secrets Identified**:
-  - `HOST`: `aftionix.in`
+  - `HOST`: `naukrimili.com`
   - `SSH_USER`: `root`
   - `SSH_PORT`: `22`
   - `SSH_KEY`: `[Generated SSH key provided]`
@@ -30,7 +30,7 @@
 ## 🔧 **CONFIGURATION UPDATES**
 
 ### **Production Configuration** ✅
-- **Domain**: Updated to `aftionix.in`
+- **Domain**: Updated to `naukrimili.com`
 - **Repository**: Updated to `https://github.com/anamsayyed58/jobportal`
 - **Secrets**: All placeholder values replaced with production values
 - **Security**: Removed all hardcoded API keys from documentation
@@ -68,7 +68,7 @@
 1. Go to: `https://github.com/anamsayyed58/jobportal/settings/secrets/actions`
 2. Add these secrets:
    ```
-   HOST: aftionix.in
+   HOST: naukrimili.com
    SSH_USER: root
    SSH_PORT: 22
    SSH_KEY: [Your private SSH key content]
@@ -81,9 +81,9 @@
 4. Monitor: Deployment progress
 
 ### **Step 3: Verify Deployment**
-- **Health Check**: `https://aftionix.in/api/health`
-- **Admin Panel**: `https://aftionix.in/admin`
-- **Applications**: `https://aftionix.in/admin/applications`
+- **Health Check**: `https://naukrimili.com/api/health`
+- **Admin Panel**: `https://naukrimili.com/admin`
+- **Applications**: `https://naukrimili.com/admin/applications`
 
 ## 📊 **PROJECT HEALTH SCORE**
 

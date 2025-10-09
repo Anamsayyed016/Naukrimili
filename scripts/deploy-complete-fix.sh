@@ -51,5 +51,5 @@ echo "================================"
 echo "📝 Next steps:"
 echo "1. Check logs: pm2 logs jobportal --lines 20"
 echo "2. Monitor: pm2 monit"
-echo "3. Test URL: https://aftionix.in/jobs/56"
+echo "3. Test URL: https://naukrimili.com/jobs/56"
 

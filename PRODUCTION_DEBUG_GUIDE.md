@@ -32,7 +32,7 @@
 
 ```bash
 # SSH into your server
-ssh root@aftionix.in
+ssh root@naukrimili.com
 
 # Set environment variables
 export GOOGLE_CLIENT_ID="your_google_client_id_here"
@@ -133,11 +133,11 @@ pm2 env 0
 
 2. **Check Google Cloud Console:**
    - Ensure redirect URIs include:
-     - `https://aftionix.in/api/auth/callback/google`
-     - `https://aftionix.in/auth/callback/google`
+     - `https://naukrimili.com/api/auth/callback/google`
+     - `https://naukrimili.com/auth/callback/google`
 
 3. **Test OAuth Flow:**
-   - Visit: `https://aftionix.in/auth/signin`
+   - Visit: `https://naukrimili.com/auth/signin`
    - Try clicking "Continue with Google"
 
 ---
@@ -190,7 +190,7 @@ curl http://localhost:3000/api/health
 - [ ] Port 3000 is listening
 - [ ] Health endpoint returns 200 OK
 - [ ] Google OAuth credentials are set
-- [ ] Application accessible at https://aftionix.in
+- [ ] Application accessible at https://naukrimili.com
 - [ ] No critical errors in PM2 logs
 
 **All issues should now be resolved with these comprehensive fixes!** 🎉

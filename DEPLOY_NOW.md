@@ -83,7 +83,7 @@ Server:
 
 ## 🌐 **After Deployment**
 
-- **URL**: https://aftionix.in
+- **URL**: https://naukrimili.com
 - **Status**: `ssh user@server "pm2 status"`
 - **Logs**: `ssh user@server "pm2 logs jobportal"`
 

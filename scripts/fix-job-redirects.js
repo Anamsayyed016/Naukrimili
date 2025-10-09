@@ -342,7 +342,7 @@ async function main() {
     console.log('1. Restart your application: pm2 restart jobportal');
     console.log('2. Test redirects: node test-job-redirects.js');
     console.log('3. Import external jobs: curl -X POST http://localhost:3000/api/jobs/import-live -H "Content-Type: application/json" -d \'{"query":"software developer","location":"Bangalore"}\'');
-    console.log('4. Test a job redirect: Visit https://aftionix.in/jobs/[external-job-id]');
+    console.log('4. Test a job redirect: Visit https://naukrimili.com/jobs/[external-job-id]');
     
   } catch (error) {
     console.error('❌ Fix failed:', error);

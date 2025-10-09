@@ -167,5 +167,5 @@ pm2 status
 systemctl status nginx --no-pager -l
 
 print_success "Deep server debug completed!"
-print_status "Check the application at: https://aftionix.in"
+print_status "Check the application at: https://naukrimili.com"
 print_status "If still having issues, check: pm2 logs jobportal"

@@ -1,5 +1,5 @@
 # Production Deployment Status
-- Website: https://aftionix.in
+- Website: https://naukrimili.com
 - Status: Live and Running
 - Date: Wed Aug 20 01:30:21 PM UTC 2025
 - Server: Hostinger VPS

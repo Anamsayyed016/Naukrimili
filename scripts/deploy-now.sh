@@ -37,7 +37,7 @@ echo "💾 Saving PM2 configuration..."
 pm2 save
 
 echo "✅ Deployment completed successfully!"
-echo "🌐 Your website is now updated at: https://aftionix.in"
+echo "🌐 Your website is now updated at: https://naukrimili.com"
 
 # Show current status
 echo ""
@@ -52,4 +52,4 @@ EOF
 
 echo ""
 echo "🏁 Deployment completed!"
-echo "🌐 Check your website at: http://aftionix.in"
+echo "🌐 Check your website at: http://naukrimili.com"

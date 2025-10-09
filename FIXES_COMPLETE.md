@@ -82,7 +82,7 @@ pm2 save
 After deployment, test these scenarios:
 
 ### 1. Search and View Details
-- [ ] Go to https://aftionix.in/jobs
+- [ ] Go to https://naukrimili.com/jobs
 - [ ] Search for any job
 - [ ] Click "View Details" on search results
 - [ ] **Expected**: Job details page loads successfully (not "No job found" error)
@@ -104,7 +104,7 @@ After deployment, test these scenarios:
 - [ ] Share the URL and verify it works
 
 ### 5. Direct Job Access
-- [ ] Test direct access: https://aftionix.in/jobs/56
+- [ ] Test direct access: https://naukrimili.com/jobs/56
 - [ ] **Expected**: Job details load successfully
 
 ## Key Improvements
@@ -214,7 +214,7 @@ If any issues occur:
 
 1. **Check API Response**:
    ```bash
-   curl https://aftionix.in/api/jobs/56 | jq
+   curl https://naukrimili.com/api/jobs/56 | jq
    ```
 
 2. **Verify URL Fields**:
@@ -222,7 +222,7 @@ If any issues occur:
 
 3. **Check External Jobs**:
    ```bash
-   curl https://aftionix.in/api/jobs/ext-adzuna-12345 | jq
+   curl https://naukrimili.com/api/jobs/ext-adzuna-12345 | jq
    ```
 
 4. **Review Logs**:

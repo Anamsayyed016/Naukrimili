@@ -110,7 +110,7 @@ if [ -f ".next/server/middleware-manifest.json" ]; then
   sleep 10
   pm2 status
   systemctl restart nginx
-  echo "✅ Server fixed! Check https://aftionix.in"
+  echo "✅ Server fixed! Check https://naukrimili.com"
 else
   echo "❌ Build failed"
   exit 1

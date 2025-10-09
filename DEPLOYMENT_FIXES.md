@@ -81,7 +81,7 @@
    # Added: Direct .env file creation
    cat > .env << 'EOF'
    DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
-   NEXTAUTH_URL="https://aftionix.in"
+   NEXTAUTH_URL="https://naukrimili.com"
    # ... other variables ...
    EOF
    ```

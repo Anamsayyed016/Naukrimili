@@ -1,13 +1,13 @@
-# Domain Setup Guide for aftionix.in
+# Domain Setup Guide for naukrimili.com
 
 ## DNS Configuration for Your Job Portal
 
-Based on your DNS control panel showing `aftionix.in`, here's how to properly configure your domain for your job portal:
+Based on your DNS control panel showing `naukrimili.com`, here's how to properly configure your domain for your job portal:
 
 ### 1. Current DNS Records (from your control panel)
 
 Your current DNS setup shows:
-- **CNAME Record**: `www` → `aftionix.in` (TTL: 300)
+- **CNAME Record**: `www` → `naukrimili.com` (TTL: 300)
 - **CAA Record**: `@` → `O issue "pki goog"` (TTL: 14400)
 
 ### 2. Required DNS Records for Job Portal
@@ -24,7 +24,7 @@ TTL: 300
 ```
 Type: CNAME
 Name: www
-Content: aftionix.in
+Content: naukrimili.com
 TTL: 300
 ```
 
@@ -43,7 +43,7 @@ TTL: 14400
 Type: MX
 Name: @
 Priority: 10
-Content: mail.aftionix.in
+Content: mail.naukrimili.com
 TTL: 3600
 ```
 
@@ -79,15 +79,15 @@ TTL: 3600
 
 Update your `.env.production` file:
 ```bash
-NEXTAUTH_URL="https://aftionix.in"
-NEXT_PUBLIC_BASE_URL="https://aftionix.in"
-NEXT_PUBLIC_DOMAIN="aftionix.in"
+NEXTAUTH_URL="https://naukrimili.com"
+NEXT_PUBLIC_BASE_URL="https://naukrimili.com"
+NEXT_PUBLIC_DOMAIN="naukrimili.com"
 ```
 
 ### 6. Next.js Configuration
 
 Your `next.config.mjs` is already configured for:
-- Domain: aftionix.in
+- Domain: naukrimili.com
 - HTTPS support
 - Security headers
 - Image optimization
@@ -106,14 +106,14 @@ Your `next.config.mjs` is already configured for:
 
 ```bash
 # Test DNS resolution
-nslookup aftionix.in
-nslookup www.aftionix.in
+nslookup naukrimili.com
+nslookup www.naukrimili.com
 
 # Test HTTPS
-curl -I https://aftionix.in
+curl -I https://naukrimili.com
 
 # Test API endpoints
-curl https://aftionix.in/api/health
+curl https://naukrimili.com/api/health
 ```
 
 ### 9. Common Issues & Solutions

@@ -130,7 +130,7 @@ curl http://localhost:3000/api/debug/health
 curl http://localhost:3000/api/jobs/1
 
 # Test on live site
-curl https://aftionix.in/api/debug/health
+curl https://naukrimili.com/api/debug/health
 ```
 
 ---

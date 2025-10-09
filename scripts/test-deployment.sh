@@ -152,10 +152,10 @@ module.exports = {
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
         NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
-        NEXT_PUBLIC_APP_URL: "https://aftionix.in",
-        NEXTAUTH_URL: "https://aftionix.in",
-        NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
-        JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
+        NEXT_PUBLIC_APP_URL: "https://naukrimili.com",
+        NEXTAUTH_URL: "https://naukrimili.com",
+        NEXTAUTH_SECRET: "jobportal-secret-key-2024-naukrimili-production-deployment",
+        JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production",
         DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
       }
     }
@@ -181,12 +181,12 @@ fi
 print_info "Test 6: Testing .env creation..."
 cat > test.env << 'EOF'
 DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
-NEXTAUTH_URL="https://aftionix.in"
-NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
-JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
+NEXTAUTH_URL="https://naukrimili.com"
+NEXTAUTH_SECRET="jobportal-secret-key-2024-naukrimili-production-deployment"
+JWT_SECRET="jobportal-jwt-secret-2024-naukrimili-production"
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
-NEXT_PUBLIC_APP_URL=https://aftionix.in
+NEXT_PUBLIC_APP_URL=https://naukrimili.com
 NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
 EOF
 

@@ -22,14 +22,14 @@ http {
     keepalive_timeout 65;
     types_hash_max_size 2048;
 
-    # HTTPS Server for aftionix.in
+    # HTTPS Server for naukrimili.com
     server {
         listen 443 ssl;
-        server_name www.aftionix.in aftionix.in;
+        server_name www.naukrimili.com naukrimili.com;
         
         # SSL Configuration (managed by Certbot)
-        ssl_certificate /etc/letsencrypt/live/aftionix.in/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/aftionix.in/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/naukrimili.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/naukrimili.com/privkey.pem;
         include /etc/letsencrypt/options-ssl-nginx.conf;
         ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
         
@@ -48,7 +48,7 @@ http {
     # HTTP Server - Redirect to HTTPS
     server {
         listen 80;
-        server_name www.aftionix.in aftionix.in;
+        server_name www.naukrimili.com naukrimili.com;
         
         # Redirect HTTP to HTTPS
         return 301 https://$host$request_uri;

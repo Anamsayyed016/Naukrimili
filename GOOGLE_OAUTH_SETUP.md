@@ -8,7 +8,7 @@ To enable Google OAuth authentication on your production server, you need to set
 
 ```bash
 # SSH into your server
-ssh root@aftionix.in
+ssh root@naukrimili.com
 
 # Set environment variables
 export GOOGLE_CLIENT_ID="your_google_client_id_here"
@@ -32,8 +32,8 @@ pm2 restart jobportal
 cat > /var/www/jobportal/.env << EOF
 GOOGLE_CLIENT_ID=your_google_client_id_here
 GOOGLE_CLIENT_SECRET=your_google_client_secret_here
-NEXTAUTH_URL=https://aftionix.in
-NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
+NEXTAUTH_URL=https://naukrimili.com
+NEXTAUTH_SECRET=jobportal-secret-key-2024-naukrimili-production-deployment
 DATABASE_URL=postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal
 EOF
 
@@ -44,11 +44,11 @@ pm2 restart jobportal
 ### Verification
 
 1. Check PM2 environment: `pm2 show jobportal`
-2. Test Google OAuth: Visit https://aftionix.in/auth/signin
+2. Test Google OAuth: Visit https://naukrimili.com/auth/signin
 3. Check logs: `pm2 logs jobportal`
 
 ### Google Cloud Console Setup
 
 Ensure your Google OAuth app has these redirect URIs:
-- https://aftionix.in/api/auth/callback/google
-- https://aftionix.in/auth/callback/google
+- https://naukrimili.com/api/auth/callback/google
+- https://naukrimili.com/auth/callback/google

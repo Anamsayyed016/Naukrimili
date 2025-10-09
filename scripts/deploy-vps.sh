@@ -22,4 +22,4 @@ echo "🔄 Restarting application..."
 pm2 restart jobportal || pm2 start npm --name "jobportal" -- start
 
 echo "✅ Deployment completed at $(date)"
-echo "🌐 Your job portal is now live at: https://aftionix.in"
+echo "🌐 Your job portal is now live at: https://naukrimili.com"

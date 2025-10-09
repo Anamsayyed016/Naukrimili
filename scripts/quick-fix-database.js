@@ -224,8 +224,8 @@ async function updateEnvFile() {
   console.log('📝 Updating .env file with working database config...');
   
   const envContent = `# NextAuth Configuration
-NEXTAUTH_URL=https://aftionix.in
-NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
+NEXTAUTH_URL=https://naukrimili.com
+NEXTAUTH_SECRET=jobportal-secret-key-2024-naukrimili-production-deployment
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
@@ -235,11 +235,11 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 DATABASE_URL="${workingConfig}"
 
 # JWT Secret
-JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
+JWT_SECRET=jobportal-jwt-secret-2024-naukrimili-production
 
 # Production Settings
 NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://aftionix.in
+NEXT_PUBLIC_APP_URL=https://naukrimili.com
 NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
 
 # 3RD PARTY JOB API KEYS - CRITICAL FOR REAL JOBS

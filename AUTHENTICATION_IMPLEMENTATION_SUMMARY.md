@@ -104,7 +104,7 @@ MainNavigation
 
 ### **1. Test Registration**
 ```
-Visit: https://aftionix.in/auth/register
+Visit: https://naukrimili.com/auth/register
 - Choose "Job Seeker" or "Employer"
 - Fill out the form
 - Verify account creation and automatic login
@@ -112,7 +112,7 @@ Visit: https://aftionix.in/auth/register
 
 ### **2. Test Login**
 ```
-Visit: https://aftionix.in/auth/login
+Visit: https://naukrimili.com/auth/login
 - Use existing credentials
 - Verify successful login and navigation update
 ```
@@ -127,7 +127,7 @@ After login:
 
 ### **4. Test Profile Page**
 ```
-Visit: https://aftionix.in/profile
+Visit: https://naukrimili.com/profile
 - Verify user details are displayed
 - Check role-specific actions are shown
 ```

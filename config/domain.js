@@ -1,11 +1,11 @@
-// Domain Configuration for aftionix.in
+// Domain Configuration for naukrimili.com
 const domainConfig = {
   production: {
-    domain: 'aftionix.in',
-    baseUrl: 'https://aftionix.in',
-    apiUrl: 'https://aftionix.in/api',
-    cdnUrl: 'https://aftionix.in',
-    emailDomain: 'aftionix.in',
+    domain: 'naukrimili.com',
+    baseUrl: 'https://naukrimili.com',
+    apiUrl: 'https://naukrimili.com/api',
+    cdnUrl: 'https://naukrimili.com',
+    emailDomain: 'naukrimili.com',
     ssl: true,
     www: true,
   },
@@ -19,11 +19,11 @@ const domainConfig = {
     www: false,
   },
   staging: {
-    domain: 'staging.aftionix.in',
-    baseUrl: 'https://staging.aftionix.in',
-    apiUrl: 'https://staging.aftionix.in/api',
-    cdnUrl: 'https://staging.aftionix.in',
-    emailDomain: 'staging.aftionix.in',
+    domain: 'staging.naukrimili.com',
+    baseUrl: 'https://staging.naukrimili.com',
+    apiUrl: 'https://staging.naukrimili.com/api',
+    cdnUrl: 'https://staging.naukrimili.com',
+    emailDomain: 'staging.naukrimili.com',
     ssl: true,
     www: false,
   }

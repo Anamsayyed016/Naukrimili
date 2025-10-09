@@ -127,7 +127,7 @@
    - GitHub Actions will automatically deploy
 
 3. **Test on production**:
-   - Visit https://aftionix.in
+   - Visit https://naukrimili.com
    - Search for jobs
    - Click "View Details" on various jobs
    - Try "Apply Now" button
@@ -198,5 +198,5 @@ If issues persist:
 1. Check server logs: `pm2 logs jobportal`
 2. Check database: Jobs should have proper `source_url` or `applyUrl`
 3. Verify API keys are configured for external job providers
-4. Test API endpoint directly: `curl https://aftionix.in/api/jobs/{id}`
+4. Test API endpoint directly: `curl https://naukrimili.com/api/jobs/{id}`
 

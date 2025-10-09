@@ -58,8 +58,8 @@ fi
 print_status "🌍 Creating production environment file..."
 cat > .env.production << 'EOF'
 # NextAuth Configuration
-NEXTAUTH_URL=https://aftionix.in
-NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
+NEXTAUTH_URL=https://naukrimili.com
+NEXTAUTH_SECRET=jobportal-secret-key-2024-naukrimili-production-deployment
 
 # Google OAuth (Required for Gmail Authentication)
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
@@ -69,11 +69,11 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
 
 # JWT Secret
-JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
+JWT_SECRET=jobportal-jwt-secret-2024-naukrimili-production
 
 # Production Settings
 NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://aftionix.in
+NEXT_PUBLIC_APP_URL=https://naukrimili.com
 NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
 
 # 3RD PARTY JOB API KEYS - CRITICAL FOR REAL JOBS
@@ -168,7 +168,7 @@ curl "http://localhost:3000/api/jobs/unified?query=software&location=Bangalore&i
 ```
 
 ### 4. Verify External Jobs
-1. Visit https://aftionix.in/jobs
+1. Visit https://naukrimili.com/jobs
 2. Search for "software developer"
 3. Click on any job with external source
 4. Verify it redirects to the actual job posting
@@ -241,4 +241,4 @@ echo "1. Test locally: node quick-test-apis.js"
 echo "2. Deploy to server: git add . && git commit -m 'Fix 3rd party APIs' && git push"
 echo "3. On server: git pull && pm2 restart jobportal"
 echo "4. Test on server: curl http://localhost:3000/api/debug/health"
-echo "5. Check jobs: Visit https://aftionix.in/jobs"
+echo "5. Check jobs: Visit https://naukrimili.com/jobs"

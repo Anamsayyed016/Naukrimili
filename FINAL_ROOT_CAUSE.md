@@ -279,7 +279,7 @@ After this fix, expect:
 - ✅ ~10-15 minute deployment time
 - ✅ PM2 auto-installation working
 - ✅ All health checks passing
-- ✅ Application running at https://aftionix.in
+- ✅ Application running at https://naukrimili.com
 
 ---
 

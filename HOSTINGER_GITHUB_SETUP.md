@@ -22,7 +22,7 @@
 - Webhook access
 
 ### 3. Domain
-- **Domain**: `aftionix.in`
+- **Domain**: `naukrimili.com`
 - **DNS Access**: To update A record to `69.62.73.84`
 
 ## 🚀 Quick Setup (5 Minutes)
@@ -39,7 +39,7 @@ Go to your domain control panel and update:
 **CNAME Record:**
 - Type: CNAME
 - Name: www
-- Content: `aftionix.in`
+- Content: `naukrimili.com`
 - TTL: 300
 
 ### Step 2: Deploy to VPS
@@ -59,7 +59,7 @@ chmod +x hostinger-github-deploy.sh
 ### Step 3: Configure GitHub Webhook
 1. Go to your GitHub repository
 2. Settings → Webhooks → Add webhook
-3. **Payload URL**: `https://aftionix.in/webhook.php`
+3. **Payload URL**: `https://naukrimili.com/webhook.php`
 4. **Content type**: `application/json`
 5. **Secret**: `your-webhook-secret-here` (change this!)
 6. **Events**: Just the push event
@@ -76,7 +76,7 @@ git push origin main
 ```
 
 ### 2. GitHub Webhook
-- GitHub sends webhook to `https://aftionix.in/webhook.php`
+- GitHub sends webhook to `https://naukrimili.com/webhook.php`
 - Webhook verifies signature for security
 - Triggers deployment script
 
@@ -114,7 +114,7 @@ location ~ /(node_modules|\.git|\.env) {
 ## 📁 Project Structure (Lightweight)
 
 ```
-/var/www/aftionix.in/
+/var/www/jobportal/
 ├── .next/                 # Built application
 ├── public/                # Static assets
 ├── package.json           # Dependencies
@@ -130,7 +130,7 @@ location ~ /(node_modules|\.git|\.env) {
 ```bash
 # PM2 status
 pm2 status
-pm2 logs aftionix-jobportal
+pm2 logs naukrimili-jobportal
 
 # Nginx status
 systemctl status nginx
@@ -143,7 +143,7 @@ certbot certificates
 ### Restart Services
 ```bash
 # Restart application
-pm2 restart aftionix-jobportal
+pm2 restart naukrimili-jobportal
 
 # Restart Nginx
 systemctl restart nginx
@@ -155,21 +155,21 @@ systemctl reload nginx
 ### Manual Deployment
 ```bash
 # If webhook fails, deploy manually
-cd /var/www/aftionix.in
+cd /var/www/jobportal
 ./deploy.sh
 ```
 
 ## 📊 Monitoring & Health
 
 ### Health Check Endpoint
-- **URL**: `https://aftionix.in/health`
+- **URL**: `https://naukrimili.com/health`
 - **Frequency**: Every 5 minutes
 - **Action**: Auto-restart if unhealthy
 
 ### Log Files
-- **Application**: `/var/log/aftionix-*.log`
+- **Application**: `/var/log/naukrimili-*.log`
 - **Webhook**: `/var/log/webhook.log`
-- **Health**: `/var/log/aftionix-health.log`
+- **Health**: `/var/log/naukrimili-health.log`
 - **Nginx**: `/var/log/nginx/`
 
 ### Performance Monitoring
@@ -190,7 +190,7 @@ free -h
 #### 1. Webhook Not Working
 ```bash
 # Check webhook endpoint
-curl -X POST https://aftionix.in/webhook.php
+curl -X POST https://naukrimili.com/webhook.php
 
 # Check webhook logs
 tail -f /var/log/webhook.log
@@ -202,10 +202,10 @@ tail -f /var/log/webhook.log
 ```bash
 # Check PM2 status
 pm2 status
-pm2 logs aftionix-jobportal
+pm2 logs naukrimili-jobportal
 
 # Check application logs
-tail -f /var/log/aftionix-error.log
+tail -f /var/log/naukrimili-error.log
 ```
 
 #### 3. SSL Issues
@@ -223,11 +223,11 @@ nginx -t
 #### 4. Permission Issues
 ```bash
 # Fix permissions
-chown -R www-data:www-data /var/www/aftionix.in
-chmod -R 755 /var/www/aftionix.in
+chown -R www-data:www-data /var/www/jobportal
+chmod -R 755 /var/www/jobportal
 
 # Check file ownership
-ls -la /var/www/aftionix.in
+ls -la /var/www/jobportal
 ```
 
 ## 🔒 Security Features
@@ -272,7 +272,7 @@ ls -la /var/www/aftionix.in
 ## 🎯 Expected Results
 
 ### After Setup
-- **Website**: https://aftionix.in (live)
+- **Website**: https://naukrimili.com (live)
 - **Auto-deploy**: Push to GitHub → Server updates
 - **Zero Downtime**: Seamless updates
 - **Performance**: Fast loading, optimized
@@ -302,7 +302,7 @@ yum install -y nodejs
 npm install -g pm2@latest
 
 # Update dependencies
-cd /var/www/aftionix.in
+cd /var/www/jobportal
 npm update
 ```
 
@@ -311,7 +311,7 @@ npm update
 ### Quick Health Check
 ```bash
 # All-in-one health check
-curl -f https://aftionix.in/health && echo "✅ Healthy" || echo "❌ Unhealthy"
+curl -f https://naukrimili.com/health && echo "✅ Healthy" || echo "❌ Unhealthy"
 ```
 
 ### Emergency Restart
@@ -324,7 +324,7 @@ systemctl restart nginx
 ### Log Analysis
 ```bash
 # Recent errors
-tail -f /var/log/aftionix-error.log
+tail -f /var/log/naukrimili-error.log
 
 # Webhook activity
 tail -f /var/log/webhook.log

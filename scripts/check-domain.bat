@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo   Domain Health Check for aftionix.in
+echo   Domain Health Check for naukrimili.com
 echo ========================================
 echo.
 

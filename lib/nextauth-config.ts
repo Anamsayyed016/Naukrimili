@@ -36,7 +36,7 @@ const customPrismaAdapter = {
 }
 
 // Validate required NextAuth environment variables
-const nextAuthUrl = process.env.NEXTAUTH_URL || 'https://aftionix.in';
+const nextAuthUrl = process.env.NEXTAUTH_URL || 'https://naukrimili.com';
 const nextAuthSecret = process.env.NEXTAUTH_SECRET || 'fallback-secret-key-for-development-only-32-chars-min';
 
 // Log configuration status

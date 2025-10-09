@@ -38,7 +38,7 @@ echo "2. ✅ Job detail pages work for dynamic jobs"
 echo "3. ✅ Expired jobs are automatically cleaned up"
 echo ""
 echo "📝 Next steps:"
-echo "1. Test a job search: https://aftionix.in/jobs?query=software"
+echo "1. Test a job search: https://naukrimili.com/jobs?query=software"
 echo "2. Click on a dynamic job to see details"
 echo "3. Check logs: pm2 logs jobportal --lines 20"
 

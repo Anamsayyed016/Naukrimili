@@ -99,7 +99,7 @@ ls -la .next/static/chunks/ | grep "4bd1b696-100b9d70ed4e49c1.js"
 ### 3. Cache Headers Verification
 ```bash
 # Check cache headers (replace with your domain)
-curl -I https://aftionix.in/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js
+curl -I https://naukrimili.com/_next/static/chunks/4bd1b696-100b9d70ed4e49c1.js
 ```
 
 Expected headers:

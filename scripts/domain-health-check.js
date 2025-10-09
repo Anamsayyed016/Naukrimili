@@ -2,7 +2,7 @@
 
 /**
  * Domain Health Check Script
- * Tests if aftionix.in is activated and working properly
+ * Tests if naukrimili.com is activated and working properly
  */
 
 const https = require('https');
@@ -56,7 +56,7 @@ function logInfo(message) {
   log(`ℹ️  ${message}`, 'blue');
 }
 
-const DOMAIN = 'aftionix.in';
+const DOMAIN = 'naukrimili.com';
 const VPS_IP = '69.62.73.84';
 
 async function checkDNSResolution() {

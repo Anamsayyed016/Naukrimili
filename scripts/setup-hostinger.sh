@@ -46,10 +46,10 @@ pm2 startup
 
 # Configure Nginx
 echo "⚙️ Configuring Nginx..."
-cat > /etc/nginx/sites-available/aftionix.in << 'EOF'
+cat > /etc/nginx/sites-available/naukrimili.com << 'EOF'
 server {
     listen 80;
-    server_name aftionix.in www.aftionix.in;
+    server_name naukrimili.com www.naukrimili.com;
     
     location / {
         proxy_pass http://localhost:3000;
@@ -66,7 +66,7 @@ server {
 EOF
 
 # Enable site
-ln -sf /etc/nginx/sites-available/aftionix.in /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/naukrimili.com /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
 # Test Nginx configuration
@@ -84,7 +84,7 @@ ufw allow 443
 ufw --force enable
 
 echo "✅ Hostinger VPS setup completed!"
-echo "🌐 Your website will be accessible at: https://aftionix.in"
+echo "🌐 Your website will be accessible at: https://naukrimili.com"
 echo "📋 Next steps:"
 echo "1. Add SSH_KEY secret to GitHub repository"
 echo "2. Push changes to trigger deployment"

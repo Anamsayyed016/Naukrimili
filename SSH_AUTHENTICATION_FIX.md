@@ -43,7 +43,7 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEOG48xp5CwgF0G3K7JKXszU17lL92z1EPih8LPQ2kH9
 
 ### **Step 3: Server Configuration Commands**
 
-**Run these commands on your server (aftionix.in):**
+**Run these commands on your server (naukrimili.com):**
 
 ```bash
 # 1. Create .ssh directory if it doesn't exist
@@ -69,7 +69,7 @@ ssh -i ~/.ssh/id_ed25519 root@localhost "echo 'SSH test successful'"
 
 #### **Secret 1: HOST**
 ```
-aftionix.in
+naukrimili.com
 ```
 
 #### **Secret 2: SSH_USER**
@@ -98,7 +98,7 @@ AAAECyINJdGU5cg1h/zu3YkibJKx4ATu7hEyYbHhx4kKGqfUOG48xp5CwgF0G3K7JKXszU
 **Before running deployment, test SSH manually:**
 
 ```bash
-ssh -i ~/.ssh/id_ed25519 -p 22 root@aftionix.in "echo 'SSH connection successful'"
+ssh -i ~/.ssh/id_ed25519 -p 22 root@naukrimili.com "echo 'SSH connection successful'"
 ```
 
 If this works, your deployment will succeed.

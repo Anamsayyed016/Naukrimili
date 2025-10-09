@@ -134,7 +134,7 @@ if [ -f "ecosystem.config.cjs" ]; then
     log_success "PM2 ecosystem config exists"
     
     # Check for production settings
-    if grep -q "aftionix.in" "ecosystem.config.cjs"; then
+    if grep -q "naukrimili.com" "ecosystem.config.cjs"; then
         log_success "Production host configured"
     else
         log_warning "Production host not configured"
@@ -149,7 +149,7 @@ log_header "Checking Environment Configuration..."
 if [ -f "env.template" ]; then
     log_success "Environment template exists"
     
-    if grep -q "aftionix.in" "env.template"; then
+    if grep -q "naukrimili.com" "env.template"; then
         log_success "Production domain configured"
     else
         log_warning "Production domain not configured"
@@ -181,7 +181,7 @@ log_success "✅ Project Structure: Complete"
 
 echo ""
 log_info "🔐 GitHub Secrets Required:"
-echo "   - HOST: aftionix.in"
+echo "   - HOST: naukrimili.com"
 echo "   - SSH_USER: root"
 echo "   - SSH_PORT: 22"
 echo "   - SSH_KEY: [Your private SSH key]"

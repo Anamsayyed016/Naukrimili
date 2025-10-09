@@ -74,7 +74,7 @@ Go to: `https://github.com/anamsayyed58/jobportal/settings/secrets/actions`
 
 #### **Secret 1: HOST**
 - **Name:** `HOST`
-- **Value:** `aftionix.in`
+- **Value:** `naukrimili.com`
 
 #### **Secret 2: SSH_USER**
 - **Name:** `SSH_USER`
@@ -94,7 +94,7 @@ Go to: `https://github.com/anamsayyed58/jobportal/settings/secrets/actions`
 
 ### **Test SSH Connection:**
 ```bash
-ssh -i ~/.ssh/id_ed25519 -p 22 root@aftionix.in "echo 'SSH test successful'"
+ssh -i ~/.ssh/id_ed25519 -p 22 root@naukrimili.com "echo 'SSH test successful'"
 ```
 
 ### **Test GitHub Actions:**
@@ -124,7 +124,7 @@ After completing this setup:
 - ✅ **Deployment script will run on server**
 - ✅ **Application will build successfully**
 - ✅ **PM2 will start the application**
-- ✅ **Website will be accessible at `https://aftionix.in`**
+- ✅ **Website will be accessible at `https://naukrimili.com`**
 
 ---
 
@@ -133,7 +133,7 @@ After completing this setup:
 **If SSH still fails:**
 1. Check server logs: `sudo tail -f /var/log/auth.log`
 2. Verify key format: `ssh-keygen -l -f ~/.ssh/authorized_keys`
-3. Test with verbose mode: `ssh -vvv root@aftionix.in`
+3. Test with verbose mode: `ssh -vvv root@naukrimili.com`
 
 **If GitHub Actions fails:**
 1. Check Actions logs for specific error messages

@@ -97,7 +97,7 @@ git push origin main
 ┌─────────────────┐
 │ Production      │
 │ Server          │
-│ (aftionix.in)   │
+│ (naukrimili.com)   │
 └─────────────────┘
 ```
 
@@ -126,7 +126,7 @@ git push origin main
 5. ✅ Copies files to `/var/www/jobportal`
 6. ✅ Installs dependencies
 7. ✅ Restarts PM2
-8. ✅ Your site is live at https://aftionix.in
+8. ✅ Your site is live at https://naukrimili.com
 
 ### On Server (After Push):
 
