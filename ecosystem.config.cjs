@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "jobportal",
+      name: "naukrimili",
       script: "server.cjs",
       cwd: process.cwd(),
       instances: 1,
