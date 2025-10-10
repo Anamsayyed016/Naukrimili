@@ -301,6 +301,45 @@ jobs:
         
         echo "✅ Build artifacts validated successfully"
         
+    - name: 🔍 Pre-transfer verification
+      run: |
+        echo "🔍 Verifying build artifacts before transfer..."
+        
+        # Verify .next directory exists and has content
+        if [ ! -d ".next" ]; then
+          echo "❌ CRITICAL: .next directory not found!"
+          exit 1
+        fi
+        
+        if [ ! -d ".next/server" ]; then
+          echo "❌ CRITICAL: .next/server directory not found!"
+          exit 1
+        fi
+        
+        if [ ! -d ".next/static" ]; then
+          echo "❌ CRITICAL: .next/static directory not found!"
+          exit 1
+        fi
+        
+        # Count files to ensure build is not empty
+        NEXT_FILE_COUNT=$(find .next -type f | wc -l)
+        echo "📋 .next directory contains $NEXT_FILE_COUNT files"
+        
+        if [ "$NEXT_FILE_COUNT" -lt 10 ]; then
+          echo "❌ CRITICAL: .next directory has too few files ($NEXT_FILE_COUNT)"
+          exit 1
+        fi
+        
+        # List key files
+        echo "📋 Key build artifacts:"
+        ls -lh .next/BUILD_ID .next/routes-manifest.json .next/prerender-manifest.json || echo "Some manifest files missing"
+        
+        # List directory structure
+        echo "📋 .next directory structure:"
+        find .next -type d | head -20
+        
+        echo "✅ Build artifacts verified and ready for transfer"
+        
     - name: 📥 Prepare SSH Key
       run: |
         mkdir -p ~/.ssh
@@ -335,18 +374,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        source: |
-          .
-          !.git
-          !node_modules
-          !coverage
-          !logs
-          !*.log
-          !.env.local
-          !.env.development
-          !.env.test
-          !test-results
-          !.nyc_output
+        source: ".next/,public/,app/,components/,lib/,styles/,prisma/,package.json,package-lock.json,next.config.mjs,server.cjs,ecosystem.config.cjs,tsconfig.json,postcss.config.cjs,tailwind.config.cjs,.env"
         target: "/var/www/naukrimili"
         strip_components: 0
         timeout: 120s
@@ -366,18 +394,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        source: |
-          .
-          !.git
-          !node_modules
-          !coverage
-          !logs
-          !*.log
-          !.env.local
-          !.env.development
-          !.env.test
-          !test-results
-          !.nyc_output
+        source: ".next/,public/,app/,components/,lib/,styles/,prisma/,package.json,package-lock.json,next.config.mjs,server.cjs,ecosystem.config.cjs,tsconfig.json,postcss.config.cjs,tailwind.config.cjs,.env"
         target: "/var/www/naukrimili"
         strip_components: 0
         timeout: 180s
