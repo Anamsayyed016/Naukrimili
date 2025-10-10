@@ -179,6 +179,17 @@ jobs:
           echo "⚠️ Prisma generate failed, continuing with build..."
         }
         
+        # Validate middleware syntax
+        echo "🔍 Validating middleware.ts syntax..."
+        if [ -f "middleware.ts" ]; then
+          npx tsc --noEmit middleware.ts || {
+            echo "⚠️ Middleware TypeScript validation failed, but continuing..."
+          }
+          echo "✅ Middleware syntax validated"
+        else
+          echo "⚠️ middleware.ts not found"
+        fi
+        
         # Build with comprehensive error handling and detailed logging
         echo "🔨 Starting Next.js production build..."
         

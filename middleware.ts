@@ -2,7 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { safeLength } from '@/lib/safe-array-utils';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  try {
+    // Safety check for request and nextUrl
+    if (!request || !request.nextUrl) {
+      console.error('❌ Invalid request object in middleware');
+      return NextResponse.next();
+    }
+
+    const { pathname } = request.nextUrl;
+    
+    // Safety check for pathname
+    if (!pathname || typeof pathname !== 'string') {
+      console.error('❌ Invalid pathname in middleware:', pathname);
+      return NextResponse.next();
+    }
 
   // Protect debug routes in production
   if (pathname.startsWith('/api/debug') || pathname.startsWith('/debug') || pathname.startsWith('/mobile-debug')) {
@@ -101,10 +114,20 @@ export function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
+  
+  } catch (error) {
+    console.error('❌ Middleware error:', error);
+    console.error('❌ Request URL:', request?.nextUrl?.href || 'unknown');
+    console.error('❌ Request pathname:', request?.nextUrl?.pathname || 'unknown');
+    // Always return NextResponse.next() to prevent middleware from breaking the app
+    return NextResponse.next();
+  }
 }
 
 export const config = {
   matcher: [
     '/jobs/:path*'
   ],
+  // Add runtime configuration for better compatibility
+  runtime: 'edge',
 };
