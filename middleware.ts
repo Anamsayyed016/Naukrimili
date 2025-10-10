@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { safeLength } from '@/lib/safe-array-utils';
+import { safeLength } from './lib/safe-array-utils';
 
 export function middleware(request: NextRequest) {
   try {
@@ -128,6 +128,6 @@ export const config = {
   matcher: [
     '/jobs/:path*'
   ],
-  // Add runtime configuration for better compatibility
-  runtime: 'edge',
+  // Use experimental-edge runtime for Next.js 15 compatibility
+  runtime: 'experimental-edge',
 };
