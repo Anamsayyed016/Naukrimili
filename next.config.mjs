@@ -110,37 +110,11 @@ const nextConfig = {
     ];
   },
 
-  // Compiler optimizations
-  compiler: {
-    removeConsole: true, // Remove all console logs in production
-  },
+  // NO compiler optimizations - use default Next.js behavior
 
-  // Experimental features for performance - REMOVED optimizeCss to fix CSS loading
-  experimental: {
-    scrollRestoration: true
-  },
+  // NO experimental features - use default Next.js behavior
 
-  // Minimal webpack configuration to avoid CSS loading issues
-  webpack: (config, { dev, isServer, webpack }) => {
-    // Don't interfere with Next.js CSS handling - let it handle CSS files naturally
-    
-    // Fix for missing chunks
-    config.plugins.push(
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
-      })
-    );
-    
-    // Ensure proper module resolution
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-    };
-    
-    return config;
-  },
+  // NO webpack configuration - let Next.js handle everything naturally
 };
 
 export default nextConfig;
