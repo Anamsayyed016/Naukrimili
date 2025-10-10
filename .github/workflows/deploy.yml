@@ -153,12 +153,17 @@ jobs:
           if (!fs.existsSync(filePath)) {
             console.error(`❌ CRITICAL: Missing ${file}`);
             if (file === 'routes-manifest.json') {
-              // Create minimal routes manifest to prevent dataRoutes error
+              // Create minimal routes manifest to prevent dataRoutes and beforeFiles error
               const minimalManifest = {
                 version: 3,
                 pages404: true,
                 basePath: "",
                 redirects: [],
+                rewrites: {
+                  beforeFiles: [],
+                  afterFiles: [],
+                  fallback: []
+                },
                 headers: [],
                 dynamicRoutes: [],
                 dataRoutes: [],
@@ -539,7 +544,6 @@ jobs:
           .
           !.git
           !node_modules
-          !.next
           !coverage
           !logs
           !*.log
@@ -571,7 +575,6 @@ jobs:
           .
           !.git
           !node_modules
-          !.next
           !coverage
           !logs
           !*.log
@@ -711,7 +714,7 @@ jobs:
           # CRITICAL: Verify required manifest files
           if [ ! -f ".next/routes-manifest.json" ]; then
             echo "⚠️ routes-manifest.json missing, creating minimal version..."
-            echo '{"version":3,"pages404":true,"basePath":"","redirects":[],"headers":[],"dynamicRoutes":[],"dataRoutes":[],"i18n":null}' > .next/routes-manifest.json
+            echo '{"version":3,"pages404":true,"basePath":"","redirects":[],"rewrites":{"beforeFiles":[],"afterFiles":[],"fallback":[]},"headers":[],"dynamicRoutes":[],"dataRoutes":[],"i18n":null}' > .next/routes-manifest.json
             echo "✅ Created routes-manifest.json"
           fi
           
