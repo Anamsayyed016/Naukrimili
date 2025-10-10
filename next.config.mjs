@@ -140,7 +140,7 @@ const nextConfig = {
       };
       
       // Ensure proper chunk loading
-      config.output.chunkLoadingGlobal = 'webpackChunkjobportal';
+      config.output.chunkLoadingGlobal = 'webpackChunknaukrimili';
       config.output.globalObject = 'self';
     }
     
