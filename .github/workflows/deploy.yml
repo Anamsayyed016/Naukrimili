@@ -674,15 +674,18 @@ jobs:
           fi
           echo "🔍 Debug: BUILD_ID check completed"
           
-          # OPTIMIZED: Install only production dependencies (much faster)
-          echo "📦 Installing production dependencies..."
-          echo "🔍 Using pre-built artifacts from CI - only installing production deps"
+          # Install all dependencies including dev dependencies for build
+          echo "📦 Installing all dependencies (including dev dependencies)..."
+          echo "🔍 Installing all deps to ensure build works correctly"
           
-          # Use production-only install (faster - no dev dependencies)
-          npm ci --only=production --legacy-peer-deps --ignore-scripts 2>/dev/null || \
-          npm install --only=production --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+          # Install all dependencies including dev dependencies
+          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
           
-          echo "✅ Production dependencies installed successfully"
+          # Explicitly install critical build dependencies
+          echo "📦 Installing critical build dependencies..."
+          npm install @tailwindcss/postcss tailwindcss postcss autoprefixer --legacy-peer-deps
+          
+          echo "✅ All dependencies installed successfully"
           
           # Verify the build was copied correctly
           echo "🔍 Verifying build artifacts..."
