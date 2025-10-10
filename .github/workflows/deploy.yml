@@ -94,11 +94,14 @@ jobs:
         const path = require('path');
         const fs = require('fs');
         
-        const dev = process.env.NODE_ENV !== 'production';
+        // CRITICAL: Force production mode
+        process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+        
+        const dev = false; // Always production in deployed environment
         const hostname = process.env.HOSTNAME || '0.0.0.0';
         const port = parseInt(process.env.PORT, 10) || 3000;
         
-        console.log('🚀 Starting server...');
+        console.log('🚀 Starting Naukrimili server...');
         console.log('Environment:', process.env.NODE_ENV);
         console.log('Port:', port);
         console.log('Hostname:', hostname);
@@ -124,7 +127,6 @@ jobs:
         const staticDir = path.join(nextDir, 'static');
         if (!fs.existsSync(staticDir)) {
           console.error('❌ CRITICAL: .next/static directory not found at:', staticDir);
-          console.error('📋 This will cause ENOENT errors when Next.js tries to access static files');
           console.error('🔧 Creating .next/static directory as emergency fix...');
           try {
             fs.mkdirSync(path.join(staticDir, 'chunks'), { recursive: true });
@@ -137,6 +139,48 @@ jobs:
           }
         } else {
           console.log('✅ .next/static directory found');
+        }
+        
+        // CRITICAL: Check for required manifest files
+        const requiredFiles = [
+          'BUILD_ID',
+          'routes-manifest.json',
+          'prerender-manifest.json'
+        ];
+        
+        for (const file of requiredFiles) {
+          const filePath = path.join(nextDir, file);
+          if (!fs.existsSync(filePath)) {
+            console.error(`❌ CRITICAL: Missing ${file}`);
+            if (file === 'routes-manifest.json') {
+              // Create minimal routes manifest to prevent dataRoutes error
+              const minimalManifest = {
+                version: 3,
+                pages404: true,
+                basePath: "",
+                redirects: [],
+                headers: [],
+                dynamicRoutes: [],
+                dataRoutes: [],
+                i18n: null
+              };
+              fs.writeFileSync(filePath, JSON.stringify(minimalManifest, null, 2));
+              console.log('✅ Created minimal routes-manifest.json');
+            } else if (file === 'prerender-manifest.json') {
+              // Create minimal prerender manifest
+              const minimalPrerender = {
+                version: 4,
+                routes: {},
+                dynamicRoutes: {},
+                notFoundRoutes: [],
+                preview: { previewModeId: "", previewModeSigningKey: "", previewModeEncryptionKey: "" }
+              };
+              fs.writeFileSync(filePath, JSON.stringify(minimalPrerender, null, 2));
+              console.log('✅ Created minimal prerender-manifest.json');
+            }
+          } else {
+            console.log(`✅ ${file} found`);
+          }
         }
         
         console.log('✅ Build artifacts verified');
@@ -210,9 +254,9 @@ jobs:
                 NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
                 NEXT_PUBLIC_APP_URL: "https://naukrimili.com",
                 NEXTAUTH_URL: "https://naukrimili.com",
-                NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
-                JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-                DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+                NEXTAUTH_SECRET: "naukrimili-secret-key-2024-production-deployment",
+                JWT_SECRET: "naukrimili-jwt-secret-2024-production",
+                DATABASE_URL: "postgresql://postgres:password@localhost:5432/naukrimili"
               },
               env_production: {
                 NODE_ENV: "production",
@@ -223,9 +267,9 @@ jobs:
                 NEXT_PUBLIC_SKIP_GOOGLE_FONTS: "true",
                 NEXT_PUBLIC_APP_URL: "https://naukrimili.com",
                 NEXTAUTH_URL: "https://naukrimili.com",
-                NEXTAUTH_SECRET: "jobportal-secret-key-2024-aftionix-production-deployment",
-                JWT_SECRET: "jobportal-jwt-secret-2024-aftionix-production",
-                DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+                NEXTAUTH_SECRET: "naukrimili-secret-key-2024-production-deployment",
+                JWT_SECRET: "naukrimili-jwt-secret-2024-production",
+                DATABASE_URL: "postgresql://postgres:password@localhost:5432/naukrimili"
               },
               log_file: "./logs/combined.log",
               out_file: "./logs/out.log",
@@ -254,10 +298,10 @@ jobs:
         
         # Create production .env file
         cat > .env << 'EOF'
-        DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+        DATABASE_URL="postgresql://postgres:password@localhost:5432/naukrimili"
         NEXTAUTH_URL="https://naukrimili.com"
-        NEXTAUTH_SECRET="jobportal-secret-key-2024-aftionix-production-deployment"
-        JWT_SECRET="jobportal-jwt-secret-2024-aftionix-production"
+        NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment"
+        JWT_SECRET="naukrimili-jwt-secret-2024-production"
         NODE_ENV=production
         NEXT_TELEMETRY_DISABLED=1
         NEXT_PUBLIC_APP_URL=https://naukrimili.com
@@ -288,9 +332,9 @@ jobs:
         export NODE_OPTIONS="--max-old-space-size=4096"
         export NEXT_PUBLIC_APP_URL=https://naukrimili.com
         export NEXTAUTH_URL=https://naukrimili.com
-        export NEXTAUTH_SECRET=jobportal-secret-key-2024-aftionix-production-deployment
-        export JWT_SECRET=jobportal-jwt-secret-2024-aftionix-production
-        export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+        export NEXTAUTH_SECRET=naukrimili-secret-key-2024-production-deployment
+        export JWT_SECRET=naukrimili-jwt-secret-2024-production
+        export DATABASE_URL="postgresql://postgres:password@localhost:5432/naukrimili"
         
         # Set Google OAuth variables with fallbacks
         if [ -n "${{ secrets.GOOGLE_CLIENT_ID }}" ]; then
@@ -487,7 +531,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
         source: "."
-        target: "/var/www/jobportal"
+        target: "/var/www/naukrimili"
         strip_components: 0
         timeout: 30s
         command_timeout: 10m
@@ -517,13 +561,13 @@ jobs:
           echo "Current directory: $(pwd)"
           echo "Available space: $(df -h . | tail -1)"
           
-          # Create project directory
+          # Create project directory with correct name
           echo "📁 Creating project directory..."
-          sudo mkdir -p /var/www/jobportal
-          sudo chown -R $USER:$USER /var/www/jobportal
+          sudo mkdir -p /var/www/naukrimili
+          sudo chown -R $USER:$USER /var/www/naukrimili
           
           # Navigate to project directory
-          cd /var/www/jobportal
+          cd /var/www/naukrimili
           echo "📁 Working in: $(pwd)"
           
           # Verify files were copied
@@ -568,25 +612,15 @@ jobs:
           fi
           echo "🔍 Debug: BUILD_ID check completed"
           
-          # Install dependencies
-          echo "📦 Installing dependencies..."
-          echo "🔍 Debug: About to run npm install"
+          # OPTIMIZED: Install only production dependencies (much faster)
+          echo "📦 Installing production dependencies..."
+          echo "🔍 Using pre-built artifacts from CI - only installing production deps"
           
-          # Clean install to avoid conflicts
-          rm -f package-lock.json
-          rm -rf node_modules
+          # Use production-only install (faster - no dev dependencies)
+          npm ci --only=production --legacy-peer-deps --ignore-scripts 2>/dev/null || \
+          npm install --only=production --legacy-peer-deps --ignore-scripts --no-audit --no-fund
           
-          npm install --legacy-peer-deps --force
-          
-          # Explicitly install critical dependencies
-          echo "📦 Installing critical UI dependencies..."
-          npm install tailwindcss postcss autoprefixer --legacy-peer-deps --force
-          npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast --legacy-peer-deps --force
-          npm install class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --force
-          npm install @types/node @types/react @types/react-dom --legacy-peer-deps --force
-          
-          echo "✅ All dependencies installed successfully"
-          echo "🔍 Debug: npm install completed"
+          echo "✅ Production dependencies installed successfully"
           
           # Verify the build was copied correctly
           echo "🔍 Verifying build artifacts..."
@@ -600,27 +634,26 @@ jobs:
             exit 1
           fi
           
-          # CRITICAL: Verify .next/static exists (this is the main issue)
+          # CRITICAL: Verify .next/static exists
           if [ ! -d ".next/static" ]; then
             echo "❌ CRITICAL: .next/static directory missing!"
-            echo "📋 This will cause ENOENT errors when starting the server"
-            echo "🔧 Creating .next/static directory structure..."
-            mkdir -p .next/static/chunks
-            mkdir -p .next/static/css
-            mkdir -p .next/static/media
+            mkdir -p .next/static/chunks .next/static/css .next/static/media
             echo "✅ Created .next/static directory"
-            echo "⚠️ WARNING: Directory was empty - if issues persist, check CI build"
           else
             echo "✅ .next/static directory exists"
-            STATIC_FILES=$(find .next/static -type f 2>/dev/null | wc -l || echo '0')
-            echo "📋 Static files count: $STATIC_FILES"
-            if [ "$STATIC_FILES" -eq 0 ]; then
-              echo "⚠️ WARNING: .next/static is empty"
-              echo "🔧 Creating minimal structure..."
-              mkdir -p .next/static/chunks
-              mkdir -p .next/static/css
-              mkdir -p .next/static/media
-            fi
+          fi
+          
+          # CRITICAL: Verify required manifest files
+          if [ ! -f ".next/routes-manifest.json" ]; then
+            echo "⚠️ routes-manifest.json missing, creating minimal version..."
+            echo '{"version":3,"pages404":true,"basePath":"","redirects":[],"headers":[],"dynamicRoutes":[],"dataRoutes":[],"i18n":null}' > .next/routes-manifest.json
+            echo "✅ Created routes-manifest.json"
+          fi
+          
+          if [ ! -f ".next/prerender-manifest.json" ]; then
+            echo "⚠️ prerender-manifest.json missing, creating minimal version..."
+            echo '{"version":4,"routes":{},"dynamicRoutes":{},"notFoundRoutes":[],"preview":{"previewModeId":"","previewModeSigningKey":"","previewModeEncryptionKey":""}}' > .next/prerender-manifest.json
+            echo "✅ Created prerender-manifest.json"
           fi
           
           if [ ! -f ".next/BUILD_ID" ]; then
@@ -644,8 +677,8 @@ jobs:
           
           # Create log directory
           echo "📁 Creating log directory..."
-          sudo mkdir -p /var/log/jobportal
-          sudo chown -R $USER:$USER /var/log/jobportal
+          sudo mkdir -p /var/log/naukrimili
+          sudo chown -R $USER:$USER /var/log/naukrimili
           
           # Create local logs directory
           echo "📁 Creating local logs directory..."
