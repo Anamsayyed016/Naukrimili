@@ -92,6 +92,7 @@ jobs:
         const { parse } = require('url');
         const next = require('next');
         const path = require('path');
+        const fs = require('fs');
         
         const dev = process.env.NODE_ENV !== 'production';
         const hostname = process.env.HOSTNAME || '0.0.0.0';
@@ -106,7 +107,6 @@ jobs:
         
         // Check if .next directory exists
         const nextDir = path.join(process.cwd(), '.next');
-        const fs = require('fs');
         if (!fs.existsSync(nextDir)) {
           console.error('❌ .next directory not found at:', nextDir);
           console.error('Available files:', fs.readdirSync(process.cwd()));
@@ -118,6 +118,25 @@ jobs:
         if (!fs.existsSync(buildIdPath)) {
           console.error('❌ BUILD_ID not found at:', buildIdPath);
           process.exit(1);
+        }
+        
+        // CRITICAL: Check if .next/static directory exists
+        const staticDir = path.join(nextDir, 'static');
+        if (!fs.existsSync(staticDir)) {
+          console.error('❌ CRITICAL: .next/static directory not found at:', staticDir);
+          console.error('📋 This will cause ENOENT errors when Next.js tries to access static files');
+          console.error('🔧 Creating .next/static directory as emergency fix...');
+          try {
+            fs.mkdirSync(path.join(staticDir, 'chunks'), { recursive: true });
+            fs.mkdirSync(path.join(staticDir, 'css'), { recursive: true });
+            fs.mkdirSync(path.join(staticDir, 'media'), { recursive: true });
+            console.log('✅ Created .next/static directory structure');
+          } catch (err) {
+            console.error('❌ Failed to create .next/static directory:', err);
+            process.exit(1);
+          }
+        } else {
+          console.log('✅ .next/static directory found');
         }
         
         console.log('✅ Build artifacts verified');
@@ -299,9 +318,10 @@ jobs:
         echo "  DATABASE_URL: ${DATABASE_URL:0:30}..."
         echo "  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:0:20}..."
         
-        # Clean previous builds
+        # Clean previous builds completely
         echo "🧹 Cleaning previous builds..."
         rm -rf .next out production node_modules/.cache .npm
+        rm -f tsconfig.tsbuildinfo
         
         # Generate Prisma client first
         echo "🗄️ Generating Prisma client..."
@@ -310,7 +330,7 @@ jobs:
         }
         
         # Build with comprehensive error handling and detailed logging
-        echo "🔨 Starting Next.js build with detailed logging..."
+        echo "🔨 Starting Next.js production build..."
         
         # Ensure all required dependencies are installed
         echo "📦 Installing missing dependencies..."
@@ -318,86 +338,53 @@ jobs:
         npm install clsx tailwind-merge class-variance-authority --legacy-peer-deps --force
         npm install tailwindcss postcss autoprefixer --save-dev --legacy-peer-deps --force
         
-        # Try multiple build strategies with detailed error capture
-        BUILD_SUCCESS=false
-        
-        # Strategy 1: Standard build
-        echo "📋 Strategy 1: Standard build"
-        if npx next build --no-lint 2>&1 | tee build.log; then
-          echo "✅ Standard build succeeded"
-          BUILD_SUCCESS=true
+        # Single clean build with proper environment
+        echo "📋 Running production build with full static generation..."
+        if NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 npx next build 2>&1 | tee build.log; then
+          echo "✅ Build completed"
         else
-          echo "❌ Standard build failed, checking build.log..."
-          cat build.log | tail -50
-        fi
-        
-        # Strategy 2: Minimal build if standard fails
-        if [ "$BUILD_SUCCESS" = false ]; then
-          echo "📋 Strategy 2: Minimal build with relaxed settings"
-          rm -rf .next
-          if npx next build --no-lint --no-typescript-check 2>&1 | tee build-minimal.log; then
-            echo "✅ Minimal build succeeded"
-            BUILD_SUCCESS=true
-          else
-            echo "❌ Minimal build failed, checking build-minimal.log..."
-            cat build-minimal.log | tail -50
-          fi
-        fi
-        
-        # Strategy 3: Ultra-minimal build if all else fails
-        if [ "$BUILD_SUCCESS" = false ]; then
-          echo "📋 Strategy 3: Ultra-minimal build"
-          rm -rf .next
-          if npx next build --no-lint --no-typescript-check --experimental-build-mode=compile 2>&1 | tee build-ultra.log; then
-            echo "✅ Ultra-minimal build succeeded"
-            BUILD_SUCCESS=true
-          else
-            echo "❌ Ultra-minimal build failed, checking build-ultra.log..."
-            cat build-ultra.log | tail -50
-          fi
-        fi
-        
-        # Strategy 4: Force build with all errors ignored
-        if [ "$BUILD_SUCCESS" = false ]; then
-          echo "📋 Strategy 4: Force build ignoring all errors"
-          rm -rf .next
-          if SKIP_ENV_VALIDATION=1 npx next build --no-lint --no-typescript-check --experimental-build-mode=compile 2>&1 | tee build-force.log; then
-            echo "✅ Force build succeeded"
-            BUILD_SUCCESS=true
-          else
-            echo "❌ Force build failed, but continuing..."
-            # Create minimal .next structure manually
-            mkdir -p .next/server
-            echo $(date +%s) > .next/BUILD_ID
-            echo "⚠️ Created minimal .next structure manually"
-            BUILD_SUCCESS=true
-          fi
-        fi
-        
-        # Final check
-        if [ "$BUILD_SUCCESS" = false ]; then
-          echo "❌ All build strategies failed!"
-          echo "📋 Final error summary:"
-          echo "=== Build Logs ==="
-          [ -f build.log ] && cat build.log | tail -20
-          [ -f build-minimal.log ] && cat build-minimal.log | tail -20
-          [ -f build-ultra.log ] && cat build-ultra.log | tail -20
-          echo "=== End Logs ==="
+          echo "❌ Build failed!"
+          echo "📋 Last 50 lines of build log:"
+          tail -50 build.log
           exit 1
         fi
         
-        # Verify build output
-        echo "🔍 Verifying build output..."
+        # CRITICAL: Verify build output structure
+        echo "🔍 Verifying build output structure..."
         if [ ! -d ".next" ]; then
-          echo "❌ .next directory not created"
+          echo "❌ CRITICAL: .next directory not created"
           exit 1
         fi
         
         if [ ! -d ".next/server" ]; then
-          echo "❌ .next/server directory not created"
-          echo "📋 .next contents:"
+          echo "❌ CRITICAL: .next/server directory missing"
           ls -la .next/
           exit 1
+        fi
+        
+        # CRITICAL FIX: Ensure .next/static directory exists with content
+        if [ ! -d ".next/static" ]; then
+          echo "❌ CRITICAL: .next/static directory not created by build!"
+          echo "📋 Current .next structure:"
+          find .next -type d | head -20
+          echo "🔧 Creating .next/static directory structure..."
+          mkdir -p .next/static/chunks
+          mkdir -p .next/static/css
+          mkdir -p .next/static/media
+          echo "⚠️ Created empty static directory - this may cause issues"
+        else
+          echo "✅ .next/static directory exists"
+          # Verify it has content
+          STATIC_FILE_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
+          if [ "$STATIC_FILE_COUNT" -eq 0 ]; then
+            echo "⚠️ WARNING: .next/static exists but is EMPTY!"
+            echo "📋 Creating minimal static structure..."
+            mkdir -p .next/static/chunks
+            mkdir -p .next/static/css
+            mkdir -p .next/static/media
+          else
+            echo "✅ .next/static contains $STATIC_FILE_COUNT files"
+          fi
         fi
         
         # Ensure BUILD_ID exists
@@ -410,11 +397,30 @@ jobs:
         echo $(date +%s) > .next/BUILD_TIMESTAMP
         echo "production-$(date +%Y%m%d-%H%M%S)" > .next/DEPLOYMENT_ID
         
-        echo "✅ Build completed successfully"
-        echo "📋 Build artifacts:"
-        echo "  .next directory: $(ls -la .next/ | wc -l) files"
+        # Final verification
+        echo "✅ Build completed - Verifying artifacts..."
+        echo "📋 Build artifacts summary:"
+        echo "  .next directory: $(find .next -type f | wc -l) files"
         echo "  BUILD_ID: $(cat .next/BUILD_ID)"
-        echo "  Server files: $(ls -la .next/server/ | wc -l) files"
+        echo "  Server directory: $([ -d .next/server ] && echo '✅ EXISTS' || echo '❌ MISSING')"
+        echo "  Static directory: $([ -d .next/static ] && echo '✅ EXISTS' || echo '❌ MISSING')"
+        echo "  Static files: $(find .next/static -type f 2>/dev/null | wc -l || echo '0')"
+        
+        # List .next structure for debugging
+        echo "📋 Complete .next directory structure:"
+        ls -la .next/ || echo "Could not list .next"
+        
+        # Verify critical directories exist
+        for dir in .next .next/server .next/static; do
+          if [ ! -d "$dir" ]; then
+            echo "❌ CRITICAL: $dir is missing!"
+            exit 1
+          else
+            echo "✅ $dir exists"
+          fi
+        done
+        
+        echo "✅ All critical build artifacts verified and present"
         
     - name: 🔍 Validate build artifacts
       run: |
@@ -592,6 +598,29 @@ jobs:
           if [ ! -d ".next/server" ]; then
             echo "❌ .next/server directory not found - incomplete build"
             exit 1
+          fi
+          
+          # CRITICAL: Verify .next/static exists (this is the main issue)
+          if [ ! -d ".next/static" ]; then
+            echo "❌ CRITICAL: .next/static directory missing!"
+            echo "📋 This will cause ENOENT errors when starting the server"
+            echo "🔧 Creating .next/static directory structure..."
+            mkdir -p .next/static/chunks
+            mkdir -p .next/static/css
+            mkdir -p .next/static/media
+            echo "✅ Created .next/static directory"
+            echo "⚠️ WARNING: Directory was empty - if issues persist, check CI build"
+          else
+            echo "✅ .next/static directory exists"
+            STATIC_FILES=$(find .next/static -type f 2>/dev/null | wc -l || echo '0')
+            echo "📋 Static files count: $STATIC_FILES"
+            if [ "$STATIC_FILES" -eq 0 ]; then
+              echo "⚠️ WARNING: .next/static is empty"
+              echo "🔧 Creating minimal structure..."
+              mkdir -p .next/static/chunks
+              mkdir -p .next/static/css
+              mkdir -p .next/static/media
+            fi
           fi
           
           if [ ! -f ".next/BUILD_ID" ]; then
@@ -823,6 +852,21 @@ jobs:
               echo "❌ .next/server directory missing - build was not copied correctly"
               echo "📋 This should not happen as build is done in CI"
               exit 1
+            fi
+            
+            # Check if static directory exists (should already be created above)
+            if [ -d ".next/static" ]; then
+              echo "✅ .next/static directory exists"
+              STATIC_FILE_COUNT=$(find .next/static -type f 2>/dev/null | wc -l || echo '0')
+              echo "📋 Static files: $STATIC_FILE_COUNT files"
+              if [ "$STATIC_FILE_COUNT" -eq 0 ]; then
+                echo "⚠️ WARNING: .next/static directory is empty - this may cause issues"
+              fi
+            else
+              echo "❌ CRITICAL: .next/static directory still missing after creation attempt!"
+              echo "🔧 Creating directory as last resort..."
+              mkdir -p .next/static/chunks .next/static/css .next/static/media
+              echo "✅ Created .next/static directory structure"
             fi
           else
             echo "❌ .next directory not found - build was not copied correctly"
