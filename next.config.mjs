@@ -57,6 +57,19 @@ const nextConfig = {
         ],
       },
       {
+        source: '/_next/static/css/:path*',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/css; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate, max-age=0',
+          },
+        ],
+      },
+      {
         source: '/_next/static/chunks/:path*',
         headers: [
           {
@@ -78,7 +91,7 @@ const nextConfig = {
         ],
       },
       {
-        source: '/:path*',
+        source: '/((?!_next/static).*)',
         headers: [
           {
             key: 'X-Content-Type-Options',

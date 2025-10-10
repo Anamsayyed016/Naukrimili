@@ -51,49 +51,129 @@ if (!fs.existsSync(staticDir)) {
   console.log('✅ .next/static directory found');
 }
 
-// CRITICAL: Check for required manifest files
-const requiredFiles = [
-  'BUILD_ID',
-  'routes-manifest.json',
-  'prerender-manifest.json'
-];
+// CRITICAL: Validate and create routes-manifest.json for Next.js 15.x
+const routesManifestPath = path.join(nextDir, 'routes-manifest.json');
+let routesManifest = null;
 
-for (const file of requiredFiles) {
-  const filePath = path.join(nextDir, file);
-  if (!fs.existsSync(filePath)) {
-    console.error(`❌ CRITICAL: Missing ${file}`);
-    if (file === 'routes-manifest.json') {
-      // Create minimal routes manifest to prevent dataRoutes error
-      const minimalManifest = {
-        version: 3,
-        pages404: true,
-        basePath: "",
-        redirects: [],
-        headers: [],
-        dynamicRoutes: [],
-        dataRoutes: [],
-        i18n: null
+try {
+  if (fs.existsSync(routesManifestPath)) {
+    const manifestContent = fs.readFileSync(routesManifestPath, 'utf-8');
+    routesManifest = JSON.parse(manifestContent);
+    console.log('✅ routes-manifest.json found');
+    
+    // Validate critical properties for Next.js 15.x
+    if (!routesManifest.rewrites || typeof routesManifest.rewrites !== 'object') {
+      console.warn('⚠️ routes-manifest.json missing rewrites object, fixing...');
+      routesManifest.rewrites = {
+        beforeFiles: [],
+        afterFiles: [],
+        fallback: []
       };
-      fs.writeFileSync(filePath, JSON.stringify(minimalManifest, null, 2));
-      console.log('✅ Created minimal routes-manifest.json');
-    } else if (file === 'prerender-manifest.json') {
-      // Create minimal prerender manifest
-      const minimalPrerender = {
-        version: 4,
-        routes: {},
-        dynamicRoutes: {},
-        notFoundRoutes: [],
-        preview: { previewModeId: "", previewModeSigningKey: "", previewModeEncryptionKey: "" }
-      };
-      fs.writeFileSync(filePath, JSON.stringify(minimalPrerender, null, 2));
-      console.log('✅ Created minimal prerender-manifest.json');
+    } else {
+      // Ensure all rewrite arrays exist
+      if (!Array.isArray(routesManifest.rewrites.beforeFiles)) {
+        console.warn('⚠️ routes-manifest.json missing beforeFiles array, fixing...');
+        routesManifest.rewrites.beforeFiles = [];
+      }
+      if (!Array.isArray(routesManifest.rewrites.afterFiles)) {
+        console.warn('⚠️ routes-manifest.json missing afterFiles array, fixing...');
+        routesManifest.rewrites.afterFiles = [];
+      }
+      if (!Array.isArray(routesManifest.rewrites.fallback)) {
+        console.warn('⚠️ routes-manifest.json missing fallback array, fixing...');
+        routesManifest.rewrites.fallback = [];
+      }
     }
+    
+    // Ensure other required properties exist
+    if (!Array.isArray(routesManifest.redirects)) {
+      routesManifest.redirects = [];
+    }
+    if (!Array.isArray(routesManifest.headers)) {
+      routesManifest.headers = [];
+    }
+    if (!Array.isArray(routesManifest.dynamicRoutes)) {
+      routesManifest.dynamicRoutes = [];
+    }
+    if (!Array.isArray(routesManifest.dataRoutes)) {
+      routesManifest.dataRoutes = [];
+    }
+    
+    // Write back the fixed manifest
+    fs.writeFileSync(routesManifestPath, JSON.stringify(routesManifest, null, 2));
+    console.log('✅ routes-manifest.json validated and fixed');
   } else {
-    console.log(`✅ ${file} found`);
+    console.warn('⚠️ routes-manifest.json not found, creating minimal version for Next.js 15.x...');
+    routesManifest = {
+      version: 3,
+      pages404: true,
+      basePath: "",
+      redirects: [],
+      rewrites: {
+        beforeFiles: [],
+        afterFiles: [],
+        fallback: []
+      },
+      headers: [],
+      dynamicRoutes: [],
+      dataRoutes: [],
+      i18n: null
+    };
+    fs.writeFileSync(routesManifestPath, JSON.stringify(routesManifest, null, 2));
+    console.log('✅ Created minimal routes-manifest.json for Next.js 15.x');
+  }
+} catch (err) {
+  console.error('❌ Error handling routes-manifest.json:', err);
+  console.error('Creating emergency manifest...');
+  
+  // Create emergency manifest
+  const emergencyManifest = {
+    version: 3,
+    pages404: true,
+    basePath: "",
+    redirects: [],
+    rewrites: {
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: []
+    },
+    headers: [],
+    dynamicRoutes: [],
+    dataRoutes: [],
+    i18n: null
+  };
+  
+  try {
+    fs.writeFileSync(routesManifestPath, JSON.stringify(emergencyManifest, null, 2));
+    console.log('✅ Created emergency routes-manifest.json');
+  } catch (writeErr) {
+    console.error('❌ FATAL: Could not create routes-manifest.json:', writeErr);
+    process.exit(1);
   }
 }
 
-console.log('✅ Build artifacts verified');
+// CRITICAL: Check for prerender-manifest.json
+const prerenderManifestPath = path.join(nextDir, 'prerender-manifest.json');
+if (!fs.existsSync(prerenderManifestPath)) {
+  console.warn('⚠️ prerender-manifest.json not found, creating minimal version...');
+  const minimalPrerender = {
+    version: 4,
+    routes: {},
+    dynamicRoutes: {},
+    notFoundRoutes: [],
+    preview: { 
+      previewModeId: "", 
+      previewModeSigningKey: "", 
+      previewModeEncryptionKey: "" 
+    }
+  };
+  fs.writeFileSync(prerenderManifestPath, JSON.stringify(minimalPrerender, null, 2));
+  console.log('✅ Created minimal prerender-manifest.json');
+} else {
+  console.log('✅ prerender-manifest.json found');
+}
+
+console.log('✅ All build artifacts verified and validated');
 
 const app = next({ 
   dev, 
@@ -131,8 +211,8 @@ app.prepare().then(() => {
       console.error('❌ Failed to start server:', err);
       process.exit(1);
     }
-    console.log('🎉 Server ready on http://' + hostname + ':' + port);
-    console.log('📊 Environment: ' + process.env.NODE_ENV);
+    console.log(`🎉 Server ready on http://${hostname}:${port}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV}`);
     console.log('✅ Server startup completed');
   });
 }).catch((err) => {

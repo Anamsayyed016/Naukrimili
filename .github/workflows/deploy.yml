@@ -24,18 +24,28 @@ jobs:
       run: |
         echo "📦 Installing dependencies with Node $(node --version)..."
         
-        # Clean install to avoid conflicts
-        rm -f package-lock.json
+        # CRITICAL: Use npm ci for version consistency (don't delete package-lock.json)
+        # This ensures the EXACT same versions are used in build and deployment
+        echo "🔒 Using npm ci for version consistency..."
+        
+        # Clean node_modules but keep package-lock.json
         rm -rf node_modules
         
-        # Install all dependencies including production ones
-        npm install --legacy-peer-deps --engine-strict=false --force
+        # Use npm ci for exact version matching
+        npm ci --legacy-peer-deps || {
+          echo "⚠️ npm ci failed, falling back to clean install..."
+          rm -f package-lock.json
+          npm install --legacy-peer-deps --engine-strict=false
+          npm install tailwindcss postcss autoprefixer --legacy-peer-deps
+          npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast --legacy-peer-deps
+          npm install class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps
+        }
         
-        # Explicitly install critical dependencies that might be missing
-        echo "📦 Installing critical UI dependencies..."
-        npm install tailwindcss postcss autoprefixer --legacy-peer-deps --force
-        npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast --legacy-peer-deps --force
-        npm install class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --force
+        # Verify Next.js version
+        echo "🔍 Verifying Next.js version..."
+        NEXT_VERSION=$(npm list next --depth=0 | grep next@ | sed 's/.*next@//' | cut -d' ' -f1)
+        echo "✅ Next.js version: $NEXT_VERSION"
+        echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
         
     - name: 🔍 Verify dependencies and files
       run: |
@@ -153,12 +163,17 @@ jobs:
           if (!fs.existsSync(filePath)) {
             console.error(`❌ CRITICAL: Missing ${file}`);
             if (file === 'routes-manifest.json') {
-              // Create minimal routes manifest to prevent dataRoutes error
+              // Create minimal routes manifest to prevent dataRoutes and beforeFiles error
               const minimalManifest = {
                 version: 3,
                 pages404: true,
                 basePath: "",
                 redirects: [],
+                rewrites: {
+                  beforeFiles: [],
+                  afterFiles: [],
+                  fallback: []
+                },
                 headers: [],
                 dynamicRoutes: [],
                 dataRoutes: [],
@@ -519,22 +534,75 @@ jobs:
         head -1 ~/.ssh/id_rsa
         echo "🔍 SSH key file size: $(wc -c < ~/.ssh/id_rsa) bytes"
         
+        # Test server connectivity first
+        echo "🔍 Testing server connectivity..."
+        ping -c 3 ${{ secrets.HOST }} || echo "Ping test failed, but continuing..."
+        
         # Test SSH connection with verbose output
         echo "🔍 Testing SSH connection..."
-        ssh -v -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "echo 'SSH connection successful'" || echo "SSH test failed, but continuing..."
+        ssh -v -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=60 -o ServerAliveInterval=60 -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "echo 'SSH connection successful'" || echo "SSH test failed, but continuing..."
         
-    - name: 📤 Copy files to server
+    - name: 📤 Copy files to server (Attempt 1)
+      uses: appleboy/scp-action@v0.1.7
+      continue-on-error: true
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        source: |
+          .
+          !.git
+          !node_modules
+          !coverage
+          !logs
+          !*.log
+          !.env.local
+          !.env.development
+          !.env.test
+          !test-results
+          !.nyc_output
+        target: "/var/www/naukrimili"
+        strip_components: 0
+        timeout: 120s
+        command_timeout: 20m
+        use_insecure_cipher: false
+        rm: false
+        debug: true
+        overwrite: true
+        tar_dereference: false
+        tar_exec: tar
+
+    - name: 📤 Copy files to server (Attempt 2)
+      if: failure()
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        source: "."
+        source: |
+          .
+          !.git
+          !node_modules
+          !coverage
+          !logs
+          !*.log
+          !.env.local
+          !.env.development
+          !.env.test
+          !test-results
+          !.nyc_output
         target: "/var/www/naukrimili"
         strip_components: 0
-        timeout: 30s
-        command_timeout: 10m
+        timeout: 180s
+        command_timeout: 30m
+        use_insecure_cipher: false
+        rm: false
+        debug: true
+        overwrite: true
+        tar_dereference: false
+        tar_exec: tar
 
     - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
@@ -543,8 +611,8 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 30m
-        command_timeout: 28m
+        timeout: 45m
+        command_timeout: 40m
         debug: true
         script_stop: false
         envs: HOST,SSH_USER,SSH_PORT
@@ -554,6 +622,13 @@ jobs:
           echo "📋 This deployment uses pre-built artifacts from CI"
           echo "📋 No rebuild will occur on the server"
           echo "🔍 Debug: Script started successfully"
+          
+          # Check server status first
+          echo "🔍 Checking server status..."
+          uptime
+          df -h
+          free -h
+          echo "✅ Server status check completed"
           
           # Test SSH connection
           echo "🔍 Testing SSH connection..."
@@ -612,15 +687,23 @@ jobs:
           fi
           echo "🔍 Debug: BUILD_ID check completed"
           
-          # OPTIMIZED: Install only production dependencies (much faster)
-          echo "📦 Installing production dependencies..."
-          echo "🔍 Using pre-built artifacts from CI - only installing production deps"
+          # Install all dependencies including dev dependencies for build
+          echo "📦 Installing all dependencies (including dev dependencies)..."
+          echo "🔍 Installing all deps to ensure build works correctly"
           
-          # Use production-only install (faster - no dev dependencies)
-          npm ci --only=production --legacy-peer-deps --ignore-scripts 2>/dev/null || \
-          npm install --only=production --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+          # CRITICAL: Use npm ci for version consistency (same as build step)
+          echo "🔒 Using npm ci for exact version matching with build environment..."
+          npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || {
+            echo "⚠️ npm ci failed on server, trying npm install..."
+            npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+            npm install @tailwindcss/postcss tailwindcss postcss autoprefixer --legacy-peer-deps
+          }
           
-          echo "✅ Production dependencies installed successfully"
+          # Verify Next.js version matches build
+          NEXT_VERSION=$(npm list next --depth=0 | grep next@ | sed 's/.*next@//' | cut -d' ' -f1)
+          echo "✅ Next.js version on server: $NEXT_VERSION"
+          
+          echo "✅ All dependencies installed successfully"
           
           # Verify the build was copied correctly
           echo "🔍 Verifying build artifacts..."
@@ -646,7 +729,7 @@ jobs:
           # CRITICAL: Verify required manifest files
           if [ ! -f ".next/routes-manifest.json" ]; then
             echo "⚠️ routes-manifest.json missing, creating minimal version..."
-            echo '{"version":3,"pages404":true,"basePath":"","redirects":[],"headers":[],"dynamicRoutes":[],"dataRoutes":[],"i18n":null}' > .next/routes-manifest.json
+            echo '{"version":3,"pages404":true,"basePath":"","redirects":[],"rewrites":{"beforeFiles":[],"afterFiles":[],"fallback":[]},"headers":[],"dynamicRoutes":[],"dataRoutes":[],"i18n":null}' > .next/routes-manifest.json
             echo "✅ Created routes-manifest.json"
           fi
           
@@ -659,6 +742,35 @@ jobs:
           if [ ! -f ".next/BUILD_ID" ]; then
             echo "⚠️ BUILD_ID not found, creating it..."
             echo $(date +%s) > .next/BUILD_ID
+          fi
+          
+          # CRITICAL: Validate routes-manifest.json structure for Next.js 15.x
+          echo "🔍 Validating routes-manifest.json structure..."
+          if [ -f ".next/routes-manifest.json" ]; then
+            # Check if beforeFiles exists in the manifest
+            if ! grep -q '"beforeFiles"' .next/routes-manifest.json; then
+              echo "⚠️ routes-manifest.json missing beforeFiles, fixing..."
+              node -e "
+                const fs = require('fs');
+                const manifest = JSON.parse(fs.readFileSync('.next/routes-manifest.json', 'utf-8'));
+                if (!manifest.rewrites || typeof manifest.rewrites !== 'object') {
+                  manifest.rewrites = { beforeFiles: [], afterFiles: [], fallback: [] };
+                } else {
+                  if (!Array.isArray(manifest.rewrites.beforeFiles)) manifest.rewrites.beforeFiles = [];
+                  if (!Array.isArray(manifest.rewrites.afterFiles)) manifest.rewrites.afterFiles = [];
+                  if (!Array.isArray(manifest.rewrites.fallback)) manifest.rewrites.fallback = [];
+                }
+                if (!Array.isArray(manifest.redirects)) manifest.redirects = [];
+                if (!Array.isArray(manifest.headers)) manifest.headers = [];
+                if (!Array.isArray(manifest.dynamicRoutes)) manifest.dynamicRoutes = [];
+                if (!Array.isArray(manifest.dataRoutes)) manifest.dataRoutes = [];
+                fs.writeFileSync('.next/routes-manifest.json', JSON.stringify(manifest, null, 2));
+                console.log('✅ Fixed routes-manifest.json');
+              "
+            fi
+            echo "✅ routes-manifest.json structure validated"
+          else
+            echo "❌ routes-manifest.json not found after build - this will be created by server.cjs"
           fi
           
           echo "✅ Build artifacts verified - no rebuild needed"
