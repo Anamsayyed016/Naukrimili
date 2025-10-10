@@ -115,16 +115,16 @@ const nextConfig = {
     removeConsole: true, // Remove all console logs in production
   },
 
-  // Experimental features for performance
+  // Experimental features for performance - REMOVED optimizeCss to fix CSS loading
   experimental: {
-    optimizeCss: true,
     scrollRestoration: true
   },
 
-  // Enhanced webpack configuration for production stability
+  // Simplified webpack configuration to fix CSS loading issues
   webpack: (config, { dev, isServer, webpack }) => {
-    // Production optimizations
+    // Only apply production optimizations for client-side builds
     if (!dev && !isServer) {
+      // Simplified chunk splitting to avoid CSS issues
       config.optimization.splitChunks = {
         chunks: 'all',
         minSize: 20000,
@@ -142,19 +142,8 @@ const nextConfig = {
             chunks: 'all',
             enforce: true,
           },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            priority: -5,
-            reuseExistingChunk: true,
-            enforce: true,
-          },
         },
       };
-      
-      // Ensure proper chunk loading
-      config.output.chunkLoadingGlobal = 'webpackChunknaukrimili';
-      config.output.globalObject = 'self';
     }
     
     // Fix for missing chunks
