@@ -120,31 +120,9 @@ const nextConfig = {
     scrollRestoration: true
   },
 
-  // Simplified webpack configuration to fix CSS loading issues
+  // Minimal webpack configuration to avoid CSS loading issues
   webpack: (config, { dev, isServer, webpack }) => {
-    // Only apply production optimizations for client-side builds
-    if (!dev && !isServer) {
-      // Simplified chunk splitting to avoid CSS issues
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        minSize: 20000,
-        maxSize: 244000,
-        cacheGroups: {
-          default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            priority: -10,
-            chunks: 'all',
-            enforce: true,
-          },
-        },
-      };
-    }
+    // Don't interfere with Next.js CSS handling - let it handle CSS files naturally
     
     // Fix for missing chunks
     config.plugins.push(
