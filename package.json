@@ -19,6 +19,7 @@
     "build:deploy": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" NEXT_TELEMETRY_DISABLED=1 next build",
     "build:simple": "NODE_ENV=production next build",
     "build:minimal": "next build --no-lint",
+    "validate:build": "node scripts/validate-build-artifacts.cjs",
     "start": "next start",
     "start:socket": "node server.js",
     "lint": "next lint",

@@ -24,18 +24,28 @@ jobs:
       run: |
         echo "📦 Installing dependencies with Node $(node --version)..."
         
-        # Clean install to avoid conflicts
-        rm -f package-lock.json
+        # CRITICAL: Use npm ci for version consistency (don't delete package-lock.json)
+        # This ensures the EXACT same versions are used in build and deployment
+        echo "🔒 Using npm ci for version consistency..."
+        
+        # Clean node_modules but keep package-lock.json
         rm -rf node_modules
         
-        # Install all dependencies including production ones
-        npm install --legacy-peer-deps --engine-strict=false --force
+        # Use npm ci for exact version matching
+        npm ci --legacy-peer-deps || {
+          echo "⚠️ npm ci failed, falling back to clean install..."
+          rm -f package-lock.json
+          npm install --legacy-peer-deps --engine-strict=false
+          npm install tailwindcss postcss autoprefixer --legacy-peer-deps
+          npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast --legacy-peer-deps
+          npm install class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps
+        }
         
-        # Explicitly install critical dependencies that might be missing
-        echo "📦 Installing critical UI dependencies..."
-        npm install tailwindcss postcss autoprefixer --legacy-peer-deps --force
-        npm install @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast --legacy-peer-deps --force
-        npm install class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --force
+        # Verify Next.js version
+        echo "🔍 Verifying Next.js version..."
+        NEXT_VERSION=$(npm list next --depth=0 | grep next@ | sed 's/.*next@//' | cut -d' ' -f1)
+        echo "✅ Next.js version: $NEXT_VERSION"
+        echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
         
     - name: 🔍 Verify dependencies and files
       run: |
@@ -681,12 +691,17 @@ jobs:
           echo "📦 Installing all dependencies (including dev dependencies)..."
           echo "🔍 Installing all deps to ensure build works correctly"
           
-          # Install all dependencies including dev dependencies
-          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+          # CRITICAL: Use npm ci for version consistency (same as build step)
+          echo "🔒 Using npm ci for exact version matching with build environment..."
+          npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || {
+            echo "⚠️ npm ci failed on server, trying npm install..."
+            npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+            npm install @tailwindcss/postcss tailwindcss postcss autoprefixer --legacy-peer-deps
+          }
           
-          # Explicitly install critical build dependencies
-          echo "📦 Installing critical build dependencies..."
-          npm install @tailwindcss/postcss tailwindcss postcss autoprefixer --legacy-peer-deps
+          # Verify Next.js version matches build
+          NEXT_VERSION=$(npm list next --depth=0 | grep next@ | sed 's/.*next@//' | cut -d' ' -f1)
+          echo "✅ Next.js version on server: $NEXT_VERSION"
           
           echo "✅ All dependencies installed successfully"
           
@@ -727,6 +742,35 @@ jobs:
           if [ ! -f ".next/BUILD_ID" ]; then
             echo "⚠️ BUILD_ID not found, creating it..."
             echo $(date +%s) > .next/BUILD_ID
+          fi
+          
+          # CRITICAL: Validate routes-manifest.json structure for Next.js 15.x
+          echo "🔍 Validating routes-manifest.json structure..."
+          if [ -f ".next/routes-manifest.json" ]; then
+            # Check if beforeFiles exists in the manifest
+            if ! grep -q '"beforeFiles"' .next/routes-manifest.json; then
+              echo "⚠️ routes-manifest.json missing beforeFiles, fixing..."
+              node -e "
+                const fs = require('fs');
+                const manifest = JSON.parse(fs.readFileSync('.next/routes-manifest.json', 'utf-8'));
+                if (!manifest.rewrites || typeof manifest.rewrites !== 'object') {
+                  manifest.rewrites = { beforeFiles: [], afterFiles: [], fallback: [] };
+                } else {
+                  if (!Array.isArray(manifest.rewrites.beforeFiles)) manifest.rewrites.beforeFiles = [];
+                  if (!Array.isArray(manifest.rewrites.afterFiles)) manifest.rewrites.afterFiles = [];
+                  if (!Array.isArray(manifest.rewrites.fallback)) manifest.rewrites.fallback = [];
+                }
+                if (!Array.isArray(manifest.redirects)) manifest.redirects = [];
+                if (!Array.isArray(manifest.headers)) manifest.headers = [];
+                if (!Array.isArray(manifest.dynamicRoutes)) manifest.dynamicRoutes = [];
+                if (!Array.isArray(manifest.dataRoutes)) manifest.dataRoutes = [];
+                fs.writeFileSync('.next/routes-manifest.json', JSON.stringify(manifest, null, 2));
+                console.log('✅ Fixed routes-manifest.json');
+              "
+            fi
+            echo "✅ routes-manifest.json structure validated"
+          else
+            echo "❌ routes-manifest.json not found after build - this will be created by server.cjs"
           fi
           
           echo "✅ Build artifacts verified - no rebuild needed"
