@@ -3,6 +3,7 @@
 // Aggressive cache busting for production deployments
 const BUILD_TIMESTAMP = Date.now();
 const DEPLOYMENT_ID = process.env.NEXT_PUBLIC_DEPLOYMENT_ID || Date.now();
+
 const nextConfig = {
   // Performance
   reactStrictMode: true,
@@ -111,10 +112,13 @@ const nextConfig = {
   },
 
   // NO compiler optimizations - use default Next.js behavior
+  // This was causing console.log removal which can break some dependencies
 
   // NO experimental features - use default Next.js behavior
+  // optimizeCss was causing CSS to load as script tags
 
   // NO webpack configuration - let Next.js handle everything naturally
+  // Custom webpack config was causing CSS files to be loaded as both link and script tags
 };
 
 export default nextConfig;
