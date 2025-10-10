@@ -6,10 +6,18 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
+
 export default function ForceNewHash() {
+  const [timestamp, setTimestamp] = useState<number | null>(null);
+  
+  useEffect(() => {
+    setTimestamp(Date.now());
+  }, []);
+  
   return (
     <div style={{ display: 'none' }}>
-      Force new hash: {Date.now()}
+      Force new hash: {timestamp || 'loading'}
     </div>
   );
 }

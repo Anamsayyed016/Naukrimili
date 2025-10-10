@@ -1,12 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Import mobile notification styles */
 @import '../styles/mobile-notifications.css';
 
 /* Import mobile job form styles */
 @import '../styles/mobile-job-form.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 /* Fix for dropdown z-index issues */
 [data-radix-popper-content-wrapper] {
@@ -87,4 +87,13 @@
   50% {
     opacity: .5;
   }
+}
+
+/* CSS Loading States */
+body:not(.css-loaded) {
+  visibility: hidden;
+}
+
+body.css-loaded {
+  visibility: visible;
 }
