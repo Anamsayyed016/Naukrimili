@@ -182,6 +182,35 @@ jobs:
         # Skip middleware validation to avoid TypeScript errors during build
         echo "⚠️ Skipping middleware TypeScript validation to avoid build errors"
         
+        # Ensure routes-manifest.json is properly formatted after build
+        echo "🔧 Ensuring routes-manifest.json is properly formatted..."
+        if [ -f ".next/routes-manifest.json" ]; then
+          # Backup original
+          cp .next/routes-manifest.json .next/routes-manifest.json.backup
+          
+          # Ensure the manifest has proper structure
+          node -e "
+            const fs = require('fs');
+            try {
+              const manifest = JSON.parse(fs.readFileSync('.next/routes-manifest.json', 'utf-8'));
+              if (!manifest.rewrites) manifest.rewrites = {};
+              if (!manifest.rewrites.beforeFiles) manifest.rewrites.beforeFiles = [];
+              if (!manifest.rewrites.afterFiles) manifest.rewrites.afterFiles = [];
+              if (!manifest.rewrites.fallback) manifest.rewrites.fallback = [];
+              if (!manifest.redirects) manifest.redirects = [];
+              if (!manifest.headers) manifest.headers = [];
+              if (!manifest.dynamicRoutes) manifest.dynamicRoutes = [];
+              if (!manifest.dataRoutes) manifest.dataRoutes = [];
+              fs.writeFileSync('.next/routes-manifest.json', JSON.stringify(manifest, null, 2));
+              console.log('✅ routes-manifest.json structure validated and fixed');
+            } catch (err) {
+              console.error('❌ Failed to fix routes-manifest.json:', err);
+            }
+          "
+        else
+          echo "⚠️ routes-manifest.json not found after build"
+        fi
+        
         # Build with comprehensive error handling and detailed logging
         echo "🔨 Starting Next.js production build..."
         
