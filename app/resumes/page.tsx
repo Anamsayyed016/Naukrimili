@@ -40,7 +40,7 @@ export default function ResumesPage() {
 
   useEffect(() => {
     fetchResumes();
-  }, [fetchResumes]);
+  }, []); // Removed fetchResumes to prevent infinite loop
 
   const handleDelete = async (resumeId: string) => {
     await deleteResume(resumeId);

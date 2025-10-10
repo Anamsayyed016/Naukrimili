@@ -48,7 +48,7 @@ export function useResumesApi() {
     } finally {
       setLoading(false);
     }
-  }, [fetchResumes]);
+  }, []); // Removed fetchResumes to prevent circular dependency
 
   const updateResume = useCallback(async (id: number | string, resume: Resume) => {
     setLoading(true);
@@ -66,7 +66,7 @@ export function useResumesApi() {
     } finally {
       setLoading(false);
     }
-  }, [fetchResumes]);
+  }, []); // Removed fetchResumes to prevent circular dependency
 
   const deleteResume = useCallback(async (id: number | string) => {
     setLoading(true);
@@ -80,9 +80,9 @@ export function useResumesApi() {
     } finally {
       setLoading(false);
     }
-  }, [fetchResumes]);
+  }, []); // Removed fetchResumes to prevent circular dependency
 
-  useEffect(() => { fetchResumes(); }, [fetchResumes]);
+  useEffect(() => { fetchResumes(); }, []); // Removed fetchResumes to prevent infinite loop
 
   return { resumes, loading, error, fetchResumes, createResume, updateResume, deleteResume };
 }

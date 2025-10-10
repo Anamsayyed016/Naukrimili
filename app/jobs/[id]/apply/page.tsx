@@ -351,7 +351,7 @@ export default function JobApplicationPage() {
         setLoading(false);
       }
     }
-  }, [jobId, fetchJobDetails, rawId]);
+  }, [jobId, rawId]); // Removed fetchJobDetails to prevent infinite loop
 
   // Add a timeout fallback to prevent infinite loading
   useEffect(() => {

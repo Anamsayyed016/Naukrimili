@@ -50,7 +50,7 @@ export function useUsersApi() {
     } finally {
       setLoading(false);
     }
-  }, [fetchUsers]);
+  }, []); // Removed fetchUsers to prevent circular dependency
 
   const updateUser = useCallback(async (id: string | number, user: UserSummary) => {
     setLoading(true);
@@ -68,7 +68,7 @@ export function useUsersApi() {
     } finally {
       setLoading(false);
     }
-  }, [fetchUsers]);
+  }, []); // Removed fetchUsers to prevent circular dependency
 
   const deleteUser = useCallback(async (id: string | number) => {
     setLoading(true);
@@ -82,9 +82,9 @@ export function useUsersApi() {
     } finally {
       setLoading(false);
     }
-  }, [fetchUsers]);
+  }, []); // Removed fetchUsers to prevent circular dependency
 
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+  useEffect(() => { fetchUsers(); }, []); // Removed fetchUsers to prevent infinite loop
 
   return {
     users: state.data,
