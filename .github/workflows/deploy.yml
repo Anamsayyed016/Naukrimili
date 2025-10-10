@@ -519,22 +519,77 @@ jobs:
         head -1 ~/.ssh/id_rsa
         echo "🔍 SSH key file size: $(wc -c < ~/.ssh/id_rsa) bytes"
         
+        # Test server connectivity first
+        echo "🔍 Testing server connectivity..."
+        ping -c 3 ${{ secrets.HOST }} || echo "Ping test failed, but continuing..."
+        
         # Test SSH connection with verbose output
         echo "🔍 Testing SSH connection..."
-        ssh -v -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "echo 'SSH connection successful'" || echo "SSH test failed, but continuing..."
+        ssh -v -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=60 -o ServerAliveInterval=60 -i ~/.ssh/id_rsa -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.HOST }} "echo 'SSH connection successful'" || echo "SSH test failed, but continuing..."
         
-    - name: 📤 Copy files to server
+    - name: 📤 Copy files to server (Attempt 1)
+      uses: appleboy/scp-action@v0.1.7
+      continue-on-error: true
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        source: |
+          .
+          !.git
+          !node_modules
+          !.next
+          !coverage
+          !logs
+          !*.log
+          !.env.local
+          !.env.development
+          !.env.test
+          !test-results
+          !.nyc_output
+        target: "/var/www/naukrimili"
+        strip_components: 0
+        timeout: 120s
+        command_timeout: 20m
+        use_insecure_cipher: false
+        rm: false
+        debug: true
+        overwrite: true
+        tar_dereference: false
+        tar_exec: tar
+
+    - name: 📤 Copy files to server (Attempt 2)
+      if: failure()
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        source: "."
+        source: |
+          .
+          !.git
+          !node_modules
+          !.next
+          !coverage
+          !logs
+          !*.log
+          !.env.local
+          !.env.development
+          !.env.test
+          !test-results
+          !.nyc_output
         target: "/var/www/naukrimili"
         strip_components: 0
-        timeout: 30s
-        command_timeout: 10m
+        timeout: 180s
+        command_timeout: 30m
+        use_insecure_cipher: false
+        rm: false
+        debug: true
+        overwrite: true
+        tar_dereference: false
+        tar_exec: tar
 
     - name: 🚀 Deploy to Hostinger VPS
       uses: appleboy/ssh-action@v0.1.9
@@ -543,8 +598,8 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 30m
-        command_timeout: 28m
+        timeout: 45m
+        command_timeout: 40m
         debug: true
         script_stop: false
         envs: HOST,SSH_USER,SSH_PORT
@@ -554,6 +609,13 @@ jobs:
           echo "📋 This deployment uses pre-built artifacts from CI"
           echo "📋 No rebuild will occur on the server"
           echo "🔍 Debug: Script started successfully"
+          
+          # Check server status first
+          echo "🔍 Checking server status..."
+          uptime
+          df -h
+          free -h
+          echo "✅ Server status check completed"
           
           # Test SSH connection
           echo "🔍 Testing SSH connection..."
