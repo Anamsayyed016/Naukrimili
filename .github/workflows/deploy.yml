@@ -114,9 +114,15 @@ jobs:
           exit 1
         fi
         
+        # Check if middleware.ts exists
+        if [ ! -f "middleware.ts" ]; then
+          echo "❌ middleware.ts not found in repository"
+          exit 1
+        fi
+        
         echo "✅ All server files exist in repository"
         echo "📋 Server files:"
-        ls -la server.cjs ecosystem.config.cjs next.config.mjs
+        ls -la server.cjs ecosystem.config.cjs next.config.mjs middleware.ts
         
         # Display next.config.mjs to verify it's the fixed version
         echo "📋 next.config.mjs content (first 30 lines):"
@@ -334,6 +340,13 @@ jobs:
         echo "📋 Key build artifacts:"
         ls -lh .next/BUILD_ID .next/routes-manifest.json .next/prerender-manifest.json || echo "Some manifest files missing"
         
+        # Check for middleware.ts
+        if [ ! -f "middleware.ts" ]; then
+          echo "⚠️ middleware.ts not found - this may cause middleware errors"
+        else
+          echo "✅ middleware.ts found"
+        fi
+        
         # List directory structure
         echo "📋 .next directory structure:"
         find .next -type d | head -20
@@ -374,7 +387,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        source: ".next/,public/,app/,components/,lib/,styles/,prisma/,package.json,package-lock.json,next.config.mjs,server.cjs,ecosystem.config.cjs,tsconfig.json,postcss.config.cjs,tailwind.config.cjs,.env"
+        source: ".next/,public/,app/,components/,lib/,styles/,prisma/,middleware.ts,package.json,package-lock.json,next.config.mjs,server.cjs,ecosystem.config.cjs,tsconfig.json,postcss.config.cjs,tailwind.config.cjs,.env"
         target: "/var/www/naukrimili"
         strip_components: 0
         timeout: 120s
@@ -394,7 +407,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        source: ".next/,public/,app/,components/,lib/,styles/,prisma/,package.json,package-lock.json,next.config.mjs,server.cjs,ecosystem.config.cjs,tsconfig.json,postcss.config.cjs,tailwind.config.cjs,.env"
+        source: ".next/,public/,app/,components/,lib/,styles/,prisma/,middleware.ts,package.json,package-lock.json,next.config.mjs,server.cjs,ecosystem.config.cjs,tsconfig.json,postcss.config.cjs,tailwind.config.cjs,.env"
         target: "/var/www/naukrimili"
         strip_components: 0
         timeout: 180s
