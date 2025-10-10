@@ -281,7 +281,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     fetchJobs(query, loc, 1, {
       jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
     });
-  }, [searchParams, fetchJobs]);
+  }, [searchParams]); // Removed fetchJobs from dependencies to prevent infinite loop
 
   // Periodic refresh disabled to prevent constant loading and improve performance
   // Users can manually refresh using the refresh button if needed
