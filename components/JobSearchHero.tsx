@@ -119,7 +119,7 @@ export default function JobSearchHero({
     if (filters.salaryMax) params.set('salaryMax', filters.salaryMax);
     
     // Add unlimited search parameters - FIXED: Use correct API endpoint
-    params.set('limit', '500'); // Increased limit for unlimited search
+    params.set('limit', '1000'); // Increased limit for 1000+ jobs
     params.set('includeExternal', 'true');
     params.set('includeDatabase', 'true');
     // Removed includeSample=true to let the API decide when to show sample jobs

@@ -82,7 +82,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         ...(location && { location }),
         country: country,
         page: page.toString(),
-        limit: '200', // Increased limit for unlimited search
+        limit: '1000', // Increased limit for 1000+ jobs
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),

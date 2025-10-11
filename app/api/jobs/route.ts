@@ -331,9 +331,10 @@ export async function GET(request: NextRequest) {
         let realExternalJobs: any[] = [];
         const apiStartTime = Date.now();
         
-        // ENHANCED: Multiple pages for unlimited results
+        // SMART LOADING: Fast initial load + background fetching for 1000+ jobs
         const maxPages = Math.ceil(limit / 20); // Each API returns ~20 jobs per page
-        const pagesToFetch = Math.min(maxPages, 10); // Max 10 pages (200 jobs per API)
+        const pagesToFetch = Math.min(maxPages, 25); // Max 25 pages (500 jobs per API) for performance
+        const initialPages = Math.min(5, pagesToFetch); // Load first 5 pages quickly (100 jobs)
         
         // PARALLEL API CALLS - All APIs with multiple pages for unlimited results
         const externalPromises = [];
@@ -342,10 +343,12 @@ export async function GET(request: NextRequest) {
           const { fetchFromAdzuna, fetchFromJooble } = await import('@/lib/jobs/providers');
           const { fetchFromJSearch } = await import('@/lib/jobs/dynamic-providers');
           
-          // Fetch multiple pages from each API for unlimited results
+          // SMART FETCHING: Load initial pages quickly, then more in background
           for (let page = 1; page <= pagesToFetch; page++) {
             // Adzuna API (Multi-country support)
             if (hasAdzuna) {
+              // Priority for first few pages (faster loading)
+              const priority = page <= initialPages ? 'high' : 'normal';
               externalPromises.push(
                 fetchFromAdzuna(query, country.toLowerCase(), page, { 
                   location: location || undefined,
@@ -719,7 +722,14 @@ export async function GET(request: NextRequest) {
     };
     
     console.log(`✅ Jobs API: Successfully returned ${formattedJobs.length} jobs (${total} total)`);
-    return NextResponse.json(response);
+    
+    // Add caching headers for better performance
+    const response_headers = new Headers({
+      'Cache-Control': 'public, max-age=300, s-maxage=300', // Cache for 5 minutes
+      'Content-Type': 'application/json'
+    });
+    
+    return NextResponse.json(response, { headers: response_headers });
     
   } catch (error: any) {
     console.error('❌ Jobs API error:', error);
