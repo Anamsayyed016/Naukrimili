@@ -1,53 +1,111 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* CSS Variables for Tailwind theme - Must be in @layer base */
-@layer base {
+/* Tailwind v4 CSS Variables - Theme Configuration */
+@theme {
+  --color-background: 0 0% 100%;
+  --color-foreground: 222.2 84% 4.9%;
+  --color-card: 0 0% 100%;
+  --color-card-foreground: 222.2 84% 4.9%;
+  --color-popover: 0 0% 100%;
+  --color-popover-foreground: 222.2 84% 4.9%;
+  --color-primary: 221.2 83.2% 53.3%;
+  --color-primary-foreground: 210 40% 98%;
+  --color-secondary: 210 40% 96.1%;
+  --color-secondary-foreground: 222.2 47.4% 11.2%;
+  --color-muted: 210 40% 96.1%;
+  --color-muted-foreground: 215.4 16.3% 46.9%;
+  --color-accent: 210 40% 96.1%;
+  --color-accent-foreground: 222.2 47.4% 11.2%;
+  --color-destructive: 0 84.2% 60.2%;
+  --color-destructive-foreground: 210 40% 98%;
+  --color-border: 214.3 31.8% 91.4%;
+  --color-input: 214.3 31.8% 91.4%;
+  --color-ring: 221.2 83.2% 53.3%;
+  
+  /* Border radius tokens */
+  --radius-sm: calc(0.5rem - 4px);
+  --radius-md: calc(0.5rem - 2px);
+  --radius-lg: 0.5rem;
+  
+  /* Breakpoints */
+  --breakpoint-xs: 475px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* Dark mode theme overrides */
+@media (prefers-color-scheme: dark) {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --color-background: 222.2 84% 4.9%;
+    --color-foreground: 210 40% 98%;
+    --color-card: 222.2 84% 4.9%;
+    --color-card-foreground: 210 40% 98%;
+    --color-popover: 222.2 84% 4.9%;
+    --color-popover-foreground: 210 40% 98%;
+    --color-primary: 217.2 91.2% 59.8%;
+    --color-primary-foreground: 222.2 47.4% 11.2%;
+    --color-secondary: 217.2 32.6% 17.5%;
+    --color-secondary-foreground: 210 40% 98%;
+    --color-muted: 217.2 32.6% 17.5%;
+    --color-muted-foreground: 215 20.2% 65.1%;
+    --color-accent: 217.2 32.6% 17.5%;
+    --color-accent-foreground: 210 40% 98%;
+    --color-destructive: 0 62.8% 30.6%;
+    --color-destructive-foreground: 210 40% 98%;
+    --color-border: 217.2 32.6% 17.5%;
+    --color-input: 217.2 32.6% 17.5%;
+    --color-ring: 224.3 76.3% 48%;
   }
+}
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-  }
+/* Class-based dark mode support */
+.dark {
+  --color-background: 222.2 84% 4.9%;
+  --color-foreground: 210 40% 98%;
+  --color-card: 222.2 84% 4.9%;
+  --color-card-foreground: 210 40% 98%;
+  --color-popover: 222.2 84% 4.9%;
+  --color-popover-foreground: 210 40% 98%;
+  --color-primary: 217.2 91.2% 59.8%;
+  --color-primary-foreground: 222.2 47.4% 11.2%;
+  --color-secondary: 217.2 32.6% 17.5%;
+  --color-secondary-foreground: 210 40% 98%;
+  --color-muted: 217.2 32.6% 17.5%;
+  --color-muted-foreground: 215 20.2% 65.1%;
+  --color-accent: 217.2 32.6% 17.5%;
+  --color-accent-foreground: 210 40% 98%;
+  --color-destructive: 0 62.8% 30.6%;
+  --color-destructive-foreground: 210 40% 98%;
+  --color-border: 217.2 32.6% 17.5%;
+  --color-input: 217.2 32.6% 17.5%;
+  --color-ring: 224.3 76.3% 48%;
+}
+
+/* Legacy CSS variable names for backwards compatibility */
+:root {
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --card: var(--color-card);
+  --card-foreground: var(--color-card-foreground);
+  --popover: var(--color-popover);
+  --popover-foreground: var(--color-popover-foreground);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-primary-foreground);
+  --secondary: var(--color-secondary);
+  --secondary-foreground: var(--color-secondary-foreground);
+  --muted: var(--color-muted);
+  --muted-foreground: var(--color-muted-foreground);
+  --accent: var(--color-accent);
+  --accent-foreground: var(--color-accent-foreground);
+  --destructive: var(--color-destructive);
+  --destructive-foreground: var(--color-destructive-foreground);
+  --border: var(--color-border);
+  --input: var(--color-input);
+  --ring: var(--color-ring);
+  --radius: var(--radius-lg);
 }
 
 /* Mobile Notification Styles - Inlined to avoid @import warnings */
