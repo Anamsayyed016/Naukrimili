@@ -314,6 +314,7 @@ export default function JobSearchHero({
                 <div className="flex justify-center">
                   <Button 
                     onClick={handleSearch} 
+                    data-testid="search-button"
                     className="inline-flex items-center justify-center px-8 sm:px-12 py-3 sm:py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-sm sm:text-lg min-w-[160px] sm:min-w-[200px]"
                   >
                     <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />

@@ -20,6 +20,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSEOJobUrl } from '@/components/SEOJobLink';
 import { normalizeJobData } from '@/lib/job-data-normalizer';
+import { formatJobSalary } from '@/lib/currency-utils';
 
 interface EnhancedJobCardProps {
   job: JobResult;
@@ -157,9 +158,9 @@ export default function EnhancedJobCard({
                 </div>
               </div>
               
-              {(normalizedJob.salary_formatted || normalizedJob.salary) && (
+              {formatJobSalary(normalizedJob) !== 'Salary not specified' && (
                 <div className="text-green-600 font-medium text-xs sm:text-sm mb-2">
-                  {normalizedJob.salary_formatted || normalizedJob.salary}
+                  {formatJobSalary(normalizedJob)}
                 </div>
               )}
             </div>
@@ -329,10 +330,10 @@ export default function EnhancedJobCard({
           </div>
 
           {/* Salary */}
-          {(job.salary_formatted || job.salary) && (
+          {formatJobSalary(job) !== 'Salary not specified' && (
             <div className="flex items-center text-green-600 font-semibold mb-4">
               <CurrencyDollarIcon className="w-5 h-5 mr-1" />
-              <span className="text-lg">{job.salary_formatted || job.salary}</span>
+              <span className="text-lg">{formatJobSalary(job)}</span>
               {showSalaryInsights && (
                 <span className="ml-2 text-xs text-gray-500 font-normal">
                   • Competitive

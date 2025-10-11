@@ -89,7 +89,7 @@ export default function HomePageClient({
               {(popularLocations || []).map((location, index) => (
                 <Link
                   key={index}
-                  href={`/jobs?location=${encodeURIComponent(location)}&unlimited=true&includeExternal=true&includeDatabase=true&includeSample=true&limit=100`}
+                  href={`/jobs?location=${encodeURIComponent(location)}&includeExternal=true&includeDatabase=true&limit=1000`}
                   className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-white hover:border-blue-300 hover:text-blue-600 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md"
                 >
                   <MapPin className="w-4 h-4 mr-2" />

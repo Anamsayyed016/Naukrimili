@@ -152,6 +152,13 @@ export default function LocationCategories({
 
   const handleLocationClick = useCallback((location: LocationData) => {
     onLocationSelect(location);
+    // Auto-trigger search when location is selected
+    setTimeout(() => {
+      const searchButton = document.querySelector('[data-testid="search-button"]') as HTMLButtonElement;
+      if (searchButton) {
+        searchButton.click();
+      }
+    }, 100);
   }, [onLocationSelect]);
 
   // Initialize locations

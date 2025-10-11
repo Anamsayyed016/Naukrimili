@@ -123,7 +123,22 @@ export async function GET(request: NextRequest) {
     const experienceLevel = searchParams2.get('experienceLevel') || '';
     const isRemote = searchParams2.get('isRemote') === 'true' || searchParams2.get('remote') === 'true' || searchParams2.get('remote_only') === 'true';
     const sector = searchParams2.get('sector') || '';
-    const country = searchParams2.get('country') || 'IN';
+    // Smart country detection based on location
+    let country = searchParams2.get('country') || 'IN';
+    if (location && !searchParams2.get('country')) {
+      const locationLower = location.toLowerCase();
+      if (locationLower.includes('london') || locationLower.includes('manchester') || locationLower.includes('birmingham') || locationLower.includes('uk') || locationLower.includes('united kingdom')) {
+        country = 'GB';
+      } else if (locationLower.includes('new york') || locationLower.includes('san francisco') || locationLower.includes('los angeles') || locationLower.includes('usa') || locationLower.includes('united states')) {
+        country = 'US';
+      } else if (locationLower.includes('dubai') || locationLower.includes('abu dhabi') || locationLower.includes('uae') || locationLower.includes('united arab emirates')) {
+        country = 'AE';
+      } else if (locationLower.includes('toronto') || locationLower.includes('vancouver') || locationLower.includes('canada')) {
+        country = 'CA';
+      } else if (locationLower.includes('sydney') || locationLower.includes('melbourne') || locationLower.includes('australia')) {
+        country = 'AU';
+      }
+    }
     const salaryMin = searchParams2.get('salaryMin') || '';
     const salaryMax = searchParams2.get('salaryMax') || '';
     
@@ -175,16 +190,49 @@ export async function GET(request: NextRequest) {
       });
     }
     
-    // Location filtering with smart matching - separate AND condition
+    // Enhanced location filtering with smart matching and country detection
     if (location && location.trim().length > 0) {
       try {
         const locationVariations = generateLocationVariations(location.trim());
-        andConditions.push({
-          OR: [
-            { location: { contains: location.trim(), mode: 'insensitive' } },
-            ...locationVariations.map(loc => ({ location: { contains: loc, mode: 'insensitive' } }))
-          ]
-        });
+        const locationQuery = location.trim().toLowerCase();
+        
+        // Enhanced location search - more flexible matching
+        const locationConditions = [
+          { location: { contains: location.trim(), mode: 'insensitive' } },
+          ...locationVariations.map(loc => ({ location: { contains: loc, mode: 'insensitive' } }))
+        ];
+        
+        // Add country-specific location searches for better results
+        if (locationQuery.includes('london') || locationQuery.includes('uk') || locationQuery.includes('united kingdom')) {
+          locationConditions.push(
+            { location: { contains: 'london', mode: 'insensitive' } },
+            { location: { contains: 'uk', mode: 'insensitive' } },
+            { location: { contains: 'united kingdom', mode: 'insensitive' } }
+          );
+        } else if (locationQuery.includes('new york') || locationQuery.includes('nyc') || locationQuery.includes('usa') || locationQuery.includes('united states')) {
+          locationConditions.push(
+            { location: { contains: 'new york', mode: 'insensitive' } },
+            { location: { contains: 'nyc', mode: 'insensitive' } },
+            { location: { contains: 'usa', mode: 'insensitive' } }
+          );
+        } else if (locationQuery.includes('dubai') || locationQuery.includes('uae') || locationQuery.includes('united arab emirates')) {
+          locationConditions.push(
+            { location: { contains: 'dubai', mode: 'insensitive' } },
+            { location: { contains: 'uae', mode: 'insensitive' } }
+          );
+        } else if (locationQuery.includes('toronto') || locationQuery.includes('canada')) {
+          locationConditions.push(
+            { location: { contains: 'toronto', mode: 'insensitive' } },
+            { location: { contains: 'canada', mode: 'insensitive' } }
+          );
+        } else if (locationQuery.includes('sydney') || locationQuery.includes('australia')) {
+          locationConditions.push(
+            { location: { contains: 'sydney', mode: 'insensitive' } },
+            { location: { contains: 'australia', mode: 'insensitive' } }
+          );
+        }
+        
+        andConditions.push({ OR: locationConditions });
       } catch (error) {
         console.warn('⚠️ Location variation generation failed:', error);
         // Fallback to simple location search
@@ -781,111 +829,7 @@ function generateLocationVariations(location: string): string[] {
   }
 }
 
-// Generate sample jobs when database has few results
-function generateSampleJobs(options: {
-  query: string;
-  location: string;
-  country: string;
-  jobType: string;
-  experienceLevel: string;
-  isRemote: boolean;
-  sector: string;
-  count: number;
-}): any[] {
-  const { query, location, country, jobType, experienceLevel, isRemote, sector, count } = options;
-  
-  const companies = [
-    'TechCorp', 'InnovateLabs', 'Digital Solutions', 'CloudTech', 'DataFlow',
-    'WebCraft', 'AppBuilder', 'CodeForge', 'TechNova', 'DevStudio',
-    'HealthCare Plus', 'FinanceFirst', 'EduTech Solutions', 'MarketingPro',
-    'SalesForce', 'Engineering Corp', 'RetailMax', 'Hospitality Group',
-    'Manufacturing Inc', 'Consulting Partners', 'BPO Solutions', 'Call Center Pro',
-    'Customer Care Inc', 'Support Systems', 'Service Excellence'
-  ];
-  
-  const jobTitles = [
-    'Software Engineer', 'Frontend Developer', 'Backend Developer', 'Full Stack Developer',
-    'Data Scientist', 'Product Manager', 'UX Designer', 'DevOps Engineer',
-    'QA Engineer', 'Business Analyst', 'Marketing Manager', 'Sales Executive',
-    'Customer Service Representative', 'BPO Executive', 'Call Center Agent',
-    'Technical Support', 'Account Manager', 'Project Manager', 'HR Manager',
-    'Financial Analyst', 'Operations Manager', 'Content Writer', 'Digital Marketer'
-  ];
-  
-  const locations = [
-    'Mumbai, Maharashtra', 'Delhi, NCR', 'Bangalore, Karnataka', 'Hyderabad, Telangana',
-    'Chennai, Tamil Nadu', 'Pune, Maharashtra', 'Kolkata, West Bengal', 'Ahmedabad, Gujarat',
-    'New York, NY', 'San Francisco, CA', 'Los Angeles, CA', 'Chicago, IL',
-    'London, UK', 'Manchester, UK', 'Dubai, UAE', 'Abu Dhabi, UAE'
-  ];
-  
-  const sampleJobs: any[] = [];
-  
-  for (let i = 0; i < count; i++) {
-    const company = companies[Math.floor(Math.random() * companies.length)];
-    const title = jobTitles[Math.floor(Math.random() * jobTitles.length)];
-    const jobLocation = locations[Math.floor(Math.random() * locations.length)];
-    
-    // Match query if provided
-    const finalTitle = query ? `${query} ${title}` : title;
-    
-    // Match job type if provided
-    const finalJobType = jobType && jobType !== 'all' ? jobType : 
-      ['Full-time', 'Part-time', 'Contract', 'Internship'][Math.floor(Math.random() * 4)];
-    
-    // Match experience level if provided
-    const finalExperienceLevel = experienceLevel && experienceLevel !== 'all' ? experienceLevel :
-      ['Entry Level', 'Mid Level', 'Senior Level', 'Lead', 'Executive'][Math.floor(Math.random() * 5)];
-    
-    // Match remote if requested
-    const isRemoteJob = isRemote ? true : Math.random() > 0.7;
-    
-    // Match location if provided - prioritize user's location search
-    const finalLocation = location ? 
-      (isRemoteJob ? 'Remote' : location) : 
-      (isRemoteJob ? 'Remote' : jobLocation);
-    
-    const job = {
-      id: `sample-${Date.now()}-${i}`,
-      source: 'sample',
-      sourceId: `sample-${Date.now()}-${i}`,
-      title: finalTitle,
-      company: company,
-      location: isRemoteJob ? 'Remote' : finalLocation,
-      country: country,
-      description: `This is a comprehensive job description for ${finalTitle} at ${company}. We are looking for a talented professional to join our team and contribute to our success.`,
-      requirements: `Requirements: Bachelor's degree in relevant field, 2+ years experience, strong communication skills`,
-      applyUrl: `https://${company.toLowerCase().replace(/\s+/g, '')}.com/careers/${finalTitle.toLowerCase().replace(/\s+/g, '-')}`,
-      salary: `$${Math.floor(Math.random() * 50000) + 30000} - $${Math.floor(Math.random() * 50000) + 80000}`,
-      salaryMin: Math.floor(Math.random() * 30000) + 30000,
-      salaryMax: Math.floor(Math.random() * 50000) + 60000,
-      salaryCurrency: 'USD',
-      jobType: finalJobType,
-      experienceLevel: finalExperienceLevel,
-      skills: 'JavaScript, React, Node.js, Python, SQL',
-      isRemote: isRemoteJob,
-      isHybrid: !isRemoteJob && Math.random() > 0.8,
-      isUrgent: Math.random() > 0.9,
-      isFeatured: Math.random() > 0.8,
-      isActive: true,
-      sector: sector || 'Technology',
-      views: Math.floor(Math.random() * 100),
-      applicationsCount: Math.floor(Math.random() * 50),
-      createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random date within last 30 days
-      updatedAt: new Date(),
-      companyRelation: {
-        name: company,
-        logo: `https://via.placeholder.com/150x150/3B82F6/FFFFFF?text=${company.charAt(0)}`,
-        location: finalLocation,
-        industry: 'Technology'
-      }
-    };
-    
-    sampleJobs.push(job);
-  }
-  
-  return sampleJobs;
-}
+// Sample job generation removed - only real jobs from APIs and database are shown
 
 /**
  * Enhanced job search using the new processing pipeline
