@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
@@ -56,9 +56,9 @@ export default function MainNavigation({
   const [isMounted, setIsMounted] = useState(false);
   const { data: session, status } = useSession();
   
-  // Derived state from session - memoized to prevent re-renders
-  const user = useMemo(() => session?.user as any, [session?.user]);
-  const isAuthenticated = useMemo(() => status === 'authenticated' && !!user, [status, user]);
+  // Derived state from session - simplified to prevent React Error #310
+  const user = session?.user as any;
+  const isAuthenticated = status === 'authenticated' && !!user;
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -118,18 +118,14 @@ export default function MainNavigation({
     }
   };
 
-  const navLinks = useMemo(() => {
-    // Keep main navigation clean and professional - only public pages
-    return [
-      { title: "Home", href: "/", icon: Home },
-      { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
-      { title: "Companies", href: "/companies", icon: BuildingIcon }
-    ];
-  }, []);
+  const navLinks = [
+    { title: "Home", href: "/", icon: Home },
+    { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
+    { title: "Companies", href: "/companies", icon: BuildingIcon }
+  ];
 
-  // Role-specific links for dropdown menus
-  const roleSpecificLinks = useMemo(() => {
-    // Always return an array - no early returns in useMemo
+  // Role-specific links for dropdown menus - simplified to prevent React Error #310
+  const getRoleSpecificLinks = () => {
     if (!isMounted || !isAuthenticated || !user?.role) {
       return [];
     }
@@ -153,7 +149,9 @@ export default function MainNavigation({
     }
     
     return [];
-  }, [isMounted, isAuthenticated, user?.role]);
+  };
+
+  const roleSpecificLinks = getRoleSpecificLinks();
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
