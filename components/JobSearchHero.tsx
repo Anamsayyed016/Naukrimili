@@ -136,7 +136,7 @@ export default function JobSearchHero({
     const searchUrl = `/jobs?${params.toString()}`;
     console.log('🔍 Search URL:', searchUrl); // Debug log
     router.push(searchUrl);
-  }, [filters, userLocation, searchRadius, sortByDistance, router]);
+  }, [filters, userLocation, searchRadius, sortByDistance]);
 
   // Location detection with improved error handling
   const detectCurrentLocation = useCallback(async () => {
