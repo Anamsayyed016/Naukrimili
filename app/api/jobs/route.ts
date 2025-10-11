@@ -745,7 +745,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
 
 // Helper function to generate location variations for smart matching
 function generateLocationVariations(location: string): string[] {
