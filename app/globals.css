@@ -2,11 +2,314 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import mobile notification styles */
-@import '../styles/mobile-notifications.css';
+/* CSS Variables for Tailwind theme - Must be in @layer base */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
 
-/* Import mobile job form styles */
-@import '../styles/mobile-job-form.css';
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+}
+
+/* Mobile Notification Styles - Inlined to avoid @import warnings */
+.mobile-notification {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+}
+
+.mobile-notification-container {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  max-width: 100%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1rem;
+  transform: translateY(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mobile-notification-container.show {
+  transform: translateY(0);
+}
+
+.mobile-notification-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.mobile-notification-icon {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  background: #dbeafe;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-notification-icon svg {
+  width: 1rem;
+  height: 1rem;
+  color: #2563eb;
+}
+
+.mobile-notification-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-notification-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.mobile-notification-body {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0.25rem 0 0 0;
+}
+
+.mobile-notification-close {
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-notification-close:hover {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.mobile-notification-close svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Mobile Job Form Styles - Inlined to avoid @import warnings */
+@media (max-width: 768px) {
+  .mobile-job-form input,
+  .mobile-job-form textarea,
+  .mobile-job-form select,
+  .mobile-job-form button {
+    min-height: 48px;
+    font-size: 16px;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 12px;
+  }
+
+  .mobile-job-form .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .mobile-job-form .button-group button {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .mobile-job-form .form-step {
+    padding: 16px;
+  }
+
+  .mobile-job-form .form-field {
+    margin-bottom: 20px;
+  }
+
+  .mobile-job-form input:focus,
+  .mobile-job-form textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .mobile-job-form .ai-suggestion-card {
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    background: white;
+  }
+
+  .mobile-job-form .ai-suggestion-card button {
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    min-height: 48px;
+    border-radius: 8px;
+  }
+
+  .mobile-job-form .skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .mobile-job-form .skill-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .mobile-job-form .skill-badge button {
+    margin-left: 8px;
+    padding: 2px;
+    min-height: 20px;
+    min-width: 20px;
+    border-radius: 50%;
+    background: #ef4444;
+    color: white;
+    border: none;
+  }
+
+  .mobile-job-form .step-navigation {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 16px;
+    margin: 0 -16px -16px -16px;
+  }
+
+  .mobile-job-form .validation-error {
+    color: #ef4444;
+    font-size: 14px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .mobile-job-form .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .mobile-job-form {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+  }
+
+  .mobile-job-form .ai-suggestions-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .mobile-job-form .ai-suggestions-modal {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    max-width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+}
+
+.mobile-job-form {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mobile-job-form button:focus,
+.mobile-job-form input:focus,
+.mobile-job-form textarea:focus,
+.mobile-job-form select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .mobile-job-form .interactive-element {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
 
 /* Fix for dropdown z-index issues */
 [data-radix-popper-content-wrapper] {
@@ -87,4 +390,13 @@
   50% {
     opacity: .5;
   }
+}
+
+/* CSS Loading States - Removed visibility hidden to prevent blank pages */
+body {
+  visibility: visible;
+}
+
+body.css-loaded {
+  visibility: visible;
 }

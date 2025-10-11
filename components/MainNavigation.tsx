@@ -53,15 +53,17 @@ export default function MainNavigation({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { data: session, status } = useSession();
   
   // Derived state from session
   const user = session?.user as any; // Type assertion for role property
   const isAuthenticated = status === 'authenticated' && !!user;
-  const isMounted = status !== 'loading';
 
-  // Check if screen is mobile size - prevent hydration issues
+  // Prevent hydration mismatch
   useEffect(() => {
+    setIsMounted(true);
+    
     const checkScreenSize = () => {
       const isMobileSize = window.innerWidth < 1024;
       setIsMobile(isMobileSize);
@@ -77,13 +79,28 @@ export default function MainNavigation({
       }
     };
     
-    // Only run on client side
-    if (typeof window !== 'undefined') {
-      checkScreenSize();
-      window.addEventListener('resize', checkScreenSize);
-      return () => window.removeEventListener('resize', checkScreenSize);
-    }
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
   }, [isMenuOpen, isDropdownOpen]);
+
+  // Don't render until mounted to prevent hydration mismatch
+  if (!isMounted) {
+    return (
+      <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            <Link href="/" className="flex items-center hover:opacity-80 transition-all duration-300 group">
+              <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                {brandName}
+              </span>
+            </Link>
+            <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
   const closeDropdown = useCallback(() => setIsDropdownOpen(false), []);
