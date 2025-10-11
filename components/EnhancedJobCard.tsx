@@ -6,7 +6,6 @@ import {
   BuildingOffice2Icon,
   MapPinIcon,
   CalendarIcon,
-  CurrencyDollarIcon,
   StarIcon,
   ChevronRightIcon,
   EyeIcon,
