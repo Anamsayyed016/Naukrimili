@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import MainNavigation from '@/components/MainNavigation';
 import Footer from '@/components/Footer';
-import SessionProvider from '@/components/providers/SessionProvider';
+import SessionProvider from '@/components/SessionProvider';
 import BufferPolyfill from '@/components/BufferPolyfill';
 import { Toaster } from '@/components/ui/toaster';
 import GlobalErrorHandler from '@/components/GlobalErrorHandler';

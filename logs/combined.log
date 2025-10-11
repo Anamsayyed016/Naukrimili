@@ -1444,3 +1444,39 @@
 {"message":"🔧 NextAuth Configuration:\n","timestamp":"2025-10-10 22:18:19 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
 {"message":"   NEXTAUTH_URL: https://naukrimili.com\n   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 22:18:19 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
 {"message":"⚠️ Google OAuth credentials not properly configured. Google sign-in will be disabled.\n   GOOGLE_CLIENT_ID: Missing\n   GOOGLE_CLIENT_SECRET: Missing\n","timestamp":"2025-10-10 22:18:19 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-11 09:06:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-11 09:06:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n","timestamp":"2025-10-11 09:06:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-11 09:12:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-11 09:12:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-11 09:12:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-11 09:12:40 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-11 09:12:40 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n","timestamp":"2025-10-11 09:12:40 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
