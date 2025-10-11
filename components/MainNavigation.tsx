@@ -56,9 +56,9 @@ export default function MainNavigation({
   const [isMounted, setIsMounted] = useState(false);
   const { data: session, status } = useSession();
   
-  // Derived state from session
-  const user = session?.user as any; // Type assertion for role property
-  const isAuthenticated = status === 'authenticated' && !!user;
+  // Derived state from session - memoized to prevent re-renders
+  const user = useMemo(() => session?.user as any, [session?.user]);
+  const isAuthenticated = useMemo(() => status === 'authenticated' && !!user, [status, user]);
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -114,9 +114,9 @@ export default function MainNavigation({
     } catch (error) {
       console.error('Logout error:', error);
       // Fallback to manual redirect
-      router.push('/');
+      window.location.href = '/';
     }
-  }, [router]);
+  }, []);
 
   const navLinks = useMemo(() => {
     // Keep main navigation clean and professional - only public pages
@@ -131,7 +131,9 @@ export default function MainNavigation({
   const roleSpecificLinks = useMemo(() => {
     if (!isMounted || !isAuthenticated || !user?.role) return [];
 
-    if (user.role === 'employer') {
+    const userRole = user.role;
+    if (userRole === 'employer') {
+      
       return [
         { title: "Dashboard", href: "/employer/dashboard", icon: BarChartIcon, description: "View analytics and insights" },
         { title: "Post Job", href: "/employer/jobs/create", icon: BriefcaseIcon, description: "Create new job posting" },
@@ -139,7 +141,7 @@ export default function MainNavigation({
         { title: "Applications", href: "/employer/applications", icon: Users, description: "Review job applications" },
         { title: "Company Profile", href: "/employer/company/profile", icon: BuildingIcon, description: "Update company info" }
       ];
-    } else if (user.role === 'jobseeker') {
+    } else if (userRole === 'jobseeker') {
       return [
         { title: "Dashboard", href: "/dashboard/jobseeker", icon: BarChartIcon, description: "View your activity" },
         { title: "My Resumes", href: "/dashboard/jobseeker/resumes", icon: FileTextIcon, description: "Manage your resumes" },
