@@ -6,19 +6,48 @@ import { trackJobSearch } from '@/lib/analytics/event-integration';
 import { auth } from '@/lib/nextauth-config';
 
 /**
- * Remove duplicate jobs based on title, company, and location
+ * ENHANCED: Smart duplicate removal - handles variations and prioritizes database jobs
  */
 function removeDuplicateJobs(jobs: any[]): any[] {
-  const seen = new Set<string>();
-  return jobs.filter(job => {
-    const key = `${job.title?.toLowerCase()}-${job.company?.toLowerCase()}-${job.location?.toLowerCase()}`;
-    if (seen.has(key)) {
-      console.log(`🔄 Removing duplicate: ${job.title} at ${job.company}`);
-      return false;
+  const seen = new Map<string, any>();
+  
+  jobs.forEach(job => {
+    // Create multiple keys for better duplicate detection
+    const title = (job.title || '').toLowerCase().trim();
+    const company = (job.company || job.companyRelation?.name || '').toLowerCase().trim();
+    const location = (job.location || job.companyRelation?.location || '').toLowerCase().trim();
+    
+    // Primary key: exact match
+    const primaryKey = `${title}|${company}|${location}`;
+    
+    // Secondary key: title + company only (for location variations)
+    const secondaryKey = `${title}|${company}`;
+    
+    // Check if we've seen this job before
+    if (!seen.has(primaryKey) && !seen.has(secondaryKey)) {
+      seen.set(primaryKey, job);
+      seen.set(secondaryKey, job);
+    } else {
+      // Prefer database/employer jobs over external jobs
+      const existing = seen.get(primaryKey) || seen.get(secondaryKey);
+      if (job.source === 'employer' || (job.source === 'database' && existing.source === 'external')) {
+        seen.set(primaryKey, job);
+        seen.set(secondaryKey, job);
+      }
     }
-    seen.add(key);
-    return true;
   });
+  
+  // Return unique jobs
+  const uniqueJobs = Array.from(new Set(Array.from(seen.values()).map(j => j.id || j.sourceId)))
+    .map(id => Array.from(seen.values()).find(j => (j.id || j.sourceId) === id))
+    .filter(Boolean);
+  
+  const removed = jobs.length - uniqueJobs.length;
+  if (removed > 0) {
+    console.log(`🔄 Removed ${removed} duplicates`);
+  }
+  
+  return uniqueJobs;
 }
 
 // Interface for job with distance calculation
@@ -266,164 +295,136 @@ export async function GET(request: NextRequest) {
         })));
       }
       
-      // Always try dynamic job providers when there's a search query to get real jobs for any keyword
-      const hasExternalApiKeys = !!(process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) || 
-                                 !!process.env.INDEED_API_KEY || 
-                                 !!process.env.ZIPRECRUITER_API_KEY ||
-                                 !!process.env.JSEARCH_API_KEY ||
-                                 !!process.env.RAPIDAPI_KEY;
+      // OPTIMIZED: Check for API keys once
+      const hasAdzuna = !!(process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY);
+      const hasRapidAPI = !!process.env.RAPIDAPI_KEY;
+      const hasJooble = !!process.env.JOOBLE_API_KEY;
+      const hasExternalApiKeys = hasAdzuna || hasRapidAPI || hasJooble;
       
-      // Fetch dynamic jobs for any search query to make it truly dynamic like other job portals
-      if (query) {
-        console.log(`🔧 Searching external APIs for query: "${query}" (found ${jobs.length} database jobs)...`);
+      // Fetch external jobs in parallel for speed (like other job portals)
+      if (query && hasExternalApiKeys) {
+        console.log(`🚀 Fetching jobs from ${[hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean).join(', ')}`);
         
         try {
-          // Import dynamic job fetching functions
           let realExternalJobs: any[] = [];
+          const apiStartTime = Date.now();
+          
+          // PARALLEL API CALLS - All 3 APIs called simultaneously for maximum speed
+          const externalPromises = [];
           
           try {
-            // Use the new dynamic job provider that works for any keyword
-            const { fetchDynamicJobs } = await import('@/lib/jobs/dynamic-providers');
+            const { fetchFromAdzuna, fetchFromJooble } = await import('@/lib/jobs/providers');
+            const { fetchFromJSearch } = await import('@/lib/jobs/dynamic-providers');
             
-            console.log(`🔍 Fetching dynamic jobs for query: "${query}"`);
-            const dynamicJobs = await fetchDynamicJobs(query, location || 'India', 1);
-            
-            if (dynamicJobs.length > 0) {
-              realExternalJobs.push(...dynamicJobs);
-              console.log(`✅ Dynamic provider: Found ${dynamicJobs.length} jobs for "${query}"`);
-            }
-            
-            // Also try legacy providers if available
-            const { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter } = await import('@/lib/jobs/providers');
-            
-            const externalPromises = [];
-            
-            // Only call legacy APIs if we have the required environment variables
-            if (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) {
+            // Adzuna API (Multi-country support)
+            if (hasAdzuna) {
               externalPromises.push(
-                fetchFromAdzuna(query, country, 1, { 
+                fetchFromAdzuna(query, country.toLowerCase(), 1, { 
                   location: location || undefined,
                   distanceKm: 50 
                 }).catch(err => {
-                  console.log('⚠️ Adzuna API failed:', err.message);
+                  console.log('⚠️ Adzuna failed:', err.message);
                   return [];
                 })
               );
             }
             
-            if (process.env.INDEED_API_KEY) {
+            // JSearch API via RapidAPI (Global coverage)
+            if (hasRapidAPI) {
               externalPromises.push(
-                fetchFromIndeed(query, location || 'India', 1).catch(err => {
-                  console.log('⚠️ Indeed API failed:', err.message);
+                fetchFromJSearch(query, location || 'India', 1).catch(err => {
+                  console.log('⚠️ JSearch failed:', err.message);
                   return [];
                 })
               );
             }
             
-            if (process.env.ZIPRECRUITER_API_KEY) {
+            // Jooble API (Additional job source)
+            if (hasJooble) {
               externalPromises.push(
-                fetchFromZipRecruiter(query, location || 'India', 1).catch(err => {
-                  console.log('⚠️ ZipRecruiter API failed:', err.message);
+                fetchFromJooble(query, location || 'India', 1).catch(err => {
+                  console.log('⚠️ Jooble failed:', err.message);
                   return [];
                 })
               );
             }
             
-            // Also try JSearch with location if available
-            if (process.env.RAPIDAPI_KEY) {
-              externalPromises.push(
-                fetchFromJSearch(query, country, 1, location).catch(err => {
-                  console.log('⚠️ JSearch API failed:', err.message);
-                  return [];
-                })
-              );
-            }
-            
-            // Wait for all legacy external API calls
+            // Wait for ALL APIs in parallel (FAST like Indeed/LinkedIn)
             if (externalPromises.length > 0) {
               const externalResults = await Promise.allSettled(externalPromises);
+              const apiNames = [hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean);
               
-              // Process external jobs
+              // Collect results from all successful APIs
               externalResults.forEach((result, index) => {
-                if (result.status === 'fulfilled' && result.value && Array.isArray(result.value)) {
-                  const apiName = ['Adzuna', 'Indeed', 'ZipRecruiter'][index];
-                  console.log(`✅ ${apiName}: Found ${result.value.length} external jobs`);
+                if (result.status === 'fulfilled' && result.value && Array.isArray(result.value) && result.value.length > 0) {
+                  console.log(`✅ ${apiNames[index]}: ${result.value.length} jobs`);
                   realExternalJobs.push(...result.value);
                 }
               });
+              
+              const apiDuration = Date.now() - apiStartTime;
+              console.log(`⚡ API calls completed in ${apiDuration}ms`);
             }
             
-            // Add external jobs to results (DON'T cache fake dynamic jobs)
+            // OPTIMIZED: Fast caching and deduplication
             if (realExternalJobs.length > 0) {
-              // Only cache REAL external jobs from actual APIs (not generated ones)
-              try {
-                const jobsToCache = realExternalJobs.filter(job => 
-                  job.id && !job.id.startsWith('dynamic-') && job.source !== 'dynamic'
-                );
-                
-                if (jobsToCache.length > 0) {
-                  console.log(`💾 Caching ${jobsToCache.length} real external jobs in database...`);
-                  
-                  for (const job of jobsToCache) {
-                    try {
-                      await prisma.job.upsert({
-                        where: { 
-                          source_sourceId: {
-                            source: job.source || 'external',
-                            sourceId: job.id
-                          }
-                        },
-                        update: {
-                          isActive: true,
-                          updatedAt: new Date()
-                        },
-                        create: {
-                          sourceId: job.id,
-                          source: job.source || 'external',
-                          title: job.title,
-                          company: job.company,
-                          location: job.location,
-                          country: job.country || 'IN',
-                          description: job.description,
-                          requirements: job.requirements || '',
-                          applyUrl: job.applyUrl || job.source_url,
-                          source_url: job.source_url || job.applyUrl,
-                          postedAt: job.postedAt ? new Date(job.postedAt) : new Date(),
-                          salary: job.salary,
-                          salaryMin: job.salaryMin,
-                          salaryMax: job.salaryMax,
-                          salaryCurrency: job.salaryCurrency || 'INR',
-                          jobType: job.jobType || 'Full-time',
-                          experienceLevel: job.experienceLevel,
-                          skills: JSON.stringify(job.skills || []),
-                          isRemote: job.isRemote || false,
-                          isHybrid: job.isHybrid || false,
-                          isUrgent: job.isUrgent || false,
-                          isFeatured: job.isFeatured || false,
-                          isActive: true,
-                          sector: job.sector,
-                          views: 0,
-                          applicationsCount: 0,
-                          // Set expiry to 24 hours from now
-                          expiryDate: new Date(Date.now() + 24 * 60 * 60 * 1000)
-                        }
-                      });
-                    } catch (cacheError) {
-                      console.log(`⚠️ Failed to cache job ${job.id}:`, cacheError.message);
+              // Cache external jobs in background (non-blocking)
+              const cachingPromises = realExternalJobs.map(job => 
+                prisma.job.upsert({
+                  where: { 
+                    source_sourceId: {
+                      source: job.source || 'external',
+                      sourceId: job.sourceId || job.id
                     }
+                  },
+                  update: {
+                    isActive: true,
+                    updatedAt: new Date(),
+                    views: { increment: 0 } // Touch the record
+                  },
+                  create: {
+                    sourceId: job.sourceId || job.id,
+                    source: job.source || 'external',
+                    title: job.title,
+                    company: job.company,
+                    location: job.location,
+                    country: job.country || country,
+                    description: job.description,
+                    requirements: job.requirements || '',
+                    applyUrl: job.source_url || job.applyUrl,
+                    source_url: job.source_url || job.applyUrl,
+                    postedAt: job.postedAt ? new Date(job.postedAt) : new Date(),
+                    salary: job.salary,
+                    salaryMin: job.salaryMin,
+                    salaryMax: job.salaryMax,
+                    salaryCurrency: job.salaryCurrency || 'INR',
+                    jobType: job.jobType || 'Full-time',
+                    experienceLevel: job.experienceLevel || 'Mid Level',
+                    skills: JSON.stringify(job.skills || []),
+                    isRemote: job.isRemote || false,
+                    isHybrid: job.isHybrid || false,
+                    isUrgent: false,
+                    isFeatured: false,
+                    isActive: true,
+                    sector: job.sector || 'General',
+                    views: 0,
+                    applicationsCount: 0,
+                    expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days expiry
                   }
-                  
-                  console.log(`✅ Successfully cached ${jobsToCache.length} dynamic jobs`);
-                }
-              } catch (cacheError) {
-                console.log('⚠️ Failed to cache dynamic jobs:', cacheError);
-              }
+                }).catch(err => console.log(`⚠️ Cache failed for ${job.id}:`, err.message))
+              );
               
-              // Add external jobs and remove duplicates
+              // Don't wait for caching - let it happen in background
+              Promise.all(cachingPromises).then(() => 
+                console.log(`💾 Cached ${realExternalJobs.length} external jobs`)
+              );
+              
+              // SMART DEDUPLICATION: Combine and deduplicate efficiently
               const combinedJobs = [...jobs, ...realExternalJobs];
               jobs = removeDuplicateJobs(combinedJobs);
-              total = Math.max(total, jobs.length);
-              console.log(`✅ Added ${realExternalJobs.length} external jobs. After deduplication: ${jobs.length} jobs`);
+              total = jobs.length;
+              
+              console.log(`✅ Total: ${jobs.length} jobs (${realExternalJobs.length} external + ${jobs.length - realExternalJobs.length} database, after dedup)`);
             }
           } catch (importError) {
             console.error('❌ Failed to import job providers:', importError);
@@ -588,10 +589,24 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // Format jobs with error handling
+    // Format jobs with SMART apply URL handling
     let formattedJobs = [];
     try {
       formattedJobs = jobs.map(job => {
+        // SMART APPLY URL: External jobs -> direct link, Employer jobs -> internal application
+        let applyUrl = job.applyUrl;
+        const isExternalJob = job.source === 'external' || job.source === 'adzuna' || 
+                             job.source === 'jsearch' || job.source === 'jooble' ||
+                             job.source === 'rapidapi';
+        
+        if (isExternalJob) {
+          // External job: Use source_url (direct application link)
+          applyUrl = job.source_url || job.applyUrl;
+        } else {
+          // Employer/Database job: Use internal application page
+          applyUrl = `/jobs/${job.id}/apply`;
+        }
+        
         const baseJob = {
           id: job.id,
           title: job.title,
@@ -600,7 +615,9 @@ export async function GET(request: NextRequest) {
           location: job.location,
           country: job.country,
           description: job.description,
-          applyUrl: job.applyUrl,
+          applyUrl: applyUrl,
+          source: job.source || 'database',
+          isExternal: isExternalJob,
           postedAt: job.postedAt,
           salary: job.salary,
           salaryMin: job.salaryMin,
