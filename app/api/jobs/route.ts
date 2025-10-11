@@ -367,6 +367,7 @@ export async function GET(request: NextRequest) {
             }
             
             // OPTIMIZED: Fast caching and deduplication
+            
             if (realExternalJobs.length > 0) {
               // Cache external jobs in background (non-blocking)
               const cachingPromises = realExternalJobs.map(job => 
@@ -637,9 +638,7 @@ export async function GET(request: NextRequest) {
           createdAt: job.createdAt,
           updatedAt: job.updatedAt,
           companyLocation: job.companyRelation?.location,
-          companyIndustry: job.companyRelation?.industry,
-          // Add new fields for internal/external handling
-          isExternal: job.applyUrl ? true : false
+          companyIndustry: job.companyRelation?.industry
         };
         
         // Add distance if available
