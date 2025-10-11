@@ -102,10 +102,10 @@ export default function MainNavigation({
     );
   }
 
-  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
-  const closeDropdown = useCallback(() => setIsDropdownOpen(false), []);
+  const closeMenu = () => setIsMenuOpen(false);
+  const closeDropdown = () => setIsDropdownOpen(false);
 
-  const handleLogout = useCallback(async () => {
+  const handleLogout = async () => {
     try {
       await signOut({ 
         callbackUrl: '/',
@@ -116,7 +116,7 @@ export default function MainNavigation({
       // Fallback to manual redirect
       window.location.href = '/';
     }
-  }, []);
+  };
 
   const navLinks = useMemo(() => {
     // Keep main navigation clean and professional - only public pages
