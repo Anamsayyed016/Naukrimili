@@ -394,6 +394,7 @@ export default function JobSearchHero({
               {/* AI-Powered Location Categories */}
               <LocationCategories 
                 onLocationSelect={handleLocationSelect}
+                onSearch={handleSearch}
                 selectedLocation={userLocation ? {
                   id: userLocation.city,
                   name: userLocation.city,

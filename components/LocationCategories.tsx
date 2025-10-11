@@ -27,6 +27,7 @@ interface LocationData {
 
 interface LocationCategoriesProps {
   onLocationSelect: (location: LocationData) => void;
+  onSearch?: () => void; // Add search function prop
   selectedLocation?: LocationData | null;
   className?: string;
 }
@@ -41,6 +42,7 @@ interface LocationCategory {
 
 export default function LocationCategories({ 
   onLocationSelect, 
+  onSearch,
   selectedLocation, 
   className = '' 
 }: LocationCategoriesProps) {
@@ -188,12 +190,17 @@ export default function LocationCategories({
     onLocationSelect(location);
     // Auto-trigger search when location is selected
     setTimeout(() => {
-      const searchButton = document.querySelector('[data-testid="search-button"]') as HTMLButtonElement;
-      if (searchButton) {
-        searchButton.click();
+      if (onSearch) {
+        onSearch(); // Use the search function prop if available
+      } else {
+        // Fallback to DOM manipulation
+        const searchButton = document.querySelector('[data-testid="search-button"]') as HTMLButtonElement;
+        if (searchButton) {
+          searchButton.click();
+        }
       }
     }, 100);
-  }, [onLocationSelect]);
+  }, [onLocationSelect, onSearch]);
 
   // Initialize locations
   useEffect(() => {
