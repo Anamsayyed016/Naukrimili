@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { fetchFromAdzuna } from '@/lib/jobs/providers';
+import { parseSEOJobUrl } from '@/lib/seo-url-utils';
 
 // Common company relation select for consistency
 const COMPANY_RELATION_SELECT = {
@@ -12,16 +13,28 @@ const COMPANY_RELATION_SELECT = {
 };
 
 /**
- * Find job in database by ID
+ * Find job in database by ID - Enhanced to handle multiple ID formats
  */
 async function findJobInDatabase(id: string) {
   try {
+    // Try multiple search patterns for maximum compatibility
+    const searchConditions = [
+      { id: parseInt(id) }, // Direct integer ID
+      { sourceId: id }, // Direct sourceId match
+    ];
+
+    // For external jobs, also try without source prefix
+    if (id.includes('-')) {
+      const parts = id.split('-');
+      if (parts.length > 1) {
+        const sourceId = parts[parts.length - 1]; // Last part is usually the actual ID
+        searchConditions.push({ sourceId });
+      }
+    }
+
     const job = await prisma.job.findFirst({
       where: {
-        OR: [
-          { id: parseInt(id) },
-          { sourceId: id }
-        ],
+        OR: searchConditions,
         isActive: true
       },
       include: {
@@ -103,10 +116,24 @@ export async function GET(
       );
     }
 
-    const trimmedId = id.trim();
+    // Parse SEO URL to extract actual job ID
+    let actualJobId = id;
+    if (id.includes('-') && !id.startsWith('sample-')) {
+      // This looks like an SEO URL, try to parse it
+      const parsedId = parseSEOJobUrl(id);
+      if (parsedId) {
+        actualJobId = parsedId;
+        console.log('✅ Parsed SEO URL:', id, '-> Job ID:', actualJobId);
+      } else {
+        console.log('⚠️ Could not parse SEO URL, using original ID:', id);
+      }
+    }
+
+    // Use the parsed job ID for database lookup
+    const searchId = actualJobId.trim();
     
     // Try to get job from database first (more efficient)
-    let job = await findJobInDatabase(trimmedId);
+    let job = await findJobInDatabase(searchId);
     
     if (job) {
       console.log('✅ Job found in database:', job.title);
@@ -117,8 +144,8 @@ export async function GET(
     }
     
     // Check if this is a sample job ID
-    if (trimmedId.startsWith('sample-')) {
-      console.log('🔍 Sample job ID detected:', trimmedId);
+    if (searchId.startsWith('sample-')) {
+      console.log('🔍 Sample job ID detected:', searchId);
       return NextResponse.json({
         success: false,
         error: 'Sample job not found',
@@ -128,13 +155,13 @@ export async function GET(
     }
     
     // Check if this is a dynamic job ID - try to find it in cache or regenerate
-    if (trimmedId.startsWith('dynamic-')) {
-      console.log('🔍 Dynamic job ID detected, attempting to retrieve:', trimmedId);
+    if (searchId.startsWith('dynamic-')) {
+      console.log('🔍 Dynamic job ID detected, attempting to retrieve:', searchId);
       
       // Try to find in database (might have been cached)
       const cachedJob = await prisma.job.findFirst({
         where: {
-          sourceId: trimmedId,
+          sourceId: searchId,
           isActive: true
         }
       });
@@ -148,7 +175,7 @@ export async function GET(
       }
       
       // If not found, return helpful error
-      console.log('❌ Dynamic job not found in cache:', trimmedId);
+      console.log('❌ Dynamic job not found in cache:', searchId);
       return NextResponse.json({
         success: false,
         error: 'Job not available',
@@ -159,8 +186,8 @@ export async function GET(
     }
     
     // Check if this is an external job ID
-    if (trimmedId.startsWith('ext-')) {
-      const externalJob = await handleExternalJob(trimmedId);
+    if (searchId.startsWith('ext-')) {
+      const externalJob = await handleExternalJob(searchId);
       if (externalJob) {
         return NextResponse.json({ 
           success: true, 
@@ -170,12 +197,12 @@ export async function GET(
     }
     
     // Enhanced error response with helpful information
-    console.log(`❌ Job not found anywhere: ${trimmedId}`);
+    console.log(`❌ Job not found anywhere: ${searchId}`);
     
     return NextResponse.json({
       success: false,
       error: 'Job not found',
-      details: `No job found with ID: ${trimmedId}. Please check the job ID and try again.`,
+      details: `No job found with ID: ${searchId}. Please check the job ID and try again.`,
       code: 'JOB_NOT_FOUND'
     }, { status: 404 });
     
