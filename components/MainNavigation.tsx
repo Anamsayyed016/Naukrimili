@@ -129,11 +129,13 @@ export default function MainNavigation({
 
   // Role-specific links for dropdown menus
   const roleSpecificLinks = useMemo(() => {
-    if (!isMounted || !isAuthenticated || !user?.role) return [];
+    // Always return an array - no early returns in useMemo
+    if (!isMounted || !isAuthenticated || !user?.role) {
+      return [];
+    }
 
     const userRole = user.role;
     if (userRole === 'employer') {
-      
       return [
         { title: "Dashboard", href: "/employer/dashboard", icon: BarChartIcon, description: "View analytics and insights" },
         { title: "Post Job", href: "/employer/jobs/create", icon: BriefcaseIcon, description: "Create new job posting" },
@@ -149,6 +151,7 @@ export default function MainNavigation({
         { title: "Bookmarks", href: "/dashboard/jobseeker/bookmarks", icon: Heart, description: "Saved jobs" }
       ];
     }
+    
     return [];
   }, [isMounted, isAuthenticated, user?.role]);
 
