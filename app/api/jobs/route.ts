@@ -397,93 +397,81 @@ export async function GET(request: NextRequest) {
             console.log(`⚡ All API calls completed in ${apiDuration}ms - Total external jobs: ${realExternalJobs.length}`);
           }
             
-            // OPTIMIZED: Fast caching and deduplication
-            
-            if (realExternalJobs.length > 0) {
-              // Cache external jobs in background (non-blocking)
-              const cachingPromises = realExternalJobs.map(job => 
-                prisma.job.upsert({
-                  where: { 
-                    source_sourceId: {
-                      source: job.source || 'external',
-                      sourceId: job.sourceId || job.id
-                    }
-                  },
-                  update: {
-                    isActive: true,
-                    updatedAt: new Date(),
-                    views: { increment: 0 } // Touch the record
-                  },
-                  create: {
-                    sourceId: job.sourceId || job.id,
+          // OPTIMIZED: Fast caching and deduplication
+          if (realExternalJobs.length > 0) {
+            // Cache external jobs in background (non-blocking)
+            const cachingPromises = realExternalJobs.map(job => 
+              prisma.job.upsert({
+                where: { 
+                  source_sourceId: {
                     source: job.source || 'external',
-                    title: job.title,
-                    company: job.company,
-                    location: job.location,
-                    country: job.country || country,
-                    description: job.description,
-                    requirements: job.requirements || '',
-                    applyUrl: job.source_url || job.applyUrl,
-                    source_url: job.source_url || job.applyUrl,
-                    postedAt: job.postedAt ? new Date(job.postedAt) : new Date(),
-                    salary: job.salary,
-                    salaryMin: job.salaryMin,
-                    salaryMax: job.salaryMax,
-                    salaryCurrency: job.salaryCurrency || 'INR',
-                    jobType: job.jobType || 'Full-time',
-                    experienceLevel: job.experienceLevel || 'Mid Level',
-                    skills: JSON.stringify(job.skills || []),
-                    isRemote: job.isRemote || false,
-                    isHybrid: job.isHybrid || false,
-                    isUrgent: false,
-                    isFeatured: false,
-                    isActive: true,
-                    sector: job.sector || 'General',
-                    views: 0,
-                    applicationsCount: 0,
-                    expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days expiry
+                    sourceId: job.sourceId || job.id
                   }
-                }).catch(err => console.log(`⚠️ Cache failed for ${job.id}:`, err.message))
-              );
-              
-              // Don't wait for caching - let it happen in background
-              Promise.all(cachingPromises).then(() => 
-                console.log(`💾 Cached ${realExternalJobs.length} external jobs`)
-              );
-              
-              // SMART DEDUPLICATION: Combine and deduplicate efficiently
-              const combinedJobs = [...jobs, ...realExternalJobs];
-              jobs = removeDuplicateJobs(combinedJobs);
-              total = jobs.length;
-              
-              console.log(`✅ Total: ${jobs.length} jobs (${realExternalJobs.length} external + ${jobs.length - realExternalJobs.length} database, after dedup)`);
-            }
-          } catch (importError) {
-            console.error('❌ Failed to import job providers:', importError);
+                },
+                update: {
+                  isActive: true,
+                  updatedAt: new Date(),
+                  views: { increment: 0 } // Touch the record
+                },
+                create: {
+                  sourceId: job.sourceId || job.id,
+                  source: job.source || 'external',
+                  title: job.title,
+                  company: job.company,
+                  location: job.location,
+                  country: job.country || country,
+                  description: job.description,
+                  requirements: job.requirements || '',
+                  applyUrl: job.source_url || job.applyUrl,
+                  source_url: job.source_url || job.applyUrl,
+                  postedAt: job.postedAt ? new Date(job.postedAt) : new Date(),
+                  salary: job.salary,
+                  salaryMin: job.salaryMin,
+                  salaryMax: job.salaryMax,
+                  salaryCurrency: job.salaryCurrency || 'INR',
+                  jobType: job.jobType || 'Full-time',
+                  experienceLevel: job.experienceLevel || 'Mid Level',
+                  skills: JSON.stringify(job.skills || []),
+                  isRemote: job.isRemote || false,
+                  isHybrid: job.isHybrid || false,
+                  isUrgent: false,
+                  isFeatured: false,
+                  isActive: true,
+                  sector: job.sector || 'General',
+                  views: 0,
+                  applicationsCount: 0,
+                  expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days expiry
+                }
+              }).catch(err => console.log(`⚠️ Cache failed for ${job.id}:`, err.message))
+            );
+            
+            // Don't wait for caching - let it happen in background
+            Promise.all(cachingPromises).then(() => 
+              console.log(`💾 Cached ${realExternalJobs.length} external jobs`)
+            );
+            
+            // SMART DEDUPLICATION: Combine and deduplicate efficiently
+            const combinedJobs = [...jobs, ...realExternalJobs];
+            jobs = removeDuplicateJobs(combinedJobs);
+            total = jobs.length;
+            
+            console.log(`✅ Total: ${jobs.length} jobs (${realExternalJobs.length} external + ${jobs.length - realExternalJobs.length} database, after dedup)`);
           }
-        } catch (externalError) {
-          console.error('❌ Dynamic job fetch failed:', externalError);
+        } catch (importError) {
+          console.error('❌ Failed to import job providers:', importError);
         }
-      } else {
-        console.log('⚠️ No search query provided, using database jobs only');
+      } catch (externalError) {
+        console.error('❌ External job fetch failed:', externalError);
       }
+    } else {
+      console.log('⚠️ No search query provided, using database jobs only');
+    }
       
-      // NO SAMPLE JOBS - Only show real jobs from APIs or database
-      if (jobs.length === 0) {
-        console.log(`⚠️ No real jobs found for query "${query}". Returning empty results (no fake/sample jobs).`);
-      } else {
-        console.log(`✅ Found ${jobs.length} real jobs for query "${query}"`);
-      }
-    } catch (dbError: any) {
-      console.error('❌ Database query failed:', dbError);
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Database query failed',
-          details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
-        },
-        { status: 500 }
-      );
+    // NO SAMPLE JOBS - Only show real jobs from APIs or database
+    if (jobs.length === 0) {
+      console.log(`⚠️ No real jobs found for query "${query}". Returning empty results (no fake/sample jobs).`);
+    } else {
+      console.log(`✅ Found ${jobs.length} real jobs for query "${query}"`);
     }
 
     // Track job search event
@@ -745,6 +733,7 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
 
 // Helper function to generate location variations for smart matching
 function generateLocationVariations(location: string): string[] {
