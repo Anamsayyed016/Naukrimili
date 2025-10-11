@@ -243,87 +243,115 @@ export async function GET(request: NextRequest) {
     console.log(`🔍 Jobs API: AND conditions:`, JSON.stringify(andConditions, null, 2));
     console.log(`🔍 Jobs API: Final where clause:`, JSON.stringify(where, null, 2));
     
-    // Debug: Check if database has any jobs at all
-    const totalJobsInDb = await prisma.job.count();
-    const activeJobsInDb = await prisma.job.count({ where: { isActive: true } });
-    console.log(`🔍 Database stats: Total jobs: ${totalJobsInDb}, Active jobs: ${activeJobsInDb}`);
+    // Debug: Check if database has any jobs at all (optional - don't fail if DB is not available)
+    let totalJobsInDb = 0;
+    let activeJobsInDb = 0;
+    let dbAvailable = false;
+    
+    try {
+      totalJobsInDb = await prisma.job.count();
+      activeJobsInDb = await prisma.job.count({ where: { isActive: true } });
+      dbAvailable = true;
+      console.log(`🔍 Database stats: Total jobs: ${totalJobsInDb}, Active jobs: ${activeJobsInDb}`);
+    } catch (dbError) {
+      console.warn('⚠️ Database not available, using external APIs only:', dbError.message);
+      dbAvailable = false;
+    }
     
     // Get jobs with pagination and error handling
     let jobs: any[] = [];
     let total = 0;
     
-    try {
-      const [jobsResult, totalResult] = await Promise.all([
-        prisma.job.findMany({
-          where,
-          skip,
-          take: limit,
-          orderBy: sortByDistance && userLat && userLng ? undefined : { createdAt: 'desc' },
-          include: {
-            companyRelation: {
-              select: {
-                name: true,
-                logo: true,
-                location: true,
-                industry: true
+    // Try database first if available, otherwise skip to external APIs
+    if (dbAvailable) {
+      try {
+        const [jobsResult, totalResult] = await Promise.all([
+          prisma.job.findMany({
+            where,
+            skip,
+            take: limit,
+            orderBy: sortByDistance && userLat && userLng ? undefined : { createdAt: 'desc' },
+            include: {
+              companyRelation: {
+                select: {
+                  name: true,
+                  logo: true,
+                  location: true,
+                  industry: true
+                }
               }
             }
-          }
-        }),
-        prisma.job.count({ where })
-      ]);
-      
-      jobs = jobsResult;
-      total = totalResult;
-      
-      console.log(`✅ Database query completed:`, {
-        jobsFound: jobs.length,
-        totalJobs: total,
-        query: where,
-        skip,
-        limit,
-        searchParams: { query, location, company, jobType, experienceLevel, isRemote, sector, country }
-      });
-      
-      // Debug: Show sample of found jobs
-      if (jobs.length > 0) {
-        console.log(`🔍 Sample jobs found:`, jobs.slice(0, 3).map(j => ({
-          title: j.title,
-          company: j.company,
-          location: j.location,
-          source: j.source
-        })));
+          }),
+          prisma.job.count({ where })
+        ]);
+        
+        jobs = jobsResult;
+        total = totalResult;
+        
+        console.log(`✅ Database query completed:`, {
+          jobsFound: jobs.length,
+          totalJobs: total,
+          query: where,
+          skip,
+          limit,
+          searchParams: { query, location, company, jobType, experienceLevel, isRemote, sector, country }
+        });
+        
+        // Debug: Show sample of found jobs
+        if (jobs.length > 0) {
+          console.log(`🔍 Sample jobs found:`, jobs.slice(0, 3).map(j => ({
+            title: j.title,
+            company: j.company,
+            location: j.location,
+            source: j.source
+          })));
+        }
+      } catch (dbError) {
+        console.warn('⚠️ Database query failed, continuing with external APIs only:', dbError.message);
+        jobs = [];
+        total = 0;
       }
+    } else {
+      console.log('⚠️ Database not available, skipping database query and using external APIs only');
+      jobs = [];
+      total = 0;
+    }
       
-      // OPTIMIZED: Check for API keys once
-      const hasAdzuna = !!(process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY);
-      const hasRapidAPI = !!process.env.RAPIDAPI_KEY;
-      const hasJooble = !!process.env.JOOBLE_API_KEY;
-      const hasExternalApiKeys = hasAdzuna || hasRapidAPI || hasJooble;
+    // OPTIMIZED: Check for API keys once and fetch unlimited external jobs
+    const hasAdzuna = !!(process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY);
+    const hasRapidAPI = !!process.env.RAPIDAPI_KEY;
+    const hasJooble = !!process.env.JOOBLE_API_KEY;
+    const hasExternalApiKeys = hasAdzuna || hasRapidAPI || hasJooble;
+    
+    // Fetch unlimited external jobs in parallel for maximum coverage
+    if (query && hasExternalApiKeys) {
+      console.log(`🚀 Fetching unlimited jobs from ${[hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean).join(', ')}`);
       
-      // Fetch external jobs in parallel for speed (like other job portals)
-      if (query && hasExternalApiKeys) {
-        console.log(`🚀 Fetching jobs from ${[hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean).join(', ')}`);
+      try {
+        let realExternalJobs: any[] = [];
+        const apiStartTime = Date.now();
+        
+        // ENHANCED: Multiple pages for unlimited results
+        const maxPages = Math.ceil(limit / 20); // Each API returns ~20 jobs per page
+        const pagesToFetch = Math.min(maxPages, 10); // Max 10 pages (200 jobs per API)
+        
+        // PARALLEL API CALLS - All APIs with multiple pages for unlimited results
+        const externalPromises = [];
         
         try {
-          let realExternalJobs: any[] = [];
-          const apiStartTime = Date.now();
+          const { fetchFromAdzuna, fetchFromJooble } = await import('@/lib/jobs/providers');
+          const { fetchFromJSearch } = await import('@/lib/jobs/dynamic-providers');
           
-          // PARALLEL API CALLS - All 3 APIs called simultaneously for maximum speed
-          const externalPromises = [];
-          
-          try {
-            const { fetchFromAdzuna, fetchFromJooble } = await import('@/lib/jobs/providers');
-            const { fetchFromJSearch } = await import('@/lib/jobs/dynamic-providers');
-            
+          // Fetch multiple pages from each API for unlimited results
+          for (let page = 1; page <= pagesToFetch; page++) {
             // Adzuna API (Multi-country support)
             if (hasAdzuna) {
               externalPromises.push(
-                fetchFromAdzuna(query, country.toLowerCase(), 1, { 
+                fetchFromAdzuna(query, country.toLowerCase(), page, { 
                   location: location || undefined,
                   distanceKm: 50 
                 }).catch(err => {
-                  console.log('⚠️ Adzuna failed:', err.message);
+                  console.log(`⚠️ Adzuna page ${page} failed:`, err.message);
                   return [];
                 })
               );
@@ -332,8 +360,8 @@ export async function GET(request: NextRequest) {
             // JSearch API via RapidAPI (Global coverage)
             if (hasRapidAPI) {
               externalPromises.push(
-                fetchFromJSearch(query, location || 'India', 1).catch(err => {
-                  console.log('⚠️ JSearch failed:', err.message);
+                fetchFromJSearch(query, location || 'India', page).catch(err => {
+                  console.log(`⚠️ JSearch page ${page} failed:`, err.message);
                   return [];
                 })
               );
@@ -342,29 +370,32 @@ export async function GET(request: NextRequest) {
             // Jooble API (Additional job source)
             if (hasJooble) {
               externalPromises.push(
-                fetchFromJooble(query, location || 'India', 1).catch(err => {
-                  console.log('⚠️ Jooble failed:', err.message);
+                fetchFromJooble(query, location || 'India', page).catch(err => {
+                  console.log(`⚠️ Jooble page ${page} failed:`, err.message);
                   return [];
                 })
               );
             }
+          }
+          
+          // Wait for ALL API calls in parallel (FAST like Indeed/LinkedIn)
+          if (externalPromises.length > 0) {
+            const externalResults = await Promise.allSettled(externalPromises);
+            const apiNames = [hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean);
             
-            // Wait for ALL APIs in parallel (FAST like Indeed/LinkedIn)
-            if (externalPromises.length > 0) {
-              const externalResults = await Promise.allSettled(externalPromises);
-              const apiNames = [hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean);
-              
-              // Collect results from all successful APIs
-              externalResults.forEach((result, index) => {
-                if (result.status === 'fulfilled' && result.value && Array.isArray(result.value) && result.value.length > 0) {
-                  console.log(`✅ ${apiNames[index]}: ${result.value.length} jobs`);
-                  realExternalJobs.push(...result.value);
-                }
-              });
-              
-              const apiDuration = Date.now() - apiStartTime;
-              console.log(`⚡ API calls completed in ${apiDuration}ms`);
-            }
+            // Collect results from all successful APIs
+            externalResults.forEach((result, index) => {
+              if (result.status === 'fulfilled' && result.value && Array.isArray(result.value) && result.value.length > 0) {
+                const apiName = apiNames[Math.floor(index / pagesToFetch)];
+                const pageNum = (index % pagesToFetch) + 1;
+                console.log(`✅ ${apiName} page ${pageNum}: ${result.value.length} jobs`);
+                realExternalJobs.push(...result.value);
+              }
+            });
+            
+            const apiDuration = Date.now() - apiStartTime;
+            console.log(`⚡ All API calls completed in ${apiDuration}ms - Total external jobs: ${realExternalJobs.length}`);
+          }
             
             // OPTIMIZED: Fast caching and deduplication
             
