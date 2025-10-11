@@ -24,6 +24,11 @@ export function normalizeJobData(job: any): JobResult {
     description: job.description || 'No description available',
     salary: normalizeSalary(job),
     salary_formatted: normalizeSalary(job),
+    // Preserve original salary fields for proper currency formatting
+    salaryMin: job.salaryMin,
+    salaryMax: job.salaryMax,
+    salaryCurrency: job.salaryCurrency,
+    country: job.country,
     time_ago: normalizeTimeAgo(job),
     redirect_url: normalizeRedirectUrl(job),
     is_remote: normalizeBoolean(job.is_remote, job.isRemote),
@@ -46,20 +51,20 @@ export function normalizeJobData(job: any): JobResult {
 }
 
 /**
- * Normalize salary field
+ * Normalize salary field - return raw data for proper currency formatting
  */
 function normalizeSalary(job: any): string {
-  if (job.salary) return job.salary;
-  if (job.salary_formatted) return job.salary_formatted;
+  // Return raw salary string if available (for proper currency formatting later)
+  if (job.salary && typeof job.salary === 'string') return job.salary;
+  if (job.salary_formatted && typeof job.salary_formatted === 'string') return job.salary_formatted;
   
+  // For numeric salaries, return a simple range format without currency symbol
   if (job.salaryMin && job.salaryMax) {
-    const currency = job.salaryCurrency || '₹';
-    return `${currency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
+    return `${job.salaryMin}-${job.salaryMax}`;
   }
   
   if (job.salaryMin) {
-    const currency = job.salaryCurrency || '₹';
-    return `${currency} ${job.salaryMin.toLocaleString()}+`;
+    return `${job.salaryMin}+`;
   }
   
   return 'Salary not specified';

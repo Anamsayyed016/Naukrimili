@@ -7,6 +7,10 @@ export interface JobResult {
   description: string
   salary?: string
   salary_formatted?: string
+  salaryMin?: number
+  salaryMax?: number
+  salaryCurrency?: string
+  country?: string
   time_ago: string
   redirect_url: string
   is_remote?: boolean
