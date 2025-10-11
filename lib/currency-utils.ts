@@ -502,8 +502,25 @@ export function formatJobSalary(
 ): string {
   const { salary, salaryMin, salaryMax, salaryCurrency, country } = job;
   
-  // If we have a formatted salary string, use it
+  // If we have a formatted salary string, try to parse it and format with proper currency
   if (salary && typeof salary === 'string') {
+    // Check if it's a range (contains dash)
+    if (salary.includes('-')) {
+      const [minStr, maxStr] = salary.split('-');
+      const min = parseFloat(minStr.trim());
+      const max = parseFloat(maxStr.trim());
+      if (!isNaN(min) && !isNaN(max)) {
+        const currency = salaryCurrency || getCurrencyForCountry(country || 'US');
+        return formatSalaryRange(min, max, currency, country || 'US');
+      }
+    }
+    // If it's a single number string
+    const numSalary = parseFloat(salary);
+    if (!isNaN(numSalary)) {
+      const currency = salaryCurrency || getCurrencyForCountry(country || 'US');
+      return formatSingleSalary(numSalary, currency, country || 'US');
+    }
+    // If we can't parse it, return as-is
     return salary;
   }
   

@@ -332,7 +332,6 @@ export default function EnhancedJobCard({
           {/* Salary */}
           {formatJobSalary(job) !== 'Salary not specified' && (
             <div className="flex items-center text-green-600 font-semibold mb-4">
-              <CurrencyDollarIcon className="w-5 h-5 mr-1" />
               <span className="text-lg">{formatJobSalary(job)}</span>
               {showSalaryInsights && (
                 <span className="ml-2 text-xs text-gray-500 font-normal">
