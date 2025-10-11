@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Download, Eye, Trash2, Upload, FileText, Calendar, TrendingUp } from 'lucide-react';
 import { useResumesApi, Resume } from '@/hooks/useResumesApi';
-import { ResumeUpload } from '@/components/resume/ResumeUpload';
-import { AuthGuard } from '@/components/auth/AuthGuard';
+import ResumeUpload from '@/components/resume/ResumeUpload';
+import AuthGuard from '@/components/auth/AuthGuard';
 import { 
   Dialog, 
   DialogContent, 
@@ -141,8 +141,11 @@ export default function ResumesPage() {
                 {resumes.map((resume) => {
                   const extendedResume: ExtendedResume = {
                     ...resume,
+                    id: String(resume.id || ''),
                     filename: resume.name || 'Unknown',
-                    uploadedAt: resume.createdAt || new Date().toISOString(),
+                    uploadedAt: typeof resume.createdAt === 'string' 
+                      ? resume.createdAt 
+                      : resume.createdAt?.toISOString() || new Date().toISOString(),
                     size: 0, // Default size
                     views: 0,
                     downloads: 0,
