@@ -3,6 +3,9 @@ import React from 'react';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import SessionProvider from '@/components/SessionProvider';
+import MainNavigation from '@/components/MainNavigation';
+import Footer from '@/components/Footer';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,7 +23,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} font-body`}>
         <SessionProvider>
+          <MainNavigation />
           {children}
+          <Footer />
+          <Toaster />
         </SessionProvider>
       </body>
     </html>
