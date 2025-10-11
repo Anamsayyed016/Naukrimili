@@ -1,0 +1,194 @@
+/* Mobile-specific styles for job posting form */
+
+/* Ensure proper touch targets on mobile */
+@media (max-width: 768px) {
+  .mobile-job-form input,
+  .mobile-job-form textarea,
+  .mobile-job-form select,
+  .mobile-job-form button {
+    min-height: 48px;
+    font-size: 16px; /* Prevent zoom on iOS */
+    -webkit-appearance: none;
+    border-radius: 12px;
+  }
+
+  /* Improve button spacing and touch targets */
+  .mobile-job-form .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .mobile-job-form .button-group button {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* Improve form spacing */
+  .mobile-job-form .form-step {
+    padding: 16px;
+  }
+
+  .mobile-job-form .form-field {
+    margin-bottom: 20px;
+  }
+
+  /* Better mobile input styling */
+  .mobile-job-form input:focus,
+  .mobile-job-form textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Improve AI suggestion cards on mobile */
+  .mobile-job-form .ai-suggestion-card {
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    background: white;
+  }
+
+  .mobile-job-form .ai-suggestion-card button {
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    min-height: 48px;
+    border-radius: 8px;
+  }
+
+  /* Improve skills badges on mobile */
+  .mobile-job-form .skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .mobile-job-form .skill-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .mobile-job-form .skill-badge button {
+    margin-left: 8px;
+    padding: 2px;
+    min-height: 20px;
+    min-width: 20px;
+    border-radius: 50%;
+    background: #ef4444;
+    color: white;
+    border: none;
+  }
+
+  /* Improve step navigation on mobile */
+  .mobile-job-form .step-navigation {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 16px;
+    margin: 0 -16px -16px -16px;
+  }
+
+  /* Improve form validation messages */
+  .mobile-job-form .validation-error {
+    color: #ef4444;
+    font-size: 14px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* Improve loading states on mobile */
+  .mobile-job-form .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Ensure proper scrolling on mobile */
+  .mobile-job-form {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+  }
+
+  /* Improve modal and overlay positioning on mobile */
+  .mobile-job-form .ai-suggestions-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .mobile-job-form .ai-suggestions-modal {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    max-width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .mobile-job-form .button-group {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .mobile-job-form .button-group button {
+    flex: 1;
+    min-height: 48px;
+  }
+}
+
+/* Ensure proper font rendering on all devices */
+.mobile-job-form {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Improve focus states for accessibility */
+.mobile-job-form button:focus,
+.mobile-job-form input:focus,
+.mobile-job-form textarea:focus,
+.mobile-job-form select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Ensure proper spacing for touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-job-form .interactive-element {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

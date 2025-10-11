@@ -161,3 +161,688 @@
 {"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 13:50:12 +00:00","type":"out","process_id":4,"app_name":"naukrimili"}
 {"message":"🎉 Server ready on http://srv1054971.hstgr.cloud:3000\n","timestamp":"2025-10-10 13:50:12 +00:00","type":"out","process_id":4,"app_name":"naukrimili"}
 {"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 13:50:12 +00:00","type":"out","process_id":4,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n","timestamp":"2025-10-10 18:59:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 19:02:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 19:02:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 19:02:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next/static directory found\n✅ routes-manifest.json found\n","timestamp":"2025-10-10 19:02:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 19:02:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 19:02:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 19:02:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 19:02:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 19:02:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:02:26 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:02:26 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:02:26 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:02:26 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.count()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:02:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.count()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:02:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:02:40 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:02:40 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:02:40 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:03:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:03:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:03:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:03:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:04:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:04:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:04:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:07:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:07:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:07:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:07:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 19:20:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 19:20:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 19:20:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 19:20:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n✅ routes-manifest.json found\n","timestamp":"2025-10-10 19:20:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n✅ prerender-manifest.json found\n","timestamp":"2025-10-10 19:20:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 19:20:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 19:20:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 19:20:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 19:20:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 19:27:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 19:27:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 19:27:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 19:27:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 19:27:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 19:27:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 19:27:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 19:27:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 19:27:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 19:27:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:28:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:28:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:28:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:28:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:28:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 19:43:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 19:43:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-10 19:43:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 19:43:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 19:43:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 19:43:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 19:43:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 19:43:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 19:43:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 19:43:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 19:43:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 19:46:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 19:46:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 19:46:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 19:46:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 19:46:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 19:46:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 19:46:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 19:46:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 19:46:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-10 19:46:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n","timestamp":"2025-10-10 19:46:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:46:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:46:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:46:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:46:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:46:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 19:52:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 19:52:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next/static directory found\n✅ routes-manifest.json found\n","timestamp":"2025-10-10 19:52:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 19:52:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 19:52:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 19:52:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 19:52:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 19:52:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 19:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:57:02 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:57:02 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:57:02 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 19:57:02 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 20:13:09 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:20:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:20:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:20:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 20:20:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:20:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:20:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:20:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 20:20:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 20:20:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 20:20:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:20:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:20:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:20:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:20:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:22:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:22:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:22:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:22:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:22:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:22:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:22:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:22:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:23:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:23:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:23:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:58 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:58 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:24:58 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:25:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:25:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:25:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:25:52 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:25:52 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:25:52 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:25:52 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:26:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:26:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:26:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:26:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:26:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:26:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 20:26:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:44:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:44:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:44:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 20:44:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 20:44:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:44:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:44:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:44:28 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:44:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:44:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:44:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 20:44:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 20:44:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:44:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:44:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:44:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:44:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:44:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:44:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 20:44:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 20:44:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:44:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:44:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n","timestamp":"2025-10-10 20:44:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:44:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:44:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:44:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:44:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 20:44:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 20:44:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:44:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:44:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:44:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:44:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:44:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:44:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-10 20:44:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 20:44:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:44:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:44:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:53:13 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:53:13 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-10 20:53:13 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 20:53:13 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:53:13 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:53:13 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:53:13 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:53:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:53:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:53:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 20:53:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n✅ routes-manifest.json found\n✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:53:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:53:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:53:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:53:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:53:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 20:53:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 20:53:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:53:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:53:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:53:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:53:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:53:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:53:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-10 20:53:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 20:53:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:53:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:53:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:53:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 20:53:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 20:53:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 20:53:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 20:53:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n","timestamp":"2025-10-10 20:53:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n✅ routes-manifest.json found\n","timestamp":"2025-10-10 20:53:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 20:53:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 20:53:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:00:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:00:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:00:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:00:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:00:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:00:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:00:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n","timestamp":"2025-10-10 21:00:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:00:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:00:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:00:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-10 21:00:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 21:00:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:00:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:00:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:00:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:00:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:00:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:00:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:00:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:00:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:00:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:00:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:00:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:00:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:00:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:00:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-10 21:00:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:00:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:00:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:00:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:00:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:00:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:00:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:00:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:00:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 21:00:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 21:00:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:00:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:00:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:00:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:15:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:15:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:15:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 21:15:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 21:15:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:15:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:15:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n","timestamp":"2025-10-10 21:15:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:15:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:15:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:15:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:15:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 21:15:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 21:15:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:15:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:15:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:15:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:15:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:15:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-10 21:15:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 21:15:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:15:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:15:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:15:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:15:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:15:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:15:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:15:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:15:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:15:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:15:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:15:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:16:03 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:16:03 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next/static directory found\n✅ routes-manifest.json found\n✅ routes-manifest.json validated and fixed\n✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:16:03 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:24:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:24:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:24:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 21:24:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next/static directory found\n✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:24:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:24:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:24:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:24:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\n","timestamp":"2025-10-10 21:24:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-10 21:24:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:24:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:24:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:24:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:24:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n","timestamp":"2025-10-10 21:24:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:24:16 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:24:20 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:24:20 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:24:20 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 21:24:20 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 21:24:20 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:24:20 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:24:20 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n","timestamp":"2025-10-10 21:24:20 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:24:20 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:24:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:24:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:24:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:24:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:24:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:24:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:24:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:24:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:24:29 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:31:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:31:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:31:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-10 21:31:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:31:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:31:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:31:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:31:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:31:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:31:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:31:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:31:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 21:31:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next/static directory found\n","timestamp":"2025-10-10 21:31:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:31:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:31:22 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:31:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:31:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:31:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:31:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:31:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:31:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n","timestamp":"2025-10-10 21:31:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:31:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:31:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:31:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:31:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:31:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:31:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:31:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:31:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:31:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:31:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:31:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:31:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n✅ routes-manifest.json found\n","timestamp":"2025-10-10 21:31:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ routes-manifest.json validated and fixed\n","timestamp":"2025-10-10 21:31:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ prerender-manifest.json found\n","timestamp":"2025-10-10 21:31:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ All build artifacts verified and validated\n","timestamp":"2025-10-10 21:31:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n   NEXTAUTH_URL: https://naukrimili.com\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Analytics Processor: Redis connected\n","timestamp":"2025-10-10 21:41:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n","timestamp":"2025-10-10 21:41:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_URL: https://naukrimili.com\n   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 21:41:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Unlimited job search API called\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Search options: {\n  query: '',\n  location: '',\n  country: 'IN',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  salaryMin: undefined,\n  salaryMax: undefined,\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting unlimited job search: {\n  query: '',\n  location: '',\n  country: 'IN',\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in India (IN)\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 21:46:30 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in United States (US)\n","timestamp":"2025-10-10 21:46:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in UAE (AE)\n","timestamp":"2025-10-10 21:46:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 UNLIMITED: Fetched 0 jobs from external APIs\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ External APIs: Found 0 jobs\n🔄 Deduplication: 0 jobs → 0 unique jobs\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎯 Unlimited search results: {\n  total: 0,\n  showing: 0,\n  hasMore: false,\n  sources: { database: 0, external: 0, sample: 0 },\n  sectors: 0,\n  countries: 0,\n  cached: false\n}\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Unlimited search completed: 0 jobs returned, 0 total available\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Unlimited job search API called\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Search options: {\n  query: '',\n  location: '',\n  country: 'IN',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  salaryMin: undefined,\n  salaryMax: undefined,\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n🚀 Starting unlimited job search: {\n  query: '',\n  location: '',\n  country: 'IN',\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n✅ Cache hit for unlimited search: unlimited:::IN::1:10\n✅ Unlimited search completed: 0 jobs returned, 0 total available\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\nprisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 21:46:32 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 21:47:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:47:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:47:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:47:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:47:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:47:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nUser was denied access on the database `postgres`\n","timestamp":"2025-10-10 21:47:54 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 21:56:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 21:56:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 21:56:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 21:56:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-10 21:56:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 21:56:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 21:56:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 21:56:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 21:56:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n","timestamp":"2025-10-10 21:56:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_URL: https://naukrimili.com\n   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 21:56:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Analytics Processor: Redis connected\n","timestamp":"2025-10-10 21:56:24 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n","timestamp":"2025-10-10 21:56:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_URL: https://naukrimili.com\n   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 21:56:25 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Unlimited job search API called\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Search options: {\n  query: '',\n  location: '',\n  country: 'IN',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  salaryMin: undefined,\n  salaryMax: undefined,\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting unlimited job search: {\n  query: '',\n  location: '',\n  country: 'IN',\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nThe column `company` does not exist in the current database.\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nThe column `Job.source` does not exist in the current database.\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in India (IN)\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"08P01\", message: \"insufficient data left in message\", severity: \"ERROR\", detail: None, column: None, hint: None }), transient: false })\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 21:56:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in United States (US)\n","timestamp":"2025-10-10 21:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in UAE (AE)\n","timestamp":"2025-10-10 21:56:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 UNLIMITED: Fetched 0 jobs from external APIs\n","timestamp":"2025-10-10 21:56:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ External APIs: Found 0 jobs\n🔄 Deduplication: 0 jobs → 0 unique jobs\n","timestamp":"2025-10-10 21:56:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎯 Unlimited search results: {\n  total: 0,\n  showing: 0,\n  hasMore: false,\n  sources: { database: 0, external: 0, sample: 0 },\n  sectors: 0,\n  countries: 0,\n  cached: false\n}\n","timestamp":"2025-10-10 21:56:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Unlimited search completed: 0 jobs returned, 0 total available\n","timestamp":"2025-10-10 21:56:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Jobs API Search Parameters: {\n  query: '',\n  location: '',\n  company: '',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  sector: '',\n  country: 'IN',\n  page: 1,\n  limit: 200,\n  radius: 25,\n  userLat: 0,\n  userLng: 0,\n  sortByDistance: false,\n  includeDistance: false\n}\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Jobs API: Searching with filters: {\n  query: '',\n  location: '',\n  company: '',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  sector: '',\n  country: 'IN',\n  salaryMin: '',\n  salaryMax: '',\n  page: 1,\n  limit: 200\n}\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Jobs API: AND conditions: []\n🔍 Jobs API: Final where clause: {\n  \"isActive\": true,\n  \"country\": \"IN\"\n}\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Database stats: Total jobs: 0, Active jobs: 0\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nThe column `Job.source` does not exist in the current database.\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Jobs API Search Parameters: {\n  query: '',\n  location: '',\n  company: '',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  sector: '',\n  country: 'IN',\n  page: 1,\n  limit: 200,\n  radius: 25,\n  userLat: 0,\n  userLng: 0,\n  sortByDistance: false,\n  includeDistance: false\n}\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Jobs API: Searching with filters: {\n  query: '',\n  location: '',\n  company: '',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  sector: '',\n  country: 'IN',\n  salaryMin: '',\n  salaryMax: '',\n  page: 1,\n  limit: 200\n}\n🔍 Jobs API: AND conditions: []\n🔍 Jobs API: Final where clause: {\n  \"isActive\": true,\n  \"country\": \"IN\"\n}\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Database stats: Total jobs: 0, Active jobs: 0\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nThe column `Job.source` does not exist in the current database.\n","timestamp":"2025-10-10 21:56:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Unlimited job search API called\n","timestamp":"2025-10-10 21:56:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Search options: {\n  query: '',\n  location: '',\n  country: 'IN',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  salaryMin: undefined,\n  salaryMax: undefined,\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n🚀 Starting unlimited job search: {\n  query: '',\n  location: '',\n  country: 'IN',\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n✅ Cache hit for unlimited search: unlimited:::IN::1:10\n","timestamp":"2025-10-10 21:56:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Unlimited search completed: 0 jobs returned, 0 total available\n","timestamp":"2025-10-10 21:56:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 21:56:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"08P01\", message: \"insufficient data left in message\", severity: \"ERROR\", detail: None, column: None, hint: None }), transient: false })\n","timestamp":"2025-10-10 21:56:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nThe column `company` does not exist in the current database.\n","timestamp":"2025-10-10 21:56:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 21:57:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.findMany()` invocation:\n\n\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: \"08P01\", message: \"insufficient data left in message\", severity: \"ERROR\", detail: None, column: None, hint: None }), transient: false })\n","timestamp":"2025-10-10 21:57:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error \nInvalid `prisma.job.groupBy()` invocation:\n\n\nThe column `company` does not exist in the current database.\n","timestamp":"2025-10-10 21:57:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: \"FATAL\", parsed_severity: Some(Fatal), code: SqlState(E57P01), message: \"terminating connection due to administrator command\", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some(\"postgres.c\"), line: Some(3075), routine: Some(\"ProcessInterrupts\") }) }\n","timestamp":"2025-10-10 21:59:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"prisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: \"FATAL\", parsed_severity: Some(Fatal), code: SqlState(E57P01), message: \"terminating connection due to administrator command\", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some(\"postgres.c\"), line: Some(3075), routine: Some(\"ProcessInterrupts\") }) }\nprisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: \"FATAL\", parsed_severity: Some(Fatal), code: SqlState(E57P01), message: \"terminating connection due to administrator command\", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some(\"postgres.c\"), line: Some(3075), routine: Some(\"ProcessInterrupts\") }) }\nprisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: \"FATAL\", parsed_severity: Some(Fatal), code: SqlState(E57P01), message: \"terminating connection due to administrator command\", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some(\"postgres.c\"), line: Some(3075), routine: Some(\"ProcessInterrupts\") }) }\nprisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: \"FATAL\", parsed_severity: Some(Fatal), code: SqlState(E57P01), message: \"terminating connection due to administrator command\", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some(\"postgres.c\"), line: Some(3075), routine: Some(\"ProcessInterrupts\") }) }\nprisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: \"FATAL\", parsed_severity: Some(Fatal), code: SqlState(E57P01), message: \"terminating connection due to administrator command\", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some(\"postgres.c\"), line: Some(3075), routine: Some(\"ProcessInterrupts\") }) }\nprisma:error Error in PostgreSQL connection: Error { kind: Db, cause: Some(DbError { severity: \"FATAL\", parsed_severity: Some(Fatal), code: SqlState(E57P01), message: \"terminating connection due to administrator command\", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some(\"postgres.c\"), line: Some(3075), routine: Some(\"ProcessInterrupts\") }) }\n","timestamp":"2025-10-10 21:59:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 22:01:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 22:01:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 22:01:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-10 22:01:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-10 22:01:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 22:01:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 22:01:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 22:01:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n","timestamp":"2025-10-10 22:01:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_URL: https://naukrimili.com\n   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 22:01:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Analytics Processor: Redis connected\n","timestamp":"2025-10-10 22:01:34 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n","timestamp":"2025-10-10 22:01:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_URL: https://naukrimili.com\n   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 22:01:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 22:02:03 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Dynamic constants fetched successfully: {\n  jobTypes: 0,\n  experienceLevels: 0,\n  sectors: 0,\n  skills: 0,\n  locations: 0,\n  companies: 0\n}\n","timestamp":"2025-10-10 22:02:03 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Unlimited job search API called\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Search options: {\n  query: '',\n  location: '',\n  country: 'IN',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  salaryMin: undefined,\n  salaryMax: undefined,\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting unlimited job search: {\n  query: '',\n  location: '',\n  country: 'IN',\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Database: Found 0 jobs\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in India (IN)\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Dynamic constants fetched successfully: {\n  jobTypes: 0,\n  experienceLevels: 0,\n  sectors: 0,\n  skills: 0,\n  locations: 0,\n  companies: 0\n}\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 22:02:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in United States (US)\n","timestamp":"2025-10-10 22:02:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in UAE (AE)\n","timestamp":"2025-10-10 22:02:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 UNLIMITED: Fetched 0 jobs from external APIs\n✅ External APIs: Found 0 jobs\n","timestamp":"2025-10-10 22:02:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔄 Deduplication: 0 jobs → 0 unique jobs\n","timestamp":"2025-10-10 22:02:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎯 Unlimited search results: {\n  total: 0,\n  showing: 0,\n  hasMore: false,\n  sources: { database: 0, external: 0, sample: 0 },\n  sectors: 0,\n  countries: 0,\n  cached: false\n}\n✅ Unlimited search completed: 0 jobs returned, 0 total available\n","timestamp":"2025-10-10 22:02:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 22:07:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 22:07:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 22:07:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 22:07:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-10 22:07:23 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 22:07:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 22:07:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 22:07:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 22:07:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-10 22:07:27 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 22:07:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 22:07:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 22:07:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 22:07:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-10 22:07:31 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 22:07:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 22:07:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 22:07:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 22:07:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-10 22:07:35 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 22:07:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 22:07:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 22:07:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 22:07:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-10 22:07:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n   NEXTAUTH_URL: https://naukrimili.com\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 22:12:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Analytics Processor: Redis connected\n","timestamp":"2025-10-10 22:12:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n","timestamp":"2025-10-10 22:12:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_URL: https://naukrimili.com\n   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 22:12:48 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:10 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:10 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Unlimited job search API called\n","timestamp":"2025-10-10 22:13:10 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Search options: {\n  query: '',\n  location: '',\n  country: 'IN',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  salaryMin: undefined,\n  salaryMax: undefined,\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n","timestamp":"2025-10-10 22:13:10 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting unlimited job search: {\n  query: '',\n  location: '',\n  country: 'IN',\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n","timestamp":"2025-10-10 22:13:10 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 22:13:10 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Database: Found 0 jobs\n","timestamp":"2025-10-10 22:13:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in India (IN)\n","timestamp":"2025-10-10 22:13:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Dynamic constants fetched successfully: {\n  jobTypes: 0,\n  experienceLevels: 0,\n  sectors: 0,\n  skills: 0,\n  locations: 0,\n  companies: 0\n}\n","timestamp":"2025-10-10 22:13:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in United States (US)\n","timestamp":"2025-10-10 22:13:11 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🌍 UNLIMITED: Searching in UAE (AE)\n","timestamp":"2025-10-10 22:13:12 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 UNLIMITED: Fetched 0 jobs from external APIs\n","timestamp":"2025-10-10 22:13:12 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ External APIs: Found 0 jobs\n🔄 Deduplication: 0 jobs → 0 unique jobs\n","timestamp":"2025-10-10 22:13:12 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎯 Unlimited search results: {\n  total: 0,\n  showing: 0,\n  hasMore: false,\n  sources: { database: 0, external: 0, sample: 0 },\n  sectors: 0,\n  countries: 0,\n  cached: false\n}\n","timestamp":"2025-10-10 22:13:12 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Unlimited search completed: 0 jobs returned, 0 total available\n","timestamp":"2025-10-10 22:13:12 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Unlimited job search API called\n","timestamp":"2025-10-10 22:13:15 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Search options: {\n  query: '',\n  location: '',\n  country: 'IN',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  salaryMin: undefined,\n  salaryMax: undefined,\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n🚀 Starting unlimited job search: {\n  query: '',\n  location: '',\n  country: 'IN',\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n✅ Cache hit for unlimited search: unlimited:::IN::1:10\n","timestamp":"2025-10-10 22:13:15 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Unlimited search completed: 0 jobs returned, 0 total available\n","timestamp":"2025-10-10 22:13:15 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 22:13:15 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Dynamic constants fetched successfully: {\n  jobTypes: 0,\n  experienceLevels: 0,\n  sectors: 0,\n  skills: 0,\n  locations: 0,\n  companies: 0\n}\n","timestamp":"2025-10-10 22:13:15 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:15 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:15 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:15 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:15 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Unlimited job search API called\n","timestamp":"2025-10-10 22:13:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Search options: {\n  query: '',\n  location: '',\n  country: 'IN',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  salaryMin: undefined,\n  salaryMax: undefined,\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n🚀 Starting unlimited job search: {\n  query: '',\n  location: '',\n  country: 'IN',\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n✅ Cache hit for unlimited search: unlimited:::IN::1:10\n","timestamp":"2025-10-10 22:13:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Unlimited search completed: 0 jobs returned, 0 total available\n","timestamp":"2025-10-10 22:13:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 22:13:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Dynamic constants fetched successfully: {\n  jobTypes: 0,\n  experienceLevels: 0,\n  sectors: 0,\n  skills: 0,\n  locations: 0,\n  companies: 0\n}\n","timestamp":"2025-10-10 22:13:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:50 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:51 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - URL: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:55 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 NextAuth Redirect - BaseURL: https://naukrimili.com\n🔍 NextAuth Redirect - Full URL redirecting to: https://naukrimili.com\n","timestamp":"2025-10-10 22:13:55 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Jobs API Search Parameters: {\n  query: '',\n  location: '',\n  company: '',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  sector: '',\n  country: 'IN',\n  page: 1,\n  limit: 200,\n  radius: 25,\n  userLat: 0,\n  userLng: 0,\n  sortByDistance: false,\n  includeDistance: false\n}\n","timestamp":"2025-10-10 22:13:55 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Jobs API: Searching with filters: {\n  query: '',\n  location: '',\n  company: '',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  sector: '',\n  country: 'IN',\n  salaryMin: '',\n  salaryMax: '',\n  page: 1,\n  limit: 200\n}\n","timestamp":"2025-10-10 22:13:55 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Jobs API: AND conditions: []\n🔍 Jobs API: Final where clause: {\n  \"isActive\": true,\n  \"country\": \"IN\"\n}\n","timestamp":"2025-10-10 22:13:55 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Database stats: Total jobs: 0, Active jobs: 0\n","timestamp":"2025-10-10 22:13:55 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Database query completed: {\n  jobsFound: 0,\n  totalJobs: 0,\n  query: { isActive: true, country: 'IN' },\n  skip: 0,\n  limit: 200,\n  searchParams: {\n    query: '',\n    location: '',\n    company: '',\n    jobType: '',\n    experienceLevel: '',\n    isRemote: false,\n    sector: '',\n    country: 'IN'\n  }\n}\n","timestamp":"2025-10-10 22:13:55 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ No search query provided, using database jobs only\n⚠️ No real jobs found for query \"\". Returning empty results (no fake/sample jobs).\n✅ Jobs API: Successfully returned 0 jobs (0 total)\n","timestamp":"2025-10-10 22:13:55 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Unlimited job search API called\n","timestamp":"2025-10-10 22:14:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Search options: {\n  query: '',\n  location: '',\n  country: 'IN',\n  jobType: '',\n  experienceLevel: '',\n  isRemote: false,\n  salaryMin: undefined,\n  salaryMax: undefined,\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n🚀 Starting unlimited job search: {\n  query: '',\n  location: '',\n  country: 'IN',\n  sector: '',\n  page: 1,\n  limit: 10,\n  includeExternal: true,\n  includeDatabase: true,\n  includeSample: false\n}\n✅ Cache hit for unlimited search: unlimited:::IN::1:10\n✅ Unlimited search completed: 0 jobs returned, 0 total available\n","timestamp":"2025-10-10 22:14:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔍 Fetching dynamic job constants...\n","timestamp":"2025-10-10 22:14:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Dynamic constants fetched successfully: {\n  jobTypes: 0,\n  experienceLevels: 0,\n  sectors: 0,\n  skills: 0,\n  locations: 0,\n  companies: 0\n}\n","timestamp":"2025-10-10 22:14:04 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-10 22:18:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-10 22:18:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-10 22:18:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-10 22:18:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-10 22:18:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-10 22:18:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-10 22:18:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-10 22:18:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-10 22:18:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-10 22:18:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-10 22:18:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n","timestamp":"2025-10-10 22:18:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_URL: https://naukrimili.com\n   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 22:18:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Analytics Processor: Redis connected\n","timestamp":"2025-10-10 22:18:18 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔧 NextAuth Configuration:\n","timestamp":"2025-10-10 22:18:19 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"   NEXTAUTH_URL: https://naukrimili.com\n   NEXTAUTH_SECRET: ✅ Set\n   Environment: production\n","timestamp":"2025-10-10 22:18:19 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n","timestamp":"2025-10-11 08:59:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-11 09:06:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-11 09:06:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-11 09:06:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n","timestamp":"2025-10-11 09:06:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n","timestamp":"2025-10-11 09:10:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-11 09:12:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-11 09:12:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-11 09:12:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-11 09:12:40 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-11 09:12:40 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n","timestamp":"2025-10-11 09:12:40 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}

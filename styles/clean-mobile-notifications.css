@@ -1,0 +1,547 @@
+/* ==========================================================================
+   CLEAN MOBILE NOTIFICATIONS.CSS - OPTIMIZED & PRODUCTION READY
+   ========================================================================== */
+
+/* Mobile Notification System - Clean Implementation */
+.mobile-notification {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+}
+
+/* ==========================================================================
+   NOTIFICATION CONTAINER & POSITIONING
+   ========================================================================== */
+
+.mobile-notification-container {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  max-width: 100%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1rem;
+  transform: translateY(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mobile-notification-container.show {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   NOTIFICATION CONTENT LAYOUT
+   ========================================================================== */
+
+.mobile-notification-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.mobile-notification-icon {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  background: #dbeafe;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-notification-icon svg {
+  width: 1rem;
+  height: 1rem;
+  color: #2563eb;
+}
+
+.mobile-notification-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-notification-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.mobile-notification-body {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0.25rem 0 0 0;
+}
+
+.mobile-notification-close {
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.mobile-notification-close:hover {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.mobile-notification-close svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ==========================================================================
+   NOTIFICATION BELL BUTTON
+   ========================================================================== */
+
+.mobile-notification-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.mobile-notification-bell:hover {
+  background: #f3f4f6;
+}
+
+.mobile-notification-bell:active {
+  background: #e5e7eb;
+  transform: scale(0.95);
+}
+
+.mobile-notification-bell svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #6b7280;
+  transition: color 0.2s ease-in-out;
+}
+
+.mobile-notification-bell.has-notifications svg {
+  color: #f97316;
+}
+
+/* ==========================================================================
+   NOTIFICATION BADGE
+   ========================================================================== */
+
+.mobile-notification-badge {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: #dc2626;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   NOTIFICATION POPOVER
+   ========================================================================== */
+
+.mobile-notification-popover {
+  width: 20rem;
+  max-width: calc(100vw - 2rem);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   NOTIFICATION LIST ITEMS
+   ========================================================================== */
+
+.mobile-notification-item {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.mobile-notification-item:hover {
+  background: #f9fafb;
+}
+
+.mobile-notification-item:active {
+  background: #f3f4f6;
+  transform: scale(0.98);
+}
+
+.mobile-notification-item.unread {
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+}
+
+.mobile-notification-item-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.mobile-notification-item-icon {
+  flex-shrink: 0;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.mobile-notification-item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-notification-item-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.mobile-notification-item-message {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0.25rem 0 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mobile-notification-item-time {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 500;
+  margin: 0.5rem 0 0 0;
+}
+
+.mobile-notification-item-unread {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #3b82f6;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   NOTIFICATION EMPTY STATE
+   ========================================================================== */
+
+.mobile-notification-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.mobile-notification-empty svg {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 0.75rem;
+  color: #d1d5db;
+}
+
+.mobile-notification-empty-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 0 0 0.25rem 0;
+}
+
+.mobile-notification-empty-subtitle {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ==========================================================================
+   NOTIFICATION LOADING STATE
+   ========================================================================== */
+
+.mobile-notification-loading {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.mobile-notification-loading-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.mobile-notification-loading-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ==========================================================================
+   NOTIFICATION CONNECTION INDICATOR
+   ========================================================================== */
+
+.mobile-notification-connection {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  background: #10b981;
+  border: 2px solid white;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ==========================================================================
+   NOTIFICATION SCROLL AREA
+   ========================================================================== */
+
+.mobile-notification-scroll {
+  max-height: 50vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-notification-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-notification-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.mobile-notification-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.mobile-notification-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN - MOBILE FIRST
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .mobile-notification-container {
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+  }
+  
+  .mobile-notification-popover {
+    width: calc(100vw - 1rem);
+    max-width: none;
+  }
+  
+  .mobile-notification-item {
+    padding: 0.75rem;
+  }
+  
+  .mobile-notification-empty {
+    padding: 1.5rem;
+  }
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .mobile-notification-container {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .mobile-notification-title {
+    color: #f9fafb;
+  }
+  
+  .mobile-notification-body {
+    color: #d1d5db;
+  }
+  
+  .mobile-notification-popover {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .mobile-notification-item {
+    border-bottom-color: #374151;
+  }
+  
+  .mobile-notification-item:hover {
+    background: #374151;
+  }
+  
+  .mobile-notification-item.unread {
+    background: #1e3a8a;
+    border-left-color: #60a5fa;
+  }
+
+  .mobile-notification-bell:hover {
+    background: #374151;
+  }
+
+  .mobile-notification-bell:active {
+    background: #4b5563;
+  }
+
+  .mobile-notification-close:hover {
+    background: #374151;
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ========================================================================== */
+
+/* Focus management for keyboard navigation */
+.mobile-notification-bell:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.mobile-notification-close:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.mobile-notification-item:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-notification-container {
+    transition: none;
+  }
+
+  .mobile-notification-item {
+    transition: none;
+  }
+
+  .mobile-notification-bell {
+    transition: none;
+  }
+
+  .mobile-notification-close {
+    transition: none;
+  }
+
+  .mobile-notification-loading-spinner {
+    animation: none;
+  }
+
+  .mobile-notification-connection {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .mobile-notification-container {
+    border: 2px solid #000;
+  }
+
+  .mobile-notification-popover {
+    border: 2px solid #000;
+  }
+
+  .mobile-notification-bell {
+    border: 2px solid #000;
+  }
+}
+
+/* ==========================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+
+/* Hardware acceleration for smooth animations */
+.mobile-notification-container,
+.mobile-notification-bell,
+.mobile-notification-item {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Contain layout and style for better performance */
+.mobile-notification-container {
+  contain: layout style paint;
+}
+
+.mobile-notification-popover {
+  contain: layout style paint;
+}
+
+/* ==========================================================================
+   END OF CLEAN MOBILE NOTIFICATIONS.CSS
+   ========================================================================== */
