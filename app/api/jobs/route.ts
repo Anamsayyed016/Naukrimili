@@ -6,45 +6,79 @@ import { trackJobSearch } from '@/lib/analytics/event-integration';
 import { auth } from '@/lib/nextauth-config';
 
 /**
- * ENHANCED: Smart duplicate removal - handles variations and prioritizes database jobs
+ * ENHANCED: Smart duplicate removal for international jobs
+ * Handles variations, prioritizes database jobs, and maintains country diversity
  */
 function removeDuplicateJobs(jobs: any[]): any[] {
   const seen = new Map<string, any>();
+  const countryJobs = new Map<string, any[]>();
   
   jobs.forEach(job => {
-    // Create multiple keys for better duplicate detection
+    // Normalize fields for comparison
     const title = (job.title || '').toLowerCase().trim();
     const company = (job.company || job.companyRelation?.name || '').toLowerCase().trim();
     const location = (job.location || job.companyRelation?.location || '').toLowerCase().trim();
+    const jobCountry = job.country || 'IN';
     
-    // Primary key: exact match
+    // Track jobs per country for diversity
+    if (!countryJobs.has(jobCountry)) {
+      countryJobs.set(jobCountry, []);
+    }
+    
+    // Create composite keys for duplicate detection
+    // Primary key: title + company + location (exact match)
     const primaryKey = `${title}|${company}|${location}`;
     
-    // Secondary key: title + company only (for location variations)
+    // Secondary key: title + company only (for location variations across countries)
     const secondaryKey = `${title}|${company}`;
     
+    // Tertiary key: title only (for very similar jobs from different companies)
+    const titleKey = title;
+    
     // Check if we've seen this job before
-    if (!seen.has(primaryKey) && !seen.has(secondaryKey)) {
+    const existingPrimary = seen.get(primaryKey);
+    const existingSecondary = seen.get(secondaryKey);
+    
+    if (!existingPrimary && !existingSecondary) {
+      // New job - add it
       seen.set(primaryKey, job);
       seen.set(secondaryKey, job);
+      countryJobs.get(jobCountry)!.push(job);
     } else {
-      // Prefer database/employer jobs over external jobs
-      const existing = seen.get(primaryKey) || seen.get(secondaryKey);
-      if (job.source === 'employer' || (job.source === 'database' && existing.source === 'external')) {
+      // Duplicate detected - decide which to keep
+      const existing = existingPrimary || existingSecondary;
+      
+      // Priority order:
+      // 1. Employer-posted jobs (highest priority)
+      // 2. Database jobs (our own data)
+      // 3. External jobs from different countries (for diversity)
+      // 4. External jobs from same country (lower priority)
+      
+      const shouldReplace = 
+        job.source === 'employer' || // Employer jobs always win
+        (job.source === 'database' && existing.source === 'external') || // Database beats external
+        (job.source === 'external' && existing.source === 'external' && job.country !== existing.country); // Keep country diversity
+      
+      if (shouldReplace) {
         seen.set(primaryKey, job);
         seen.set(secondaryKey, job);
+        countryJobs.get(jobCountry)!.push(job);
       }
     }
   });
   
-  // Return unique jobs
+  // Return unique jobs maintaining country diversity
   const uniqueJobs = Array.from(new Set(Array.from(seen.values()).map(j => j.id || j.sourceId)))
     .map(id => Array.from(seen.values()).find(j => (j.id || j.sourceId) === id))
     .filter(Boolean);
   
   const removed = jobs.length - uniqueJobs.length;
+  const countryCounts = Array.from(countryJobs.entries())
+    .map(([country, jobs]) => `${country}: ${jobs.length}`)
+    .join(', ');
+  
   if (removed > 0) {
-    console.log(`🔄 Removed ${removed} duplicates`);
+    console.log(`🔄 Removed ${removed} duplicates | Countries: ${countryCounts}`);
   }
   
   return uniqueJobs;
@@ -390,42 +424,51 @@ export async function GET(request: NextRequest) {
         try {
           const { fetchFromAdzuna, fetchFromJooble } = await import('@/lib/jobs/providers');
           const { fetchFromJSearch } = await import('@/lib/jobs/dynamic-providers');
+          const { getCountriesToFetch } = await import('@/lib/utils/country-detection');
           
-          // SMART FETCHING: Load initial pages quickly, then more in background
-          for (let page = 1; page <= pagesToFetch; page++) {
-            // Adzuna API (Multi-country support)
-            if (hasAdzuna) {
-              // Priority for first few pages (faster loading)
-              const priority = page <= initialPages ? 'high' : 'normal';
-              externalPromises.push(
-                fetchFromAdzuna(query, country.toLowerCase(), page, { 
-                  location: location || undefined,
-                  distanceKm: 50 
-                }).catch(err => {
-                  console.log(`⚠️ Adzuna page ${page} failed:`, err.message);
-                  return [];
-                })
-              );
-            }
+          // SMART COUNTRY DETECTION: Fetch from appropriate countries based on location
+          const countriesToFetch = getCountriesToFetch({ location, country });
+          
+          console.log(`🌍 Fetching jobs from ${countriesToFetch.length} countries:`, 
+            countriesToFetch.map(c => c.name).join(', '));
+          
+          // SMART FETCHING: Load from multiple countries with pagination
+          for (const countryConfig of countriesToFetch) {
+            const pagesPerCountry = Math.max(1, Math.floor(pagesToFetch / countriesToFetch.length));
             
-            // JSearch API via RapidAPI (Global coverage)
-            if (hasRapidAPI) {
-              externalPromises.push(
-                fetchFromJSearch(query, location || 'India', page).catch(err => {
-                  console.log(`⚠️ JSearch page ${page} failed:`, err.message);
-                  return [];
-                })
-              );
-            }
-            
-            // Jooble API (Additional job source)
-            if (hasJooble) {
-              externalPromises.push(
-                fetchFromJooble(query, location || 'India', page).catch(err => {
-                  console.log(`⚠️ Jooble page ${page} failed:`, err.message);
-                  return [];
-                })
-              );
+            for (let page = 1; page <= pagesPerCountry; page++) {
+              // Adzuna API (Multi-country support)
+              if (hasAdzuna) {
+                externalPromises.push(
+                  fetchFromAdzuna(query, countryConfig.adzunaCode, page, { 
+                    location: location || undefined,
+                    distanceKm: 50 
+                  }).catch(err => {
+                    console.log(`⚠️ Adzuna ${countryConfig.name} page ${page} failed:`, err.message);
+                    return [];
+                  })
+                );
+              }
+              
+              // JSearch API via RapidAPI (Global coverage)
+              if (hasRapidAPI) {
+                externalPromises.push(
+                  fetchFromJSearch(query, countryConfig.jsearchCode, page).catch(err => {
+                    console.log(`⚠️ JSearch ${countryConfig.name} page ${page} failed:`, err.message);
+                    return [];
+                  })
+                );
+              }
+              
+              // Jooble API (Additional job source)
+              if (hasJooble) {
+                externalPromises.push(
+                  fetchFromJooble(query, countryConfig.joobleLocation, page).catch(err => {
+                    console.log(`⚠️ Jooble ${countryConfig.name} page ${page} failed:`, err.message);
+                    return [];
+                  })
+                );
+              }
             }
           }
           

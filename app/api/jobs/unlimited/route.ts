@@ -257,38 +257,48 @@ export async function GET(request: NextRequest) {
           try {
             const { fetchFromAdzuna, fetchFromJooble } = await import('@/lib/jobs/providers');
             const { fetchFromJSearch } = await import('@/lib/jobs/dynamic-providers');
+            const { getCountriesToFetch } = await import('@/lib/utils/country-detection');
             
-            // Adzuna API (Multi-country support)
-            if (hasAdzuna) {
-              externalPromises.push(
-                fetchFromAdzuna(query, country.toLowerCase(), 1, { 
-                  location: location || undefined,
-                  distanceKm: 50 
-                }).catch(err => {
-                  console.log('⚠️ Adzuna failed:', err.message);
-                  return [];
-                })
-              );
-            }
+            // SMART COUNTRY DETECTION: Fetch from appropriate countries based on location
+            const countriesToFetch = getCountriesToFetch({ location, country });
             
-            // JSearch API via RapidAPI (Global coverage)
-            if (hasRapidAPI) {
-              externalPromises.push(
-                fetchFromJSearch(query, location || 'India', 1).catch(err => {
-                  console.log('⚠️ JSearch failed:', err.message);
-                  return [];
-                })
-              );
-            }
+            console.log(`🌍 Fetching jobs from ${countriesToFetch.length} countries:`, 
+              countriesToFetch.map(c => c.name).join(', '));
             
-            // Jooble API (Additional job source)
-            if (hasJooble) {
-              externalPromises.push(
-                fetchFromJooble(query, location || 'India', 1).catch(err => {
-                  console.log('⚠️ Jooble failed:', err.message);
-                  return [];
-                })
-              );
+            // Fetch from multiple countries in parallel
+            for (const countryConfig of countriesToFetch) {
+              // Adzuna API (Multi-country support)
+              if (hasAdzuna) {
+                externalPromises.push(
+                  fetchFromAdzuna(query, countryConfig.adzunaCode, 1, { 
+                    location: location || undefined,
+                    distanceKm: 50 
+                  }).catch(err => {
+                    console.log(`⚠️ Adzuna ${countryConfig.name} failed:`, err.message);
+                    return [];
+                  })
+                );
+              }
+              
+              // JSearch API via RapidAPI (Global coverage)
+              if (hasRapidAPI) {
+                externalPromises.push(
+                  fetchFromJSearch(query, countryConfig.jsearchCode, 1).catch(err => {
+                    console.log(`⚠️ JSearch ${countryConfig.name} failed:`, err.message);
+                    return [];
+                  })
+                );
+              }
+              
+              // Jooble API (Additional job source)
+              if (hasJooble) {
+                externalPromises.push(
+                  fetchFromJooble(query, countryConfig.joobleLocation, 1).catch(err => {
+                    console.log(`⚠️ Jooble ${countryConfig.name} failed:`, err.message);
+                    return [];
+                  })
+                );
+              }
             }
             
             // Wait for ALL APIs in parallel (FAST like Indeed/LinkedIn)

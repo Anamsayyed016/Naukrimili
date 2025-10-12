@@ -92,22 +92,8 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
       console.log('🔍 Fetching unlimited jobs with query:', query, 'location:', location, 'page:', page);
 
-      // Determine country based on location or default to India
-      let country = 'IN'; // Default to India
-      if (location) {
-        const locationLower = location.toLowerCase();
-        if (locationLower.includes('usa') || locationLower.includes('united states') || locationLower.includes('us')) {
-          country = 'US';
-        } else if (locationLower.includes('uae') || locationLower.includes('united arab emirates') || locationLower.includes('dubai')) {
-          country = 'AE';
-        } else if (locationLower.includes('uk') || locationLower.includes('united kingdom') || locationLower.includes('london')) {
-          country = 'GB';
-        } else if (locationLower.includes('canada') || locationLower.includes('toronto') || locationLower.includes('vancouver')) {
-          country = 'CA';
-        } else if (locationLower.includes('australia') || locationLower.includes('sydney') || locationLower.includes('melbourne')) {
-          country = 'AU';
-        }
-      }
+      // Smart country detection - defaults to ALL for international job support
+      let country = 'ALL'; // Changed from 'IN' to fetch international jobs
 
       // Use unlimited API to get comprehensive job coverage
       const unlimitedParams = new URLSearchParams({

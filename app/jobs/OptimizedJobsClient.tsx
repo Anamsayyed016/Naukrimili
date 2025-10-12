@@ -59,22 +59,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
       console.log('⚡ Fetching optimized jobs with query:', query, 'location:', location, 'page:', page);
 
-      // Determine country based on location or default to India
-      let country = 'IN'; // Default to India
-      if (location) {
-        const locationLower = location.toLowerCase();
-        if (locationLower.includes('usa') || locationLower.includes('united states') || locationLower.includes('us')) {
-          country = 'US';
-        } else if (locationLower.includes('uae') || locationLower.includes('united arab emirates') || locationLower.includes('dubai')) {
-          country = 'AE';
-        } else if (locationLower.includes('uk') || locationLower.includes('united kingdom') || locationLower.includes('london')) {
-          country = 'GB';
-        } else if (locationLower.includes('canada') || locationLower.includes('toronto') || locationLower.includes('vancouver')) {
-          country = 'CA';
-        } else if (locationLower.includes('australia') || locationLower.includes('sydney') || locationLower.includes('melbourne')) {
-          country = 'AU';
-        }
-      }
+      // Smart country detection - defaults to ALL for international job support
+      let country = 'ALL'; // Changed from 'IN' to fetch international jobs
 
       // Optimized job fetching with multiple fallbacks to prevent chunk issues
       const apiParams = new URLSearchParams({
@@ -154,73 +140,15 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       }
 
     } catch (error) {
-      console.error('❌ Error fetching jobs from all APIs, using sample jobs fallback:', error);
-      const fallbackStartTime = Date.now();
+      console.error('❌ Error fetching jobs from API:', error);
       
-      // Final fallback: Generate sample jobs to prevent empty state
-      const sampleJobs = [
-        {
-          id: 'sample-1',
-          title: 'Software Engineer',
-          company: 'Tech Solutions Inc',
-          location: 'Bangalore, India',
-          salary: '₹8,00,000 - ₹12,00,000',
-          jobType: 'full-time',
-          experienceLevel: 'mid',
-          isRemote: false,
-          description: 'Join our dynamic team as a Software Engineer and work on cutting-edge projects.',
-          requirements: ['React', 'Node.js', 'TypeScript'],
-          skills: ['JavaScript', 'React', 'Node.js', 'TypeScript'],
-          postedAt: new Date().toISOString(),
-          isActive: true
-        },
-        {
-          id: 'sample-2',
-          title: 'Product Manager',
-          company: 'Innovation Labs',
-          location: 'Mumbai, India',
-          salary: '₹10,00,000 - ₹15,00,000',
-          jobType: 'full-time',
-          experienceLevel: 'senior',
-          isRemote: true,
-          description: 'Lead product development and strategy for our next-generation platform.',
-          requirements: ['Product Management', 'Agile', 'Analytics'],
-          skills: ['Product Strategy', 'User Research', 'Analytics', 'Leadership'],
-          postedAt: new Date(Date.now() - 86400000).toISOString(),
-          isActive: true
-        },
-        {
-          id: 'sample-3',
-          title: 'UX Designer',
-          company: 'Design Studio',
-          location: 'Delhi, India',
-          salary: '₹6,00,000 - ₹9,00,000',
-          jobType: 'full-time',
-          experienceLevel: 'mid',
-          isRemote: false,
-          description: 'Create beautiful and intuitive user experiences for our mobile and web applications.',
-          requirements: ['Figma', 'User Research', 'Prototyping'],
-          skills: ['UI/UX Design', 'Figma', 'Adobe Creative Suite', 'User Research'],
-          postedAt: new Date(Date.now() - 172800000).toISOString(),
-          isActive: true
-        }
-      ];
-
-      const jobs = sampleJobs.map(convertToSimpleJob);
-      setJobs(jobs as any);
-      setTotalJobs(sampleJobs.length);
-      setTotalPages(1);
+      // NO SAMPLE JOBS - Show empty state instead
+      setJobs([]);
+      setTotalJobs(0);
+      setTotalPages(0);
       setHasNextPage(false);
       setHasPrevPage(false);
-
-      // Update performance metrics for sample jobs
-      setPerformanceMetrics({
-        responseTime: Date.now() - fallbackStartTime,
-        cached: false,
-        sources: { database: 0, external: 0, sample: sampleJobs.length, apiUsed: 'sample-fallback' }
-      });
-
-      setError('Using sample jobs - API services temporarily unavailable');
+      setError('Failed to load jobs. Please check your connection and try again.');
       
       // Fallback to main API
       try {
