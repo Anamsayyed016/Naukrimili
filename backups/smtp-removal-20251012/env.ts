@@ -35,12 +35,11 @@ const envSchema = z.object({
   AWS_REGION: z.string().optional(),
   AWS_S3_BUCKET: z.string().optional(),
   
-  // Gmail OAuth2 API (for sending emails from info@naukrimili.com)
-  GMAIL_API_CLIENT_ID: z.string().optional(),
-  GMAIL_API_CLIENT_SECRET: z.string().optional(),
-  GMAIL_API_REFRESH_TOKEN: z.string().optional(),
-  GMAIL_SENDER: z.string().optional(),
-  GMAIL_FROM_NAME: z.string().optional(),
+  // Email
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
   
 
   

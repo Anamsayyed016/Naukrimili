@@ -1,10 +1,10 @@
 /**
  * Welcome Email Service for New OAuth Users
  * 
- * Temporarily using stub during SMTP to Gmail OAuth2 migration
+ * Now integrated with Gmail SMTP and the notification system
  */
 
-import { mailerService } from '@/lib/mailer-stub';
+import { mailerService } from '@/lib/mailer';
 
 interface WelcomeEmailData {
   email: string;
