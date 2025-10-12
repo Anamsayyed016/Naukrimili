@@ -14,14 +14,24 @@ module.exports = {
         PORT: 3000,
         HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
-        NEXT_TELEMETRY_DISABLED: "1"
+        NEXT_TELEMETRY_DISABLED: "1",
+        // External Job APIs
+        RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
+        ADZUNA_APP_ID: "5e478efa",
+        ADZUNA_APP_KEY: "f216fb45f9e324783b04fd877fc0f4f7",
+        JOOBLE_API_KEY: "10fd38f3-17ed-4718-8471-504f472b410a"
       },
       env_production: {
         NODE_ENV: "production",
         PORT: 3000,
         HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
-        NEXT_TELEMETRY_DISABLED: "1"
+        NEXT_TELEMETRY_DISABLED: "1",
+        // External Job APIs
+        RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
+        ADZUNA_APP_ID: "5e478efa",
+        ADZUNA_APP_KEY: "f216fb45f9e324783b04fd877fc0f4f7",
+        JOOBLE_API_KEY: "10fd38f3-17ed-4718-8471-504f472b410a"
       },
       log_file: "./logs/combined.log",
       out_file: "./logs/out.log",
