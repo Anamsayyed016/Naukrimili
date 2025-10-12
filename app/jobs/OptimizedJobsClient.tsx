@@ -59,8 +59,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
       console.log('⚡ Fetching optimized jobs with query:', query, 'location:', location, 'page:', page);
 
-      // Smart country detection - defaults to ALL for international job support
-      let country = 'ALL'; // Changed from 'IN' to fetch international jobs
+      // Smart country detection - use location-based detection or default to IN
+      let country = 'IN'; // Default to India, will be overridden by location detection
 
       // Optimized job fetching with multiple fallbacks to prevent chunk issues
       const apiParams = new URLSearchParams({
