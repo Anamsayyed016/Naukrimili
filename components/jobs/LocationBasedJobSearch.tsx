@@ -675,7 +675,7 @@ export default function LocationBasedJobSearch() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {popularLocations.slice(0, 5).map((location, index) => (
+                {popularLocations.filter(location => (location.jobCount || 0) > 0).slice(0, 5).map((location, index) => (
                   <button
                     key={index}
                     onClick={() => handleLocationSelect(location)}

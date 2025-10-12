@@ -224,7 +224,7 @@ export default function EnhancedLocationSearch({
       <div className="space-y-3">
         <h4 className="text-sm font-medium text-gray-700">Popular Locations</h4>
         <div className="grid grid-cols-2 gap-2">
-          {popularLocations.map((location) => (
+          {popularLocations.filter(location => (location.jobCount || 0) > 0).map((location) => (
             <Button
               key={location.name}
               variant="outline"

@@ -239,7 +239,7 @@ export default function LocationCategories({
 
       {/* Compact Categories */}
       <div className="space-y-2">
-        {categories.map((category) => (
+        {categories.filter(category => category.locations.some(location => (location.jobCount || 0) > 0)).map((category) => (
           <div key={category.id} className="bg-gradient-to-r from-gray-900 to-blue-900 rounded-xl border-2 border-blue-500/20 shadow-lg">
             {/* Category Header */}
             <Button
@@ -271,7 +271,7 @@ export default function LocationCategories({
             {expandedCategory === category.id && (
               <div className="px-2 sm:px-3 pb-2 sm:pb-3">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-2">
-                  {category.locations.map((location) => (
+                  {category.locations.filter(location => (location.jobCount || 0) > 0).map((location) => (
                     <Button
                       key={location.id}
                       variant="outline"

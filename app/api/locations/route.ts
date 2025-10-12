@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
     }
 
     const data = paged
-      .filter((g: any) => g.location)
+      .filter((g: any) => g.location && (g._count?._all || 0) > 0) // Filter out locations with 0 jobs
       .map((g: any) => {
         const k = keyFor(g.country, g.location);
         const work = arrangementByKey.get(k) || { on_site: 0, remote: 0, hybrid: 0 };

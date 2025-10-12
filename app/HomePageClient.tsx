@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { safeLength, safeArray } from '../lib/safe-array-utils';
 import { Search, Building, Briefcase, Users, TrendingUp, ArrowRight, Shield, Zap, Globe, Award, Clock, User, Sparkles, Upload, FileText, Building2, BriefcaseIcon, Target, Star, MapPin, Brain } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -47,6 +47,7 @@ export default function HomePageClient({
 }: HomePageClientProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [locationJobCounts, setLocationJobCounts] = useState<Record<string, number>>({});
   
 
   // Remove auto-redirect logic to prevent forced authentication
@@ -68,6 +69,32 @@ export default function HomePageClient({
   // Check if user is authenticated for conditional rendering
   const isAuthenticated = status === 'authenticated' && session?.user;
 
+  // Fetch job counts for popular locations
+  useEffect(() => {
+    const fetchJobCounts = async () => {
+      try {
+        const counts: Record<string, number> = {};
+        for (const location of popularLocations || []) {
+          try {
+            const response = await fetch(`/api/jobs?location=${encodeURIComponent(location)}&limit=1&includeExternal=true&includeDatabase=true`);
+            const data = await response.json();
+            counts[location] = data.pagination?.total || data.total || 0;
+          } catch (error) {
+            console.warn(`Failed to fetch job count for ${location}:`, error);
+            counts[location] = 0;
+          }
+        }
+        setLocationJobCounts(counts);
+      } catch (error) {
+        console.error('Failed to fetch location job counts:', error);
+      }
+    };
+
+    if (popularLocations && popularLocations.length > 0) {
+      fetchJobCounts();
+    }
+  }, [popularLocations]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
 
@@ -86,7 +113,7 @@ export default function HomePageClient({
           <div className="mb-8 sm:mb-12">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Popular Locations</h3>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {(popularLocations || []).map((location, index) => {
+              {(popularLocations || []).filter(location => (locationJobCounts[location] || 0) > 0).map((location, index) => {
                 // Determine country based on location
                 let country = 'IN'; // Default to India
                 const locationLower = location.toLowerCase();
@@ -110,7 +137,10 @@ export default function HomePageClient({
                     className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-white hover:border-blue-300 hover:text-blue-600 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md"
                   >
                     <MapPin className="w-4 h-4 mr-2" />
-                    {location}
+                    <span>{location}</span>
+                    <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                      {locationJobCounts[location] || 0}
+                    </span>
                   </Link>
                 );
               })}
