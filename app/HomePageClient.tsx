@@ -86,16 +86,34 @@ export default function HomePageClient({
           <div className="mb-8 sm:mb-12">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Popular Locations</h3>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {(popularLocations || []).map((location, index) => (
-                <Link
-                  key={index}
-                  href={`/jobs?location=${encodeURIComponent(location)}&includeExternal=true&includeDatabase=true&limit=1000`}
-                  className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-white hover:border-blue-300 hover:text-blue-600 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md"
-                >
-                  <MapPin className="w-4 h-4 mr-2" />
-                  {location}
-                </Link>
-              ))}
+              {(popularLocations || []).map((location, index) => {
+                // Determine country based on location
+                let country = 'IN'; // Default to India
+                const locationLower = location.toLowerCase();
+                
+                if (locationLower.includes('new york') || locationLower.includes('san francisco') || 
+                    locationLower.includes('los angeles') || locationLower.includes('chicago') || 
+                    locationLower.includes('boston') || locationLower.includes('seattle')) {
+                  country = 'US';
+                } else if (locationLower.includes('london') || locationLower.includes('manchester') || 
+                           locationLower.includes('birmingham') || locationLower.includes('edinburgh')) {
+                  country = 'GB';
+                } else if (locationLower.includes('dubai') || locationLower.includes('abu dhabi') || 
+                           locationLower.includes('sharjah')) {
+                  country = 'AE';
+                }
+                
+                return (
+                  <Link
+                    key={index}
+                    href={`/jobs?location=${encodeURIComponent(location)}&country=${country}&limit=1000`}
+                    className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-white hover:border-blue-300 hover:text-blue-600 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md"
+                  >
+                    <MapPin className="w-4 h-4 mr-2" />
+                    {location}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>
