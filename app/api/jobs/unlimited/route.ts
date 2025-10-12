@@ -293,7 +293,9 @@ export async function GET(request: NextRequest) {
               // Jooble API (Additional job source)
               if (hasJooble) {
                 externalPromises.push(
-                  fetchFromJooble(query, countryConfig.joobleLocation, 1).catch(err => {
+                  fetchFromJooble(query, countryConfig.joobleLocation, 1, {
+                    countryCode: countryConfig.code
+                  }).catch(err => {
                     console.log(`⚠️ Jooble ${countryConfig.name} failed:`, err.message);
                     return [];
                   })
