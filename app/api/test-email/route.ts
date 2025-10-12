@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/nextauth-config';
-import { mailerService } from '@/lib/mailer-stub';
+import { mailerService } from '@/lib/gmail-oauth2-mailer';
 
 export async function POST(request: NextRequest) {
   try {
