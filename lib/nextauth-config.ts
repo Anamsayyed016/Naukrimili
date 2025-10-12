@@ -317,8 +317,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               }
             });
 
-            // Send welcome notification for new user
+            // Send welcome email and notification for new user
             try {
+              // Import and send welcome email
+              const { sendWelcomeEmail } = await import('@/lib/welcome-email');
+              await sendWelcomeEmail({
+                email: newUser.email,
+                name: newUser.firstName && newUser.lastName ? `${newUser.firstName} ${newUser.lastName}` : newUser.firstName || 'User',
+                provider: 'google'
+              });
+
               // Create a simple notification record
               await prisma.notification.create({
                 data: {
@@ -329,10 +337,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   isRead: false
                 }
               });
-              console.log('✅ Welcome notification sent for new Google OAuth user');
+              console.log('✅ Welcome email and notification sent for new Google OAuth user');
             } catch (notificationError) {
-              console.error('❌ Failed to send welcome notification:', notificationError);
-              // Don't fail the OAuth flow if notification fails
+              console.error('❌ Failed to send welcome email/notification:', notificationError);
+              // Don't fail the OAuth flow if email/notification fails
             }
             
             token.id = newUser.id;
