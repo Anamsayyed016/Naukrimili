@@ -1,0 +1,173 @@
+================================================================================
+  NAUKRIMILI - SERVER DEPLOYMENT COMMANDS
+  Quick Reference for Gmail OAuth2 Email System
+================================================================================
+
+📋 COPY-PASTE COMMANDS (Execute on server):
+
+# Option 1: Automated Script (Recommended)
+# ==========================================
+ssh root@your-server-ip
+cd /var/www/naukrimili
+bash SERVER_DEPLOYMENT_COMMANDS.sh
+
+
+# Option 2: Manual Commands (Step by Step)
+# ==========================================
+ssh root@your-server-ip
+cd /var/www/naukrimili
+git pull origin main
+npm install
+npm run build
+pm2 restart naukrimili --update-env
+pm2 logs naukrimili --lines 50
+
+
+# Option 3: Fresh Start
+# ==========================================
+ssh root@your-server-ip
+cd /var/www/naukrimili
+git pull origin main
+npm install
+npm run build
+pm2 stop naukrimili
+pm2 delete naukrimili
+pm2 start ecosystem.config.cjs
+pm2 save
+pm2 logs naukrimili
+
+
+================================================================================
+  SETUP GMAIL OAUTH2 CREDENTIALS (Do this FIRST)
+================================================================================
+
+1. SSH into server:
+   ssh root@your-server-ip
+
+2. Navigate to project:
+   cd /var/www/naukrimili
+
+3. Edit .env file:
+   nano .env
+
+4. Add these lines (replace with YOUR real credentials):
+
+   GMAIL_API_CLIENT_ID=YOUR_CLIENT_ID.apps.googleusercontent.com
+   GMAIL_API_CLIENT_SECRET=YOUR_CLIENT_SECRET
+   GMAIL_API_REFRESH_TOKEN=YOUR_REFRESH_TOKEN
+   GMAIL_SENDER=NaukriMili <info@naukrimili.com>
+   GMAIL_FROM_NAME=NaukriMili
+
+5. Save and exit:
+   - Press Ctrl + X
+   - Press Y
+   - Press Enter
+
+6. Restart PM2:
+   pm2 restart naukrimili --update-env
+
+
+================================================================================
+  HOW TO GET GMAIL OAUTH2 CREDENTIALS
+================================================================================
+
+Step 1: Enable Gmail API
+→ https://console.cloud.google.com/
+→ APIs & Services → Library
+→ Search "Gmail API" → Enable
+
+Step 2: Create OAuth2 Credentials
+→ APIs & Services → Credentials
+→ Create Credentials → OAuth 2.0 Client IDs
+→ Application type: Web application
+→ Authorized redirect URIs: https://developers.google.com/oauthplayground
+→ Copy Client ID and Client Secret
+
+Step 3: Get Refresh Token
+→ https://developers.google.com/oauthplayground
+→ Click gear icon (⚙️) → "Use your own OAuth credentials"
+→ Enter Client ID and Client Secret
+→ Step 1: Select Gmail API v1 → https://www.googleapis.com/auth/gmail.send
+→ Authorize APIs
+→ Sign in with info@naukrimili.com
+→ Step 2: Exchange authorization code for tokens
+→ Copy Refresh Token
+
+
+================================================================================
+  VERIFICATION COMMANDS
+================================================================================
+
+# Check PM2 status
+pm2 status
+
+# View logs in real-time
+pm2 logs naukrimili
+
+# Check environment variables
+pm2 env 0 | grep GMAIL
+
+# Test email API
+curl -X POST https://naukrimili.com/api/test-email \
+  -H "Content-Type: application/json" \
+  -d '{"type": "welcome", "recipientEmail": "test@example.com"}'
+
+
+================================================================================
+  TROUBLESHOOTING
+================================================================================
+
+Problem: "Gmail OAuth2 credentials not configured"
+Solution: Add credentials to .env and restart PM2
+
+Problem: "Authentication error"
+Solution: Regenerate refresh token and update .env
+
+Problem: "Permission error"
+Solution: Enable Gmail API in Google Cloud Console
+
+Problem: Application not starting
+Solution: Check logs with: pm2 logs naukrimili --err
+
+
+================================================================================
+  IMPORTANT NOTES
+================================================================================
+
+✅ All code is pushed to GitHub
+✅ Dependencies: googleapis, google-auth-library
+✅ SMTP system completely removed
+✅ Gmail OAuth2 implementation complete (466 lines)
+✅ Beautiful HTML email templates ready
+✅ Welcome emails work automatically on signup
+✅ Test API endpoint available
+
+⚠️ MUST ADD CREDENTIALS to .env before emails will send
+⚠️ Use refresh token from info@naukrimili.com account
+⚠️ Gmail API must be enabled in Google Cloud Console
+
+
+================================================================================
+  NEXT STEPS AFTER DEPLOYMENT
+================================================================================
+
+1. Test OAuth signup flow
+2. Check welcome email delivery
+3. Monitor PM2 logs for any errors
+4. Set up job alerts (Phase 2 - not yet implemented)
+5. Set up weekly digest (Phase 3 - not yet implemented)
+
+
+================================================================================
+  CONTACT & SUPPORT
+================================================================================
+
+Documentation: GMAIL_OAUTH2_IMPLEMENTATION_COMPLETE.md
+Audit Report: GMAIL_NOTIFICATION_SYSTEM_AUDIT_REPORT.md
+Removal Report: SMTP_REMOVAL_COMPLETE.md
+
+All files are in your project repository.
+
+
+================================================================================
+
