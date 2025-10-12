@@ -6,6 +6,7 @@ import EnhancedJobCard from '@/components/EnhancedJobCard';
 import { JobResult } from '@/types/jobs';
 import { Job } from '@/types/job';
 import EnhancedPagination from '@/components/ui/enhanced-pagination';
+import { getCountriesToFetch } from '@/lib/utils/country-detection';
 
 // Using Job interface from types/job.d.ts
 
@@ -59,14 +60,16 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
       console.log('⚡ Fetching optimized jobs with query:', query, 'location:', location, 'page:', page);
 
-      // Smart country detection - use location-based detection or default to IN
-      let country = 'IN'; // Default to India, will be overridden by location detection
+      // Smart country detection using the country detection utility
+      const countriesToFetch = getCountriesToFetch({ location, country: 'ALL' });
+      const primaryCountry = countriesToFetch[0]?.code || 'IN';
+      console.log('🌍 Country detection:', { location, countriesToFetch, primaryCountry });
 
       // Optimized job fetching with multiple fallbacks to prevent chunk issues
       const apiParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
-        country: country,
+        country: primaryCountry,
         page: page.toString(),
         limit: '1000', // Increased limit for 1000+ jobs
         // Add all filter parameters from home page search
