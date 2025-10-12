@@ -2,7 +2,7 @@
  * Gmail OAuth2 Email Service
  * 
  * Professional email service using Gmail API with OAuth2 authentication
- * Sends emails from info@naukrimili.com using refresh token
+ * Sends emails from naukrimili@naukrimili.com using refresh token
  * 
  * Features:
  * - Gmail API OAuth2 (no password required)
@@ -65,7 +65,7 @@ class GmailOAuth2MailerService {
       const clientId = process.env.GMAIL_API_CLIENT_ID;
       const clientSecret = process.env.GMAIL_API_CLIENT_SECRET;
       const refreshToken = process.env.GMAIL_API_REFRESH_TOKEN;
-      const sender = process.env.GMAIL_SENDER || 'NaukriMili <info@naukrimili.com>';
+      const sender = process.env.GMAIL_SENDER || 'NaukriMili <naukrimili@naukrimili.com>';
       const fromName = process.env.GMAIL_FROM_NAME || 'NaukriMili';
 
       // Validate required credentials
@@ -122,7 +122,7 @@ class GmailOAuth2MailerService {
    */
   private createEmailMessage(config: EmailConfig): string {
     const to = Array.isArray(config.to) ? config.to.join(', ') : config.to;
-    const from = this.config?.sender || 'NaukriMili <info@naukrimili.com>';
+    const from = this.config?.sender || 'NaukriMili <naukrimili@naukrimili.com>';
     const subject = config.subject;
     const replyTo = config.replyTo || from;
 
