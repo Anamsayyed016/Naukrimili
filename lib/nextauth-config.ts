@@ -319,14 +319,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
             // Send welcome email and notification for new user
             try {
-              // Import and send welcome email
-              const { sendWelcomeEmail } = await import('@/lib/welcome-email');
-              await sendWelcomeEmail({
-                email: newUser.email,
-                name: newUser.firstName && newUser.lastName ? `${newUser.firstName} ${newUser.lastName}` : newUser.firstName || 'User',
-                provider: 'google'
-              });
-
               // Create a simple notification record
               await prisma.notification.create({
                 data: {
@@ -337,10 +329,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   isRead: false
                 }
               });
-              console.log('✅ Welcome email and notification sent for new Google OAuth user');
+
+              // Send welcome email via internal API (non-blocking)
+              const userName = newUser.firstName && newUser.lastName ? `${newUser.firstName} ${newUser.lastName}` : newUser.firstName || 'User';
+              
+              // Fire and forget - don't block OAuth flow
+              fetch(`${process.env.NEXTAUTH_URL}/api/internal/send-welcome-email`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'x-internal-secret': process.env.NEXTAUTH_SECRET || ''
+                },
+                body: JSON.stringify({
+                  email: newUser.email,
+                  name: userName,
+                  provider: 'google'
+                })
+              }).catch(err => {
+                console.error('❌ Failed to trigger welcome email:', err);
+              });
+
+              console.log('✅ Welcome notification created and email triggered for new Google OAuth user');
             } catch (notificationError) {
-              console.error('❌ Failed to send welcome email/notification:', notificationError);
-              // Don't fail the OAuth flow if email/notification fails
+              console.error('❌ Failed to send welcome notification:', notificationError);
+              // Don't fail the OAuth flow if notification fails
             }
             
             token.id = newUser.id;
