@@ -185,9 +185,9 @@ class GmailOAuth2MailerService {
   }
 
   /**
-   * Send email using Gmail API
+   * Send email using Gmail API with retry logic
    */
-  async sendEmail(config: EmailConfig): Promise<boolean> {
+  async sendEmail(config: EmailConfig, retryCount = 0): Promise<boolean> {
     // Initialize if not already done
     if (!this.isInitialized) {
       await this.initializeClient();
@@ -230,11 +230,22 @@ class GmailOAuth2MailerService {
 
     } catch (error: any) {
       console.error('❌ Failed to send email via Gmail API:', error.message);
+      
       if (error.code === 401) {
         console.error('   Authentication error: Refresh token may be invalid or expired');
+        // Try to reinitialize OAuth client
+        await this.initializeClient();
       } else if (error.code === 403) {
         console.error('   Permission error: Gmail API may not be enabled or insufficient scopes');
       }
+
+      // Retry once if not already retried
+      if (retryCount < 1) {
+        console.log(`🔄 Retrying email send (attempt ${retryCount + 1})...`);
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+        return this.sendEmail(config, retryCount + 1);
+      }
+
       return false;
     }
   }
@@ -426,6 +437,251 @@ The NaukriMili Team
       subject,
       html
     });
+  }
+
+  /**
+   * Send job alert email to users
+   */
+  async sendJobAlertEmail(jobTitle: string, recipientEmail: string, userName?: string): Promise<boolean> {
+    const subject = `🔔 New Job Alert: ${jobTitle}`;
+    const name = userName || 'there';
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Job Alert - NaukriMili</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        
+        <!-- Header -->
+        <div style="text-align: center; padding: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
+            🔔 New Job Alert!
+          </h1>
+        </div>
+        
+        <!-- Content -->
+        <div style="background-color: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+          
+          <h2 style="color: #1f2937; margin-top: 0; font-size: 24px;">Hello ${name}! 👋</h2>
+          
+          <p style="color: #4b5563; font-size: 16px; margin: 20px 0;">
+            Great news! A new job matching your preferences has been posted:
+          </p>
+          
+          <div style="background-color: #f3f4f6; padding: 25px; border-radius: 8px; margin: 30px 0; text-align: center;">
+            <h3 style="color: #1f2937; margin-top: 0; font-size: 20px;">${jobTitle}</h3>
+            <p style="color: #4b5563; margin-bottom: 0;">Check out this opportunity on NaukriMili!</p>
+          </div>
+          
+          <div style="text-align: center; margin: 35px 0;">
+            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/jobs" 
+               style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);">
+              View Job Details →
+            </a>
+          </div>
+          
+          <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 40px;">
+            Keep an eye on your dashboard for more opportunities!
+          </p>
+          
+        </div>
+        
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 14px;">
+          <p>Best regards,<br><strong>The NaukriMili Team</strong></p>
+        </div>
+        
+      </body>
+      </html>
+    `;
+
+    return this.sendEmail({
+      to: recipientEmail,
+      subject,
+      html
+    });
+  }
+
+  /**
+   * Send application received email to recruiter
+   */
+  async sendApplicationReceivedEmail(applicantName: string, recruiterEmail: string, jobTitle: string, companyName?: string): Promise<boolean> {
+    const subject = `📨 New Application Received - ${jobTitle}`;
+    const company = companyName || 'your company';
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Application - NaukriMili</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        
+        <!-- Header -->
+        <div style="text-align: center; padding: 30px 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 10px 10px 0 0;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
+            📨 New Application Received!
+          </h1>
+        </div>
+        
+        <!-- Content -->
+        <div style="background-color: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+          
+          <h2 style="color: #1f2937; margin-top: 0; font-size: 24px;">Hello Recruiter! 👋</h2>
+          
+          <p style="color: #4b5563; font-size: 16px; margin: 20px 0;">
+            You have received a new job application for your posted position.
+          </p>
+          
+          <div style="background-color: #f0fdf4; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #10b981;">
+            <h3 style="color: #1f2937; margin-top: 0; font-size: 20px;">Application Details:</h3>
+            <ul style="color: #4b5563; line-height: 1.8; padding-left: 20px; margin: 0;">
+              <li><strong>Applicant:</strong> ${applicantName}</li>
+              <li><strong>Position:</strong> ${jobTitle}</li>
+              <li><strong>Company:</strong> ${company}</li>
+            </ul>
+          </div>
+          
+          <div style="text-align: center; margin: 35px 0;">
+            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard/recruiter/applications" 
+               style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.4);">
+              View Application →
+            </a>
+          </div>
+          
+          <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 40px;">
+            Review the application and take action to move forward with the candidate.
+          </p>
+          
+        </div>
+        
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 14px;">
+          <p>Best regards,<br><strong>The NaukriMili Team</strong></p>
+        </div>
+        
+      </body>
+      </html>
+    `;
+
+    return this.sendEmail({
+      to: recruiterEmail,
+      subject,
+      html
+    });
+  }
+
+  /**
+   * Send custom notification email
+   */
+  async sendCustomNotification(subject: string, body: string, recipientEmail: string, userName?: string): Promise<boolean> {
+    const name = userName || 'there';
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${subject}</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        
+        <!-- Header -->
+        <div style="text-align: center; padding: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
+            📬 Notification
+          </h1>
+        </div>
+        
+        <!-- Content -->
+        <div style="background-color: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+          
+          <h2 style="color: #1f2937; margin-top: 0; font-size: 24px;">Hello ${name}! 👋</h2>
+          
+          <div style="background-color: #f3f4f6; padding: 25px; border-radius: 8px; margin: 30px 0;">
+            <div style="color: #4b5563; font-size: 16px; line-height: 1.8;">
+              ${body.replace(/\n/g, '<br>')}
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin: 35px 0;">
+            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard" 
+               style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);">
+              Visit Dashboard →
+            </a>
+          </div>
+          
+        </div>
+        
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 14px;">
+          <p>Best regards,<br><strong>The NaukriMili Team</strong></p>
+        </div>
+        
+      </body>
+      </html>
+    `;
+
+    return this.sendEmail({
+      to: recipientEmail,
+      subject: `📬 ${subject}`,
+      html
+    });
+  }
+
+  /**
+   * Test email delivery with Gmail API endpoint
+   */
+  async testEmailDelivery(): Promise<{ success: boolean; message: string; details?: any }> {
+    if (!this.isReady()) {
+      return {
+        success: false,
+        message: 'Gmail OAuth2 service not initialized'
+      };
+    }
+
+    try {
+      const testConfig: EmailConfig = {
+        to: process.env.GMAIL_SENDER?.match(/<(.*?)>/)?.[1] || 'naukrimili@naukrimili.com',
+        subject: '🧪 Gmail OAuth2 Test Email',
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2>✅ Gmail OAuth2 Test Successful!</h2>
+            <p>This email confirms that your Gmail OAuth2 integration is working correctly.</p>
+            <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+            <p><strong>Service:</strong> NaukriMili Gmail OAuth2 Mailer</p>
+          </div>
+        `
+      };
+
+      const result = await this.sendEmail(testConfig);
+      
+      return {
+        success: result,
+        message: result ? 'Test email sent successfully' : 'Failed to send test email',
+        details: {
+          endpoint: 'gmail/v1/users/me/messages/send',
+          timestamp: new Date().toISOString()
+        }
+      };
+
+    } catch (error: any) {
+      return {
+        success: false,
+        message: `Test email failed: ${error.message}`,
+        details: {
+          error: error.message,
+          code: error.code
+        }
+      };
+    }
   }
 
   /**

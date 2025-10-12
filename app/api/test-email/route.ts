@@ -110,11 +110,22 @@ export async function POST(request: NextRequest) {
         };
         break;
 
+      case 'gmail_api_test':
+        const testResult = await mailerService.testEmailDelivery();
+        emailSent = testResult.success;
+        emailDetails = {
+          type: 'Gmail API Endpoint Test',
+          recipient: process.env.GMAIL_SENDER?.match(/<(.*?)>/)?.[1] || 'naukrimili@naukrimili.com',
+          subject: 'Gmail OAuth2 Test Email',
+          details: testResult
+        };
+        break;
+
       default:
         return NextResponse.json({
           success: false,
           error: 'Invalid email type. Supported types: welcome, application_notification, application_status, custom',
-          supportedTypes: ['welcome', 'application_notification', 'application_status', 'custom']
+          supportedTypes: ['welcome', 'application_notification', 'application_status', 'custom', 'gmail_api_test']
         }, { status: 400 });
     }
 
