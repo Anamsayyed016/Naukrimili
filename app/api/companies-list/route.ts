@@ -63,12 +63,12 @@ export async function GET(request: NextRequest) {
         logo: true,
         location: true,
         industry: true,
-        sector: true, // Include sector field
+        sector: true,
         website: true,
-        careerPageUrl: true, // Include career page URL
+        careerPageUrl: true,
         size: true,
         founded: true,
-        isGlobal: true, // Include isGlobal field
+        isGlobal: true,
         _count: {
           select: {
             jobs: {
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: [
-        { jobs: { _count: 'desc' } }, // Sort by job count first
+        { jobs: { _count: 'desc' } },
         { createdAt: 'desc' }
       ],
       skip,
@@ -111,12 +111,12 @@ export async function GET(request: NextRequest) {
         logo: company.logo,
         location: company.location || '',
         industry: company.industry || '',
-        sector: company.sector || company.industry || '', // Use industry as sector fallback
+        sector: company.sector || company.industry || '',
         website: company.website,
-        careerPageUrl: company.careerPageUrl || company.website || '', // Use website as career page fallback
+        careerPageUrl: company.careerPageUrl || company.website || '',
         size: company.size,
         founded: company.founded,
-        isGlobal: company.isGlobal || false, // Default to false
+        isGlobal: company.isGlobal || false,
         jobCount: company._count.jobs
       })),
       pagination: {
