@@ -189,34 +189,39 @@ model JobBookmark {
 }
 
 model Company {
-  id           String        @id @default(cuid())
-  name         String
-  description  String?
-  logo         String?
-  website      String?
-  location     String?
-  industry     String?
-  size         String?
-  founded      Int?
-  isVerified   Boolean       @default(false)
-  isActive     Boolean       @default(true)
-  socialLinks  String?
-  createdBy    String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  benefits     String?
-  specialties  String?
-  culture      String?
-  mission      String?
-  vision       String?
-  applications Application[]
-  creator      User?         @relation(fields: [createdBy], references: [id])
-  jobs         Job[]
-  resumeViews  ResumeView[]
+  id            String        @id @default(cuid())
+  name          String
+  description   String?
+  logo          String?
+  website       String?
+  location      String?
+  industry      String?
+  size          String?
+  founded       Int?
+  isVerified    Boolean       @default(false)
+  isActive      Boolean       @default(true)
+  socialLinks   String?
+  createdBy     String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  benefits      String?
+  specialties   String?
+  culture       String?
+  mission       String?
+  vision        String?
+  isGlobal      Boolean       @default(false)
+  sector        String?
+  careerPageUrl String?
+  applications  Application[]
+  creator       User?         @relation(fields: [createdBy], references: [id])
+  jobs          Job[]
+  resumeViews   ResumeView[]
 
   @@index([createdBy])
   @@index([industry])
   @@index([location])
+  @@index([isGlobal])
+  @@index([sector])
 }
 
 model Resume {

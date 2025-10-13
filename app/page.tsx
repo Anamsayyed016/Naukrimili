@@ -19,6 +19,8 @@ interface Company {
   logo?: string | null;
   location?: string | null;
   industry?: string | null;
+  sector?: string | null;
+  isGlobal?: boolean;
   jobCount: number;
 }
 
@@ -225,6 +227,8 @@ export default async function HomePage() {
           logo: company.logo,
           location: company.location,
           industry: company.industry,
+          sector: company.industry, // Use industry as sector fallback
+          isGlobal: false, // Default to false (will be updated after migration)
           jobCount: company._count.jobs
         }));
       } catch (companyError) {
