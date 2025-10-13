@@ -244,8 +244,6 @@ export default function AIJobPostingForm() {
   const [currencySymbol, setCurrencySymbol] = useState<string>('$');
   const [currencyCode, setCurrencyCode] = useState<string>('USD');
   
-  const [formData, setFormData] = useState<JobFormData>(initialFormData);
-
   // Currency mapping based on country
   const getCurrencyByCountry = (countryCode: string) => {
     const currencyMap: { [key: string]: { symbol: string; code: string; name: string } } = {
@@ -307,11 +305,84 @@ export default function AIJobPostingForm() {
     return currencyMap[countryCode] || { symbol: '$', code: 'USD', name: 'US Dollar' };
   };
 
+  const [formData, setFormData] = useState<JobFormData>(() => {
+    const data = initialFormData;
+    // Initialize currency based on initial country
+    const currency = getCurrencyByCountry(data.country);
+    setCurrencySymbol(currency.symbol);
+    setCurrencyCode(currency.code);
+    return data;
+  });
+
+  // Function to extract country from location string
+  const extractCountryFromLocation = (locationString: string) => {
+    if (!locationString) return 'IN';
+    
+    // Check for common country indicators in the location string
+    const locationLower = locationString.toLowerCase();
+    
+    if (locationLower.includes('india') || locationLower.includes('mumbai') || locationLower.includes('delhi') || 
+        locationLower.includes('bangalore') || locationLower.includes('chennai') || locationLower.includes('kolkata') ||
+        locationLower.includes('hyderabad') || locationLower.includes('pune') || locationLower.includes('ahmedabad') ||
+        locationLower.includes('jaipur') || locationLower.includes('jaisalmer') || locationLower.includes('rajasthan')) {
+      return 'IN';
+    }
+    
+    if (locationLower.includes('united states') || locationLower.includes('usa') || locationLower.includes('us') ||
+        locationLower.includes('new york') || locationLower.includes('california') || locationLower.includes('texas') ||
+        locationLower.includes('florida') || locationLower.includes('washington')) {
+      return 'US';
+    }
+    
+    if (locationLower.includes('united kingdom') || locationLower.includes('uk') || locationLower.includes('london') ||
+        locationLower.includes('manchester') || locationLower.includes('birmingham')) {
+      return 'GB';
+    }
+    
+    if (locationLower.includes('canada') || locationLower.includes('toronto') || locationLower.includes('vancouver') ||
+        locationLower.includes('montreal')) {
+      return 'CA';
+    }
+    
+    if (locationLower.includes('australia') || locationLower.includes('sydney') || locationLower.includes('melbourne') ||
+        locationLower.includes('brisbane')) {
+      return 'AU';
+    }
+    
+    if (locationLower.includes('germany') || locationLower.includes('berlin') || locationLower.includes('munich') ||
+        locationLower.includes('hamburg')) {
+      return 'DE';
+    }
+    
+    if (locationLower.includes('france') || locationLower.includes('paris') || locationLower.includes('lyon') ||
+        locationLower.includes('marseille')) {
+      return 'FR';
+    }
+    
+    if (locationLower.includes('singapore') || locationLower.includes('sg')) {
+      return 'SG';
+    }
+    
+    if (locationLower.includes('uae') || locationLower.includes('dubai') || locationLower.includes('abu dhabi')) {
+      return 'AE';
+    }
+    
+    // Default to India for Indian locations
+    return 'IN';
+  };
+
   // Update currency when country changes
   useEffect(() => {
     const currency = getCurrencyByCountry(formData.country);
     setCurrencySymbol(currency.symbol);
     setCurrencyCode(currency.code);
+    
+    // Debug logging
+    console.log('🌍 Currency updated:', {
+      country: formData.country,
+      currency: currency,
+      location: formData.location
+    });
     
     // Show currency change notification
     if (formData.country && formData.country !== 'IN') {
@@ -321,6 +392,23 @@ export default function AIJobPostingForm() {
       });
     }
   }, [formData.country]);
+
+  // Update country when location changes manually
+  useEffect(() => {
+    if (formData.location && !formData.country) {
+      const detectedCountry = extractCountryFromLocation(formData.location);
+      if (detectedCountry !== formData.country) {
+        setFormData(prev => ({
+          ...prev,
+          country: detectedCountry
+        }));
+        console.log('🌍 Country auto-detected from location:', {
+          location: formData.location,
+          detectedCountry: detectedCountry
+        });
+      }
+    }
+  }, [formData.location, formData.country]);
 
   // AI Guidance content for different fields
   const getGuidanceContent = (field: string) => {
@@ -720,10 +808,17 @@ export default function AIJobPostingForm() {
               'Latvia': 'LV',
               'Lithuania': 'LT'
             };
-            return countryMap[countryName] || 'US';
+            return countryMap[countryName] || 'IN'; // Default to India instead of US
           };
           
           const countryCode = getCountryCode(result.country || 'India');
+          
+          // Debug logging
+          console.log('🌍 Location detected:', {
+            location: locationName,
+            country: result.country,
+            countryCode: countryCode
+          });
           
           setFormData(prev => ({
             ...prev,
@@ -1648,7 +1743,7 @@ export default function AIJobPostingForm() {
                           <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="z-50 max-h-60 overflow-y-auto">
+                          <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
                             {jobTypes.map((type) => (
                               <SelectItem key={type} value={type}>{type}</SelectItem>
                             ))}
@@ -1665,7 +1760,7 @@ export default function AIJobPostingForm() {
                           <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="z-50 max-h-60 overflow-y-auto">
+                          <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
                             {experienceLevels.map((level) => (
                               <SelectItem key={level} value={level}>{level}</SelectItem>
                             ))}
@@ -1692,11 +1787,11 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select department" />
                             </SelectTrigger>
-                            <SelectContent className="z-50 max-h-60 overflow-y-auto">
-                              {departments.map((dept) => (
-                                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                              ))}
-                            </SelectContent>
+                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                    {departments.map((dept) => (
+                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                    ))}
+                  </SelectContent>
                           </Select>
                         </div>
 
@@ -1710,11 +1805,11 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select industry" />
                             </SelectTrigger>
-                            <SelectContent className="z-50 max-h-60 overflow-y-auto">
-                              {industries.map((industry) => (
-                                <SelectItem key={industry} value={industry}>{industry}</SelectItem>
-                              ))}
-                            </SelectContent>
+                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                    {industries.map((industry) => (
+                      <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                    ))}
+                  </SelectContent>
                           </Select>
                         </div>
 
@@ -1728,11 +1823,11 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select work schedule" />
                             </SelectTrigger>
-                            <SelectContent className="z-50 max-h-60 overflow-y-auto">
-                              {workSchedules.map((schedule) => (
-                                <SelectItem key={schedule} value={schedule}>{schedule}</SelectItem>
-                              ))}
-                            </SelectContent>
+                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                    {workSchedules.map((schedule) => (
+                      <SelectItem key={schedule} value={schedule}>{schedule}</SelectItem>
+                    ))}
+                  </SelectContent>
                           </Select>
                         </div>
 
@@ -1746,11 +1841,11 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select education level" />
                             </SelectTrigger>
-                            <SelectContent className="z-50 max-h-60 overflow-y-auto">
-                              {educationLevels.map((level) => (
-                                <SelectItem key={level} value={level}>{level}</SelectItem>
-                              ))}
-                            </SelectContent>
+                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                    {educationLevels.map((level) => (
+                      <SelectItem key={level} value={level}>{level}</SelectItem>
+                    ))}
+                  </SelectContent>
                           </Select>
                         </div>
                       </div>
@@ -2336,7 +2431,7 @@ export default function AIJobPostingForm() {
                             <strong>💡 Tip:</strong> You can type any city name, or use the location button to detect your current location automatically.
                           </div>
                           {locationSuggestions.length > 0 && (
-                            <div className="absolute top-full left-0 right-0 bg-white border-2 border-slate-200 rounded-xl shadow-2xl z-20 mt-2 max-h-60 overflow-y-auto">
+                            <div className="absolute top-full left-0 right-0 bg-white border-2 border-slate-200 rounded-xl shadow-2xl z-[9999] mt-2 max-h-60 overflow-y-auto">
                               <div className="p-2">
                                 <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">
                                   Suggested Locations
@@ -2404,10 +2499,17 @@ export default function AIJobPostingForm() {
                                           'Latvia': 'LV',
                                           'Lithuania': 'LT'
                                         };
-                                        return countryMap[countryName] || 'US';
+                                        return countryMap[countryName] || 'IN'; // Default to India instead of US
                                       };
                                       
                                       const countryCode = getCountryCode(location.country);
+                                      
+                                      // Debug logging
+                                      console.log('📍 Location selected:', {
+                                        location: location.name,
+                                        country: location.country,
+                                        countryCode: countryCode
+                                      });
                                       
                                       setFormData(prev => ({
                                         ...prev,
@@ -2493,7 +2595,7 @@ export default function AIJobPostingForm() {
                             
                             {/* Location suggestions dropdown */}
                             {locationSuggestions.length > 0 && (
-                              <div className="bg-white border border-slate-200 rounded-lg shadow-lg z-10">
+                              <div className="bg-white border border-slate-200 rounded-lg shadow-lg z-[9999]">
                                 {locationSuggestions.map((location, index) => (
                                   <button
                                     key={index}
@@ -2620,6 +2722,12 @@ export default function AIJobPostingForm() {
                           <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                           <span>Example: {currencySymbol}50,000 - {currencySymbol}70,000 per year</span>
                         </div>
+                        {formData.location && (
+                          <div className="mt-1 text-xs text-amber-600 flex items-center gap-2 bg-amber-50 p-2 rounded-lg border border-amber-200">
+                            <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>
+                            <span>Location detected: {formData.location} → {getCurrencyByCountry(formData.country).name}</span>
+                          </div>
+                        )}
                       </div>
 
                       <div>
