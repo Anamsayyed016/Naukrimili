@@ -728,39 +728,51 @@ async function seedGlobalCompanies() {
     
     for (const companyData of globalCompanies) {
       try {
-        // Use upsert to avoid duplicates
-        const result = await prisma.company.upsert({
-          where: { 
-            name: companyData.name 
-          },
-          update: {
-            // Update existing company with new fields
-            isGlobal: companyData.isGlobal,
-            sector: companyData.sector,
-            careerPageUrl: companyData.careerPageUrl,
-            description: companyData.description,
-            logo: companyData.logo,
-            website: companyData.website,
-            location: companyData.location,
-            industry: companyData.industry,
-            size: companyData.size,
-            founded: companyData.founded,
-            isVerified: companyData.isVerified
-          },
-          create: companyData
+        // Check if company already exists
+        const existingCompany = await prisma.company.findFirst({
+          where: {
+            name: companyData.name
+          }
         });
+
+        let result;
+        if (existingCompany) {
+          // Update existing company
+          result = await prisma.company.update({
+            where: {
+              id: existingCompany.id
+            },
+            data: {
+              isGlobal: companyData.isGlobal,
+              sector: companyData.sector,
+              careerPageUrl: companyData.careerPageUrl,
+              description: companyData.description,
+              logo: companyData.logo,
+              website: companyData.website,
+              location: companyData.location,
+              industry: companyData.industry,
+              size: companyData.size,
+              founded: companyData.founded,
+              isVerified: false // Set to false so they need admin approval
+            }
+          });
+        } else {
+          // Create new company
+          result = await prisma.company.create({
+            data: {
+              ...companyData,
+              isVerified: false // Set to false so they need admin approval
+            }
+          });
+        }
         
         // Check if it was created or updated
-        const existing = await prisma.company.findFirst({
-          where: { name: companyData.name }
-        });
-        
-        if (existing && existing.createdAt.getTime() === result.createdAt.getTime()) {
-          createdCount++;
-          console.log(`   ✅ Created: ${companyData.name} (${companyData.sector})`);
-        } else {
+        if (existingCompany) {
           updatedCount++;
           console.log(`   🔄 Updated: ${companyData.name} (${companyData.sector})`);
+        } else {
+          createdCount++;
+          console.log(`   ✅ Created: ${companyData.name} (${companyData.sector})`);
         }
         
       } catch (error) {
