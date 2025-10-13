@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface DynamicResumeData {
   personalInformation: {
@@ -31,31 +32,79 @@ export interface DynamicResumeData {
 
 export class DynamicResumeAI {
   private openai: OpenAI | null;
+  private gemini: GoogleGenerativeAI | null;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      console.warn('⚠️ OPENAI_API_KEY not found. AI features will be disabled.');
+    // Initialize OpenAI
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (!openaiKey || openaiKey.includes('your_')) {
+      console.warn('⚠️ OPENAI_API_KEY not found. OpenAI features will be disabled.');
       this.openai = null;
     } else {
       this.openai = new OpenAI({
-        apiKey: apiKey,
+        apiKey: openaiKey,
       });
+      console.log('✅ DynamicResumeAI: OpenAI initialized');
+    }
+
+    // Initialize Gemini as fallback
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (!geminiKey || geminiKey.includes('your_')) {
+      console.warn('⚠️ GEMINI_API_KEY not found. Gemini fallback will be disabled.');
+      this.gemini = null;
+    } else {
+      this.gemini = new GoogleGenerativeAI(geminiKey);
+      console.log('✅ DynamicResumeAI: Gemini initialized as fallback');
+    }
+
+    if (!this.openai && !this.gemini) {
+      console.warn('⚠️ No AI providers available. Using fallback extraction.');
     }
   }
 
   /**
-   * Extract structured data from resume text using OpenAI
+   * Extract structured data from resume text using AI (OpenAI with Gemini fallback)
    */
   async parseResumeText(resumeText: string): Promise<DynamicResumeData> {
-    try {
-      // Check if OpenAI is available
-      if (!this.openai) {
-        console.log('⚠️ OpenAI not available, using fallback parsing...');
-        return this.createFallbackData(resumeText);
+    // Try OpenAI first if available
+    if (this.openai) {
+      try {
+        console.log('🤖 Starting dynamic resume parsing with OpenAI...');
+        return await this.parseWithOpenAI(resumeText);
+      } catch (error) {
+        console.error('❌ OpenAI parsing failed:', error);
+        // Try Gemini fallback
+        if (this.gemini) {
+          console.log('🔄 Falling back to Gemini...');
+          try {
+            return await this.parseWithGemini(resumeText);
+          } catch (geminiError) {
+            console.error('❌ Gemini parsing also failed:', geminiError);
+          }
+        }
       }
+    } else if (this.gemini) {
+      // If OpenAI not available, try Gemini directly
+      try {
+        console.log('🤖 Starting dynamic resume parsing with Gemini...');
+        return await this.parseWithGemini(resumeText);
+      } catch (error) {
+        console.error('❌ Gemini parsing failed:', error);
+      }
+    }
 
-      console.log('🤖 Starting dynamic resume parsing with OpenAI...');
+    // All AI providers failed, use fallback
+    console.log('⚠️ All AI providers failed, using fallback parsing...');
+    return this.createFallbackData(resumeText);
+  }
+
+  /**
+   * Parse resume using OpenAI
+   */
+  private async parseWithOpenAI(resumeText: string): Promise<DynamicResumeData> {
+    if (!this.openai) {
+      throw new Error('OpenAI not available');
+    }
 
       const prompt = `
 You are an AI Resume Parser and ATS Optimization Assistant.
@@ -152,14 +201,87 @@ Return only the JSON response:`;
       // Validate and enhance the parsed data
       const validatedData = this.validateAndEnhanceData(parsedData);
       
-      console.log('✅ Dynamic resume parsing completed with ATS score:', validatedData.atsScore);
-      return validatedData;
 
-    } catch (error) {
-      console.error('❌ Dynamic resume parsing failed:', error);
-      // Return fallback data instead of throwing error
-      return this.createFallbackData(resumeText);
+      console.log('✅ OpenAI parsing completed with ATS score:', validatedData.atsScore);
+      return validatedData;
+  }
+
+  /**
+   * Parse resume using Gemini
+   */
+  private async parseWithGemini(resumeText: string): Promise<DynamicResumeData> {
+    if (!this.gemini) {
+      throw new Error('Gemini not available');
     }
+
+    const model = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const prompt = `
+You are an AI Resume Parser and ATS Optimization Assistant.
+
+Extract structured data from resume text and return valid JSON matching this schema:
+
+{
+  "personalInformation": {
+    "fullName": "",
+    "email": "",
+    "phone": "",
+    "location": ""
+  },
+  "professionalInformation": {
+    "jobTitle": "",
+    "expectedSalary": ""
+  },
+  "skills": [],
+  "education": [
+    {
+      "degree": "",
+      "institution": "",
+      "year": ""
+    }
+  ],
+  "experience": [
+    {
+      "role": "",
+      "company": "",
+      "duration": "",
+      "achievements": []
+    }
+  ],
+  "certifications": [],
+  "recommendedJobTitles": [],
+  "atsScore": 0,
+  "improvementTips": []
+}
+
+Resume text:
+${resumeText}
+
+Return ONLY the JSON, no other text.`;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+
+    if (!responseText) {
+      throw new Error('No response from Gemini');
+    }
+
+    console.log('🤖 Raw Gemini response received, length:', responseText.length);
+
+    // Clean and parse JSON
+    const cleanedResponse = responseText.trim()
+      .replace(/^```json\s*/, '')
+      .replace(/\s*```$/, '')
+      .replace(/^```\s*/, '')
+      .replace(/\s*```$/, '');
+
+    const parsedData: DynamicResumeData = JSON.parse(cleanedResponse);
+
+    // Validate and enhance the parsed data
+    const validatedData = this.validateAndEnhanceData(parsedData);
+
+    console.log('✅ Gemini parsing completed with ATS score:', validatedData.atsScore);
+    return validatedData;
   }
 
   /**

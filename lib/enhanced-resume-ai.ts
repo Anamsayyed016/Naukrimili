@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface ExtractedResumeData {
   fullName: string;
@@ -66,31 +67,79 @@ export interface ResumeAnalysis {
 
 export class EnhancedResumeAI {
   private openai: OpenAI | null;
+  private gemini: GoogleGenerativeAI | null;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      console.warn('⚠️ OPENAI_API_KEY not found. AI features will be disabled.');
+    // Initialize OpenAI
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (!openaiKey || openaiKey.includes('your_')) {
+      console.warn('⚠️ OPENAI_API_KEY not found. OpenAI features will be disabled.');
       this.openai = null;
     } else {
       this.openai = new OpenAI({
-        apiKey: apiKey,
+        apiKey: openaiKey,
       });
+      console.log('✅ EnhancedResumeAI: OpenAI initialized');
+    }
+
+    // Initialize Gemini as fallback
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (!geminiKey || geminiKey.includes('your_')) {
+      console.warn('⚠️ GEMINI_API_KEY not found. Gemini fallback will be disabled.');
+      this.gemini = null;
+    } else {
+      this.gemini = new GoogleGenerativeAI(geminiKey);
+      console.log('✅ EnhancedResumeAI: Gemini initialized as fallback');
+    }
+
+    if (!this.openai && !this.gemini) {
+      console.warn('⚠️ No AI providers available. Using fallback extraction.');
     }
   }
 
   /**
-   * Extract comprehensive resume data using OpenAI
+   * Extract comprehensive resume data using AI (OpenAI with Gemini fallback)
    */
   async extractResumeData(resumeText: string): Promise<ExtractedResumeData> {
-    try {
-      // Check if OpenAI is available
-      if (!this.openai) {
-        console.log('⚠️ OpenAI not available, using fallback extraction...');
-        return this.createFallbackProfile(resumeText);
+    // Try OpenAI first if available
+    if (this.openai) {
+      try {
+        console.log('🤖 Starting AI-powered resume extraction with OpenAI...');
+        return await this.extractWithOpenAI(resumeText);
+      } catch (error) {
+        console.error('❌ OpenAI extraction failed:', error);
+        // Try Gemini fallback
+        if (this.gemini) {
+          console.log('🔄 Falling back to Gemini...');
+          try {
+            return await this.extractWithGemini(resumeText);
+          } catch (geminiError) {
+            console.error('❌ Gemini extraction also failed:', geminiError);
+          }
+        }
       }
+    } else if (this.gemini) {
+      // If OpenAI not available, try Gemini directly
+      try {
+        console.log('🤖 Starting AI-powered resume extraction with Gemini...');
+        return await this.extractWithGemini(resumeText);
+      } catch (error) {
+        console.error('❌ Gemini extraction failed:', error);
+      }
+    }
 
-      console.log('🤖 Starting AI-powered resume extraction...');
+    // All AI providers failed, use fallback
+    console.log('⚠️ All AI providers failed, using fallback extraction...');
+    return this.createFallbackProfile(resumeText);
+  }
+
+  /**
+   * Extract resume data using OpenAI
+   */
+  private async extractWithOpenAI(resumeText: string): Promise<ExtractedResumeData> {
+    if (!this.openai) {
+      throw new Error('OpenAI not available');
+    }
 
       const resumeAssistantPrompt = `
 ROLE: 
@@ -204,13 +253,95 @@ ${resumeText}
         confidence,
         rawText: resumeText
       };
+  }
 
-    } catch (error) {
-      console.error('❌ AI extraction failed:', error);
-      
-      // Fallback to basic extraction
-      return this.createFallbackProfile(resumeText);
+  /**
+   * Extract resume data using Gemini
+   */
+  private async extractWithGemini(resumeText: string): Promise<ExtractedResumeData> {
+    if (!this.gemini) {
+      throw new Error('Gemini not available');
     }
+
+    const model = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const resumeAssistantPrompt = `
+You are "ResumeAI", an enterprise-grade Resume Autofill & Career Assistant.
+
+TASK: Extract structured data from the resume text and return ONLY valid JSON.
+
+OUTPUT FORMAT (strict JSON only, no explanations):
+{
+  "fullName": "",
+  "email": "",
+  "phone": "",
+  "location": "",
+  "linkedin": "",
+  "portfolio": "",
+  "summary": "",
+  "skills": [],
+  "experience": [
+    {
+      "company": "",
+      "position": "",
+      "location": "",
+      "startDate": "",
+      "endDate": "",
+      "current": false,
+      "description": "",
+      "achievements": []
+    }
+  ],
+  "education": [
+    {
+      "institution": "",
+      "degree": "",
+      "field": "",
+      "startDate": "",
+      "endDate": "",
+      "gpa": "",
+      "description": ""
+    }
+  ],
+  "projects": [],
+  "certifications": [],
+  "languages": [],
+  "expectedSalary": "",
+  "preferredJobType": "",
+  "confidence": 0,
+  "atsSuggestions": [],
+  "jobSuggestions": []
+}
+
+Resume text:
+${resumeText}
+
+Return ONLY the JSON, no other text.`;
+
+    const result = await model.generateContent(resumeAssistantPrompt);
+    const response = result.response.text();
+
+    if (!response) {
+      throw new Error('No response from Gemini');
+    }
+
+    // Clean and parse JSON
+    const cleanedResponse = response.trim()
+      .replace(/^```json\s*/, '')
+      .replace(/\s*```$/, '')
+      .replace(/^```\s*/, '')
+      .replace(/\s*```$/, '');
+
+    const extractedData = JSON.parse(cleanedResponse);
+    const confidence = this.calculateConfidence(extractedData);
+
+    console.log('✅ Gemini extraction completed with confidence:', confidence);
+
+    return {
+      ...extractedData,
+      confidence,
+      rawText: resumeText
+    };
   }
 
   /**
