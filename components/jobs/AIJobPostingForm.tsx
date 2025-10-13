@@ -60,6 +60,20 @@ interface JobFormData {
   multipleLocations: string[];
   radiusDistance: number;
   radiusCenter: string;
+  // Enhanced fields
+  contactEmail: string;
+  contactPhone: string;
+  hidePhoneNumber: boolean;
+  department: string;
+  industry: string;
+  workSchedule: string;
+  visaSponsorship: boolean;
+  equityOffered: boolean;
+  minExperience: string;
+  maxExperience: string;
+  educationLevel: string;
+  languageRequirements: string[];
+  travelRequired: boolean;
 }
 
 interface AISuggestion {
@@ -67,6 +81,8 @@ interface AISuggestion {
   suggestions: string[];
   confidence: number;
   reasoning: string;
+  approved?: boolean;
+  pending?: boolean;
 }
 
 interface LocationOption {
@@ -95,6 +111,33 @@ const experienceLevels = [
   'Senior Level (6-10 years)',
   'Lead (11-15 years)',
   'Executive (15+ years)'
+];
+
+const departments = [
+  'Engineering', 'Product', 'Design', 'Marketing', 'Sales', 
+  'Operations', 'Finance', 'Human Resources', 'Customer Success',
+  'Data Science', 'Security', 'DevOps', 'Quality Assurance'
+];
+
+const industries = [
+  'Technology', 'Healthcare', 'Finance', 'Education', 'E-commerce',
+  'Manufacturing', 'Retail', 'Consulting', 'Media & Entertainment',
+  'Real Estate', 'Transportation', 'Energy', 'Government', 'Non-profit'
+];
+
+const workSchedules = [
+  'Standard (9 AM - 5 PM)', 'Flexible Hours', 'Shift Work',
+  'Part-time Schedule', 'Compressed Workweek', 'On-call'
+];
+
+const educationLevels = [
+  'High School', 'Associate Degree', 'Bachelor\'s Degree',
+  'Master\'s Degree', 'PhD', 'No Formal Education Required'
+];
+
+const languages = [
+  'English', 'Hindi', 'Spanish', 'French', 'German', 'Chinese',
+  'Japanese', 'Korean', 'Portuguese', 'Arabic', 'Russian'
 ];
 
 const popularSkills = [
@@ -155,7 +198,21 @@ export default function AIJobPostingForm() {
       locationType: 'single',
       multipleLocations: [],
       radiusDistance: 25,
-      radiusCenter: ''
+      radiusCenter: '',
+      // Enhanced fields
+      contactEmail: '',
+      contactPhone: '',
+      hidePhoneNumber: false,
+      department: '',
+      industry: 'Technology',
+      workSchedule: 'Standard (9 AM - 5 PM)',
+      visaSponsorship: false,
+      equityOffered: false,
+      minExperience: '0',
+      maxExperience: '5',
+      educationLevel: 'Bachelor\'s Degree',
+      languageRequirements: ['English'],
+      travelRequired: false
     };
   }, []);
 
@@ -587,7 +644,12 @@ export default function AIJobPostingForm() {
       title: '', description: '', requirements: '', location: '', city: '', state: '', country: 'IN',
       jobType: 'Full-time', experienceLevel: 'Entry Level (0-2 years)', salary: '', skills: [], benefits: '',
       isRemote: false, isHybrid: false, isUrgent: false, isFeatured: false, applicationDeadline: '', openings: '1',
-      locationType: 'single' as const, multipleLocations: [], radiusDistance: 25, radiusCenter: ''
+      locationType: 'single' as const, multipleLocations: [], radiusDistance: 25, radiusCenter: '',
+      // Enhanced fields
+      contactEmail: '', contactPhone: '', hidePhoneNumber: false, department: '', industry: 'Technology',
+      workSchedule: 'Standard (9 AM - 5 PM)', visaSponsorship: false, equityOffered: false,
+      minExperience: '0', maxExperience: '5', educationLevel: 'Bachelor\'s Degree',
+      languageRequirements: ['English'], travelRequired: false
     };
     setFormData(resetFormData);
     setCurrentStep(1);
@@ -795,7 +857,12 @@ export default function AIJobPostingForm() {
           title: '', description: '', requirements: '', location: '', city: '', state: '', country: 'IN',
           jobType: 'Full-time', experienceLevel: 'Entry Level (0-2 years)', salary: '', skills: [], benefits: '',
           isRemote: false, isHybrid: false, isUrgent: false, isFeatured: false, applicationDeadline: '', openings: '1',
-          locationType: 'single' as const, multipleLocations: [], radiusDistance: 25, radiusCenter: ''
+          locationType: 'single' as const, multipleLocations: [], radiusDistance: 25, radiusCenter: '',
+          // Enhanced fields
+          contactEmail: '', contactPhone: '', hidePhoneNumber: false, department: '', industry: 'Technology',
+          workSchedule: 'Standard (9 AM - 5 PM)', visaSponsorship: false, equityOffered: false,
+          minExperience: '0', maxExperience: '5', educationLevel: 'Bachelor\'s Degree',
+          languageRequirements: ['English'], travelRequired: false
         };
         setFormData(resetFormData);
         setCurrentStep(1);
@@ -976,13 +1043,8 @@ export default function AIJobPostingForm() {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                               >
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => applyAISuggestion('title', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 sm:p-4 hover:bg-white hover:border-blue-400 hover:shadow-xl transition-all duration-300 group border-blue-300 bg-white/80 text-slate-900 shadow-lg rounded-xl"
-                                >
-                                  <div className="flex items-start sm:items-center gap-3 w-full">
+                                <div className="w-full p-3 sm:p-4 border-2 border-blue-300 bg-white/80 text-slate-900 shadow-lg rounded-xl hover:shadow-xl transition-all duration-300 group">
+                                  <div className="flex items-start sm:items-center gap-3 w-full mb-3">
                                     <div className="p-2 bg-blue-300 rounded-full group-hover:bg-blue-400 transition-colors shadow-sm flex-shrink-0 mt-0.5 sm:mt-0">
                                       <Lightbulb className="h-4 w-4 text-blue-800" />
                                     </div>
@@ -991,14 +1053,39 @@ export default function AIJobPostingForm() {
                                         {suggestion}
                                       </span>
                                       <span className="text-xs text-slate-700 font-medium">
-                                        Click to apply this suggestion
+                                        Review and approve this suggestion
                                       </span>
                                     </div>
                                     <div className="text-xs text-slate-600 font-semibold bg-slate-200 px-2 py-1 rounded-full flex-shrink-0">
                                       #{idx + 1}
                                     </div>
                                   </div>
-                                </Button>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => applyAISuggestion('title', suggestion)}
+                                      className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                                    >
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                      Use This
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => {
+                                        setFieldSuggestions(prev => {
+                                          const newSuggestions = { ...prev };
+                                          delete newSuggestions['title'];
+                                          return newSuggestions;
+                                        });
+                                      }}
+                                      className="px-4 py-2 border-red-300 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                    >
+                                      <X className="h-4 w-4 mr-2" />
+                                      Dismiss
+                                    </Button>
+                                  </div>
+                                </div>
                               </motion.div>
                             ))}
                           </div>
@@ -1083,13 +1170,8 @@ export default function AIJobPostingForm() {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                               >
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => applyAISuggestion('description', suggestion)}
-                                  className="w-full text-left justify-start h-auto p-3 sm:p-4 hover:bg-white hover:border-blue-400 hover:shadow-xl transition-all duration-300 group border-blue-300 bg-white/80 text-slate-900 shadow-lg rounded-xl"
-                                >
-                                  <div className="flex items-start sm:items-center gap-3 w-full">
+                                <div className="w-full p-3 sm:p-4 border-2 border-blue-300 bg-white/80 text-slate-900 shadow-lg rounded-xl hover:shadow-xl transition-all duration-300 group">
+                                  <div className="flex items-start sm:items-center gap-3 w-full mb-3">
                                     <div className="p-2 bg-blue-300 rounded-full group-hover:bg-blue-400 transition-colors shadow-sm flex-shrink-0 mt-0.5 sm:mt-0">
                                       <Lightbulb className="h-4 w-4 text-blue-800" />
                                     </div>
@@ -1098,19 +1180,109 @@ export default function AIJobPostingForm() {
                                         {suggestion}
                                       </span>
                                       <span className="text-xs text-slate-700 font-medium">
-                                        Click to apply this suggestion
+                                        Review and approve this suggestion
                                       </span>
                                     </div>
                                     <div className="text-xs text-slate-600 font-semibold bg-slate-200 px-2 py-1 rounded-full flex-shrink-0">
                                       #{idx + 1}
                                     </div>
                                   </div>
-                                </Button>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => applyAISuggestion('description', suggestion)}
+                                      className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                                    >
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                      Use This
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => {
+                                        setFieldSuggestions(prev => {
+                                          const newSuggestions = { ...prev };
+                                          delete newSuggestions['description'];
+                                          return newSuggestions;
+                                        });
+                                      }}
+                                      className="px-4 py-2 border-red-300 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                    >
+                                      <X className="h-4 w-4 mr-2" />
+                                      Dismiss
+                                    </Button>
+                                  </div>
+                                </div>
                               </motion.div>
                             ))}
                           </div>
                         </motion.div>
                       )}
+                    </div>
+
+                    {/* Contact Information Section */}
+                    <div className="space-y-6 sm:space-y-8 mb-8">
+                      <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                        <div className="h-1 w-8 sm:w-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900">Contact Information</h3>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        {/* Contact Email */}
+                        <div className="space-y-3 sm:space-y-4">
+                          <Label className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-3">
+                            <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl shadow-lg">
+                              <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                            </div>
+                            <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Contact Email *</span>
+                          </Label>
+                          <Input
+                            type="email"
+                            value={formData.contactEmail}
+                            onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                            placeholder="hr@company.com"
+                            className="text-base sm:text-lg h-12 sm:h-14 border-2 border-slate-200 focus:border-green-500 focus:ring-4 focus:ring-green-500/20 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 bg-white text-slate-900 font-medium"
+                            required
+                          />
+                        </div>
+
+                        {/* Contact Phone */}
+                        <div className="space-y-3 sm:space-y-4">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-3">
+                              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg">
+                                <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                              </div>
+                              <span className="bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Contact Phone *</span>
+                            </Label>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id="hidePhone"
+                                checked={formData.hidePhoneNumber}
+                                onCheckedChange={(checked) => handleInputChange('hidePhoneNumber', checked)}
+                                className="data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
+                              />
+                              <Label htmlFor="hidePhone" className="text-sm text-slate-600 cursor-pointer">
+                                Hide from public
+                              </Label>
+                            </div>
+                          </div>
+                          <Input
+                            type="tel"
+                            value={formData.contactPhone}
+                            onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                            placeholder="+91 98765 43210"
+                            className="text-base sm:text-lg h-12 sm:h-14 border-2 border-slate-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 bg-white text-slate-900 font-medium"
+                            required
+                          />
+                          {formData.hidePhoneNumber && (
+                            <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                              <AlertCircle className="h-4 w-4" />
+                              <span>Phone number will not be visible to job seekers</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -1146,6 +1318,162 @@ export default function AIJobPostingForm() {
                             ))}
                           </SelectContent>
                         </Select>
+                      </div>
+                    </div>
+
+                    {/* Additional Professional Fields */}
+                    <div className="space-y-6 sm:space-y-8 mt-8">
+                      <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                        <div className="h-1 w-8 sm:w-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900">Additional Details</h3>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        {/* Department */}
+                        <div>
+                          <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
+                            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+                            Department *
+                          </Label>
+                          <Select value={formData.department} onValueChange={(value) => handleInputChange('department', value)}>
+                            <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
+                              <SelectValue placeholder="Select department" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {departments.map((dept) => (
+                                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Industry */}
+                        <div>
+                          <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
+                            <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+                            Industry *
+                          </Label>
+                          <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
+                            <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
+                              <SelectValue placeholder="Select industry" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {industries.map((industry) => (
+                                <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Work Schedule */}
+                        <div>
+                          <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
+                            <Target className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+                            Work Schedule
+                          </Label>
+                          <Select value={formData.workSchedule} onValueChange={(value) => handleInputChange('workSchedule', value)}>
+                            <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
+                              <SelectValue placeholder="Select work schedule" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {workSchedules.map((schedule) => (
+                                <SelectItem key={schedule} value={schedule}>{schedule}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Education Level */}
+                        <div>
+                          <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
+                            <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+                            Education Level
+                          </Label>
+                          <Select value={formData.educationLevel} onValueChange={(value) => handleInputChange('educationLevel', value)}>
+                            <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
+                              <SelectValue placeholder="Select education level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {educationLevels.map((level) => (
+                                <SelectItem key={level} value={level}>{level}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Experience Range */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <div>
+                          <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
+                            <Target className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+                            Min Experience (Years)
+                          </Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="50"
+                            value={formData.minExperience}
+                            onChange={(e) => handleInputChange('minExperience', e.target.value)}
+                            placeholder="0"
+                            className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
+                            <Target className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+                            Max Experience (Years)
+                          </Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="50"
+                            value={formData.maxExperience}
+                            onChange={(e) => handleInputChange('maxExperience', e.target.value)}
+                            placeholder="5"
+                            className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Additional Options */}
+                      <div className="space-y-4">
+                        <h4 className="text-base font-semibold text-slate-800">Additional Options</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="visaSponsorship"
+                              checked={formData.visaSponsorship}
+                              onCheckedChange={(checked) => handleInputChange('visaSponsorship', checked)}
+                              className="data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
+                            />
+                            <Label htmlFor="visaSponsorship" className="text-sm font-medium text-slate-700">
+                              Visa Sponsorship Available
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="equityOffered"
+                              checked={formData.equityOffered}
+                              onCheckedChange={(checked) => handleInputChange('equityOffered', checked)}
+                              className="data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
+                            />
+                            <Label htmlFor="equityOffered" className="text-sm font-medium text-slate-700">
+                              Equity/Stock Options
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="travelRequired"
+                              checked={formData.travelRequired}
+                              onCheckedChange={(checked) => handleInputChange('travelRequired', checked)}
+                              className="data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
+                            />
+                            <Label htmlFor="travelRequired" className="text-sm font-medium text-slate-700">
+                              Travel Required
+                            </Label>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1600,54 +1928,93 @@ export default function AIJobPostingForm() {
                           <MapPin className="h-5 w-5 text-blue-600" />
                           Job Location *
                         </Label>
-                        <div className="relative">
-                          <Input
-                            value={locationInput}
-                            onChange={(e) => {
-                              setLocationInput(e.target.value);
-                              getLocationSuggestions(e.target.value);
-                            }}
-                            placeholder="Search for a city or location..."
-                            className="h-12 pr-20 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={detectCurrentLocation}
-                            disabled={locationLoading}
-                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 px-3 text-xs"
-                          >
-                            {locationLoading ? (
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
-                            ) : (
-                              <Navigation className="h-3 w-3" />
-                            )}
-                          </Button>
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <Input
+                              value={locationInput}
+                              onChange={(e) => {
+                                setLocationInput(e.target.value);
+                                getLocationSuggestions(e.target.value);
+                              }}
+                              placeholder="Search for a city or location (e.g., Mumbai, Bangalore, New York)..."
+                              className="h-12 pr-20 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 bg-white text-slate-900 font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={detectCurrentLocation}
+                              disabled={locationLoading}
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 px-3 text-xs bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-700 font-medium rounded-lg"
+                            >
+                              {locationLoading ? (
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                              ) : (
+                                <Navigation className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </div>
+                          
+                          {/* Location Detection Status */}
+                          {locationLoading && (
+                            <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                              <span>Detecting your current location...</span>
+                            </div>
+                          )}
+                          
+                          {locationError && (
+                            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">
+                              <AlertCircle className="h-4 w-4" />
+                              <span>{locationError}</span>
+                            </div>
+                          )}
+                          
+                          {/* Manual Location Entry Help */}
+                          <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <strong>💡 Tip:</strong> You can type any city name, or use the location button to detect your current location automatically.
+                          </div>
                           {locationSuggestions.length > 0 && (
-                            <div className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-lg shadow-lg z-10 mt-1">
-                              {locationSuggestions.map((location, index) => (
-                                <button
-                                  key={index}
-                                  onClick={() => {
-                                    setLocationInput(location.name);
-                                    setFormData(prev => ({
-                                      ...prev,
-                                      location: location.name,
-                                      city: location.city,
-                                      state: location.state,
-                                      country: location.country
-                                    }));
-                                    setLocationSuggestions([]);
-                                  }}
-                                  className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
-                                >
-                                  <div className="font-medium">{location.name}</div>
-                                  <div className="text-sm text-slate-500">
-                                    {location.jobCount} jobs available
-                                  </div>
-                                </button>
-                              ))}
+                            <div className="absolute top-full left-0 right-0 bg-white border-2 border-slate-200 rounded-xl shadow-2xl z-20 mt-2 max-h-60 overflow-y-auto">
+                              <div className="p-2">
+                                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-2">
+                                  Suggested Locations
+                                </div>
+                                {locationSuggestions.map((location, index) => (
+                                  <button
+                                    key={index}
+                                    onClick={() => {
+                                      setLocationInput(location.name);
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        location: location.name,
+                                        city: location.city,
+                                        state: location.state,
+                                        country: location.country
+                                      }));
+                                      setLocationSuggestions([]);
+                                    }}
+                                    className="w-full text-left p-3 hover:bg-blue-50 rounded-lg transition-colors group"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className="p-2 bg-blue-100 group-hover:bg-blue-200 rounded-lg transition-colors">
+                                        <MapPin className="h-4 w-4 text-blue-600" />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-semibold text-slate-900 group-hover:text-blue-900">
+                                          {location.name}
+                                        </div>
+                                        <div className="text-sm text-slate-600 group-hover:text-blue-700">
+                                          {location.city}, {location.state}, {location.country}
+                                        </div>
+                                      </div>
+                                      <div className="text-xs font-medium text-slate-500 bg-slate-100 group-hover:bg-blue-100 px-2 py-1 rounded-full">
+                                        {location.jobCount} jobs
+                                      </div>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </div>
