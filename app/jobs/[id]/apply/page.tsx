@@ -35,6 +35,7 @@ import { useSocket } from '@/hooks/useSocket';
 import { toast } from 'sonner';
 import { parseSEOJobUrl } from '@/lib/seo-url-utils';
 import { normalizeJobData, validateJobData } from '@/lib/job-data-normalizer';
+import { formatJobSalary } from '@/lib/currency-utils';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -255,12 +256,19 @@ export default function JobApplicationPage() {
       if (job.salary) return job.salary;
       if (job.salary_formatted) return job.salary_formatted;
       if (job.salaryMin && job.salaryMax) {
-        const currency = job.salaryCurrency || '₹';
-        return `${currency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
+        return formatJobSalary({
+          salaryMin: job.salaryMin,
+          salaryMax: job.salaryMax,
+          salaryCurrency: job.salaryCurrency,
+          country: job.country
+        });
       }
       if (job.salaryMin) {
-        const currency = job.salaryCurrency || '₹';
-        return `${currency} ${job.salaryMin.toLocaleString()}+`;
+        return formatJobSalary({
+          salaryMin: job.salaryMin,
+          salaryCurrency: job.salaryCurrency,
+          country: job.country
+        });
       }
       return null;
     } catch (error) {

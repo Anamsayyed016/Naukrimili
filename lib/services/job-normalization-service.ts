@@ -270,7 +270,7 @@ export class JobNormalizationService {
   private normalizeSalary(rawJob: any): { min?: number; max?: number; currency: string; display: string } {
     let min = rawJob.salaryMin || rawJob.salary_min;
     let max = rawJob.salaryMax || rawJob.salary_max;
-    let currency = rawJob.salaryCurrency || rawJob.currency || 'USD';
+    let currency = rawJob.salaryCurrency || rawJob.currency || 'INR';
     let display = rawJob.salary || '';
 
     // Extract salary from display string if min/max not available

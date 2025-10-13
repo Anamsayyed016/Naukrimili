@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         description: body.description,
         requirements: body.requirements ? JSON.stringify([body.requirements]) : JSON.stringify([]),
         salary: body.salary,
-        salaryCurrency: body.currencyCode || 'USD',
+        salaryCurrency: body.currencyCode || 'INR',
         jobType: body.jobType,
         experienceLevel: body.experienceLevel,
         skills: JSON.stringify(body.skills || []),

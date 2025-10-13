@@ -79,11 +79,11 @@ export async function fetchFromJSearch(
         source_url: job.job_apply_link,
         postedAt: job.job_posted_at_datetime_utc,
         salary: job.job_salary ? 
-          `${job.job_salary.salary_currency || '$'} ${job.job_salary.salary_min || 0} - ${job.job_salary.salary_max || 0}` : 
+          `${job.job_salary.salary_currency || '₹'} ${job.job_salary.salary_min || 0} - ${job.job_salary.salary_max || 0}` : 
           undefined,
         salaryMin: job.job_salary?.salary_min,
         salaryMax: job.job_salary?.salary_max,
-        salaryCurrency: job.job_salary?.salary_currency || 'USD',
+        salaryCurrency: job.job_salary?.salary_currency || 'INR',
         jobType: job.job_employment_type || 'Full-time',
         experienceLevel: job.job_highlights?.Qualifications?.[0] || 'Mid Level',
         skills: job.job_highlights?.Qualifications || [],
@@ -153,7 +153,7 @@ export async function fetchFromRapidAPI(
         salary: job.salary,
         salaryMin: job.salary_min,
         salaryMax: job.salary_max,
-        salaryCurrency: job.salary_currency || 'USD',
+        salaryCurrency: job.salary_currency || 'INR',
         jobType: job.job_type || 'Full-time',
         experienceLevel: job.experience_level || 'Mid Level',
         skills: job.skills || [],

@@ -6,6 +6,7 @@ import EnhancedJobCard from '@/components/EnhancedJobCard';
 import { JobResult } from '@/types/jobs';
 import { Job } from '@/types/job';
 import EnhancedPagination from '@/components/ui/enhanced-pagination';
+import { formatJobSalary } from '@/lib/currency-utils';
 
 // Using Job interface from types/job.d.ts
 
@@ -47,16 +48,26 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
   function convertToSimpleJob(job: any): Job {
     console.log('🔄 Converting job:', { id: job.id, title: job.title, company: job.company });
     
-    // Format salary consistently
+    // Format salary consistently using proper currency formatting
     let salaryFormatted = '';
     if (job.salary) {
+      // If salary is already formatted, use it as-is
       salaryFormatted = job.salary;
     } else if (job.salaryMin && job.salaryMax) {
-      const currency = job.salaryCurrency || '₹';
-      salaryFormatted = `${currency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
+      // Use formatJobSalary for proper currency formatting
+      salaryFormatted = formatJobSalary({
+        salaryMin: job.salaryMin,
+        salaryMax: job.salaryMax,
+        salaryCurrency: job.salaryCurrency,
+        country: job.country
+      });
     } else if (job.salaryMin) {
-      const currency = job.salaryCurrency || '₹';
-      salaryFormatted = `${currency} ${job.salaryMin.toLocaleString()}+`;
+      // Use formatJobSalary for proper currency formatting
+      salaryFormatted = formatJobSalary({
+        salaryMin: job.salaryMin,
+        salaryCurrency: job.salaryCurrency,
+        country: job.country
+      });
     }
     
     return {

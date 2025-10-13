@@ -7,6 +7,7 @@ import { JobResult } from '@/types/jobs';
 import { Job } from '@/types/job';
 import EnhancedPagination from '@/components/ui/enhanced-pagination';
 import { getCountriesToFetch } from '@/lib/utils/country-detection';
+import { formatJobSalary } from '@/lib/currency-utils';
 
 // Using Job interface from types/job.d.ts
 
@@ -243,11 +244,20 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     if (job.salary) {
       salaryFormatted = job.salary;
     } else if (job.salaryMin && job.salaryMax) {
-      const currency = job.salaryCurrency || '₹';
-      salaryFormatted = `${currency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;
+      // Use formatJobSalary for proper currency formatting
+      salaryFormatted = formatJobSalary({
+        salaryMin: job.salaryMin,
+        salaryMax: job.salaryMax,
+        salaryCurrency: job.salaryCurrency,
+        country: job.country
+      });
     } else if (job.salaryMin) {
-      const currency = job.salaryCurrency || '₹';
-      salaryFormatted = `${currency} ${job.salaryMin.toLocaleString()}+`;
+      // Use formatJobSalary for proper currency formatting
+      salaryFormatted = formatJobSalary({
+        salaryMin: job.salaryMin,
+        salaryCurrency: job.salaryCurrency,
+        country: job.country
+      });
     }
 
     return {
