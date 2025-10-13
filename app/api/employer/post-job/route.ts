@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
         description: body.description,
         requirements: body.requirements ? JSON.stringify([body.requirements]) : JSON.stringify([]),
         salary: body.salary,
+        salaryCurrency: body.currencyCode || 'USD',
         jobType: body.jobType,
         experienceLevel: body.experienceLevel,
         skills: JSON.stringify(body.skills || []),
@@ -70,6 +71,9 @@ export async function POST(request: NextRequest) {
           radiusCenter: body.radiusCenter || '',
           city: body.city || '',
           state: body.state || '',
+          // Currency information
+          currencyCode: body.currencyCode || 'USD',
+          currencySymbol: body.currencySymbol || '$',
           // AI enhancement metadata
           aiEnhanced: true,
           enhancedAt: new Date().toISOString()

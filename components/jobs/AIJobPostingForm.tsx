@@ -241,8 +241,86 @@ export default function AIJobPostingForm() {
   const [activeField, setActiveField] = useState<string | null>(null);
   const [fieldSuggestions, setFieldSuggestions] = useState<{[key: string]: AISuggestion}>({});
   const [showGuidance, setShowGuidance] = useState<string | null>(null);
+  const [currencySymbol, setCurrencySymbol] = useState<string>('$');
+  const [currencyCode, setCurrencyCode] = useState<string>('USD');
   
   const [formData, setFormData] = useState<JobFormData>(initialFormData);
+
+  // Currency mapping based on country
+  const getCurrencyByCountry = (countryCode: string) => {
+    const currencyMap: { [key: string]: { symbol: string; code: string; name: string } } = {
+      'US': { symbol: '$', code: 'USD', name: 'US Dollar' },
+      'IN': { symbol: '₹', code: 'INR', name: 'Indian Rupee' },
+      'GB': { symbol: '£', code: 'GBP', name: 'British Pound' },
+      'CA': { symbol: 'C$', code: 'CAD', name: 'Canadian Dollar' },
+      'AU': { symbol: 'A$', code: 'AUD', name: 'Australian Dollar' },
+      'DE': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'FR': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'IT': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'ES': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'NL': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'JP': { symbol: '¥', code: 'JPY', name: 'Japanese Yen' },
+      'CN': { symbol: '¥', code: 'CNY', name: 'Chinese Yuan' },
+      'KR': { symbol: '₩', code: 'KRW', name: 'South Korean Won' },
+      'SG': { symbol: 'S$', code: 'SGD', name: 'Singapore Dollar' },
+      'HK': { symbol: 'HK$', code: 'HKD', name: 'Hong Kong Dollar' },
+      'AE': { symbol: 'د.إ', code: 'AED', name: 'UAE Dirham' },
+      'SA': { symbol: '﷼', code: 'SAR', name: 'Saudi Riyal' },
+      'BR': { symbol: 'R$', code: 'BRL', name: 'Brazilian Real' },
+      'MX': { symbol: '$', code: 'MXN', name: 'Mexican Peso' },
+      'RU': { symbol: '₽', code: 'RUB', name: 'Russian Ruble' },
+      'ZA': { symbol: 'R', code: 'ZAR', name: 'South African Rand' },
+      'NG': { symbol: '₦', code: 'NGN', name: 'Nigerian Naira' },
+      'EG': { symbol: '£', code: 'EGP', name: 'Egyptian Pound' },
+      'TH': { symbol: '฿', code: 'THB', name: 'Thai Baht' },
+      'MY': { symbol: 'RM', code: 'MYR', name: 'Malaysian Ringgit' },
+      'ID': { symbol: 'Rp', code: 'IDR', name: 'Indonesian Rupiah' },
+      'PH': { symbol: '₱', code: 'PHP', name: 'Philippine Peso' },
+      'VN': { symbol: '₫', code: 'VND', name: 'Vietnamese Dong' },
+      'TR': { symbol: '₺', code: 'TRY', name: 'Turkish Lira' },
+      'PL': { symbol: 'zł', code: 'PLN', name: 'Polish Zloty' },
+      'CZ': { symbol: 'Kč', code: 'CZK', name: 'Czech Koruna' },
+      'HU': { symbol: 'Ft', code: 'HUF', name: 'Hungarian Forint' },
+      'RO': { symbol: 'lei', code: 'RON', name: 'Romanian Leu' },
+      'BG': { symbol: 'лв', code: 'BGN', name: 'Bulgarian Lev' },
+      'HR': { symbol: 'kn', code: 'HRK', name: 'Croatian Kuna' },
+      'SE': { symbol: 'kr', code: 'SEK', name: 'Swedish Krona' },
+      'NO': { symbol: 'kr', code: 'NOK', name: 'Norwegian Krone' },
+      'DK': { symbol: 'kr', code: 'DKK', name: 'Danish Krone' },
+      'FI': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'CH': { symbol: 'CHF', code: 'CHF', name: 'Swiss Franc' },
+      'AT': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'BE': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'IE': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'PT': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'GR': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'LU': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'MT': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'CY': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'SK': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'SI': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'EE': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'LV': { symbol: '€', code: 'EUR', name: 'Euro' },
+      'LT': { symbol: '€', code: 'EUR', name: 'Euro' }
+    };
+    
+    return currencyMap[countryCode] || { symbol: '$', code: 'USD', name: 'US Dollar' };
+  };
+
+  // Update currency when country changes
+  useEffect(() => {
+    const currency = getCurrencyByCountry(formData.country);
+    setCurrencySymbol(currency.symbol);
+    setCurrencyCode(currency.code);
+    
+    // Show currency change notification
+    if (formData.country && formData.country !== 'IN') {
+      toast.info(`Currency updated to ${currency.name}`, {
+        description: `Salary field now uses ${currency.symbol} symbol`,
+        duration: 2000,
+      });
+    }
+  }, [formData.country]);
 
   // AI Guidance content for different fields
   const getGuidanceContent = (field: string) => {
@@ -585,12 +663,74 @@ export default function AIJobPostingForm() {
             ? `${result.city}, ${result.state || ''}, ${result.country}`.replace(/,\s*,/g, ',').replace(/,$/, '')
             : 'Current Location';
           
+          // Map country name to country code
+          const getCountryCode = (countryName: string) => {
+            const countryMap: { [key: string]: string } = {
+              'India': 'IN',
+              'United States': 'US',
+              'United Kingdom': 'GB',
+              'Canada': 'CA',
+              'Australia': 'AU',
+              'Germany': 'DE',
+              'France': 'FR',
+              'Italy': 'IT',
+              'Spain': 'ES',
+              'Netherlands': 'NL',
+              'Japan': 'JP',
+              'China': 'CN',
+              'South Korea': 'KR',
+              'Singapore': 'SG',
+              'Hong Kong': 'HK',
+              'UAE': 'AE',
+              'Saudi Arabia': 'SA',
+              'Brazil': 'BR',
+              'Mexico': 'MX',
+              'Russia': 'RU',
+              'South Africa': 'ZA',
+              'Nigeria': 'NG',
+              'Egypt': 'EG',
+              'Thailand': 'TH',
+              'Malaysia': 'MY',
+              'Indonesia': 'ID',
+              'Philippines': 'PH',
+              'Vietnam': 'VN',
+              'Turkey': 'TR',
+              'Poland': 'PL',
+              'Czech Republic': 'CZ',
+              'Hungary': 'HU',
+              'Romania': 'RO',
+              'Bulgaria': 'BG',
+              'Croatia': 'HR',
+              'Sweden': 'SE',
+              'Norway': 'NO',
+              'Denmark': 'DK',
+              'Finland': 'FI',
+              'Switzerland': 'CH',
+              'Austria': 'AT',
+              'Belgium': 'BE',
+              'Ireland': 'IE',
+              'Portugal': 'PT',
+              'Greece': 'GR',
+              'Luxembourg': 'LU',
+              'Malta': 'MT',
+              'Cyprus': 'CY',
+              'Slovakia': 'SK',
+              'Slovenia': 'SI',
+              'Estonia': 'EE',
+              'Latvia': 'LV',
+              'Lithuania': 'LT'
+            };
+            return countryMap[countryName] || 'US';
+          };
+          
+          const countryCode = getCountryCode(result.country || 'India');
+          
           setFormData(prev => ({
             ...prev,
             location: locationName,
             city: result.city || '',
             state: result.state || '',
-            country: result.country || 'IN'
+            country: countryCode
           }));
           
           setLocationInput(locationName);
@@ -976,7 +1116,10 @@ export default function AIJobPostingForm() {
         locationType: formData.locationType,
         multipleLocations: formData.multipleLocations,
         radiusDistance: formData.radiusDistance,
-        radiusCenter: formData.radiusCenter
+        radiusCenter: formData.radiusCenter,
+        // Currency information
+        currencyCode: currencyCode,
+        currencySymbol: currencySymbol
       };
       
       console.log('📤 Sending payload:', payload);
@@ -2140,6 +2283,11 @@ export default function AIJobPostingForm() {
                         <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
                           <MapPin className="h-5 w-5 text-blue-600" />
                           Job Location *
+                          {formData.country && (
+                            <span className="text-sm font-normal text-slate-500 ml-2 bg-slate-100 px-2 py-1 rounded-full">
+                              {getCurrencyByCountry(formData.country).symbol} {getCurrencyByCountry(formData.country).code}
+                            </span>
+                          )}
                         </Label>
                         <div className="space-y-3">
                           <div className="relative">
@@ -2198,12 +2346,75 @@ export default function AIJobPostingForm() {
                                     key={index}
                                     onClick={() => {
                                       setLocationInput(location.name);
+                                      
+                                      // Map country name to country code
+                                      const getCountryCode = (countryName: string) => {
+                                        const countryMap: { [key: string]: string } = {
+                                          'India': 'IN',
+                                          'United States': 'US',
+                                          'United Kingdom': 'GB',
+                                          'Canada': 'CA',
+                                          'Australia': 'AU',
+                                          'Germany': 'DE',
+                                          'France': 'FR',
+                                          'Italy': 'IT',
+                                          'Spain': 'ES',
+                                          'Netherlands': 'NL',
+                                          'Japan': 'JP',
+                                          'China': 'CN',
+                                          'South Korea': 'KR',
+                                          'Singapore': 'SG',
+                                          'Hong Kong': 'HK',
+                                          'UAE': 'AE',
+                                          'Saudi Arabia': 'SA',
+                                          'Brazil': 'BR',
+                                          'Mexico': 'MX',
+                                          'Russia': 'RU',
+                                          'South Africa': 'ZA',
+                                          'Nigeria': 'NG',
+                                          'Egypt': 'EG',
+                                          'Thailand': 'TH',
+                                          'Malaysia': 'MY',
+                                          'Indonesia': 'ID',
+                                          'Philippines': 'PH',
+                                          'Vietnam': 'VN',
+                                          'Turkey': 'TR',
+                                          'Poland': 'PL',
+                                          'Czech Republic': 'CZ',
+                                          'Hungary': 'HU',
+                                          'Romania': 'RO',
+                                          'Bulgaria': 'BG',
+                                          'Croatia': 'HR',
+                                          'Sweden': 'SE',
+                                          'Norway': 'NO',
+                                          'Denmark': 'DK',
+                                          'Finland': 'FI',
+                                          'Switzerland': 'CH',
+                                          'Austria': 'AT',
+                                          'Belgium': 'BE',
+                                          'Ireland': 'IE',
+                                          'Portugal': 'PT',
+                                          'Greece': 'GR',
+                                          'Luxembourg': 'LU',
+                                          'Malta': 'MT',
+                                          'Cyprus': 'CY',
+                                          'Slovakia': 'SK',
+                                          'Slovenia': 'SI',
+                                          'Estonia': 'EE',
+                                          'Latvia': 'LV',
+                                          'Lithuania': 'LT'
+                                        };
+                                        return countryMap[countryName] || 'US';
+                                      };
+                                      
+                                      const countryCode = getCountryCode(location.country);
+                                      
                                       setFormData(prev => ({
                                         ...prev,
                                         location: location.name,
                                         city: location.city,
                                         state: location.state,
-                                        country: location.country
+                                        country: countryCode
                                       }));
                                       setLocationSuggestions([]);
                                     }}
@@ -2386,13 +2597,29 @@ export default function AIJobPostingForm() {
                         <Label className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
                           <DollarSign className="h-5 w-5 text-blue-600" />
                           Salary Range
+                          <span className="text-sm font-normal text-slate-500 ml-2">
+                            ({currencyCode})
+                          </span>
                         </Label>
-                        <Input
-                          value={formData.salary}
-                          onChange={(e) => handleInputChange('salary', e.target.value)}
-                          placeholder="e.g., $50,000 - $70,000"
-                          className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
-                        />
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 font-medium text-lg">
+                            {currencySymbol}
+                          </div>
+                          <Input
+                            value={formData.salary}
+                            onChange={(e) => handleInputChange('salary', e.target.value)}
+                            placeholder={`e.g., ${currencySymbol}50,000 - ${currencySymbol}70,000`}
+                            className="h-12 pl-8 pr-4 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
+                          />
+                        </div>
+                        <div className="mt-2 text-xs text-slate-500 flex items-center gap-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span>Currency automatically set based on job location: {getCurrencyByCountry(formData.country).name}</span>
+                        </div>
+                        <div className="mt-1 text-xs text-slate-400 flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                          <span>Example: {currencySymbol}50,000 - {currencySymbol}70,000 per year</span>
+                        </div>
                       </div>
 
                       <div>
