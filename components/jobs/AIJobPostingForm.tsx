@@ -2391,6 +2391,21 @@ export default function AIJobPostingForm() {
                               onChange={(e) => {
                                 setLocationInput(e.target.value);
                                 getLocationSuggestions(e.target.value);
+                                
+                                // Update formData.location when user types manually
+                                setFormData(prev => ({
+                                  ...prev,
+                                  location: e.target.value
+                                }));
+                                
+                                // Auto-detect country from typed location
+                                const detectedCountry = extractCountryFromLocation(e.target.value);
+                                if (detectedCountry !== formData.country) {
+                                  setFormData(prevFormData => ({
+                                    ...prevFormData,
+                                    country: detectedCountry
+                                  }));
+                                }
                               }}
                               placeholder="Search for a city or location (e.g., Mumbai, Bangalore, New York)..."
                               className="h-12 pr-20 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 bg-white text-slate-900 font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
@@ -2430,6 +2445,12 @@ export default function AIJobPostingForm() {
                           <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
                             <strong>💡 Tip:</strong> You can type any city name, or use the location button to detect your current location automatically.
                           </div>
+                          {formData.location && formData.location.trim() !== '' && (
+                            <div className="text-xs text-green-600 flex items-center gap-2 bg-green-50 p-2 rounded-lg border border-green-200">
+                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                              <span>Location entered: {formData.location}</span>
+                            </div>
+                          )}
                           {locationSuggestions.length > 0 && (
                             <div className="absolute top-full left-0 right-0 bg-white border-2 border-slate-200 rounded-xl shadow-2xl z-[9999] mt-2 max-h-60 overflow-y-auto">
                               <div className="p-2">
@@ -2568,6 +2589,15 @@ export default function AIJobPostingForm() {
                                 onChange={(e) => {
                                   setLocationInput(e.target.value);
                                   getLocationSuggestions(e.target.value);
+                                  
+                                  // Auto-detect country from typed location for multiple cities
+                                  const detectedCountry = extractCountryFromLocation(e.target.value);
+                                  if (detectedCountry !== formData.country) {
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      country: detectedCountry
+                                    }));
+                                  }
                                 }}
                                 placeholder="Search and add cities..."
                                 className="flex-1 h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
@@ -2668,7 +2698,18 @@ export default function AIJobPostingForm() {
                           </Label>
                           <Input
                             value={formData.radiusCenter}
-                            onChange={(e) => handleInputChange('radiusCenter', e.target.value)}
+                            onChange={(e) => {
+                              handleInputChange('radiusCenter', e.target.value);
+                              
+                              // Auto-detect country from typed location for radius search
+                              const detectedCountry = extractCountryFromLocation(e.target.value);
+                              if (detectedCountry !== formData.country) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  country: detectedCountry
+                                }));
+                              }
+                            }}
                             placeholder="Enter center location for radius search..."
                             className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white text-slate-900 font-medium"
                           />
