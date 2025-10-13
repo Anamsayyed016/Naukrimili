@@ -240,8 +240,190 @@ export default function AIJobPostingForm() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [activeField, setActiveField] = useState<string | null>(null);
   const [fieldSuggestions, setFieldSuggestions] = useState<{[key: string]: AISuggestion}>({});
+  const [showGuidance, setShowGuidance] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<JobFormData>(initialFormData);
+
+  // AI Guidance content for different fields
+  const getGuidanceContent = (field: string) => {
+    const guidanceMap = {
+      title: {
+        title: "AI-Powered Job Title Suggestions",
+        icon: <Briefcase className="h-6 w-6 text-blue-600" />,
+        steps: [
+          {
+            icon: <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">1</div>,
+            text: "Type a basic job title or role description"
+          },
+          {
+            icon: <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">2</div>,
+            text: "Click the sparkle icon to get AI suggestions"
+          },
+          {
+            icon: <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">3</div>,
+            text: "Review suggestions and click 'Use This' to apply"
+          },
+          {
+            icon: <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">4</div>,
+            text: "Or continue typing manually if you prefer"
+          }
+        ],
+        tips: [
+          "AI suggestions are based on industry standards and current job market trends",
+          "You can always edit the suggested title after applying it",
+          "The more specific you are, the better the AI suggestions will be"
+        ]
+      },
+      description: {
+        title: "AI-Powered Job Description Suggestions",
+        icon: <FileText className="h-6 w-6 text-blue-600" />,
+        steps: [
+          {
+            icon: <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">1</div>,
+            text: "Start writing your job description or key requirements"
+          },
+          {
+            icon: <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">2</div>,
+            text: "Click the sparkle icon for AI-generated descriptions"
+          },
+          {
+            icon: <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">3</div>,
+            text: "Choose from multiple professional descriptions"
+          },
+          {
+            icon: <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">4</div>,
+            text: "Customize the selected description to match your needs"
+          }
+        ],
+        tips: [
+          "AI descriptions include industry-standard responsibilities and requirements",
+          "Each suggestion is tailored to the job title and experience level",
+          "You can combine multiple suggestions or use them as inspiration"
+        ]
+      }
+    };
+    
+    return guidanceMap[field as keyof typeof guidanceMap] || guidanceMap.title;
+  };
+
+  // Professional Guidance Modal Component
+  const GuidanceModal = ({ field, onClose }: { field: string; onClose: () => void }) => {
+    const guidance = getGuidanceContent(field);
+    
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 rounded-t-2xl border-b border-slate-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {guidance.icon}
+                <h2 className="text-xl font-bold text-slate-900">{guidance.title}</h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="h-8 w-8 p-0 hover:bg-slate-200 rounded-full"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="p-6 space-y-6">
+            {/* Steps */}
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Zap className="h-3 w-3 text-blue-600" />
+                </div>
+                How to Use AI Suggestions
+              </h3>
+              <div className="space-y-4">
+                {guidance.steps.map((step, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors"
+                  >
+                    {step.icon}
+                    <p className="text-slate-700 font-medium flex-1">{step.text}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tips */}
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <Lightbulb className="h-3 w-3 text-green-600" />
+                </div>
+                Pro Tips
+              </h3>
+              <div className="space-y-3">
+                {guidance.tips.map((tip, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (guidance.steps.length + index) * 0.1 }}
+                    className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-200"
+                  >
+                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-slate-700 text-sm">{tip}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Demo Section */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Bot className="h-5 w-5 text-blue-600" />
+                <span className="font-semibold text-blue-900">Quick Demo</span>
+              </div>
+              <p className="text-blue-800 text-sm">
+                Try typing something in the field above, then click the sparkle icon to see AI suggestions in action!
+              </p>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="sticky bottom-0 bg-slate-50 px-6 py-4 rounded-b-2xl border-t border-slate-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span>AI suggestions are completely optional - you can always type manually</span>
+              </div>
+              <Button
+                onClick={onClose}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+              >
+                Got it!
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  };
 
   // Instant fallback suggestions for professional feel
   const getInstantSuggestions = (field: string, value: string): AISuggestion => {
@@ -988,18 +1170,32 @@ export default function AIJobPostingForm() {
                           placeholder="e.g., Senior Software Engineer"
                           className="text-base sm:text-lg h-12 sm:h-16 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 pr-20 bg-white text-slate-900 font-medium touch-manipulation"
                         />
-                        {/* Optional AI Suggestion Button */}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => requestAISuggestions('title')}
-                          disabled={!formData.title.trim() || aiLoading}
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
-                          title="Get AI suggestions for job title"
-                        >
-                          <Sparkles className="h-4 w-4 text-blue-600" />
-                        </Button>
+                        {/* AI Suggestion and Help Buttons */}
+                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+                          {/* Help Button */}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowGuidance('title')}
+                            className="h-8 w-8 p-0 hover:bg-green-50 rounded-full"
+                            title="How to use AI suggestions"
+                          >
+                            <Lightbulb className="h-4 w-4 text-green-600" />
+                          </Button>
+                          {/* AI Suggestion Button */}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => requestAISuggestions('title')}
+                            disabled={!formData.title.trim() || aiLoading}
+                            className="h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                            title="Get AI suggestions for job title"
+                          >
+                            <Sparkles className="h-4 w-4 text-blue-600" />
+                          </Button>
+                        </div>
                         {aiLoading && activeField === 'title' && (
                           <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
@@ -1115,18 +1311,32 @@ export default function AIJobPostingForm() {
                           placeholder="Describe the role, responsibilities, and what makes this opportunity special..."
                           className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-14 text-base sm:text-lg bg-white text-slate-900 touch-manipulation resize-none"
                         />
-                        {/* Optional AI Suggestion Button */}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => requestAISuggestions('description')}
-                          disabled={!formData.description.trim() || aiLoading}
-                          className="absolute right-2 top-2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
-                          title="Get AI suggestions for job description"
-                        >
-                          <Sparkles className="h-4 w-4 text-blue-600" />
-                        </Button>
+                        {/* AI Suggestion and Help Buttons */}
+                        <div className="absolute right-2 top-2 flex gap-1">
+                          {/* Help Button */}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowGuidance('description')}
+                            className="h-8 w-8 p-0 hover:bg-green-50 rounded-full"
+                            title="How to use AI suggestions"
+                          >
+                            <Lightbulb className="h-4 w-4 text-green-600" />
+                          </Button>
+                          {/* AI Suggestion Button */}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => requestAISuggestions('description')}
+                            disabled={!formData.description.trim() || aiLoading}
+                            className="h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                            title="Get AI suggestions for job description"
+                          >
+                            <Sparkles className="h-4 w-4 text-blue-600" />
+                          </Button>
+                        </div>
                         {aiLoading && activeField === 'description' && (
                           <div className="absolute right-12 top-3">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
@@ -1295,7 +1505,7 @@ export default function AIJobPostingForm() {
                           <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="z-50 max-h-60 overflow-y-auto">
                             {jobTypes.map((type) => (
                               <SelectItem key={type} value={type}>{type}</SelectItem>
                             ))}
@@ -1312,7 +1522,7 @@ export default function AIJobPostingForm() {
                           <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="z-50 max-h-60 overflow-y-auto">
                             {experienceLevels.map((level) => (
                               <SelectItem key={level} value={level}>{level}</SelectItem>
                             ))}
@@ -1322,13 +1532,13 @@ export default function AIJobPostingForm() {
                     </div>
 
                     {/* Additional Professional Fields */}
-                    <div className="space-y-6 sm:space-y-8 mt-8">
-                      <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                    <div className="space-y-8 sm:space-y-10 mt-12 relative">
+                      <div className="flex items-center gap-3 mb-6 sm:mb-8">
                         <div className="h-1 w-8 sm:w-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
                         <h3 className="text-lg sm:text-xl font-bold text-slate-900">Additional Details</h3>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                         {/* Department */}
                         <div>
                           <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
@@ -1339,7 +1549,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select department" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="z-50 max-h-60 overflow-y-auto">
                               {departments.map((dept) => (
                                 <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                               ))}
@@ -1357,7 +1567,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select industry" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="z-50 max-h-60 overflow-y-auto">
                               {industries.map((industry) => (
                                 <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                               ))}
@@ -1375,7 +1585,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select work schedule" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="z-50 max-h-60 overflow-y-auto">
                               {workSchedules.map((schedule) => (
                                 <SelectItem key={schedule} value={schedule}>{schedule}</SelectItem>
                               ))}
@@ -1393,7 +1603,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select education level" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="z-50 max-h-60 overflow-y-auto">
                               {educationLevels.map((level) => (
                                 <SelectItem key={level} value={level}>{level}</SelectItem>
                               ))}
@@ -1403,7 +1613,7 @@ export default function AIJobPostingForm() {
                       </div>
 
                       {/* Experience Range */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                         <div>
                           <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
                             <Target className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
@@ -1437,39 +1647,42 @@ export default function AIJobPostingForm() {
                       </div>
 
                       {/* Additional Options */}
-                      <div className="space-y-4">
-                        <h4 className="text-base font-semibold text-slate-800">Additional Options</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex items-center space-x-2">
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-3">
+                          <div className="h-1 w-8 sm:w-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+                          <h4 className="text-lg font-bold text-slate-900">Additional Options</h4>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <div className="flex items-center space-x-3 p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
                             <Checkbox
                               id="visaSponsorship"
                               checked={formData.visaSponsorship}
                               onCheckedChange={(checked) => handleInputChange('visaSponsorship', checked)}
-                              className="data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
+                              className="data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500 flex-shrink-0"
                             />
-                            <Label htmlFor="visaSponsorship" className="text-sm font-medium text-slate-700">
+                            <Label htmlFor="visaSponsorship" className="text-sm font-semibold text-slate-700 cursor-pointer flex-1">
                               Visa Sponsorship Available
                             </Label>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-3 p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">
                             <Checkbox
                               id="equityOffered"
                               checked={formData.equityOffered}
                               onCheckedChange={(checked) => handleInputChange('equityOffered', checked)}
-                              className="data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
+                              className="data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500 flex-shrink-0"
                             />
-                            <Label htmlFor="equityOffered" className="text-sm font-medium text-slate-700">
+                            <Label htmlFor="equityOffered" className="text-sm font-semibold text-slate-700 cursor-pointer flex-1">
                               Equity/Stock Options
                             </Label>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-3 p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors sm:col-span-2 lg:col-span-1">
                             <Checkbox
                               id="travelRequired"
                               checked={formData.travelRequired}
                               onCheckedChange={(checked) => handleInputChange('travelRequired', checked)}
-                              className="data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500"
+                              className="data-[state=checked]:bg-indigo-500 data-[state=checked]:border-indigo-500 flex-shrink-0"
                             />
-                            <Label htmlFor="travelRequired" className="text-sm font-medium text-slate-700">
+                            <Label htmlFor="travelRequired" className="text-sm font-semibold text-slate-700 cursor-pointer flex-1">
                               Travel Required
                             </Label>
                           </div>
@@ -2372,6 +2585,16 @@ export default function AIJobPostingForm() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Guidance Modal */}
+      <AnimatePresence>
+        {showGuidance && (
+          <GuidanceModal
+            field={showGuidance}
+            onClose={() => setShowGuidance(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
