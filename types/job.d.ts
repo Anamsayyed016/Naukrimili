@@ -1,5 +1,5 @@
 export interface Job {
-  id: string;
+  id: string | number; // Support both string and number IDs for external jobs
   title: string;
   company: string;
   location: string;

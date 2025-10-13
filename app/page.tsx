@@ -2,8 +2,8 @@ import HomePageClient from './HomePageClient';
 import { prisma } from '@/lib/prisma';
 // FORCE HASH CHANGE - Build timestamp: 2025-01-19 15:30:00
 
-interface Job {
-  id: number;
+interface HomePageJob {
+  id: number | string;
   title: string;
   company: string | null;
   location: string | null;
@@ -24,7 +24,7 @@ interface Company {
 
 export default async function HomePage() {
   // Fetch featured jobs using the API endpoint for better reliability
-  let featuredJobs: Job[] = [];
+  let featuredJobs: HomePageJob[] = [];
   let topCompanies: Company[] = [];
 
   try {
@@ -55,17 +55,17 @@ export default async function HomePage() {
     });
 
     if (dbFeaturedJobs.length > 0) {
-      featuredJobs = dbFeaturedJobs.map(job => ({
-        id: job.id,
-        title: job.title,
-        company: job.company,
-        location: job.location,
-        salary: job.salary || (job.salaryMin && job.salaryMax ? 
-          `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'INR'}` : null),
-        jobType: job.jobType,
-        isRemote: job.isRemote,
-        isFeatured: job.isFeatured
-      }));
+        featuredJobs = dbFeaturedJobs.map(job => ({
+          id: job.id,
+          title: job.title,
+          company: job.company,
+          location: job.location,
+          salary: job.salary || (job.salaryMin && job.salaryMax ? 
+            `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'INR'}` : null),
+          jobType: job.jobType,
+          isRemote: job.isRemote,
+          isFeatured: job.isFeatured
+        }));
       console.log(`✅ Fetched ${featuredJobs.length} featured jobs from database`);
     } else {
       // Fallback to API endpoint if database fails
@@ -94,57 +94,99 @@ export default async function HomePage() {
       }
     }
 
-    // If still no featured jobs, set some recent jobs as featured
-    if (featuredJobs.length === 0) {
-      console.log('🔧 Setting recent jobs as featured...');
+    // If we have fewer than 6 featured jobs, fetch external jobs to fill the gap
+    if (featuredJobs.length < 6) {
+      console.log(`🔧 Only ${featuredJobs.length} featured jobs found, fetching external jobs...`);
       
-      const recentJobs = await prisma.job.findMany({
-        where: {
-          isActive: true
-        },
-        take: 6,
-        orderBy: {
-          createdAt: 'desc'
-        },
-        select: {
-          id: true,
-          title: true,
-          company: true,
-          location: true,
-          salary: true,
-          salaryMin: true,
-          salaryMax: true,
-          salaryCurrency: true,
-          jobType: true,
-          isRemote: true,
+      try {
+        // Import external job providers
+        const { fetchFromAdzuna } = await import('@/lib/jobs/providers');
+        const { fetchFromJSearch } = await import('@/lib/jobs/dynamic-providers');
+        
+        // Fetch external jobs in parallel
+        const externalPromises = [
+          fetchFromAdzuna('software engineer', 'in', 1).catch(err => {
+            console.warn('⚠️ Adzuna API failed:', err.message);
+            return [];
+          }),
+          fetchFromJSearch('developer', 'IN', 1).catch(err => {
+            console.warn('⚠️ JSearch API failed:', err.message);
+            return [];
+          })
+        ];
+        
+        const [adzunaJobs, jsearchJobs] = await Promise.all(externalPromises);
+        const allExternalJobs = [...adzunaJobs, ...jsearchJobs];
+        
+        console.log(`📡 External APIs returned ${allExternalJobs.length} jobs (Adzuna: ${adzunaJobs.length}, JSearch: ${jsearchJobs.length})`);
+        
+        // Convert external jobs to our format and add to featured jobs
+        const externalJobsFormatted = allExternalJobs.slice(0, 6 - featuredJobs.length).map((job: any, index: number) => ({
+          id: `external-${Date.now()}-${index}` as string, // Generate unique ID for external jobs
+          title: job.title || 'Software Developer',
+          company: job.company || 'Tech Company',
+          location: job.location || 'India',
+          salary: job.salary || 'Competitive',
+          jobType: job.jobType || 'full_time',
+          isRemote: job.isRemote || false,
           isFeatured: true
-        }
-      });
-
-      if (recentJobs.length > 0) {
-        const jobsToFeature = recentJobs.slice(0, 3);
-        await prisma.job.updateMany({
+        }));
+        
+        featuredJobs = [...featuredJobs, ...externalJobsFormatted];
+        console.log(`✅ Added ${externalJobsFormatted.length} external jobs. Total: ${featuredJobs.length} featured jobs`);
+        
+      } catch (error) {
+        console.warn('⚠️ Failed to fetch external jobs:', error);
+        
+        // Fallback: set some recent jobs as featured
+        const recentJobs = await prisma.job.findMany({
           where: {
-            id: { in: jobsToFeature.map(job => job.id) }
+            isActive: true
           },
-          data: {
+          take: 6,
+          orderBy: {
+            createdAt: 'desc'
+          },
+          select: {
+            id: true,
+            title: true,
+            company: true,
+            location: true,
+            salary: true,
+            salaryMin: true,
+            salaryMax: true,
+            salaryCurrency: true,
+            jobType: true,
+            isRemote: true,
             isFeatured: true
           }
         });
 
-        featuredJobs = jobsToFeature.map(job => ({
-          id: job.id,
-          title: job.title,
-          company: job.company,
-          location: job.location,
-          salary: job.salary || (job.salaryMin && job.salaryMax ? 
-            `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'INR'}` : null),
-          jobType: job.jobType,
-          isRemote: job.isRemote,
-          isFeatured: true
-        }));
+        if (recentJobs.length > 0 && featuredJobs.length === 0) {
+          const jobsToFeature = recentJobs.slice(0, 3);
+          await prisma.job.updateMany({
+            where: {
+              id: { in: jobsToFeature.map(job => job.id) }
+            },
+            data: {
+              isFeatured: true
+            }
+          });
 
-        console.log(`✅ Set ${featuredJobs.length} jobs as featured`);
+          featuredJobs = jobsToFeature.map(job => ({
+            id: job.id,
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            salary: job.salary || (job.salaryMin && job.salaryMax ? 
+              `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'INR'}` : null),
+            jobType: job.jobType,
+            isRemote: job.isRemote,
+            isFeatured: true
+          }));
+
+          console.log(`✅ Set ${featuredJobs.length} recent jobs as featured`);
+        }
       }
     }
 

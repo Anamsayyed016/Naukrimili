@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { safeLength, safeArray } from '../lib/safe-array-utils';
 import { Search, Building, Briefcase, Users, TrendingUp, ArrowRight, Shield, Zap, Globe, Award, Clock, User, Sparkles, Upload, FileText, Building2, BriefcaseIcon, Target, Star, MapPin, Brain } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -12,8 +12,8 @@ import SEOJobLink from '../components/SEOJobLink';
 import JobSearchHero from '../components/JobSearchHero';
 import ErrorBoundary from '../components/ErrorBoundary';
 
-interface Job {
-  id: number;
+interface HomePageJob {
+  id: number | string;
   title: string;
   company: string | null;
   location: string | null;
@@ -33,7 +33,7 @@ interface Company {
 }
 
 interface HomePageClientProps {
-  featuredJobs: Job[];
+  featuredJobs: HomePageJob[];
   topCompanies: Company[];
   trendingSearches: string[];
   popularLocations: string[];
@@ -48,7 +48,7 @@ export default function HomePageClient({
   const { data: session, status } = useSession();
   const router = useRouter();
   const [locationJobCounts, setLocationJobCounts] = useState<Record<string, number>>({});
-  
+  const [visibleElements, setVisibleElements] = useState<Set<string>>(new Set());
 
   // Remove auto-redirect logic to prevent forced authentication
   // Users can stay on homepage regardless of auth status
@@ -66,8 +66,42 @@ export default function HomePageClient({
     }
   }, [session, status]);
 
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const elementId = entry.target.getAttribute('data-animate-id');
+            if (elementId) {
+              setVisibleElements(prev => new Set([...prev, elementId]));
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    // Observe all elements with data-animate-id
+    const animatedElements = document.querySelectorAll('[data-animate-id]');
+    animatedElements.forEach(el => observer.observe(el));
+
+    return () => {
+      animatedElements.forEach(el => observer.unobserve(el));
+    };
+  }, []);
+
   // Check if user is authenticated for conditional rendering
   const isAuthenticated = status === 'authenticated' && session?.user;
+
+  // Utility function to get animation delay class
+  const getDelayClass = (index: number) => {
+    const delays = ['delay-100', 'delay-200', 'delay-300', 'delay-400', 'delay-500', 'delay-600'];
+    return delays[index] || 'delay-700';
+  };
 
   // Fetch job counts for popular locations
   useEffect(() => {
@@ -196,12 +230,31 @@ export default function HomePageClient({
       </section>
 
       {/* Featured Jobs Section */}
-      <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-blue-50/30">
+      <section 
+        className={`py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-blue-50/30 transition-all duration-1000 ease-out ${
+          visibleElements.has('featured-jobs') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+        data-animate-id="featured-jobs"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-12">
             <div className="mb-6 sm:mb-0">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3">Featured Jobs</h2>
-              <p className="text-sm sm:text-base text-gray-600">Discover the latest opportunities from top companies</p>
+              <h2 
+                className={`text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 transition-all duration-1000 ease-out delay-200 ${
+                  visibleElements.has('featured-jobs-title') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
+                data-animate-id="featured-jobs-title"
+              >
+                Featured Jobs
+              </h2>
+              <p 
+                className={`text-sm sm:text-base text-gray-600 transition-all duration-1000 ease-out delay-300 ${
+                  visibleElements.has('featured-jobs-subtitle') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
+                data-animate-id="featured-jobs-subtitle"
+              >
+                Discover the latest opportunities from top companies
+              </p>
             </div>
             <Link 
               href="/jobs?unlimited=true&includeExternal=true&includeDatabase=true&limit=1000"
@@ -214,8 +267,14 @@ export default function HomePageClient({
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {safeLength(featuredJobs) > 0 ? (
-              (featuredJobs || []).map((job) => (
-                <div key={job.id} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
+              (featuredJobs || []).map((job, index) => (
+                <div 
+                  key={job.id} 
+                  className={`bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl border border-gray-100 transform transition-all duration-700 ease-out hover:scale-105 ${getDelayClass(index)} ${
+                    visibleElements.has(`job-card-${job.id}`) ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'
+                  }`}
+                  data-animate-id={`job-card-${job.id}`}
+                >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{job.title}</h3>
