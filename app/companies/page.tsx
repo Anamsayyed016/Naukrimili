@@ -70,7 +70,7 @@ export default function CompaniesPage() {
       if (selectedSector !== 'all') params.append('sector', selectedSector);
       if (selectedType !== 'all') params.append('isGlobal', selectedType === 'global' ? 'true' : 'false');
 
-      const response = await fetch(`/api/companies/public?${params.toString()}`);
+      const response = await fetch(`/api/companies-list?${params.toString()}`);
       const data = await response.json();
 
       if (data.success) {
