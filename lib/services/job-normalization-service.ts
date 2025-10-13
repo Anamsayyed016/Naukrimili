@@ -4,6 +4,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { getCurrencySymbol } from '@/lib/currency-utils';
 
 export interface NormalizedJobData {
   id: string;
@@ -290,11 +291,14 @@ export class JobNormalizationService {
     // Generate display string if not available
     if (!display && (min || max)) {
       if (min && max) {
-        display = `${currency} ${min.toLocaleString()} - ${currency} ${max.toLocaleString()}`;
+        const symbol = getCurrencySymbol(currency);
+        display = `${symbol} ${min.toLocaleString()} - ${symbol} ${max.toLocaleString()}`;
       } else if (min) {
-        display = `${currency} ${min.toLocaleString()}+`;
+        const symbol = getCurrencySymbol(currency);
+        display = `${symbol} ${min.toLocaleString()}+`;
       } else if (max) {
-        display = `Up to ${currency} ${max.toLocaleString()}`;
+        const symbol = getCurrencySymbol(currency);
+        display = `Up to ${symbol} ${max.toLocaleString()}`;
       }
     }
 

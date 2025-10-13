@@ -487,7 +487,7 @@ export function getCurrencyForCountry(country: string): string {
     'NZ': 'NZD'   // New Zealand
   };
   
-  return currencyMap[country] || 'USD';
+  return currencyMap[country] || 'INR';
 }
 
 // Format salary for display in job cards
@@ -510,15 +510,15 @@ export function formatJobSalary(
       const min = parseFloat(minStr.trim());
       const max = parseFloat(maxStr.trim());
       if (!isNaN(min) && !isNaN(max)) {
-        const currency = salaryCurrency || getCurrencyForCountry(country || 'US');
-        return formatSalaryRange(min, max, currency, country || 'US');
+        const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
+        return formatSalaryRange(min, max, currency, country || 'IN');
       }
     }
     // If it's a single number string
     const numSalary = parseFloat(salary);
     if (!isNaN(numSalary)) {
-      const currency = salaryCurrency || getCurrencyForCountry(country || 'US');
-      return formatSingleSalary(numSalary, currency, country || 'US');
+      const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
+      return formatSingleSalary(numSalary, currency, country || 'IN');
     }
     // If we can't parse it, return as-is
     return salary;
@@ -526,21 +526,21 @@ export function formatJobSalary(
   
   // If we have min and max, format as range
   if (salaryMin && salaryMax) {
-    const currency = salaryCurrency || getCurrencyForCountry(country || 'US');
-    return formatSalaryRange(salaryMin, salaryMax, currency, country || 'US');
+    const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
+    return formatSalaryRange(salaryMin, salaryMax, currency, country || 'IN');
   }
   
   // If we have just min or max, format as single value
   if (salaryMin || salaryMax) {
     const amount = salaryMin || salaryMax || 0;
-    const currency = salaryCurrency || getCurrencyForCountry(country || 'US');
-    return formatSingleSalary(amount, currency, country || 'US');
+    const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
+    return formatSingleSalary(amount, currency, country || 'IN');
   }
   
   // If we have a numeric salary, format it
   if (salary && (typeof salary === 'number' || !isNaN(Number(salary)))) {
-    const currency = salaryCurrency || getCurrencyForCountry(country || 'US');
-    return formatSingleSalary(Number(salary), currency, country || 'US');
+    const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
+    return formatSingleSalary(Number(salary), currency, country || 'IN');
   }
   
   return 'Salary not specified';
