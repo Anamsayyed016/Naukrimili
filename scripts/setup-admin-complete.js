@@ -42,7 +42,7 @@ async function setupAdminComplete() {
           phone: '+91-9876543212',
           location: 'Delhi, NCR',
           bio: 'System administrator for the job portal',
-          skills: ['System Administration', 'Database Management', 'Security'],
+          skills: '["System Administration", "Database Management", "Security"]',
           experience: '10+ years in IT administration',
           education: 'M.Tech in Computer Science',
           isVerified: true,
