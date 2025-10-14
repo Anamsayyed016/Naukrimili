@@ -398,125 +398,77 @@ export default function HomePageClient({
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    {company.id.includes('techcorp') ? (
-                      <a 
-                        href="https://careers.google.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
-                      >
-                        View Company →
-                      </a>
-                    ) : company.id.includes('innovate') ? (
-                      <a 
-                        href="https://careers.microsoft.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
-                      >
-                        View Company →
-                      </a>
-                    ) : company.id.includes('dataflow') ? (
-                      <a 
-                        href="https://www.amazon.jobs"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
-                      >
-                        View Company →
-                      </a>
-                    ) : company.id.includes('cloudtech') ? (
-                      <a 
-                        href="https://careers.google.com/cloud"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
-                      >
-                        View Company →
-                      </a>
-                    ) : company.id.includes('creative') ? (
-                      <a 
-                        href="https://careers.adobe.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
-                      >
-                        View Company →
-                      </a>
-                    ) : company.id.includes('fintech') ? (
-                      <a 
-                        href="https://jobs.jpmorgan.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
-                      >
-                        View Company →
-                      </a>
+                  <div className="flex items-center justify-end">
+                    {/* Check if it's a fallback company (with specific IDs) or real company from database */}
+                    {company.id.includes('fallback') || company.id.includes('techcorp') || company.id.includes('innovate') || company.id.includes('dataflow') || company.id.includes('cloudtech') || company.id.includes('creative') || company.id.includes('fintech') ? (
+                      // External links for fallback companies
+                      company.id.includes('techcorp') ? (
+                        <a 
+                          href="https://careers.google.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
+                        >
+                          View Company →
+                        </a>
+                      ) : company.id.includes('innovate') ? (
+                        <a 
+                          href="https://careers.microsoft.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
+                        >
+                          View Company →
+                        </a>
+                      ) : company.id.includes('dataflow') ? (
+                        <a 
+                          href="https://www.amazon.jobs"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
+                        >
+                          View Company →
+                        </a>
+                      ) : company.id.includes('cloudtech') ? (
+                        <a 
+                          href="https://careers.google.com/cloud"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
+                        >
+                          View Company →
+                        </a>
+                      ) : company.id.includes('creative') ? (
+                        <a 
+                          href="https://careers.adobe.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
+                        >
+                          View Company →
+                        </a>
+                      ) : company.id.includes('fintech') ? (
+                        <a 
+                          href="https://jobs.jpmorgan.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
+                        >
+                          View Company →
+                        </a>
+                      ) : (
+                        <span className="text-gray-500 text-sm font-medium">
+                          View Company →
+                        </span>
+                      )
                     ) : (
-                      <span className="text-gray-500 text-sm font-medium">
+                      // Internal link for real companies from database
+                      <Link 
+                        href={`/companies/${company.id}`}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium group-hover:underline"
+                      >
                         View Company →
-                      </span>
-                    )}
-                    
-                    {company.id.includes('techcorp') ? (
-                      <a 
-                        href="https://careers.google.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105"
-                      >
-                        Explore Jobs
-                      </a>
-                    ) : company.id.includes('innovate') ? (
-                      <a 
-                        href="https://careers.microsoft.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105"
-                      >
-                        Explore Jobs
-                      </a>
-                    ) : company.id.includes('dataflow') ? (
-                      <a 
-                        href="https://www.amazon.jobs"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105"
-                      >
-                        Explore Jobs
-                      </a>
-                    ) : company.id.includes('cloudtech') ? (
-                      <a 
-                        href="https://careers.google.com/cloud"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105"
-                      >
-                        Explore Jobs
-                      </a>
-                    ) : company.id.includes('creative') ? (
-                      <a 
-                        href="https://careers.adobe.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105"
-                      >
-                        Explore Jobs
-                      </a>
-                    ) : company.id.includes('fintech') ? (
-                      <a 
-                        href="https://jobs.jpmorgan.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105"
-                      >
-                        Explore Jobs
-                      </a>
-                    ) : (
-                      <span className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium">
-                        Explore Jobs
-                      </span>
+                      </Link>
                     )}
                   </div>
                 </div>
