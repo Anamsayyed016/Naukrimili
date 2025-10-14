@@ -561,6 +561,58 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }
   },
   events: {
+    async createUser({ user }) {
+      console.log('🎉 New user created via adapter:', { id: user.id, email: user.email });
+      
+      // Send welcome email and notification for new user
+      try {
+        console.log('🔔 Creating welcome notification for new user:', user.id, user.email);
+        
+        // Create a simple notification record
+        const notification = await prisma.notification.create({
+          data: {
+            userId: user.id,
+            type: 'welcome',
+            title: 'Welcome to NaukriMili!',
+            message: `Welcome ${user.name || 'User'}! Your account has been created successfully.`,
+            isRead: false
+          }
+        });
+
+        console.log('✅ Welcome notification created:', notification.id);
+
+        // Send welcome email via internal API (non-blocking)
+        const userName = user.name || 'User';
+        
+        console.log('📧 Triggering welcome email for:', user.email);
+        
+        // Fire and forget - don't block OAuth flow
+        fetch(`https://naukrimili.com/api/internal/send-welcome-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-internal-secret': 'naukrimili-secret-key-2024-production-deployment'
+          },
+          body: JSON.stringify({
+            email: user.email,
+            name: userName,
+            provider: 'google'
+          })
+        }).then(res => {
+          console.log('✅ Welcome email API response:', res.status, res.statusText);
+          return res.json();
+        }).then(data => {
+          console.log('✅ Welcome email sent successfully:', data);
+        }).catch(err => {
+          console.error('❌ Failed to trigger welcome email:', err);
+        });
+
+        console.log('✅ Welcome notification created and email triggered for new user');
+      } catch (notificationError) {
+        console.error('❌ Failed to send welcome notification:', notificationError);
+        console.error('❌ Error details:', notificationError);
+      }
+    },
     async linkAccount({ user, account, profile }) {
       console.log('🔗 Account linked:', { userId: user.id, provider: account.provider });
     },
