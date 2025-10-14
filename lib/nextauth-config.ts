@@ -78,7 +78,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: customPrismaAdapter,
   secret: nextAuthSecret,
   trustHost: true,
-  debug: process.env.NODE_ENV === 'development',
+  debug: true, // Enable debug to troubleshoot welcome email
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error',
@@ -319,8 +319,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
             // Send welcome email and notification for new user
             try {
+              console.log('🔔 Creating welcome notification for new user:', newUser.id, newUser.email);
+              
               // Create a simple notification record
-              await prisma.notification.create({
+              const notification = await prisma.notification.create({
                 data: {
                   userId: newUser.id,
                   type: 'welcome',
@@ -330,8 +332,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
               });
 
+              console.log('✅ Welcome notification created:', notification.id);
+
               // Send welcome email via internal API (non-blocking)
               const userName = newUser.firstName && newUser.lastName ? `${newUser.firstName} ${newUser.lastName}` : newUser.firstName || 'User';
+              
+              console.log('📧 Triggering welcome email for:', newUser.email);
               
               // Fire and forget - don't block OAuth flow
               fetch(`${process.env.NEXTAUTH_URL}/api/internal/send-welcome-email`, {
@@ -345,6 +351,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   name: userName,
                   provider: 'google'
                 })
+              }).then(res => {
+                console.log('✅ Welcome email API response:', res.status, res.statusText);
+                return res.json();
+              }).then(data => {
+                console.log('✅ Welcome email sent successfully:', data);
               }).catch(err => {
                 console.error('❌ Failed to trigger welcome email:', err);
               });
@@ -352,6 +363,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               console.log('✅ Welcome notification created and email triggered for new Google OAuth user');
             } catch (notificationError) {
               console.error('❌ Failed to send welcome notification:', notificationError);
+              console.error('❌ Error details:', JSON.stringify(notificationError, null, 2));
               // Don't fail the OAuth flow if notification fails
             }
             
