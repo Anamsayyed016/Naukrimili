@@ -49,6 +49,73 @@ export function useSocket(): UseSocketReturn {
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
+  // Desktop notification function with browser permission handling
+  const showDesktopNotification = useCallback((options: {
+    title: string;
+    body: string;
+    icon?: string;
+    tag?: string;
+    role?: string;
+  }) => {
+    // Check if browser notifications are supported
+    if (!('Notification' in window)) {
+      console.warn('This browser does not support notifications');
+      return false;
+    }
+
+    // Check permission and request if needed
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          showDesktopNotification(options);
+        }
+      });
+      return false;
+    }
+
+    if (Notification.permission === 'denied') {
+      console.warn('Notification permission denied');
+      return false;
+    }
+
+    try {
+      // Create desktop notification with role-specific styling
+      const notification = new Notification(options.title, {
+        body: options.body,
+        icon: options.icon || '/favicon.ico',
+        tag: options.tag,
+        requireInteraction: false,
+        silent: false
+      });
+
+      // Handle notification click
+      notification.onclick = () => {
+        window.focus();
+        notification.close();
+        
+        // Navigate to relevant page based on notification type
+        if (options.role === 'employer') {
+          window.location.href = '/employer/dashboard';
+        } else if (options.role === 'admin') {
+          window.location.href = '/admin/dashboard';
+        } else {
+          window.location.href = '/dashboard';
+        }
+      };
+
+      // Auto-close after 5 seconds
+      setTimeout(() => {
+        notification.close();
+      }, 5000);
+
+      console.log('✅ Desktop notification shown:', options.title);
+      return true;
+    } catch (error) {
+      console.error('Failed to show desktop notification:', error);
+      return false;
+    }
+  }, []);
+
   // Calculate unread count with additional safety checks
   const unreadCount = useMemo(() => {
     const safeNotifications = safeArray(notifications);
@@ -117,7 +184,23 @@ export function useSocket(): UseSocketReturn {
         setIsConnected(false);
       });
 
-      // Notification events
+      // Role-based notification events
+      newSocket.on('notification:jobseeker', (notification: any) => {
+        console.log('🔔 Jobseeker notification received:', notification);
+        handleRoleBasedNotification(notification, 'jobseeker');
+      });
+
+      newSocket.on('notification:employer', (notification: any) => {
+        console.log('🔔 Employer notification received:', notification);
+        handleRoleBasedNotification(notification, 'employer');
+      });
+
+      newSocket.on('notification:admin', (notification: any) => {
+        console.log('🔔 Admin notification received:', notification);
+        handleRoleBasedNotification(notification, 'admin');
+      });
+
+      // Generic notification events (for backward compatibility)
       newSocket.on('new_notification', (notification: Notification) => {
         console.log('🔔 New notification received:', notification);
         
@@ -145,6 +228,47 @@ export function useSocket(): UseSocketReturn {
           tag: notification.id
         });
       });
+
+      // Helper function to handle role-based notifications
+      const handleRoleBasedNotification = (notification: any, role: string) => {
+        // Validate notification data
+        if (!notification || !notification.title || !notification.message) {
+          console.error(`❌ Invalid ${role} notification received:`, notification);
+          return;
+        }
+
+        // Create a notification object with proper structure
+        const formattedNotification: Notification = {
+          id: notification.id || `role_${role}_${Date.now()}`,
+          userId: session.user.id,
+          type: notification.type || 'SYSTEM',
+          title: notification.title,
+          message: notification.message,
+          isRead: false,
+          data: notification.data || {},
+          createdAt: notification.timestamp || new Date().toISOString(),
+          timestamp: notification.timestamp
+        };
+
+        setNotifications(prev => {
+          // Prevent duplicate notifications
+          const exists = prev.some(n => n.id === formattedNotification.id);
+          if (exists) {
+            console.log('⚠️ Duplicate role notification ignored:', formattedNotification.id);
+            return prev;
+          }
+          return [formattedNotification, ...prev];
+        });
+
+        // Show desktop notification with role-specific styling
+        showDesktopNotification({
+          title: `${role.charAt(0).toUpperCase() + role.slice(1)}: ${notification.title}`,
+          body: notification.message,
+          icon: '/favicon.ico',
+          tag: formattedNotification.id,
+          role: role
+        });
+      };
 
       // Job creation events
       newSocket.on('job_created', (data: any) => {

@@ -127,15 +127,30 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Company created successfully:', { id: company.id, name: company.name });
 
-    // Send real-time notification via Socket.io
+    // Send real-time notification via Socket.io (enhanced with role-based notifications)
     try {
-      // Import socket.io server instance
-      const { getServerSocket } = await import('@/lib/socket-server');
-      const io = getServerSocket();
+      const { getSocketService } = await import('@/lib/socket-server');
+      const socketService = getSocketService();
       
-      if (io) {
-        // Emit company creation event to all connected clients
-        io.emit('company_created', {
+      if (socketService) {
+        // Notify admins about new company creation
+        await socketService.sendNotificationToAdmins({
+          type: 'COMPANY_CREATED',
+          title: 'New Company Registration! 🏢',
+          message: `A new company "${company.name}" has been registered and requires verification.`,
+          data: {
+            companyId: company.id,
+            companyName: company.name,
+            industry: company.industry,
+            location: company.location,
+            createdBy: basicUser.id,
+            action: 'verify_company',
+            actionUrl: `/admin/companies/${company.id}`
+          }
+        });
+        
+        // Also emit legacy company_created event for backward compatibility
+        socketService.io.emit('company_created', {
           companyId: company.id,
           companyName: company.name,
           industry: company.industry,
@@ -144,7 +159,7 @@ export async function POST(request: NextRequest) {
           timestamp: new Date().toISOString(),
           type: 'company_created'
         });
-        console.log('📡 Socket notification sent for company creation');
+        console.log('📡 Role-based notification sent to admins for company creation');
       }
     } catch (socketError) {
       console.error('❌ Failed to send socket notification:', socketError);

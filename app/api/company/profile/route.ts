@@ -161,6 +161,45 @@ export async function POST(request: NextRequest) {
 
     console.log("POST /api/company/profile - Company created successfully:", company.id);
 
+    // Send real-time notification via Socket.io (enhanced with role-based notifications)
+    try {
+      const { getSocketService } = await import('@/lib/socket-server');
+      const socketService = getSocketService();
+      
+      if (socketService) {
+        // Notify admins about new company creation
+        await socketService.sendNotificationToAdmins({
+          type: 'COMPANY_CREATED',
+          title: 'New Company Registration! 🏢',
+          message: `A new company "${company.name}" has been registered and requires verification.`,
+          data: {
+            companyId: company.id,
+            companyName: company.name,
+            industry: company.industry,
+            location: company.location,
+            createdBy: user.id,
+            action: 'verify_company',
+            actionUrl: `/admin/companies/${company.id}`
+          }
+        });
+        
+        // Also emit legacy company_created event for backward compatibility
+        socketService.io.emit('company_created', {
+          companyId: company.id,
+          companyName: company.name,
+          industry: company.industry,
+          location: company.location,
+          userId: user.id,
+          timestamp: new Date().toISOString(),
+          type: 'company_created'
+        });
+        console.log('📡 Role-based notification sent to admins for company creation');
+      }
+    } catch (socketError) {
+      console.error('❌ Failed to send socket notification:', socketError);
+      // Don't fail the company creation if socket notification fails
+    }
+
     return NextResponse.json({
       success: true,
       message: "Company profile created successfully",

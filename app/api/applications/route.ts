@@ -472,13 +472,30 @@ export async function POST(request: NextRequest) {
 
       console.log('✅ Database notification created for job seeker:', user.id);
 
-      // Send real-time notification via Socket.io to job seeker
+      // Send real-time notification via Socket.io (enhanced with role-based notifications)
       try {
-        const { getServerSocket } = await import('@/lib/socket-server');
-        const io = getServerSocket();
+        const { getSocketService } = await import('@/lib/socket-server');
+        const socketService = getSocketService();
         
-        if (io) {
-          io.to(`user:${user.id}`).emit('new_notification', {
+        if (socketService) {
+          // Notify jobseeker about successful application submission
+          await socketService.sendNotificationToUser(user.id, {
+            type: 'APPLICATION_UPDATE',
+            title: 'Application Submitted Successfully! 🎉',
+            message: `Your application for "${(application as any).job?.title || 'the job'}" has been submitted successfully. The employer will review your application soon.`,
+            data: {
+              applicationId: application.id,
+              jobId: application.jobId,
+              companyId: application.companyId,
+              jobTitle: (application as any).job?.title || 'Unknown Job',
+              companyName: (application as any).job?.company || 'Unknown Company',
+              action: 'view_application',
+              actionUrl: `/dashboard/applications/${application.id}`
+            }
+          });
+          
+          // Also emit legacy new_notification event for backward compatibility
+          socketService.io.to(`user:${user.id}`).emit('new_notification', {
             type: 'APPLICATION_UPDATE',
             title: 'Application Submitted Successfully! 🎉',
             message: `Your application for "${(application as any).job?.title || 'the job'}" has been submitted successfully.`,
@@ -491,10 +508,10 @@ export async function POST(request: NextRequest) {
             },
             timestamp: new Date().toISOString()
           });
-          console.log('📡 Real-time notification sent to job seeker via Socket.io');
+          console.log('📡 Role-based notification sent to jobseeker for application submission');
         }
       } catch (socketError) {
-        console.warn('⚠️ Failed to send real-time notification to job seeker:', socketError);
+        console.warn('⚠️ Failed to send real-time notification to jobseeker:', socketError);
       }
 
     } catch (dbError) {
@@ -534,13 +551,31 @@ export async function POST(request: NextRequest) {
 
           console.log('✅ Database notification created for employer:', employer.id);
 
-          // Send real-time notification via Socket.io
+          // Send real-time notification via Socket.io (enhanced with role-based notifications)
           try {
-            const { getServerSocket } = await import('@/lib/socket-server');
-            const io = getServerSocket();
+            const { getSocketService } = await import('@/lib/socket-server');
+            const socketService = getSocketService();
             
-            if (io) {
-              io.to(`user:${employer.id}`).emit('new_notification', {
+            if (socketService) {
+              // Notify employer about new application received
+              await socketService.sendNotificationToUser(employer.id, {
+                type: 'APPLICATION_RECEIVED',
+                title: 'New Job Application Received! 📝',
+                message: `You have received a new application for "${(application as any).job?.title || 'the job'}" from ${fullName}.`,
+                data: {
+                  applicationId: application.id,
+                  jobId: application.jobId,
+                  jobTitle: (application as any).job?.title || 'Unknown Job',
+                  applicantName: fullName,
+                  applicantEmail: email,
+                  applicantPhone: phone,
+                  action: 'review_application',
+                  actionUrl: `/employer/applications/${application.id}`
+                }
+              });
+              
+              // Also emit legacy new_notification event for backward compatibility
+              socketService.io.to(`user:${employer.id}`).emit('new_notification', {
                 type: 'APPLICATION_UPDATE',
                 title: 'New Job Application Received! 🎉',
                 message: `You have received a new application for "${(application as any).job?.title || 'the job'}" from ${fullName}.`,
@@ -554,7 +589,7 @@ export async function POST(request: NextRequest) {
                 },
                 timestamp: new Date().toISOString()
               });
-              console.log('📡 Real-time notification sent to employer via Socket.io');
+              console.log('📡 Role-based notification sent to employer for new application');
             }
           } catch (socketError) {
             console.warn('⚠️ Failed to send real-time notification to employer:', socketError);

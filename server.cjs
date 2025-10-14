@@ -88,6 +88,25 @@ app.prepare().then(() => {
     }
   });
 
+  // Initialize Socket.io server
+  console.log('🔌 Initializing Socket.io server...');
+  try {
+    // Dynamic import for ES modules in CommonJS
+    const { initializeSocket } = require('./lib/socket-setup.ts');
+    const { SocketNotificationService } = require('./lib/socket-server.ts');
+    
+    const io = initializeSocket(server);
+    
+    // Initialize socket notification service
+    new SocketNotificationService(io);
+    
+    console.log('✅ Socket.io server initialized successfully');
+    console.log('🔔 Real-time notifications enabled');
+  } catch (socketError) {
+    console.warn('⚠️ Socket.io initialization failed (continuing without real-time notifications):', socketError.message);
+    console.log('📝 To enable real-time notifications, ensure all socket dependencies are properly installed');
+  }
+
   server.on('error', (err) => {
     console.error('❌ Server error:', err);
     process.exit(1);
@@ -101,6 +120,7 @@ app.prepare().then(() => {
     console.log(`🎉 Server ready on http://${hostname}:${port}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV}`);
     console.log('✅ Server startup completed');
+    console.log('🔔 Socket.io ready and listening for connections');
   });
 }).catch((err) => {
   console.error('❌ Failed to prepare Next.js app:', err);

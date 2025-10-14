@@ -93,9 +93,52 @@ export async function PUT(
         founded: true,
         isVerified: true,
         isActive: true,
-        updatedAt: true
+        updatedAt: true,
+        createdBy: true
       }
     });
+
+    // Send real-time notification if company verification status changed
+    if (typeof isVerified === 'boolean' && updatedCompany.createdBy) {
+      try {
+        const { getSocketService } = await import('@/lib/socket-server');
+        const socketService = getSocketService();
+        
+        if (socketService) {
+          // Notify the employer about company verification status change
+          if (isVerified) {
+            await socketService.sendNotificationToUser(updatedCompany.createdBy, {
+              type: 'COMPANY_VERIFIED',
+              title: 'Company Verified! ✅',
+              message: `Congratulations! Your company "${updatedCompany.name}" has been verified. You can now post jobs and receive applications.`,
+              data: {
+                companyId: updatedCompany.id,
+                companyName: updatedCompany.name,
+                action: 'post_job',
+                actionUrl: `/employer/post-job`
+              }
+            });
+            console.log('📡 Role-based notification sent to employer for company verification');
+          } else {
+            await socketService.sendNotificationToUser(updatedCompany.createdBy, {
+              type: 'COMPANY_REJECTED',
+              title: 'Company Verification Update',
+              message: `Your company "${updatedCompany.name}" verification status has been updated. Please contact support for more details.`,
+              data: {
+                companyId: updatedCompany.id,
+                companyName: updatedCompany.name,
+                action: 'view_company',
+                actionUrl: `/employer/company-profile`
+              }
+            });
+            console.log('📡 Role-based notification sent to employer for company status change');
+          }
+        }
+      } catch (socketError) {
+        console.error('❌ Failed to send socket notification:', socketError);
+        // Don't fail the update if notification fails
+      }
+    }
 
     return NextResponse.json({
       success: true,

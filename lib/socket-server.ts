@@ -23,7 +23,7 @@ export type NotificationType =
   | 'JOB_VIEWED' | 'JOB_APPLIED' | 'JOB_SAVED' | 'JOB_UNSAVED' | 'JOB_SHARED'
   
   // Company & Profile
-  | 'COMPANY_UPDATE' | 'COMPANY_VERIFIED' | 'COMPANY_APPROVED' | 'COMPANY_REJECTED' | 'COMPANY_SUSPENDED'
+  | 'COMPANY_CREATED' | 'COMPANY_UPDATE' | 'COMPANY_VERIFIED' | 'COMPANY_APPROVED' | 'COMPANY_REJECTED' | 'COMPANY_SUSPENDED'
   | 'PROFILE_UPDATE' | 'PROFILE_VERIFIED' | 'PROFILE_COMPLETED' | 'PROFILE_INCOMPLETE'
   
   // Resume & Documents
@@ -200,11 +200,18 @@ class SocketNotificationService {
 
       // Join role-based rooms
       if (user.role === 'employer') {
+        socket.join('employers');
+        console.log(`💼 Employer ${user.email} joined employers room`);
         // Get user's company ID and join company room
         this.joinCompanyRoom(socket, userId);
       } else if (user.role === 'admin') {
         socket.join('admin:global');
-        console.log(`👑 Admin ${user.email} joined admin:global room`);
+        socket.join('admins'); // Also join general admins room
+        console.log(`👑 Admin ${user.email} joined admin:global and admins rooms`);
+      } else {
+        // Default to jobseeker role
+        socket.join('jobseekers');
+        console.log(`👤 Jobseeker ${user.email} joined jobseekers room`);
       }
       
       // Subscribe to dashboard updates
@@ -415,6 +422,110 @@ class SocketNotificationService {
       console.log(`✅ Existing notification sent via Socket.io: ${notification.title}`);
     } catch (error) {
       console.error(`❌ Failed to send existing notification via Socket.io:`, error);
+      throw error;
+    }
+  }
+
+  // Role-based notification methods for dynamic notifications
+
+  /**
+   * Send notification to all jobseekers
+   */
+  async sendNotificationToJobseekers(
+    notification: {
+      type: NotificationType;
+      title: string;
+      message: string;
+      data?: Record<string, unknown>;
+    }
+  ) {
+    try {
+      console.log(`📤 Sending notification to all jobseekers:`, notification.title);
+
+      // Send to jobseekers room
+      this.io.to('jobseekers').emit('notification:jobseeker', {
+        ...notification,
+        timestamp: new Date().toISOString(),
+        role: 'jobseeker'
+      });
+
+      // Also send as broadcast notification for compatibility
+      this.io.to('jobseekers').emit('broadcast_notification', {
+        ...notification,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log(`✅ Notification sent to jobseekers: ${notification.title}`);
+    } catch (error) {
+      console.error(`❌ Failed to send notification to jobseekers:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send notification to all employers
+   */
+  async sendNotificationToEmployers(
+    notification: {
+      type: NotificationType;
+      title: string;
+      message: string;
+      data?: Record<string, unknown>;
+    }
+  ) {
+    try {
+      console.log(`📤 Sending notification to all employers:`, notification.title);
+
+      // Send to employers room
+      this.io.to('employers').emit('notification:employer', {
+        ...notification,
+        timestamp: new Date().toISOString(),
+        role: 'employer'
+      });
+
+      // Also send as broadcast notification for compatibility
+      this.io.to('employers').emit('broadcast_notification', {
+        ...notification,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log(`✅ Notification sent to employers: ${notification.title}`);
+    } catch (error) {
+      console.error(`❌ Failed to send notification to employers:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send notification to all admins
+   */
+  async sendNotificationToAdmins(
+    notification: {
+      type: NotificationType;
+      title: string;
+      message: string;
+      data?: Record<string, unknown>;
+    }
+  ) {
+    try {
+      console.log(`📤 Sending notification to all admins:`, notification.title);
+
+      // Send to admin room
+      this.io.to('admin:global').emit('notification:admin', {
+        ...notification,
+        timestamp: new Date().toISOString(),
+        role: 'admin'
+      });
+
+      // Also send as broadcast notification for compatibility
+      this.io.to('admin:global').emit('broadcast_notification', {
+        ...notification,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log(`✅ Notification sent to admins: ${notification.title}`);
+    } catch (error) {
+      console.error(`❌ Failed to send notification to admins:`, error);
       throw error;
     }
   }

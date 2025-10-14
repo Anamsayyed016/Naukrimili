@@ -83,15 +83,30 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Job created successfully:', { id: job.id, title: job.title });
 
-    // Send real-time notification via Socket.io
+    // Send real-time notification via Socket.io (enhanced with role-based notifications)
     try {
-      // Import socket.io server instance
-      const { getServerSocket } = await import('@/lib/socket-server');
-      const io = getServerSocket();
+      // Import socket service for role-based notifications
+      const { getSocketService } = await import('@/lib/socket-server');
+      const socketService = getSocketService();
       
-      if (io) {
-        // Emit job creation event to all connected clients
-        io.emit('job_created', {
+      if (socketService) {
+        // Send role-based notification to jobseekers
+        await socketService.sendNotificationToJobseekers({
+          type: 'JOB_CREATED',
+          title: 'New Job Posted! 🎉',
+          message: `A new job "${job.title}" has been posted by ${company.name}. Check it out!`,
+          data: {
+            jobId: job.id,
+            jobTitle: job.title,
+            companyName: company.name,
+            location: job.location,
+            action: 'view_job',
+            actionUrl: `/jobs/${job.id}`
+          }
+        });
+
+        // Also emit legacy job_created event for backward compatibility
+        socketService.io.emit('job_created', {
           jobId: job.id,
           jobTitle: job.title,
           company: job.company,
@@ -100,7 +115,8 @@ export async function POST(request: NextRequest) {
           timestamp: new Date().toISOString(),
           type: 'job_created'
         });
-        console.log('📡 Socket notification sent for job creation');
+        
+        console.log('📡 Role-based notification sent to jobseekers for job creation');
       }
     } catch (socketError) {
       console.error('❌ Failed to send socket notification:', socketError);
