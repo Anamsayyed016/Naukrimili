@@ -100,64 +100,64 @@ export default async function HomePage() {
       
       topCompanies = [
         {
-          id: 'fallback-company-1',
+          id: 'techcorp-solutions',
           name: 'TechCorp Solutions',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/google-logo.png',
           location: 'Bangalore, India',
           industry: 'Technology',
           sector: 'Technology',
           isGlobal: false,
-          jobCount: 25
+          jobCount: 0
         },
         {
-          id: 'fallback-company-2',
+          id: 'innovate-lab',
           name: 'InnovateLab',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/microsoft.png',
           location: 'Mumbai, India',
           industry: 'Technology',
           sector: 'Technology',
           isGlobal: false,
-          jobCount: 18
+          jobCount: 0
         },
         {
-          id: 'fallback-company-3',
+          id: 'dataflow-inc',
           name: 'DataFlow Inc',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/amazon-web-services.png',
           location: 'Hyderabad, India',
           industry: 'Technology',
           sector: 'Technology',
           isGlobal: false,
-          jobCount: 32
+          jobCount: 0
         },
         {
-          id: 'fallback-company-4',
+          id: 'cloudtech',
           name: 'CloudTech',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/google-cloud.png',
           location: 'Delhi, India',
           industry: 'Technology',
           sector: 'Technology',
           isGlobal: false,
-          jobCount: 15
+          jobCount: 0
         },
         {
-          id: 'fallback-company-5',
+          id: 'creative-studio',
           name: 'Creative Studio',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/adobe-creative-cloud.png',
           location: 'Pune, India',
           industry: 'Design',
           sector: 'Design',
           isGlobal: false,
-          jobCount: 12
+          jobCount: 0
         },
         {
-          id: 'fallback-company-6',
+          id: 'fintech-pro',
           name: 'FinTech Pro',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/money-bag.png',
           location: 'Chennai, India',
           industry: 'Finance',
           sector: 'Finance',
           isGlobal: false,
-          jobCount: 28
+          jobCount: 0
         }
       ];
     } else {
@@ -397,64 +397,64 @@ export default async function HomePage() {
         // Use fallback companies when database fails
         topCompanies = [
           {
-            id: 'fallback-company-db-1',
+            id: 'techcorp-solutions',
             name: 'TechCorp Solutions',
-            logo: null,
+            logo: 'https://img.icons8.com/color/96/000000/google-logo.png',
             location: 'Bangalore, India',
             industry: 'Technology',
             sector: 'Technology',
             isGlobal: false,
-            jobCount: 25
+            jobCount: 0
           },
           {
-            id: 'fallback-company-db-2',
+            id: 'innovate-lab',
             name: 'InnovateLab',
-            logo: null,
+            logo: 'https://img.icons8.com/color/96/000000/microsoft.png',
             location: 'Mumbai, India',
             industry: 'Technology',
             sector: 'Technology',
             isGlobal: false,
-            jobCount: 18
+            jobCount: 0
           },
           {
-            id: 'fallback-company-db-3',
+            id: 'dataflow-inc',
             name: 'DataFlow Inc',
-            logo: null,
+            logo: 'https://img.icons8.com/color/96/000000/amazon-web-services.png',
             location: 'Hyderabad, India',
             industry: 'Technology',
             sector: 'Technology',
             isGlobal: false,
-            jobCount: 32
+            jobCount: 0
           },
           {
-            id: 'fallback-company-db-4',
+            id: 'cloudtech',
             name: 'CloudTech',
-            logo: null,
+            logo: 'https://img.icons8.com/color/96/000000/google-cloud.png',
             location: 'Delhi, India',
             industry: 'Technology',
             sector: 'Technology',
             isGlobal: false,
-            jobCount: 15
+            jobCount: 0
           },
           {
-            id: 'fallback-company-db-5',
+            id: 'creative-studio',
             name: 'Creative Studio',
-            logo: null,
+            logo: 'https://img.icons8.com/color/96/000000/adobe-creative-cloud.png',
             location: 'Pune, India',
             industry: 'Design',
             sector: 'Design',
             isGlobal: false,
-            jobCount: 12
+            jobCount: 0
           },
           {
-            id: 'fallback-company-db-6',
+            id: 'fintech-pro',
             name: 'FinTech Pro',
-            logo: null,
+            logo: 'https://img.icons8.com/color/96/000000/money-bag.png',
             location: 'Chennai, India',
             industry: 'Finance',
             sector: 'Finance',
             isGlobal: false,
-            jobCount: 28
+            jobCount: 0
           }
         ];
       }
@@ -534,64 +534,64 @@ export default async function HomePage() {
     if (topCompanies.length === 0) {
       topCompanies = [
         {
-          id: 'final-fallback-company-1',
+          id: 'techcorp-solutions',
           name: 'TechCorp Solutions',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/google-logo.png',
           location: 'Bangalore, India',
           industry: 'Technology',
           sector: 'Technology',
           isGlobal: false,
-          jobCount: 25
+          jobCount: 0
         },
         {
-          id: 'final-fallback-company-2',
+          id: 'innovate-lab',
           name: 'InnovateLab',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/microsoft.png',
           location: 'Mumbai, India',
           industry: 'Technology',
           sector: 'Technology',
           isGlobal: false,
-          jobCount: 18
+          jobCount: 0
         },
         {
-          id: 'final-fallback-company-3',
+          id: 'dataflow-inc',
           name: 'DataFlow Inc',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/amazon-web-services.png',
           location: 'Hyderabad, India',
           industry: 'Technology',
           sector: 'Technology',
           isGlobal: false,
-          jobCount: 32
+          jobCount: 0
         },
         {
-          id: 'final-fallback-company-4',
+          id: 'cloudtech',
           name: 'CloudTech',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/google-cloud.png',
           location: 'Delhi, India',
           industry: 'Technology',
           sector: 'Technology',
           isGlobal: false,
-          jobCount: 15
+          jobCount: 0
         },
         {
-          id: 'final-fallback-company-5',
+          id: 'creative-studio',
           name: 'Creative Studio',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/adobe-creative-cloud.png',
           location: 'Pune, India',
           industry: 'Design',
           sector: 'Design',
           isGlobal: false,
-          jobCount: 12
+          jobCount: 0
         },
         {
-          id: 'final-fallback-company-6',
+          id: 'fintech-pro',
           name: 'FinTech Pro',
-          logo: null,
+          logo: 'https://img.icons8.com/color/96/000000/money-bag.png',
           location: 'Chennai, India',
           industry: 'Finance',
           sector: 'Finance',
           isGlobal: false,
-          jobCount: 28
+          jobCount: 0
         }
       ];
     }
