@@ -19,7 +19,17 @@ module.exports = {
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",
         ADZUNA_APP_KEY: "f216fb45f9e324783b04fd877fc0f4f7",
-        JOOBLE_API_KEY: "10fd38f3-17ed-4718-8471-504f472b410a"
+        JOOBLE_API_KEY: "10fd38f3-17ed-4718-8471-504f472b410a",
+        // Gmail OAuth2 API - Environment variables only
+        GMAIL_API_CLIENT_ID: process.env.GMAIL_API_CLIENT_ID,
+        GMAIL_API_CLIENT_SECRET: process.env.GMAIL_API_CLIENT_SECRET,
+        GMAIL_API_REFRESH_TOKEN: process.env.GMAIL_API_REFRESH_TOKEN,
+        GMAIL_SENDER: process.env.GMAIL_SENDER,
+        GMAIL_FROM_NAME: process.env.GMAIL_FROM_NAME,
+        NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
       },
       env_production: {
         NODE_ENV: "production",
@@ -31,7 +41,17 @@ module.exports = {
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",
         ADZUNA_APP_KEY: "f216fb45f9e324783b04fd877fc0f4f7",
-        JOOBLE_API_KEY: "10fd38f3-17ed-4718-8471-504f472b410a"
+        JOOBLE_API_KEY: "10fd38f3-17ed-4718-8471-504f472b410a",
+        // Gmail OAuth2 API - Environment variables only
+        GMAIL_API_CLIENT_ID: process.env.GMAIL_API_CLIENT_ID,
+        GMAIL_API_CLIENT_SECRET: process.env.GMAIL_API_CLIENT_SECRET,
+        GMAIL_API_REFRESH_TOKEN: process.env.GMAIL_API_REFRESH_TOKEN,
+        GMAIL_SENDER: process.env.GMAIL_SENDER,
+        GMAIL_FROM_NAME: process.env.GMAIL_FROM_NAME,
+        NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
       },
       log_file: "./logs/combined.log",
       out_file: "./logs/out.log",
