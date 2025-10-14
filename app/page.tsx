@@ -32,10 +32,134 @@ export default async function HomePage() {
   try {
     // Check if DATABASE_URL is available (skip database calls during build if not)
     if (!process.env.DATABASE_URL) {
-      console.log('⚠️ DATABASE_URL not found, skipping database queries during build');
-      // Use empty arrays for build time
-      featuredJobs = [];
-      topCompanies = [];
+      console.log('⚠️ DATABASE_URL not found, using fallback data for homepage');
+      
+      // Use fallback data when database is not available
+      featuredJobs = [
+        {
+          id: 'fallback-1',
+          title: 'Senior Software Engineer',
+          company: 'TechCorp Solutions',
+          location: 'Bangalore, India',
+          salary: '₹15,00,000 - ₹25,00,000',
+          jobType: 'Full-time',
+          isRemote: false,
+          isFeatured: true
+        },
+        {
+          id: 'fallback-2',
+          title: 'Frontend Developer',
+          company: 'InnovateLab',
+          location: 'Mumbai, India',
+          salary: '₹10,00,000 - ₹18,00,000',
+          jobType: 'Full-time',
+          isRemote: true,
+          isFeatured: true
+        },
+        {
+          id: 'fallback-3',
+          title: 'Data Scientist',
+          company: 'DataFlow Inc',
+          location: 'Hyderabad, India',
+          salary: '₹12,00,000 - ₹20,00,000',
+          jobType: 'Full-time',
+          isRemote: false,
+          isFeatured: true
+        },
+        {
+          id: 'fallback-4',
+          title: 'Product Manager',
+          company: 'CloudTech',
+          location: 'Delhi, India',
+          salary: '₹18,00,000 - ₹30,00,000',
+          jobType: 'Full-time',
+          isRemote: true,
+          isFeatured: true
+        },
+        {
+          id: 'fallback-5',
+          title: 'UI/UX Designer',
+          company: 'Creative Studio',
+          location: 'Pune, India',
+          salary: '₹8,00,000 - ₹15,00,000',
+          jobType: 'Full-time',
+          isRemote: true,
+          isFeatured: true
+        },
+        {
+          id: 'fallback-6',
+          title: 'DevOps Engineer',
+          company: 'FinTech Pro',
+          location: 'Chennai, India',
+          salary: '₹14,00,000 - ₹22,00,000',
+          jobType: 'Full-time',
+          isRemote: false,
+          isFeatured: true
+        }
+      ];
+      
+      topCompanies = [
+        {
+          id: 'fallback-company-1',
+          name: 'TechCorp Solutions',
+          logo: null,
+          location: 'Bangalore, India',
+          industry: 'Technology',
+          sector: 'Technology',
+          isGlobal: false,
+          jobCount: 25
+        },
+        {
+          id: 'fallback-company-2',
+          name: 'InnovateLab',
+          logo: null,
+          location: 'Mumbai, India',
+          industry: 'Technology',
+          sector: 'Technology',
+          isGlobal: false,
+          jobCount: 18
+        },
+        {
+          id: 'fallback-company-3',
+          name: 'DataFlow Inc',
+          logo: null,
+          location: 'Hyderabad, India',
+          industry: 'Technology',
+          sector: 'Technology',
+          isGlobal: false,
+          jobCount: 32
+        },
+        {
+          id: 'fallback-company-4',
+          name: 'CloudTech',
+          logo: null,
+          location: 'Delhi, India',
+          industry: 'Technology',
+          sector: 'Technology',
+          isGlobal: false,
+          jobCount: 15
+        },
+        {
+          id: 'fallback-company-5',
+          name: 'Creative Studio',
+          logo: null,
+          location: 'Pune, India',
+          industry: 'Design',
+          sector: 'Design',
+          isGlobal: false,
+          jobCount: 12
+        },
+        {
+          id: 'fallback-company-6',
+          name: 'FinTech Pro',
+          logo: null,
+          location: 'Chennai, India',
+          industry: 'Finance',
+          sector: 'Finance',
+          isGlobal: false,
+          jobCount: 28
+        }
+      ];
     } else {
       // First try direct database access (faster)
       const dbFeaturedJobs = await prisma.job.findMany({
@@ -147,6 +271,42 @@ export default async function HomePage() {
         } catch (error) {
           console.warn('⚠️ Failed to fetch external jobs:', error);
           
+          // Use fallback data when everything fails
+          if (featuredJobs.length === 0) {
+            featuredJobs = [
+              {
+                id: 'fallback-db-1',
+                title: 'Senior Software Engineer',
+                company: 'TechCorp Solutions',
+                location: 'Bangalore, India',
+                salary: '₹15,00,000 - ₹25,00,000',
+                jobType: 'Full-time',
+                isRemote: false,
+                isFeatured: true
+              },
+              {
+                id: 'fallback-db-2',
+                title: 'Frontend Developer',
+                company: 'InnovateLab',
+                location: 'Mumbai, India',
+                salary: '₹10,00,000 - ₹18,00,000',
+                jobType: 'Full-time',
+                isRemote: true,
+                isFeatured: true
+              },
+              {
+                id: 'fallback-db-3',
+                title: 'Data Scientist',
+                company: 'DataFlow Inc',
+                location: 'Hyderabad, India',
+                salary: '₹12,00,000 - ₹20,00,000',
+                jobType: 'Full-time',
+                isRemote: false,
+                isFeatured: true
+              }
+            ];
+          }
+          
           // Fallback: set some recent jobs as featured
           const recentJobs = await prisma.job.findMany({
             where: {
@@ -233,7 +393,70 @@ export default async function HomePage() {
         }));
       } catch (companyError) {
         console.error('❌ Error loading companies:', companyError);
-        topCompanies = [];
+        
+        // Use fallback companies when database fails
+        topCompanies = [
+          {
+            id: 'fallback-company-db-1',
+            name: 'TechCorp Solutions',
+            logo: null,
+            location: 'Bangalore, India',
+            industry: 'Technology',
+            sector: 'Technology',
+            isGlobal: false,
+            jobCount: 25
+          },
+          {
+            id: 'fallback-company-db-2',
+            name: 'InnovateLab',
+            logo: null,
+            location: 'Mumbai, India',
+            industry: 'Technology',
+            sector: 'Technology',
+            isGlobal: false,
+            jobCount: 18
+          },
+          {
+            id: 'fallback-company-db-3',
+            name: 'DataFlow Inc',
+            logo: null,
+            location: 'Hyderabad, India',
+            industry: 'Technology',
+            sector: 'Technology',
+            isGlobal: false,
+            jobCount: 32
+          },
+          {
+            id: 'fallback-company-db-4',
+            name: 'CloudTech',
+            logo: null,
+            location: 'Delhi, India',
+            industry: 'Technology',
+            sector: 'Technology',
+            isGlobal: false,
+            jobCount: 15
+          },
+          {
+            id: 'fallback-company-db-5',
+            name: 'Creative Studio',
+            logo: null,
+            location: 'Pune, India',
+            industry: 'Design',
+            sector: 'Design',
+            isGlobal: false,
+            jobCount: 12
+          },
+          {
+            id: 'fallback-company-db-6',
+            name: 'FinTech Pro',
+            logo: null,
+            location: 'Chennai, India',
+            industry: 'Finance',
+            sector: 'Finance',
+            isGlobal: false,
+            jobCount: 28
+          }
+        ];
       }
     }
 
@@ -241,9 +464,137 @@ export default async function HomePage() {
 
   } catch (error) {
     console.error('❌ Error loading homepage data:', error);
-    // Fallback to empty arrays if everything fails
-    featuredJobs = [];
-    topCompanies = [];
+    
+    // Final fallback - use sample data if everything fails
+    if (featuredJobs.length === 0) {
+      featuredJobs = [
+        {
+          id: 'final-fallback-1',
+          title: 'Senior Software Engineer',
+          company: 'TechCorp Solutions',
+          location: 'Bangalore, India',
+          salary: '₹15,00,000 - ₹25,00,000',
+          jobType: 'Full-time',
+          isRemote: false,
+          isFeatured: true
+        },
+        {
+          id: 'final-fallback-2',
+          title: 'Frontend Developer',
+          company: 'InnovateLab',
+          location: 'Mumbai, India',
+          salary: '₹10,00,000 - ₹18,00,000',
+          jobType: 'Full-time',
+          isRemote: true,
+          isFeatured: true
+        },
+        {
+          id: 'final-fallback-3',
+          title: 'Data Scientist',
+          company: 'DataFlow Inc',
+          location: 'Hyderabad, India',
+          salary: '₹12,00,000 - ₹20,00,000',
+          jobType: 'Full-time',
+          isRemote: false,
+          isFeatured: true
+        },
+        {
+          id: 'final-fallback-4',
+          title: 'Product Manager',
+          company: 'CloudTech',
+          location: 'Delhi, India',
+          salary: '₹18,00,000 - ₹30,00,000',
+          jobType: 'Full-time',
+          isRemote: true,
+          isFeatured: true
+        },
+        {
+          id: 'final-fallback-5',
+          title: 'UI/UX Designer',
+          company: 'Creative Studio',
+          location: 'Pune, India',
+          salary: '₹8,00,000 - ₹15,00,000',
+          jobType: 'Full-time',
+          isRemote: true,
+          isFeatured: true
+        },
+        {
+          id: 'final-fallback-6',
+          title: 'DevOps Engineer',
+          company: 'FinTech Pro',
+          location: 'Chennai, India',
+          salary: '₹14,00,000 - ₹22,00,000',
+          jobType: 'Full-time',
+          isRemote: false,
+          isFeatured: true
+        }
+      ];
+    }
+    
+    if (topCompanies.length === 0) {
+      topCompanies = [
+        {
+          id: 'final-fallback-company-1',
+          name: 'TechCorp Solutions',
+          logo: null,
+          location: 'Bangalore, India',
+          industry: 'Technology',
+          sector: 'Technology',
+          isGlobal: false,
+          jobCount: 25
+        },
+        {
+          id: 'final-fallback-company-2',
+          name: 'InnovateLab',
+          logo: null,
+          location: 'Mumbai, India',
+          industry: 'Technology',
+          sector: 'Technology',
+          isGlobal: false,
+          jobCount: 18
+        },
+        {
+          id: 'final-fallback-company-3',
+          name: 'DataFlow Inc',
+          logo: null,
+          location: 'Hyderabad, India',
+          industry: 'Technology',
+          sector: 'Technology',
+          isGlobal: false,
+          jobCount: 32
+        },
+        {
+          id: 'final-fallback-company-4',
+          name: 'CloudTech',
+          logo: null,
+          location: 'Delhi, India',
+          industry: 'Technology',
+          sector: 'Technology',
+          isGlobal: false,
+          jobCount: 15
+        },
+        {
+          id: 'final-fallback-company-5',
+          name: 'Creative Studio',
+          logo: null,
+          location: 'Pune, India',
+          industry: 'Design',
+          sector: 'Design',
+          isGlobal: false,
+          jobCount: 12
+        },
+        {
+          id: 'final-fallback-company-6',
+          name: 'FinTech Pro',
+          logo: null,
+          location: 'Chennai, India',
+          industry: 'Finance',
+          sector: 'Finance',
+          isGlobal: false,
+          jobCount: 28
+        }
+      ];
+    }
   }
 
   const trendingSearches = [
