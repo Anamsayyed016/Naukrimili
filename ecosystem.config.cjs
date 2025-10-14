@@ -26,8 +26,10 @@ module.exports = {
         GMAIL_API_REFRESH_TOKEN: process.env.GMAIL_API_REFRESH_TOKEN,
         GMAIL_SENDER: process.env.GMAIL_SENDER,
         GMAIL_FROM_NAME: process.env.GMAIL_FROM_NAME,
-        NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+        // NextAuth Configuration - Hardcoded for production
+        NEXTAUTH_URL: "https://naukrimili.com",
+        NEXTAUTH_SECRET: "naukrimili-secret-key-2024-production-deployment",
+        // Google OAuth - Load from environment
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
       },
@@ -48,8 +50,10 @@ module.exports = {
         GMAIL_API_REFRESH_TOKEN: process.env.GMAIL_API_REFRESH_TOKEN,
         GMAIL_SENDER: process.env.GMAIL_SENDER,
         GMAIL_FROM_NAME: process.env.GMAIL_FROM_NAME,
-        NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+        // NextAuth Configuration - Hardcoded for production
+        NEXTAUTH_URL: "https://naukrimili.com",
+        NEXTAUTH_SECRET: "naukrimili-secret-key-2024-production-deployment",
+        // Google OAuth - Load from environment
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
       },
