@@ -20,9 +20,9 @@ if [ -d "prisma" ] && [ -f "prisma/schema.prisma" ]; then
   npx prisma generate || echo "⚠️ Prisma generate failed, continuing..."
 fi
 
-# Build the application
+# Build the application with environment variables
 echo "📋 Running Next.js build..."
-npm run build
+NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment" NEXTAUTH_URL="https://naukrimili.com" NODE_ENV=production npm run build
 
 # Verify build output
 if [ ! -d ".next" ]; then

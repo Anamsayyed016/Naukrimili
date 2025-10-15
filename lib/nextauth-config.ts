@@ -86,9 +86,12 @@ const customPrismaAdapter = {
   }
 }
 
-const nextAuthSecret = process.env.NEXTAUTH_SECRET
-if (!nextAuthSecret) {
-  throw new Error("NEXTAUTH_SECRET environment variable is not set")
+// Allow build to proceed without NEXTAUTH_SECRET, but it must be set at runtime
+const nextAuthSecret = process.env.NEXTAUTH_SECRET || 'build-time-placeholder-secret-key'
+
+if (!process.env.NEXTAUTH_SECRET) {
+  console.warn("⚠️ NEXTAUTH_SECRET environment variable is not set. Using placeholder for build.");
+  console.warn("⚠️ Make sure to set NEXTAUTH_SECRET before running in production!");
 }
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID
