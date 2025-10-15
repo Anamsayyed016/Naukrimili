@@ -19,7 +19,6 @@
  * 4. Add credentials to .env
  */
 
-import 'server-only';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 
