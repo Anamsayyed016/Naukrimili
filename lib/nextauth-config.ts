@@ -4,13 +4,13 @@ import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 
-// Custom adapter to handle name field properly
+// Custom adapter to handle name field properly and send welcome emails
 const baseAdapter = PrismaAdapter(prisma);
 
-// Wrap the adapter to override createUser
+// Create custom adapter that properly overrides createUser for NextAuth v5
 const customPrismaAdapter = {
   ...baseAdapter,
-  createUser: async (user: any) => {
+  async createUser(user: any) {
     console.log('🎉 Custom adapter createUser called for:', user.email);
 
     // Split name into firstName and lastName

@@ -191,7 +191,7 @@ export default function EmployerDashboard() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-4 mb-4">
               <h1 className="text-5xl font-bold text-slate-900">
-                Welcome back, {session?.user?.name?.split(' ')[0] || 'Employer'}! 👋
+                Welcome back, {(session?.user as any)?.firstName || 'Employer'}! 👋
               </h1>
               {/* Notification Bell */}
               <div className="relative">
