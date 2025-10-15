@@ -9,8 +9,8 @@ const nextConfig = {
   },
   experimental: {
     forceSwcTransforms: true,
-    serverComponentsExternalPackages: ['googleapis', 'google-auth-library'],
   },
+  serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer'],
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
@@ -28,11 +28,25 @@ const nextConfig = {
         zlib: false,
         http: false,
         https: false,
+        http2: false,
         assert: false,
         os: false,
         path: false,
         child_process: false,
+        'node:buffer': false,
+        'node:fs': false,
+        'node:http': false,
+        'node:https': false,
+        'node:stream': false,
       };
+      
+      // Ignore googleapis and related packages in client bundle
+      config.externals = config.externals || [];
+      config.externals.push({
+        'googleapis': 'commonjs googleapis',
+        'google-auth-library': 'commonjs google-auth-library',
+        'node-fetch': 'commonjs node-fetch',
+      });
     }
     return config;
   },
