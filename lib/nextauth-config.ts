@@ -4,8 +4,82 @@ import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 
-// Use Prisma Adapter - events callback will handle welcome emails
-const adapter = PrismaAdapter(prisma);
+// Custom Prisma Adapter to handle name field mapping
+const baseAdapter = PrismaAdapter(prisma);
+
+const adapter = {
+  ...baseAdapter,
+  createUser: async (user: any) => {
+    console.log('🎉 Custom adapter createUser called for:', user.email);
+    
+    // Split name into firstName and lastName
+    const nameParts = user.name ? user.name.split(' ') : ['', ''];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Remove name field and add firstName/lastName
+    const { name, ...userData } = user;
+
+    const newUser = await prisma.user.create({
+      data: {
+        id: userData.id,
+        email: userData.email,
+        emailVerified: userData.emailVerified || null,
+        image: userData.image || null,
+        firstName,
+        lastName,
+        // Set default values for required fields
+        role: null, // Don't default to jobseeker - user must select
+        isActive: true,
+        isVerified: false,
+      }
+    });
+
+    console.log('✅ User created in database:', newUser.id, newUser.email);
+
+    // Send welcome email and notification for new user
+    try {
+      console.log('🔔 Creating welcome notification for new user:', newUser.id, newUser.email);
+
+      // Create a simple notification record
+      const notification = await prisma.notification.create({
+        data: {
+          userId: newUser.id,
+          type: 'welcome',
+          title: 'Welcome to NaukriMili!',
+          message: `Welcome ${firstName && lastName ? `${firstName} ${lastName}` : firstName || 'User'}! Your account has been created successfully.`,
+          isRead: false
+        }
+      });
+
+      console.log('✅ Welcome notification created:', notification.id);
+
+      // Send welcome email
+      const userName = firstName && lastName ? `${firstName} ${lastName}` : firstName || 'User';
+      console.log('📧 Triggering welcome email for:', newUser.email);
+
+      try {
+        const { sendWelcomeEmail } = await import('@/lib/welcome-email');
+        await sendWelcomeEmail({
+          email: newUser.email,
+          name: userName,
+          provider: 'google'
+        });
+        console.log('✅ Welcome email sent successfully to:', newUser.email);
+      } catch (emailError) {
+        console.error('❌ Failed to send welcome email:', emailError);
+        // Don't block user creation if email fails
+      }
+
+      console.log('✅ Welcome flow completed for:', newUser.email);
+    } catch (notificationError) {
+      console.error('❌ Failed to send welcome notification:', notificationError);
+      // Don't fail user creation if notification fails
+    }
+
+    return newUser;
+  },
+};
 
 // Validate NEXTAUTH_SECRET - this is REQUIRED for production
 const nextAuthSecret = process.env.NEXTAUTH_SECRET
@@ -53,7 +127,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: nextAuthSecret,
   trustHost: true,
   debug: true, // Enable debug to troubleshoot welcome email
-  url: nextAuthUrl,
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error',
@@ -99,64 +172,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
     })
   ],
-  events: {
-    async createUser(message) {
-      console.log('🎉 NextAuth event - createUser triggered for:', message.user.email);
-      
-      try {
-        // Get the newly created user
-        const user = await prisma.user.findUnique({
-          where: { email: message.user.email! },
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true
-          }
-        });
-
-        if (!user) {
-          console.error('❌ User not found after creation:', message.user.email);
-          return;
-        }
-
-        console.log('✅ User found:', user.id, user.email);
-
-        // Create welcome notification
-        const notification = await prisma.notification.create({
-          data: {
-            userId: user.id,
-            type: 'welcome',
-            title: 'Welcome to NaukriMili!',
-            message: `Welcome ${user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || 'User'}! Your account has been created successfully.`,
-            isRead: false
-          }
-        });
-
-        console.log('✅ Welcome notification created:', notification.id);
-
-        // Send welcome email
-        const userName = user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || 'User';
-        console.log('📧 Triggering welcome email for:', user.email);
-
-        try {
-          const { sendWelcomeEmail } = await import('@/lib/welcome-email');
-          await sendWelcomeEmail({
-            email: user.email,
-            name: userName,
-            provider: 'google'
-          });
-          console.log('✅ Welcome email sent successfully to:', user.email);
-        } catch (emailError) {
-          console.error('❌ Failed to send welcome email:', emailError);
-        }
-
-        console.log('✅ Welcome flow completed for:', user.email);
-      } catch (error) {
-        console.error('❌ Error in createUser event:', error);
-      }
-    },
-  },
   callbacks: {
     async jwt({ token, user, account, trigger }) {
       console.log('🔍 JWT callback - Processing:', { 
