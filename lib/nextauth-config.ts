@@ -5,9 +5,10 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 
 // Custom adapter to handle name field properly
-const customPrismaAdapter = {
-  ...PrismaAdapter(prisma),
-  async createUser(user) {
+const baseAdapter = PrismaAdapter(prisma);
+const customPrismaAdapter: typeof baseAdapter = {
+  ...baseAdapter,
+  createUser: async (user) => {
     console.log('🎉 Custom adapter createUser called for:', user.email);
 
     // Split name into firstName and lastName
@@ -20,13 +21,16 @@ const customPrismaAdapter = {
 
     const newUser = await prisma.user.create({
       data: {
-        ...userData,
+        id: userData.id,
+        email: userData.email,
+        emailVerified: userData.emailVerified || null,
+        image: userData.image || null,
         firstName,
         lastName,
         // Set default values for required fields
-        role: userData.role || null, // Don't default to jobseeker - user must select
-        isActive: userData.isActive ?? true,
-        isVerified: userData.isVerified ?? false,
+        role: null, // Don't default to jobseeker - user must select
+        isActive: true,
+        isVerified: false,
       }
     });
 
@@ -76,8 +80,8 @@ const customPrismaAdapter = {
     }
 
     return newUser;
-  }
-}
+  },
+};
 
 // Allow build to proceed without NEXTAUTH_SECRET, but it must be set at runtime
 const nextAuthSecret = process.env.NEXTAUTH_SECRET || 'build-time-placeholder-secret-key'
