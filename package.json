@@ -165,6 +165,7 @@
     "react-is": "^19.1.1",
     "react-resizable-panels": "^3.0.3",
     "recharts": "^3.1.0",
+    "server-only": "^0.0.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.6",

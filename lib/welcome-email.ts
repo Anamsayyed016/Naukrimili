@@ -4,6 +4,7 @@
  * Now using Gmail OAuth2 for professional email delivery
  */
 
+import 'server-only';
 import { mailerService } from '@/lib/gmail-oauth2-mailer';
 
 interface WelcomeEmailData {
