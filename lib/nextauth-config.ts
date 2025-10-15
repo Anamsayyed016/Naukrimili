@@ -13,15 +13,17 @@ import { prisma } from "@/lib/prisma"
 const customPrismaAdapter = {
   ...PrismaAdapter(prisma),
   async createUser(user) {
+    console.log('🎉 Custom adapter createUser called for:', user.email);
+    
     // Split name into firstName and lastName
     const nameParts = user.name ? user.name.split(' ') : ['', ''];
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
     
     // Remove name field and add firstName/lastName
-    const { name, ...userData } = user;
+    const { name, ...userData} = user;
     
-    return prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         ...userData,
         firstName,
@@ -32,6 +34,60 @@ const customPrismaAdapter = {
         isVerified: userData.isVerified ?? false,
       }
     });
+
+    console.log('✅ User created in database:', newUser.id, newUser.email);
+
+    // Send welcome email and notification for new user
+    try {
+      console.log('🔔 Creating welcome notification for new user:', newUser.id, newUser.email);
+      
+      // Create a simple notification record
+      const notification = await prisma.notification.create({
+        data: {
+          userId: newUser.id,
+          type: 'welcome',
+          title: 'Welcome to NaukriMili!',
+          message: `Welcome ${firstName && lastName ? `${firstName} ${lastName}` : firstName || 'User'}! Your account has been created successfully.`,
+          isRead: false
+        }
+      });
+
+      console.log('✅ Welcome notification created:', notification.id);
+
+      // Send welcome email via internal API (non-blocking)
+      const userName = firstName && lastName ? `${firstName} ${lastName}` : firstName || 'User';
+      
+      console.log('📧 Triggering welcome email for:', newUser.email);
+      
+      // Fire and forget - don't block OAuth flow
+      fetch(`https://naukrimili.com/api/internal/send-welcome-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-secret': 'naukrimili-secret-key-2024-production-deployment'
+        },
+        body: JSON.stringify({
+          email: newUser.email,
+          name: userName,
+          provider: 'google'
+        })
+      }).then(res => {
+        console.log('✅ Welcome email API response:', res.status, res.statusText);
+        return res.json();
+      }).then(data => {
+        console.log('✅ Welcome email sent successfully:', data);
+      }).catch(err => {
+        console.error('❌ Failed to trigger welcome email:', err);
+      });
+
+      console.log('✅ Welcome notification created and email triggered for new user');
+    } catch (notificationError) {
+      console.error('❌ Failed to send welcome notification:', notificationError);
+      console.error('❌ Error details:', notificationError);
+      // Don't fail user creation if notification fails
+    }
+
+    return newUser;
   }
 }
 
