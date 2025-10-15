@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma"
 const baseAdapter = PrismaAdapter(prisma);
 
 // Create custom adapter that properly overrides createUser for NextAuth v5
-const customPrismaAdapter = {
+const customPrismaAdapter: typeof baseAdapter = {
   ...baseAdapter,
-  async createUser(user: any) {
+  createUser: async (user: any) => {
     console.log('🎉 Custom adapter createUser called for:', user.email);
 
     // Split name into firstName and lastName
