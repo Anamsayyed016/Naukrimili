@@ -17,6 +17,8 @@ mkdir -p .next
 export NODE_ENV=production
 export NEXT_TELEMETRY_DISABLED=1
 export NODE_OPTIONS="--max-old-space-size=4096"
+export NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment"
+export NEXTAUTH_URL="https://naukrimili.com"
 
 # Install dependencies
 echo "📦 Installing dependencies..."

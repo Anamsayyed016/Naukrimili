@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "set NEXT_PUBLIC_BUILD_TIME=%RANDOM%000 && next build",
+    "build": "set NEXT_PUBLIC_BUILD_TIME=%RANDOM%000 && set NEXTAUTH_SECRET=naukrimili-secret-key-2024-production-deployment && set NEXTAUTH_URL=https://naukrimili.com && next build",
     "build:ci": "rm -f package-lock.json && echo 'engine-strict=false' > .npmrc && echo 'legacy-peer-deps=true' >> .npmrc && echo 'fund=false' >> .npmrc && echo 'audit=false' >> .npmrc && npm install --legacy-peer-deps --engine-strict=false --force && npm install tailwindcss postcss autoprefixer @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-toast class-variance-authority clsx tailwind-merge lucide-react --legacy-peer-deps --engine-strict=false && npx prisma generate && NODE_ENV=production NODE_OPTIONS=--max-old-space-size=4096 npm run build && echo $(date +%s) > .next/BUILD_ID",
     "build:production": "bash build-production.sh",
     "build:cache-bust": "./scripts/deploy-with-cache-bust.sh",
