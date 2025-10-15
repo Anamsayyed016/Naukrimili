@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useAuth } from '@/hooks/useAuth';
-import { clearAllBrowserAuthData } from '@/lib/auth-utils';
+import { clearAllBrowserAuthData } from '@/lib/client-auth-utils';
 import Link from 'next/link';
 
 export default function TestAuthPage() {
