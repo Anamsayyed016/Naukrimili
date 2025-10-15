@@ -5,13 +5,13 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 
 // Custom adapter to handle name field properly and send welcome emails
-const baseAdapter = PrismaAdapter(prisma);
-
-// Create custom adapter that properly overrides createUser for NextAuth v5
-const customPrismaAdapter: typeof baseAdapter = {
-  ...baseAdapter,
-  createUser: async (user: any) => {
-    console.log('🎉 Custom adapter createUser called for:', user.email);
+function CustomPrismaAdapter() {
+  const baseAdapter = PrismaAdapter(prisma);
+  
+  return {
+    ...baseAdapter,
+    createUser: async (user: any) => {
+      console.log('🎉 Custom adapter createUser called for:', user.email);
 
     // Split name into firstName and lastName
     const nameParts = user.name ? user.name.split(' ') : ['', ''];
@@ -81,9 +81,10 @@ const customPrismaAdapter: typeof baseAdapter = {
       // Don't fail user creation if notification fails
     }
 
-    return newUser;
-  },
-};
+      return newUser;
+    },
+  };
+}
 
 // Allow build to proceed without NEXTAUTH_SECRET, but it must be set at runtime
 const nextAuthSecret = process.env.NEXTAUTH_SECRET || 'build-time-placeholder-secret-key'
@@ -103,7 +104,7 @@ if (!googleClientId || !googleClientSecret) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: customPrismaAdapter,
+  adapter: CustomPrismaAdapter(),
   secret: nextAuthSecret,
   trustHost: true,
   debug: true, // Enable debug to troubleshoot welcome email
