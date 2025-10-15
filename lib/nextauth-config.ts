@@ -6,9 +6,11 @@ import { prisma } from "@/lib/prisma"
 
 // Custom adapter to handle name field properly
 const baseAdapter = PrismaAdapter(prisma);
-const customPrismaAdapter: typeof baseAdapter = {
+
+// Wrap the adapter to override createUser
+const customPrismaAdapter = {
   ...baseAdapter,
-  createUser: async (user) => {
+  createUser: async (user: any) => {
     console.log('🎉 Custom adapter createUser called for:', user.email);
 
     // Split name into firstName and lastName
