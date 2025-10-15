@@ -7,13 +7,37 @@ import { prisma } from "@/lib/prisma"
 // Use Prisma Adapter - events callback will handle welcome emails
 const adapter = PrismaAdapter(prisma);
 
-// Allow build to proceed without NEXTAUTH_SECRET, but it must be set at runtime
-const nextAuthSecret = process.env.NEXTAUTH_SECRET || 'build-time-placeholder-secret-key'
+// Validate NEXTAUTH_SECRET - this is REQUIRED for production
+const nextAuthSecret = process.env.NEXTAUTH_SECRET
 
-if (!process.env.NEXTAUTH_SECRET) {
-  console.warn("⚠️ NEXTAUTH_SECRET environment variable is not set. Using placeholder for build.");
-  console.warn("⚠️ Make sure to set NEXTAUTH_SECRET before running in production!");
+if (!nextAuthSecret) {
+  console.error("❌ NEXTAUTH_SECRET environment variable is REQUIRED but not set!");
+  console.error("❌ Authentication will fail without a proper secret.");
+  throw new Error("NEXTAUTH_SECRET environment variable is required");
 }
+
+if (nextAuthSecret.length < 32) {
+  console.error("❌ NEXTAUTH_SECRET must be at least 32 characters long!");
+  throw new Error("NEXTAUTH_SECRET must be at least 32 characters long");
+}
+
+console.log("✅ NEXTAUTH_SECRET is properly configured");
+
+// Validate NEXTAUTH_URL - this is REQUIRED for production
+const nextAuthUrl = process.env.NEXTAUTH_URL
+
+if (!nextAuthUrl) {
+  console.error("❌ NEXTAUTH_URL environment variable is REQUIRED but not set!");
+  console.error("❌ Authentication will fail without a proper URL.");
+  throw new Error("NEXTAUTH_URL environment variable is required");
+}
+
+if (!nextAuthUrl.startsWith('http')) {
+  console.error("❌ NEXTAUTH_URL must be a valid URL starting with http:// or https://");
+  throw new Error("NEXTAUTH_URL must be a valid URL");
+}
+
+console.log("✅ NEXTAUTH_URL is properly configured:", nextAuthUrl);
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
@@ -29,6 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: nextAuthSecret,
   trustHost: true,
   debug: true, // Enable debug to troubleshoot welcome email
+  url: nextAuthUrl,
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error',
