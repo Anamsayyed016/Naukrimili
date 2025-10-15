@@ -74,13 +74,20 @@ export default function RoleChoosePage() {
       const data = await response.json();
 
       if (data.success) {
+        console.log('✅ Role set successfully, updating session...');
+        
         // Update the session to reflect the new role
         await updateSession();
         
+        // Wait a moment for session to update
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         // Redirect to appropriate dashboard
         const dashboardUrl = getDashboardUrl(role);
+        console.log('🔄 Redirecting to dashboard:', dashboardUrl);
         router.push(dashboardUrl);
       } else {
+        console.error('❌ Role selection failed:', data.error);
         setError(data.error || 'Failed to set role. Please try again.');
         setIsLoading(false);
       }

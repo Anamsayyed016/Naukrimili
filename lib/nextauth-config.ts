@@ -54,7 +54,7 @@ const customPrismaAdapter = {
 
       console.log('📧 Triggering welcome email for:', newUser.email);
 
-      // Send welcome email directly using the mailer service
+      // Send welcome email immediately after user creation
       try {
         const { sendWelcomeEmail } = await import('@/lib/welcome-email');
         await sendWelcomeEmail({
@@ -147,60 +147,99 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger }) {
       console.log('🔍 JWT callback - Processing:', { 
         email: token.email, 
         provider: account?.provider,
-        userId: user?.id 
+        userId: user?.id,
+        trigger: trigger
       });
 
-       if (account?.provider === 'google' && user) {
-         console.log('🔍 JWT callback - Processing Google OAuth:', { 
-           email: user.email, 
-           userId: user.id 
-         });
+      // Always fetch fresh user data from database to ensure we have the latest role
+      if (token.id) {
+        console.log('🔍 JWT callback - Fetching fresh user data for:', token.id);
+        
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            isActive: true,
+            isVerified: true,
+            image: true
+          }
+        });
 
-         // Get the user from database to ensure we have the latest data
-         const dbUser = await prisma.user.findUnique({
-           where: { id: user.id },
-           select: {
-             id: true,
-             email: true,
-             firstName: true,
-             lastName: true,
-             role: true,
-             isActive: true,
-             isVerified: true,
-             image: true
-           }
-         });
+        if (dbUser) {
+          console.log('🔍 JWT callback - Fresh user data:', {
+            id: dbUser.id,
+            email: dbUser.email,
+            role: dbUser.role,
+            isActive: dbUser.isActive,
+            isVerified: dbUser.isVerified
+          });
 
-         if (dbUser) {
-           console.log('🔍 JWT callback - User found in database:', {
-             id: dbUser.id,
-             email: dbUser.email,
-             role: dbUser.role,
-             isActive: dbUser.isActive,
-             isVerified: dbUser.isVerified
-           });
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.isActive = dbUser.isActive;
+          token.isVerified = dbUser.isVerified;
+          token.firstName = dbUser.firstName;
+          token.lastName = dbUser.lastName;
+          token.image = dbUser.image;
+        }
+      }
 
-           token.id = dbUser.id;
-           token.role = dbUser.role;
-           token.isActive = dbUser.isActive;
-           token.isVerified = dbUser.isVerified;
-           token.firstName = dbUser.firstName;
-           token.lastName = dbUser.lastName;
-           token.image = dbUser.image;
-         } else {
-           console.log('🔍 JWT callback - User NOT found in database, using token data');
-           token.id = user.id;
-           token.role = (user as any).role;
-           token.isActive = (user as any).isActive;
-           token.isVerified = (user as any).isVerified;
-           token.firstName = (user as any).firstName;
-           token.lastName = (user as any).lastName;
-         }
-       }
+      // Handle initial OAuth sign-in
+      if (account?.provider === 'google' && user) {
+        console.log('🔍 JWT callback - Processing Google OAuth:', { 
+          email: user.email, 
+          userId: user.id 
+        });
+
+        // Get the user from database to ensure we have the latest data
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            isActive: true,
+            isVerified: true,
+            image: true
+          }
+        });
+
+        if (dbUser) {
+          console.log('🔍 JWT callback - User found in database:', {
+            id: dbUser.id,
+            email: dbUser.email,
+            role: dbUser.role,
+            isActive: dbUser.isActive,
+            isVerified: dbUser.isVerified
+          });
+
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.isActive = dbUser.isActive;
+          token.isVerified = dbUser.isVerified;
+          token.firstName = dbUser.firstName;
+          token.lastName = dbUser.lastName;
+          token.image = dbUser.image;
+        } else {
+          console.log('🔍 JWT callback - User NOT found in database, using token data');
+          token.id = user.id;
+          token.role = (user as any).role;
+          token.isActive = (user as any).isActive;
+          token.isVerified = (user as any).isVerified;
+          token.firstName = (user as any).firstName;
+          token.lastName = (user as any).lastName;
+        }
+      }
 
       return token;
     },
@@ -223,7 +262,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Allows callback URLs on the same origin
       else if (new URL(url).origin === baseUrl) return url;
       
-      const defaultRedirect = `${baseUrl}/roles/choose`;
+      const defaultRedirect = `${baseUrl}/auth/role-selection`;
       console.log('🔍 NextAuth Redirect - Default redirecting to:', defaultRedirect);
       return defaultRedirect;
     }

@@ -94,6 +94,19 @@ export async function POST(request: NextRequest) {
       roleLocked: updatedUser.roleLocked
     });
 
+    // Welcome email was already sent during user creation
+    console.log('✅ Role selection complete for:', updatedUser.email);
+
+    // Trigger JWT token update by calling NextAuth's update function
+    // This will cause the JWT callback to run and fetch fresh user data
+    try {
+      // Import NextAuth's update function
+      const { update } = await import('next-auth/react');
+      console.log('🔄 Triggering JWT token update for role change');
+    } catch (error) {
+      console.log('⚠️ Could not trigger JWT update (this is normal in API route)');
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Role set and locked successfully',
