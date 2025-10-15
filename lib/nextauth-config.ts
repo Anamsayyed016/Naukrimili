@@ -54,26 +54,19 @@ const customPrismaAdapter = {
 
       console.log('📧 Triggering welcome email for:', newUser.email);
 
-      // Fire and forget - don't block OAuth flow
-      fetch(`https://naukrimili.com/api/internal/send-welcome-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-internal-secret': 'naukrimili-secret-key-2024-production-deployment'
-        },
-        body: JSON.stringify({
+      // Send welcome email directly using the mailer service
+      try {
+        const { sendWelcomeEmail } = await import('@/lib/welcome-email');
+        await sendWelcomeEmail({
           email: newUser.email,
           name: userName,
           provider: 'google'
-        })
-      }).then(res => {
-        console.log('✅ Welcome email API response:', res.status, res.statusText);
-        return res.json();
-      }).then(data => {
-        console.log('✅ Welcome email sent successfully:', data);
-      }).catch(err => {
-        console.error('❌ Failed to trigger welcome email:', err);
-      });
+        });
+        console.log('✅ Welcome email sent successfully to:', newUser.email);
+      } catch (emailError) {
+        console.error('❌ Failed to send welcome email:', emailError);
+        // Don't block user creation if email fails
+      }
 
       console.log('✅ Welcome notification created and email triggered for new user');
     } catch (notificationError) {
