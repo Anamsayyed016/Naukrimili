@@ -109,7 +109,7 @@ app.prepare().then(() => {
     });
     
     // Initialize socket notification service
-    const { SocketNotificationService } = require('./lib/socket-server.ts');
+    const { SocketNotificationService } = require('./lib/socket-server.js');
     new SocketNotificationService(io);
     
     console.log('✅ Socket.io server initialized successfully');
