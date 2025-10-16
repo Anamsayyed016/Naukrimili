@@ -239,6 +239,12 @@ export default function EmployerJobsPage() {
     }
   }, [currentPage, jobStatus, jobType, experienceLevel, debouncedSearch, apiClient, session]);
 
+  // Handle search with dynamic updates
+  const handleSearch = useCallback(() => {
+    setCurrentPage(1);
+    fetchJobs();
+  }, [fetchJobs]);
+
   // Fetch enhanced stats with trends and caching
   const fetchStats = useCallback(async () => {
     try {
@@ -404,10 +410,16 @@ export default function EmployerJobsPage() {
     }
   }, [jobs, session]);
 
-  const handleSearch = () => {
-    setCurrentPage(1);
-    fetchJobs();
-  };
+  // Auto-search when filters change (debounced) - this replaces the manual search trigger
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (debouncedSearch !== search || jobStatus !== 'all' || jobType !== 'all' || experienceLevel !== 'all') {
+        handleSearch();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [debouncedSearch, jobStatus, jobType, experienceLevel, handleSearch]);
 
   const handleDeleteJob = async (jobId: string) => {
     if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
@@ -493,8 +505,8 @@ export default function EmployerJobsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/20 to-slate-900 py-8">
-      <div className="container mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Enhanced Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -504,20 +516,20 @@ export default function EmployerJobsPage() {
         >
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-lg bg-emerald-600 text-white">
-                <Briefcase className="w-6 h-6" />
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl">
+                <Briefcase className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">Job Management</h1>
-                <p className="text-gray-300 mt-1">Manage your job postings and track applications</p>
+                <h1 className="text-3xl font-bold text-slate-900">Job Management</h1>
+                <p className="text-slate-600 mt-1">Manage your job postings and track applications</p>
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant="secondary" className="capitalize bg-emerald-600/20 text-emerald-400 border-emerald-600/30">
+              <Badge variant="secondary" className="capitalize bg-blue-100 text-blue-800 border-blue-200">
                 Employer
               </Badge>
-              <span className="text-gray-400">•</span>
-              <span className="text-gray-300">Dashboard</span>
+              <span className="text-slate-400">•</span>
+              <span className="text-slate-600">Dashboard</span>
             </div>
           </div>
           
@@ -526,7 +538,7 @@ export default function EmployerJobsPage() {
             <Button 
               variant="outline" 
               onClick={() => fetchAIOptimizations()}
-              className="border-white/20 text-white hover:bg-white/10"
+              className="border-slate-300 text-slate-700 hover:bg-slate-50"
               disabled={loading || jobs.length === 0}
             >
               <Brain className="h-4 w-4 mr-2" />
@@ -535,14 +547,14 @@ export default function EmployerJobsPage() {
             <Button 
               variant="outline" 
               onClick={() => { fetchJobs(); fetchStats(); }}
-              className="border-white/20 text-white hover:bg-white/10"
+              className="border-slate-300 text-slate-700 hover:bg-slate-50"
               disabled={loading || statsLoading}
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${(loading || statsLoading) ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
             <Link href="/employer/jobs/create">
-              <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-6 py-3 shadow-lg">
+              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 shadow-lg">
                 <Plus className="h-5 w-5 mr-2" />
                 Post New Job
               </Button>
@@ -556,7 +568,7 @@ export default function EmployerJobsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
           >
             {stats.map((stat, index) => (
               <motion.div
@@ -564,22 +576,22 @@ export default function EmployerJobsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + index * 0.1 }}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 hover:bg-white/15 transition-all duration-300"
+                className="bg-white shadow-xl rounded-2xl p-6 border-0 hover:shadow-2xl transition-all duration-300 group"
               >
                 {statsLoading ? (
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <Skeleton className="h-4 w-20 mb-2 bg-white/20" />
-                      <Skeleton className="h-8 w-16 mb-1 bg-white/20" />
-                      <Skeleton className="h-3 w-24 bg-white/20" />
+                      <Skeleton className="h-4 w-20 mb-2 bg-gray-200" />
+                      <Skeleton className="h-8 w-16 mb-1 bg-gray-200" />
+                      <Skeleton className="h-3 w-24 bg-gray-200" />
                     </div>
-                    <Skeleton className="h-8 w-8 bg-white/20" />
+                    <Skeleton className="h-8 w-8 bg-gray-200" />
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-300 text-sm font-medium">{stat.title}</p>
-                      <p className="text-2xl font-bold text-white mt-1">
+                      <p className="text-slate-600 text-sm font-medium">{stat.title}</p>
+                      <p className="text-2xl font-bold text-slate-900 mt-1">
                         {index === 0 && totalJobsCounter.formattedValue}
                         {index === 1 && totalAppsCounter.formattedValue}
                         {index === 2 && activeJobsCounter.formattedValue}
@@ -590,20 +602,20 @@ export default function EmployerJobsPage() {
                           <span
                             className={`text-xs ${
                               stat.trend === "up"
-                                ? "text-green-400"
+                                ? "text-green-600"
                                 : stat.trend === "down"
-                                ? "text-red-400"
-                                : "text-gray-400"
+                                ? "text-red-600"
+                                : "text-slate-500"
                             }`}
                           >
                             {stat.change}
                           </span>
-                          {stat.trend === "up" && <TrendingUp className="h-3 w-3 text-green-400" />}
-                          {stat.trend === "down" && <TrendingUp className="h-3 w-3 text-red-400 rotate-180" />}
+                          {stat.trend === "up" && <TrendingUp className="h-3 w-3 text-green-600" />}
+                          {stat.trend === "down" && <TrendingUp className="h-3 w-3 text-red-600 rotate-180" />}
                         </div>
                       )}
                     </div>
-                    {stat.icon && <div className="text-white/60">{stat.icon}</div>}
+                    {stat.icon && <div className="text-slate-400 group-hover:text-blue-600 transition-colors">{stat.icon}</div>}
                   </div>
                 )}
               </motion.div>
@@ -616,89 +628,90 @@ export default function EmployerJobsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 mb-6"
+          className="bg-white shadow-lg rounded-2xl p-6 border-0 mb-6"
         >
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                 <Input
                   placeholder="Search jobs..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 h-12 bg-white/5 border-white/20 text-white placeholder-gray-400 focus:border-emerald-500"
+                  onKeyPress={(e) => e.key === 'Enter' && setCurrentPage(1)}
+                  className="pl-12 h-12 bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-500 focus:border-blue-500 focus:bg-white rounded-xl"
                 />
               </div>
             </div>
             
             <Select value={jobStatus} onValueChange={setJobStatus}>
-              <SelectTrigger className="w-full sm:w-40 h-12 bg-white/5 border-white/20 text-white">
+              <SelectTrigger className="w-full sm:w-40 h-12 bg-slate-50 border-slate-200 text-slate-900 rounded-xl">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="all" className="text-white hover:bg-slate-700">All Status</SelectItem>
+              <SelectContent className="bg-white border-slate-200">
+                <SelectItem value="all" className="text-slate-900 hover:bg-slate-50">All Status</SelectItem>
                 {dynamicOptions?.statuses?.map((status) => (
-                  <SelectItem key={status.value} value={status.value} className="text-white hover:bg-slate-700">
+                  <SelectItem key={status.value} value={status.value} className="text-slate-900 hover:bg-slate-50">
                     <div className="flex items-center justify-between w-full">
                       <span>{status.label}</span>
-                      <span className="text-xs text-gray-400 ml-2">({status.count})</span>
+                      <span className="text-xs text-slate-500 ml-2">({status.count})</span>
                     </div>
                   </SelectItem>
                 )) || (
                   <>
-                    <SelectItem value="active" className="text-white hover:bg-slate-700">Active</SelectItem>
-                    <SelectItem value="inactive" className="text-white hover:bg-slate-700">Inactive</SelectItem>
-                    <SelectItem value="urgent" className="text-white hover:bg-slate-700">Urgent</SelectItem>
-                    <SelectItem value="featured" className="text-white hover:bg-slate-700">Featured</SelectItem>
+                    <SelectItem value="active" className="text-slate-900 hover:bg-slate-50">Active</SelectItem>
+                    <SelectItem value="inactive" className="text-slate-900 hover:bg-slate-50">Inactive</SelectItem>
+                    <SelectItem value="urgent" className="text-slate-900 hover:bg-slate-50">Urgent</SelectItem>
+                    <SelectItem value="featured" className="text-slate-900 hover:bg-slate-50">Featured</SelectItem>
                   </>
                 )}
               </SelectContent>
             </Select>
             
             <Select value={jobType} onValueChange={setJobType}>
-              <SelectTrigger className="w-full sm:w-40 h-12 bg-white/5 border-white/20 text-white">
+              <SelectTrigger className="w-full sm:w-40 h-12 bg-slate-50 border-slate-200 text-slate-900 rounded-xl">
                 <SelectValue placeholder="Job Type" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="all" className="text-white hover:bg-slate-700">All Types</SelectItem>
+              <SelectContent className="bg-white border-slate-200">
+                <SelectItem value="all" className="text-slate-900 hover:bg-slate-50">All Types</SelectItem>
                 {dynamicOptions?.jobTypes?.map((type) => (
-                  <SelectItem key={type.value} value={type.value} className="text-white hover:bg-slate-700">
+                  <SelectItem key={type.value} value={type.value} className="text-slate-900 hover:bg-slate-50">
                     <div className="flex items-center justify-between w-full">
                       <span>{type.label}</span>
-                      <span className="text-xs text-gray-400 ml-2">({type.count})</span>
+                      <span className="text-xs text-slate-500 ml-2">({type.count})</span>
                     </div>
                   </SelectItem>
                 )) || (
                   <>
-                    <SelectItem value="full-time" className="text-white hover:bg-slate-700">Full-time</SelectItem>
-                    <SelectItem value="part-time" className="text-white hover:bg-slate-700">Part-time</SelectItem>
-                    <SelectItem value="contract" className="text-white hover:bg-slate-700">Contract</SelectItem>
-                    <SelectItem value="internship" className="text-white hover:bg-slate-700">Internship</SelectItem>
+                    <SelectItem value="full-time" className="text-slate-900 hover:bg-slate-50">Full-time</SelectItem>
+                    <SelectItem value="part-time" className="text-slate-900 hover:bg-slate-50">Part-time</SelectItem>
+                    <SelectItem value="contract" className="text-slate-900 hover:bg-slate-50">Contract</SelectItem>
+                    <SelectItem value="internship" className="text-slate-900 hover:bg-slate-50">Internship</SelectItem>
                   </>
                 )}
               </SelectContent>
             </Select>
             
             <Select value={experienceLevel} onValueChange={setExperienceLevel}>
-              <SelectTrigger className="w-full sm:w-40 h-12 bg-white/5 border-white/20 text-white">
+              <SelectTrigger className="w-full sm:w-40 h-12 bg-slate-50 border-slate-200 text-slate-900 rounded-xl">
                 <SelectValue placeholder="Experience" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="all" className="text-white hover:bg-slate-700">All Levels</SelectItem>
+              <SelectContent className="bg-white border-slate-200">
+                <SelectItem value="all" className="text-slate-900 hover:bg-slate-50">All Levels</SelectItem>
                 {dynamicOptions?.experienceLevels?.map((level) => (
-                  <SelectItem key={level.value} value={level.value} className="text-white hover:bg-slate-700">
+                  <SelectItem key={level.value} value={level.value} className="text-slate-900 hover:bg-slate-50">
                     <div className="flex items-center justify-between w-full">
                       <span>{level.label}</span>
-                      <span className="text-xs text-gray-400 ml-2">({level.count})</span>
+                      <span className="text-xs text-slate-500 ml-2">({level.count})</span>
                     </div>
                   </SelectItem>
                 )) || (
                   <>
-                    <SelectItem value="entry" className="text-white hover:bg-slate-700">Entry Level</SelectItem>
-                    <SelectItem value="mid" className="text-white hover:bg-slate-700">Mid Level</SelectItem>
-                    <SelectItem value="senior" className="text-white hover:bg-slate-700">Senior Level</SelectItem>
-                    <SelectItem value="lead" className="text-white hover:bg-slate-700">Lead</SelectItem>
-                    <SelectItem value="executive" className="text-white hover:bg-slate-700">Executive</SelectItem>
+                    <SelectItem value="entry" className="text-slate-900 hover:bg-slate-50">Entry Level</SelectItem>
+                    <SelectItem value="mid" className="text-slate-900 hover:bg-slate-50">Mid Level</SelectItem>
+                    <SelectItem value="senior" className="text-slate-900 hover:bg-slate-50">Senior Level</SelectItem>
+                    <SelectItem value="lead" className="text-slate-900 hover:bg-slate-50">Lead</SelectItem>
+                    <SelectItem value="executive" className="text-slate-900 hover:bg-slate-50">Executive</SelectItem>
                   </>
                 )}
               </SelectContent>
@@ -706,9 +719,9 @@ export default function EmployerJobsPage() {
             
             <div className="flex gap-2">
               <Button 
-                onClick={handleSearch} 
+                onClick={() => setCurrentPage(1)} 
                 variant="outline" 
-                className="h-12 border-white/20 text-white hover:bg-white/10"
+                className="h-12 border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl"
                 disabled={loading}
               >
                 <Filter className="h-4 w-4 mr-2" />
@@ -723,7 +736,7 @@ export default function EmployerJobsPage() {
                   setCurrentPage(1);
                 }} 
                 variant="outline" 
-                className="h-12 border-white/20 text-white hover:bg-white/10"
+                className="h-12 border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl"
               >
                 <X className="h-4 w-4 mr-2" />
                 Clear
@@ -738,23 +751,23 @@ export default function EmployerJobsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-sm rounded-lg p-6 border border-purple-500/30 mb-6"
+            className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-200 mb-6"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-600/20 rounded-lg">
-                  <Brain className="h-5 w-5 text-purple-400" />
+                <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl">
+                  <Brain className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white">AI Job Optimization</h3>
-                  <p className="text-sm text-purple-300">Get AI-powered suggestions to improve your job postings</p>
+                  <h3 className="text-lg font-semibold text-slate-900">AI Job Optimization</h3>
+                  <p className="text-sm text-slate-600">Get AI-powered suggestions to improve your job postings</p>
                 </div>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowOptimizations(!showOptimizations)}
-                className="border-purple-500/30 text-purple-400 hover:bg-purple-500/20"
+                className="border-purple-200 text-purple-700 hover:bg-purple-50"
               >
                 {showOptimizations ? 'Hide' : 'View'} Suggestions
               </Button>
@@ -763,20 +776,20 @@ export default function EmployerJobsPage() {
             {showOptimizations && (
               <div className="space-y-4">
                 {aiOptimizations.map((optimization, index) => (
-                  <div key={index} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <div key={index} className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
                     <div className="flex items-center gap-2 mb-2">
-                      <Badge className={`${optimization.priority === 'high' ? 'bg-red-500/20 text-red-400' : optimization.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                      <Badge className={`${optimization.priority === 'high' ? 'bg-red-100 text-red-700 border-red-200' : optimization.priority === 'medium' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : 'bg-blue-100 text-blue-700 border-blue-200'}`}>
                         {optimization.priority.toUpperCase()}
                       </Badge>
-                      <Badge className="bg-purple-500/20 text-purple-400">
+                      <Badge className="bg-purple-100 text-purple-700 border-purple-200">
                         {optimization.category.toUpperCase()}
                       </Badge>
-                      <span className="text-sm text-gray-400">Score: {optimization.score}/100</span>
+                      <span className="text-sm text-slate-500">Score: {optimization.score}/100</span>
                     </div>
                     <ul className="space-y-1">
                       {optimization.suggestions.map((suggestion, idx) => (
-                        <li key={idx} className="text-sm text-gray-300 flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-purple-400 rounded-full flex-shrink-0" />
+                        <li key={idx} className="text-sm text-slate-700 flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full flex-shrink-0" />
                           {suggestion}
                         </li>
                       ))}
@@ -793,11 +806,11 @@ export default function EmployerJobsPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg backdrop-blur-sm"
+            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl"
           >
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-400" />
-              <p className="text-red-300">{error}</p>
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <p className="text-red-800">{error}</p>
             </div>
           </motion.div>
         )}
@@ -812,12 +825,12 @@ export default function EmployerJobsPage() {
               transition={{ delay: index * 0.1 }}
               className="group"
             >
-              <Card className="bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group-hover:shadow-2xl">
+              <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-all duration-300 group-hover:shadow-2xl">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                        <h3 className="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
                           {job.title}
                         </h3>
                         <div className="flex items-center gap-2">
@@ -840,46 +853,46 @@ export default function EmployerJobsPage() {
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-4">
-                        <div className="flex items-center gap-1 bg-white/5 px-3 py-1 rounded-full">
-                          <MapPin className="h-4 w-4 text-emerald-400" />
-                          <span className="text-white">{job.location}</span>
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 mb-4">
+                        <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
+                          <MapPin className="h-4 w-4 text-emerald-600" />
+                          <span className="text-slate-900">{job.location}</span>
                         </div>
-                        <div className="flex items-center gap-1 bg-white/5 px-3 py-1 rounded-full">
-                          <Briefcase className="h-4 w-4 text-blue-400" />
-                          <span className="text-white">{job.jobType}</span>
+                        <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
+                          <Briefcase className="h-4 w-4 text-blue-600" />
+                          <span className="text-slate-900">{job.jobType}</span>
                         </div>
                         {job.salary && (
-                          <div className="flex items-center gap-1 bg-white/5 px-3 py-1 rounded-full">
-                            <DollarSign className="h-4 w-4 text-green-400" />
-                            <span className="text-white">{job.salary}</span>
+                          <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
+                            <DollarSign className="h-4 w-4 text-green-600" />
+                            <span className="text-slate-900">{job.salary}</span>
                           </div>
                         )}
-                        <div className="flex items-center gap-1 bg-white/5 px-3 py-1 rounded-full">
-                          <Users className="h-4 w-4 text-purple-400" />
-                          <span className="text-white">{job._count.applications} applications</span>
+                        <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
+                          <Users className="h-4 w-4 text-purple-600" />
+                          <span className="text-slate-900">{job._count.applications} applications</span>
                         </div>
-                        <div className="flex items-center gap-1 bg-white/5 px-3 py-1 rounded-full">
-                          <Calendar className="h-4 w-4 text-orange-400" />
-                          <span className="text-white">Posted {new Date(job.createdAt).toLocaleDateString()}</span>
+                        <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
+                          <Calendar className="h-4 w-4 text-orange-600" />
+                          <span className="text-slate-900">Posted {new Date(job.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
                       
                       {/* Application Analytics Preview */}
                       <div className="mb-4">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm text-gray-400">Application Progress</span>
+                          <span className="text-sm text-slate-600">Application Progress</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-white font-semibold">{job._count.applications}</span>
-                            <span className="text-xs text-gray-400">applications</span>
+                            <span className="text-sm text-slate-900 font-semibold">{job._count.applications}</span>
+                            <span className="text-xs text-slate-500">applications</span>
                             {job._count.applications > 0 && (
-                              <Badge variant="outline" className="text-xs border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+                              <Badge variant="outline" className="text-xs border-emerald-200 text-emerald-700 bg-emerald-50">
                                 +{Math.floor(job._count.applications * 0.2)} this week
                               </Badge>
                             )}
                           </div>
                         </div>
-                        <div className="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
+                        <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min((job._count.applications / 20) * 100, 100)}%` }}
