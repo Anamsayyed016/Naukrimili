@@ -99,36 +99,58 @@ export default function CreateCompanyPage() {
     const style = document.createElement('style');
     style.id = 'company-dropdown-visibility-fixes';
     style.textContent = `
-      /* Force all dropdowns to be visible */
-      [data-radix-popper-content-wrapper] {
-        z-index: 99999 !important;
+      /* AGGRESSIVE DROPDOWN VISIBILITY FIXES FOR COMPANY FORM */
+      
+      /* Force all Radix UI dropdown elements to highest priority */
+      [data-radix-popper-content-wrapper],
+      [data-radix-select-content],
+      [data-radix-select-viewport],
+      [data-radix-select-item],
+      [data-radix-select-trigger],
+      [data-radix-select-item-indicator],
+      [data-radix-select-separator] {
+        z-index: 999999 !important;
         position: fixed !important;
         isolation: isolate !important;
       }
       
+      /* Main dropdown container */
+      [data-radix-popper-content-wrapper] {
+        z-index: 999999 !important;
+        position: fixed !important;
+        isolation: isolate !important;
+        pointer-events: auto !important;
+      }
+      
+      /* Dropdown content styling */
       [data-radix-select-content] {
-        z-index: 99999 !important;
+        z-index: 999999 !important;
         position: fixed !important;
         background: white !important;
         border: 1px solid #e2e8f0 !important;
-        border-radius: 8px !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-        padding: 4px !important;
-        max-height: 240px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        padding: 8px !important;
+        max-height: 280px !important;
         overflow-y: auto !important;
         transform: none !important;
+        pointer-events: auto !important;
+        min-width: 200px !important;
       }
       
+      /* Dropdown viewport */
       [data-radix-select-viewport] {
-        z-index: 99999 !important;
-        max-height: 232px !important;
+        z-index: 999999 !important;
+        max-height: 264px !important;
         overflow-y: auto !important;
+        pointer-events: auto !important;
       }
       
+      /* Dropdown items */
       [data-radix-select-item] {
-        z-index: 99999 !important;
-        padding: 8px 12px !important;
-        border-radius: 6px !important;
+        z-index: 999999 !important;
+        padding: 12px 16px !important;
+        border-radius: 8px !important;
         margin: 2px 0 !important;
         cursor: pointer !important;
         transition: all 0.2s ease !important;
@@ -136,94 +158,148 @@ export default function CreateCompanyPage() {
         font-size: 14px !important;
         line-height: 1.5 !important;
         position: relative !important;
+        pointer-events: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
       }
       
       [data-radix-select-item]:hover {
-        background-color: #f3f4f6 !important;
-        color: #1f2937 !important;
+        background-color: #f8fafc !important;
+        color: #1e293b !important;
+        transform: translateX(2px) !important;
       }
       
       [data-radix-select-item][data-highlighted] {
         background-color: #3b82f6 !important;
         color: white !important;
+        transform: translateX(2px) !important;
       }
       
       [data-radix-select-item][data-state="checked"] {
         background-color: #3b82f6 !important;
         color: white !important;
+        font-weight: 600 !important;
       }
       
-      /* Fix container overflow issues */
-      .overflow-hidden {
+      /* CRITICAL: Force all containers to not clip dropdowns */
+      .overflow-hidden,
+      [class*="overflow-hidden"],
+      [class*="overflow-x-hidden"],
+      [class*="overflow-y-hidden"] {
         overflow: visible !important;
       }
       
-      /* Ensure form containers don't clip dropdowns */
-      .form-container {
+      /* Ensure all form containers allow dropdown visibility */
+      .form-container,
+      [class*="container"],
+      [class*="Card"],
+      [class*="CardContent"],
+      [class*="motion-div"] {
         overflow: visible !important;
       }
       
-      /* Fix any parent container issues */
-      [class*="overflow"] {
+      /* Fix any parent container clipping */
+      [class*="overflow"],
+      [class*="clip"] {
         overflow: visible !important;
+        clip-path: none !important;
       }
       
-      /* Force dropdown positioning */
+      /* Force dropdown positioning above all content */
       [data-radix-popper-content-wrapper][data-side="bottom"] {
-        z-index: 99999 !important;
+        z-index: 999999 !important;
         position: fixed !important;
-        transform: translateY(4px) !important;
+        transform: translateY(8px) !important;
       }
       
       [data-radix-select-content][data-side="bottom"] {
-        z-index: 99999 !important;
+        z-index: 999999 !important;
         position: fixed !important;
       }
       
-      /* Mobile responsiveness */
+      /* Enhanced mobile responsiveness */
       @media (max-width: 768px) {
         [data-radix-popper-content-wrapper] {
-          z-index: 99999 !important;
+          z-index: 999999 !important;
           position: fixed !important;
-          max-width: calc(100vw - 32px) !important;
-          left: 16px !important;
-          right: 16px !important;
+          max-width: calc(100vw - 24px) !important;
+          left: 12px !important;
+          right: 12px !important;
         }
         
         [data-radix-select-content] {
-          max-width: calc(100vw - 40px) !important;
+          max-width: calc(100vw - 32px) !important;
+          max-height: 240px !important;
+        }
+        
+        [data-radix-select-viewport] {
+          max-height: 224px !important;
         }
       }
       
-      /* Ensure all dropdown elements have highest priority */
-      [data-radix-popper-content-wrapper],
-      [data-radix-select-content],
-      [data-radix-select-viewport],
-      [data-radix-select-item],
-      [data-radix-select-trigger] {
-        z-index: 99999 !important;
+      /* Tablet responsiveness */
+      @media (min-width: 769px) and (max-width: 1024px) {
+        [data-radix-select-content] {
+          max-width: 400px !important;
+        }
       }
       
-      /* Fix any stacking context issues */
+      /* Desktop enhancements */
+      @media (min-width: 1025px) {
+        [data-radix-select-content] {
+          max-width: 350px !important;
+          min-width: 250px !important;
+        }
+      }
+      
+      /* Fix stacking context issues */
       .relative {
         position: relative !important;
         z-index: auto !important;
       }
       
-      /* Ensure dropdowns appear above everything */
-      [data-state="open"] {
-        z-index: 99999 !important;
+      /* Ensure dropdowns appear above everything including modals */
+      [data-state="open"],
+      [data-radix-popper-content-wrapper][data-state="open"] {
+        z-index: 999999 !important;
       }
       
-      /* Additional fixes for specific components */
-      .select-content {
-        z-index: 99999 !important;
+      /* Additional component-specific fixes */
+      .select-content,
+      [class*="select-content"] {
+        z-index: 999999 !important;
         position: fixed !important;
       }
       
-      [role="listbox"] {
-        z-index: 99999 !important;
+      [role="listbox"],
+      [role="option"] {
+        z-index: 999999 !important;
         position: relative !important;
+      }
+      
+      /* Fix for any backdrop or overlay issues */
+      [data-radix-popper-content-wrapper]::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+        pointer-events: none;
+      }
+      
+      /* Ensure dropdowns work with any animation or transition */
+      [data-radix-popper-content-wrapper],
+      [data-radix-select-content] {
+        will-change: transform !important;
+        backface-visibility: hidden !important;
+      }
+      
+      /* Fix for any CSS transforms that might interfere */
+      [data-radix-popper-content-wrapper] {
+        transform-origin: center top !important;
       }
     `;
     
