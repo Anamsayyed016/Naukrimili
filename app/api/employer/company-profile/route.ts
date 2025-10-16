@@ -150,7 +150,7 @@ export async function POST(request: Request) {
         vision: body.vision,
         createdBy: basicUser.id,
         isVerified: false
-      }
+      } as any
     });
 
     console.log('✅ Company created successfully:', { id: company.id, name: company.name });
