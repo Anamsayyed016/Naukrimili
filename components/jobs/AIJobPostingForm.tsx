@@ -370,6 +370,80 @@ export default function AIJobPostingForm() {
       [data-radix-popper-content-wrapper] {
         transform-origin: center top !important;
       }
+      
+      /* CRITICAL: Fix grid container clipping issues */
+      .grid {
+        overflow: visible !important;
+      }
+      
+      /* Ensure all form field containers allow dropdown overflow */
+      .space-y-8,
+      .space-y-6,
+      .space-y-4,
+      .space-y-3,
+      .space-y-2 {
+        overflow: visible !important;
+      }
+      
+      /* Fix specific form section containers */
+      .relative,
+      [class*="relative"] {
+        overflow: visible !important;
+      }
+      
+      /* Ensure motion divs don't clip content */
+      [class*="motion"] {
+        overflow: visible !important;
+      }
+      
+      /* Force dropdown positioning to be absolute relative to viewport */
+      [data-radix-popper-content-wrapper] {
+        position: fixed !important;
+        z-index: 999999 !important;
+        transform: translateY(8px) !important;
+      }
+      
+      /* Enhanced dropdown content positioning */
+      [data-radix-select-content] {
+        position: fixed !important;
+        z-index: 999999 !important;
+        max-height: 300px !important;
+        overflow-y: auto !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+        backdrop-filter: blur(8px) !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+      }
+      
+      /* Improve dropdown item styling */
+      [data-radix-select-item] {
+        padding: 14px 18px !important;
+        border-radius: 10px !important;
+        margin: 3px 0 !important;
+        font-weight: 500 !important;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      }
+      
+      [data-radix-select-item]:hover {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+        transform: translateX(4px) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+      }
+      
+      [data-radix-select-item][data-highlighted] {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+        color: white !important;
+        transform: translateX(4px) !important;
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4) !important;
+      }
+      
+      [data-radix-select-item][data-state="checked"] {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+      }
     `;
     
     // Remove existing style if it exists
@@ -1945,7 +2019,7 @@ export default function AIJobPostingForm() {
                         <h3 className="text-lg sm:text-xl font-bold text-slate-900">Contact Information</h3>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6" style={{ overflow: 'visible' }}>
                         {/* Contact Email */}
                         <div className="space-y-3 sm:space-y-4">
                           <Label className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-3">
@@ -2003,7 +2077,7 @@ export default function AIJobPostingForm() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6" style={{ overflow: 'visible' }}>
                       <div>
                         <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
                           <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
@@ -2013,7 +2087,7 @@ export default function AIJobPostingForm() {
                           <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="z-[999999] max-h-72 overflow-y-auto relative" position="popper" sideOffset={8} align="start" avoidCollisions={true}>
+                          <SelectContent className="z-[999999] max-h-80 overflow-y-auto relative" position="popper" sideOffset={12} align="start" avoidCollisions={true} sticky="always">
                             {jobTypes.map((type) => (
                               <SelectItem key={type} value={type}>{type}</SelectItem>
                             ))}
@@ -2030,7 +2104,7 @@ export default function AIJobPostingForm() {
                           <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 relative z-10">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="z-[999999] max-h-72 overflow-y-auto relative" position="popper" sideOffset={8} align="start" avoidCollisions={true}>
+                          <SelectContent className="z-[999999] max-h-80 overflow-y-auto relative" position="popper" sideOffset={12} align="start" avoidCollisions={true} sticky="always">
                             {experienceLevels.map((level) => (
                               <SelectItem key={level} value={level}>{level}</SelectItem>
                             ))}
@@ -2046,7 +2120,7 @@ export default function AIJobPostingForm() {
                         <h3 className="text-lg sm:text-xl font-bold text-slate-900">Additional Details</h3>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8" style={{ overflow: 'visible' }}>
                         {/* Department */}
                         <div>
                           <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
@@ -2057,7 +2131,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select department" />
                             </SelectTrigger>
-                  <SelectContent className="z-[999999] max-h-72 overflow-y-auto relative" position="popper" sideOffset={8} align="start" avoidCollisions={true}>
+                  <SelectContent className="z-[999999] max-h-80 overflow-y-auto relative" position="popper" sideOffset={12} align="start" avoidCollisions={true} sticky="always">
                     {departments.map((dept) => (
                       <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                     ))}
@@ -2075,7 +2149,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select industry" />
                             </SelectTrigger>
-                  <SelectContent className="z-[999999] max-h-72 overflow-y-auto relative" position="popper" sideOffset={8} align="start" avoidCollisions={true}>
+                  <SelectContent className="z-[999999] max-h-80 overflow-y-auto relative" position="popper" sideOffset={12} align="start" avoidCollisions={true} sticky="always">
                     {industries.map((industry) => (
                       <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                     ))}
@@ -2093,7 +2167,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select work schedule" />
                             </SelectTrigger>
-                  <SelectContent className="z-[999999] max-h-72 overflow-y-auto relative" position="popper" sideOffset={8} align="start" avoidCollisions={true}>
+                  <SelectContent className="z-[999999] max-h-80 overflow-y-auto relative" position="popper" sideOffset={12} align="start" avoidCollisions={true} sticky="always">
                     {workSchedules.map((schedule) => (
                       <SelectItem key={schedule} value={schedule}>{schedule}</SelectItem>
                     ))}
@@ -2111,7 +2185,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select education level" />
                             </SelectTrigger>
-                  <SelectContent className="z-[999999] max-h-72 overflow-y-auto relative" position="popper" sideOffset={8} align="start" avoidCollisions={true}>
+                  <SelectContent className="z-[999999] max-h-80 overflow-y-auto relative" position="popper" sideOffset={12} align="start" avoidCollisions={true} sticky="always">
                     {educationLevels.map((level) => (
                       <SelectItem key={level} value={level}>{level}</SelectItem>
                     ))}
@@ -2121,7 +2195,7 @@ export default function AIJobPostingForm() {
                       </div>
 
                       {/* Experience Range */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8" style={{ overflow: 'visible' }}>
                         <div>
                           <Label className="text-base sm:text-lg font-semibold text-slate-800 mb-2 sm:mb-3 flex items-center gap-2">
                             <Target className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
