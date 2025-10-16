@@ -93,6 +93,155 @@ const aiSuggestions = {
 
 export default function CreateCompanyPage() {
   const router = useRouter();
+
+  // Add comprehensive global styles for dropdown visibility
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.id = 'company-dropdown-visibility-fixes';
+    style.textContent = `
+      /* Force all dropdowns to be visible */
+      [data-radix-popper-content-wrapper] {
+        z-index: 99999 !important;
+        position: fixed !important;
+        isolation: isolate !important;
+      }
+      
+      [data-radix-select-content] {
+        z-index: 99999 !important;
+        position: fixed !important;
+        background: white !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        padding: 4px !important;
+        max-height: 240px !important;
+        overflow-y: auto !important;
+        transform: none !important;
+      }
+      
+      [data-radix-select-viewport] {
+        z-index: 99999 !important;
+        max-height: 232px !important;
+        overflow-y: auto !important;
+      }
+      
+      [data-radix-select-item] {
+        z-index: 99999 !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+        margin: 2px 0 !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        color: #374151 !important;
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+        position: relative !important;
+      }
+      
+      [data-radix-select-item]:hover {
+        background-color: #f3f4f6 !important;
+        color: #1f2937 !important;
+      }
+      
+      [data-radix-select-item][data-highlighted] {
+        background-color: #3b82f6 !important;
+        color: white !important;
+      }
+      
+      [data-radix-select-item][data-state="checked"] {
+        background-color: #3b82f6 !important;
+        color: white !important;
+      }
+      
+      /* Fix container overflow issues */
+      .overflow-hidden {
+        overflow: visible !important;
+      }
+      
+      /* Ensure form containers don't clip dropdowns */
+      .form-container {
+        overflow: visible !important;
+      }
+      
+      /* Fix any parent container issues */
+      [class*="overflow"] {
+        overflow: visible !important;
+      }
+      
+      /* Force dropdown positioning */
+      [data-radix-popper-content-wrapper][data-side="bottom"] {
+        z-index: 99999 !important;
+        position: fixed !important;
+        transform: translateY(4px) !important;
+      }
+      
+      [data-radix-select-content][data-side="bottom"] {
+        z-index: 99999 !important;
+        position: fixed !important;
+      }
+      
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
+        [data-radix-popper-content-wrapper] {
+          z-index: 99999 !important;
+          position: fixed !important;
+          max-width: calc(100vw - 32px) !important;
+          left: 16px !important;
+          right: 16px !important;
+        }
+        
+        [data-radix-select-content] {
+          max-width: calc(100vw - 40px) !important;
+        }
+      }
+      
+      /* Ensure all dropdown elements have highest priority */
+      [data-radix-popper-content-wrapper],
+      [data-radix-select-content],
+      [data-radix-select-viewport],
+      [data-radix-select-item],
+      [data-radix-select-trigger] {
+        z-index: 99999 !important;
+      }
+      
+      /* Fix any stacking context issues */
+      .relative {
+        position: relative !important;
+        z-index: auto !important;
+      }
+      
+      /* Ensure dropdowns appear above everything */
+      [data-state="open"] {
+        z-index: 99999 !important;
+      }
+      
+      /* Additional fixes for specific components */
+      .select-content {
+        z-index: 99999 !important;
+        position: fixed !important;
+      }
+      
+      [role="listbox"] {
+        z-index: 99999 !important;
+        position: relative !important;
+      }
+    `;
+    
+    // Remove existing style if it exists
+    const existingStyle = document.getElementById('company-dropdown-visibility-fixes');
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+    
+    document.head.appendChild(style);
+    
+    return () => {
+      const styleElement = document.getElementById('company-dropdown-visibility-fixes');
+      if (styleElement) {
+        styleElement.remove();
+      }
+    };
+  }, []);
   const { data: session, status } = useSession();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);

@@ -162,82 +162,152 @@ const popularLocations: LocationOption[] = [
 export default function AIJobPostingForm() {
   const router = useRouter();
 
-  // Add global styles for dropdown visibility
+  // Add comprehensive global styles for dropdown visibility
   useEffect(() => {
     const style = document.createElement('style');
+    style.id = 'dropdown-visibility-fixes';
     style.textContent = `
+      /* Force all dropdowns to be visible */
       [data-radix-popper-content-wrapper] {
-        z-index: 9999 !important;
+        z-index: 99999 !important;
         position: fixed !important;
+        isolation: isolate !important;
       }
+      
       [data-radix-select-content] {
-        z-index: 9999 !important;
-        position: relative !important;
+        z-index: 99999 !important;
+        position: fixed !important;
+        background: white !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        padding: 4px !important;
+        max-height: 240px !important;
+        overflow-y: auto !important;
         transform: none !important;
       }
+      
       [data-radix-select-viewport] {
-        z-index: 9999 !important;
+        z-index: 99999 !important;
+        max-height: 232px !important;
+        overflow-y: auto !important;
       }
-      [data-radix-select-content] {
-        z-index: 9999 !important;
+      
+      [data-radix-select-item] {
+        z-index: 99999 !important;
+        padding: 8px 12px !important;
+        border-radius: 6px !important;
+        margin: 2px 0 !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        color: #374151 !important;
+        font-size: 14px !important;
+        line-height: 1.5 !important;
         position: relative !important;
       }
-      .select-content {
-        z-index: 9999 !important;
+      
+      [data-radix-select-item]:hover {
+        background-color: #f3f4f6 !important;
+        color: #1f2937 !important;
       }
-      [role="listbox"] {
-        z-index: 9999 !important;
+      
+      [data-radix-select-item][data-highlighted] {
+        background-color: #3b82f6 !important;
+        color: white !important;
       }
+      
+      [data-radix-select-item][data-state="checked"] {
+        background-color: #3b82f6 !important;
+        color: white !important;
+      }
+      
+      /* Fix container overflow issues */
       .overflow-hidden {
         overflow: visible !important;
       }
-      .relative {
-        z-index: 1;
+      
+      /* Ensure form containers don't clip dropdowns */
+      .form-container {
+        overflow: visible !important;
       }
-      [data-state="open"] {
-        z-index: 9999 !important;
+      
+      /* Fix any parent container issues */
+      [class*="overflow"] {
+        overflow: visible !important;
       }
+      
+      /* Force dropdown positioning */
       [data-radix-popper-content-wrapper][data-side="bottom"] {
-        z-index: 9999 !important;
+        z-index: 99999 !important;
+        position: fixed !important;
+        transform: translateY(4px) !important;
+      }
+      
+      [data-radix-select-content][data-side="bottom"] {
+        z-index: 99999 !important;
         position: fixed !important;
       }
-      [data-radix-select-content][data-side="bottom"] {
-        z-index: 9999 !important;
-      }
-      .radix-select-content {
-        z-index: 9999 !important;
-      }
+      
+      /* Mobile responsiveness */
       @media (max-width: 768px) {
         [data-radix-popper-content-wrapper] {
-          z-index: 9999 !important;
+          z-index: 99999 !important;
           position: fixed !important;
           max-width: calc(100vw - 32px) !important;
+          left: 16px !important;
+          right: 16px !important;
+        }
+        
+        [data-radix-select-content] {
+          max-width: calc(100vw - 40px) !important;
         }
       }
-      [data-radix-select-content][data-state="open"] {
-        z-index: 9999 !important;
-        position: fixed !important;
-      }
-      [data-radix-select-viewport] {
-        z-index: 9999 !important;
-      }
-      [data-radix-select-item] {
-        z-index: 9999 !important;
-      }
-      .overflow-hidden {
-        overflow: visible !important;
-      }
+      
+      /* Ensure all dropdown elements have highest priority */
       [data-radix-popper-content-wrapper],
       [data-radix-select-content],
       [data-radix-select-viewport],
-      [data-radix-select-item] {
-        z-index: 9999 !important;
+      [data-radix-select-item],
+      [data-radix-select-trigger] {
+        z-index: 99999 !important;
+      }
+      
+      /* Fix any stacking context issues */
+      .relative {
+        position: relative !important;
+        z-index: auto !important;
+      }
+      
+      /* Ensure dropdowns appear above everything */
+      [data-state="open"] {
+        z-index: 99999 !important;
+      }
+      
+      /* Additional fixes for specific components */
+      .select-content {
+        z-index: 99999 !important;
+        position: fixed !important;
+      }
+      
+      [role="listbox"] {
+        z-index: 99999 !important;
+        position: relative !important;
       }
     `;
+    
+    // Remove existing style if it exists
+    const existingStyle = document.getElementById('dropdown-visibility-fixes');
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+    
     document.head.appendChild(style);
     
     return () => {
-      document.head.removeChild(style);
+      const styleElement = document.getElementById('dropdown-visibility-fixes');
+      if (styleElement) {
+        styleElement.remove();
+      }
     };
   }, []);
   
@@ -744,17 +814,22 @@ export default function AIJobPostingForm() {
     try {
       console.log('📡 Making API call to /api/ai/form-suggestions');
       
-      const response = await fetch('/api/ai/form-suggestions', {
+      // Try enhanced job-specific API first
+      const response = await fetch('/api/ai/job-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          type: field,
           field,
           value,
           context: {
             jobType: formData.jobType,
             experienceLevel: formData.experienceLevel,
-            industry: 'Technology',
-            skills: formData.skills
+            industry: formData.industry || 'Technology',
+            department: formData.department,
+            skills: formData.skills,
+            location: formData.location,
+            companySize: 'Medium'
           }
         })
       });
@@ -762,9 +837,48 @@ export default function AIJobPostingForm() {
       console.log('📡 API Response status:', response.status);
       
       if (!response.ok) {
+        console.log('📡 Enhanced API failed, trying fallback...');
         const errorText = await response.text();
-        console.error('❌ API Error Response:', errorText);
-        throw new Error(`API failed: ${response.status} - ${errorText}`);
+        console.error('❌ Enhanced API Error Response:', errorText);
+        
+        // Fallback to original form-suggestions API
+        const fallbackResponse = await fetch('/api/ai/form-suggestions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            field,
+            value,
+            context: {
+              jobType: formData.jobType,
+              experienceLevel: formData.experienceLevel,
+              industry: formData.industry || 'Technology',
+              skills: formData.skills
+            }
+          })
+        });
+        
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          if (fallbackData.success && fallbackData.suggestions && fallbackData.suggestions.length > 0) {
+            const suggestion: AISuggestion = {
+              field,
+              suggestions: fallbackData.suggestions,
+              confidence: fallbackData.confidence,
+              reasoning: `Fallback AI confidence: ${fallbackData.confidence}% (${fallbackData.aiProvider || 'fallback'})`
+            };
+            
+            setFieldSuggestions(prev => ({
+              ...prev,
+              [field]: suggestion
+            }));
+            
+            setActiveField(field);
+            toast.success(`AI suggestions loaded! (Fallback)`);
+            return;
+          }
+        }
+        
+        throw new Error(`Both APIs failed: Enhanced ${response.status}, Fallback ${fallbackResponse.status}`);
       }
 
       const data = await response.json();
@@ -789,7 +903,7 @@ export default function AIJobPostingForm() {
         setActiveField(field);
         
         // Show success toast
-        toast.success(`AI suggestions loaded! (${data.aiProvider || 'AI'})`);
+        toast.success(`Enhanced AI suggestions loaded! (${data.aiProvider || 'Enhanced AI'})`);
       } else {
         console.error('❌ API returned success: false', data);
         toast.error('AI suggestions failed. Using instant suggestions.');
@@ -1389,8 +1503,8 @@ export default function AIJobPostingForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 mobile-job-form">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-8 max-w-6xl py-4 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 mobile-job-form" style={{ overflow: 'visible' }}>
+      <div className="container mx-auto px-3 sm:px-4 lg:px-8 max-w-6xl py-4 sm:py-8 form-container" style={{ overflow: 'visible' }}>
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4">
