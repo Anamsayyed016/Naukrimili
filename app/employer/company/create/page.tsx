@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import EmployerOnboardingCheck from '@/components/employer/EmployerOnboardingCheck';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,15 +22,10 @@ import {
   Sparkles,
   ArrowLeft,
   Brain,
-  Upload,
-  Edit,
-  Trash2,
-  Save,
   Eye,
   Star,
   TrendingUp,
-  Target,
-  Zap
+  Target
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';

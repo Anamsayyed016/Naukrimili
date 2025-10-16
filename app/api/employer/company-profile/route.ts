@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { createNotification } from '@/lib/notification-service';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('🔍 Company profile API called');
     
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     console.log('🔍 Company creation API called');
     
@@ -216,9 +216,7 @@ export async function POST(request: NextRequest) {
     // Send email notification to employer
     try {
       const { mailerService } = await import('@/lib/gmail-oauth2-mailer');
-      const userName = basicUser.firstName && basicUser.lastName 
-        ? `${basicUser.firstName} ${basicUser.lastName}` 
-        : basicUser.firstName || basicUser.email;
+      const userName = basicUser.name || basicUser.email;
       
       await mailerService.sendCompanyCreatedEmail(
         basicUser.email,
