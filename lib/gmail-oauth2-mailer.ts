@@ -711,6 +711,183 @@ The NaukriMili Team
           : 'Gmail OAuth2 credentials not configured'
     };
   }
+
+  /**
+   * Send company creation confirmation email
+   */
+  async sendCompanyCreatedEmail(
+    to: string, 
+    userName: string, 
+    companyName: string, 
+    industry: string, 
+    location: string
+  ): Promise<boolean> {
+    const subject = `Company Profile Created Successfully! 🏢`;
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Company Profile Created</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+          .header { background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); color: white; padding: 40px 30px; text-align: center; }
+          .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+          .header p { margin: 10px 0 0; font-size: 16px; opacity: 0.9; }
+          .content { padding: 40px 30px; }
+          .greeting { font-size: 18px; margin-bottom: 20px; color: #1f2937; }
+          .company-info { background: #f8fafc; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #2563eb; }
+          .company-info h3 { margin: 0 0 10px; color: #1f2937; font-size: 18px; }
+          .company-details { display: grid; gap: 10px; }
+          .detail { display: flex; align-items: center; }
+          .detail-icon { width: 20px; height: 20px; margin-right: 10px; color: #2563eb; }
+          .cta-section { text-align: center; margin: 30px 0; }
+          .cta-button { display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px; transition: transform 0.2s; }
+          .cta-button:hover { transform: translateY(-2px); }
+          .features { margin: 30px 0; }
+          .feature { display: flex; align-items: center; margin: 15px 0; }
+          .feature-icon { width: 24px; height: 24px; margin-right: 15px; color: #10b981; }
+          .footer { background: #f8fafc; padding: 30px; text-align: center; color: #6b7280; font-size: 14px; }
+          .footer a { color: #2563eb; text-decoration: none; }
+          .social-links { margin: 20px 0; }
+          .social-links a { display: inline-block; margin: 0 10px; color: #6b7280; text-decoration: none; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🏢 Company Profile Created!</h1>
+            <p>Your company is now live on NaukriMili</p>
+          </div>
+          
+          <div class="content">
+            <div class="greeting">
+              <strong>Congratulations ${userName}!</strong>
+            </div>
+            
+            <p>Your company profile has been successfully created and is now live on NaukriMili. You're all set to start attracting top talent!</p>
+            
+            <div class="company-info">
+              <h3>📋 Company Details</h3>
+              <div class="company-details">
+                <div class="detail">
+                  <span class="detail-icon">🏢</span>
+                  <strong>Company:</strong> ${companyName}
+                </div>
+                <div class="detail">
+                  <span class="detail-icon">🏭</span>
+                  <strong>Industry:</strong> ${industry}
+                </div>
+                <div class="detail">
+                  <span class="detail-icon">📍</span>
+                  <strong>Location:</strong> ${location}
+                </div>
+              </div>
+            </div>
+            
+            <div class="cta-section">
+              <a href="https://naukrimili.com/employer/dashboard" class="cta-button">
+                🚀 Go to Employer Dashboard
+              </a>
+            </div>
+            
+            <div class="features">
+              <h3 style="color: #1f2937; margin-bottom: 20px;">🎯 What's Next?</h3>
+              
+              <div class="feature">
+                <span class="feature-icon">📝</span>
+                <div>
+                  <strong>Post Your First Job</strong><br>
+                  <span style="color: #6b7280;">Create compelling job listings to attract qualified candidates</span>
+                </div>
+              </div>
+              
+              <div class="feature">
+                <span class="feature-icon">👥</span>
+                <div>
+                  <strong>Manage Applications</strong><br>
+                  <span style="color: #6b7280;">Review and shortlist candidates from your dashboard</span>
+                </div>
+              </div>
+              
+              <div class="feature">
+                <span class="feature-icon">📊</span>
+                <div>
+                  <strong>Track Performance</strong><br>
+                  <span style="color: #6b7280;">Monitor job views, applications, and hiring metrics</span>
+                </div>
+              </div>
+              
+              <div class="feature">
+                <span class="feature-icon">⭐</span>
+                <div>
+                  <strong>Build Your Brand</strong><br>
+                  <span style="color: #6b7280;">Showcase your company culture and attract top talent</span>
+                </div>
+              </div>
+            </div>
+            
+            <p style="margin-top: 30px; padding: 20px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+              <strong>💡 Pro Tip:</strong> Complete your company profile with detailed information about your culture, benefits, and mission to attract better candidates and improve your job posting visibility.
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p><strong>Need Help?</strong></p>
+            <p>Our support team is here to help you succeed. Contact us at <a href="mailto:support@naukrimili.com">support@naukrimili.com</a></p>
+            
+            <div class="social-links">
+              <a href="https://linkedin.com/company/naukrimili">LinkedIn</a>
+              <a href="https://twitter.com/naukrimili">Twitter</a>
+              <a href="https://facebook.com/naukrimili">Facebook</a>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">
+              This email was sent to ${to} because you created a company profile on NaukriMili.<br>
+              © 2024 NaukriMili. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      Company Profile Created Successfully! 🏢
+      
+      Congratulations ${userName}!
+      
+      Your company profile has been successfully created and is now live on NaukriMili. You're all set to start attracting top talent!
+      
+      Company Details:
+      - Company: ${companyName}
+      - Industry: ${industry}
+      - Location: ${location}
+      
+      What's Next?
+      - Post Your First Job: Create compelling job listings to attract qualified candidates
+      - Manage Applications: Review and shortlist candidates from your dashboard
+      - Track Performance: Monitor job views, applications, and hiring metrics
+      - Build Your Brand: Showcase your company culture and attract top talent
+      
+      Go to your Employer Dashboard: https://naukrimili.com/employer/dashboard
+      
+      Need Help?
+      Our support team is here to help you succeed. Contact us at support@naukrimili.com
+      
+      © 2024 NaukriMili. All rights reserved.
+    `;
+
+    return await this.sendEmail({
+      to,
+      subject,
+      html,
+      text
+    });
+  }
 }
 
 // Export singleton instance

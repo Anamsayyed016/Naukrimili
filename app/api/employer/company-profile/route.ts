@@ -213,6 +213,26 @@ export async function POST(request: NextRequest) {
       // Don't fail the company creation if notification creation fails
     }
 
+    // Send email notification to employer
+    try {
+      const { mailerService } = await import('@/lib/gmail-oauth2-mailer');
+      const userName = basicUser.firstName && basicUser.lastName 
+        ? `${basicUser.firstName} ${basicUser.lastName}` 
+        : basicUser.firstName || basicUser.email;
+      
+      await mailerService.sendCompanyCreatedEmail(
+        basicUser.email,
+        userName,
+        company.name,
+        company.industry,
+        company.location
+      );
+      console.log('✅ Company creation email sent to:', basicUser.email);
+    } catch (emailError) {
+      console.error('❌ Failed to send company creation email:', emailError);
+      // Don't fail the company creation if email fails
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Company profile created successfully',

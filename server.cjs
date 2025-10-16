@@ -91,13 +91,25 @@ app.prepare().then(() => {
   // Initialize Socket.io server
   console.log('🔌 Initializing Socket.io server...');
   try {
-    // Dynamic import for ES modules in CommonJS
-    const { initializeSocket } = require('./lib/socket-setup.ts');
-    const { SocketNotificationService } = require('./lib/socket-server.ts');
+    // Import Socket.io directly in CommonJS
+    const { Server: SocketIOServer } = require('socket.io');
     
-    const io = initializeSocket(server);
+    const io = new SocketIOServer(server, {
+      cors: {
+        origin: [
+          'http://localhost:3000',
+          'https://naukrimili.com',
+          'https://www.naukrimili.com'
+        ],
+        methods: ['GET', 'POST'],
+        credentials: true
+      },
+      transports: ['websocket', 'polling'],
+      allowEIO3: true
+    });
     
     // Initialize socket notification service
+    const { SocketNotificationService } = require('./lib/socket-server.ts');
     new SocketNotificationService(io);
     
     console.log('✅ Socket.io server initialized successfully');

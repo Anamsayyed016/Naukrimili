@@ -45,6 +45,12 @@ interface CompanyFormData {
   size: string;
   founded: string;
   logo?: string;
+  // Required address fields for Google JobPosting compliance
+  streetAddress: string;
+  city: string;
+  state?: string;
+  postalCode: string;
+  country?: string;
   socialLinks?: {
     linkedin?: string;
     twitter?: string;
@@ -105,6 +111,12 @@ export default function CreateCompanyPage() {
     industry: '',
     size: '',
     founded: '',
+    // Required address fields for Google JobPosting compliance
+    streetAddress: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'IN',
     socialLinks: {},
     benefits: [],
     specialties: [],
@@ -275,7 +287,12 @@ export default function CreateCompanyPage() {
       case 1:
         return formData.name.trim() !== '' && formData.description.trim() !== '';
       case 2:
-        return formData.location.trim() !== '' && formData.industry !== '' && formData.size !== '';
+        return formData.location.trim() !== '' && 
+               formData.industry !== '' && 
+               formData.size !== '' &&
+               formData.streetAddress.trim() !== '' &&
+               formData.city.trim() !== '' &&
+               formData.postalCode.trim() !== '';
       case 3:
         return true; // Culture step is optional
       case 4:
@@ -691,106 +708,186 @@ export default function CreateCompanyPage() {
                     <p className="text-gray-600 text-sm sm:text-base">Help job seekers find you</p>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-                    <div className="space-y-6">
-                      <div className="relative">
-                        <Label htmlFor="location" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
-                          Location *
-                        </Label>
-                        <Input
-                          id="location"
-                          value={formData.location}
-                          onChange={(e) => handleInputChange('location', e.target.value)}
-                          placeholder="e.g., Bangalore, India"
-                          className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
-                          required
-                        />
+                  <div className="space-y-6">
+                    {/* Basic Company Details */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                      <div className="space-y-6">
+                        <div className="relative">
+                          <Label htmlFor="location" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
+                            Location *
+                          </Label>
+                          <Input
+                            id="location"
+                            value={formData.location}
+                            onChange={(e) => handleInputChange('location', e.target.value)}
+                            placeholder="e.g., Bangalore, India"
+                            className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
+                            required
+                          />
+                        </div>
+
+                        <div className="relative">
+                          <Label htmlFor="industry" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
+                            Industry *
+                          </Label>
+                          <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
+                            <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
+                              <SelectValue placeholder="Select your industry" />
+                            </SelectTrigger>
+                            <SelectContent 
+                              className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
+                              position="popper"
+                              sideOffset={8}
+                              align="start"
+                              avoidCollisions={true}
+                              collisionPadding={16}
+                              side="bottom"
+                              sticky="always"
+                            >
+                              {industries.map((industry) => (
+                                <SelectItem 
+                                  key={industry} 
+                                  value={industry}
+                                  className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100 cursor-pointer transition-colors duration-150"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <Building2 className="h-4 w-4 text-blue-600" />
+                                    <span className="font-medium">{industry}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
-                      <div className="relative">
-                        <Label htmlFor="industry" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
-                          Industry *
-                        </Label>
-                        <Select value={formData.industry} onValueChange={(value) => handleInputChange('industry', value)}>
-                          <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
-                            <SelectValue placeholder="Select your industry" />
-                          </SelectTrigger>
-                          <SelectContent 
-                            className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
-                            position="popper"
-                            sideOffset={8}
-                            align="start"
-                            avoidCollisions={true}
-                            collisionPadding={16}
-                            side="bottom"
-                            sticky="always"
-                          >
-                            {industries.map((industry) => (
-                              <SelectItem 
-                                key={industry} 
-                                value={industry}
-                                className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100 cursor-pointer transition-colors duration-150"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <Building2 className="h-4 w-4 text-blue-600" />
-                                  <span className="font-medium">{industry}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="space-y-6">
+                        <div className="relative">
+                          <Label htmlFor="size" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
+                            Company Size *
+                          </Label>
+                          <Select value={formData.size} onValueChange={(value) => handleInputChange('size', value)}>
+                            <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
+                              <SelectValue placeholder="Select company size" />
+                            </SelectTrigger>
+                            <SelectContent 
+                              className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
+                              position="popper"
+                              sideOffset={8}
+                              align="start"
+                              avoidCollisions={true}
+                              collisionPadding={16}
+                              side="bottom"
+                              sticky="always"
+                            >
+                              {companySizes.map((size) => (
+                                <SelectItem 
+                                  key={size} 
+                                  value={size}
+                                  className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100 cursor-pointer transition-colors duration-150"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <Users className="h-4 w-4 text-green-600" />
+                                    <span className="font-medium">{size} employees</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="relative">
+                          <Label htmlFor="founded" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
+                            Founded Year
+                          </Label>
+                          <Input
+                            id="founded"
+                            type="number"
+                            value={formData.founded}
+                            onChange={(e) => handleInputChange('founded', e.target.value)}
+                            placeholder="e.g., 2020"
+                            min="1900"
+                            max={new Date().getFullYear()}
+                            className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    <div className="space-y-6">
-                      <div className="relative">
-                        <Label htmlFor="size" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
-                          Company Size *
-                        </Label>
-                        <Select value={formData.size} onValueChange={(value) => handleInputChange('size', value)}>
-                          <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
-                            <SelectValue placeholder="Select company size" />
-                          </SelectTrigger>
-                          <SelectContent 
-                            className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
-                            position="popper"
-                            sideOffset={8}
-                            align="start"
-                            avoidCollisions={true}
-                            collisionPadding={16}
-                            side="bottom"
-                            sticky="always"
-                          >
-                            {companySizes.map((size) => (
-                              <SelectItem 
-                                key={size} 
-                                value={size}
-                                className="py-3 px-4 text-base hover:bg-blue-50 focus:bg-blue-100 cursor-pointer transition-colors duration-150"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <Users className="h-4 w-4 text-green-600" />
-                                  <span className="font-medium">{size} employees</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                    {/* Address Details - Required for Google JobPosting Compliance */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <MapPin className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900">Company Address *</h3>
+                        <Badge variant="secondary" className="bg-blue-200 text-blue-800 text-xs">
+                          Required for Google Job Listings
+                        </Badge>
                       </div>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Complete address information is required for Google job posting compliance and better job visibility.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Label htmlFor="streetAddress" className="text-sm font-bold text-gray-900 mb-2 block">
+                              Street Address *
+                            </Label>
+                            <Input
+                              id="streetAddress"
+                              value={formData.streetAddress}
+                              onChange={(e) => handleInputChange('streetAddress', e.target.value)}
+                              placeholder="e.g., 123 Tech Park, Sector 5"
+                              className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
+                              required
+                            />
+                          </div>
 
-                      <div className="relative">
-                        <Label htmlFor="founded" className="text-sm sm:text-base font-bold text-gray-900 mb-2 block">
-                          Founded Year
-                        </Label>
-                        <Input
-                          id="founded"
-                          type="number"
-                          value={formData.founded}
-                          onChange={(e) => handleInputChange('founded', e.target.value)}
-                          placeholder="e.g., 2020"
-                          min="1900"
-                          max={new Date().getFullYear()}
-                          className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
-                        />
+                          <div className="relative">
+                            <Label htmlFor="city" className="text-sm font-bold text-gray-900 mb-2 block">
+                              City *
+                            </Label>
+                            <Input
+                              id="city"
+                              value={formData.city}
+                              onChange={(e) => handleInputChange('city', e.target.value)}
+                              placeholder="e.g., Bangalore"
+                              className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="relative">
+                            <Label htmlFor="state" className="text-sm font-bold text-gray-900 mb-2 block">
+                              State/Province
+                            </Label>
+                            <Input
+                              id="state"
+                              value={formData.state}
+                              onChange={(e) => handleInputChange('state', e.target.value)}
+                              placeholder="e.g., Karnataka"
+                              className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
+                            />
+                          </div>
+
+                          <div className="relative">
+                            <Label htmlFor="postalCode" className="text-sm font-bold text-gray-900 mb-2 block">
+                              Postal Code *
+                            </Label>
+                            <Input
+                              id="postalCode"
+                              value={formData.postalCode}
+                              onChange={(e) => handleInputChange('postalCode', e.target.value)}
+                              placeholder="e.g., 560001"
+                              className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200"
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1093,7 +1190,7 @@ export default function CreateCompanyPage() {
                     </div>
 
                     {/* Company Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-6">
                       <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-lg">
                         <h4 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
                           <div className="p-2 bg-blue-100 rounded-lg">
@@ -1122,6 +1219,34 @@ export default function CreateCompanyPage() {
                               </a>
                             </div>
                           )}
+                        </div>
+                      </div>
+
+                      {/* Address Information */}
+                      <div className="bg-white rounded-xl p-6 border-2 border-gray-300 shadow-lg">
+                        <h4 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-3">
+                          <div className="p-2 bg-green-100 rounded-lg">
+                            <MapPin className="h-5 w-5 text-green-600" />
+                          </div>
+                          Company Address
+                        </h4>
+                        <div className="space-y-3 text-base">
+                          <div className="flex items-center gap-3">
+                            <MapPin className="h-5 w-5 text-green-600" />
+                            <span className="font-medium text-gray-800">{formData.streetAddress}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Building2 className="h-5 w-5 text-blue-600" />
+                            <span className="font-medium text-gray-800">{formData.city}{formData.state ? `, ${formData.state}` : ''}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Calendar className="h-5 w-5 text-purple-600" />
+                            <span className="font-medium text-gray-800">Postal Code: {formData.postalCode}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Globe className="h-5 w-5 text-blue-600" />
+                            <span className="font-medium text-gray-800">Country: {formData.country || 'IN'}</span>
+                          </div>
                         </div>
                       </div>
 
