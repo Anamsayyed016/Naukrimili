@@ -161,6 +161,85 @@ const popularLocations: LocationOption[] = [
 
 export default function AIJobPostingForm() {
   const router = useRouter();
+
+  // Add global styles for dropdown visibility
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      [data-radix-popper-content-wrapper] {
+        z-index: 9999 !important;
+        position: fixed !important;
+      }
+      [data-radix-select-content] {
+        z-index: 9999 !important;
+        position: relative !important;
+        transform: none !important;
+      }
+      [data-radix-select-viewport] {
+        z-index: 9999 !important;
+      }
+      [data-radix-select-content] {
+        z-index: 9999 !important;
+        position: relative !important;
+      }
+      .select-content {
+        z-index: 9999 !important;
+      }
+      [role="listbox"] {
+        z-index: 9999 !important;
+      }
+      .overflow-hidden {
+        overflow: visible !important;
+      }
+      .relative {
+        z-index: 1;
+      }
+      [data-state="open"] {
+        z-index: 9999 !important;
+      }
+      [data-radix-popper-content-wrapper][data-side="bottom"] {
+        z-index: 9999 !important;
+        position: fixed !important;
+      }
+      [data-radix-select-content][data-side="bottom"] {
+        z-index: 9999 !important;
+      }
+      .radix-select-content {
+        z-index: 9999 !important;
+      }
+      @media (max-width: 768px) {
+        [data-radix-popper-content-wrapper] {
+          z-index: 9999 !important;
+          position: fixed !important;
+          max-width: calc(100vw - 32px) !important;
+        }
+      }
+      [data-radix-select-content][data-state="open"] {
+        z-index: 9999 !important;
+        position: fixed !important;
+      }
+      [data-radix-select-viewport] {
+        z-index: 9999 !important;
+      }
+      [data-radix-select-item] {
+        z-index: 9999 !important;
+      }
+      .overflow-hidden {
+        overflow: visible !important;
+      }
+      [data-radix-popper-content-wrapper],
+      [data-radix-select-content],
+      [data-radix-select-viewport],
+      [data-radix-select-item] {
+        z-index: 9999 !important;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
   
   // Initialize form data from localStorage or default values
   const initialFormData = useMemo((): JobFormData => {
@@ -1743,7 +1822,7 @@ export default function AIJobPostingForm() {
                           <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                          <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative" position="popper" sideOffset={4}>
                             {jobTypes.map((type) => (
                               <SelectItem key={type} value={type}>{type}</SelectItem>
                             ))}
@@ -1757,10 +1836,10 @@ export default function AIJobPostingForm() {
                           Experience Level
                         </Label>
                         <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
-                          <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
+                          <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 relative z-10">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                          <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative" position="popper" sideOffset={4}>
                             {experienceLevels.map((level) => (
                               <SelectItem key={level} value={level}>{level}</SelectItem>
                             ))}
@@ -1787,7 +1866,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select department" />
                             </SelectTrigger>
-                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative" position="popper" sideOffset={4}>
                     {departments.map((dept) => (
                       <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                     ))}
@@ -1805,7 +1884,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select industry" />
                             </SelectTrigger>
-                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative" position="popper" sideOffset={4}>
                     {industries.map((industry) => (
                       <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                     ))}
@@ -1823,7 +1902,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select work schedule" />
                             </SelectTrigger>
-                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative" position="popper" sideOffset={4}>
                     {workSchedules.map((schedule) => (
                       <SelectItem key={schedule} value={schedule}>{schedule}</SelectItem>
                     ))}
@@ -1841,7 +1920,7 @@ export default function AIJobPostingForm() {
                             <SelectTrigger className="h-10 sm:h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20">
                               <SelectValue placeholder="Select education level" />
                             </SelectTrigger>
-                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative">
+                  <SelectContent className="z-[9999] max-h-60 overflow-y-auto relative" position="popper" sideOffset={4}>
                     {educationLevels.map((level) => (
                       <SelectItem key={level} value={level}>{level}</SelectItem>
                     ))}

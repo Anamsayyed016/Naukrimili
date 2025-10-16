@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { createNotification } from '@/lib/notification-service';
+import { jobNotificationEmailService } from '@/lib/job-notification-emails';
 
 export async function GET() {
   try {
@@ -155,6 +156,27 @@ export async function POST(request: Request) {
 
     console.log('✅ Company created successfully:', { id: company.id, name: company.name });
 
+    // Send email notification for company creation
+    try {
+      const companyUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/employer/company/profile`;
+      
+      await jobNotificationEmailService.sendCompanyCreationConfirmation({
+        companyName: company.name,
+        industry: company.industry,
+        location: company.location,
+        size: company.size,
+        employerEmail: basicUser.email,
+        employerName: basicUser.name || 'Employer',
+        companyId: company.id.toString(),
+        companyUrl
+      });
+      
+      console.log('📧 Company creation confirmation email sent successfully');
+    } catch (emailError) {
+      console.error('❌ Failed to send company creation email:', emailError);
+      // Don't fail the company creation if email notification fails
+    }
+
     // Send real-time notification via Socket.io (enhanced with role-based notifications)
     try {
       const { getSocketService } = await import('@/lib/socket-server');
@@ -167,19 +189,19 @@ export async function POST(request: Request) {
           title: 'New Company Registration! 🏢',
           message: `A new company "${company.name}" has been registered and requires verification.`,
           data: {
-            companyId: company.id,
+            companyId: company.id.toString(),
             companyName: company.name,
             industry: company.industry,
             location: company.location,
             createdBy: basicUser.id,
             action: 'verify_company',
-            actionUrl: `/admin/companies/${company.id}`
+            actionUrl: `/admin/companies/${company.id.toString()}`
           }
         });
         
         // Also emit legacy company_created event for backward compatibility
         socketService.io.emit('company_created', {
-          companyId: company.id,
+          companyId: company.id.toString(),
           companyName: company.name,
           industry: company.industry,
           location: company.location,
@@ -202,7 +224,7 @@ export async function POST(request: Request) {
         message: `Your company "${company.name}" has been successfully created. You can now start posting jobs!`,
         type: 'success',
         data: {
-          companyId: company.id,
+          companyId: company.id.toString(),
           companyName: company.name,
           action: 'company_created'
         }

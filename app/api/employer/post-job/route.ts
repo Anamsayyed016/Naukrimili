@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
+import { jobNotificationEmailService } from '@/lib/job-notification-emails';
 
 export async function POST(request: NextRequest) {
   try {
@@ -83,6 +84,48 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Job created successfully:', { id: job.id, title: job.title });
 
+    // Send email notifications
+    try {
+      const jobUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/jobs/${job.id.toString()}`;
+      const adminEmails = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',') : [];
+      
+      // Send confirmation email to employer
+      await jobNotificationEmailService.sendJobPostingConfirmation({
+        jobTitle: job.title,
+        companyName: company.name,
+        location: job.location,
+        jobType: job.jobType,
+        experienceLevel: job.experienceLevel,
+        salary: job.salary,
+        employerEmail: basicUser.email,
+        employerName: basicUser.name || 'Employer',
+        jobId: job.id.toString(),
+        jobUrl
+      });
+      
+      // Send notification to admins
+      if (adminEmails.length > 0) {
+        await jobNotificationEmailService.sendJobPostingNotificationToAdmins({
+          jobTitle: job.title,
+          companyName: company.name,
+          location: job.location,
+          jobType: job.jobType,
+          experienceLevel: job.experienceLevel,
+          salary: job.salary,
+          employerEmail: basicUser.email,
+          employerName: basicUser.name || 'Employer',
+          jobId: job.id.toString(),
+          jobUrl,
+          adminEmails
+        });
+      }
+      
+      console.log('📧 Email notifications sent successfully');
+    } catch (emailError) {
+      console.error('❌ Failed to send email notifications:', emailError);
+      // Don't fail the job posting if email notifications fail
+    }
+
     // Send real-time notification via Socket.io (enhanced with role-based notifications)
     try {
       // Import socket service for role-based notifications
@@ -96,18 +139,18 @@ export async function POST(request: NextRequest) {
           title: 'New Job Posted! 🎉',
           message: `A new job "${job.title}" has been posted by ${company.name}. Check it out!`,
           data: {
-            jobId: job.id,
+            jobId: job.id.toString(),
             jobTitle: job.title,
             companyName: company.name,
             location: job.location,
             action: 'view_job',
-            actionUrl: `/jobs/${job.id}`
+            actionUrl: `/jobs/${job.id.toString()}`
           }
         });
 
         // Also emit legacy job_created event for backward compatibility
         socketService.io.emit('job_created', {
-          jobId: job.id,
+          jobId: job.id.toString(),
           jobTitle: job.title,
           company: job.company,
           location: job.location,
@@ -132,7 +175,7 @@ export async function POST(request: NextRequest) {
           message: `Your job "${job.title}" has been posted and is now live on the platform.`,
           type: 'success',
           data: {
-            jobId: job.id,
+            jobId: job.id.toString(),
             jobTitle: job.title,
             action: 'job_created'
           }
