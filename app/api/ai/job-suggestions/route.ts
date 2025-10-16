@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,37 +12,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let suggestions = [];
-
-    switch (type) {
-      case 'jobTitle':
-        suggestions = generateJobTitleSuggestions(field, value, context);
-        break;
-      case 'description':
-        suggestions = generateDescriptionSuggestions(field, value, context);
-        break;
-      case 'requirements':
-        suggestions = generateRequirementsSuggestions(field, value, context);
-        break;
-      case 'skills':
-        suggestions = generateSkillsSuggestions(field, value, context);
-        break;
-      case 'benefits':
-        suggestions = generateBenefitsSuggestions(field, value, context);
-        break;
-      case 'location':
-        suggestions = generateLocationSuggestions(field, value, context);
-        break;
-      default:
-        suggestions = generateGenericSuggestions(field, value, context);
+    // Check if Gemini API key is available
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      console.log("Gemini API key not found, falling back to static suggestions");
+      return getStaticSuggestions(type, field, value, context);
     }
 
-    return NextResponse.json({
-      success: true,
-      suggestions,
-      confidence: 85,
-      aiProvider: 'enhanced'
-    });
+    try {
+      // Initialize Gemini AI
+      const genAI = new GoogleGenerativeAI(geminiApiKey);
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+      // Generate AI suggestions using Gemini
+      const suggestions = await generateGeminiSuggestions(model, type, field, value, context);
+      
+      return NextResponse.json({
+        success: true,
+        suggestions,
+        confidence: 90,
+        aiProvider: 'gemini'
+      });
+
+    } catch (geminiError) {
+      console.error("Gemini AI error:", geminiError);
+      console.log("Falling back to static suggestions");
+      return getStaticSuggestions(type, field, value, context);
+    }
 
   } catch (error) {
     console.error("Error generating job suggestions:", error);
@@ -50,6 +47,95 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+async function generateGeminiSuggestions(model: any, type: string, field: string, value: string, context: any): Promise<string[]> {
+  const prompt = generatePrompt(type, field, value, context);
+  
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    
+    // Parse the response to extract suggestions
+    const suggestions = parseGeminiResponse(text);
+    return suggestions;
+  } catch (error) {
+    console.error("Error generating Gemini content:", error);
+    throw error;
+  }
+}
+
+function generatePrompt(type: string, field: string, value: string, context: any): string {
+  const jobType = context?.jobType || 'Full-time';
+  const experienceLevel = context?.experienceLevel || 'Mid Level';
+  const industry = context?.industry || 'Technology';
+  const department = context?.department || 'Engineering';
+
+  switch (type) {
+    case 'jobTitle':
+      return `Generate 5 professional job titles for a ${experienceLevel} position in ${industry} industry, ${department} department. Current input: "${value}". Return only the job titles, one per line, without numbering or bullet points.`;
+    
+    case 'description':
+      return `Generate a professional job description for a "${value}" position in ${industry} industry. Include key responsibilities, what the company does, and what makes this role exciting. Keep it concise (150-200 words). Return only the description text.`;
+    
+    case 'requirements':
+      return `Generate 6-8 key requirements for a "${value}" position in ${industry} industry, ${experienceLevel} level. Include education, experience, technical skills, and soft skills. Return only the requirements, one per line, without numbering.`;
+    
+    case 'skills':
+      return `Generate 8-10 essential technical and soft skills for a "${value}" position in ${industry} industry, ${experienceLevel} level. Focus on industry-relevant skills. Return only skill names, one per line, without numbering.`;
+    
+    case 'benefits':
+      return `Generate 6-8 attractive benefits and perks for a ${industry} company offering a "${value}" position. Include both standard and industry-specific benefits. Return only the benefits, one per line, without numbering.`;
+    
+    default:
+      return `Generate 5 professional suggestions for "${field}" field with value "${value}" in context of ${industry} industry. Return only the suggestions, one per line.`;
+  }
+}
+
+function parseGeminiResponse(text: string): string[] {
+  // Split by lines and clean up the response
+  const lines = text.split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0 && !line.match(/^\d+[\.\)]/)) // Remove numbered items
+    .filter(line => !line.toLowerCase().includes('here are') && !line.toLowerCase().includes('suggestions:'))
+    .slice(0, 10); // Limit to 10 suggestions
+  
+  return lines.length > 0 ? lines : ['No suggestions available'];
+}
+
+function getStaticSuggestions(type: string, field: string, value: string, context: any) {
+  let suggestions = [];
+
+  switch (type) {
+    case 'jobTitle':
+      suggestions = generateJobTitleSuggestions(field, value, context);
+      break;
+    case 'description':
+      suggestions = generateDescriptionSuggestions(field, value, context);
+      break;
+    case 'requirements':
+      suggestions = generateRequirementsSuggestions(field, value, context);
+      break;
+    case 'skills':
+      suggestions = generateSkillsSuggestions(field, value, context);
+      break;
+    case 'benefits':
+      suggestions = generateBenefitsSuggestions(field, value, context);
+      break;
+    case 'location':
+      suggestions = generateLocationSuggestions(field, value, context);
+      break;
+    default:
+      suggestions = generateGenericSuggestions(field, value, context);
+  }
+
+  return NextResponse.json({
+    success: true,
+    suggestions,
+    confidence: 75,
+    aiProvider: 'static'
+  });
 }
 
 function generateJobTitleSuggestions(field: string, value: string, context: any): string[] {

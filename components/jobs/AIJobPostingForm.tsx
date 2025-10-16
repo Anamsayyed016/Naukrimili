@@ -1549,14 +1549,24 @@ export default function AIJobPostingForm() {
                           {/* AI Suggestion Button */}
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             onClick={() => requestAISuggestions('title')}
                             disabled={!formData.title.trim() || aiLoading}
-                            className="h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-2 py-1 text-xs font-medium h-8 min-w-fit"
                             title="Get AI suggestions for job title"
                           >
-                            <Sparkles className="h-4 w-4 text-blue-600" />
+                            {aiLoading && activeField === 'title' ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                                <span className="hidden sm:inline">AI Generate</span>
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="h-3 w-3 mr-1" />
+                                <span className="hidden sm:inline">AI Generate</span>
+                              </>
+                            )}
                           </Button>
                         </div>
                         {aiLoading && activeField === 'title' && (
@@ -1690,14 +1700,24 @@ export default function AIJobPostingForm() {
                           {/* AI Suggestion Button */}
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             onClick={() => requestAISuggestions('description')}
                             disabled={!formData.description.trim() || aiLoading}
-                            className="h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-2 py-1 text-xs font-medium h-8 min-w-fit"
                             title="Get AI suggestions for job description"
                           >
-                            <Sparkles className="h-4 w-4 text-blue-600" />
+                            {aiLoading && activeField === 'description' ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                                <span className="hidden sm:inline">AI Generate</span>
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="h-3 w-3 mr-1" />
+                                <span className="hidden sm:inline">AI Generate</span>
+                              </>
+                            )}
                           </Button>
                         </div>
                         {aiLoading && activeField === 'description' && (
@@ -2116,17 +2136,27 @@ export default function AIJobPostingForm() {
                           placeholder="List the key requirements, qualifications, and experience needed..."
                           className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-14 text-base bg-white text-slate-900 touch-manipulation resize-none"
                         />
-                        {/* Optional AI Suggestion Button */}
+                        {/* AI Suggestion Button */}
                         <Button
                           type="button"
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => requestAISuggestions('requirements')}
                           disabled={!formData.requirements.trim() || aiLoading}
-                          className="absolute right-2 top-2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                          className="absolute right-2 top-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-2 py-1 text-xs font-medium h-8 min-w-fit"
                           title="Get AI suggestions for job requirements"
                         >
-                          <Sparkles className="h-4 w-4 text-blue-600" />
+                          {aiLoading && activeField === 'requirements' ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                              <span className="hidden sm:inline">AI Generate</span>
+                            </>
+                          ) : (
+                            <>
+                              <Brain className="h-3 w-3 mr-1" />
+                              <span className="hidden sm:inline">AI Generate</span>
+                            </>
+                          )}
                         </Button>
                         {aiLoading && activeField === 'requirements' && (
                           <div className="absolute right-12 top-3">
@@ -2235,17 +2265,27 @@ export default function AIJobPostingForm() {
                             placeholder="Type skills and press Enter or comma to add..."
                             className="h-12 sm:h-14 border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 bg-white text-slate-900 text-base sm:text-lg touch-manipulation pr-12"
                           />
-                          {/* Optional AI Suggestion Button */}
+                          {/* AI Suggestion Button */}
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             onClick={() => requestAISuggestions('skills')}
                             disabled={!skillsInput.trim() || aiLoading}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-2 py-1 text-xs font-medium h-8 min-w-fit"
                             title="Get AI suggestions for skills"
                           >
-                            <Sparkles className="h-4 w-4 text-blue-600" />
+                            {aiLoading && activeField === 'skills' ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                                <span className="hidden sm:inline">AI Generate</span>
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="h-3 w-3 mr-1" />
+                                <span className="hidden sm:inline">AI Generate</span>
+                              </>
+                            )}
                           </Button>
                           {aiLoading && activeField === 'skills' && (
                             <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
@@ -2373,17 +2413,27 @@ export default function AIJobPostingForm() {
                           placeholder="What benefits and perks do you offer? (health insurance, flexible hours, etc.)"
                           className="border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 pr-14 text-base bg-white text-slate-900 touch-manipulation resize-none"
                         />
-                        {/* Optional AI Suggestion Button */}
+                        {/* AI Suggestion Button */}
                         <Button
                           type="button"
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={() => requestAISuggestions('benefits')}
                           disabled={!formData.benefits.trim() || aiLoading}
-                          className="absolute right-2 top-2 h-8 w-8 p-0 hover:bg-blue-50 rounded-full"
+                          className="absolute right-2 top-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-2 py-1 text-xs font-medium h-8 min-w-fit"
                           title="Get AI suggestions for benefits"
                         >
-                          <Sparkles className="h-4 w-4 text-blue-600" />
+                          {aiLoading && activeField === 'benefits' ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                              <span className="hidden sm:inline">AI Generate</span>
+                            </>
+                          ) : (
+                            <>
+                              <Brain className="h-3 w-3 mr-1" />
+                              <span className="hidden sm:inline">AI Generate</span>
+                            </>
+                          )}
                         </Button>
                         {aiLoading && activeField === 'benefits' && (
                           <div className="absolute right-12 top-3">
