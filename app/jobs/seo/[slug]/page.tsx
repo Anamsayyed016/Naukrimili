@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search } from "lucide-react";
 import JobShare from "@/components/JobShare";
 import { parseSEOJobUrl } from "@/lib/seo-url-utils";
+import JobPostingSchema from "@/components/seo/JobPostingSchema";
 
 interface Job {
   id: string;
@@ -207,8 +208,12 @@ export default function SEOJobDetailsPage() {
   const isExternalJob = job.isExternal || job.source !== 'manual';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+    <>
+      {/* Google-compliant JobPosting structured data */}
+      <JobPostingSchema job={job} />
+      
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="mb-6">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -473,6 +478,7 @@ export default function SEOJobDetailsPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

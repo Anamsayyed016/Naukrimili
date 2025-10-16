@@ -195,6 +195,12 @@ model Company {
   logo          String?
   website       String?
   location      String?
+  // Structured address fields for Google JobPosting schema compliance
+  streetAddress String?
+  city          String?
+  state         String?
+  postalCode    String?
+  country       String        @default("IN")
   industry      String?
   size          String?
   founded       Int?
@@ -220,6 +226,8 @@ model Company {
   @@index([createdBy])
   @@index([industry])
   @@index([location])
+  @@index([city])
+  @@index([country])
   @@index([isGlobal])
   @@index([sector])
 }

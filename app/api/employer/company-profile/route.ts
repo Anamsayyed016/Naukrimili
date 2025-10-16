@@ -102,6 +102,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate required address fields for Google JobPosting compliance
+    const missingFields = [];
+    if (!body.name) missingFields.push('name');
+    if (!body.description) missingFields.push('description');
+    if (!body.location) missingFields.push('location');
+    if (!body.industry) missingFields.push('industry');
+    if (!body.size) missingFields.push('size');
+    if (!body.streetAddress) missingFields.push('streetAddress');
+    if (!body.city) missingFields.push('city');
+    if (!body.postalCode) missingFields.push('postalCode');
+
+    if (missingFields.length > 0) {
+      console.log('❌ Missing required fields:', missingFields);
+      return NextResponse.json(
+        { 
+          error: `Missing required fields: ${missingFields.join(', ')}`,
+          missingFields,
+          message: 'Street address, city, and postal code are required for Google job listing compliance'
+        },
+        { status: 400 }
+      );
+    }
+
     // Create the company
     console.log('🔨 Creating company in database...');
     const company = await prisma.company.create({
@@ -110,6 +133,11 @@ export async function POST(request: NextRequest) {
         description: body.description,
         website: body.website,
         location: body.location,
+        streetAddress: body.streetAddress,
+        city: body.city,
+        state: body.state,
+        postalCode: body.postalCode,
+        country: body.country || 'IN',
         industry: body.industry,
         size: body.size,
         founded: body.founded ? parseInt(body.founded) : null,

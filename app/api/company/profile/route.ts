@@ -102,11 +102,19 @@ export async function POST(request: NextRequest) {
     if (!location) missingFields.push("location");
     if (!industry) missingFields.push("industry");
     if (!size) missingFields.push("size");
+    // Google JobPosting schema compliance - require address fields
+    if (!body.streetAddress) missingFields.push("streetAddress");
+    if (!body.city) missingFields.push("city");
+    if (!body.postalCode) missingFields.push("postalCode");
 
     if (missingFields.length > 0) {
       console.log("POST /api/company/profile - Missing required fields:", missingFields);
       return NextResponse.json(
-        { error: `Missing required fields: ${missingFields.join(", ")}` },
+        { 
+          error: `Missing required fields: ${missingFields.join(", ")}`,
+          missingFields,
+          message: "Street address, city, and postal code are required for Google job listing compliance"
+        },
         { status: 400 }
       );
     }
@@ -144,6 +152,11 @@ export async function POST(request: NextRequest) {
         description,
         website,
         location,
+        streetAddress: body.streetAddress,
+        city: body.city,
+        state: body.state,
+        postalCode: body.postalCode,
+        country: body.country || "IN",
         industry,
         size,
         founded: founded ? parseInt(founded) : null,
