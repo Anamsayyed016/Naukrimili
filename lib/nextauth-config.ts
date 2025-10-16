@@ -79,7 +79,7 @@ const adapter = {
 
     return newUser;
   },
-};
+}; 
 
 // Validate NEXTAUTH_SECRET - this is REQUIRED for production
 const nextAuthSecret = process.env.NEXTAUTH_SECRET
