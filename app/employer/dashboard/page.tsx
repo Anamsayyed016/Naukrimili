@@ -24,7 +24,10 @@ import {
   Calendar,
   Sparkles,
   Bell,
-  BellRing
+  BellRing,
+  Trash2,
+  Edit,
+  MoreHorizontal
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -60,6 +63,8 @@ export default function EmployerDashboard() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasCompany, setHasCompany] = useState(false);
+  const [deletingJob, setDeletingJob] = useState<string | null>(null);
+  const [aiInsights, setAiInsights] = useState<any[]>([]);
 
   const quickActions: QuickAction[] = [
     {
@@ -109,6 +114,14 @@ export default function EmployerDashboard() {
     
     fetchDashboardData();
     fetchNotifications();
+    
+    // Set up auto-refresh every 30 seconds
+    const refreshInterval = setInterval(() => {
+      fetchDashboardData();
+      fetchNotifications();
+    }, 30000);
+    
+    return () => clearInterval(refreshInterval);
   }, [status, session, router]);
 
   const fetchNotifications = async () => {
@@ -135,11 +148,31 @@ export default function EmployerDashboard() {
         if (companyData.success) {
           setHasCompany(true);
           
-          // Fetch stats if company exists
-          const statsResponse = await fetch('/api/company/stats');
+          // Fetch stats if company exists - use working API
+          const statsResponse = await fetch('/api/stats');
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
-            setStats(statsData.data);
+            if (statsData.success) {
+              // Transform data to match expected format
+              const transformedStats = {
+                totalJobs: statsData.data.totalJobs,
+                activeJobs: statsData.data.activeJobs,
+                totalApplications: statsData.data.totalApplications,
+                pendingApplications: statsData.data.pendingApplications || 0,
+                profileViews: statsData.data.profileViews || 0,
+                companyRating: statsData.data.companyRating || 0,
+                recentJobs: [], // Will be fetched separately
+                jobTypeDistribution: [], // Will be fetched separately
+                applicationStatusDistribution: [] // Will be fetched separately
+              };
+              setStats(transformedStats);
+              
+              // Fetch additional data
+              await fetchAdditionalData();
+              
+              // Generate AI insights
+              setTimeout(() => generateAIInsights(), 1000);
+            }
           }
         } else {
           setHasCompany(false);
@@ -161,6 +194,130 @@ export default function EmployerDashboard() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAdditionalData = async () => {
+    try {
+      // Fetch recent jobs
+      const jobsResponse = await fetch('/api/jobs?limit=5');
+      if (jobsResponse.ok) {
+        const jobsData = await jobsResponse.json();
+        if (jobsData.success) {
+          setStats(prev => prev ? {
+            ...prev,
+            recentJobs: jobsData.data.jobs || []
+          } : null);
+        }
+      }
+
+      // Fetch job type distribution
+      const jobTypesResponse = await fetch('/api/jobs/constants');
+      if (jobTypesResponse.ok) {
+        const jobTypesData = await jobTypesResponse.json();
+        if (jobTypesData.success) {
+          const jobTypeDistribution = jobTypesData.data.jobTypes.map((item: any) => ({
+            jobType: item.value,
+            _count: { jobType: item.count }
+          }));
+          
+          setStats(prev => prev ? {
+            ...prev,
+            jobTypeDistribution
+          } : null);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching additional data:', error);
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingJob(jobId);
+
+    try {
+      const response = await fetch(`/api/employer/jobs/${jobId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete job');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast.success('✅ Job deleted successfully!', {
+          description: 'The job posting has been removed.',
+          duration: 5000,
+        });
+        
+        // Refresh dashboard data
+        await fetchDashboardData();
+      } else {
+        throw new Error(result.error || 'Failed to delete job');
+      }
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      toast.error('Failed to delete job', {
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+        duration: 5000,
+      });
+    } finally {
+      setDeletingJob(null);
+    }
+  };
+
+  const generateAIInsights = async () => {
+    try {
+      // Generate AI insights based on current stats
+      const insights = [];
+      
+      if (stats) {
+        // Job performance insights
+        if (stats.totalJobs > 0) {
+          const avgApplicationsPerJob = stats.totalApplications / stats.totalJobs;
+          
+          if (avgApplicationsPerJob < 5) {
+            insights.push({
+              type: 'warning',
+              title: 'Low Application Rate',
+              message: `Your jobs average ${avgApplicationsPerJob.toFixed(1)} applications each. Consider improving job titles or descriptions.`,
+              action: 'Improve Job Descriptions',
+              icon: '📈'
+            });
+          }
+          
+          if (stats.activeJobs === 0) {
+            insights.push({
+              type: 'info',
+              title: 'No Active Jobs',
+              message: 'You have no active job postings. Post a new job to start attracting candidates.',
+              action: 'Post New Job',
+              icon: '💼'
+            });
+          }
+          
+          if (stats.totalApplications > 0 && stats.pendingApplications > stats.totalApplications * 0.8) {
+            insights.push({
+              type: 'success',
+              title: 'High Application Volume',
+              message: `You have ${stats.pendingApplications} pending applications. Review them to find great candidates.`,
+              action: 'Review Applications',
+              icon: '👥'
+            });
+          }
+        }
+      }
+      
+      setAiInsights(insights);
+    } catch (error) {
+      console.error('Error generating AI insights:', error);
     }
   };
 
@@ -348,6 +505,58 @@ export default function EmployerDashboard() {
           </motion.div>
         )}
 
+        {/* AI Insights */}
+        {hasCompany && aiInsights.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="mb-8"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <Sparkles className="h-6 w-6 text-purple-600" />
+              AI Insights
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {aiInsights.map((insight, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + index * 0.1 }}
+                >
+                  <Card className={`${
+                    insight.type === 'warning' ? 'bg-yellow-50 border-yellow-200' :
+                    insight.type === 'success' ? 'bg-green-50 border-green-200' :
+                    'bg-blue-50 border-blue-200'
+                  } hover:shadow-lg transition-all duration-300`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="text-2xl">{insight.icon}</div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 mb-1">{insight.title}</h3>
+                          <p className="text-sm text-gray-600 mb-3">{insight.message}</p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className={`${
+                              insight.type === 'warning' ? 'text-yellow-700 border-yellow-300 hover:bg-yellow-100' :
+                              insight.type === 'success' ? 'text-green-700 border-green-300 hover:bg-green-100' :
+                              'text-blue-700 border-blue-300 hover:bg-blue-100'
+                            }`}
+                          >
+                            {insight.action}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -425,7 +634,7 @@ export default function EmployerDashboard() {
                           </div>
                           <div className="flex items-center gap-1">
                             <Users className="h-4 w-4" />
-                            {job._count.applications} applications
+                            {job._count?.applications || 0} applications
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -436,11 +645,33 @@ export default function EmployerDashboard() {
                           {job.isFeatured && <Badge className="bg-purple-100 text-purple-800">Featured</Badge>}
                         </div>
                       </div>
-                      <Link href={`/employer/jobs/${job.id}/edit`}>
-                        <Button variant="outline" size="sm">
-                          Edit
+                      <div className="flex items-center gap-2">
+                        <Link href={`/employer/jobs/${job.id}/edit`}>
+                          <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-50">
+                            <Edit className="h-4 w-4 mr-1" />
+                            Edit
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteJob(job.id)}
+                          disabled={deletingJob === job.id}
+                          className="text-red-600 border-red-300 hover:bg-red-50"
+                        >
+                          {deletingJob === job.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-1"></div>
+                              Deleting...
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Delete
+                            </>
+                          )}
                         </Button>
-                      </Link>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -465,14 +696,40 @@ export default function EmployerDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {stats.jobTypeDistribution.map((item) => (
-                    <div key={item.jobType} className="flex items-center justify-between">
-                      <span className="capitalize text-gray-700">{item.jobType || 'Not specified'}</span>
-                      <Badge variant="secondary">{item._count.jobType}</Badge>
-                    </div>
-                  ))}
-                </div>
+                {stats.jobTypeDistribution.length > 0 ? (
+                  <div className="space-y-4">
+                    {stats.jobTypeDistribution.map((item, index) => {
+                      const total = stats.jobTypeDistribution.reduce((sum, i) => sum + i._count.jobType, 0);
+                      const percentage = total > 0 ? (item._count.jobType / total) * 100 : 0;
+                      return (
+                        <div key={item.jobType} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="capitalize text-gray-700 font-medium">
+                              {item.jobType || 'Not specified'}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-500">{percentage.toFixed(1)}%</span>
+                              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                {item._count.jobType}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p>No job type data available</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -484,14 +741,58 @@ export default function EmployerDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {stats.applicationStatusDistribution.map((item) => (
-                    <div key={item.status} className="flex items-center justify-between">
-                      <span className="capitalize text-gray-700">{item.status}</span>
-                      <Badge variant="secondary">{item._count.status}</Badge>
-                    </div>
-                  ))}
-                </div>
+                {stats.applicationStatusDistribution.length > 0 ? (
+                  <div className="space-y-4">
+                    {stats.applicationStatusDistribution.map((item, index) => {
+                      const total = stats.applicationStatusDistribution.reduce((sum, i) => sum + i._count.status, 0);
+                      const percentage = total > 0 ? (item._count.status / total) * 100 : 0;
+                      const statusColors = {
+                        'submitted': 'from-yellow-500 to-yellow-600',
+                        'reviewed': 'from-blue-500 to-blue-600',
+                        'shortlisted': 'from-purple-500 to-purple-600',
+                        'hired': 'from-green-500 to-green-600',
+                        'rejected': 'from-red-500 to-red-600'
+                      };
+                      const colorClass = statusColors[item.status as keyof typeof statusColors] || 'from-gray-500 to-gray-600';
+                      
+                      return (
+                        <div key={item.status} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="capitalize text-gray-700 font-medium">
+                              {item.status}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-500">{percentage.toFixed(1)}%</span>
+                              <Badge 
+                                variant="secondary" 
+                                className={`${
+                                  item.status === 'hired' ? 'bg-green-100 text-green-800' :
+                                  item.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                  item.status === 'shortlisted' ? 'bg-purple-100 text-purple-800' :
+                                  item.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
+                                  'bg-yellow-100 text-yellow-800'
+                                }`}
+                              >
+                                {item._count.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className={`bg-gradient-to-r ${colorClass} h-2 rounded-full transition-all duration-500`}
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <TrendingUp className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p>No application data available</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
