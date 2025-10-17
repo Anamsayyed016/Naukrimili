@@ -1,7 +1,5 @@
 import { auth } from "./nextauth-config";
 import { prisma } from "./prisma";
-import { getServerSession } from "next-auth/next";
-import { nextAuthOptions } from "./nextauth-config";
 
 export interface AuthUser {
   id: string;
@@ -32,11 +30,8 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
   try {
     console.log('🔍 Getting authenticated user...');
     
-    // Try both methods to get session
-    let session = await auth();
-    if (!session) {
-      session = await getServerSession(nextAuthOptions);
-    }
+    // Get session using auth()
+    const session = await auth();
     
     console.log('📋 Session data:', { 
       hasSession: !!session, 
