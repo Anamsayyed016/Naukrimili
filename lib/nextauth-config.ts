@@ -119,7 +119,7 @@ if (!googleClientId || !googleClientSecret) {
   console.warn("   GOOGLE_CLIENT_SECRET:", googleClientSecret ? 'Set' : 'Missing');
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const nextAuthOptions = {
   adapter: adapter,
   secret: nextAuthSecret,
   trustHost: true,
@@ -295,4 +295,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 24 * 60 * 60, // 1 day (reduced from 30 days)
   },
   useSecureCookies: process.env.NODE_ENV === 'production'
-});
+};
+
+export const { handlers, auth, signIn, signOut } = NextAuth(nextAuthOptions);
+export { nextAuthOptions };

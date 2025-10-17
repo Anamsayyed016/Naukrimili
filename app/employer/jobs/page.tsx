@@ -218,7 +218,7 @@ export default function EmployerJobsPage() {
         return;
       }
 
-      const response = await apiClient.get<JobsResponse['data']>('/api/employer/jobs', params);
+      const response = await apiClient.get<any>('/api/jobs', params);
       
       if (response.success && response.data) {
         setJobs(response.data.jobs);
@@ -284,7 +284,7 @@ export default function EmployerJobsPage() {
         return;
       }
       
-      const response = await apiClient.get<any>('/api/company/stats');
+      const response = await apiClient.get<any>('/api/stats');
       
       if (response.success && response.data) {
         const { totalJobs, activeJobs, totalApplications } = response.data as any;

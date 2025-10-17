@@ -23,7 +23,8 @@ import {
   Target,
   Users,
   FileText,
-  Zap
+  Zap,
+  Trash2
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -69,6 +70,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [dynamicOptions, setDynamicOptions] = useState<DynamicOptions | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -365,6 +367,45 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeleting(true);
+
+    try {
+      const response = await fetch(`/api/jobs/${params.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete job');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast.success('✅ Job deleted successfully!', {
+          description: 'Your job posting has been removed.',
+          duration: 5000,
+        });
+        router.push('/employer/jobs');
+      } else {
+        throw new Error(result.error || 'Failed to delete job');
+      }
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      toast.error('Failed to delete job', {
+        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+        duration: 5000,
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   // Step navigation functions
   const nextStep = () => {
     if (currentStep < steps.length) {
@@ -458,10 +499,31 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
 
         <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative">
           <div className="mb-6 sm:mb-8">
-            <Link href="/employer/jobs" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Jobs
-            </Link>
+            <div className="flex items-center justify-between mb-4">
+              <Link href="/employer/jobs" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Jobs
+              </Link>
+              <Button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                variant="destructive"
+                className="flex items-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Delete Job
+                  </>
+                )}
+              </Button>
+            </div>
             <div className="text-center mb-6">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4">
                 <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl">

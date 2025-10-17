@@ -1,5 +1,7 @@
 import { auth } from "./nextauth-config";
 import { prisma } from "./prisma";
+import { getServerSession } from "next-auth/next";
+import { nextAuthOptions } from "./nextauth-config";
 
 export interface AuthUser {
   id: string;
@@ -29,13 +31,19 @@ export interface CompanyUser extends AuthUser {
 export async function getAuthenticatedUser(): Promise<AuthUser | null> {
   try {
     console.log('🔍 Getting authenticated user...');
-    const session = await auth();
+    
+    // Try both methods to get session
+    let session = await auth();
+    if (!session) {
+      session = await getServerSession(nextAuthOptions);
+    }
+    
     console.log('📋 Session data:', { 
       hasSession: !!session, 
       hasUser: !!session?.user, 
       userId: session?.user?.id,
       userEmail: session?.user?.email,
-      userRole: session?.user?.role
+      userRole: (session?.user as any)?.role
     });
     
     if (!session?.user?.id) {
@@ -63,7 +71,18 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
     });
 
     console.log('👤 User found:', user);
-    return user;
+    
+    if (!user) {
+      console.log('❌ User not found in database');
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name || `${user.firstName} ${user.lastName}`.trim(),
+      role: (user as any).role || 'jobseeker'
+    };
   } catch (error) {
     console.error('❌ Error getting authenticated user:', error);
     return null;
