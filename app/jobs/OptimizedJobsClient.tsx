@@ -97,13 +97,13 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
       const data = await response.json();
       
-      if (data.success && data.jobs) {
-        const jobs = (data.jobs || []).map(convertToSimpleJob);
+      if (data.success && data.data && data.data.jobs) {
+        const jobs = (data.data.jobs || []).map(convertToSimpleJob);
         
         setJobs(jobs as any);
-        setTotalJobs(data.pagination?.totalJobs || (jobs || []).length);
-        setTotalPages(data.pagination?.totalPages || 1);
-        setHasNextPage(data.pagination?.hasMore || false);
+        setTotalJobs(data.data.pagination?.total || (jobs || []).length);
+        setTotalPages(data.data.pagination?.totalPages || 1);
+        setHasNextPage(page < (data.data.pagination?.totalPages || 1));
         setHasPrevPage(page > 1);
 
         // Update performance metrics with API tracking
@@ -121,22 +121,22 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
         console.log('✅ Main API jobs loaded successfully:', {
           jobsCount: (jobs || []).length,
-          totalJobs: data.pagination?.totalJobs || (jobs || []).length,
+          totalJobs: data.data.pagination?.total || (jobs || []).length,
           currentPage: page,
-          totalPages: data.pagination?.totalPages || 1,
-          hasMore: data.pagination?.hasMore || false,
-          sources: data.sources,
-          realJobsPercentage: data.metadata?.realJobsPercentage || 0,
-          performance: data.metadata?.performance
+          totalPages: data.data.pagination?.totalPages || 1,
+          hasMore: page < (data.data.pagination?.totalPages || 1),
+          sources: data.data.sources,
+          realJobsPercentage: data.data.metadata?.realJobsPercentage || 0,
+          performance: data.data.metadata?.performance
         });
         
         console.log('🔍 Pagination Debug:', {
-          totalJobs: data.pagination?.totalJobs,
-          totalPages: data.pagination?.totalPages,
-          hasMore: data.pagination?.hasMore,
+          totalJobs: data.data.pagination?.total,
+          totalPages: data.data.pagination?.totalPages,
+          hasMore: page < (data.data.pagination?.totalPages || 1),
           currentPage: page,
           limit: 50,
-          shouldShowPagination: (data.pagination?.totalPages || 1) > 1 || (data.pagination?.hasMore || false) || (data.pagination?.totalJobs || (jobs || []).length) > 50
+          shouldShowPagination: (data.data.pagination?.totalPages || 1) > 1 || page < (data.data.pagination?.totalPages || 1) || (data.data.pagination?.total || (jobs || []).length) > 50
         });
 
       } else {
@@ -168,12 +168,12 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         const fallbackResponse = await fetch(`/api/jobs?${fallbackParams.toString()}`);
         if (fallbackResponse.ok) {
           const fallbackData = await fallbackResponse.json();
-          const fallbackJobs = (fallbackData.jobs || []).map(convertToSimpleJob);
+          const fallbackJobs = (fallbackData.data?.jobs || []).map(convertToSimpleJob);
           
           setJobs(fallbackJobs as any);
-          setTotalJobs(fallbackData.pagination?.totalJobs || (fallbackJobs || []).length);
-          setTotalPages(fallbackData.pagination?.totalPages || 1);
-          setHasNextPage(fallbackData.pagination?.hasMore || false);
+          setTotalJobs(fallbackData.data?.pagination?.total || (fallbackJobs || []).length);
+          setTotalPages(fallbackData.data?.pagination?.totalPages || 1);
+          setHasNextPage(page < (fallbackData.data?.pagination?.totalPages || 1));
           setHasPrevPage(page > 1);
           
           console.log('✅ Fallback successful:', fallbackJobs.length, 'jobs loaded');
