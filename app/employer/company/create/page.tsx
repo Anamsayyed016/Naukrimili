@@ -223,10 +223,10 @@ export default function CreateCompanyPage() {
 
           if (response.ok) {
             const data = await response.json();
-            if (data.success && data.data) {
+            if (data.success && data.data && data.data.company) {
               // User already has a company, redirect to dashboard
               toast.info('You already have a company profile!', {
-                description: 'Redirecting to your company dashboard...',
+                description: `Your company "${data.data.company.name}" is already set up. Redirecting to dashboard...`,
                 duration: 3000,
               });
               setTimeout(() => {
@@ -444,13 +444,18 @@ export default function CreateCompanyPage() {
           try {
             const errorData = JSON.parse(errorText);
             if (errorData.error && errorData.error.includes("Company already exists")) {
-              toast.error('You already have a company profile!', {
-                description: 'Redirecting to your company dashboard...',
+              const companyName = errorData.existingCompany?.name || 'your company';
+              toast.error('Company Profile Already Exists!', {
+                description: `You already have a company profile for "${companyName}". Please use the company dashboard to manage your existing profile.`,
                 duration: 5000,
+                action: {
+                  label: 'Go to Dashboard',
+                  onClick: () => router.push('/employer/dashboard')
+                }
               });
               setTimeout(() => {
                 router.push('/employer/dashboard');
-              }, 2000);
+              }, 3000);
               return;
             }
           } catch (parseError) {
@@ -464,11 +469,16 @@ export default function CreateCompanyPage() {
       const data = await response.json();
       console.log("Response data:", data);
 
-      if (data.success) {
+      if (data.success && data.data && data.data.company) {
         console.log("Company created successfully - showing success message");
-        toast.success('🎉 Company created successfully! You can now start posting jobs.', {
-          description: 'Your company profile is ready to attract top talent.',
+        const companyName = data.data.company.name;
+        toast.success('🎉 Company Created Successfully!', {
+          description: `"${companyName}" is now ready to attract top talent. You can start posting jobs!`,
           duration: 5000,
+          action: {
+            label: 'Go to Dashboard',
+            onClick: () => router.push('/employer/dashboard')
+          }
         });
         
         console.log("Setting redirect timeout");
@@ -479,7 +489,7 @@ export default function CreateCompanyPage() {
         }, 2000);
       } else {
         console.error("API returned error:", data.error);
-        toast.error(`Failed to create company: ${data.error}`);
+        toast.error(`Failed to create company: ${data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error("Fetch error occurred:", error);

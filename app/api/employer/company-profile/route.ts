@@ -45,7 +45,11 @@ export async function GET() {
     if (!company) {
       console.log('❌ No company found for user:', basicUser.id);
       return NextResponse.json(
-        { error: "Company not found" },
+        { 
+          success: false,
+          error: "Company not found",
+          message: "No company profile found for this employer"
+        },
         { status: 404 }
       );
     }
@@ -54,9 +58,11 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      company: {
-        ...company,
-        hasCompleteProfile: !!(company.name && company.description && company.location && company.industry)
+      data: {
+        company: {
+          ...company,
+          hasCompleteProfile: !!(company.name && company.description && company.location && company.industry)
+        }
       }
     });
 
@@ -98,7 +104,17 @@ export async function POST(request: Request) {
     if (existingCompany) {
       console.log('❌ Company already exists for user:', basicUser.id);
       return NextResponse.json(
-        { error: "Company profile already exists" },
+        { 
+          success: false,
+          error: "Company profile already exists",
+          message: "You already have a company profile. Please use the company dashboard to manage your existing profile.",
+          existingCompany: {
+            id: existingCompany.id,
+            name: existingCompany.name,
+            industry: existingCompany.industry,
+            location: existingCompany.location
+          }
+        },
         { status: 400 }
       );
     }
@@ -256,18 +272,20 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: 'Company profile created successfully',
-      company: {
-        id: company.id,
-        name: company.name,
-        description: company.description,
-        website: company.website,
-        location: company.location,
-        industry: company.industry,
-        size: company.size,
-        founded: company.founded,
-        logo: company.logo,
-        isVerified: company.isVerified,
-        hasCompleteProfile: !!(company.name && company.description && company.location && company.industry)
+      data: {
+        company: {
+          id: company.id,
+          name: company.name,
+          description: company.description,
+          website: company.website,
+          location: company.location,
+          industry: company.industry,
+          size: company.size,
+          founded: company.founded,
+          logo: company.logo,
+          isVerified: company.isVerified,
+          hasCompleteProfile: !!(company.name && company.description && company.location && company.industry)
+        }
       }
     });
 
