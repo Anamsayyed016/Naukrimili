@@ -242,6 +242,113 @@ export async function PATCH(
   }
 }
 
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const auth = await requireEmployerAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { user } = auth;
+    const { id: applicationId } = await params;
+
+    // Verify the application belongs to the employer's company
+    const existingApplication = await prisma.application.findFirst({
+      where: {
+        id: applicationId,
+        job: { companyId: user.company.id }
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        },
+        job: {
+          select: {
+            id: true,
+            title: true,
+            company: true
+          }
+        }
+      }
+    });
+
+    if (!existingApplication) {
+      return NextResponse.json(
+        { error: "Application not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete the application
+    await prisma.application.delete({
+      where: { id: applicationId }
+    });
+
+    // Send notification to job seeker about application deletion
+    try {
+      await createNotification({
+        userId: existingApplication.user.id,
+        type: 'APPLICATION_UPDATE',
+        title: 'Application Withdrawn',
+        message: `Your application for ${existingApplication.job.title} at ${existingApplication.job.company} has been withdrawn by the employer.`,
+        data: {
+          applicationId: existingApplication.id,
+          jobTitle: existingApplication.job.title,
+          company: existingApplication.job.company,
+          actionType: 'deleted'
+        }
+      });
+
+      // Send real-time notification via Socket.io (optional)
+      try {
+        const { getSocketService } = await import('@/lib/socket-server');
+        const socketService = getSocketService();
+        
+        if (socketService) {
+          await socketService.sendNotificationToUser(existingApplication.user.id, {
+            type: 'APPLICATION_UPDATE',
+            title: 'Application Withdrawn',
+            message: `Your application for ${existingApplication.job.title} at ${existingApplication.job.company} has been withdrawn by the employer.`,
+            data: {
+              applicationId: existingApplication.id,
+              jobTitle: existingApplication.job.title,
+              company: existingApplication.job.company,
+              actionType: 'deleted'
+            }
+          });
+          console.log(`📡 Real-time notification sent for application deletion: ${applicationId}`);
+        }
+      } catch (socketError) {
+        console.warn('⚠️ Socket service error (notification saved to database):', socketError.message);
+      }
+
+      console.log(`📤 Notification sent for application deletion: ${applicationId}`);
+    } catch (notificationError) {
+      console.warn('⚠️ Failed to send notification:', notificationError);
+      // Don't fail the deletion if notification fails
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Application deleted successfully"
+    });
+  } catch (error) {
+    console.error("Error deleting application:", error);
+    return NextResponse.json(
+      { error: "Failed to delete application" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 200 });
 }
