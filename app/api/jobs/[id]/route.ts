@@ -9,18 +9,18 @@ export async function GET(
   try {
     console.log('🔍 Fetching job details for ID:', params.id);
     
-    // Parse the job ID from SEO URL or direct ID
-    const jobId = parseSEOJobUrl(params.id);
+    // For now, use the ID directly without SEO parsing to test
+    const jobId = params.id;
     
     if (!jobId) {
-      console.log('❌ Invalid job ID format:', params.id);
+      console.log('❌ No job ID provided:', params.id);
       return NextResponse.json(
-        { error: "Invalid job ID format" },
+        { error: "No job ID provided" },
         { status: 400 }
       );
     }
 
-    console.log('🔍 Parsed job ID:', jobId);
+    console.log('🔍 Using job ID directly:', jobId);
 
     // Try to find job by ID (handle both numeric and string IDs)
     let job;
