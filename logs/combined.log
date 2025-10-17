@@ -1633,3 +1633,24 @@
 {"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-17 16:40:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
 {"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-17 16:40:25 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
 {"message":"Node version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-17 16:40:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-18 00:21:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-18 00:21:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-18 00:21:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-18 00:21:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-18 00:21:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-18 00:21:19 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-18 00:21:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-18 00:21:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-18 00:21:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-18 00:21:24 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-18 00:21:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-18 00:21:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-18 00:21:29 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-18 00:21:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-18 00:21:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-18 00:21:36 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-18 00:21:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-18 00:21:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-18 00:21:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-18 00:21:43 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-18 00:21:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}

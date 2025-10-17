@@ -86,7 +86,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       let response;
       let apiUsed = 'real';
 
-      // Use main API directly - it now handles real jobs properly
+      // Use main API directly - it now handles real jobs properly with filters
       apiUsed = 'main';
       response = await fetch(`/api/jobs?${apiParams.toString()}`);
       if (!response.ok) {
