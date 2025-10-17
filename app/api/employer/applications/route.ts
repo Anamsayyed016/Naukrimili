@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (jobId && jobId !== "all") {
-      where.jobId = jobId;
+      where.jobId = parseInt(jobId);
     }
 
     if (search) {
