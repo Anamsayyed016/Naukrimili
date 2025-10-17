@@ -227,13 +227,37 @@ export default function EmployerJobsPage() {
         // Cache for 2 minutes with tags
         cache.setWithTags(cacheKey, response.data, ['employer-jobs'], 120000);
       } else {
-        throw new Error(response.error || 'Failed to fetch jobs');
+        // If API fails, set empty state instead of throwing error
+        setJobs([]);
+        setPagination({
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0
+        });
+        
+        // Check if it's a company profile issue
+        if (response.error?.includes('Company not found')) {
+          setError('Please complete your company profile first. Click here to set up your company profile.');
+        } else {
+          setError(response.error || 'No jobs found. Start by posting your first job!');
+        }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      toast.error('Failed to load jobs', {
-        description: err instanceof Error ? err.message : 'Please try again later.'
+      console.error('Failed to fetch jobs:', err);
+      setJobs([]);
+      setPagination({
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0
       });
+      
+      if (err instanceof Error && err.message.includes('Company not found')) {
+        setError('Please complete your company profile first. Click here to set up your company profile.');
+      } else {
+        setError('Unable to load jobs. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
@@ -300,9 +324,74 @@ export default function EmployerJobsPage() {
         
         // Cache stats for 5 minutes with tags
         cache.setWithTags(cacheKey, newStats, ['employer-stats'], 300000);
+      } else {
+        // If API fails, set default stats
+        const defaultStats = [
+          { 
+            title: 'Total Jobs', 
+            value: 0, 
+            change: 'No jobs yet', 
+            trend: 'neutral' as const, 
+            icon: <Briefcase className="w-6 h-6" /> 
+          },
+          { 
+            title: 'Total Applications', 
+            value: 0, 
+            change: 'No applications yet', 
+            trend: 'neutral' as const, 
+            icon: <Users className="w-6 h-6" /> 
+          },
+          { 
+            title: 'Active Jobs', 
+            value: 0, 
+            change: 'No active jobs', 
+            trend: 'neutral' as const, 
+            icon: <CheckCircle className="w-6 h-6" /> 
+          },
+          { 
+            title: 'Featured Jobs', 
+            value: 0, 
+            change: 'No featured jobs', 
+            trend: 'neutral' as const, 
+            icon: <Star className="w-6 h-6" /> 
+          }
+        ];
+        setStats(defaultStats);
       }
     } catch (err) {
       console.error('Failed to fetch stats:', err);
+      // Set default stats on error
+      const defaultStats = [
+        { 
+          title: 'Total Jobs', 
+          value: 0, 
+          change: 'Error loading', 
+          trend: 'neutral' as const, 
+          icon: <Briefcase className="w-6 h-6" /> 
+        },
+        { 
+          title: 'Total Applications', 
+          value: 0, 
+          change: 'Error loading', 
+          trend: 'neutral' as const, 
+          icon: <Users className="w-6 h-6" /> 
+        },
+        { 
+          title: 'Active Jobs', 
+          value: 0, 
+          change: 'Error loading', 
+          trend: 'neutral' as const, 
+          icon: <CheckCircle className="w-6 h-6" /> 
+        },
+        { 
+          title: 'Featured Jobs', 
+          value: 0, 
+          change: 'Error loading', 
+          trend: 'neutral' as const, 
+          icon: <Star className="w-6 h-6" /> 
+        }
+      ];
+      setStats(defaultStats);
     } finally {
       setStatsLoading(false);
     }
@@ -810,7 +899,16 @@ export default function EmployerJobsPage() {
           >
             <div className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-red-600" />
-              <p className="text-red-800">{error}</p>
+              <div className="flex-1">
+                <p className="text-red-800">{error}</p>
+                {error.includes('company profile') && (
+                  <Link href="/employer/company-profile" className="mt-2 inline-block">
+                    <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+                      Set Up Company Profile
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
