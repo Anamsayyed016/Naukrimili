@@ -59,10 +59,8 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: {
-        company: {
-          ...company,
-          hasCompleteProfile: !!(company.name && company.description && company.location && company.industry)
-        }
+        ...company,
+        hasCompleteProfile: !!(company.name && company.description && company.location && company.industry)
       }
     });
 
@@ -293,6 +291,133 @@ export async function POST(request: Request) {
     console.error('❌ Error creating company profile:', error);
     return NextResponse.json(
       { error: 'Failed to create company profile', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    console.log('🔍 Company profile update API called');
+    
+    const basicUser = await getAuthenticatedUser();
+    if (!basicUser) {
+      console.log('❌ No authenticated user found');
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
+    if (basicUser.role !== 'employer') {
+      console.log('❌ User is not an employer, role:', basicUser.role);
+      return NextResponse.json({ error: "Employer account required" }, { status: 403 });
+    }
+
+    console.log('✅ User authenticated:', { id: basicUser.id, email: basicUser.email, role: basicUser.role });
+    
+    const body = await request.json();
+    console.log('📥 Update request body received:', body);
+
+    // Find existing company
+    const existingCompany = await prisma.company.findFirst({
+      where: { createdBy: basicUser.id }
+    });
+
+    if (!existingCompany) {
+      console.log('❌ No company found for user:', basicUser.id);
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      );
+    }
+
+    // Validate required fields
+    if (!body.name || !body.description || !body.location || !body.industry || !body.size) {
+      return NextResponse.json(
+        { error: "Missing required fields: name, description, location, industry, size" },
+        { status: 400 }
+      );
+    }
+
+    // Update the company
+    console.log('🔨 Updating company in database...');
+    const updatedCompany = await prisma.company.update({
+      where: { id: existingCompany.id },
+      data: {
+        name: body.name,
+        description: body.description,
+        website: body.website || null,
+        location: body.location,
+        industry: body.industry,
+        size: body.size,
+        founded: body.founded ? parseInt(body.founded) : null,
+        updatedAt: new Date()
+      }
+    });
+
+    console.log('✅ Company updated successfully:', { id: updatedCompany.id, name: updatedCompany.name });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Company profile updated successfully',
+      data: {
+        ...updatedCompany,
+        hasCompleteProfile: !!(updatedCompany.name && updatedCompany.description && updatedCompany.location && updatedCompany.industry)
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error updating company profile:', error);
+    return NextResponse.json(
+      { error: 'Failed to update company profile', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    console.log('🔍 Company profile delete API called');
+    
+    const basicUser = await getAuthenticatedUser();
+    if (!basicUser) {
+      console.log('❌ No authenticated user found');
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
+    if (basicUser.role !== 'employer') {
+      console.log('❌ User is not an employer, role:', basicUser.role);
+      return NextResponse.json({ error: "Employer account required" }, { status: 403 });
+    }
+
+    // Find existing company
+    const existingCompany = await prisma.company.findFirst({
+      where: { createdBy: basicUser.id }
+    });
+
+    if (!existingCompany) {
+      console.log('❌ No company found for user:', basicUser.id);
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      );
+    }
+
+    // Delete the company
+    console.log('🗑️ Deleting company from database...');
+    await prisma.company.delete({
+      where: { id: existingCompany.id }
+    });
+
+    console.log('✅ Company deleted successfully:', { id: existingCompany.id, name: existingCompany.name });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Company profile deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error deleting company profile:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete company profile', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

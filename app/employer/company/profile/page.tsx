@@ -27,7 +27,9 @@ import {
   AlertTriangle,
   ExternalLink,
   FileText,
-  Briefcase
+  Briefcase,
+  Sparkles,
+  Brain
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -69,6 +71,8 @@ export default function CompanyProfilePage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState<Partial<CompanyData>>({});
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<{[key: string]: string}>({});
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -115,6 +119,64 @@ export default function CompanyProfilePage() {
 
   const handleInputChange = (field: keyof CompanyData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // AI-powered content generation
+  const generateAIContent = async (type: 'description') => {
+    if (!formData.name) {
+      toast.error('Please enter company name first');
+      return;
+    }
+
+    if (!formData.industry) {
+      toast.error('Please select an industry first for better suggestions');
+      return;
+    }
+
+    setAiGenerating(true);
+    try {
+      const response = await fetch('/api/ai/company-suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type,
+          companyName: formData.name,
+          industry: formData.industry,
+          existingData: formData
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.suggestion) {
+          setAiSuggestions(prev => ({ ...prev, [type]: data.suggestion }));
+          toast.success('AI suggestion generated!', {
+            description: 'Click the suggestion to apply it.',
+            duration: 3000
+          });
+        } else {
+          toast.error('No suggestions available');
+        }
+      } else {
+        throw new Error('Failed to get AI suggestions');
+      }
+    } catch (error) {
+      console.error('AI suggestion error:', error);
+      toast.error('Failed to get AI suggestions', {
+        description: 'Please try again or continue with manual input.',
+        duration: 3000
+      });
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
+  const applyAISuggestion = (field: string) => {
+    if (aiSuggestions[field]) {
+      setFormData(prev => ({ ...prev, [field]: aiSuggestions[field] }));
+      setAiSuggestions(prev => ({ ...prev, [field]: '' }));
+      toast.success('AI suggestion applied!');
+    }
   };
 
   const handleSave = async () => {
@@ -337,10 +399,57 @@ export default function CompanyProfilePage() {
               <CardContent className="p-8 space-y-8">
                 {/* Description */}
                 <div className="bg-slate-50/50 rounded-xl p-6 border border-slate-100">
-                  <Label className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-blue-600" />
-                    Company Description
-                  </Label>
+                  <div className="flex items-center justify-between mb-4">
+                    <Label className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-blue-600" />
+                      Company Description
+                    </Label>
+                    {editing && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => generateAIContent('description')}
+                        disabled={aiGenerating}
+                        className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                      >
+                        {aiGenerating ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            AI Suggest
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {editing && aiSuggestions.description && (
+                    <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Brain className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-800">AI Suggestion:</span>
+                          </div>
+                          <p className="text-sm text-blue-700 leading-relaxed">{aiSuggestions.description}</p>
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => applyAISuggestion('description')}
+                          className="ml-3 bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
                   {editing ? (
                     <Textarea
                       value={formData.description || ''}
