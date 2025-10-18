@@ -232,51 +232,6 @@ export default function HomePageClient({
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Why Choose <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">NaukriMili</span>?
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Experience the future of job searching with our cutting-edge platform
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-            <div className="group text-center p-8 rounded-2xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-500 hover:scale-105">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Brain className="w-10 h-10 text-blue-600" />
-              </div>
-              <h3 className="text-xl lg:text-2xl font-semibold mb-4 text-gray-900">AI-Powered Matching</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Our advanced AI algorithm matches you with the perfect job opportunities based on your skills and preferences.
-              </p>
-            </div>
-            
-            <div className="group text-center p-8 rounded-2xl hover:bg-gradient-to-br hover:from-green-50 hover:to-emerald-50 transition-all duration-500 hover:scale-105">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Shield className="w-10 h-10 text-green-600" />
-              </div>
-              <h3 className="text-xl lg:text-2xl font-semibold mb-4 text-gray-900">Verified Companies</h3>
-              <p className="text-gray-600 leading-relaxed">
-                All companies are verified and legitimate, ensuring you apply to real opportunities.
-              </p>
-            </div>
-            
-            <div className="group text-center p-8 rounded-2xl hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 transition-all duration-500 hover:scale-105">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Zap className="w-10 h-10 text-purple-600" />
-              </div>
-              <h3 className="text-xl lg:text-2xl font-semibold mb-4 text-gray-900">Instant Applications</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Apply to multiple jobs with just a few clicks. No more complex application processes.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Featured Jobs Section */}
       <section 
