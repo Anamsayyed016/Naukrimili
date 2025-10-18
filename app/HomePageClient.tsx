@@ -121,11 +121,29 @@ export default function HomePageClient({
             const response = await fetch(`/api/jobs?location=${encodeURIComponent(location)}&limit=1&includeExternal=true&includeDatabase=true`);
             if (response.ok) {
               const data = await response.json();
-              const jobCount = data.pagination?.total || data.total || 0;
-              setLocationJobCounts(prev => ({
-                ...prev,
-                [location]: jobCount
-              }));
+              console.log(`🔍 API response for ${location}:`, data);
+              
+              // Handle different response structures
+              let jobCount = 0;
+              if (data.success && data.data?.pagination?.total) {
+                jobCount = data.data.pagination.total;
+              } else if (data.pagination?.total) {
+                jobCount = data.pagination.total;
+              } else if (data.total) {
+                jobCount = data.total;
+              } else if (data.data?.total) {
+                jobCount = data.data.total;
+              }
+              
+              console.log(`✅ Job count for ${location}:`, jobCount);
+              setLocationJobCounts(prev => {
+                const newCounts = {
+                  ...prev,
+                  [location]: jobCount
+                };
+                console.log(`🔄 Updated locationJobCounts:`, newCounts);
+                return newCounts;
+              });
             }
           } catch (error) {
             console.warn(`Failed to fetch job count for ${location}:`, error);
@@ -186,7 +204,7 @@ export default function HomePageClient({
                     <MapPin className="w-4 h-4 mr-2" />
                     <span>{location}</span>
                     <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      {locationJobCounts[location] || 'Jobs'}
+                      {locationJobCounts[location] ? `${locationJobCounts[location]} Jobs` : 'Jobs'}
                     </span>
                   </Link>
                 );
