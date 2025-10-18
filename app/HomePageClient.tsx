@@ -108,17 +108,30 @@ export default function HomePageClient({
     const fetchJobCounts = async () => {
       try {
         const counts: Record<string, number> = {};
+        
+        // Set initial counts for all locations to show them immediately
+        for (const location of popularLocations || []) {
+          counts[location] = 0; // Will be updated when API responds
+        }
+        setLocationJobCounts(counts);
+        
+        // Then fetch actual counts
         for (const location of popularLocations || []) {
           try {
             const response = await fetch(`/api/jobs?location=${encodeURIComponent(location)}&limit=1&includeExternal=true&includeDatabase=true`);
-            const data = await response.json();
-            counts[location] = data.pagination?.total || data.total || 0;
+            if (response.ok) {
+              const data = await response.json();
+              const jobCount = data.pagination?.total || data.total || 0;
+              setLocationJobCounts(prev => ({
+                ...prev,
+                [location]: jobCount
+              }));
+            }
           } catch (error) {
             console.warn(`Failed to fetch job count for ${location}:`, error);
-            counts[location] = 0;
+            // Keep the location visible even if count fetch fails
           }
         }
-        setLocationJobCounts(counts);
       } catch (error) {
         console.error('Failed to fetch location job counts:', error);
       }
@@ -147,7 +160,7 @@ export default function HomePageClient({
           <div className="mb-8 sm:mb-12">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Popular Locations</h3>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {(popularLocations || []).filter(location => (locationJobCounts[location] || 0) > 0).map((location, index) => {
+              {(popularLocations || []).map((location, index) => {
                 // Determine country based on location
                 let country = 'IN'; // Default to India
                 const locationLower = location.toLowerCase();
@@ -173,7 +186,7 @@ export default function HomePageClient({
                     <MapPin className="w-4 h-4 mr-2" />
                     <span>{location}</span>
                     <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      {locationJobCounts[location] || 0}
+                      {locationJobCounts[location] || 'Jobs'}
                     </span>
                   </Link>
                 );
