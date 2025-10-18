@@ -4,12 +4,20 @@ import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
+// Configure route for larger file uploads
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+// Allow up to 10MB file uploads
+export const maxDuration = 60;
+
 const ALLOWED_TYPES = [
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'text/plain'
 ];
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 /**
  * POST /api/resumes/ultimate-upload
@@ -37,12 +45,27 @@ export async function POST(request: NextRequest) {
 
     if (!file) {
       console.log('❌ No file provided');
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false,
+        error: 'No file provided' 
+      }, { status: 400 });
+    }
+
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      console.log('❌ File too large:', file.size, 'bytes (max:', MAX_FILE_SIZE, ')');
+      return NextResponse.json({ 
+        success: false, 
+        error: `File size exceeds maximum limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB.` 
+      }, { status: 413 });
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       console.log('❌ Invalid file type:', file.type);
-      return NextResponse.json({ success: false, error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.' 
+      }, { status: 400 });
     }
 
     console.log('✅ File validation passed:', { 
@@ -186,11 +209,99 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ Ultimate resume upload completed: ${resume.id}`);
 
+    // Fetch job recommendations based on uploaded resume
+    let recommendations = [];
+    try {
+      console.log('🎯 Fetching job recommendations for user...');
+      const jobsResponse = await prisma.job.findMany({
+        where: {
+          isActive: true,
+          OR: profile.skills.map((skill: string) => ({
+            skills: { contains: skill, mode: 'insensitive' }
+          }))
+        },
+        take: 6,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          company: true,
+          location: true,
+          jobType: true,
+          experienceLevel: true,
+          salary: true,
+          salaryMin: true,
+          salaryMax: true,
+          salaryCurrency: true,
+          isRemote: true,
+          isHybrid: true,
+          skills: true,
+          description: true,
+          postedAt: true,
+          createdAt: true
+        }
+      });
+
+      // Calculate match scores
+      recommendations = jobsResponse.map(job => {
+        let score = 0;
+        let reasons = [];
+
+        // Skills match
+        if (profile.skills && profile.skills.length > 0 && job.skills) {
+          const jobSkills = typeof job.skills === 'string' ? JSON.parse(job.skills) : job.skills;
+          const matchingSkills = profile.skills.filter((skill: string) => 
+            jobSkills.some((jobSkill: string) => 
+              jobSkill.toLowerCase().includes(skill.toLowerCase())
+            )
+          );
+          if (matchingSkills.length > 0) {
+            score += (matchingSkills.length / profile.skills.length) * 40;
+            reasons.push(`${matchingSkills.length} skill(s) match: ${matchingSkills.join(', ')}`);
+          }
+        }
+
+        // Location match
+        if (profile.location && job.location) {
+          if (job.location.toLowerCase().includes(profile.location.toLowerCase())) {
+            score += 30;
+            reasons.push('Location match');
+          }
+        }
+
+        // Job type preference
+        if (profile.preferredJobType && job.jobType === profile.preferredJobType) {
+          score += 20;
+          reasons.push('Preferred job type');
+        }
+
+        // Remote preference
+        if (job.isRemote) {
+          score += 10;
+          reasons.push('Remote work available');
+        }
+
+        return {
+          ...job,
+          matchScore: Math.round(score),
+          matchReasons: reasons
+        };
+      });
+
+      // Sort by match score
+      recommendations.sort((a, b) => b.matchScore - a.matchScore);
+      console.log(`✅ Found ${recommendations.length} job recommendations`);
+    } catch (recError) {
+      console.error('⚠️ Failed to fetch recommendations (non-critical):', recError);
+      // Don't fail the upload if recommendations fail
+    }
+
     return NextResponse.json({ 
       success: true, 
       message: 'Resume uploaded and parsed successfully using AI',
       resumeId: resume.id,
       profile,
+      recommendations,
       aiSuccess: true,
       atsScore: 90,
       confidence: profile.confidence,
@@ -417,5 +528,3 @@ function generateJobSuggestions(parsedData: any): any[] {
   
   return suggestions;
 }
-
-export const dynamic = 'force-dynamic';

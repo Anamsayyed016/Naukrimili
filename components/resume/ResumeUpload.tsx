@@ -81,6 +81,7 @@ export default function ResumeUpload({ onComplete, onUploadStart, onAnalyzingSta
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [aiSuccess, setAiSuccess] = useState(false);
   const [confidence, setConfidence] = useState(0);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -141,18 +142,27 @@ export default function ResumeUpload({ onComplete, onUploadStart, onAnalyzingSta
         console.log('💼 Job Title:', result.profile.jobTitle);
         console.log('🛠️ Skills:', result.profile.skills);
         
+        // Store recommendations if available
+        if (result.recommendations && result.recommendations.length > 0) {
+          console.log('🎯 Received', result.recommendations.length, 'job recommendations');
+          setRecommendations(result.recommendations);
+        }
+        
         setExtractedProfile(result.profile);
         setResumeId(result.resumeId);
         setAiSuccess(result.aiSuccess);
         setConfidence(result.confidence);
         setShowProfileForm(true);
         
-        // Notify parent that profile form should be shown
-        onProfileFormShow?.(result.profile);
+        // Notify parent that profile form should be shown with recommendations
+        onProfileFormShow?.({
+          ...result.profile,
+          recommendations: result.recommendations || []
+        });
         
         toast({
           title: '🎉 Resume Analyzed Successfully!',
-          description: `AI extracted ${result.profile.skills?.length || 0} skills with ${result.confidence}% confidence. ATS Score: ${result.atsScore}%. Please review and save your profile.`,
+          description: `AI extracted ${result.profile.skills?.length || 0} skills with ${result.confidence}% confidence. ATS Score: ${result.atsScore}%. ${result.recommendations?.length || 0} job matches found!`,
           duration: 5000,
         });
       } else {
@@ -416,6 +426,66 @@ export default function ResumeUpload({ onComplete, onUploadStart, onAnalyzingSta
           <p className="text-xs text-gray-600 mt-1">Instant form completion</p>
         </div>
       </div>
+
+      {/* Job Recommendations Section */}
+      {recommendations.length > 0 && (
+        <div className="mt-8 p-6 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">🎯 Recommended Jobs for You</h3>
+              <p className="text-sm text-gray-600">Based on your skills and experience</p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            {recommendations.slice(0, 3).map((job, index) => (
+              <div key={job.id} className="bg-white p-4 rounded-lg border border-green-200 hover:shadow-md transition-all duration-200">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900">{job.title}</h4>
+                    <p className="text-sm text-gray-600 mt-1">{job.company}</p>
+                    <p className="text-xs text-gray-500 mt-1">{job.location}</p>
+                    {job.matchScore > 0 && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <Badge className="bg-green-100 text-green-800 border-green-200">
+                          {job.matchScore}% match
+                        </Badge>
+                        {job.matchReasons && job.matchReasons.length > 0 && (
+                          <span className="text-xs text-gray-600">
+                            {job.matchReasons[0]}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <Button 
+                    size="sm" 
+                    onClick={() => window.open(`/jobs/${job.id}`, '_blank')}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    View Job
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {recommendations.length > 3 && (
+            <div className="mt-4 text-center">
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/dashboard/jobseeker'}
+                className="border-green-600 text-green-700 hover:bg-green-50"
+              >
+                View All {recommendations.length} Recommendations
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
