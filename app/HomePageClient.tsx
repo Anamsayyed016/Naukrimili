@@ -115,10 +115,17 @@ export default function HomePageClient({
         }
         setLocationJobCounts(counts);
         
-        // Then fetch actual counts
+        // Then fetch actual counts with timeout
         for (const location of popularLocations || []) {
           try {
-            const response = await fetch(`/api/jobs?location=${encodeURIComponent(location)}&limit=1&includeExternal=true&includeDatabase=true`);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            
+            const response = await fetch(`/api/jobs?location=${encodeURIComponent(location)}&limit=1&includeExternal=true&includeDatabase=true`, {
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
             if (response.ok) {
               const data = await response.json();
               console.log(`🔍 API response for ${location}:`, data);
@@ -144,10 +151,21 @@ export default function HomePageClient({
                 console.log(`🔄 Updated locationJobCounts:`, newCounts);
                 return newCounts;
               });
+            } else {
+              console.warn(`API response not ok for ${location}:`, response.status);
+              // Set count to 0 if API call fails
+              setLocationJobCounts(prev => ({
+                ...prev,
+                [location]: 0
+              }));
             }
           } catch (error) {
             console.warn(`Failed to fetch job count for ${location}:`, error);
-            // Keep the location visible even if count fetch fails
+            // Set count to 0 if API call fails
+            setLocationJobCounts(prev => ({
+              ...prev,
+              [location]: 0
+            }));
           }
         }
       } catch (error) {
@@ -204,7 +222,7 @@ export default function HomePageClient({
                     <MapPin className="w-4 h-4 mr-2" />
                     <span>{location}</span>
                     <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      {locationJobCounts[location] ? `${locationJobCounts[location]} Jobs` : 'Jobs'}
+                      {locationJobCounts[location] !== undefined ? `${locationJobCounts[location]} Jobs` : 'Jobs'}
                     </span>
                   </Link>
                 );
