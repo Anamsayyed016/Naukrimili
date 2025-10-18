@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     // Save file
     const uploadsDir = join(process.cwd(), 'uploads', 'resumes');
     await mkdir(uploadsDir, { recursive: true }).catch(() => {});
-
+    
     const timestamp = Date.now();
     const originalName = file.name;
     const safeName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -386,9 +386,13 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
 async function parseResumeWithAI(text: string): Promise<any> {
   try {
     console.log('🤖 Starting AI resume parsing...');
+    console.log('📄 Raw text preview:', text.substring(0, 200) + '...');
     
-    // Simple regex-based parsing for now (can be enhanced with OpenAI/Gemini later)
-    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    // Clean the text first - remove PDF artifacts and headers
+    const cleanedText = cleanResumeText(text);
+    console.log('🧹 Cleaned text preview:', cleanedText.substring(0, 200) + '...');
+    
+    const lines = cleanedText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
     
     const parsedData: any = {
       name: '',
@@ -405,19 +409,22 @@ async function parseResumeWithAI(text: string): Promise<any> {
       confidence: 80
     };
 
-    // Extract name (usually first line or after "Name:")
-    parsedData.name = lines[0] || '';
+    // Extract name using intelligent detection
+    parsedData.name = extractName(cleanedText, lines);
+    console.log('👤 Extracted name:', parsedData.name);
     
     // Extract email
-    const emailMatch = text.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    const emailMatch = cleanedText.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
     if (emailMatch) {
       parsedData.email = emailMatch[1];
+      console.log('📧 Extracted email:', parsedData.email);
     }
     
     // Extract phone
-    const phoneMatch = text.match(/(\+?[\d\s\-\(\)]{10,})/);
+    const phoneMatch = cleanedText.match(/(\+?[\d\s\-\(\)]{10,})/);
     if (phoneMatch) {
       parsedData.phone = phoneMatch[1].trim();
+      console.log('📞 Extracted phone:', parsedData.phone);
     }
     
     // Extract skills (look for common skill keywords)
@@ -425,12 +432,15 @@ async function parseResumeWithAI(text: string): Promise<any> {
       'JavaScript', 'Python', 'Java', 'React', 'Node.js', 'Angular', 'Vue.js',
       'HTML', 'CSS', 'SQL', 'MongoDB', 'PostgreSQL', 'AWS', 'Docker',
       'Git', 'Linux', 'Windows', 'Agile', 'Scrum', 'Project Management',
-      'Communication', 'Leadership', 'Teamwork', 'Problem Solving'
+      'Communication', 'Leadership', 'Teamwork', 'Problem Solving',
+      'TypeScript', 'Express', 'Next.js', 'GraphQL', 'Redis', 'Kubernetes',
+      'Machine Learning', 'Data Analysis', 'TensorFlow', 'PyTorch'
     ];
     
     parsedData.skills = skillKeywords.filter(skill => 
-      text.toLowerCase().includes(skill.toLowerCase())
+      cleanedText.toLowerCase().includes(skill.toLowerCase())
     );
+    console.log('🛠️ Extracted skills:', parsedData.skills);
     
     // Extract experience (look for job-related keywords)
     const experienceKeywords = ['experience', 'work', 'employment', 'career', 'professional'];
@@ -486,6 +496,87 @@ async function parseResumeWithAI(text: string): Promise<any> {
       confidence: 50
     };
   }
+}
+
+/**
+ * Clean resume text by removing PDF artifacts and headers
+ */
+function cleanResumeText(text: string): string {
+  // Remove PDF headers and artifacts
+  let cleaned = text
+    .replace(/^%PDF.*$/gm, '') // Remove PDF headers
+    .replace(/^%[0-9]+.*$/gm, '') // Remove PDF object references
+    .replace(/^<<.*$/gm, '') // Remove PDF dictionary markers
+    .replace(/^>>.*$/gm, '') // Remove PDF dictionary closers
+    .replace(/^[0-9]+\s+[0-9]+\s+obj.*$/gm, '') // Remove PDF object definitions
+    .replace(/^endobj.*$/gm, '') // Remove PDF object endings
+    .replace(/^stream.*$/gm, '') // Remove PDF stream markers
+    .replace(/^endstream.*$/gm, '') // Remove PDF stream endings
+    .replace(/^xref.*$/gm, '') // Remove PDF cross-reference tables
+    .replace(/^trailer.*$/gm, '') // Remove PDF trailer
+    .replace(/^startxref.*$/gm, '') // Remove PDF startxref
+    .replace(/^%%EOF.*$/gm, '') // Remove PDF EOF
+    .replace(/[^\x20-\x7E\s]/g, ' ') // Remove non-printable characters
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim();
+  
+  return cleaned;
+}
+
+/**
+ * Extract name from resume text using intelligent detection
+ */
+function extractName(text: string, lines: string[]): string {
+  // Look for common name patterns
+  const namePatterns = [
+    /^[A-Z][a-z]+ [A-Z][a-z]+$/, // First Last
+    /^[A-Z][a-z]+ [A-Z]\. [A-Z][a-z]+$/, // First M. Last
+    /^[A-Z][a-z]+ [A-Z][a-z]+ [A-Z][a-z]+$/ // First Middle Last
+  ];
+  
+  // Check first 10 lines for name patterns
+  for (let i = 0; i < Math.min(10, lines.length); i++) {
+    const line = lines[i].trim();
+    
+    // Skip lines that are clearly not names
+    if (line.length < 3 || line.length > 50) continue;
+    if (line.includes('@') || line.includes('+') || line.includes('http')) continue;
+    if (line.includes('PDF') || line.includes('%') || line.includes('<')) continue;
+    if (line.toLowerCase().includes('resume') || line.toLowerCase().includes('cv')) continue;
+    if (line.toLowerCase().includes('experience') || line.toLowerCase().includes('education')) continue;
+    
+    // Check if line matches name patterns
+    for (const pattern of namePatterns) {
+      if (pattern.test(line)) {
+        console.log('✅ Found name pattern match:', line);
+        return line;
+      }
+    }
+    
+    // Check for simple two-word names (most common)
+    const words = line.split(' ');
+    if (words.length === 2 && 
+        words[0].length > 1 && words[1].length > 1 &&
+        /^[A-Z][a-z]+$/.test(words[0]) && 
+        /^[A-Z][a-z]+$/.test(words[1])) {
+      console.log('✅ Found simple name pattern:', line);
+      return line;
+    }
+  }
+  
+  // Fallback: return first reasonable line
+  for (let i = 0; i < Math.min(5, lines.length); i++) {
+    const line = lines[i].trim();
+    if (line.length > 3 && line.length < 50 && 
+        !line.includes('@') && !line.includes('+') && 
+        !line.includes('PDF') && !line.includes('%')) {
+      console.log('🔄 Using fallback name:', line);
+      return line;
+    }
+  }
+  
+  console.log('❌ No name found, using empty string');
+  return '';
 }
 
 /**
