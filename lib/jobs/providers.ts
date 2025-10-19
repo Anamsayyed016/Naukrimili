@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { SkillsExtractionService } from '@/lib/services/skills-extraction';
+import { fetchFromCoresignal, checkCoresignalHealth } from './coresignal-service';
 
 export type NormalizedJob = {
   source: string;
@@ -456,12 +457,14 @@ export async function checkJobProvidersHealth(): Promise<{
   adzuna: boolean;
   indeed: boolean;
   ziprecruiter: boolean;
+  coresignal: boolean;
   details: Record<string, any>;
 }> {
   const health = {
     adzuna: false,
     indeed: false,
     ziprecruiter: false,
+    coresignal: false,
     details: {} as Record<string, any>
   };
 
@@ -504,8 +507,27 @@ export async function checkJobProvidersHealth(): Promise<{
     health.details.ziprecruiter = { status: 'not_configured' };
   }
 
+  // Check Coresignal Provider
+  if (process.env.CORESIGNAL_API_KEY) {
+    try {
+      const coresignalHealth = await checkCoresignalHealth();
+      health.coresignal = coresignalHealth.healthy;
+      health.details.coresignal = { 
+        status: coresignalHealth.healthy ? 'healthy' : 'error', 
+        message: coresignalHealth.message 
+      };
+    } catch (error: any) {
+      health.details.coresignal = { status: 'error', message: error.message };
+    }
+  } else {
+    health.details.coresignal = { status: 'not_configured' };
+  }
+
   return health;
 }
+
+// Export Coresignal functions
+export { fetchFromCoresignal, checkCoresignalHealth } from './coresignal-service';
 
 // Helper functions
 function extractRequirements(description: string): string {

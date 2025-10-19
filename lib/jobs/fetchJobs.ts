@@ -1,4 +1,4 @@
-import { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter, checkJobProvidersHealth } from './providers';
+import { fetchFromAdzuna, fetchFromIndeed, fetchFromZipRecruiter, fetchFromCoresignal, checkJobProvidersHealth } from './providers';
 import { upsertNormalizedJobs } from './upsertJob';
 import { GoogleSearchService } from '../google-search-service';
 
@@ -85,7 +85,33 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
     console.error('❌ ZipRecruiter fetch failed:', e?.message || e);
   }
 
-  // 7. Fallback: Google Jobs redirect (if no results from APIs)
+  // 7. Fetch from Coresignal
+  try {
+    const coresignal = await withRetry(() => fetchFromCoresignal(query, adzunaCountry, page, {
+      location: location || undefined,
+      limit: 20
+    }));
+    // Convert Coresignal jobs to NormalizedJob format
+    const normalizedCoresignal = coresignal.map(job => ({
+      source: 'coresignal',
+      sourceId: job.id,
+      title: job.title,
+      company: job.company,
+      location: job.location,
+      country: job.country,
+      description: job.description,
+      applyUrl: job.applyUrl,
+      source_url: job.applyUrl,
+      postedAt: job.postedAt,
+      salary: job.salary,
+      raw: job.raw
+    }));
+    all.push(...normalizedCoresignal);
+  } catch (e: any) {
+    console.error('❌ Coresignal fetch failed:', e?.message || e);
+  }
+
+  // 8. Fallback: Google Jobs redirect (if no results from APIs)
   if (all.length === 0) {
     try {
       // // console.log(`🔄 No jobs found from APIs, generating Google Jobs fallback...`);

@@ -13,6 +13,7 @@ declare namespace NodeJS {
     ADZUNA_APP_KEY: string;
     RAPIDAPI_KEY: string;
     RAPIDAPI_HOST: string;
+    CORESIGNAL_API_KEY: string;
     
     // Google APIs
     GOOGLE_JOBS_API_KEY: string;
