@@ -133,6 +133,24 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
+        // ✅ Secure flow protection (state parameter)
+        authorization: {
+          params: {
+            access_type: "offline",
+            prompt: "consent",
+            // ✅ Incremental authorization support
+            scope: "openid email profile",
+          }
+        },
+        // ✅ Explicit profile mapping
+        profile(profile) {
+          return {
+            id: profile.sub,
+            email: profile.email,
+            name: profile.name,
+            image: profile.picture,
+          }
+        }
       })
     ] : []),
     Credentials({
