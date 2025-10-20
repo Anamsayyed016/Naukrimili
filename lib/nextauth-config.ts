@@ -123,7 +123,7 @@ const nextAuthOptions = {
   adapter: adapter,
   secret: nextAuthSecret,
   trustHost: true,
-  debug: true, // Enable debug to troubleshoot welcome email
+  debug: false, // Disable debug to reduce cookie size
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error',
@@ -133,16 +133,18 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Secure flow protection (state parameter)
+        // ✅ Fixed PKCE configuration
         authorization: {
           params: {
             access_type: "offline",
             prompt: "consent",
-            // ✅ Incremental authorization support
             scope: "openid email profile",
+            response_type: "code",
+            // ✅ Explicitly disable PKCE for Google OAuth
+            code_challenge_method: undefined,
           }
         },
-        // ✅ Explicit profile mapping
+        // ✅ Simplified profile mapping
         profile(profile) {
           return {
             id: profile.sub,
@@ -189,17 +191,9 @@ const nextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account, trigger }) {
-      console.log('🔍 JWT callback - Processing:', { 
-        email: token.email, 
-        provider: account?.provider,
-        userId: user?.id,
-        trigger: trigger
-      });
-
-      // Always fetch fresh user data from database to ensure we have the latest role
+      // ✅ Simplified JWT callback to reduce token size
       if (token.id) {
-        console.log('🔍 JWT callback - Fetching fresh user data for:', token.id);
-        
+        // Only fetch essential user data to keep token small
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
           select: {
@@ -215,14 +209,6 @@ const nextAuthOptions = {
         });
 
         if (dbUser) {
-          console.log('🔍 JWT callback - Fresh user data:', {
-            id: dbUser.id,
-            email: dbUser.email,
-            role: dbUser.role,
-            isActive: dbUser.isActive,
-            isVerified: dbUser.isVerified
-          });
-
           token.id = dbUser.id;
           token.role = dbUser.role;
           token.isActive = dbUser.isActive;
@@ -235,12 +221,6 @@ const nextAuthOptions = {
 
       // Handle initial OAuth sign-in
       if (account?.provider === 'google' && user) {
-        console.log('🔍 JWT callback - Processing Google OAuth:', { 
-          email: user.email, 
-          userId: user.id 
-        });
-
-        // Get the user from database to ensure we have the latest data
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
           select: {
@@ -256,14 +236,6 @@ const nextAuthOptions = {
         });
 
         if (dbUser) {
-          console.log('🔍 JWT callback - User found in database:', {
-            id: dbUser.id,
-            email: dbUser.email,
-            role: dbUser.role,
-            isActive: dbUser.isActive,
-            isVerified: dbUser.isVerified
-          });
-
           token.id = dbUser.id;
           token.role = dbUser.role;
           token.isActive = dbUser.isActive;
@@ -272,7 +244,6 @@ const nextAuthOptions = {
           token.lastName = dbUser.lastName;
           token.image = dbUser.image;
         } else {
-          console.log('🔍 JWT callback - User NOT found in database, using token data');
           token.id = user.id;
           token.role = (user as any).role;
           token.isActive = (user as any).isActive;
@@ -309,10 +280,26 @@ const nextAuthOptions = {
     }
   },
   session: {
-    strategy: 'jwt',
-    maxAge: 24 * 60 * 60, // 1 day (reduced from 30 days)
+    strategy: 'jwt' as const,
+    maxAge: 24 * 60 * 60, // 1 day
   },
-  useSecureCookies: process.env.NODE_ENV === 'production'
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60, // 1 day
+      },
+    },
+  },
+  // ✅ Disable PKCE for Google OAuth to prevent parsing errors
+  experimental: {
+    enableWebAuthn: false,
+  }
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(nextAuthOptions);
