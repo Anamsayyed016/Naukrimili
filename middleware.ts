@@ -2,11 +2,42 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Add CORS headers for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    const response = NextResponse.next();
+  const response = NextResponse.next();
+  
+  // Enhanced OAuth security for auth routes
+  if (request.nextUrl.pathname.startsWith('/api/auth/')) {
+    // Cross-Account Protection - restrict to naukrimili.com
+    const origin = request.headers.get('origin');
+    const referer = request.headers.get('referer');
     
-    // Add CORS headers
+    // Only allow requests from naukrimili.com domain for OAuth routes
+    if (origin && !origin.includes('naukrimili.com') && !origin.includes('localhost')) {
+      console.warn('🚨 Cross-Account Protection: Blocked unauthorized origin:', origin);
+      return new NextResponse('Unauthorized origin', { status: 403 });
+    }
+    
+    if (referer && !referer.includes('naukrimili.com') && !referer.includes('localhost')) {
+      console.warn('🚨 Cross-Account Protection: Blocked unauthorized referer:', referer);
+      return new NextResponse('Unauthorized referer', { status: 403 });
+    }
+    
+    // OAuth-specific CORS headers
+    response.headers.set('Access-Control-Allow-Origin', origin || 'https://naukrimili.com');
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    // Security headers
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
+    
+    return response;
+  }
+  
+  // Standard CORS headers for other API routes
+  if (request.nextUrl.pathname.startsWith('/api/')) {
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -32,7 +63,6 @@ export function middleware(request: NextRequest) {
   }
 
   // Add security headers for all routes
-  const response = NextResponse.next();
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
