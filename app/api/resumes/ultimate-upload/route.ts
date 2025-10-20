@@ -3,6 +3,7 @@ import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { uploadResume } from '@/lib/storage/resume-storage';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -74,21 +75,32 @@ export async function POST(request: NextRequest) {
       size: file.size 
     });
 
-    // Save file
-    const uploadsDir = join(process.cwd(), 'uploads', 'resumes');
-    await mkdir(uploadsDir, { recursive: true }).catch(() => {});
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer();
+    const fileBuffer = Buffer.from(bytes);
+
+    // Upload file using the unified storage service (GCS or local)
+    console.log('💾 Uploading file using storage service...');
+    const uploadResult = await uploadResume(
+      fileBuffer,
+      file.name,
+      file.type,
+      file.size,
+      session.user.email || undefined
+    );
+
+    if (!uploadResult.success) {
+      console.log('❌ File upload failed:', uploadResult.error);
+      return NextResponse.json({ 
+        success: false, 
+        error: uploadResult.error || 'Failed to upload file'
+      }, { status: 500 });
+    }
+
+    console.log(`✅ File uploaded successfully via ${uploadResult.storage.toUpperCase()}:`, uploadResult.fileUrl);
     
     const timestamp = Date.now();
-    const originalName = file.name;
-    const safeName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `${timestamp}_${safeName}`;
-    const filepath = join(uploadsDir, filename);
-
-    console.log('💾 Saving file to:', filepath);
-
-    const bytes = await file.arrayBuffer();
-    await writeFile(filepath, Buffer.from(bytes));
-    console.log('✅ File saved successfully');
+    const filename = uploadResult.fileName;
 
     // Extract text from file
     const extractedText = await extractTextFromFile(file, bytes);
@@ -192,15 +204,19 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Save resume to database
+    // Save resume to database with storage metadata
     const resume = await prisma.resume.create({
       data: {
         userId: user.id,
         fileName: file.name,
-        fileUrl: `/uploads/resumes/${filename}`,
-        fileSize: file.size,
+        fileUrl: uploadResult.fileUrl,
+        fileSize: uploadResult.fileSize,
         mimeType: file.type,
-        parsedData: profile,
+        parsedData: {
+          ...profile,
+          storage: uploadResult.storage,
+          gcsPath: uploadResult.gcsPath || undefined,
+        } as any,
         atsScore: 90,
         isActive: true,
         isBuilder: false
@@ -307,6 +323,11 @@ export async function POST(request: NextRequest) {
       confidence: profile.confidence,
       aiProvider: 'ai-enhanced',
       processingTime: Date.now() - timestamp,
+      storage: {
+        type: uploadResult.storage,
+        secure: uploadResult.storage === 'gcs',
+        cloud: uploadResult.storage === 'gcs',
+      },
       sources: {
         ai: true,
         textExtraction: true,

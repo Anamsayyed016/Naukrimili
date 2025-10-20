@@ -5,7 +5,11 @@ echo "========================"
 echo ""
 
 echo "1️⃣ Checking environment variables in PM2:"
-pm2 env 0 | grep -E "GOOGLE_CLIENT|NEXTAUTH"
+echo "NEXTAUTH vars:"
+pm2 env 0 | grep -E "NEXTAUTH"
+echo ""
+echo "GOOGLE OAuth vars:"
+pm2 env 0 | grep -E "GOOGLE_CLIENT"
 echo ""
 
 echo "2️⃣ Checking OAuth providers endpoint:"
