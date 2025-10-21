@@ -16,7 +16,15 @@ export function middleware(request: NextRequest) {
       return new NextResponse('Unauthorized origin', { status: 403 });
     }
     
-    if (referer && !referer.includes('naukrimili.com') && !referer.includes('localhost')) {
+    // Allow Google OAuth domains for OAuth callbacks
+    const allowedRefererDomains = [
+      'naukrimili.com',
+      'localhost',
+      'accounts.google.com',
+      'www.googleapis.com'
+    ];
+
+    if (referer && !allowedRefererDomains.some(domain => referer.includes(domain))) {
       console.warn('🚨 Cross-Account Protection: Blocked unauthorized referer:', referer);
       return new NextResponse('Unauthorized referer', { status: 403 });
     }
