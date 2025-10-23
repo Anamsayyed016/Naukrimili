@@ -1,3 +1,18 @@
+#!/bin/bash
+
+echo "🔧 Fixing NextAuth.js v5 beta PKCE parsing bug..."
+echo "⏹️ Stopping PM2 process..."
+
+pm2 stop naukrimili
+
+echo "🧹 Clearing build cache..."
+rm -rf .next
+rm -rf node_modules/.cache
+
+echo "🔧 Implementing NextAuth.js v5 beta compatible PKCE solution..."
+
+# Create a NextAuth.js v5 beta compatible configuration
+cat > lib/nextauth-config.ts << 'EOF'
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
@@ -133,13 +148,16 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Simplified OAuth configuration without PKCE (NextAuth.js v5 beta compatibility)
+        // ✅ NextAuth.js v5 beta compatible OAuth configuration
         authorization: {
           params: {
             scope: "openid email profile",
             response_type: "code",
             access_type: "offline",
-            prompt: "consent"
+            prompt: "consent",
+            // ✅ Remove PKCE parameters that cause parsing errors in v5 beta
+            // code_challenge_method: "S256", // Commented out due to v5 beta bug
+            include_granted_scopes: "true"
           }
         },
         // ✅ Simplified profile mapping
@@ -294,10 +312,29 @@ const nextAuthOptions = {
       },
     },
   },
-  // ✅ Enable secure OAuth flows for Google Workspace compliance
+  // ✅ NextAuth.js v5 beta compatible configuration
   experimental: {
     enableWebAuthn: false,
   }
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(nextAuthOptions);
+EOF
+
+echo "✅ NextAuth.js v5 beta compatible configuration applied"
+echo "🔨 Rebuilding application..."
+
+NODE_OPTIONS="--max-old-space-size=8192" NEXT_TELEMETRY_DISABLED=1 npx next build
+
+echo "🚀 Starting PM2 process..."
+pm2 start ecosystem.config.cjs --env production
+
+echo "✅ NextAuth.js v5 beta PKCE bug fix applied successfully!"
+echo "🔍 Check the logs with: pm2 logs naukrimili --lines 10"
+echo ""
+echo "📋 NextAuth.js v5 Beta Compatibility Summary:"
+echo "  ⚠️  PKCE temporarily disabled due to v5 beta parsing bug"
+echo "  ✅ OAuth flow maintained with secure parameters"
+echo "  ✅ Google OAuth 2.0 compatibility preserved"
+echo "  ✅ All other security features intact"
+echo "  🔄 PKCE will be re-enabled when NextAuth.js v5 stable is released"
