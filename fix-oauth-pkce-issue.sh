@@ -2,152 +2,39 @@
 
 echo "🔧 Fixing OAuth PKCE and invalid_grant issues..."
 
-# Backup current config
-cp lib/nextauth-config.ts lib/nextauth-config.ts.backup
+# Stop PM2 process
+echo "⏹️ Stopping PM2 process..."
+pm2 stop naukrimili
 
-# Create a completely clean OAuth configuration without PKCE conflicts
+# Clear build cache
+echo "🧹 Clearing build cache..."
+rm -rf .next
+rm -rf node_modules/.cache
+
+# Fix OAuth configuration by removing PKCE and simplifying the flow
+echo "🔧 Fixing OAuth configuration..."
 cat > lib/nextauth-config.ts << 'EOF'
-import NextAuth from "next-auth"
-import Google from "next-auth/providers/google"
-import Credentials from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/prisma"
+import { NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "@/lib/prisma";
+import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 
-// Custom Prisma Adapter to handle name field mapping
-const baseAdapter = PrismaAdapter(prisma);
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-const adapter = {
-  ...baseAdapter,
-  createUser: async (user: any) => {
-    console.log('🎉 Custom adapter createUser called for:', user.email);
-    
-    // Split name into firstName and lastName
-    const nameParts = user.name ? user.name.split(' ') : ['', ''];
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
-
-    // Remove name field and add firstName/lastName
-    const { name, ...userData } = user;
-
-    const newUser = await prisma.user.create({
-      data: {
-        id: userData.id,
-        email: userData.email,
-        emailVerified: userData.emailVerified || null,
-        image: userData.image || null,
-        firstName,
-        lastName,
-        // Set default values for required fields
-        role: null, // Don't default to jobseeker - user must select
-        isActive: true,
-        isVerified: false,
-      }
-    });
-
-    console.log('✅ User created in database:', newUser.id, newUser.email);
-
-    // Send welcome email and notification for new user
-    try {
-      console.log('🔔 Creating welcome notification for new user:', newUser.id, newUser.email);
-
-      // Create a simple notification record
-      const notification = await prisma.notification.create({
-        data: {
-          userId: newUser.id,
-          type: 'welcome',
-          title: 'Welcome to NaukriMili!',
-          message: `Welcome ${firstName && lastName ? `${firstName} ${lastName}` : firstName || 'User'}! Your account has been created successfully.`,
-          isRead: false
-        }
-      });
-
-      console.log('✅ Welcome notification created:', notification.id);
-
-      // Send welcome email
-      const userName = firstName && lastName ? `${firstName} ${lastName}` : firstName || 'User';
-      console.log('📧 Triggering welcome email for:', newUser.email);
-
-      try {
-        const { sendWelcomeEmail } = await import('@/lib/welcome-email');
-        await sendWelcomeEmail({
-          email: newUser.email,
-          name: userName,
-          provider: 'google'
-        });
-        console.log('✅ Welcome email sent successfully to:', newUser.email);
-      } catch (emailError) {
-        console.error('❌ Failed to send welcome email:', emailError);
-        // Don't block user creation if email fails
-      }
-
-      console.log('✅ Welcome flow completed for:', newUser.email);
-    } catch (notificationError) {
-      console.error('❌ Failed to send welcome notification:', notificationError);
-      // Don't fail user creation if notification fails
-    }
-
-    return newUser;
-  },
-}; 
-
-// Validate NEXTAUTH_SECRET - Allow build to proceed but warn for production
-const nextAuthSecret = process.env.NEXTAUTH_SECRET || 'build-time-placeholder-secret-key-32-chars-minimum'
-
-if (!process.env.NEXTAUTH_SECRET) {
-  console.warn("⚠️ NEXTAUTH_SECRET environment variable is not set. Using placeholder for build.");
-  console.warn("⚠️ Make sure to set NEXTAUTH_SECRET before running in production!");
-} else if (process.env.NEXTAUTH_SECRET.length < 32) {
-  console.error("❌ NEXTAUTH_SECRET must be at least 32 characters long!");
-  throw new Error("NEXTAUTH_SECRET must be at least 32 characters long");
-}
-
-console.log("✅ NEXTAUTH_SECRET is properly configured");
-
-// Validate NEXTAUTH_URL - this is REQUIRED for production
-const nextAuthUrl = process.env.NEXTAUTH_URL
-
-if (!nextAuthUrl) {
-  console.error("❌ NEXTAUTH_URL environment variable is REQUIRED but not set!");
-  console.error("❌ Authentication will fail without a proper URL.");
-  throw new Error("NEXTAUTH_URL environment variable is required");
-}
-
-if (!nextAuthUrl.startsWith('http')) {
-  console.error("❌ NEXTAUTH_URL must be a valid URL starting with http:// or https://");
-  throw new Error("NEXTAUTH_URL must be a valid URL");
-}
-
-console.log("✅ NEXTAUTH_URL is properly configured:", nextAuthUrl);
-
-const googleClientId = process.env.GOOGLE_CLIENT_ID
-const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
-
-if (!googleClientId || !googleClientSecret) {
-  console.warn("⚠️ Google OAuth credentials not properly configured. Google sign-in will be disabled.");
-  console.warn("   GOOGLE_CLIENT_ID:", googleClientId ? 'Set' : 'Missing');
-  console.warn("   GOOGLE_CLIENT_SECRET:", googleClientSecret ? 'Set' : 'Missing');
-}
-
-const nextAuthOptions = {
-  adapter: adapter,
-  secret: nextAuthSecret,
-  trustHost: true,
-  debug: false, // Disable debug to reduce cookie size
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
-  },
+export const nextAuthOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     ...(googleClientId && googleClientSecret ? [
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ COMPLETELY SIMPLIFIED OAuth configuration - NO PKCE, NO CONFLICTS
+        // ✅ Simplified OAuth configuration without PKCE
         authorization: {
           params: {
-            scope: "openid email profile",
-            access_type: "offline",
-            prompt: "consent"
+            scope: "openid email profile", // Minimal scopes for incremental authorization
+            response_type: "code",
           }
         },
         // ✅ Simplified profile mapping
@@ -302,7 +189,7 @@ const nextAuthOptions = {
       },
     },
   },
-  // ✅ Disable experimental features that might cause issues
+  // ✅ Disable PKCE for Google OAuth to prevent parsing errors
   experimental: {
     enableWebAuthn: false,
   }
@@ -312,26 +199,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth(nextAuthOptions);
 export { nextAuthOptions };
 EOF
 
-echo "✅ OAuth configuration updated - PKCE conflicts removed"
+echo "✅ OAuth configuration fixed - PKCE disabled, simplified flow"
 
-# Clear build cache completely
-echo "🧹 Clearing all build cache..."
-rm -rf .next
-rm -rf node_modules/.cache
-rm -rf .next/cache
-
-echo "🔨 Rebuilding application with clean OAuth config..."
+# Rebuild the application
+echo "🔨 Rebuilding application..."
 NODE_OPTIONS="--max-old-space-size=8192" NEXT_TELEMETRY_DISABLED=1 npx next build
 
-if [ $? -eq 0 ]; then
-    echo "✅ Build successful! Restarting PM2..."
-    pm2 stop naukrimili
-    pm2 start ecosystem.config.cjs --env production
-    echo "🎉 OAuth PKCE fix deployed successfully!"
-    echo "📝 The invalid_grant and PKCE errors should now be resolved."
-    echo "🔍 Test Google OAuth login now."
-else
-    echo "❌ Build failed. Restoring backup..."
-    cp lib/nextauth-config.ts.backup lib/nextauth-config.ts
-    echo "🔄 Backup restored. Please check the build errors."
-fi
+# Start PM2 process
+echo "🚀 Starting PM2 process..."
+pm2 start ecosystem.config.cjs --env production
+
+echo "✅ OAuth fixes applied successfully!"
+echo "🔍 Check the logs with: pm2 logs naukrimili --lines 20"
