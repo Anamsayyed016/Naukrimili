@@ -133,11 +133,15 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Simplified OAuth configuration without PKCE
+        // ✅ Secure OAuth configuration with PKCE for Google Workspace compliance
         authorization: {
           params: {
-            scope: "openid email profile", // Minimal scopes for incremental authorization
+            scope: "openid email profile",
             response_type: "code",
+            access_type: "offline",
+            prompt: "consent",
+            code_challenge_method: "S256",
+            include_granted_scopes: "true"
           }
         },
         // ✅ Simplified profile mapping
@@ -292,7 +296,7 @@ const nextAuthOptions = {
       },
     },
   },
-  // ✅ Disable PKCE for Google OAuth to prevent parsing errors
+  // ✅ Enable secure OAuth flows for Google Workspace compliance
   experimental: {
     enableWebAuthn: false,
   }
