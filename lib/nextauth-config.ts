@@ -136,12 +136,14 @@ const nextAuthOptions = {
         // ✅ Enhanced OAuth security with PKCE enabled
         authorization: {
           params: {
-            access_type: "offline",
-            prompt: "consent",
-            scope: "openid email profile",
+            // access_type: "offline", // Commented out to prevent refresh token issues
+            // prompt: "consent", // Commented out to avoid forced consent screen
+            scope: "openid email profile", // Minimal scopes for incremental authorization
             response_type: "code",
-            // ✅ Enable PKCE for enhanced security (Google Cloud recommendation)
+            // ✅ PKCE enabled for secure OAuth flows
             code_challenge_method: "S256",
+            // ✅ Incremental authorization enabled
+            include_granted_scopes: "true",
           }
         },
         // ✅ Simplified profile mapping
@@ -289,7 +291,7 @@ const nextAuthOptions = {
       name: `__Secure-next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'lax' as const,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60, // 1 day

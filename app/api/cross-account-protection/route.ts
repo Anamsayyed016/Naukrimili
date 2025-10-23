@@ -12,6 +12,28 @@ import { auth } from '@/lib/nextauth-config';
  */
 export async function GET(request: NextRequest) {
   try {
+    // Enhanced Cross-Account Protection with origin validation
+    const origin = request.headers.get('origin');
+    const referer = request.headers.get('referer');
+    
+    // Validate request origin for security
+    const allowedOrigins = [
+      'https://naukrimili.com',
+      'http://localhost:3000',
+      'https://accounts.google.com'
+    ];
+    
+    if (origin && !allowedOrigins.some(allowed => origin.includes(allowed))) {
+      console.warn('🚨 Cross-Account Protection: Blocked unauthorized origin:', origin);
+      return NextResponse.json(
+        { 
+          error: 'Unauthorized origin',
+          crossAccountProtection: false 
+        }, 
+        { status: 403 }
+      );
+    }
+
     // Get current authenticated session
     const session = await auth();
     
@@ -26,13 +48,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Return user's email for cross-account protection verification
-    return NextResponse.json({
+    // Enhanced response with security headers
+    const response = NextResponse.json({
       email: session.user.email,
       userId: session.user.id || null,
       crossAccountProtection: true,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      domain: 'naukrimili.com'
     });
+
+    // Add security headers
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+    return response;
 
   } catch (error) {
     console.error('❌ Cross-account protection error:', error);

@@ -10,8 +10,15 @@ export function middleware(request: NextRequest) {
     const origin = request.headers.get('origin');
     const referer = request.headers.get('referer');
     
-    // Only allow requests from naukrimili.com domain for OAuth routes
-    if (origin && !origin.includes('naukrimili.com') && !origin.includes('localhost')) {
+    // Enhanced origin validation for Cross-Account Protection
+    const allowedOrigins = [
+      'https://naukrimili.com',
+      'http://localhost:3000',
+      'https://accounts.google.com',
+      'https://www.googleapis.com'
+    ];
+    
+    if (origin && !allowedOrigins.some(allowed => origin.includes(allowed))) {
       console.warn('🚨 Cross-Account Protection: Blocked unauthorized origin:', origin);
       return new NextResponse('Unauthorized origin', { status: 403 });
     }

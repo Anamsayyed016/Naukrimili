@@ -10,9 +10,18 @@ export const securityConfig = {
   // OAuth security settings
   oauth: {
     useSecureFlows: true,
-    enablePKCE: true,
-    requireConsent: true,
+    enablePKCE: true, // Enabled for secure OAuth flows
+    requireConsent: false, // Disabled to allow seamless login
     incrementalAuthorization: true,
+    initialScopes: ['openid', 'email', 'profile'], // Minimal initial scopes
+    additionalScopes: {
+      profile_edit: ['https://www.googleapis.com/auth/userinfo.profile'],
+      email_send: ['https://www.googleapis.com/auth/userinfo.email'],
+      advanced_features: [
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email'
+      ]
+    }
   },
   
   // Session security
