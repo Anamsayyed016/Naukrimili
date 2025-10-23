@@ -133,35 +133,8 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Complete OAuth reset - use only essential parameters
-        authorization: {
-          params: {
-            // Only include essential OAuth parameters
-            scope: "openid email profile",
-            // Remove all problematic parameters that cause invalid_grant
-          }
-        },
-        // Add proper error handling
-        checks: ["state"],
-        // Ensure proper token exchange
-        token: {
-          async request({ client, params, checks, provider }) {
-            console.log('🔄 Google OAuth token request:', { params, checks });
-            try {
-              const response = await client.oauthCallback(provider.callbackUrl, params, checks, {
-                exchangeBody: {
-                  client_id: provider.clientId,
-                  client_secret: provider.clientSecret,
-                }
-              });
-              console.log('✅ Google OAuth token response received');
-              return response;
-            } catch (error) {
-              console.error('❌ Google OAuth token error:', error);
-              throw error;
-            }
-          }
-        }
+        // ✅ Ultra-minimal OAuth configuration - let NextAuth handle everything
+        // Remove all custom parameters and handlers to avoid invalid_grant
       })
     ] : []),
     Credentials({
