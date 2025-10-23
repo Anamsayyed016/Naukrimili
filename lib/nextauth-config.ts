@@ -184,6 +184,11 @@ const nextAuthOptions = {
         (session.user as any).firstName = (user as any).firstName;
         (session.user as any).lastName = (user as any).lastName;
         (session.user as any).image = (user as any).image;
+        
+        // Create a proper name field for display
+        const firstName = (user as any).firstName || '';
+        const lastName = (user as any).lastName || '';
+        (session.user as any).name = `${firstName} ${lastName}`.trim() || session.user?.name || 'User';
       }
       return session;
     },
