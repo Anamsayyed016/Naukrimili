@@ -176,13 +176,19 @@ const nextAuthOptions = {
       console.log('🔄 JWT callback:', { token: token.id, user: user?.email, account: account?.provider });
       
       if (user) {
+        // Only store essential data to reduce session size
         token.id = user.id;
         token.role = (user as any).role;
         token.isActive = (user as any).isActive;
         token.isVerified = (user as any).isVerified;
-        token.firstName = (user as any).firstName;
-        token.lastName = (user as any).lastName;
-        token.image = (user as any).image;
+        // Store name as single field instead of separate firstName/lastName
+        token.name = (user as any).firstName && (user as any).lastName 
+          ? `${(user as any).firstName} ${(user as any).lastName}`.trim()
+          : (user as any).firstName || (user as any).lastName || user.name;
+        // Only store image if it exists and is not too large
+        if ((user as any).image && (user as any).image.length < 500) {
+          token.image = (user as any).image;
+        }
       }
       
       // Handle OAuth account linking
@@ -200,8 +206,8 @@ const nextAuthOptions = {
         (session.user as any).role = token.role as string;
         (session.user as any).isActive = token.isActive as boolean;
         (session.user as any).isVerified = token.isVerified as boolean;
-        (session.user as any).firstName = token.firstName as string;
-        (session.user as any).lastName = token.lastName as string;
+        // Use the optimized name field
+        (session.user as any).name = token.name as string;
         (session.user as any).image = token.image as string;
       }
       return session;
@@ -232,7 +238,7 @@ const nextAuthOptions = {
   },
   session: {
     strategy: 'jwt' as const,
-    maxAge: 24 * 60 * 60, // 1 day
+    maxAge: 2 * 60 * 60, // 2 hours - reduced to prevent large sessions
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   cookies: {
@@ -243,7 +249,7 @@ const nextAuthOptions = {
         sameSite: 'lax' as const,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60, // 1 day
+        maxAge: 2 * 60 * 60, // 2 hours - reduced to prevent large sessions
       },
     },
   },
