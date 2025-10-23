@@ -174,7 +174,12 @@ const nextAuthOptions = {
   callbacks: {
     // JWT callback removed - using database sessions instead
     async session({ session, user }) {
-      console.log('🔄 Session callback:', { user: session.user?.email, userId: user?.id });
+      console.log('🔄 Session callback:', { 
+        sessionUser: session.user?.email, 
+        userId: user?.id,
+        userFirstName: (user as any)?.firstName,
+        userLastName: (user as any)?.lastName
+      });
       
       if (user) {
         (session.user as any).id = user.id;
@@ -185,10 +190,19 @@ const nextAuthOptions = {
         (session.user as any).lastName = (user as any).lastName;
         (session.user as any).image = (user as any).image;
         
-        // Create a proper name field for display
+        // Create a proper name field for display - ensure it's clean
         const firstName = (user as any).firstName || '';
         const lastName = (user as any).lastName || '';
-        (session.user as any).name = `${firstName} ${lastName}`.trim() || session.user?.name || 'User';
+        const fullName = `${firstName} ${lastName}`.trim();
+        
+        // Only use the constructed name if it's not corrupted
+        if (fullName && !fullName.includes('PDF') && !fullName.includes('%')) {
+          (session.user as any).name = fullName;
+        } else {
+          (session.user as any).name = session.user?.name || 'User';
+        }
+        
+        console.log('✅ Session name set:', (session.user as any).name);
       }
       return session;
     },
