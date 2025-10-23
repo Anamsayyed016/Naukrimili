@@ -98,8 +98,8 @@ export default function UnifiedUserProfile({
     );
   }
 
-  const userInitials = user.name ? user.name.charAt(0).toUpperCase() : 'U';
-  const displayName = user.name || 'User';
+  const userInitials = (user.firstName || user.name) ? (user.firstName || user.name).charAt(0).toUpperCase() : 'U';
+  const displayName = user.firstName || user.name || 'User';
   const userRole = user.role || 'User';
 
   if (variant === 'mobile') {

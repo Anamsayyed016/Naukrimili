@@ -159,7 +159,7 @@ export default function JobSeekerDashboard() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-2">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
-                  Welcome back, {session?.user?.name || 'Job Seeker'}! 👋
+                  Welcome back, {(session?.user as any)?.firstName || session?.user?.name || 'Job Seeker'}! 👋
                 </h1>
                 <p className="text-gray-600 text-sm sm:text-base">
                   Here's what's happening with your job search journey

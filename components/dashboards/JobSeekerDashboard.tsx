@@ -151,7 +151,7 @@ export default function JobSeekerDashboard({ initialMetrics }: JobSeekerDashboar
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Welcome back, {session?.user?.name || 'Job Seeker'}!</p>
+          <p className="text-gray-600">Welcome back, {(session?.user as any)?.firstName || session?.user?.name || 'Job Seeker'}!</p>
         </div>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
           <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`}></div>

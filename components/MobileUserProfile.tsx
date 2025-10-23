@@ -42,7 +42,7 @@ export default function MobileUserProfile({ className }: MobileUserProfileProps)
       >
         <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
           <span className="text-white font-semibold text-sm">
-            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            {(user.firstName || user.name) ? (user.firstName || user.name).charAt(0).toUpperCase() : 'U'}
           </span>
         </div>
         <ChevronDown 
