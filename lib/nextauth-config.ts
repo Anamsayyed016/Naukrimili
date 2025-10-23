@@ -133,13 +133,11 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Simplified OAuth configuration for Google OAuth 2.0
+        // ✅ Minimal OAuth configuration to avoid invalid_grant errors
         authorization: {
           params: {
             scope: "openid email profile",
-            response_type: "code",
-            access_type: "offline",
-            prompt: "select_account"
+            response_type: "code"
           }
         },
         // ✅ Simplified profile mapping
@@ -188,67 +186,16 @@ const nextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user, account, trigger }) {
-      // ✅ Simplified JWT callback to reduce token size
-      if (token.id) {
-        // Only fetch essential user data to keep token small
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-            role: true,
-            isActive: true,
-            isVerified: true,
-            image: true
-          }
-        });
-
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
-          token.isActive = dbUser.isActive;
-          token.isVerified = dbUser.isVerified;
-          token.firstName = dbUser.firstName;
-          token.lastName = dbUser.lastName;
-          token.image = dbUser.image;
-        }
-      }
-
-      // Handle initial OAuth sign-in
-      if (account?.provider === 'google' && user) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-            role: true,
-            isActive: true,
-            isVerified: true,
-            image: true
-          }
-        });
-
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
-          token.isActive = dbUser.isActive;
-          token.isVerified = dbUser.isVerified;
-          token.firstName = dbUser.firstName;
-          token.lastName = dbUser.lastName;
-          token.image = dbUser.image;
-        } else {
-          token.id = user.id;
-          token.role = (user as any).role;
-          token.isActive = (user as any).isActive;
-          token.isVerified = (user as any).isVerified;
-          token.firstName = (user as any).firstName;
-          token.lastName = (user as any).lastName;
-        }
+    async jwt({ token, user, account }) {
+      // ✅ Simplified JWT callback to avoid OAuth issues
+      if (user) {
+        token.id = user.id;
+        token.role = (user as any).role;
+        token.isActive = (user as any).isActive;
+        token.isVerified = (user as any).isVerified;
+        token.firstName = (user as any).firstName;
+        token.lastName = (user as any).lastName;
+        token.image = (user as any).image;
       }
 
       return token;
@@ -267,14 +214,10 @@ const nextAuthOptions = {
        return session;
      },
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
+      // ✅ Simplified redirect to avoid OAuth issues
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url;
-      
-      const defaultRedirect = `${baseUrl}/auth/role-selection`;
-      console.log('🔍 NextAuth Redirect - Default redirecting to:', defaultRedirect);
-      return defaultRedirect;
+      if (new URL(url).origin === baseUrl) return url;
+      return `${baseUrl}/auth/role-selection`;
     }
   },
   session: {
