@@ -305,4 +305,3 @@ const nextAuthOptions = {
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(nextAuthOptions);
-export { nextAuthOptions };
