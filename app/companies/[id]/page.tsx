@@ -76,10 +76,10 @@ export default function CompanyProfilePage() {
       setLoading(true);
       
       // Fetch company details
-      const companyResponse = await fetch(`/api/companies/${companyId}`);
+      const companyResponse = await fetch(`/api/companies/${companyId}/public`);
       if (!companyResponse.ok) throw new Error('Company not found');
       const companyData = await companyResponse.json();
-      setCompany(companyData);
+      setCompany(companyData.data);
       
       // Fetch company jobs
       const jobsResponse = await fetch(`/api/companies/${companyId}/jobs`);
