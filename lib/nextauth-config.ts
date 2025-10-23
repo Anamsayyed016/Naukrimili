@@ -172,43 +172,18 @@ const nextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user, account, profile }) {
-      console.log('🔄 JWT callback:', { token: token.id, user: user?.email, account: account?.provider });
+    // JWT callback removed - using database sessions instead
+    async session({ session, user }) {
+      console.log('🔄 Session callback:', { user: session.user?.email, userId: user?.id });
       
       if (user) {
-        // Only store essential data to reduce session size
-        token.id = user.id;
-        token.role = (user as any).role;
-        token.isActive = (user as any).isActive;
-        token.isVerified = (user as any).isVerified;
-        // Store name as single field instead of separate firstName/lastName
-        token.name = (user as any).firstName && (user as any).lastName 
-          ? `${(user as any).firstName} ${(user as any).lastName}`.trim()
-          : (user as any).firstName || (user as any).lastName || user.name;
-        // Only store image if it exists and is not too large
-        if ((user as any).image && (user as any).image.length < 500) {
-          token.image = (user as any).image;
-        }
-      }
-      
-      // Handle OAuth account linking
-      if (account && profile) {
-        console.log('🔗 OAuth account linking:', { provider: account.provider, email: profile.email });
-      }
-      
-      return token;
-    },
-    async session({ session, token }) {
-      console.log('🔄 Session callback:', { user: session.user?.email, token: token.id });
-      
-      if (token) {
-        (session.user as any).id = token.id as string;
-        (session.user as any).role = token.role as string;
-        (session.user as any).isActive = token.isActive as boolean;
-        (session.user as any).isVerified = token.isVerified as boolean;
-        // Use the optimized name field
-        (session.user as any).name = token.name as string;
-        (session.user as any).image = token.image as string;
+        (session.user as any).id = user.id;
+        (session.user as any).role = (user as any).role;
+        (session.user as any).isActive = (user as any).isActive;
+        (session.user as any).isVerified = (user as any).isVerified;
+        (session.user as any).firstName = (user as any).firstName;
+        (session.user as any).lastName = (user as any).lastName;
+        (session.user as any).image = (user as any).image;
       }
       return session;
     },
@@ -237,8 +212,8 @@ const nextAuthOptions = {
     }
   },
   session: {
-    strategy: 'jwt' as const,
-    maxAge: 2 * 60 * 60, // 2 hours - reduced to prevent large sessions
+    strategy: 'database' as const,
+    maxAge: 2 * 60 * 60, // 2 hours - using database to avoid cookie size limits
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   cookies: {
