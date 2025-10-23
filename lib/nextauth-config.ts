@@ -133,13 +133,11 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Simplified OAuth configuration without PKCE (NextAuth.js v5 beta compatibility)
+        // ✅ Minimal OAuth configuration without PKCE (NextAuth.js v5 beta compatibility)
         authorization: {
           params: {
             scope: "openid email profile",
-            response_type: "code",
-            access_type: "offline",
-            prompt: "consent"
+            response_type: "code"
           }
         },
         // ✅ Simplified profile mapping
