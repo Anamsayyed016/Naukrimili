@@ -172,35 +172,52 @@ const nextAuthOptions = {
     })
   ],
   callbacks: {
-    // JWT callback removed - using database sessions instead
-    async session({ session, user }) {
-      console.log('🔄 Session callback:', { 
-        sessionUser: session.user?.email, 
-        userId: user?.id,
-        userFirstName: (user as any)?.firstName,
-        userLastName: (user as any)?.lastName
-      });
+    async jwt({ token, user, account, profile }) {
+      console.log('🔄 JWT callback:', { token: token.id, user: user?.email, account: account?.provider });
       
       if (user) {
-        (session.user as any).id = user.id;
-        (session.user as any).role = (user as any).role;
-        (session.user as any).isActive = (user as any).isActive;
-        (session.user as any).isVerified = (user as any).isVerified;
-        (session.user as any).firstName = (user as any).firstName;
-        (session.user as any).lastName = (user as any).lastName;
-        (session.user as any).image = (user as any).image;
+        // Store only essential data to prevent large cookies
+        token.id = user.id;
+        token.role = (user as any).role;
+        token.isActive = (user as any).isActive;
+        token.isVerified = (user as any).isVerified;
         
-        // Create a proper name field for display - ensure it's clean
+        // Create a clean name field
         const firstName = (user as any).firstName || '';
         const lastName = (user as any).lastName || '';
         const fullName = `${firstName} ${lastName}`.trim();
         
-        // Only use the constructed name if it's not corrupted
-        if (fullName && !fullName.includes('PDF') && !fullName.includes('%')) {
-          (session.user as any).name = fullName;
+        // Only store clean names, fallback to email if corrupted
+        if (fullName && !fullName.includes('PDF') && !fullName.includes('%') && fullName.length < 50) {
+          token.name = fullName;
         } else {
-          (session.user as any).name = session.user?.name || 'User';
+          token.name = user.email?.split('@')[0] || 'User';
         }
+        
+        // Only store image if it's a reasonable size
+        if ((user as any).image && (user as any).image.length < 200) {
+          token.image = (user as any).image;
+        }
+        
+        console.log('✅ JWT name set:', token.name);
+      }
+      
+      return token;
+    },
+    async session({ session, token }) {
+      console.log('🔄 Session callback:', { 
+        sessionUser: session.user?.email, 
+        tokenId: token.id,
+        tokenName: token.name
+      });
+      
+      if (token) {
+        (session.user as any).id = token.id as string;
+        (session.user as any).role = token.role as string;
+        (session.user as any).isActive = token.isActive as boolean;
+        (session.user as any).isVerified = token.isVerified as boolean;
+        (session.user as any).name = token.name as string;
+        (session.user as any).image = token.image as string;
         
         console.log('✅ Session name set:', (session.user as any).name);
       }
@@ -231,8 +248,8 @@ const nextAuthOptions = {
     }
   },
   session: {
-    strategy: 'database' as const,
-    maxAge: 2 * 60 * 60, // 2 hours - using database to avoid cookie size limits
+    strategy: 'jwt' as const,
+    maxAge: 2 * 60 * 60, // 2 hours - optimized JWT to prevent cookie size issues
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   cookies: {
@@ -243,7 +260,7 @@ const nextAuthOptions = {
         sameSite: 'lax' as const,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 2 * 60 * 60, // 2 hours - reduced to prevent large sessions
+        maxAge: 1 * 60 * 60, // 1 hour - further reduced to prevent large sessions
       },
     },
   },
