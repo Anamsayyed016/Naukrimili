@@ -133,22 +133,8 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Minimal OAuth configuration to avoid invalid_grant errors
-        authorization: {
-          params: {
-            scope: "openid email profile",
-            response_type: "code"
-          }
-        },
-        // ✅ Simplified profile mapping
-        profile(profile) {
-          return {
-            id: profile.sub,
-            email: profile.email,
-            name: profile.name,
-            image: profile.picture,
-          }
-        }
+        // ✅ Ultra-minimal OAuth configuration to avoid invalid_grant errors
+        // Remove all custom authorization params to use NextAuth defaults
       })
     ] : []),
     Credentials({
@@ -186,8 +172,8 @@ const nextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
-      // ✅ Simplified JWT callback to avoid OAuth issues
+    async jwt({ token, user }) {
+      // ✅ Ultra-simplified JWT callback
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
@@ -197,24 +183,22 @@ const nextAuthOptions = {
         token.lastName = (user as any).lastName;
         token.image = (user as any).image;
       }
-
       return token;
     },
-     async session({ session, token }) {
-       if (token) {
-         (session.user as any).id = token.id as string;
-         (session.user as any).role = token.role as string;
-         (session.user as any).isActive = token.isActive as boolean;
-         (session.user as any).isVerified = token.isVerified as boolean;
-         (session.user as any).firstName = token.firstName as string;
-         (session.user as any).lastName = token.lastName as string;
-         (session.user as any).image = token.image as string;
-       }
-
-       return session;
-     },
+    async session({ session, token }) {
+      if (token) {
+        (session.user as any).id = token.id as string;
+        (session.user as any).role = token.role as string;
+        (session.user as any).isActive = token.isActive as boolean;
+        (session.user as any).isVerified = token.isVerified as boolean;
+        (session.user as any).firstName = token.firstName as string;
+        (session.user as any).lastName = token.lastName as string;
+        (session.user as any).image = token.image as string;
+      }
+      return session;
+    },
     async redirect({ url, baseUrl }) {
-      // ✅ Simplified redirect to avoid OAuth issues
+      // ✅ Ultra-simplified redirect
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       if (new URL(url).origin === baseUrl) return url;
       return `${baseUrl}/auth/role-selection`;
