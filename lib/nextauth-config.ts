@@ -133,17 +133,11 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Enhanced OAuth security with PKCE enabled
+        // ✅ Simplified OAuth configuration without PKCE
         authorization: {
           params: {
-            // access_type: "offline", // Commented out to prevent refresh token issues
-            // prompt: "consent", // Commented out to avoid forced consent screen
             scope: "openid email profile", // Minimal scopes for incremental authorization
             response_type: "code",
-            // ✅ PKCE enabled for secure OAuth flows
-            code_challenge_method: "S256",
-            // ✅ Incremental authorization enabled
-            include_granted_scopes: "true",
           }
         },
         // ✅ Simplified profile mapping
