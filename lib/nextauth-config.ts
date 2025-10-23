@@ -123,7 +123,7 @@ const nextAuthOptions = {
   adapter: adapter,
   secret: nextAuthSecret,
   trustHost: true,
-  debug: false, // Disable debug to reduce cookie size
+  debug: true, // Enable debug to see OAuth flow details
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error',
@@ -133,8 +133,35 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Ultra-minimal OAuth configuration to avoid invalid_grant errors
-        // Remove all custom authorization params to use NextAuth defaults
+        // ✅ Complete OAuth reset - use only essential parameters
+        authorization: {
+          params: {
+            // Only include essential OAuth parameters
+            scope: "openid email profile",
+            // Remove all problematic parameters that cause invalid_grant
+          }
+        },
+        // Add proper error handling
+        checks: ["state"],
+        // Ensure proper token exchange
+        token: {
+          async request({ client, params, checks, provider }) {
+            console.log('🔄 Google OAuth token request:', { params, checks });
+            try {
+              const response = await client.oauthCallback(provider.callbackUrl, params, checks, {
+                exchangeBody: {
+                  client_id: provider.clientId,
+                  client_secret: provider.clientSecret,
+                }
+              });
+              console.log('✅ Google OAuth token response received');
+              return response;
+            } catch (error) {
+              console.error('❌ Google OAuth token error:', error);
+              throw error;
+            }
+          }
+        }
       })
     ] : []),
     Credentials({
@@ -172,8 +199,9 @@ const nextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      // ✅ Ultra-simplified JWT callback
+    async jwt({ token, user, account, profile }) {
+      console.log('🔄 JWT callback:', { token: token.id, user: user?.email, account: account?.provider });
+      
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
@@ -183,9 +211,17 @@ const nextAuthOptions = {
         token.lastName = (user as any).lastName;
         token.image = (user as any).image;
       }
+      
+      // Handle OAuth account linking
+      if (account && profile) {
+        console.log('🔗 OAuth account linking:', { provider: account.provider, email: profile.email });
+      }
+      
       return token;
     },
     async session({ session, token }) {
+      console.log('🔄 Session callback:', { user: session.user?.email, token: token.id });
+      
       if (token) {
         (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
@@ -198,10 +234,27 @@ const nextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // ✅ Ultra-simplified redirect
+      console.log('🔄 Redirect callback:', { url, baseUrl });
+      
+      // Handle relative URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
+      
+      // Handle same origin URLs
       if (new URL(url).origin === baseUrl) return url;
+      
+      // Default redirect to role selection
       return `${baseUrl}/auth/role-selection`;
+    },
+    // Add signIn callback for better error handling
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log('🔄 SignIn callback:', { 
+        user: user?.email, 
+        account: account?.provider, 
+        profile: profile?.email 
+      });
+      
+      // Allow all sign-ins for now
+      return true;
     }
   },
   session: {
@@ -221,9 +274,18 @@ const nextAuthOptions = {
       },
     },
   },
-  // ✅ Enable secure OAuth flows for Google Workspace compliance
-  experimental: {
-    enableWebAuthn: false,
+  // Add proper error handling
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('🎉 SignIn event:', { 
+        user: user.email, 
+        account: account?.provider, 
+        isNewUser 
+      });
+    },
+    async signOut({ token }) {
+      console.log('👋 SignOut event:', { user: token?.email });
+    }
   }
 };
 
