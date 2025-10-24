@@ -6,6 +6,36 @@ export function middleware(request: NextRequest) {
   
   // Enhanced OAuth security for auth routes
   if (request.nextUrl.pathname.startsWith('/api/auth/')) {
+    // Log regional OAuth attempts for debugging
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const cfCountry = request.headers.get('cf-ipcountry') || 'unknown';
+    const xForwardedFor = request.headers.get('x-forwarded-for') || 'unknown';
+    
+    console.log('🌍 OAuth Request:', {
+      path: request.nextUrl.pathname,
+      method: request.method,
+      country: cfCountry,
+      region: request.headers.get('cf-region') || 'unknown',
+      city: request.headers.get('cf-city') || 'unknown',
+      userAgent: userAgent.substring(0, 100), // Truncate for logs
+      ip: xForwardedFor.split(',')[0],
+      timestamp: new Date().toISOString()
+    });
+    
+    // Enhanced regional OAuth debugging
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const isSafari = /Safari/i.test(userAgent) && !/Chrome/i.test(userAgent);
+    const isEdge = /Edg/i.test(userAgent);
+    
+    console.log('🔍 OAuth Device Analysis:', {
+      isMobile,
+      isSafari,
+      isEdge,
+      country: cfCountry,
+      region: request.headers.get('cf-region') || 'unknown',
+      oauthFlow: isMobile || isSafari ? 'redirect' : 'popup',
+      timestamp: new Date().toISOString()
+    });
     // Cross-Account Protection - restrict to naukrimili.com
     const origin = request.headers.get('origin');
     const referer = request.headers.get('referer');

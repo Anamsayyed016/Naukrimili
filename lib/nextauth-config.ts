@@ -275,6 +275,21 @@ const nextAuthOptions = {
     },
     async signOut({ token }) {
       console.log('👋 SignOut event:', { user: token?.email });
+    },
+    async createUser({ user }) {
+      console.log('👤 User created:', { 
+        email: user.email, 
+        id: user.id,
+        timestamp: new Date().toISOString()
+      });
+    },
+    async linkAccount({ user, account, profile }) {
+      console.log('🔗 Account linked:', { 
+        user: user.email, 
+        provider: account.provider,
+        providerAccountId: account.providerAccountId,
+        timestamp: new Date().toISOString()
+      });
     }
   }
 };

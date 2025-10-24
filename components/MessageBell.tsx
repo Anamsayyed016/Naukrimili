@@ -182,12 +182,18 @@ export function MessageBell() {
         </PopoverTrigger>
         
         <PopoverContent 
-          className="w-80 sm:w-96 p-0" 
+          className="w-80 sm:w-96 p-0 mx-4 sm:mx-0" 
           align="end"
+          side="bottom"
+          sideOffset={8}
+          avoidCollisions={true}
+          collisionPadding={16}
           style={{ 
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             WebkitFontSmoothing: 'antialiased',
-            MozOsxFontSmoothing: 'grayscale'
+            MozOsxFontSmoothing: 'grayscale',
+            maxHeight: 'calc(100vh - 8rem)',
+            overflow: 'hidden'
           }}
         >
           <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-purple-50">

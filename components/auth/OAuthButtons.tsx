@@ -3,7 +3,7 @@
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface OAuthButtonsProps {
   callbackUrl?: string;
@@ -12,23 +12,93 @@ interface OAuthButtonsProps {
 
 export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
+    setError(null);
     
     try {
-      await signIn('google', { 
-        callbackUrl: callbackUrl || '/auth/role-selection',
-        redirect: true 
+      // Detect mobile and use appropriate OAuth flow
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isSafari = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
+      
+      console.log('🔍 OAuth Device Detection:', {
+        isMobile,
+        isSafari,
+        userAgent: navigator.userAgent.substring(0, 100)
       });
+      
+      // Use redirect flow for mobile and Safari
+      const useRedirect = isMobile || isSafari;
+      
+      // Set a timeout to reset loading state if redirect gets stuck
+      timeoutRef.current = setTimeout(() => {
+        console.warn('⚠️ OAuth redirect timeout - resetting loading state');
+        setError('Sign-in is taking too long. Please try again.');
+        setIsLoading(false);
+      }, 10000); // 10 second timeout
+      
+      if (useRedirect) {
+        // Use redirect flow
+        await signIn('google', { 
+          callbackUrl: callbackUrl || '/auth/role-selection',
+          redirect: true
+        });
+      } else {
+        // Use popup flow
+        const result = await signIn('google', { 
+          callbackUrl: callbackUrl || '/auth/role-selection',
+          redirect: false
+        });
+        
+        // Clear timeout if signIn completes
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+        
+        // If there's an error, reset loading
+        if (result?.error) {
+          console.error('OAuth error:', result.error);
+          setError('Sign-in failed. Please try again.');
+          setIsLoading(false);
+        }
+      }
+      
     } catch (error) {
       console.error('Google sign-in error:', error);
+      setError('Sign-in failed. Please try again.');
       setIsLoading(false);
     }
   };
 
   return (
     <div className={`space-y-3 ${className || ''}`}>
+      {error && (
+        <div className="text-red-600 text-sm text-center p-2 bg-red-50 rounded-lg">
+          {error}
+          <button 
+            onClick={() => {
+              setError(null);
+              handleGoogleSignIn();
+            }}
+            className="ml-2 text-blue-600 hover:underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
       <Button
         onClick={handleGoogleSignIn}
         disabled={isLoading}

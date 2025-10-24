@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import Link from 'next/link';
+import OAuthErrorRecovery from '@/components/auth/OAuthErrorRecovery';
 
 const errorMessages: { [key: string]: string } = {
   Configuration: 'There is a problem with the server configuration.',
@@ -34,6 +35,11 @@ export default function AuthErrorPage() {
   const router = useRouter();
   const error = searchParams.get('error') || 'Default';
   const errorMessage = errorMessages[error] || errorMessages.Default;
+
+  // Use OAuth error recovery for OAuth-specific errors
+  if (error.startsWith('OAuth') || error === 'Configuration') {
+    return <OAuthErrorRecovery error={error} />;
+  }
 
 
   const handleRetry = () => {
