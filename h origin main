@@ -1,0 +1,5 @@
+[33m398064b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Fix Google OAuth button visibility and add debugging for 400 errors
+[33maeb2cfa[m[33m ([m[1;31morigin/main[m[33m)[m Fix Google OAuth callback URL to enable OTP verification flow
+[33mbd8b13a[m server
+[33m9e417e5[m server
+[33mc40a3c1[m server

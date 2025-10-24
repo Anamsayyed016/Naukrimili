@@ -1,0 +1,206 @@
+[1mdiff --cc app/jobs/[id]/apply/page.tsx[m
+[1mindex 98d4dde6,7dc6f269..00000000[m
+[1m--- a/app/jobs/[id]/apply/page.tsx[m
+[1m+++ b/app/jobs/[id]/apply/page.tsx[m
+[36m@@@ -119,198 -81,6 +116,201 @@@[m [mexport default function JobApplicationP[m
+    const [submitting, setSubmitting] = useState(false);[m
+    const [submitted, setSubmitted] = useState(false);[m
+    const [error, setError] = useState<string | null>(null);[m
+[32m++<<<<<<< HEAD[m
+[32m +  const [enhancedJobData, setEnhancedJobData] = useState<any>(null);[m
+[32m +  const [enhancing, setEnhancing] = useState(false);[m
+[32m +  const [similarJobs, setSimilarJobs] = useState<any[]>([]);[m
+[32m +[m
+[32m +  // Fetch job details function[m
+[32m +  const fetchJobDetails = async () => {[m
+[32m +    try {[m
+[32m +      setLoading(true);[m
+[32m +      setError(null);[m
+[32m +      console.log('🔍 Apply page - Raw ID:', rawId);[m
+[32m +      console.log('🔍 Apply page - Parsed Job ID:', jobId);[m
+[32m +      [m
+[32m +      // Add timeout to prevent hanging[m
+[32m +      const controller = new AbortController();[m
+[32m +      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout[m
+[32m +      [m
+[32m +      const response = await fetch(`/api/jobs/${jobId}`, {[m
+[32m +        signal: controller.signal[m
+[32m +      });[m
+[32m +      [m
+[32m +      clearTimeout(timeoutId);[m
+[32m +      if (response.ok) {[m
+[32m +        const data = await response.json();[m
+[32m +        console.log('🔍 API Response:', data);[m
+[32m +        if (data.success && data.data) {[m
+[32m +          // Validate job data before setting[m
+[32m +          if (data.data.title && data.data.company) {[m
+[32m +            // Ensure isExternal is properly set[m
+[32m +            const jobData = {[m
+[32m +              ...data.data,[m
+[32m +              isExternal: data.data.isExternal || data.data.source !== 'manual' || data.data.id?.startsWith('ext-')[m
+[32m +            };[m
+[32m +            console.log('✅ Setting job data:', jobData);[m
+[32m +            setJob(jobData);[m
+[32m +            setError(null); // Clear any previous errors[m
+[32m +            [m
+[32m +            // Fetch AI-enhanced data for better job insights[m
+[32m +            if (jobData && jobData.title) {[m
+[32m +              fetchEnhancedJobData(jobData);[m
+[32m +            }[m
+[32m +          } else {[m
+[32m +            console.log('❌ Invalid job data - missing title or company:', data.data);[m
+[32m +            setError('Invalid job data received');[m
+[32m +          }[m
+[32m +        } else {[m
+[32m +          console.log('❌ API returned error:', data.error);[m
+[32m +          setError(data.error || 'Failed to load job details');[m
+[32m +        }[m
+[32m +      } else {[m
+[32m +        setError(`HTTP ${response.status}: Failed to fetch job details`);[m
+[32m +      }[m
+[32m +    } catch (error: any) {[m
+[32m +      if (error.name === 'AbortError') {[m
+[32m +        setError('Request timed out. Please try again.');[m
+[32m +      } else {[m
+[32m +        setError(error?.message || 'Failed to load job details');[m
+[32m +      }[m
+[32m +      console.error('Error fetching job details:', error);[m
+[32m +    } finally {[m
+[32m +      setLoading(false);[m
+[32m +    }[m
+[32m +  };[m
+[32m +[m
+[32m +  const fetchEnhancedJobData = async (jobData: Job) => {[m
+[32m +    setEnhancing(true);[m
+[32m +    try {[m
+[32m +      const response = await fetch('/api/jobs/enhance', {[m
+[32m +        method: 'POST',[m
+[32m +        headers: { 'Content-Type': 'application/json' },[m
+[32m +        body: JSON.stringify({[m
+[32m +          jobTitle: jobData.title,[m
+[32m +          company: jobData.company,[m
+[32m +          description: jobData.description,[m
+[32m +          skills: Array.isArray(jobData.skills) ? jobData.skills : (jobData.skills ? [jobData.skills] : []),[m
+[32m +          location: jobData.location,[m
+[32m +          salary: jobData.salary,[m
+[32m +          experienceLevel: jobData.experienceLevel,[m
+[32m +          jobType: jobData.jobType,[m
+[32m +        }),[m
+[32m +      });[m
+[32m +      const data = await response.json();[m
+[32m +      if (data.success) {[m
+[32m +        setEnhancedJobData(data.data);[m
+[32m +      } else {[m
+[32m +        console.warn('Failed to fetch enhanced job data:', data.error);[m
+[32m +      }[m
+[32m +    } catch (err) {[m
+[32m +      console.error('Error fetching enhanced job data:', err);[m
+[32m +    } finally {[m
+[32m +      setEnhancing(false);[m
+[32m +    }[m
+[32m +  };[m
+[32m +[m
+[32m +  // Parse skills properly - handle both array and string formats with better error handling[m
+[32m +  const skills = React.useMemo(() => {[m
+[32m +    try {[m
+[32m +      if (!job?.skills) return [];[m
+[32m +      if (Array.isArray(job.skills)) return job.skills;[m
+[32m +      if (typeof job.skills === 'string') {[m
+[32m +        // Try to parse as JSON first[m
+[32m +        if (job.skills.startsWith('{') || job.skills.startsWith('[')) {[m
+[32m +          const parsed = JSON.parse(job.skills);[m
+[32m +          return Array.isArray(parsed) ? parsed : [];[m
+[32m +        }[m
+[32m +        // Otherwise split by comma[m
+[32m +        return job.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);[m
+[32m +      }[m
+[32m +      return [];[m
+[32m +    } catch (error) {[m
+[32m +      console.warn('Failed to parse skills:', error);[m
+[32m +      return [];[m
+[32m +    }[m
+[32m +  }, [job?.skills]);[m
+[32m +[m
+[32m +  // Format salary display with better error handling[m
+[32m +  const formatSalary = () => {[m
+[32m +    try {[m
+[32m +      if (!job) return null;[m
+[32m +      if (job.salary) return job.salary;[m
+[32m +      if (job.salaryMin && job.salaryMax) {[m
+[32m +        return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}`;[m
+[32m +      }[m
+[32m +      if (job.salaryMin) {[m
+[32m +        return `${job.salaryCurrency || 'INR'} ${job.salaryMin.toLocaleString()}+`;[m
+[32m +      }[m
+[32m +      return null;[m
+[32m +    } catch (error) {[m
+[32m +      console.warn('Error formatting salary:', error);[m
+[32m +      return null;[m
+[32m +    }[m
+[32m +  };[m
+[32m +[m
+[32m +  // Format experience level with error handling[m
+[32m +  const formatExperienceLevel = () => {[m
+[32m +    try {[m
+[32m +      if (!job) return 'Not specified';[m
+[32m +      return job.experienceLevel || 'Not specified';[m
+[32m +    } catch (error) {[m
+[32m +      console.warn('Error formatting experience level:', error);[m
+[32m +      return 'Not specified';[m
+[32m +    }[m
+[32m +  };[m
+[32m +[m
+[32m +  // Format job type with error handling[m
+[32m +  const formatJobType = () => {[m
+[32m +    try {[m
+[32m +      if (!job) return 'Not specified';[m
+[32m +      return job.jobType || 'Not specified';[m
+[32m +    } catch (error) {[m
+[32m +      console.warn('Error formatting job type:', error);[m
+[32m +      return 'Not specified';[m
+[32m +    }[m
+[32m +  };[m
+[32m +[m
+[32m +  // Format posted date with error handling[m
+[32m +  const formatPostedDate = () => {[m
+[32m +    try {[m
+[32m +      if (!job) return 'Recently posted';[m
+[32m +      if (job.postedAt) {[m
+[32m +        return new Date(job.postedAt).toLocaleDateString('en-US', {[m
+[32m +          year: 'numeric',[m
+[32m +          month: 'long',[m
+[32m +          day: 'numeric'[m
+[32m +        });[m
+[32m +      }[m
+[32m +      if (job.createdAt) {[m
+[32m +        return new Date(job.createdAt).toLocaleDateString('en-US', {[m
+[32m +          year: 'numeric',[m
+[32m +          month: 'long',[m
+[32m +          day: 'numeric'[m
+[32m +        });[m
+[32m +      }[m
+[32m +      return 'Recently posted';[m
+[32m +    } catch (error) {[m
+[32m +      console.warn('Error formatting posted date:', error);[m
+[32m +      return 'Recently posted';[m
+[32m +    }[m
+[32m +  };[m
+[32m +[m
+[32m +  // Debug logging (client-side only)[m
+[32m +  if (typeof window !== 'undefined') {[m
+[32m +    console.log('🔍 Component rendering - rawId:', rawId);[m
+[32m +    console.log('🔍 Component rendering - jobId:', jobId);[m
+[32m +    console.log('🔍 Component rendering - loading:', loading);[m
+[32m +    console.log('🔍 Component rendering - error:', error);[m
+[32m +    [m
+[32m +    // Direct call to fetchJobDetails if we have a jobId and no job yet[m
+[32m +    if (jobId && !job && loading) {[m
+[32m +      console.log('🔍 Direct fetchJobDetails call from render');[m
+[32m +      fetchJobDetails();[m
+[32m +    }[m
+[32m +  }[m
+[32m++=======[m
+[32m++>>>>>>> 5cd123732a231059f62d0403b0ca2c7804e396af[m
+    [m
+    // Enhanced form state[m
+    const [formData, setFormData] = useState<JobApplicationForm>({[m

@@ -1,0 +1,36 @@
+DOCUMENTATION CLEANUP SUMMARY
+Generated: Sun Oct 12 11:55:12 UTC 2025
+
+BEFORE:
+- Total markdown files in root: 230
+
+AFTER:
+- Total markdown files in root: 14
+- Files deleted: 216
+- Reduction: 93%
+
+ORGANIZATION:
+- Feature documentation: docs/features/
+- API documentation: docs/api/
+- Deployment guides: docs/deployment/
+- Database guides: docs/database/
+- Mobile guides: docs/mobile/
+- Security docs: docs/security/
+- General guides: docs/guides/
+
+BACKUP:
+- Location: docs-backup-20251012-115505/
+- Retention: Keep for 30 days
+
+DELETED CATEGORIES:
+- Duplicate deployment docs: ~30 files
+- Duplicate SSH/auth docs: ~18 files
+- Duplicate OAuth docs: ~14 files
+- Fix/debug docs: ~38 files
+- Server docs: ~14 files
+- Job feature docs: ~12 files
+- Command docs: ~10 files
+- Verification docs: ~7 files
+- Miscellaneous: ~15 files
+
+STATUS: ✅ CLEANUP COMPLETE

@@ -1,0 +1,155 @@
+name: 🚀 Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        echo "📦 Installing dependencies..."
+        rm -rf node_modules
+        npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || {
+          echo "⚠️ npm ci failed, trying npm install..."
+          npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+        }
+        
+    - name: 🔨 Build application
+      run: |
+        echo "🔨 Building application..."
+        
+        # Set environment variables
+        export NODE_ENV=production
+        export NEXT_TELEMETRY_DISABLED=1
+        export NODE_OPTIONS="--max-old-space-size=4096"
+        
+        # Clean previous builds
+        echo "🧹 Cleaning previous builds..."
+        rm -rf .next out
+        
+        # Generate Prisma client if needed
+        if [ -d "prisma" ] && [ -f "prisma/schema.prisma" ]; then
+          echo "🗄️ Generating Prisma client..."
+          npx prisma generate || echo "⚠️ Prisma generate failed, continuing..."
+        fi
+        
+        # Build the application
+        echo "📋 Running Next.js build..."
+        npm run build
+        
+        # Verify build output
+        if [ ! -d ".next" ]; then
+          echo "❌ Build failed - .next directory not found"
+          exit 1
+        fi
+        
+        if [ ! -d ".next/server" ]; then
+          echo "❌ Build failed - .next/server directory not found"
+          exit 1
+        fi
+        
+        echo "✅ Build completed successfully"
+        
+    - name: 📥 Prepare SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts 2>/dev/null || echo "Could not scan host keys"
+        
+    - name: 📤 Copy files to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        source: ".next/,public/,app/,components/,lib/,styles/,prisma/,package.json,package-lock.json,next.config.mjs,server.cjs,ecosystem.config.cjs,tsconfig.json,postcss.config.cjs,tailwind.config.cjs,.env"
+        target: "/var/www/naukrimili"
+        strip_components: 0
+        timeout: 180s
+        command_timeout: 30m
+        debug: true
+        overwrite: true
+
+    - name: 🚀 Deploy to server
+      uses: appleboy/ssh-action@v0.1.9
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        timeout: 30m
+        command_timeout: 25m
+        debug: true
+        script: |
+          set -e
+          echo "🚀 Starting deployment..."
+          
+          # Navigate to project directory
+          cd /var/www/naukrimili
+          echo "📁 Working in: $(pwd)"
+          
+          # Verify files exist
+          echo "🔍 Verifying files..."
+          echo "📋 .next exists: $([ -d ".next" ] && echo "✅ YES" || echo "❌ NO")"
+          echo "📋 server.cjs exists: $([ -f "server.cjs" ] && echo "✅ YES" || echo "❌ NO")"
+          echo "📋 package.json exists: $([ -f "package.json" ] && echo "✅ YES" || echo "❌ NO")"
+          
+          if [ ! -d ".next" ] || [ ! -f "server.cjs" ] || [ ! -f "package.json" ]; then
+            echo "❌ Required files missing"
+            exit 1
+          fi
+          
+          # Install dependencies
+          echo "📦 Installing dependencies on server..."
+          npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || {
+            echo "⚠️ npm ci failed, trying npm install..."
+            npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+          }
+          
+          # Generate Prisma client if needed
+          if [ -d "prisma" ] && [ -f "prisma/schema.prisma" ]; then
+            echo "🗄️ Generating Prisma client on server..."
+            npx prisma generate || echo "⚠️ Prisma generate failed, continuing..."
+          fi
+          
+          # Create logs directory
+          mkdir -p ./logs
+          
+          # Stop existing PM2 processes
+          echo "🛑 Stopping existing PM2 processes..."
+          pm2 stop naukrimili 2>/dev/null || echo "No existing process"
+          pm2 delete naukrimili 2>/dev/null || echo "No existing process to delete"
+          
+          # Start the application
+          echo "🚀 Starting application with PM2..."
+          pm2 start ecosystem.config.cjs --env production
+          
+          # Wait for startup
+          sleep 10
+          
+          # Check status
+          echo "📊 PM2 Status:"
+          pm2 status
+          
+          # Save PM2 configuration
+          pm2 save
+          
+          echo "✅ Deployment completed successfully!"

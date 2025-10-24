@@ -1,0 +1,174 @@
+========================================
+QUICK ENVIRONMENT SETUP - COPY & PASTE
+========================================
+
+This file contains ONLY the active API keys and configs
+Ready to copy-paste into your new server's .env file
+
+========================================
+COPY THIS ENTIRE SECTION TO .env FILE:
+========================================
+
+# Application URLs - UPDATE THESE!
+NEXT_PUBLIC_APP_URL=https://YOUR_NEW_DOMAIN.com
+NEXTAUTH_URL=https://YOUR_NEW_DOMAIN.com
+
+# Database - UPDATE PASSWORD!
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/jobportal"
+
+# Auth Secrets - KEEP AS IS
+NEXTAUTH_SECRET="jobportal-secret-key-2024-naukrimili-production-deployment"
+JWT_SECRET="jobportal-jwt-secret-2024-naukrimili-production"
+
+# Active Job Search APIs - COPY AS IS
+ADZUNA_APP_ID=bdd02427
+ADZUNA_APP_KEY=abf03277d13e4cb39b24bf236ad29299
+RAPIDAPI_KEY=3c767d3998msha8933e5d0c4a9b1p187000jsnd04d13d1e9bc
+RAPIDAPI_HOST=jsearch.p.rapidapi.com
+JSEARCH_API_KEY=3c767d3998msha8933e5d0c4a9b1p187000jsnd04d13d1e9bc
+JOOBLE_API_KEY=d4d0ab09-32f9-4c37-be17-59629043ca4a
+
+# Node Configuration
+NODE_ENV=production
+PORT=3000
+HOSTNAME=0.0.0.0
+NODE_OPTIONS=--max-old-space-size=4096
+NEXT_TELEMETRY_DISABLED=1
+NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
+
+========================================
+GITHUB SECRETS TO UPDATE:
+========================================
+
+Go to: https://github.com/YOUR_USERNAME/YOUR_REPO/settings/secrets/actions
+
+1. HOST = YOUR_NEW_SERVER_IP
+2. SSH_USER = root (or ubuntu)
+3. SSH_PORT = 22
+4. SSH_KEY = (Generate new SSH key - see below)
+
+========================================
+GENERATE NEW SSH KEY:
+========================================
+
+Run on your local machine:
+
+ssh-keygen -t ed25519 -C "github-deploy-new-server" -f ~/.ssh/jobportal_new_server
+
+Then:
+1. Copy PUBLIC key to server: ~/.ssh/authorized_keys
+2. Copy PRIVATE key to GitHub Secret: SSH_KEY
+
+Public key command:
+cat ~/.ssh/jobportal_new_server.pub
+
+Private key command:
+cat ~/.ssh/jobportal_new_server
+
+========================================
+OPTIONAL APIs (Get if needed):
+========================================
+
+Google OAuth:
+GOOGLE_CLIENT_ID=get_from_console.cloud.google.com
+GOOGLE_CLIENT_SECRET=get_from_console.cloud.google.com
+
+Email (Gmail):
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_gmail_app_password
+
+AI Services (Optional):
+OPENAI_API_KEY=get_from_platform.openai.com
+GEMINI_API_KEY=get_from_makersuite.google.com
+
+========================================
+QUICK SERVER SETUP COMMANDS:
+========================================
+
+# 1. Install Node.js 20
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 2. Install PM2
+sudo npm install -g pm2
+
+# 3. Install PostgreSQL
+sudo apt update
+sudo apt install postgresql postgresql-contrib -y
+
+# 4. Setup Firewall (from your current server config)
+sudo apt install ufw -y
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22/tcp    # SSH
+sudo ufw allow 80/tcp    # HTTP
+sudo ufw allow 443/tcp   # HTTPS
+sudo ufw allow 3000/tcp  # Next.js app
+sudo ufw allow 5432/tcp  # PostgreSQL
+sudo ufw allow 2087/tcp  # Control panel
+sudo ufw allow 3001/tcp  # Additional services
+sudo ufw enable
+
+# 5. Create database
+sudo -u postgres psql -c "CREATE DATABASE jobportal;"
+sudo -u postgres psql -c "CREATE USER postgres WITH PASSWORD 'YOUR_PASSWORD';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE jobportal TO postgres;"
+
+# 5. Create project directory
+sudo mkdir -p /var/www/jobportal
+sudo chown -R $USER:$USER /var/www/jobportal
+
+# 6. Create .env file
+cd /var/www/jobportal
+nano .env
+# (Paste environment variables from above)
+
+# 7. After deployment, start the app
+cd /var/www/jobportal
+npm install --legacy-peer-deps
+npx prisma generate
+npx prisma db push
+pm2 start ecosystem.config.cjs --env production
+pm2 save
+pm2 startup systemd
+
+========================================
+VERIFY EVERYTHING WORKS:
+========================================
+
+# Check if app is running
+pm2 status
+pm2 logs jobportal
+
+# Test endpoints
+curl http://localhost:3000/api/health
+curl http://localhost:3000/api/jobs
+
+# Check environment
+node -e "console.log('Database:', !!process.env.DATABASE_URL)"
+node -e "console.log('APIs:', !!process.env.ADZUNA_APP_ID)"
+
+========================================
+CURRENT WORKING APIS:
+========================================
+
+✅ Adzuna API - Job search (Working)
+✅ RapidAPI/JSearch - Job search (Working)
+✅ Jooble API - Job search (Working)
+
+========================================
+DOMAIN UPDATE CHECKLIST:
+========================================
+
+Files/configs to update with new domain:
+
+1. .env file: NEXT_PUBLIC_APP_URL, NEXTAUTH_URL
+2. ecosystem.config.cjs: NEXT_PUBLIC_APP_URL, NEXTAUTH_URL
+3. GitHub workflow: .github/workflows/deploy.yml
+4. Google OAuth Console: Authorized redirect URIs
+5. DNS A record: Point to new server IP
+
+========================================
+

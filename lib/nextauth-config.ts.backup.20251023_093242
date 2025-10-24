@@ -1,0 +1,160 @@
+import NextAuth from "next-auth"
+import Google from "next-auth/providers/google"
+import Credentials from "next-auth/providers/credentials"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import { prisma } from "@/lib/prisma"
+
+// Custom Prisma Adapter to handle name field mapping
+const baseAdapter = PrismaAdapter(prisma);
+
+const adapter = {
+  ...baseAdapter,
+  createUser: async (user: any) => {
+    console.log('🎉 Custom adapter createUser called for:', user.email);
+    
+    // Split name into firstName and lastName
+    const nameParts = user.name ? user.name.split(' ') : ['', ''];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Remove name field and add firstName/lastName
+    const { name, ...userData } = user;
+
+    const newUser = await prisma.user.create({
+      data: {
+        id: userData.id,
+        email: userData.email,
+        emailVerified: userData.emailVerified || null,
+        image: userData.image || null,
+        firstName,
+        lastName,
+        // Set default values for required fields
+        role: null, // Don't default to jobseeker - user must select
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+    });
+
+    console.log('✅ User created successfully:', newUser.email);
+    return newUser;
+  }
+};
+
+// Get environment variables
+const nextAuthSecret = process.env.NEXTAUTH_SECRET;
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+if (!nextAuthSecret) {
+  throw new Error('NEXTAUTH_SECRET is not set');
+}
+
+const nextAuthOptions = {
+  adapter: adapter,
+  secret: nextAuthSecret,
+  trustHost: true,
+  debug: false, // Disable debug to reduce cookie size
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
+  },
+  providers: [
+    ...(googleClientId && googleClientSecret ? [
+      Google({
+        clientId: googleClientId,
+        clientSecret: googleClientSecret,
+        // ✅ Simplified OAuth configuration for production
+        profile(profile) {
+          return {
+            id: profile.sub,
+            email: profile.email,
+            name: profile.name,
+            image: profile.picture,
+          }
+        }
+      })
+    ] : []),
+    Credentials({
+      name: 'credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email }
+          });
+
+          if (!user) {
+            return null;
+          }
+
+          // For now, just return user without password verification
+          // In production, you should implement proper password hashing
+          return {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`.trim(),
+            image: user.image,
+          };
+        } catch (error) {
+          console.error('Auth error:', error);
+          return null;
+        }
+      }
+    })
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+      }
+      return session;
+    },
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        try {
+          // Check if user exists
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! }
+          });
+
+          if (!existingUser) {
+            console.log('🆕 New Google user signing in:', user.email);
+          } else {
+            console.log('👤 Existing Google user signing in:', user.email);
+          }
+
+          return true;
+        } catch (error) {
+          console.error('❌ SignIn error:', error);
+          return false;
+        }
+      }
+      return true;
+    }
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  }
+};
+
+export const { handlers, auth, signIn, signOut } = NextAuth(nextAuthOptions);

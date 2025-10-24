@@ -1,0 +1,460 @@
+@import "tailwindcss";
+
+/* Tailwind v4 CSS Variables - Theme Configuration */
+@theme {
+  --color-background: 0 0% 100%;
+  --color-foreground: 222.2 84% 4.9%;
+  --color-card: 0 0% 100%;
+  --color-card-foreground: 222.2 84% 4.9%;
+  --color-popover: 0 0% 100%;
+  --color-popover-foreground: 222.2 84% 4.9%;
+  --color-primary: 221.2 83.2% 53.3%;
+  --color-primary-foreground: 210 40% 98%;
+  --color-secondary: 210 40% 96.1%;
+  --color-secondary-foreground: 222.2 47.4% 11.2%;
+  --color-muted: 210 40% 96.1%;
+  --color-muted-foreground: 215.4 16.3% 46.9%;
+  --color-accent: 210 40% 96.1%;
+  --color-accent-foreground: 222.2 47.4% 11.2%;
+  --color-destructive: 0 84.2% 60.2%;
+  --color-destructive-foreground: 210 40% 98%;
+  --color-border: 214.3 31.8% 91.4%;
+  --color-input: 214.3 31.8% 91.4%;
+  --color-ring: 221.2 83.2% 53.3%;
+  
+  /* Border radius tokens */
+  --radius-sm: calc(0.5rem - 4px);
+  --radius-md: calc(0.5rem - 2px);
+  --radius-lg: 0.5rem;
+  
+  /* Breakpoints */
+  --breakpoint-xs: 475px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* Dark mode theme overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: 222.2 84% 4.9%;
+    --color-foreground: 210 40% 98%;
+    --color-card: 222.2 84% 4.9%;
+    --color-card-foreground: 210 40% 98%;
+    --color-popover: 222.2 84% 4.9%;
+    --color-popover-foreground: 210 40% 98%;
+    --color-primary: 217.2 91.2% 59.8%;
+    --color-primary-foreground: 222.2 47.4% 11.2%;
+    --color-secondary: 217.2 32.6% 17.5%;
+    --color-secondary-foreground: 210 40% 98%;
+    --color-muted: 217.2 32.6% 17.5%;
+    --color-muted-foreground: 215 20.2% 65.1%;
+    --color-accent: 217.2 32.6% 17.5%;
+    --color-accent-foreground: 210 40% 98%;
+    --color-destructive: 0 62.8% 30.6%;
+    --color-destructive-foreground: 210 40% 98%;
+    --color-border: 217.2 32.6% 17.5%;
+    --color-input: 217.2 32.6% 17.5%;
+    --color-ring: 224.3 76.3% 48%;
+  }
+}
+
+/* Class-based dark mode support */
+.dark {
+  --color-background: 222.2 84% 4.9%;
+  --color-foreground: 210 40% 98%;
+  --color-card: 222.2 84% 4.9%;
+  --color-card-foreground: 210 40% 98%;
+  --color-popover: 222.2 84% 4.9%;
+  --color-popover-foreground: 210 40% 98%;
+  --color-primary: 217.2 91.2% 59.8%;
+  --color-primary-foreground: 222.2 47.4% 11.2%;
+  --color-secondary: 217.2 32.6% 17.5%;
+  --color-secondary-foreground: 210 40% 98%;
+  --color-muted: 217.2 32.6% 17.5%;
+  --color-muted-foreground: 215 20.2% 65.1%;
+  --color-accent: 217.2 32.6% 17.5%;
+  --color-accent-foreground: 210 40% 98%;
+  --color-destructive: 0 62.8% 30.6%;
+  --color-destructive-foreground: 210 40% 98%;
+  --color-border: 217.2 32.6% 17.5%;
+  --color-input: 217.2 32.6% 17.5%;
+  --color-ring: 224.3 76.3% 48%;
+}
+
+/* Legacy CSS variable names for backwards compatibility */
+:root {
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --card: var(--color-card);
+  --card-foreground: var(--color-card-foreground);
+  --popover: var(--color-popover);
+  --popover-foreground: var(--color-popover-foreground);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-primary-foreground);
+  --secondary: var(--color-secondary);
+  --secondary-foreground: var(--color-secondary-foreground);
+  --muted: var(--color-muted);
+  --muted-foreground: var(--color-muted-foreground);
+  --accent: var(--color-accent);
+  --accent-foreground: var(--color-accent-foreground);
+  --destructive: var(--color-destructive);
+  --destructive-foreground: var(--color-destructive-foreground);
+  --border: var(--color-border);
+  --input: var(--color-input);
+  --ring: var(--color-ring);
+  --radius: var(--radius-lg);
+}
+
+/* Mobile Notification Styles - Inlined to avoid @import warnings */
+.mobile-notification {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
+  font-kerning: normal;
+}
+
+.mobile-notification-container {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  max-width: 100%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1rem;
+  transform: translateY(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mobile-notification-container.show {
+  transform: translateY(0);
+}
+
+.mobile-notification-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.mobile-notification-icon {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  background: #dbeafe;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-notification-icon svg {
+  width: 1rem;
+  height: 1rem;
+  color: #2563eb;
+}
+
+.mobile-notification-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-notification-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.mobile-notification-body {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0.25rem 0 0 0;
+}
+
+.mobile-notification-close {
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-notification-close:hover {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.mobile-notification-close svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Mobile Job Form Styles - Inlined to avoid @import warnings */
+@media (max-width: 768px) {
+  .mobile-job-form input,
+  .mobile-job-form textarea,
+  .mobile-job-form select,
+  .mobile-job-form button {
+    min-height: 48px;
+    font-size: 16px;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 12px;
+  }
+
+  .mobile-job-form .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .mobile-job-form .button-group button {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .mobile-job-form .form-step {
+    padding: 16px;
+  }
+
+  .mobile-job-form .form-field {
+    margin-bottom: 20px;
+  }
+
+  .mobile-job-form input:focus,
+  .mobile-job-form textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .mobile-job-form .ai-suggestion-card {
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    background: white;
+  }
+
+  .mobile-job-form .ai-suggestion-card button {
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    min-height: 48px;
+    border-radius: 8px;
+  }
+
+  .mobile-job-form .skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .mobile-job-form .skill-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .mobile-job-form .skill-badge button {
+    margin-left: 8px;
+    padding: 2px;
+    min-height: 20px;
+    min-width: 20px;
+    border-radius: 50%;
+    background: #ef4444;
+    color: white;
+    border: none;
+  }
+
+  .mobile-job-form .step-navigation {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 16px;
+    margin: 0 -16px -16px -16px;
+  }
+
+  .mobile-job-form .validation-error {
+    color: #ef4444;
+    font-size: 14px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .mobile-job-form .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .mobile-job-form {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+  }
+
+  .mobile-job-form .ai-suggestions-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .mobile-job-form .ai-suggestions-modal {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    max-width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+}
+
+.mobile-job-form {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mobile-job-form button:focus,
+.mobile-job-form input:focus,
+.mobile-job-form textarea:focus,
+.mobile-job-form select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .mobile-job-form .interactive-element {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Fix for dropdown z-index issues */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+[data-radix-select-content] {
+  z-index: 9999 !important;
+}
+
+[data-radix-select-viewport] {
+  z-index: 9999 !important;
+}
+
+/* Ensure dropdowns are visible */
+[data-state="open"] {
+  z-index: 9999 !important;
+}
+
+/* Fix for SelectContent positioning */
+[role="listbox"] {
+  z-index: 9999 !important;
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 640px) {
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+  
+  .mobile-full {
+    width: 100% !important;
+  }
+  
+  .mobile-text-sm {
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Ensure proper contrast for accessibility */
+.text-contrast {
+  color: #1f2937 !important;
+}
+
+.bg-contrast {
+  background-color: #ffffff !important;
+}
+
+.border-contrast {
+  border-color: #d1d5db !important;
+}
+
+/* Hover states for better UX */
+.hover-lift {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Focus states for accessibility */
+.focus-ring:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* CSS Loading States - Removed visibility hidden to prevent blank pages */
+body {
+  visibility: visible;
+}
+
+body.css-loaded {
+  visibility: visible;
+}

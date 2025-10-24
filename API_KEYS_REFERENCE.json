@@ -1,0 +1,243 @@
+{
+  "migration_info": {
+    "date_generated": "${new Date().toISOString()}",
+    "purpose": "Complete API keys and configuration reference for server migration",
+    "current_server_ip": "69.62.73.84",
+    "current_domain": "https://naukrimili.com"
+  },
+
+  "active_api_keys": {
+    "description": "Currently working and configured API keys",
+    "adzuna": {
+      "app_id": "bdd02427",
+      "app_key": "abf03277d13e4cb39b24bf236ad29299",
+      "status": "active",
+      "purpose": "Job search API",
+      "documentation": "https://developer.adzuna.com/"
+    },
+    "rapidapi_jsearch": {
+      "api_key": "3c767d3998msha8933e5d0c4a9b1p187000jsnd04d13d1e9bc",
+      "host": "jsearch.p.rapidapi.com",
+      "status": "active",
+      "purpose": "Job search API via RapidAPI",
+      "documentation": "https://rapidapi.com/"
+    },
+    "jooble": {
+      "api_key": "d4d0ab09-32f9-4c37-be17-59629043ca4a",
+      "status": "active",
+      "purpose": "Job search API",
+      "documentation": "https://jooble.org/api/about"
+    }
+  },
+
+  "authentication_secrets": {
+    "description": "Authentication and security secrets",
+    "nextauth_secret": "jobportal-secret-key-2024-naukrimili-production-deployment",
+    "jwt_secret": "jobportal-jwt-secret-2024-naukrimili-production",
+    "note": "These should remain the same to maintain user sessions"
+  },
+
+  "database_config": {
+    "description": "PostgreSQL database configuration",
+    "current_connection_string": "postgresql://postgres:job123@localhost:5432/jobportal",
+    "format": "postgresql://USERNAME:PASSWORD@HOST:PORT/DATABASE",
+    "database_name": "jobportal",
+    "user": "postgres",
+    "port": 5432,
+    "note": "Update password for new server"
+  },
+
+  "required_env_variables": {
+    "description": "Minimum required environment variables",
+    "core": [
+      "NODE_ENV=production",
+      "PORT=3000",
+      "HOSTNAME=0.0.0.0",
+      "DATABASE_URL=postgresql://postgres:PASSWORD@localhost:5432/jobportal",
+      "NEXTAUTH_URL=https://YOUR_DOMAIN.com",
+      "NEXTAUTH_SECRET=jobportal-secret-key-2024-naukrimili-production-deployment",
+      "JWT_SECRET=jobportal-jwt-secret-2024-naukrimili-production"
+    ],
+    "job_apis": [
+      "ADZUNA_APP_ID=bdd02427",
+      "ADZUNA_APP_KEY=abf03277d13e4cb39b24bf236ad29299",
+      "RAPIDAPI_KEY=3c767d3998msha8933e5d0c4a9b1p187000jsnd04d13d1e9bc",
+      "RAPIDAPI_HOST=jsearch.p.rapidapi.com",
+      "JOOBLE_API_KEY=d4d0ab09-32f9-4c37-be17-59629043ca4a"
+    ],
+    "performance": [
+      "NODE_OPTIONS=--max-old-space-size=4096",
+      "NEXT_TELEMETRY_DISABLED=1",
+      "NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true"
+    ]
+  },
+
+  "optional_api_keys": {
+    "description": "Optional APIs that need to be obtained",
+    "google_oauth": {
+      "client_id": "GET_FROM_GOOGLE_CONSOLE",
+      "client_secret": "GET_FROM_GOOGLE_CONSOLE",
+      "setup_url": "https://console.cloud.google.com/",
+      "purpose": "Google login authentication"
+    },
+    "openai": {
+      "api_key": "GET_FROM_OPENAI",
+      "setup_url": "https://platform.openai.com/api-keys",
+      "purpose": "AI-powered resume analysis and suggestions"
+    },
+    "google_gemini": {
+      "api_key": "GET_FROM_GOOGLE_AI",
+      "setup_url": "https://makersuite.google.com/app/apikey",
+      "purpose": "Alternative AI service"
+    },
+    "gmail_smtp": {
+      "host": "smtp.gmail.com",
+      "port": "587",
+      "user": "YOUR_EMAIL@gmail.com",
+      "app_password": "GET_FROM_GOOGLE_ACCOUNT",
+      "setup_url": "https://myaccount.google.com/apppasswords",
+      "purpose": "Send email notifications"
+    },
+    "google_apis": {
+      "jobs_api_key": "GET_FROM_GOOGLE_CLOUD",
+      "geolocation_api_key": "GET_FROM_GOOGLE_CLOUD",
+      "maps_api_key": "GET_FROM_GOOGLE_CLOUD",
+      "setup_url": "https://console.cloud.google.com/apis/",
+      "purpose": "Enhanced job search and location features"
+    },
+    "other_job_apis": {
+      "reed_api_key": "GET_FROM_REED",
+      "serpapi_key": "GET_FROM_SERPAPI",
+      "indeed_api_key": "GET_FROM_INDEED",
+      "ziprecruiter_api_key": "GET_FROM_ZIPRECRUITER",
+      "note": "Additional job sources - optional"
+    }
+  },
+
+  "github_secrets": {
+    "description": "GitHub Actions CI/CD secrets",
+    "required": {
+      "HOST": "NEW_SERVER_IP_ADDRESS",
+      "SSH_USER": "root",
+      "SSH_KEY": "PRIVATE_SSH_KEY_CONTENT",
+      "SSH_PORT": "22"
+    },
+    "optional": {
+      "GOOGLE_CLIENT_ID": "For Google OAuth in CI/CD build",
+      "GOOGLE_CLIENT_SECRET": "For Google OAuth in CI/CD build"
+    },
+    "setup_url": "https://github.com/YOUR_USERNAME/YOUR_REPO/settings/secrets/actions"
+  },
+
+  "server_requirements": {
+    "description": "Server software requirements",
+    "nodejs": {
+      "version": "18.0.0 or higher",
+      "recommended": "20.x",
+      "install_command": "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs"
+    },
+    "postgresql": {
+      "version": "12 or higher",
+      "install_command": "sudo apt install postgresql postgresql-contrib -y"
+    },
+    "pm2": {
+      "version": "latest",
+      "install_command": "sudo npm install -g pm2"
+    },
+    "nginx": {
+      "version": "latest",
+      "purpose": "Reverse proxy and SSL termination",
+      "install_command": "sudo apt install nginx -y",
+      "optional": true
+    }
+  },
+
+  "file_locations": {
+    "description": "Important file locations on server",
+    "project_directory": "/var/www/jobportal",
+    "env_file": "/var/www/jobportal/.env",
+    "ecosystem_config": "/var/www/jobportal/ecosystem.config.cjs",
+    "server_script": "/var/www/jobportal/server.cjs",
+    "logs": "/var/www/jobportal/logs/",
+    "pm2_logs": "~/.pm2/logs/",
+    "nginx_config": "/etc/nginx/sites-available/jobportal"
+  },
+
+  "verification_commands": {
+    "description": "Commands to verify setup",
+    "check_env_vars": [
+      "node -e \"console.log('Database:', !!process.env.DATABASE_URL)\"",
+      "node -e \"console.log('Auth:', !!process.env.NEXTAUTH_SECRET)\"",
+      "node -e \"console.log('APIs:', !!process.env.ADZUNA_APP_ID)\""
+    ],
+    "check_services": [
+      "pm2 status",
+      "sudo systemctl status postgresql",
+      "sudo systemctl status nginx",
+      "netstat -tulpn | grep 3000"
+    ],
+    "test_endpoints": [
+      "curl http://localhost:3000/api/health",
+      "curl http://localhost:3000/api/jobs",
+      "curl https://YOUR_DOMAIN.com"
+    ],
+    "check_database": [
+      "sudo -u postgres psql -l | grep jobportal",
+      "npx prisma db pull"
+    ]
+  },
+
+  "feature_flags": {
+    "description": "Optional feature toggles",
+    "ENABLE_AI_FEATURES": "true",
+    "ENABLE_ANALYTICS": "true",
+    "ENABLE_EMAIL_NOTIFICATIONS": "true",
+    "NEXT_PUBLIC_MOCK_DATA": "false",
+    "NEXT_PUBLIC_DISABLE_AUTH": "false",
+    "REDIS_ENABLED": "false",
+    "note": "Set to 'true' or 'false' as needed"
+  },
+
+  "migration_checklist": {
+    "description": "Step-by-step migration tasks",
+    "steps": [
+      "1. Provision new Hostinger VPS",
+      "2. Install Node.js, PostgreSQL, PM2",
+      "3. Create database and user",
+      "4. Generate new SSH keys",
+      "5. Update GitHub secrets",
+      "6. Create .env file on server",
+      "7. Trigger GitHub Actions deployment",
+      "8. Verify application is running",
+      "9. Update DNS records",
+      "10. Install SSL certificate",
+      "11. Test all functionality",
+      "12. Decommission old server"
+    ]
+  },
+
+  "support_resources": {
+    "documentation": {
+      "next_js": "https://nextjs.org/docs",
+      "prisma": "https://www.prisma.io/docs",
+      "nextauth": "https://next-auth.js.org/",
+      "pm2": "https://pm2.keymetrics.io/"
+    },
+    "api_documentation": {
+      "adzuna": "https://developer.adzuna.com/",
+      "rapidapi": "https://rapidapi.com/",
+      "jooble": "https://jooble.org/api/about"
+    }
+  },
+
+  "security_notes": [
+    "Never commit .env files to Git",
+    "Regenerate all secrets for new server",
+    "Use strong database passwords (16+ characters)",
+    "Enable firewall on new server",
+    "Keep API keys secure and rotate periodically",
+    "Use HTTPS in production",
+    "Regularly update dependencies"
+  ]
+}
+

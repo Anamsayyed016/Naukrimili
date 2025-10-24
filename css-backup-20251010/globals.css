@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import mobile notification styles */
+@import '../styles/mobile-notifications.css';
+
+/* Import mobile job form styles */
+@import '../styles/mobile-job-form.css';
+
+/* Fix for dropdown z-index issues */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+[data-radix-select-content] {
+  z-index: 9999 !important;
+}
+
+[data-radix-select-viewport] {
+  z-index: 9999 !important;
+}
+
+/* Ensure dropdowns are visible */
+[data-state="open"] {
+  z-index: 9999 !important;
+}
+
+/* Fix for SelectContent positioning */
+[role="listbox"] {
+  z-index: 9999 !important;
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 640px) {
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+  
+  .mobile-full {
+    width: 100% !important;
+  }
+  
+  .mobile-text-sm {
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Ensure proper contrast for accessibility */
+.text-contrast {
+  color: #1f2937 !important;
+}
+
+.bg-contrast {
+  background-color: #ffffff !important;
+}
+
+.border-contrast {
+  border-color: #d1d5db !important;
+}
+
+/* Hover states for better UX */
+.hover-lift {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Focus states for accessibility */
+.focus-ring:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Loading states */
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}

@@ -1,0 +1,1 @@
+John Doe\nSoftware Engineer\nEmail: john@example.com\nPhone: 123-456-7890\nSkills: JavaScript, React, Node.js
