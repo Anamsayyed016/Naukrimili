@@ -31,7 +31,9 @@ module.exports = {
         NEXTAUTH_SECRET: "naukrimili-secret-key-2024-production-deployment",
         // Google OAuth - Load from environment
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+        GITHUB_ID: process.env.GITHUB_ID,
+        GITHUB_SECRET: process.env.GITHUB_SECRET
       },
       env_production: {
         NODE_ENV: "production",
@@ -55,7 +57,9 @@ module.exports = {
         NEXTAUTH_SECRET: "naukrimili-secret-key-2024-production-deployment",
         // Google OAuth - Load from environment
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+        GITHUB_ID: process.env.GITHUB_ID,
+        GITHUB_SECRET: process.env.GITHUB_SECRET
       },
       log_file: "./logs/combined.log",
       out_file: "./logs/out.log",
