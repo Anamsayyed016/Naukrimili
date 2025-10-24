@@ -157,7 +157,11 @@ export function ComprehensiveNotificationBell() {
 
       {/* Notification Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden transform transition-all duration-200 ease-in-out mx-4 sm:mx-0" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border-0 z-50 max-h-96 overflow-hidden transform transition-all duration-200 ease-in-out mx-2 sm:mx-0" style={{ 
+          maxHeight: 'calc(100vh - 6rem)',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)'
+        }}>
           {/* Header */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">

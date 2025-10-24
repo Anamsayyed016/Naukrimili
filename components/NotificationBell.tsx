@@ -174,29 +174,39 @@ export function NotificationBell() {
         </PopoverTrigger>
         
         <PopoverContent 
-          className="w-80 sm:w-96 p-0 mx-4 sm:mx-0" 
+          className="w-80 sm:w-96 p-0 mx-2 sm:mx-0 shadow-2xl border-0 rounded-xl" 
           align="end"
           side="bottom"
-          sideOffset={8}
+          sideOffset={12}
           avoidCollisions={true}
-          collisionPadding={16}
+          collisionPadding={24}
           style={{ 
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             WebkitFontSmoothing: 'antialiased',
             MozOsxFontSmoothing: 'grayscale',
-            maxHeight: 'calc(100vh - 8rem)',
-            overflow: 'hidden'
+            maxHeight: 'calc(100vh - 6rem)',
+            overflow: 'hidden',
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)'
           }}
         >
-          <div className="flex items-center justify-between p-4 border-b">
-            <h3 className="font-semibold">Notifications</h3>
+          <div className="flex items-center justify-between p-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                <Bell className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 text-lg">Notifications</h3>
+                <p className="text-sm text-gray-500">{unreadCount} unread</p>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={handleMarkAllRead}
-                  className="text-xs"
+                  className="text-xs bg-white hover:bg-gray-50 border-gray-200"
                 >
                   <Check className="h-3 w-3 mr-1" />
                   Mark all read
@@ -206,6 +216,7 @@ export function NotificationBell() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsOpen(false)}
+                className="hover:bg-gray-100 rounded-lg"
               >
                 <X className="h-4 w-4" />
               </Button>
