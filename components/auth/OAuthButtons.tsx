@@ -4,6 +4,7 @@ import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import { getMobileOAuthFlow, optimizeMobileOAuth, logMobileOAuthPerformance } from '@/lib/mobile-oauth-performance-fix';
 
 interface OAuthButtonsProps {
   callbackUrl?: string;
@@ -29,18 +30,19 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
     setError(null);
     
     try {
-      // Detect mobile and use appropriate OAuth flow
-      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const isSafari = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
+      // Optimize mobile OAuth performance
+      optimizeMobileOAuth();
+      logMobileOAuthPerformance();
+      
+      // Get optimal OAuth flow for device
+      const oauthFlow = getMobileOAuthFlow();
+      const useRedirect = oauthFlow === 'redirect';
       
       console.log('🔍 OAuth Device Detection:', {
-        isMobile,
-        isSafari,
+        oauthFlow,
+        useRedirect,
         userAgent: navigator.userAgent.substring(0, 100)
       });
-      
-      // Use redirect flow for mobile and Safari
-      const useRedirect = isMobile || isSafari;
       
       // Set a timeout to reset loading state if redirect gets stuck
       timeoutRef.current = setTimeout(() => {
