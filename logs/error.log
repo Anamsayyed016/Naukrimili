@@ -677,3 +677,10 @@
 {"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-24 16:31:17 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
 {"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-24 16:31:21 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
 {"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-24 16:31:25 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-24 11:25:39 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[33m[auth][warn][debug-enabled]\u001b[0m Read more: https://warnings.authjs.dev\n","timestamp":"2025-10-24 11:25:42 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[33m[auth][warn][debug-enabled]\u001b[0m Read more: https://warnings.authjs.dev\n","timestamp":"2025-10-24 11:37:45 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-24 11:57:59 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[33m[auth][warn][debug-enabled]\u001b[0m Read more: https://warnings.authjs.dev\n","timestamp":"2025-10-24 11:58:15 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}

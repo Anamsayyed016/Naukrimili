@@ -123,7 +123,7 @@ const nextAuthOptions = {
   adapter: adapter,
   secret: nextAuthSecret,
   trustHost: true,
-  debug: true, // Enable debug to see OAuth flow details
+  debug: false, // Disable debug for better performance
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error',
@@ -133,8 +133,14 @@ const nextAuthOptions = {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
-        // ✅ Ultra-minimal OAuth configuration - let NextAuth handle everything
-        // Remove all custom parameters and handlers to avoid invalid_grant
+        // Fast OAuth configuration
+        authorization: {
+          params: {
+            scope: "openid email profile",
+            access_type: "offline",
+            prompt: "select_account"
+          }
+        }
       })
     ] : []),
     Credentials({
@@ -249,7 +255,7 @@ const nextAuthOptions = {
   },
   session: {
     strategy: 'jwt' as const,
-    maxAge: 2 * 60 * 60, // 2 hours - optimized JWT to prevent cookie size issues
+    maxAge: 7 * 24 * 60 * 60, // 7 days for better UX
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   cookies: {
