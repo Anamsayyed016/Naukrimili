@@ -17,9 +17,22 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
     setIsLoading(true);
     
     try {
+      // Detect mobile and use appropriate OAuth flow
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isSafari = /Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent);
+      
+      console.log('🔍 OAuth Device Detection:', {
+        isMobile,
+        isSafari,
+        userAgent: navigator.userAgent.substring(0, 100)
+      });
+      
+      // Use redirect flow for mobile and Safari
+      const useRedirect = isMobile || isSafari;
+      
       await signIn('google', { 
         callbackUrl: callbackUrl || '/auth/role-selection',
-        redirect: true 
+        redirect: useRedirect // Use redirect for mobile, popup for desktop
       });
     } catch (error) {
       console.error('Google sign-in error:', error);

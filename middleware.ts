@@ -6,6 +6,19 @@ export function middleware(request: NextRequest) {
   
   // Enhanced OAuth security for auth routes
   if (request.nextUrl.pathname.startsWith('/api/auth/')) {
+    // Log regional OAuth attempts for debugging
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const cfCountry = request.headers.get('cf-ipcountry') || 'unknown';
+    const xForwardedFor = request.headers.get('x-forwarded-for') || 'unknown';
+    
+    console.log('🌍 OAuth Request:', {
+      path: request.nextUrl.pathname,
+      method: request.method,
+      country: cfCountry,
+      userAgent: userAgent.substring(0, 100), // Truncate for logs
+      ip: xForwardedFor.split(',')[0],
+      timestamp: new Date().toISOString()
+    });
     // Cross-Account Protection - restrict to naukrimili.com
     const origin = request.headers.get('origin');
     const referer = request.headers.get('referer');
