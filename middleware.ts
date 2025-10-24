@@ -15,8 +15,25 @@ export function middleware(request: NextRequest) {
       path: request.nextUrl.pathname,
       method: request.method,
       country: cfCountry,
+      region: request.headers.get('cf-region') || 'unknown',
+      city: request.headers.get('cf-city') || 'unknown',
       userAgent: userAgent.substring(0, 100), // Truncate for logs
       ip: xForwardedFor.split(',')[0],
+      timestamp: new Date().toISOString()
+    });
+    
+    // Enhanced regional OAuth debugging
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const isSafari = /Safari/i.test(userAgent) && !/Chrome/i.test(userAgent);
+    const isEdge = /Edg/i.test(userAgent);
+    
+    console.log('🔍 OAuth Device Analysis:', {
+      isMobile,
+      isSafari,
+      isEdge,
+      country: cfCountry,
+      region: request.headers.get('cf-region') || 'unknown',
+      oauthFlow: isMobile || isSafari ? 'redirect' : 'popup',
       timestamp: new Date().toISOString()
     });
     // Cross-Account Protection - restrict to naukrimili.com
