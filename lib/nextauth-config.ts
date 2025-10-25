@@ -270,27 +270,65 @@ let auth: any;
 let signIn: any;
 let signOut: any;
 
+// Initialize NextAuth - this should always succeed on server-side
 try {
-  // Ensure we have at least one provider before initializing
-  // This prevents Configuration errors when providers are missing
-  if (nextAuthOptions.providers.length === 0) {
-    console.warn('⚠️ No OAuth providers configured. Adding placeholder to prevent errors.');
-    // Don't throw error, just log warning - NextAuth will handle missing providers gracefully
-  }
+  // Log configuration before initialization
+  console.log('🔧 Initializing NextAuth with:', {
+    providers: nextAuthOptions.providers.length,
+    hasGoogle: !!(googleClientId && googleClientSecret),
+    hasSecret: !!nextAuthSecret,
+    hasUrl: !!nextAuthUrl,
+    trustHost: true
+  });
   
   const nextAuthResult = NextAuth(nextAuthOptions);
   handlers = nextAuthResult.handlers;
   auth = nextAuthResult.auth;
   signIn = nextAuthResult.signIn;
   signOut = nextAuthResult.signOut;
+  
+  console.log('✅ NextAuth initialized successfully');
 } catch (error: any) {
-  // If initialization fails (e.g., on client side), create safe fallbacks
-  if (typeof window !== 'undefined') {
-    console.warn('⚠️ NextAuth initialization warning (client-side):', error?.message);
-    // Export safe fallbacks that won't break the app
+  // If initialization fails, log detailed error and create fallbacks
+  console.error('❌ NextAuth initialization failed:', error?.message);
+  console.error('Error details:', {
+    providers: nextAuthOptions.providers.length,
+    googleClientId: googleClientId ? 'Set' : 'Missing',
+    googleClientSecret: googleClientSecret ? 'Set' : 'Missing',
+    nextAuthUrl: nextAuthUrl,
+    nextAuthSecret: nextAuthSecret ? 'Set' : 'Missing',
+    isClient: typeof window !== 'undefined'
+  });
+  
+  // On server-side, re-throw only if it's not a configuration issue
+  if (typeof window === 'undefined') {
+    // Server-side: Check if it's a provider configuration issue
+    if (error?.message?.includes('provider') || error?.message?.includes('Configuration')) {
+      console.error('❌ NextAuth Configuration Error - creating fallback handlers');
+      // Create working fallback handlers that will handle requests gracefully
+      handlers = {
+        GET: async (req: any) => {
+          const url = new URL(req.url);
+          console.error('❌ NextAuth handler called but not initialized - redirecting to error page');
+          // Still redirect to error page but with more info
+          return Response.redirect(new URL(`/auth/error?error=Configuration&init=failed`, url.origin));
+        },
+        POST: async (req: any) => {
+          const url = new URL(req.url);
+          return Response.redirect(new URL(`/auth/error?error=Configuration&init=failed`, url.origin));
+        }
+      };
+      auth = async () => null;
+      signIn = async () => ({ error: 'Configuration', ok: false });
+      signOut = async () => ({ ok: false });
+    } else {
+      // Re-throw non-configuration errors
+      throw error;
+    }
+  } else {
+    // Client-side: create safe fallbacks
     handlers = { 
       GET: async (req: any) => {
-        // For OAuth sign-in routes, redirect to error page with more info
         const url = new URL(req.url);
         if (url.pathname.includes('/signin/google')) {
           return Response.redirect(new URL('/auth/error?error=Configuration', url.origin));
@@ -302,18 +340,6 @@ try {
     auth = async () => null;
     signIn = async () => ({ error: 'Configuration', ok: false });
     signOut = async () => ({ ok: false });
-  } else {
-    // Server-side: Check if it's a provider configuration issue
-    if (error?.message?.includes('provider') || error?.message?.includes('Configuration')) {
-      console.error('❌ NextAuth Configuration Error:', error?.message);
-      console.error('📋 Providers configured:', nextAuthOptions.providers.length);
-      console.error('🔑 Google Client ID:', googleClientId ? 'Set' : 'Missing');
-      console.error('🔐 Google Client Secret:', googleClientSecret ? 'Set' : 'Missing');
-      console.error('🌐 NEXTAUTH_URL:', nextAuthUrl);
-      console.error('🔒 NEXTAUTH_SECRET:', nextAuthSecret ? 'Set' : 'Missing');
-    }
-    // Server-side: re-throw the error
-    throw error;
   }
 }
 
