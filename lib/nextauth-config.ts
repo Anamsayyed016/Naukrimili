@@ -11,8 +11,6 @@ const baseAdapter = PrismaAdapter(prisma);
 const adapter = {
   ...baseAdapter,
   createUser: async (user: any) => {
-    console.log('🎉 Custom adapter createUser called for:', user.email);
-    
     // Split name into firstName and lastName
     const nameParts = user.name ? user.name.split(' ') : ['', ''];
     const firstName = nameParts[0] || '';
@@ -36,11 +34,8 @@ const adapter = {
       }
     });
 
-    console.log('✅ User created in database:', newUser.id, newUser.email);
-
     // Send welcome email and notification for new user
     try {
-      console.log('🔔 Creating welcome notification for new user:', newUser.id, newUser.email);
 
       // Create a simple notification record
       const notification = await prisma.notification.create({
@@ -53,11 +48,8 @@ const adapter = {
         }
       });
 
-      console.log('✅ Welcome notification created:', notification.id);
-
       // Send welcome email
       const userName = firstName && lastName ? `${firstName} ${lastName}` : firstName || 'User';
-      console.log('📧 Triggering welcome email for:', newUser.email);
 
       try {
         const { sendWelcomeEmail } = await import('@/lib/welcome-email');
@@ -66,15 +58,10 @@ const adapter = {
           name: userName,
           provider: 'google'
         });
-        console.log('✅ Welcome email sent successfully to:', newUser.email);
       } catch (emailError) {
-        console.error('❌ Failed to send welcome email:', emailError);
         // Don't block user creation if email fails
       }
-
-      console.log('✅ Welcome flow completed for:', newUser.email);
     } catch (notificationError) {
-      console.error('❌ Failed to send welcome notification:', notificationError);
       // Don't fail user creation if notification fails
     }
 
@@ -186,8 +173,6 @@ const nextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account, profile }) {
-      console.log('🔄 JWT callback:', { token: token.id, user: user?.email, account: account?.provider });
-      
       if (user) {
         // Store only essential data to prevent large cookies
         token.id = user.id;
@@ -212,18 +197,11 @@ const nextAuthOptions = {
           token.image = (user as any).image;
         }
         
-        console.log('✅ JWT name set:', token.name);
       }
       
       return token;
     },
     async session({ session, token }) {
-      console.log('🔄 Session callback:', { 
-        sessionUser: session.user?.email, 
-        tokenId: token.id,
-        tokenName: token.name
-      });
-      
       if (token) {
         (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
@@ -231,14 +209,10 @@ const nextAuthOptions = {
         (session.user as any).isVerified = token.isVerified as boolean;
         (session.user as any).name = token.name as string;
         (session.user as any).image = token.image as string;
-        
-        console.log('✅ Session name set:', (session.user as any).name);
       }
       return session;
     },
     async redirect({ url, baseUrl }) {
-      console.log('🔄 Redirect callback:', { url, baseUrl });
-      
       // Handle relative URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       
@@ -248,15 +222,7 @@ const nextAuthOptions = {
       // Default redirect to role selection
       return `${baseUrl}/auth/role-selection`;
     },
-    // Add signIn callback for better error handling
-    async signIn({ user, account, profile, email, credentials }) {
-      console.log('🔄 SignIn callback:', { 
-        user: user?.email, 
-        account: account?.provider, 
-        profile: profile?.email 
-      });
-      
-      // Allow all sign-ins for now
+    async signIn() {
       return true;
     }
   },
@@ -277,34 +243,7 @@ const nextAuthOptions = {
       },
     },
   },
-  // Add proper error handling
-  events: {
-    async signIn({ user, account, profile, isNewUser }) {
-      console.log('🎉 SignIn event:', { 
-        user: user.email, 
-        account: account?.provider, 
-        isNewUser 
-      });
-    },
-    async signOut({ token }) {
-      console.log('👋 SignOut event:', { user: token?.email });
-    },
-    async createUser({ user }) {
-      console.log('👤 User created:', { 
-        email: user.email, 
-        id: user.id,
-        timestamp: new Date().toISOString()
-      });
-    },
-    async linkAccount({ user, account, profile }) {
-      console.log('🔗 Account linked:', { 
-        user: user.email, 
-        provider: account.provider,
-        providerAccountId: account.providerAccountId,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }
+  events: {}
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(nextAuthOptions);
