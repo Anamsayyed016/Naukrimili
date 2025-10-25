@@ -44,21 +44,23 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
         userAgent: navigator.userAgent.substring(0, 100)
       });
       
-      // Set a timeout to reset loading state if redirect gets stuck
-      timeoutRef.current = setTimeout(() => {
-        console.warn('⚠️ OAuth redirect timeout - resetting loading state');
-        setError('Sign-in is taking too long. Please try again.');
-        setIsLoading(false);
-      }, 10000); // 10 second timeout
-      
       if (useRedirect) {
-        // Use redirect flow
-        await signIn('google', { 
+        // Use redirect flow - don't await, let it redirect
+        console.log('🔄 Using redirect flow for Google sign-in');
+        signIn('google', { 
           callbackUrl: callbackUrl || '/auth/role-selection',
           redirect: true
         });
+        
+        // Set a timeout to reset loading state if redirect gets stuck
+        timeoutRef.current = setTimeout(() => {
+          console.warn('⚠️ OAuth redirect timeout - resetting loading state');
+          setError('Sign-in is taking too long. Please try again.');
+          setIsLoading(false);
+        }, 20000); // 20 second timeout for redirect
       } else {
-        // Use popup flow
+        console.log('🔄 Using popup flow for desktop Google sign-in');
+        // Use popup flow for desktop
         const result = await signIn('google', { 
           callbackUrl: callbackUrl || '/auth/role-selection',
           redirect: false
