@@ -82,21 +82,20 @@ if (!process.env.NEXTAUTH_SECRET) {
 
 console.log("✅ NEXTAUTH_SECRET is properly configured");
 
-// Validate NEXTAUTH_URL - this is REQUIRED for production
-const nextAuthUrl = process.env.NEXTAUTH_URL
+// Validate NEXTAUTH_URL - Allow undefined on client side when trustHost is true
+const nextAuthUrl = process.env.NEXTAUTH_URL || undefined
 
-if (!nextAuthUrl) {
-  console.error("❌ NEXTAUTH_URL environment variable is REQUIRED but not set!");
-  console.error("❌ Authentication will fail without a proper URL.");
-  throw new Error("NEXTAUTH_URL environment variable is required");
+// Only validate server-side, client side will use trustHost to auto-detect
+if (typeof window === 'undefined') {
+  if (!nextAuthUrl) {
+    console.warn("⚠️ NEXTAUTH_URL environment variable is not set. Using trustHost for auto-detection.");
+  } else if (!nextAuthUrl.startsWith('http')) {
+    console.error("❌ NEXTAUTH_URL must be a valid URL starting with http:// or https://");
+    throw new Error("NEXTAUTH_URL must be a valid URL");
+  } else {
+    console.log("✅ NEXTAUTH_URL is properly configured:", nextAuthUrl);
+  }
 }
-
-if (!nextAuthUrl.startsWith('http')) {
-  console.error("❌ NEXTAUTH_URL must be a valid URL starting with http:// or https://");
-  throw new Error("NEXTAUTH_URL must be a valid URL");
-}
-
-console.log("✅ NEXTAUTH_URL is properly configured:", nextAuthUrl);
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
