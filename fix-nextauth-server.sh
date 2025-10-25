@@ -1,3 +1,20 @@
+#!/bin/bash
+
+echo "🔧 FIXING NEXTAUTH CONFIGURATION ON SERVER"
+echo "=========================================="
+
+# Navigate to the project directory
+cd /var/www/naukrimili
+
+echo "📁 Current directory: $(pwd)"
+
+# Backup the current configuration
+echo "💾 Backing up current NextAuth config..."
+cp lib/nextauth-config.ts lib/nextauth-config.ts.backup.$(date +%Y%m%d_%H%M%S)
+
+# Create the fixed NextAuth configuration
+echo "🔧 Creating fixed NextAuth configuration..."
+cat > lib/nextauth-config.ts << 'EOF'
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import GitHub from "next-auth/providers/github"
@@ -36,7 +53,6 @@ const adapter = {
 
     // Send welcome email and notification for new user
     try {
-
       // Create a simple notification record
       const notification = await prisma.notification.create({
         data: {
@@ -67,7 +83,7 @@ const adapter = {
 
     return newUser;
   },
-}; 
+};
 
 // Validate NEXTAUTH_SECRET - Allow build to proceed but warn for production
 const nextAuthSecret = process.env.NEXTAUTH_SECRET || 'build-time-placeholder-secret-key-32-chars-minimum'
@@ -256,3 +272,17 @@ const nextAuthOptions = {
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(nextAuthOptions);
+EOF
+
+echo "✅ NextAuth configuration updated successfully"
+
+# Rebuild the application
+echo "🔨 Rebuilding Next.js application..."
+npm run build
+
+# Restart PM2 with environment variables
+echo "🔄 Restarting PM2 with updated environment variables..."
+pm2 restart naukrimili --update-env
+
+echo "✅ NextAuth configuration fix completed!"
+echo "🌍 Google OAuth should now work globally (India, US, EU, Middle East, etc.)"
