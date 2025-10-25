@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Regional OAuth Test - Maharashtra</title>
+</head>
+<body>
+    <h1>Regional OAuth Test</h1>
+    <button onclick="testGoogleOAuth()">Test Google OAuth</button>
+    <div id="results"></div>
+
+    <script>
+        function testGoogleOAuth() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Testing OAuth endpoints...</p>';
+            
+            // Test 1: Check if Google OAuth endpoints are accessible
+            fetch('https://accounts.google.com')
+                .then(response => {
+                    results.innerHTML += '<p>✅ Google OAuth endpoint accessible</p>';
+                })
+                .catch(error => {
+                    results.innerHTML += '<p>❌ Google OAuth endpoint blocked: ' + error.message + '</p>';
+                });
+            
+            // Test 2: Check OAuth callback endpoint
+            fetch('https://naukrimili.com/api/auth/callback/google')
+                .then(response => {
+                    results.innerHTML += '<p>✅ OAuth callback endpoint accessible</p>';
+                })
+                .catch(error => {
+                    results.innerHTML += '<p>❌ OAuth callback blocked: ' + error.message + '</p>';
+                });
+            
+            // Test 3: Check DNS resolution
+            results.innerHTML += '<p>🔍 Testing DNS resolution...</p>';
+            
+            // Test 4: Check user agent and location
+            results.innerHTML += '<p>User Agent: ' + navigator.userAgent + '</p>';
+            results.innerHTML += '<p>Location: ' + window.location.href + '</p>';
+        }
+    </script>
+</body>
+</html>
