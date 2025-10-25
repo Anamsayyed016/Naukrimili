@@ -101,22 +101,20 @@ export function optimizeMobileOAuth(): void {
 export function getMobileOAuthFlow(): 'popup' | 'redirect' {
   const performance = detectMobileOAuthPerformance();
   
-  // Force redirect for mobile devices
-  if (performance.isMobile) {
+  // Only force redirect for actual mobile devices (not responsive design mode)
+  if (performance.isMobile && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    console.log('📱 Mobile device detected - using redirect flow');
     return 'redirect';
   }
   
-  // Force redirect for Safari
-  if (performance.isSafari) {
+  // Force redirect for Safari desktop
+  if (performance.isSafari && !performance.isMobile) {
+    console.log('🍎 Safari desktop detected - using redirect flow');
     return 'redirect';
   }
   
-  // Force redirect for small screens
-  if (performance.screenWidth < 768) {
-    return 'redirect';
-  }
-  
-  // Use popup for desktop Chrome/Firefox
+  // Use popup for desktop Chrome/Firefox/Edge
+  console.log('🖥️ Desktop browser detected - using popup flow');
   return 'popup';
 }
 
