@@ -113,6 +113,7 @@ const nextAuthOptions = {
   secret: nextAuthSecret,
   trustHost: true,
   debug: false, // CRITICAL: Debug disabled for regional OAuth compatibility
+  basePath: '/api/auth',
   pages: {
     signIn: '/auth/signin',
     error: '/auth/error',
@@ -254,4 +255,31 @@ const nextAuthOptions = {
   events: {}
 };
 
-export const { handlers, auth, signIn, signOut } = NextAuth(nextAuthOptions);
+// Initialize NextAuth with error handling for client-side
+let handlers: any;
+let auth: any;
+let signIn: any;
+let signOut: any;
+
+try {
+  const nextAuthResult = NextAuth(nextAuthOptions);
+  handlers = nextAuthResult.handlers;
+  auth = nextAuthResult.auth;
+  signIn = nextAuthResult.signIn;
+  signOut = nextAuthResult.signOut;
+} catch (error: any) {
+  // If initialization fails (e.g., on client side), create safe fallbacks
+  if (typeof window !== 'undefined') {
+    console.warn('⚠️ NextAuth initialization warning (client-side):', error?.message);
+    // Export safe fallbacks that won't break the app
+    handlers = { GET: () => new Response('Not available', { status: 500 }), POST: () => new Response('Not available', { status: 500 }) };
+    auth = async () => null;
+    signIn = async () => ({ error: 'Configuration', ok: false });
+    signOut = async () => ({ ok: false });
+  } else {
+    // Server-side: re-throw the error
+    throw error;
+  }
+}
+
+export { handlers, auth, signIn, signOut };
