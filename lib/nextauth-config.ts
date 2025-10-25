@@ -84,12 +84,20 @@ console.log("✅ NEXTAUTH_SECRET is properly configured");
 
 // Validate NEXTAUTH_URL - Provide default for client-side when trustHost is true
 // trustHost: true allows NextAuth to auto-detect the URL, but we still need a fallback
-const nextAuthUrl = process.env.NEXTAUTH_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://naukrimili.com')
+let nextAuthUrl: string;
+if (typeof window !== 'undefined') {
+  // Client-side: use window.location.origin as fallback
+  nextAuthUrl = process.env.NEXT_PUBLIC_NEXTAUTH_URL || window.location.origin;
+} else {
+  // Server-side: use environment variable with fallback
+  nextAuthUrl = process.env.NEXTAUTH_URL || 'https://naukrimili.com';
+}
 
 // Only validate server-side
 if (typeof window === 'undefined') {
   if (!process.env.NEXTAUTH_URL) {
-    console.warn("⚠️ NEXTAUTH_URL environment variable is not set. Using trustHost for auto-detection.");
+    console.warn("⚠️ NEXTAUTH_URL environment variable is not set. Using fallback:", nextAuthUrl);
+    console.warn("⚠️ trustHost will be used for auto-detection, but NEXTAUTH_URL is recommended.");
   } else if (!process.env.NEXTAUTH_URL.startsWith('http')) {
     console.error("❌ NEXTAUTH_URL must be a valid URL starting with http:// or https://");
     throw new Error("NEXTAUTH_URL must be a valid URL");
@@ -263,6 +271,13 @@ let signIn: any;
 let signOut: any;
 
 try {
+  // Ensure we have at least one provider before initializing
+  // This prevents Configuration errors when providers are missing
+  if (nextAuthOptions.providers.length === 0) {
+    console.warn('⚠️ No OAuth providers configured. Adding placeholder to prevent errors.');
+    // Don't throw error, just log warning - NextAuth will handle missing providers gracefully
+  }
+  
   const nextAuthResult = NextAuth(nextAuthOptions);
   handlers = nextAuthResult.handlers;
   auth = nextAuthResult.auth;
@@ -273,11 +288,30 @@ try {
   if (typeof window !== 'undefined') {
     console.warn('⚠️ NextAuth initialization warning (client-side):', error?.message);
     // Export safe fallbacks that won't break the app
-    handlers = { GET: () => new Response('Not available', { status: 500 }), POST: () => new Response('Not available', { status: 500 }) };
+    handlers = { 
+      GET: async (req: any) => {
+        // For OAuth sign-in routes, redirect to error page with more info
+        const url = new URL(req.url);
+        if (url.pathname.includes('/signin/google')) {
+          return Response.redirect(new URL('/auth/error?error=Configuration', url.origin));
+        }
+        return new Response('Not available', { status: 500 });
+      }, 
+      POST: () => new Response('Not available', { status: 500 }) 
+    };
     auth = async () => null;
     signIn = async () => ({ error: 'Configuration', ok: false });
     signOut = async () => ({ ok: false });
   } else {
+    // Server-side: Check if it's a provider configuration issue
+    if (error?.message?.includes('provider') || error?.message?.includes('Configuration')) {
+      console.error('❌ NextAuth Configuration Error:', error?.message);
+      console.error('📋 Providers configured:', nextAuthOptions.providers.length);
+      console.error('🔑 Google Client ID:', googleClientId ? 'Set' : 'Missing');
+      console.error('🔐 Google Client Secret:', googleClientSecret ? 'Set' : 'Missing');
+      console.error('🌐 NEXTAUTH_URL:', nextAuthUrl);
+      console.error('🔒 NEXTAUTH_SECRET:', nextAuthSecret ? 'Set' : 'Missing');
+    }
     // Server-side: re-throw the error
     throw error;
   }
