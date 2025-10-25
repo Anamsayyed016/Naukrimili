@@ -2,42 +2,28 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  // Handle preflight requests for OAuth routes first
+  if (request.method === 'OPTIONS' && request.nextUrl.pathname.startsWith('/api/auth/')) {
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://naukrimili.com',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Credentials': 'true',
+      },
+    });
+  }
+
   const response = NextResponse.next();
   
   // Enhanced OAuth security for auth routes
   if (request.nextUrl.pathname.startsWith('/api/auth/')) {
-    // Cross-Account Protection - restrict to naukrimili.com
-    const origin = request.headers.get('origin');
-    const referer = request.headers.get('referer');
+    // Allow all OAuth-related requests to pass through to NextAuth
+    // NextAuth will handle the authentication logic
     
-    // Enhanced origin validation for Cross-Account Protection
-    const allowedOrigins = [
-      'https://naukrimili.com',
-      'http://localhost:3000',
-      'https://accounts.google.com',
-      'https://www.googleapis.com'
-    ];
-    
-    if (origin && !allowedOrigins.some(allowed => origin.includes(allowed))) {
-      console.warn('🚨 Cross-Account Protection: Blocked unauthorized origin:', origin);
-      return new NextResponse('Unauthorized origin', { status: 403 });
-    }
-    
-    // Allow Google OAuth domains for OAuth callbacks
-    const allowedRefererDomains = [
-      'naukrimili.com',
-      'localhost',
-      'accounts.google.com',
-      'www.googleapis.com'
-    ];
-
-    if (referer && !allowedRefererDomains.some(domain => referer.includes(domain))) {
-      console.warn('🚨 Cross-Account Protection: Blocked unauthorized referer:', referer);
-      return new NextResponse('Unauthorized referer', { status: 403 });
-    }
-    
-    // OAuth-specific CORS headers
-    response.headers.set('Access-Control-Allow-Origin', origin || 'https://naukrimili.com');
+    // Set OAuth-specific CORS headers
+    response.headers.set('Access-Control-Allow-Origin', 'https://naukrimili.com');
     response.headers.set('Access-Control-Allow-Credentials', 'true');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
