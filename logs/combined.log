@@ -1669,230 +1669,145 @@
 {"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-24 16:31:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
 {"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-24 16:31:25 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
 {"message":"✅ .next directory found\n","timestamp":"2025-10-24 16:31:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:38:56 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:38:56 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:39:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:39:08 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:39:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\nEnvironment: production\nPort: 3000\n","timestamp":"2025-10-25 04:39:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-25 04:39:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Node version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:39:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:39:16 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:39:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:39:28 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:39:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:39:37 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:39:37 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:39:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:39:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:39:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:39:51 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:40:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:40:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:40:07 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:40:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:40:16 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:40:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:40:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:40:24 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:40:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:40:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-25 04:40:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:40:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:40:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:40:34 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:40:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:40:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:40:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:40:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:40:42 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:40:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\n","timestamp":"2025-10-25 04:40:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:40:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:40:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:40:47 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:40:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:40:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:40:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:40:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:40:57 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:41:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:03 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:41:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:41:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-25 04:41:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:08 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:41:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:14 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:41:14 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:41:14 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:14 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:41:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:19 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-25 04:41:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:41:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:24 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:41:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:28 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:41:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:33 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:41:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:41:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:41:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:38 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:41:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-25 04:41:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Node version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:41:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:43 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:41:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:41:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:47 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-25 04:41:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:41:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:54 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:41:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:41:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:41:59 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:41:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:42:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:04 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:09 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:42:09 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:42:09 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:09 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:42:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:13 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:18 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:42:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:42:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:42:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\n","timestamp":"2025-10-25 04:42:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:42:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:28 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:42:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:42:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:42:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:34 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:40 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:40 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:42:40 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:42:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\n","timestamp":"2025-10-25 04:42:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-25 04:42:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:42:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:46 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:42:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:42:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:42:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:42:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:42:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:42:59 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:42:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:04 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:43:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:08 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:43:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:13 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:43:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:18 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-25 04:43:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Node version: v22.16.0\n","timestamp":"2025-10-25 04:43:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:43:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:28 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:43:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:34 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-25 04:43:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:43:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:41 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:43:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:46 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\n","timestamp":"2025-10-25 04:43:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:43:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:52 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:43:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:43:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:43:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:43:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:43:57 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\n","timestamp":"2025-10-25 04:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-25 04:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Node version: v22.16.0\n","timestamp":"2025-10-25 04:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:44:02 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:44:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:44:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-25 04:44:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:44:08 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:44:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:44:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-25 04:44:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Node version: v22.16.0\n","timestamp":"2025-10-25 04:44:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:44:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:44:15 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:44:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:44:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:44:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:44:22 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Environment: production\n","timestamp":"2025-10-25 04:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-25 04:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
-{"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:44:28 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
-{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:44:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-24 11:25:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-24 11:25:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-24 11:25:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-24 11:25:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n","timestamp":"2025-10-24 11:25:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-24 11:25:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-24 11:25:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-24 11:25:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-24 11:25:38 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-24 11:25:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-24 11:25:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-24 11:25:39 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-24 11:25:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-24 11:25:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-24 11:25:39 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[33m[auth][warn][debug-enabled]\u001b[0m Read more: https://warnings.authjs.dev\n","timestamp":"2025-10-24 11:25:42 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-24 11:37:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[33m[auth][warn][debug-enabled]\u001b[0m Read more: https://warnings.authjs.dev\n","timestamp":"2025-10-24 11:37:45 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[90m[auth][debug]:\u001b[0m CREATE_PKCECODEVERIFIER {\n  \"name\": \"__Secure-authjs.pkce.code_verifier\",\n  \"payload\": \"AQDQNOPdMIDDFK7NyGKqM2ocgwWMpOKegtUsQRCfypU\",\n  \"COOKIE_TTL\": 900,\n  \"expires\": \"2025-10-24T12:03:45.513Z\"\n}\n","timestamp":"2025-10-24 11:48:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[90m[auth][debug]:\u001b[0m authorization url is ready {\n  \"url\": \"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=248670675129-rblg5r7m8v4gve20e3bdvtias0jbrtt1.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fnaukrimili.com%2Fapi%2Fauth%2Fcallback%2Fgoogle&code_challenge=eBWIL12Yx0_fktfXj9u2eTdldZY8PF3jtmFFquWJ988&code_challenge_method=S256&scope=openid+profile+email\",\n  \"cookies\": [\n    {\n      \"name\": \"__Secure-authjs.pkce.code_verifier\",\n      \"value\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiV1czWlliSFBrcTVZNi11bFFwT1UzMldtcXZTbmJPWk9zM2w2d1hfNDhBd2tqVjZ0UVcydEx0b0RTZnlidG5ySExxN0ZyakZ0b0I5TlcyRjJfaHdGNFEifQ..Wh4riTReIQfJQYWUeOIb8g.pBBgSsGjfO4xxMirw9EeKPrl9qJ-JnxH5bb8lq93DOFwOb2tV84VEjdPdNz2OzZg9YJUhsNssP33xJwOi9z4Exf6MQpaLJExirBfnmCstMjssG0p0x1cLHsjTFdxgEz9oSdP49SNYqBePvuiV0CDpTdyAtpoujmLMHzyGeGZPiLmC1Pj--ltmxDNZr-iQBrj.bQ0JdRmIXdQI844weMJtgKKLMFB2ZNIMLOEWSWe-C6o\",\n      \"options\": {\n        \"httpOnly\": true,\n        \"sameSite\": \"lax\",\n        \"path\": \"/\",\n        \"secure\": true,\n        \"maxAge\": 900,\n        \"expires\": \"2025-10-24T12:03:45.513Z\"\n      }\n    }\n  ],\n  \"provider\": {\n    \"id\": \"google\",\n    \"name\": \"Google\",\n    \"type\": \"oidc\",\n    \"issuer\": \"https://accounts.google.com\",\n    \"style\": {\n      \"brandColor\": \"#1a73e8\"\n    },\n    \"clientId\": \"248670675129-rblg5r7m8v4gve20e3bdvtias0jbrtt1.apps.googleusercontent.com\",\n    \"clientSecret\": \"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\",\n    \"signinUrl\": \"https://naukrimili.com/api/auth/signin/google\",\n    \"callbackUrl\": \"https://naukrimili.com/api/auth/callback/google\",\n    \"wellKnown\": \"https://accounts.google.com/.well-known/openid-configuration\",\n    \"checks\": [\n      \"pkce\"\n    ]\n  }\n}\n","timestamp":"2025-10-24 11:48:45 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-24 11:57:58 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-24 11:57:58 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-24 11:57:58 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-24 11:57:58 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-24 11:57:58 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-24 11:57:58 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-24 11:57:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-24 11:57:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-24 11:57:59 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-24 11:57:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-24 11:57:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-24 11:57:59 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[33m[auth][warn][debug-enabled]\u001b[0m Read more: https://warnings.authjs.dev\n","timestamp":"2025-10-24 11:58:15 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[90m[auth][debug]:\u001b[0m CREATE_PKCECODEVERIFIER {\n  \"name\": \"__Secure-authjs.pkce.code_verifier\",\n  \"payload\": \"JBIlgCsP9CEGu0n_vzLpI-SQQqpyAHzRwibUxfx_qwo\",\n  \"COOKIE_TTL\": 900,\n  \"expires\": \"2025-10-24T12:13:17.613Z\"\n}\n","timestamp":"2025-10-24 11:58:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[90m[auth][debug]:\u001b[0m authorization url is ready {\n  \"url\": \"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=248670675129-rblg5r7m8v4gve20e3bdvtias0jbrtt1.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fnaukrimili.com%2Fapi%2Fauth%2Fcallback%2Fgoogle&code_challenge=tCbRe5rkO6vLiRlw1mAkQSBLpj8Y2ibSzbd2v-z-yaQ&code_challenge_method=S256&scope=openid+profile+email\",\n  \"cookies\": [\n    {\n      \"name\": \"__Secure-authjs.pkce.code_verifier\",\n      \"value\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiV1czWlliSFBrcTVZNi11bFFwT1UzMldtcXZTbmJPWk9zM2w2d1hfNDhBd2tqVjZ0UVcydEx0b0RTZnlidG5ySExxN0ZyakZ0b0I5TlcyRjJfaHdGNFEifQ..niveOo2XY4fbM232w9QNSg.0VabN6a1DaKANzOx2QXB0nerzxcUySLHCGEgob4_5Ndsj5wDjW4e2iwNuzTahr4QDWza2tcre4tkjseWvUAK8AHSlk0wF4XWONwbe6AsjpKKokH7XA3bLYQ-LTNU9uWoBJaKoysomtgv6MBOr4PDMWCEF0orCOn0iCVS5NaBYJcdErSjRW5bL63fB1RRxs3C.Jz4m7nkrG9fKKYWOckd6cEDlS5UZDY-3VSbXco8qVtM\",\n      \"options\": {\n        \"httpOnly\": true,\n        \"sameSite\": \"lax\",\n        \"path\": \"/\",\n        \"secure\": true,\n        \"maxAge\": 900,\n        \"expires\": \"2025-10-24T12:13:17.613Z\"\n      }\n    }\n  ],\n  \"provider\": {\n    \"id\": \"google\",\n    \"name\": \"Google\",\n    \"type\": \"oidc\",\n    \"issuer\": \"https://accounts.google.com\",\n    \"style\": {\n      \"brandColor\": \"#1a73e8\"\n    },\n    \"clientId\": \"248670675129-rblg5r7m8v4gve20e3bdvtias0jbrtt1.apps.googleusercontent.com\",\n    \"clientSecret\": \"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\",\n    \"signinUrl\": \"https://naukrimili.com/api/auth/signin/google\",\n    \"callbackUrl\": \"https://naukrimili.com/api/auth/callback/google\",\n    \"wellKnown\": \"https://accounts.google.com/.well-known/openid-configuration\",\n    \"checks\": [\n      \"pkce\"\n    ]\n  }\n}\n","timestamp":"2025-10-24 11:58:17 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[90m[auth][debug]:\u001b[0m CREATE_PKCECODEVERIFIER {\n  \"name\": \"__Secure-authjs.pkce.code_verifier\",\n  \"payload\": \"nRn5YNLNVP3YJPs2goGl-EbRLrdLzF-Ww-YVXj-aK7c\",\n  \"COOKIE_TTL\": 900,\n  \"expires\": \"2025-10-24T12:38:33.379Z\"\n}\n","timestamp":"2025-10-24 12:23:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[90m[auth][debug]:\u001b[0m authorization url is ready {\n  \"url\": \"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=248670675129-rblg5r7m8v4gve20e3bdvtias0jbrtt1.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fnaukrimili.com%2Fapi%2Fauth%2Fcallback%2Fgoogle&code_challenge=om-K3DcpXhJGB2Z0e2irHCE1-XeOvRAK9eNt4_DSB0s&code_challenge_method=S256&scope=openid+profile+email\",\n  \"cookies\": [\n    {\n      \"name\": \"__Secure-authjs.pkce.code_verifier\",\n      \"value\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiV1czWlliSFBrcTVZNi11bFFwT1UzMldtcXZTbmJPWk9zM2w2d1hfNDhBd2tqVjZ0UVcydEx0b0RTZnlidG5ySExxN0ZyakZ0b0I5TlcyRjJfaHdGNFEifQ..jL1hILtq2BcUflKFkwXuBQ.i0IWEtoGpnpROxv75emLmeRoy59jvrMrCX9jjiBnKoqk4BTNtfACsF8kr8StOqOHVsF_tYmuFzv3_6FnaSMlCnnehV7M7XIbeGoTM-LVYJuJJYnwxNivSzZUC5p345h2opLei6Tql2sE0r98rEj1ujORSmckrn-afoctY5f9QgSvzgUmIfumYhx_UaRRFADG.sG4O1FpUxXg-GmPQ5UNQfo1ngzQL8Bn_MPG336GHvp0\",\n      \"options\": {\n        \"httpOnly\": true,\n        \"sameSite\": \"lax\",\n        \"path\": \"/\",\n        \"secure\": true,\n        \"maxAge\": 900,\n        \"expires\": \"2025-10-24T12:38:33.379Z\"\n      }\n    }\n  ],\n  \"provider\": {\n    \"id\": \"google\",\n    \"name\": \"Google\",\n    \"type\": \"oidc\",\n    \"issuer\": \"https://accounts.google.com\",\n    \"style\": {\n      \"brandColor\": \"#1a73e8\"\n    },\n    \"clientId\": \"248670675129-rblg5r7m8v4gve20e3bdvtias0jbrtt1.apps.googleusercontent.com\",\n    \"clientSecret\": \"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\",\n    \"signinUrl\": \"https://naukrimili.com/api/auth/signin/google\",\n    \"callbackUrl\": \"https://naukrimili.com/api/auth/callback/google\",\n    \"wellKnown\": \"https://accounts.google.com/.well-known/openid-configuration\",\n    \"checks\": [\n      \"pkce\"\n    ]\n  }\n}\n","timestamp":"2025-10-24 12:23:33 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[90m[auth][debug]:\u001b[0m CREATE_PKCECODEVERIFIER {\n  \"name\": \"__Secure-authjs.pkce.code_verifier\",\n  \"payload\": \"dBbn595pxE7MOpn4ceOUqWLprzxamM_ZrmgZa_mVfP4\",\n  \"COOKIE_TTL\": 900,\n  \"expires\": \"2025-10-24T12:38:42.697Z\"\n}\n","timestamp":"2025-10-24 12:23:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"\u001b[90m[auth][debug]:\u001b[0m authorization url is ready {\n  \"url\": \"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=248670675129-rblg5r7m8v4gve20e3bdvtias0jbrtt1.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fnaukrimili.com%2Fapi%2Fauth%2Fcallback%2Fgoogle&code_challenge=gGbJEsuyrCoNBjey8GjcjtfEcOivmBktj2vG9fACJ44&code_challenge_method=S256&scope=openid+profile+email\",\n  \"cookies\": [\n    {\n      \"name\": \"__Secure-authjs.pkce.code_verifier\",\n      \"value\": \"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiV1czWlliSFBrcTVZNi11bFFwT1UzMldtcXZTbmJPWk9zM2w2d1hfNDhBd2tqVjZ0UVcydEx0b0RTZnlidG5ySExxN0ZyakZ0b0I5TlcyRjJfaHdGNFEifQ..oNv7pk6DhZ_4FzMVucEwvQ.Gmt1ykNMEtk55xWYwR5OHyJTB-BXgqefC_nCrCCGfV69ncVKjnfpGw78MdN2k0eIf3O7vEhpLBrCHa8sb_VqpdAAEMmR7QFvUUuoLuXP2E_EoZf9nMfdW3XjmQcCeDuXZIt22fwO393dxHth1msST5R8TAa1jtbkC9rgHYo5pyHcw7lZF1QWsuzOITYsBwLQ.LnyB8tYSr22xCuiZMbjo4O-EDXlhWYC8Qp-7IPNOsx0\",\n      \"options\": {\n        \"httpOnly\": true,\n        \"sameSite\": \"lax\",\n        \"path\": \"/\",\n        \"secure\": true,\n        \"maxAge\": 900,\n        \"expires\": \"2025-10-24T12:38:42.697Z\"\n      }\n    }\n  ],\n  \"provider\": {\n    \"id\": \"google\",\n    \"name\": \"Google\",\n    \"type\": \"oidc\",\n    \"issuer\": \"https://accounts.google.com\",\n    \"style\": {\n      \"brandColor\": \"#1a73e8\"\n    },\n    \"clientId\": \"248670675129-rblg5r7m8v4gve20e3bdvtias0jbrtt1.apps.googleusercontent.com\",\n    \"clientSecret\": \"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\",\n    \"signinUrl\": \"https://naukrimili.com/api/auth/signin/google\",\n    \"callbackUrl\": \"https://naukrimili.com/api/auth/callback/google\",\n    \"wellKnown\": \"https://accounts.google.com/.well-known/openid-configuration\",\n    \"checks\": [\n      \"pkce\"\n    ]\n  }\n}\n","timestamp":"2025-10-24 12:23:42 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-24 12:28:47 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-24 23:12:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 10:12:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-25 10:12:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-25 10:12:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-25 10:12:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-25 10:12:06 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-25 10:12:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-25 10:12:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-25 10:12:07 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-25 10:12:07 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-25 10:12:08 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-25 10:12:08 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-25 10:18:53 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 10:26:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-25 10:26:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-25 10:26:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: srv1054971.hstgr.cloud\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-25 10:26:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-25 10:26:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-25 10:26:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-25 10:26:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-25 10:26:37 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-25 10:26:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://srv1054971.hstgr.cloud:3000\n","timestamp":"2025-10-25 10:26:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-25 10:26:37 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 10:37:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-25 10:37:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-25 10:37:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-25 10:37:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n","timestamp":"2025-10-25 10:37:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-25 10:37:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-25 10:37:00 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-25 10:37:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-25 10:37:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-25 10:37:01 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-25 10:37:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-25 10:37:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-25 10:37:01 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 10:39:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-25 10:39:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-25 10:39:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: /var/www/naukrimili\nNode version: v20.19.2\n✅ .next directory found\n","timestamp":"2025-10-25 10:39:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-25 10:39:43 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-25 10:39:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-25 10:39:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-25 10:39:44 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-25 10:39:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-25 10:39:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-25 10:39:44 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: /var/www/naukrimili\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v20.19.2\n✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n📊 Environment: production\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-25 11:02:36 +00:00","type":"out","process_id":0,"app_name":"naukrimili"}
