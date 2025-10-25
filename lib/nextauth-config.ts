@@ -82,18 +82,19 @@ if (!process.env.NEXTAUTH_SECRET) {
 
 console.log("✅ NEXTAUTH_SECRET is properly configured");
 
-// Validate NEXTAUTH_URL - Allow undefined on client side when trustHost is true
-const nextAuthUrl = process.env.NEXTAUTH_URL || undefined
+// Validate NEXTAUTH_URL - Provide default for client-side when trustHost is true
+// trustHost: true allows NextAuth to auto-detect the URL, but we still need a fallback
+const nextAuthUrl = process.env.NEXTAUTH_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://naukrimili.com')
 
-// Only validate server-side, client side will use trustHost to auto-detect
+// Only validate server-side
 if (typeof window === 'undefined') {
-  if (!nextAuthUrl) {
+  if (!process.env.NEXTAUTH_URL) {
     console.warn("⚠️ NEXTAUTH_URL environment variable is not set. Using trustHost for auto-detection.");
-  } else if (!nextAuthUrl.startsWith('http')) {
+  } else if (!process.env.NEXTAUTH_URL.startsWith('http')) {
     console.error("❌ NEXTAUTH_URL must be a valid URL starting with http:// or https://");
     throw new Error("NEXTAUTH_URL must be a valid URL");
   } else {
-    console.log("✅ NEXTAUTH_URL is properly configured:", nextAuthUrl);
+    console.log("✅ NEXTAUTH_URL is properly configured:", process.env.NEXTAUTH_URL);
   }
 }
 
