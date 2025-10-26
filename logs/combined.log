@@ -1896,3 +1896,917 @@
 {"message":"✅ .next directory found\n","timestamp":"2025-10-25 04:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
 {"message":"❌ BUILD_ID not found at: E:\\myprojects\\jobportal\\.next\\BUILD_ID\n","timestamp":"2025-10-25 04:44:28 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
 {"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-25 04:44:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:36:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:36:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-26 05:36:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:36:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-26 05:36:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:36:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-26 05:36:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:36:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:36:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:36:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:36:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:36:48 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:36:48 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:36:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:36:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🎉 Server ready on http://0.0.0.0:3000\n","timestamp":"2025-10-26 05:36:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"📊 Environment: production\n✅ Server startup completed\n🔔 Socket.io ready and listening for connections\n","timestamp":"2025-10-26 05:36:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:36:48 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:36:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:36:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:36:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:36:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:36:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:36:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:36:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:36:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:36:54 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:36:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:36:54 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:36:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:36:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:36:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:36:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:36:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:36:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:36:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:37:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:37:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:37:00 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:37:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:37:00 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:37:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:37:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:37:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:37:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:37:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:37:06 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:37:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:37:06 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:37:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:37:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:37:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:37:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:37:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:37:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:37:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:37:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:37:13 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:37:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:37:13 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:37:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:37:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:37:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:37:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:37:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:37:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:37:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:37:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:37:19 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:37:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:37:19 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:37:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:37:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:37:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:37:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:37:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:37:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:37:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:37:26 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:37:26 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:37:26 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:37:26 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:37:26 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:37:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:37:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:37:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:37:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:37:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:37:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:37:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:37:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:37:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:37:34 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:37:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:37:34 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:37:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:37:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:37:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:37:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:37:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:37:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:37:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:37:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:37:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:37:41 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:37:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:37:41 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:37:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:37:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:37:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:37:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:37:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:37:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:37:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:37:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:37:48 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:37:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:37:48 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:37:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\n","timestamp":"2025-10-26 05:37:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:37:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:37:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:37:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:37:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:37:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:37:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:37:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:37:58 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:37:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:37:58 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:38:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:38:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:38:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:38:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:38:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:38:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:38:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:38:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:38:06 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:38:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:38:06 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:38:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:38:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:38:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:38:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:38:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:38:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:38:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:38:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:38:12 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:38:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:38:12 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:38:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:38:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:38:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:38:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:38:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:38:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:38:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:38:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:38:19 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:38:19 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:38:19 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:38:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:38:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-26 05:38:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v22.16.0\n","timestamp":"2025-10-26 05:38:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:38:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:38:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:38:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:38:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:38:26 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:38:26 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:38:26 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:38:26 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:38:27 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:38:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:38:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:38:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:38:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:38:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:38:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:38:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:38:32 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:38:32 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:38:32 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:38:32 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:38:32 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:38:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:38:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:38:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-26 05:38:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:38:37 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:38:37 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:38:38 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:38:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:38:38 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:38:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:38:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-26 05:38:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:38:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:38:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:38:44 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:38:44 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:38:44 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:38:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\n","timestamp":"2025-10-26 05:38:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:38:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:38:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:38:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:38:48 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:38:49 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:38:49 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:38:49 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:38:49 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:38:50 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:38:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:38:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:38:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:38:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:38:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:38:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:38:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:38:55 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:38:55 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:38:55 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:38:55 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:38:55 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:39:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:39:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:39:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:39:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:01 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:01 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:01 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:39:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:39:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:39:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:39:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:39:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:07 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:07 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:07 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:39:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-26 05:39:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v22.16.0\n","timestamp":"2025-10-26 05:39:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:39:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:39:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:13 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:13 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:39:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:39:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:39:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:39:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:39:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:20 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:20 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:39:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-26 05:39:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v22.16.0\n","timestamp":"2025-10-26 05:39:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:39:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:39:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:39:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:25 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:26 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:26 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:26 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:26 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:26 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:39:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:39:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:32 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:32 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:32 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:32 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:32 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:39:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:39:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:39:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:39:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:39:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:38 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:38 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:39:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:39:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:39:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:39:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:39:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:42 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:44 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:44 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:45 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:45 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:50 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\n","timestamp":"2025-10-26 05:39:50 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:39:50 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:50 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:52 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:39:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:39:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:39:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:39:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:39:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:39:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:39:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:39:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:39:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:39:59 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:39:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:39:59 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:40:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:40:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:40:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:40:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:06 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:06 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:40:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:40:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:40:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:11 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:11 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:40:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:40:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:40:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:40:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:40:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:17 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:17 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:21 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:40:21 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:40:21 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:40:21 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:21 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:40:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:40:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:28 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:29 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:40:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:40:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:40:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:34 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:35 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:40:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:40:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:40:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:39 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:41 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:41 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:40:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:40:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:40:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:40:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:47 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:47 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:40:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:40:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:40:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:40:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:40:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:40:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:40:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:40:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:40:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:40:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:40:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:40:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:40:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:40:59 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:40:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:40:59 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:41:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:41:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:41:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:41:05 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:41:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:41:05 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:41:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:41:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:10 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:41:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:41:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:41:11 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:41:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:41:11 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:41:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:41:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:16 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:41:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:41:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:41:17 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:41:17 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:41:17 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:41:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:41:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:41:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:41:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:41:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:41:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:41:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:41:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:41:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:41:29 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:41:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:41:29 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:41:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:41:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:41:35 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:41:35 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:41:35 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:41:35 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:41:35 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:40 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:41:40 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:40 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:40 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:41:40 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:40 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:40 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:41:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:41:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:41:41 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:41:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:41:41 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:41:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:41:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:41:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:41:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:41:47 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:41:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:41:47 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:41:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:41:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:41:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:41:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:41:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:41:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:41:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:41:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:41:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\n","timestamp":"2025-10-26 05:41:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:41:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:41:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:41:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:41:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:42:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:42:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:42:00 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:42:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:42:00 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:42:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:42:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:42:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:42:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:42:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:42:05 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:42:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:42:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:42:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:42:07 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:42:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:42:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:42:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-26 05:42:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:42:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:42:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:42:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:42:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:42:13 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:42:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:42:13 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-26 05:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v22.16.0\n","timestamp":"2025-10-26 05:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:42:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:42:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:42:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:42:24 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:42:24 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:42:25 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:42:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:42:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:42:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:42:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:42:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:42:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:42:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:42:32 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:42:32 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:42:33 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:42:33 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:42:33 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:42:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-26 05:42:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v22.16.0\n","timestamp":"2025-10-26 05:42:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:42:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:42:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:42:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:42:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:42:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:42:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:42:41 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:42:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:42:41 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:42:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:42:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-26 05:42:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\n","timestamp":"2025-10-26 05:42:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Working directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:42:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:42:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:42:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:42:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:42:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:42:47 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:42:47 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:42:47 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:42:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-26 05:42:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-26 05:42:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:42:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:42:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:42:52 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:42:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:42:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:42:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:42:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:42:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:42:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:42:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:42:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:42:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:42:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:42:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:42:58 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:42:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:42:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:42:59 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:42:59 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:42:59 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:43:04 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:43:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:43:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:43:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:43:07 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:43:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:43:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:43:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:43:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:43:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:43:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:43:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:43:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:43:14 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:43:14 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:43:14 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:43:14 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:43:15 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:43:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:43:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:43:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:43:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:43:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:43:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:43:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:43:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:43:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:43:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:43:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:43:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:43:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:43:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-26 05:43:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:43:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:43:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:43:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:43:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:43:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:43:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:43:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:43:30 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:43:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:43:31 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:43:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:43:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:43:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:43:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:43:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:43:44 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:43:44 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:43:45 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:43:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:43:45 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:43:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-26 05:43:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v22.16.0\n✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-26 05:43:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:43:55 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:43:55 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:43:56 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:43:56 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:43:57 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\n","timestamp":"2025-10-26 05:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Node version: v22.16.0\n","timestamp":"2025-10-26 05:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:44:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:44:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:44:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:44:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:44:07 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:44:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:44:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:44:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:44:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:44:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:44:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:44:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:44:14 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:44:14 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:44:15 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:44:15 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:44:15 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:44:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:44:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:44:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:44:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:44:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:44:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:44:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:44:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:44:22 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:44:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:44:23 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:44:23 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:44:28 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:44:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:44:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:44:30 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:44:30 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:44:30 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:44:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:44:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:44:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:44:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:44:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:44:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:44:34 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:44:37 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:44:37 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:44:38 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:44:38 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:44:38 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:44:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:44:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-26 05:44:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:44:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:44:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:44:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:44:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:44:43 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:44:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:44:45 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:44:46 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:44:46 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:44:46 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:44:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:44:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:44:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:44:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:44:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:44:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:44:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:44:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:44:54 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:44:54 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:44:54 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:45:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:45:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n","timestamp":"2025-10-26 05:45:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:45:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:45:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:45:00 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:45:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:45:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:45:03 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:45:03 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:45:04 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:45:09 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:45:09 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:45:09 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:45:09 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:45:09 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:45:09 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:45:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:45:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:45:12 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:45:12 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:45:12 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:45:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:45:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n✅ .next directory found\n✅ BUILD_ID found\n✅ .next/server directory found\n","timestamp":"2025-10-26 05:45:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:45:18 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:45:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:45:29 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:45:32 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:45:32 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:45:34 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:45:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:45:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:45:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n✅ .next/static directory found\n","timestamp":"2025-10-26 05:45:41 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:45:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:45:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:45:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:45:53 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:45:53 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:46:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:46:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\n","timestamp":"2025-10-26 05:46:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Hostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:46:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:46:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:46:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:46:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:46:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:46:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:46:06 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:46:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:46:07 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:46:07 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:46:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\nPort: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:46:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:46:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:46:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:46:13 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:46:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:46:20 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:46:21 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:46:21 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:46:22 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:46:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:46:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:46:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:46:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:46:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:46:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:46:27 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:46:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:46:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:46:31 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:46:31 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:46:31 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:46:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:46:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:46:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n✅ BUILD_ID found\n","timestamp":"2025-10-26 05:46:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:46:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:46:36 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:46:50 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:46:50 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:46:51 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:46:51 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:46:52 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:46:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:46:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:46:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:46:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:46:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:46:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:46:57 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:47:01 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:47:01 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"⚠️ Socket.io initialization failed (continuing without real-time notifications): module is not defined\n","timestamp":"2025-10-26 05:47:02 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"📝 To enable real-time notifications, ensure all socket dependencies are properly installed\n","timestamp":"2025-10-26 05:47:02 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"❌ Server error: Error: listen EADDRINUSE: address already in use 0.0.0.0:3000\n    at <unknown> (Error: listen EADDRINUSE: address already in use 0.0.0.0:3000) {\n  code: 'EADDRINUSE',\n  errno: -4091,\n  syscall: 'listen',\n  address: '0.0.0.0',\n  port: 3000\n}\n","timestamp":"2025-10-26 05:47:02 +05:30","type":"err","process_id":0,"app_name":"naukrimili"}
+{"message":"🚀 Starting Naukrimili server...\n","timestamp":"2025-10-26 05:47:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Environment: production\n","timestamp":"2025-10-26 05:47:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"Port: 3000\nHostname: 0.0.0.0\nWorking directory: E:\\myprojects\\jobportal\nNode version: v22.16.0\n","timestamp":"2025-10-26 05:47:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next directory found\n","timestamp":"2025-10-26 05:47:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ BUILD_ID found\n","timestamp":"2025-10-26 05:47:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/server directory found\n","timestamp":"2025-10-26 05:47:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ .next/static directory found\n","timestamp":"2025-10-26 05:47:08 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"✅ Next.js app prepared successfully\n","timestamp":"2025-10-26 05:47:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
+{"message":"🔌 Initializing Socket.io server...\n","timestamp":"2025-10-26 05:47:11 +05:30","type":"out","process_id":0,"app_name":"naukrimili"}
