@@ -46,5 +46,6 @@ const authOptions = {
 
 const handler = NextAuth(authOptions)
 
+export default handler
 export { authOptions, handler }
 export const { auth, signIn, signOut } = handler
