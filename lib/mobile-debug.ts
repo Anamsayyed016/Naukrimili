@@ -75,7 +75,7 @@ export function detectMobileDevice(): boolean {
   const hasOrientation = 'orientation' in window;
   
   // Check if it's a mobile app (PWA)
-  const isStandalone = (window.navigator as any).standalone === true;
+  const isStandalone = (window.navigator as unknown as { standalone?: boolean }).standalone === true;
   
   return hasMobileKeywords || (isSmallScreen && (hasTouchSupport || hasOrientation)) || isStandalone;
 }
@@ -178,8 +178,8 @@ export function testOAuthPopupSupport(): { supported: boolean; reason: string } 
     } else {
       return { supported: false, reason: 'Popup blocked by browser' };
     }
-  } catch (error) {
-    return { supported: false, reason: `Popup test failed: ${error}` };
+  } catch (_error) {
+    return { supported: false, reason: `Popup test failed: ${_error}` };
   }
 }
 
@@ -201,7 +201,7 @@ export async function testGeolocation(): Promise<{ supported: boolean; permissio
     try {
       const permissionResult = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
       permission = permissionResult.state;
-    } catch (error) {
+    } catch {
       permission = 'unknown';
     }
   }
@@ -229,19 +229,19 @@ export async function testGeolocation(): Promise<{ supported: boolean; permissio
       permission, 
       reason: `Location obtained: ${position.coords.latitude}, ${position.coords.longitude}` 
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     let reason = 'Unknown error';
     
-    if (error.code === 1) {
+    if ((error as GeolocationPositionError).code === 1) {
       reason = 'Permission denied';
-    } else if (error.code === 2) {
+    } else if ((error as GeolocationPositionError).code === 2) {
       reason = 'Position unavailable';
-    } else if (error.code === 3) {
+    } else if ((error as GeolocationPositionError).code === 3) {
       reason = 'Timeout';
-    } else if (error.message === 'Timeout') {
+    } else if ((error as Error).message === 'Timeout') {
       reason = 'Geolocation request timed out';
     } else {
-      reason = error.message || 'Geolocation failed';
+      reason = (error as Error).message || 'Geolocation failed';
     }
     
     return { supported: false, permission, reason };
@@ -263,7 +263,7 @@ export async function analyzeMobileEnvironment(): Promise<MobileDebugInfo> {
     viewport: `${window.screen.width}x${window.screen.height}`,
     devicePixelRatio: window.devicePixelRatio || 1,
     touchSupport: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
-    orientation: (window as any).orientation || 'unknown'
+    orientation: (window as unknown as { orientation?: number }).orientation?.toString() || 'unknown'
   };
   
   const browser = getBrowserInfo();

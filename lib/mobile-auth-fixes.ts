@@ -98,13 +98,13 @@ export function getMobileStatusMessage(): MobileStatus {
     };
   }
 
-  const mobileInfo = detectMobileWithFallback();
+  const _mobileInfo = detectMobileWithFallback();
   const warnings: string[] = [];
   const errors: string[] = [];
   const recommendations: string[] = [];
 
   // Add fallback messages
-  mobileInfo.fallbacks.forEach(fallback => {
+  _mobileInfo.fallbacks.forEach(fallback => {
     if (fallback.type === 'https_required') {
       errors.push(fallback.message);
     } else {
@@ -119,7 +119,7 @@ export function getMobileStatusMessage(): MobileStatus {
   }
 
   // Check OAuth popup support
-  if (mobileInfo.isMobile) {
+  if (_mobileInfo.isMobile) {
     try {
       const testPopup = window.open('', '_blank', 'width=1,height=1');
       if (testPopup) {
@@ -128,7 +128,7 @@ export function getMobileStatusMessage(): MobileStatus {
         warnings.push('Popup windows may be blocked');
         recommendations.push('OAuth will use redirect method');
       }
-    } catch (error) {
+    } catch {
       warnings.push('Popup windows not supported');
       recommendations.push('OAuth will use redirect method');
     }
@@ -155,8 +155,6 @@ export function checkMobileFeatureCompatibility(): MobileCompatibility {
     };
   }
 
-  const mobileInfo = detectMobileWithFallback();
-  
   // Check OAuth support
   const oauth = true; // OAuth generally works on mobile
   
@@ -168,7 +166,7 @@ export function checkMobileFeatureCompatibility(): MobileCompatibility {
       testPopup.close();
       popups = true;
     }
-  } catch (error) {
+  } catch {
     popups = false;
   }
   
@@ -190,10 +188,10 @@ export function getMobileAuthMethodWithFallback(): MobileAuthMethod {
     return { method: 'redirect', reason: 'Server-side rendering' };
   }
 
-  const mobileInfo = detectMobileWithFallback();
+  const _mobileInfo = detectMobileWithFallback();
   const compatibility = checkMobileFeatureCompatibility();
 
-  if (mobileInfo.isMobile) {
+  if (_mobileInfo.isMobile) {
     if (compatibility.popups && !compatibility.https) {
       return { method: 'popup', reason: 'Mobile with popup support' };
     } else {
@@ -211,7 +209,7 @@ export function getMobileAuthMethodWithFallback(): MobileAuthMethod {
 /**
  * Get mobile error message with solution
  */
-export function getMobileErrorMessageWithSolution(error: any, context: 'oauth' | 'credentials' = 'oauth'): MobileErrorSolution {
+export function getMobileErrorMessageWithSolution(error: unknown, context: 'oauth' | 'credentials' = 'oauth'): MobileErrorSolution {
   if (!error) {
     return {
       message: 'Authentication failed',
@@ -219,8 +217,10 @@ export function getMobileErrorMessageWithSolution(error: any, context: 'oauth' |
     };
   }
 
-  const errorCode = error.error || error.code || error.message;
-  const mobileInfo = detectMobileWithFallback();
+  const errorCode = (error as { error?: string; code?: string; message?: string }).error || 
+                   (error as { error?: string; code?: string; message?: string }).code || 
+                   (error as { error?: string; code?: string; message?: string }).message;
+  const _mobileInfo = detectMobileWithFallback();
 
   // OAuth-specific errors
   if (context === 'oauth') {
@@ -233,7 +233,7 @@ export function getMobileErrorMessageWithSolution(error: any, context: 'oauth' |
       case 'popup_blocked':
         return {
           message: 'Popup was blocked by your browser',
-          solution: mobileInfo.isMobile 
+          solution: _mobileInfo.isMobile 
             ? 'Please use the redirect method or allow popups'
             : 'Please allow popups for this site and try again'
         };
@@ -260,7 +260,7 @@ export function getMobileErrorMessageWithSolution(error: any, context: 'oauth' |
       default:
         return {
           message: 'Authentication failed',
-          solution: mobileInfo.isMobile
+          solution: _mobileInfo.isMobile
             ? 'Please try again or use a different browser'
             : 'Please try again or contact support'
         };
