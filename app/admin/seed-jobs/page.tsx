@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Database, TrendingUp, Users, Building2, Sprout } from 'lucide-react';
+import { Database, Sprout } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface Sector {
