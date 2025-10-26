@@ -69,7 +69,7 @@ export class EventCollector {
       try {
         this.redisClient = getRedisClient();
         console.log('✅ Analytics Event Collector: Redis connected');
-      } catch (error) {
+      } catch {
         console.warn('⚠️ Analytics Event Collector: Redis not available, using database only');
         this.config.enableRedis = false;
       }
