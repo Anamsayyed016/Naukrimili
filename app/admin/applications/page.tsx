@@ -27,13 +27,9 @@ export default function AdminApplicationsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage] = useState(1);
-  const [totalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications, currentPage, statusFilter, searchTerm]);
-
-  const fetchApplications = async () => {
+  const fetchApplications = React.useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -50,11 +46,15 @@ export default function AdminApplicationsPage() {
         setTotalPages(data.totalPages || 1);
       }
     } catch (_error) {
-      console.error('Error fetching applications:', error);
+      console.error('Error fetching applications:', _error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, statusFilter, searchTerm]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
   const handleStatusChange = async (applicationId: string, newStatus: string) => {
     try {
@@ -68,7 +68,7 @@ export default function AdminApplicationsPage() {
         fetchApplications(); // Refresh the list
       }
     } catch (_error) {
-      console.error('Error updating application status:', error);
+      console.error('Error updating application status:', _error);
     }
   };
 

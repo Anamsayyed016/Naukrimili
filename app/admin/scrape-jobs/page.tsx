@@ -15,10 +15,8 @@ import {
   Settings, 
   Play, 
   CheckCircle, 
-  XCircle, 
   Clock, 
   TrendingUp,
-  AlertCircle,
   Info
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -127,7 +125,7 @@ export default function JobScrapingPage() {
         toast.error(data.error || 'Scraping failed');
       }
     } catch (_error) {
-      console.error('Scraping error:', error);
+      console.error('Scraping error:', _error);
       toast.error('Failed to start scraping');
     } finally {
       setIsScraping(false);
@@ -144,7 +142,7 @@ export default function JobScrapingPage() {
         setStats(data.stats);
       }
     } catch (_error) {
-      console.error('Failed to fetch stats:', error);
+      console.error('Failed to fetch stats:', _error);
     }
   };
 
