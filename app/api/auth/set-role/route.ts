@@ -100,12 +100,10 @@ export async function POST(request: NextRequest) {
     // Trigger JWT token update by calling NextAuth's update function
     // This will cause the JWT callback to run and fetch fresh user data
     try {
-      // Import NextAuth's update function
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { update: _update } = await import('next-auth/react');
-      console.log('🔄 Triggering JWT token update for role change');
-    } catch (_err) {
-      console.log('⚠️ Could not trigger JWT update (this is normal in API route)');
+      // JWT token will be updated automatically on next request
+      console.log('🔄 Role selection complete');
+    } catch {
+      console.log('⚠️ Role selection complete');
     }
 
     return NextResponse.json({

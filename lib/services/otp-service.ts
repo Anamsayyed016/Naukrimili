@@ -165,7 +165,7 @@ export class OTPService {
       return {
         success: false,
         message: 'Failed to generate OTP',
-        error: error.message || 'UNKNOWN_ERROR'
+        error: error instanceof Error ? error.message : 'UNKNOWN_ERROR'
       };
     }
   }
@@ -292,7 +292,7 @@ export class OTPService {
       return {
         success: false,
         message: 'Failed to verify OTP',
-        error: error.message || 'UNKNOWN_ERROR'
+        error: error instanceof Error ? error.message : 'UNKNOWN_ERROR'
       };
     }
   }

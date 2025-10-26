@@ -189,13 +189,13 @@ export class UnifiedAIService {
     }
 
     const completion = await this.openai.chat.completions.create({
-      model: options.model || 'gpt-4o-mini',
+      model: (options.model as string) || 'gpt-4o-mini',
       messages: [
         ...(systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : []),
         { role: 'user' as const, content: prompt }
       ],
-      temperature: options.temperature || 0.7,
-      max_tokens: options.maxTokens || 2000
+      temperature: (options.temperature as number) || 0.7,
+      max_tokens: (options.maxTokens as number) || 2000
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -219,7 +219,7 @@ export class UnifiedAIService {
     }
 
     const model = this.gemini.getGenerativeModel({ 
-      model: options.model || 'gemini-1.5-flash' 
+      model: (options.model as string) || 'gemini-1.5-flash' 
     });
 
     // Combine system and user prompt for Gemini

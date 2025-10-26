@@ -160,7 +160,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { action, jobIds, reason: _reason } = jobActionSchema.parse(body);
+    const { action, jobIds: rawJobIds, reason: _reason } = jobActionSchema.parse(body);
+    const jobIds = rawJobIds.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
 
     if (!jobIds || jobIds.length === 0) {
       return NextResponse.json(
@@ -200,7 +201,11 @@ export async function POST(request: NextRequest) {
       case 'delete':
         // Delete jobs
         await prisma.job.deleteMany({
-          where: { id: { in: jobIds as string[] } }
+          where: { 
+            id: { 
+              in: jobIds 
+            } 
+          }
         });
         return NextResponse.json({
           success: true,
@@ -215,7 +220,7 @@ export async function POST(request: NextRequest) {
 
     // Update jobs
     const updatedJobs = await prisma.job.updateMany({
-      where: { id: { in: jobIds as string[] } },
+      where: { id: { in: jobIds } },
       data: updateData
     });
 
