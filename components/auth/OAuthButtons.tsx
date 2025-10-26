@@ -17,15 +17,11 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
     console.log('🔄 Starting Google OAuth redirect...');
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      // Simple direct redirect
       const signInUrl = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(callbackUrl || '/auth/role-selection')}`;
       console.log('📍 Redirect URL:', signInUrl);
-      
-      // Use window.location.href for immediate redirect
       window.location.href = signInUrl;
-      
     } catch (error) {
       console.error('❌ Google sign-in error:', error);
       setError('Sign-in failed. Please try again.');
@@ -38,7 +34,7 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
       {error && (
         <div className="text-red-600 text-sm text-center p-2 bg-red-50 rounded-lg">
           {error}
-          <button 
+          <button
             onClick={() => {
               setError(null);
               handleGoogleSignIn();
@@ -72,7 +68,7 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
           </>
         )}
       </Button>
-      
+
       <div className="text-xs text-gray-500 text-center px-2">
         By continuing, you agree to NaukriMili's{' '}
         <a href="/terms" className="text-blue-600 hover:underline">Terms of Service</a>
@@ -84,5 +80,4 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
   );
 }
 
-// Named export for compatibility
 export { OAuthButtons };

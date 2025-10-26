@@ -4,9 +4,10 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Remove deprecated eslint option
+  // eslint: {
+  //   ignoreDuringBuilds: true,
+  // },
   experimental: {
     forceSwcTransforms: true,
   },

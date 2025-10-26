@@ -1,3 +1,9 @@
 import { handler } from "@/lib/nextauth-config"
 
-export { handler as GET, handler as POST }
+export async function GET(request: Request) {
+  return await handler(request);
+}
+
+export async function POST(request: Request) {
+  return await handler(request);
+}
