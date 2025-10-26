@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Test email error:', error);
     return NextResponse.json(
       { 
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
     
@@ -198,7 +198,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Email status check error:', error);
     return NextResponse.json(
       { 

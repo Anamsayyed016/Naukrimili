@@ -83,7 +83,7 @@ export default function JobSeekerProfilePage() {
       if (data.success) {
         setProfile(data.data);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching profile:', error);
       toast({
         title: 'Error',
@@ -122,7 +122,7 @@ export default function JobSeekerProfilePage() {
           description: 'Profile updated successfully',
         });
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating profile:', error);
       toast({
         title: 'Error',

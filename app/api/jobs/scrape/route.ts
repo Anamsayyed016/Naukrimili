@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Job scraping failed:', error);
     return NextResponse.json(
       {
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Admin authentication required
     const auth = await requireAdminAuth();
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
       lastChecked: new Date().toISOString()
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Failed to get scraping stats:', error);
     return NextResponse.json(
       {

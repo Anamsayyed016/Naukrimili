@@ -13,7 +13,7 @@ export default function TestAuthPage() {
     if (confirm('⚠️ This will force clear ALL authentication data and refresh the page. Continue?')) {
       try {
         await forceClearAllAuth();
-      } catch (error) {
+      } catch (_error) {
         console.error('Force clear error:', error);
       }
     }

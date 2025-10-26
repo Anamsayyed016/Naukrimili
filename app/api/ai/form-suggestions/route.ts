@@ -4,7 +4,7 @@ import { HybridFormSuggestions } from '@/lib/hybrid-form-suggestions';
 const hybridFormSuggestions = new HybridFormSuggestions();
 
 // Enhanced fallback suggestions for job posting
-function getFallbackSuggestions(field: string, value: string): string[] {
+function getFallbackSuggestions(field: string, _value: string): string[] {
   const fallbackSuggestions: { [key: string]: string[] } = {
     // Job posting specific fields
     title: [
@@ -108,26 +108,26 @@ function getFallbackSuggestions(field: string, value: string): string[] {
 
 export async function POST(request: NextRequest) {
   let field = 'skills';
-  let value = '';
+  let _value = '';
   let context = {};
 
   try {
     const requestData = await request.json();
     field = requestData.field || 'skills';
-    value = requestData.value || '';
+    _value = requestData._value || '';
     context = requestData.context || {};
 
-    if (!field || !value) {
+    if (!field || !_value) {
       return NextResponse.json({
         success: false,
-        error: 'Field and value are required'
+        error: 'Field and _value are required'
       }, { status: 400 });
     }
 
-    console.log(`🔮 Generating suggestions for field: ${field}, value: ${value}`);
+    console.log(`🔮 Generating suggestions for field: ${field}, _value: ${_value}`);
 
     // Generate suggestions using hybrid AI
-    const result = await hybridFormSuggestions.generateSuggestions(field, value, context);
+    const result = await hybridFormSuggestions.generateSuggestions(field, _value, context);
 
     console.log(`✅ Generated ${result.suggestions.length} suggestions using ${result.aiProvider}`);
 
@@ -138,11 +138,11 @@ export async function POST(request: NextRequest) {
       aiProvider: result.aiProvider
     });
 
-  } catch (error) {
-    console.error('AI form suggestions error:', error);
+  } catch (_error) {
+    console.error('AI form suggestions error:', _error);
     
     // Enhanced fallback when AI fails
-    const fallbackSuggestions = getFallbackSuggestions(field, value);
+    const fallbackSuggestions = getFallbackSuggestions(field, _value);
     
     return NextResponse.json({
       success: true,

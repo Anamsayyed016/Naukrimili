@@ -63,16 +63,16 @@ export function checkNotificationCapabilities(): NotificationCapabilities {
  * Request notification permission with mobile compatibility
  */
 export async function requestNotificationPermission(): Promise<boolean> {
-  const capabilities = checkNotificationCapabilities();
+  const _capabilities = checkNotificationCapabilities();
   
-  if (!capabilities.supported) {
+  if (!_capabilities.supported) {
     console.warn('Notifications not supported on this device');
     return false;
   }
 
-  if (!capabilities.canRequest) {
-    console.log('Notification permission already set:', capabilities.permission);
-    return capabilities.permission === 'granted';
+  if (!_capabilities.canRequest) {
+    console.log('Notification permission already set:', _capabilities.permission);
+    return _capabilities.permission === 'granted';
   }
 
   try {
@@ -133,8 +133,6 @@ export function showBrowserNotification(options: NotificationOptions): boolean {
  * Show a notification with automatic fallback to in-app notification
  */
 export function showNotification(options: NotificationOptions): boolean {
-  const capabilities = checkNotificationCapabilities();
-  
   // Try browser notification first
   if (showBrowserNotification(options)) {
     return true;
@@ -162,8 +160,8 @@ export function showInAppNotification(options: NotificationOptions): boolean {
       notification.className = 'fixed top-4 left-4 right-4 z-50 max-w-full bg-white border border-gray-200 rounded-xl shadow-2xl p-4 transform transition-all duration-300 translate-y-[-100%]';
       notification.style.zIndex = '9999';
       notification.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-      (notification.style as any).webkitFontSmoothing = 'antialiased';
-      (notification.style as any).mozOsxFontSmoothing = 'grayscale';
+      (notification.style as unknown as { webkitFontSmoothing?: string }).webkitFontSmoothing = 'antialiased';
+      (notification.style as unknown as { mozOsxFontSmoothing?: string }).mozOsxFontSmoothing = 'grayscale';
     } else {
       notification.className = 'fixed top-4 right-4 z-50 max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg p-4 transform transition-all duration-300 translate-x-full';
       notification.style.zIndex = '9999';
@@ -278,11 +276,11 @@ export async function testNotifications(): Promise<{
       success,
       method: 'in-app'
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       success: false,
       method: 'none',
-      error: error.message
+      error: (error as Error).message
     };
   }
 }

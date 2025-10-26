@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
 
     return response;
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Cross-account protection error:', error);
     
     return NextResponse.json(
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Cross-account protection POST error:', error);
     
     return NextResponse.json(

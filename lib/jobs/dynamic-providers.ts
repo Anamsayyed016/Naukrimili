@@ -327,7 +327,7 @@ export async function fetchDynamicJobs(
       allJobs.push(...rapidapiJobs.value);
       console.log(`✅ RapidAPI: Found ${rapidapiJobs.value.length} jobs`);
     }
-  } catch (error) {
+    } catch {
     console.log('⚠️ External APIs failed, using dynamic generation');
   }
 

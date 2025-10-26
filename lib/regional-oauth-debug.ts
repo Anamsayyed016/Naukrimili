@@ -31,14 +31,13 @@ export function detectRegionalOAuthIssues(
   userAgent: string,
   ip: string,
   country?: string,
-  region?: string
+  _region?: string
 ): OAuthRegionalIssue[] {
   const issues: OAuthRegionalIssue[] = [];
   
   // Check for mobile browser issues
   const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
   const isSafari = /Safari/i.test(userAgent) && !/Chrome/i.test(userAgent);
-  const isEdge = /Edg/i.test(userAgent);
   const isOldBrowser = /MSIE|Trident/i.test(userAgent);
   
   // Mobile-specific issues
@@ -81,12 +80,6 @@ export function detectRegionalOAuthIssues(
   // Network-related issues
   if (ip) {
     // Check for known problematic IP ranges
-    const problematicIPs = [
-      '10.0.0.0/8',     // Private networks
-      '172.16.0.0/12',  // Private networks
-      '192.168.0.0/16'  // Private networks
-    ];
-    
     // This is a simplified check - in production, use proper IP range checking
     if (ip.startsWith('10.') || ip.startsWith('172.') || ip.startsWith('192.168.')) {
       issues.push({

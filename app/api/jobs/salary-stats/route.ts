@@ -25,7 +25,7 @@ export async function GET() {
       avg = Math.round((salaries.reduce((acc, s) => acc + ((s.min + s.max) / 2), 0) / count));
     }
     return NextResponse.json({ success: true, count, min, max, avg });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error in salary-stats route:', error);
     return NextResponse.json({ success: false, count: 0 }, { status: 500 });
   }

@@ -332,7 +332,6 @@ Return ONLY the JSON, no other text.`;
    */
   private calculateATSScore(data: DynamicResumeData): number {
     let score = 0;
-    const maxScore = 100;
 
     // Personal information (20 points)
     if (data.personalInformation.fullName) score += 5;
@@ -406,7 +405,6 @@ Return ONLY the JSON, no other text.`;
   private generateJobTitleSuggestions(data: DynamicResumeData): string[] {
     const suggestions: string[] = [];
     const skills = data.skills.map(s => s.toLowerCase());
-    const experience = data.experience.map(e => e.role.toLowerCase());
 
     // Technical roles
     if (skills.some(s => ['javascript', 'react', 'node.js', 'python', 'java'].includes(s))) {

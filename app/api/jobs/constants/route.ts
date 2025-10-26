@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('🔍 Fetching dynamic job constants...');
 
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
             }
           });
         }
-      } catch (error) {
+      } catch (_error) {
         console.warn('Failed to parse skills:', job.skills);
       }
     });

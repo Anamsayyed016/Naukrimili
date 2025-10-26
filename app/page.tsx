@@ -268,7 +268,7 @@ export default async function HomePage() {
           featuredJobs = [...featuredJobs, ...externalJobsFormatted];
           console.log(`✅ Added ${externalJobsFormatted.length} external jobs. Total: ${featuredJobs.length} featured jobs`);
           
-        } catch (error) {
+        } catch (_error) {
           console.warn('⚠️ Failed to fetch external jobs:', error);
           
           // Use fallback data when everything fails
@@ -462,7 +462,7 @@ export default async function HomePage() {
 
     console.log(`📊 Homepage data loaded: ${featuredJobs.length} featured jobs, ${topCompanies.length} companies`);
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error loading homepage data:', error);
     
     // Final fallback - use sample data if everything fails

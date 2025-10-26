@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('🔍 Testing database connection...');
     
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       const adzunaJobs = await fetchFromAdzuna('software engineer', 'IN', 1);
       providerTests.adzuna = Array.isArray(adzunaJobs);
       console.log(`✅ Adzuna: ${adzunaJobs.length} jobs`);
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Adzuna failed:', error);
     }
     
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       const jsearchJobs = await fetchFromJSearch('software engineer', 'IN', 1);
       providerTests.jsearch = Array.isArray(jsearchJobs);
       console.log(`✅ JSearch: ${jsearchJobs.length} jobs`);
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ JSearch failed:', error);
     }
     
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       const googleJobs = await fetchFromGoogleJobs('software engineer', 'IN', 1);
       providerTests.google = Array.isArray(googleJobs);
       console.log(`✅ Google Jobs: ${googleJobs.length} jobs`);
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Google Jobs failed:', error);
     }
     
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       const joobleJobs = await fetchFromJooble('software engineer', 'IN', 1);
       providerTests.jooble = Array.isArray(joobleJobs);
       console.log(`✅ Jooble: ${joobleJobs.length} jobs`);
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Jooble failed:', error);
     }
     

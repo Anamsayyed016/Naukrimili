@@ -92,7 +92,7 @@ export default function SignInPage() {
           setError('Invalid email or password. Please try again.');
         }
       }
-    } catch (error) {
+    } catch (_error) {
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -143,7 +143,7 @@ export default function SignInPage() {
       } else {
         setError('Phone verification failed. Please try again.');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Phone verification error:', error);
       setError('Phone verification failed. Please try again.');
     }
@@ -174,7 +174,7 @@ export default function SignInPage() {
       } else {
         setError(data.message || 'Failed to resend OTP');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Resend OTP error:', error);
       setError('Failed to resend OTP. Please try again.');
     }

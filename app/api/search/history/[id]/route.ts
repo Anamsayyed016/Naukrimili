@@ -57,7 +57,7 @@ export async function GET(
       data: searchEntry
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching search history entry:', error);
     return NextResponse.json(
       { error: 'Failed to fetch search history entry' },
@@ -111,7 +111,7 @@ export async function DELETE(
       message: 'Search history entry deleted successfully'
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error deleting search history entry:', error);
     return NextResponse.json(
       { error: 'Failed to delete search history entry' },

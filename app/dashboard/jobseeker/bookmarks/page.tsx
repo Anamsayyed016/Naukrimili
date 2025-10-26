@@ -135,7 +135,7 @@ export default function JobSeekerBookmarksPage() {
       if (response.ok) {
         setBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId));
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error removing bookmark:', error);
     }
   };
@@ -375,7 +375,7 @@ export default function JobSeekerBookmarksPage() {
           })}
         </div>
       );
-    } catch (error) {
+    } catch (_error) {
       console.error('💥 Critical error in renderBookmarks:', error);
       return (
         <Card>

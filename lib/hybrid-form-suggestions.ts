@@ -135,7 +135,7 @@ export class HybridFormSuggestions {
         confidence: 85,
         aiProvider: 'openai'
       };
-    } catch (parseError) {
+    } catch {
       throw new Error('Failed to parse OpenAI response');
     }
   }
@@ -166,7 +166,7 @@ export class HybridFormSuggestions {
         confidence: 80,
         aiProvider: 'gemini'
       };
-    } catch (parseError) {
+    } catch {
       throw new Error('Failed to parse Gemini response');
     }
   }

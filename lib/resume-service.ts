@@ -11,7 +11,7 @@ export class ResumeService {
   /**
    * Analyze resume content for completeness, ATS compatibility, and improvement suggestions
    */
-  async analyzeResume(resumeData: any): Promise<ResumeAnalysis> {
+  async analyzeResume(_resumeData: any): Promise<ResumeAnalysis> {
     try {
       // Mock analysis for now
       const mockAnalysis: ResumeAnalysis = {
@@ -405,7 +405,7 @@ export class ResumeService {
   /**
    * Generate enhanced resume data
    */
-  private generateEnhancedData(data: ResumeData, analysis: any): ResumeData {
+  private generateEnhancedData(data: ResumeData, _analysis: any): ResumeData {
     const enhanced = { ...data };
     
     // Enhance summary if it's too short
@@ -445,7 +445,7 @@ export class ResumeService {
   /**
    * Suggest relevant skills
    */
-  private suggestSkills(data: ResumeData): string[] {
+  private suggestSkills(_data: ResumeData): string[] {
     const commonSkills = [
       'Communication', 'Problem Solving', 'Teamwork', 'Leadership',
       'Project Management', 'Analytical Thinking', 'Adaptability',

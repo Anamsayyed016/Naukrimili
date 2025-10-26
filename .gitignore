@@ -12,7 +12,7 @@ dist/
 # Deployment
 hostinger-deploy/
 
-# Environment files
+# Environment files (NEVER commit secrets!)
 .env
 .env.local
 .env.development.local

@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
       message: 'Cookies endpoint working',
       cookies: request.cookies.getAll()
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Cookies endpoint error:', error);
     return NextResponse.json(
       { error: 'Failed to process cookies request' },
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       message: 'Cookie operation completed',
       data: body
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Cookies POST error:', error);
     return NextResponse.json(
       { error: 'Failed to process cookie operation' },

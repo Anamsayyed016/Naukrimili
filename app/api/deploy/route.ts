@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
         const { stdout, stderr } = await execAsync(command);
         if (stdout) console.log(`Output: ${stdout}`);
         if (stderr) console.log(`Error: ${stderr}`);
-      } catch (error) {
+      } catch (_error) {
         console.error(`Command failed: ${command}`, error);
       }
     }

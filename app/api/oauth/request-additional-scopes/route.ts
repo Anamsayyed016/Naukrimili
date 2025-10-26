@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       action
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ OAuth scope request error:', error);
     
     return NextResponse.json(
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 /**
  * Get current user's OAuth scopes
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
     
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
       hasIncrementalAuth: true
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ OAuth scope retrieval error:', error);
     
     return NextResponse.json(

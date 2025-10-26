@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get all users and accounts
     const users = await prisma.user.findMany({
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       totalUsers: users.length,
       totalAccounts: accounts.length
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error getting OAuth status:', error);
     return NextResponse.json({
       success: false,

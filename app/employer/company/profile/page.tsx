@@ -109,7 +109,7 @@ export default function CompanyProfilePage() {
         console.error('Error fetching company profile:', response.status, response.statusText, errorData);
         toast.error(errorData.error || 'Failed to load company profile');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching company profile:', error);
       toast.error('Failed to load company profile');
     } finally {
@@ -160,7 +160,7 @@ export default function CompanyProfilePage() {
       } else {
         throw new Error('Failed to get AI suggestions');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('AI suggestion error:', error);
       toast.error('Failed to get AI suggestions', {
         description: 'Please try again or continue with manual input.',
@@ -205,7 +205,7 @@ export default function CompanyProfilePage() {
       } else {
         throw new Error(data.error || 'Failed to update company');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating company:', error);
       toast.error('Failed to update company profile');
     } finally {
@@ -232,7 +232,7 @@ export default function CompanyProfilePage() {
       } else {
         throw new Error(data.error || 'Failed to delete company');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error deleting company:', error);
       toast.error('Failed to delete company profile');
     } finally {

@@ -77,7 +77,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResumeAna
     
     return NextResponse.json(response);
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Resume analysis error:', error);
     
     return NextResponse.json({

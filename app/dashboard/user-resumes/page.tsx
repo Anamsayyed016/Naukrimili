@@ -73,7 +73,7 @@ export default function UserResumesPage() {
           setResumes(data.resumes);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching user data:', error);
       toast({
         title: 'Error',
@@ -110,7 +110,7 @@ export default function UserResumesPage() {
       } else {
         throw new Error('Failed to delete resume');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error deleting resume:', error);
       toast({
         title: 'Error',

@@ -90,9 +90,7 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
     company,
     location,
     experienceLevel,
-    salary,
-    jobType,
-    sector
+    salary
   } = jobData;
 
   // Generate slugs

@@ -24,7 +24,7 @@ export async function GET(
       data: content
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error("Error fetching content:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

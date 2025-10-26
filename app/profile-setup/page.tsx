@@ -101,7 +101,7 @@ export default function ProfileSetupPage() {
             }));
           }
         }
-      } catch (error) {
+      } catch (_error) {
         console.error('Error loading profile:', error);
       }
     };
@@ -157,7 +157,7 @@ export default function ProfileSetupPage() {
       } else {
         console.error('Failed to save profile');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error saving profile:', error);
     } finally {
       setLoading(false);

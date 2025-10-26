@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Trash2, Search, Tag } from 'lucide-react';
+import { Plus, Trash2, Search, Tag } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -36,7 +36,7 @@ export default function AdminCategoriesPage() {
         const data = await response.json();
         setCategories(data.categories || []);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching categories:', error);
     } finally {
       setLoading(false);
@@ -57,7 +57,7 @@ export default function AdminCategoriesPage() {
         setShowAddForm(false);
         fetchCategories();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error adding category:', error);
     }
   };
@@ -73,7 +73,7 @@ export default function AdminCategoriesPage() {
       if (response.ok) {
         fetchCategories();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating category status:', error);
     }
   };
@@ -89,7 +89,7 @@ export default function AdminCategoriesPage() {
       if (response.ok) {
         fetchCategories();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error deleting category:', error);
     }
   };

@@ -13,7 +13,7 @@ let socketService: any = null;
 try {
   const { getSocketService } = require('@/lib/socket-server');
   socketService = getSocketService();
-} catch (error) {
+} catch (_error) {
   console.warn('Socket service not available:', error.message);
 }
 
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
     

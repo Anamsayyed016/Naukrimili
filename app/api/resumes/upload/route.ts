@@ -11,7 +11,7 @@ const ALLOWED_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',   
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // For testing - no auth required
     return NextResponse.json({ 
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       message: 'Resume upload endpoint accessible',
       test: true
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('GET resumes error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ POST resume upload error:', error);
     
     // Provide more detailed error information

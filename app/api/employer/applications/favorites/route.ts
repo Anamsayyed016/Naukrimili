@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error("Error fetching favorite applications:", error);
     return NextResponse.json(
       { error: "Failed to fetch favorite applications" },
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
       data: updatedApplication
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error("Error adding application to favorites:", error);
     return NextResponse.json(
       { error: "Failed to add application to favorites" },
@@ -252,7 +252,7 @@ export async function DELETE(request: NextRequest) {
       data: updatedApplication
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error("Error removing application from favorites:", error);
     return NextResponse.json(
       { error: "Failed to remove application from favorites" },

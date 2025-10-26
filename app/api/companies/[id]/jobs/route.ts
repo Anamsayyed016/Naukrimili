@@ -37,7 +37,7 @@ export async function GET(
 
     return NextResponse.json(jobs);
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching company jobs:', error);
     return NextResponse.json(
       { error: 'Failed to fetch company jobs' },

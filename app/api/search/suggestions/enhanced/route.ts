@@ -15,7 +15,7 @@ if (process.env.OPENAI_API_KEY) {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
-  } catch (error) {
+  } catch (_error) {
     console.warn('OpenAI initialization failed:', error);
   }
 }
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Enhanced suggestions error:', error);
     
     const { searchParams } = new URL(request.url);
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Enhanced suggestions error:', error);
     
     const { query = '', location = '' } = await request.json().catch(() => ({}));
@@ -310,7 +310,7 @@ async function generateAISuggestions(params: {
       return getFallbackSuggestions(query, location);
     }
 
-  } catch (error) {
+  } catch (_error) {
     console.error('AI suggestions error:', error);
     return getFallbackSuggestions(query, location);
   }
@@ -338,7 +338,7 @@ async function getPopularSuggestions(userId: string): Promise<EnhancedSuggestion
       category: 'job_title' as const,
       source: 'history' as const
     }));
-  } catch (error) {
+  } catch (_error) {
     console.error('Error getting popular suggestions:', error);
     return [];
   }
@@ -363,7 +363,7 @@ async function getContextualSuggestions(userContext: any, query: string, locatio
   //         });
   //       });
   //     }
-  //   } catch (error) {
+  //   } catch (_error) {
   //     // Ignore JSON parse errors
   //   }
   // }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     return NextResponse.json({
       success: true,
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
         GEMINI_KEY_LENGTH: process.env.GEMINI_API_KEY?.length || 0,
       }
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

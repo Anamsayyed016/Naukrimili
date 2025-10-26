@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const jobs = [
       { id: '1', title: 'Senior Software Engineer', company: 'TechCorp', location: 'Bangalore', country: 'IN', salary: '15-25 LPA', job_type: 'full-time', remote: true, featured: true, posted_at: new Date().toISOString() },

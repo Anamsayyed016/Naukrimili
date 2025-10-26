@@ -65,7 +65,7 @@ export async function GET(
     try {
       // Check if file exists
       await stat(filepath);
-    } catch (error) {
+    } catch (_error) {
       console.error('File not found:', filepath);
       return NextResponse.json({
         success: false,
@@ -103,7 +103,7 @@ export async function GET(
       headers
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error downloading resume file:', error);
     return NextResponse.json({
       success: false,

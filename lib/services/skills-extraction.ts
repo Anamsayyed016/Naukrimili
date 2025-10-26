@@ -180,7 +180,6 @@ export class SkillsExtractionService {
    */
   private static extractSkillsFromTitle(title: string): string[] {
     const skills: string[] = [];
-    const titleLower = title.toLowerCase();
 
     // Common job title patterns
     const patterns = [

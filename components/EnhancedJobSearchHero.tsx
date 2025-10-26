@@ -16,7 +16,6 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Search, 
   MapPin, 
@@ -26,16 +25,8 @@ import {
   X,
   SlidersHorizontal,
   ChevronDown,
-  Map,
-  Target,
   History,
-  Lightbulb,
-  Clock,
-  TrendingUp,
-  User,
-  Briefcase,
-  Building,
-  MapPin as LocationIcon
+  Lightbulb
 } from 'lucide-react';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
@@ -50,27 +41,6 @@ interface EnhancedJobSearchHeroProps {
   showSuggestions?: boolean;
 }
 
-interface UserLocation {
-  lat: number;
-  lng: number;
-  city: string;
-  state?: string;
-  country: string;
-  area?: string;
-  source: 'gps' | 'ip' | 'manual';
-}
-
-interface LocationData {
-  id: string;
-  name: string;
-  country: string;
-  flag: string;
-  jobCount: number;
-  area?: string;
-  state?: string;
-  type: 'area' | 'state' | 'country' | 'city';
-}
-
 export default function EnhancedJobSearchHero({ 
   className = '', 
   showAdvancedFilters = true,
@@ -79,18 +49,7 @@ export default function EnhancedJobSearchHero({
 }: EnhancedJobSearchHeroProps) {
   const router = useRouter();
   const { data: session } = useSession();
-  const [isMounted, setIsMounted] = useState(false);
 
-  // Prevent hydration mismatch
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Don't render until mounted
-  if (!isMounted) {
-    return null;
-  }
-  
   // Search filters state
   const [filters, setFilters] = useState({
     query: '',
@@ -110,7 +69,6 @@ export default function EnhancedJobSearchHero({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const [showSuggestionsDropdown, setShowSuggestionsDropdown] = useState(false);
-  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [searchRadius, setSearchRadius] = useState(25);
@@ -131,7 +89,6 @@ export default function EnhancedJobSearchHero({
   // Custom hooks
   const {
     data: searchHistory,
-    isLoading: historyLoading,
     createSearchHistory,
     deleteSearchHistory,
     clearSearchHistory,
@@ -140,7 +97,6 @@ export default function EnhancedJobSearchHero({
 
   const {
     suggestions,
-    context,
     isLoading: suggestionsLoading,
     getSuggestions,
     getDetailedSuggestions,
@@ -170,15 +126,6 @@ export default function EnhancedJobSearchHero({
     
     try {
       const location = await getSmartLocation();
-      setUserLocation({
-        lat: location.coordinates?.lat || 0,
-        lng: location.coordinates?.lng || 0,
-        city: location.city || '',
-        state: location.state,
-        country: location.country || '',
-        area: undefined, // Not available in GeolocationResult
-        source: location.source as 'gps' | 'ip' | 'manual'
-      });
       setFilters(prev => ({ ...prev, location: location.city }));
     } catch (error) {
       console.error('Location detection failed:', error);
@@ -267,7 +214,7 @@ export default function EnhancedJobSearchHero({
   }, [filters, handleSearch]);
 
   // Handle history click
-  const handleHistoryClick = useCallback((historyItem: any) => {
+  const handleHistoryClick = useCallback((historyItem: { query: string; location?: string }) => {
     setFilters(prev => ({
       ...prev,
       query: historyItem.query,

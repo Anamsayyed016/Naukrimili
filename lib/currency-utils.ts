@@ -340,7 +340,7 @@ function formatNumber(amount: number, currency: string, country: string): string
   
   try {
     return new Intl.NumberFormat(locale).format(amount);
-  } catch (error) {
+    } catch {
     // Fallback to simple formatting
     return amount.toLocaleString();
   }

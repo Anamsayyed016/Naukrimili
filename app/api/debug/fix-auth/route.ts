@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       const userCount = await prisma.user.count();
       debugInfo.database = { connected: true, userCount };
       debugInfo.success.push('Database connection successful');
-    } catch (error) {
+    } catch (_error) {
       debugInfo.database = { connected: false, error: error instanceof Error ? error.message : 'Unknown error' };
       debugInfo.errors.push(`Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       } else {
         debugInfo.warnings.push('No NextAuth session or user found');
       }
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`NextAuth session error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       } else {
         debugInfo.warnings.push('Basic authentication failed - no user found');
       }
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Basic auth error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
       } else {
         debugInfo.warnings.push('Employer authentication failed - no employer found');
       }
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Employer auth error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
       } else {
         debugInfo.warnings.push(`Require employer auth failed: ${requireAuth.error}`);
       }
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Require auth error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -163,7 +163,7 @@ export async function GET(request: NextRequest) {
         companies: companies
       };
       debugInfo.success.push('Company data retrieved successfully');
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Company query error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -198,7 +198,7 @@ export async function GET(request: NextRequest) {
       status: hasErrors ? 500 : 200 
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Fix auth debug error:', error);
     return NextResponse.json(
       { 

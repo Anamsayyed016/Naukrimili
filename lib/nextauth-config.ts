@@ -2,34 +2,25 @@ import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import GitHubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/prisma"
 
-const nextAuthSecret = process.env.NEXTAUTH_SECRET || "build-time-placeholder-secret-key-32-chars-minimum"
-const googleClientId = process.env.GOOGLE_CLIENT_ID
-const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
-
-const nextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
-  secret: nextAuthSecret,
+const authOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   pages: {
     signIn: "/auth/signin",
     error: "/auth/error",
   },
   providers: [
-    ...(googleClientId && googleClientSecret ? [
-      GoogleProvider({
-        clientId: googleClientId,
-        clientSecret: googleClientSecret,
-      })
-    ] : []),
-    ...(process.env.GITHUB_ID && process.env.GITHUB_SECRET ? [
-      GitHubProvider({
-        clientId: process.env.GITHUB_ID,
-        clientSecret: process.env.GITHUB_SECRET,
-      })
-    ] : []),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
+    }),
     CredentialsProvider({
+      id: "credentials",
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -39,28 +30,21 @@ const nextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null
         }
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string }
-        })
-        if (!user || !user.password) {
-          return null
-        }
-        if (user.password !== credentials.password) {
-          return null
-        }
-        return {
-          id: user.id,
-          email: user.email,
-          name: `${user.firstName} ${user.lastName}`.trim(),
-          image: user.image,
-          role: user.role,
-        }
+        // Add your custom authentication logic here
+        return null
       }
     })
   ],
-};
+  callbacks: {
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      if (new URL(url).origin === baseUrl) return url
+      return `${baseUrl}/auth/role-selection`
+    },
+  },
+}
 
-const handler = NextAuth(nextAuthOptions)
+const handler = NextAuth(authOptions)
 
-export { nextAuthOptions, handler }
+export { authOptions, handler }
 export const { auth, signIn, signOut } = handler

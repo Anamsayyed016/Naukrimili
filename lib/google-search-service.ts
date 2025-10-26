@@ -182,7 +182,7 @@ export class GoogleSearchService {
   /**
    * Search using Google API (placeholder for future implementation)
    */
-  private async searchWithGoogleAPI(query: string, location?: string): Promise<GoogleSearchResult> {
+  private async searchWithGoogleAPI(_query: string, _location?: string): Promise<GoogleSearchResult> {
     // This is a placeholder for future Google API integration
     // For now, we'll return empty results to trigger fallback
     return {
@@ -338,7 +338,7 @@ export class GoogleSearchService {
   /**
    * Get enhanced search suggestions (using the private method)
    */
-  getSearchSuggestions(query: string, location: string): string[] {
+  getSearchSuggestions(query: string, _location: string): string[] {
     return this.generateSearchSuggestions(query);
   }
 

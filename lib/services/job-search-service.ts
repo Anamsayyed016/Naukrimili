@@ -370,7 +370,7 @@ export class JobSearchService {
   /**
    * Set data in cache with size management
    */
-  private static setCache(key: string, data: any, ttl: number): void {
+  private static setCache(key: string, data: any, _ttl: number): void {
     // Manage cache size
     if (this.cache.size >= this.MAX_CACHE_SIZE) {
       const firstKey = this.cache.keys().next().value;

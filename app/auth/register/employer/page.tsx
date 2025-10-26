@@ -175,7 +175,7 @@ export default function EmployerRegisterPage() {
           setError(data.error || (isSetupMode ? 'Profile update failed' : 'Registration failed'));
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', error);
       setError(isSetupMode ? 'Profile update failed. Please try again.' : 'Registration failed. Please try again.');
     } finally {

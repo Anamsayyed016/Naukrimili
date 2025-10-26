@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
  * GET /api/storage/test-gcs
  * Test Google Cloud Storage connection
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get user session
     const session = await auth();
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       status: testResult.success ? 200 : 500
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ [GCS Test] Test endpoint error:', error);
     
     return NextResponse.json({

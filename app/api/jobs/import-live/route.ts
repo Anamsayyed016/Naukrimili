@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         ziprecruiter: ziprecruiterJobs.status === 'fulfilled' ? ziprecruiterJobs.value.length : 0
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Job import error:', error);
     return NextResponse.json({
       success: false,

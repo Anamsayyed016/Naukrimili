@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error("Error fetching company jobs:", error);
     return NextResponse.json(
       { error: "Failed to fetch jobs" },
@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
       data: job,
       message: "Job posted successfully"
     }, { status: 201 });
-  } catch (error) {
+  } catch (_error) {
     console.error("Error creating job:", error);
     return NextResponse.json(
       { error: "Failed to create job" },

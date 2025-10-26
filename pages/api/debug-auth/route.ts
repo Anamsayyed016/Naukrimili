@@ -1,4 +1,4 @@
 // Debug authentication endpoint
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   return Response.json({ message: 'Debug auth endpoint' });
 }

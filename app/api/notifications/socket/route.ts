@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       message: 'Notification sent successfully'
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error sending socket notification:', error);
     return NextResponse.json(
       { error: 'Failed to send notification' },
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
     
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       message: 'Socket service is running in server.js'
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error checking socket status:', error);
     return NextResponse.json(
       { error: 'Failed to check socket status' },

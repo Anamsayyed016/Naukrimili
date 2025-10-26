@@ -29,7 +29,7 @@ export async function DELETE(
       message: "Job deleted successfully"
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error("Error deleting job:", error);
     return NextResponse.json(
       { error: "Failed to delete job" },

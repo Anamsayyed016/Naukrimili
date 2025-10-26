@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         isActive: (session?.user as any)?.isActive
       };
       debugInfo.success.push('NextAuth session retrieved');
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`NextAuth session error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         status: 'Connected'
       };
       debugInfo.success.push('Database connection successful');
-    } catch (error) {
+    } catch (_error) {
       debugInfo.database = {
         connected: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       } else {
         debugInfo.warnings.push('No authenticated user found');
       }
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Basic auth error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
       } else {
         debugInfo.warnings.push('No authenticated employer found');
       }
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Employer auth error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
       } else {
         debugInfo.warnings.push(`Require employer auth failed: ${requireAuth.error}`);
       }
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Require auth error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
         companies: companies
       };
       debugInfo.success.push('Company data retrieved');
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Company query error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
       status: hasErrors ? 500 : 200 
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Comprehensive auth debug error:', error);
     return NextResponse.json(
       { 

@@ -204,7 +204,7 @@ export default function JobSeekerApplicationsPage() {
       } else {
         console.error('❌ Applications API returned error:', data.error);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching applications:', error);
       toast({
         title: 'Error',

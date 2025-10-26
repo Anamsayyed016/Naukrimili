@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -254,7 +253,7 @@ export class RealResumeService {
   }
 
   // Add missing methods for text extraction
-  private extractTextFromDOCX(buffer: Buffer): Promise<string> {
+  private extractTextFromDOCX(_buffer: Buffer): Promise<string> {
     // For now, return a placeholder since mammoth might not be available
     return Promise.resolve('DOCX content extracted');
   }

@@ -243,7 +243,7 @@ By using our service, you acknowledge that you have read and understood this Pri
           setContent(mockPrivacy);
           setLoading(false);
         }, 500);
-      } catch (error) {
+      } catch (_error) {
         setError('Failed to load privacy policy');
         setLoading(false);
       }

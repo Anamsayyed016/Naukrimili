@@ -86,7 +86,7 @@ export async function GET(
       success: true,
       data: user
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching user:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch user' },
@@ -149,7 +149,7 @@ export async function PUT(
       message: 'User updated successfully',
       data: updatedUser
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error updating user:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to update user' },
@@ -191,7 +191,7 @@ export async function DELETE(
       success: true,
       message: 'User deleted successfully'
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error deleting user:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to delete user' },

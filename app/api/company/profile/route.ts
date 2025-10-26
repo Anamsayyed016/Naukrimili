@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log("GET /api/company/profile - Starting request");
     const auth = await requireAuth();
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: parsedCompany
     });
-  } catch (error) {
+  } catch (_error) {
     console.error("Error fetching company profile:", error);
     return NextResponse.json(
       { error: "Failed to fetch company profile" },
@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
       message: "Company profile created successfully",
       data: company
     });
-  } catch (error) {
+  } catch (_error) {
     console.error("Error creating company profile:", error);
     return NextResponse.json(
       { error: "Failed to create company profile" },

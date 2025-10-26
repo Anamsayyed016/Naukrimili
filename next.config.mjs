@@ -11,12 +11,6 @@ const nextConfig = {
     forceSwcTransforms: true,
   },
   serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer'],
-  // Increase body size limit for file uploads (10MB)
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },

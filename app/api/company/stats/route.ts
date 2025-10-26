@@ -3,7 +3,7 @@ import { requireEmployerAuth } from '@/lib/auth-utils';
 import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Temporary bypass for debugging - get user from session directly
     const session = await auth();
@@ -123,8 +123,8 @@ export async function GET(request: NextRequest) {
       data: stats
     });
 
-  } catch (error) {
-    console.error('Error fetching company stats:', error);
+  } catch (_error) {
+    console.error('Error fetching company stats:', _error);
     return NextResponse.json(
       { error: 'Failed to fetch company stats' },
       { status: 500 }

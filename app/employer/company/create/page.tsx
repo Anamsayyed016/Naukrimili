@@ -234,7 +234,7 @@ export default function CreateCompanyPage() {
               }, 2000);
             }
           }
-        } catch (error) {
+        } catch (_error) {
           console.error('Error checking existing company:', error);
           // If there's an error checking, we'll allow the form to proceed
           // This handles cases where the API might be temporarily unavailable
@@ -330,7 +330,7 @@ export default function CreateCompanyPage() {
         const errorData = await response.json();
         toast.error(errorData.error || 'Failed to generate AI content');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('AI generation error:', error);
       toast.error('Network error: Failed to generate AI content');
     } finally {
@@ -491,7 +491,7 @@ export default function CreateCompanyPage() {
         console.error("API returned error:", data.error);
         toast.error(`Failed to create company: ${data.error || 'Unknown error'}`);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error("Fetch error occurred:", error);
       console.error("Error details:", {
         name: error.name,

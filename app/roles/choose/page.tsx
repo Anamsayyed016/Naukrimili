@@ -91,7 +91,7 @@ export default function RoleChoosePage() {
         setError(data.error || 'Failed to set role. Please try again.');
         setIsLoading(false);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error setting role:', error);
       setError('Network error. Please check your connection and try again.');
       setIsLoading(false);

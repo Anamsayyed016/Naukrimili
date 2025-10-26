@@ -1,6 +1,3 @@
-import { readFile } from 'fs/promises';
-import path from 'path';
-
 export class PDFExtractor {
   static async extractTextFromBuffer(buffer: Buffer, mimeType: string): Promise<string> {
     try {

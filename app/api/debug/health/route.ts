@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkJobProvidersHealth } from '@/lib/jobs/providers';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const health = await checkJobProvidersHealth();
     
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
         ).length
       }
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({
       success: false,
       error: error.message,

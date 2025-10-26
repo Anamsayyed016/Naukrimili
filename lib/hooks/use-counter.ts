@@ -96,26 +96,5 @@ export function useCounter({
   };
 }
 
-// Presets for common use cases
-export const useCounterPresets = {
-  currency: (end: number, symbol = '$') => 
-    useCounter({ end, decimals: 2, prefix: symbol, duration: 1500 }),
-  
-  percentage: (end: number) => 
-    useCounter({ end, decimals: 1, suffix: '%', duration: 1500 }),
-  
-  compact: (end: number) => {
-    const formatCompact = (n: number) => {
-      if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-      if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
-      return n.toFixed(0);
-    };
-    return { 
-      ...useCounter({ end, duration: 1500 }),
-      compactValue: formatCompact(end)
-    };
-  },
-};
-
 export default useCounter;
 

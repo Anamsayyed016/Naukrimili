@@ -15,8 +15,8 @@ export default function AuthResetPage() {
       try {
         await forceClearAllAuth();
         setStep('complete');
-      } catch (error) {
-        console.error('Automatic reset error:', error);
+      } catch (_error) {
+        console.error('Automatic reset error:', _error);
         setIsLoading(false);
       }
     }
@@ -77,7 +77,7 @@ export default function AuthResetPage() {
                 </h2>
                 <div className="text-sm text-gray-600 space-y-2">
                   <p>• Stuck in authentication state</p>
-                  <p>• Can't access role selection</p>
+                  <p>• Can&apos;t access role selection</p>
                   <p>• Session mismatch between client and server</p>
                   <p>• OAuth authentication issues</p>
                   <p>• Browser cache conflicts</p>
@@ -90,7 +90,7 @@ export default function AuthResetPage() {
                   🚨 Emergency Logout
                 </h3>
                 <p className="text-sm text-red-700 mb-3">
-                  If you're completely stuck and can't access anything, use this emergency logout:
+                  If you&apos;re completely stuck and can&apos;t access anything, use this emergency logout:
                 </p>
                 <button
                   onClick={handleEmergencyLogout}

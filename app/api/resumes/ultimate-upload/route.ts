@@ -335,7 +335,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Ultimate resume upload error:', error);
     
     return NextResponse.json({ 
@@ -395,7 +395,7 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
     const text = new TextDecoder().decode(bytes);
     const readableText = text.replace(/[^\x20-\x7E\s]/g, ' ').replace(/\s+/g, ' ').trim();
     return readableText.length > 50 ? readableText : `Resume: ${file.name}`;
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Text extraction failed:', error);
     return `Resume: ${file.name}`;
   }
@@ -504,7 +504,7 @@ async function parseResumeWithAI(text: string): Promise<any> {
     console.log('✅ AI parsing completed:', parsedData);
     return parsedData;
     
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ AI parsing failed:', error);
     return {
       name: '',

@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jobAutomationSystem } from '@/lib/automation/job-automation-system';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const status = await jobAutomationSystem.getStatus();
     
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: status
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Failed to get automation status:', error);
     return NextResponse.json(
       {
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
     }
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Failed to control automation system:', error);
     return NextResponse.json(
       {

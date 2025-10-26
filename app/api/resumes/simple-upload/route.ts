@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
       profile: resumeData.parsedData
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Simple resume upload error:', error);
     
     return NextResponse.json({ 

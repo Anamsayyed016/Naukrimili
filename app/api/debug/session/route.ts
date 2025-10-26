@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/nextauth-config';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('🔍 Debug session endpoint called');
     
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         message: 'No session found'
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Debug session error:', error);
     return NextResponse.json({
       success: false,

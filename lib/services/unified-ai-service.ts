@@ -14,7 +14,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export type AIProvider = 'openai' | 'gemini' | 'hybrid' | 'fallback';
 
-export interface AIResponse<T = any> {
+export interface AIResponse<T = unknown> {
   data: T;
   provider: AIProvider;
   confidence: number;
@@ -112,11 +112,7 @@ export class UnifiedAIService {
   async generateCompletion(
     prompt: string,
     systemPrompt?: string,
-    options: {
-      model?: string;
-      temperature?: number;
-      maxTokens?: number;
-    } = {}
+    options: Record<string, unknown> = {}
   ): Promise<AIResponse<string>> {
     const startTime = Date.now();
 
@@ -186,20 +182,20 @@ export class UnifiedAIService {
   private async generateWithOpenAI(
     prompt: string,
     systemPrompt?: string,
-    options: any = {}
+    options: Record<string, unknown> = {}
   ): Promise<string> {
     if (!this.openai) {
       throw new Error('OpenAI not available');
     }
 
     const completion = await this.openai.chat.completions.create({
-      model: options.model || 'gpt-4o-mini',
+      model: (options.model as string) || 'gpt-4o-mini',
       messages: [
         ...(systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : []),
         { role: 'user' as const, content: prompt }
       ],
-      temperature: options.temperature || 0.7,
-      max_tokens: options.maxTokens || 2000
+      temperature: (options.temperature as number) || 0.7,
+      max_tokens: (options.maxTokens as number) || 2000
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -216,14 +212,14 @@ export class UnifiedAIService {
   private async generateWithGemini(
     prompt: string,
     systemPrompt?: string,
-    options: any = {}
+    options: Record<string, unknown> = {}
   ): Promise<string> {
     if (!this.gemini) {
       throw new Error('Gemini not available');
     }
 
     const model = this.gemini.getGenerativeModel({ 
-      model: options.model || 'gemini-1.5-flash' 
+      model: (options.model as string) || 'gemini-1.5-flash' 
     });
 
     // Combine system and user prompt for Gemini
@@ -267,14 +263,14 @@ export class UnifiedAIService {
   async generateStructuredData<T>(
     prompt: string,
     systemPrompt: string,
-    options: any = {}
+    options: Record<string, unknown> = {}
   ): Promise<AIResponse<T>> {
     const response = await this.generateCompletion(prompt, systemPrompt, options);
 
     if (!response.success) {
       return {
         ...response,
-        data: null as any
+        data: null as unknown as T
       };
     }
 
@@ -283,7 +279,7 @@ export class UnifiedAIService {
     if (!parsedData) {
       return {
         ...response,
-        data: null as any,
+        data: null as unknown as T,
         success: false,
         error: 'Failed to parse JSON response'
       };

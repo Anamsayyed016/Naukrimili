@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('🔍 Fetching stats...');
     
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       data: stats
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching stats:', error);
     return NextResponse.json(
       { error: 'Failed to fetch stats' },

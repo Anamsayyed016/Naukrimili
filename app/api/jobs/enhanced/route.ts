@@ -185,7 +185,7 @@ export async function HEAD(request: NextRequest) {
         'X-Timestamp': new Date().toISOString()
       }
     });
-  } catch (error) {
+  } catch (_error) {
     return new Response(null, { 
       status: 503,
       headers: {

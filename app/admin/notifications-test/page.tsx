@@ -13,7 +13,7 @@ import { useSocket } from '@/hooks/useSocket';
 import { Bell, Wifi, WifiOff } from 'lucide-react';
 
 export default function NotificationsTestPage() {
-  const { isConnected, socket } = useSocket();
+  const { isConnected, socket: _socket } = useSocket();
 
   return (
     <div className="container mx-auto px-4 py-8">

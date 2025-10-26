@@ -44,7 +44,7 @@ export default function SetupPinPage() {
           setPinStatus('idle');
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error checking PIN setup:', error);
     }
   };
@@ -80,7 +80,7 @@ export default function SetupPinPage() {
       } else {
         setError(data.error || 'Failed to set up PIN');
       }
-    } catch (error) {
+    } catch (_error) {
       setError('An error occurred while setting up your PIN');
     } finally {
       setIsLoading(false);

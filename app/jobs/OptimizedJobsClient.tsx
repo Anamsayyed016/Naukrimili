@@ -143,7 +143,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         throw new Error(data.error || 'Failed to fetch jobs');
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Error fetching jobs from API:', error);
       
       // NO SAMPLE JOBS - Show empty state instead

@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
       processingTime: parsedData.processingTime || 0
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Enhanced resume upload error:', error);
     
     return NextResponse.json({ 
@@ -313,7 +313,7 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
     // Final fallback: return filename as text
     console.log('⚠️ Text extraction failed, using filename as fallback');
     return `Resume: ${file.name}`;
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Text extraction failed:', error);
     return `Resume: ${file.name}`;
   }

@@ -60,7 +60,7 @@ export default function AdminAnalyticsPage() {
           setAnalytics(data.data);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching analytics:', error);
     } finally {
       setLoading(false);

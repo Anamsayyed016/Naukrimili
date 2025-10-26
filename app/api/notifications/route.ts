@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching notifications:', error);
     return NextResponse.json({
       success: false,
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
         );
     }
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error handling notification request:', error);
     return NextResponse.json(
       { error: 'Failed to process notification request' },

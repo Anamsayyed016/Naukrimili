@@ -50,7 +50,7 @@ export default function ExternalJobApplicationPage() {
       } else {
         setError('Failed to fetch job details');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching job details:', error);
       setError('Failed to fetch job details');
     } finally {

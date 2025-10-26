@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching messages:', error);
     return NextResponse.json(
       { error: 'Failed to fetch messages' },
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
       data: newMessage
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error sending message:', error);
     return NextResponse.json(
       { error: 'Failed to send message' },

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Database, TrendingUp, Users, Building2, Sprout } from 'lucide-react';
+import { Sprout } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface Sector {
@@ -38,7 +38,7 @@ interface SeedingStats {
 export default function SeedJobsPage() {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [stats, setStats] = useState<SeedingStats | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [_isLoading, setIsLoading] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [selectedSectors, setSelectedSectors] = useState<string>('all');
   const [jobsPerSector, setJobsPerSector] = useState<number>(20);
@@ -56,8 +56,8 @@ export default function SeedJobsPage() {
         setSectors(data.sectors);
         setStats(data.stats);
       }
-    } catch (error) {
-      console.error('Failed to load sectors:', error);
+    } catch (_error) {
+      console.error('Failed to load sectors:', _error);
       toast({
         title: 'Error',
         description: 'Failed to load sectors',
@@ -105,7 +105,7 @@ export default function SeedJobsPage() {
     }
   };
 
-  const formatSalary = (amount: number) => {
+  const _formatSalary = (amount: number) => {
     if (amount >= 100000) {
       return `${(amount / 100000).toFixed(1)} LPA`;
     }

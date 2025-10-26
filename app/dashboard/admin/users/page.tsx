@@ -104,7 +104,7 @@ export default function AdminUsersPage() {
         setUsers(data.data.users);
         setPagination(data.data.pagination);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching users:', error);
       toast({
         title: 'Error',
@@ -140,7 +140,7 @@ export default function AdminUsersPage() {
           fetchUsers();
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error performing bulk action:', error);
       toast({
         title: 'Error',
@@ -181,7 +181,7 @@ export default function AdminUsersPage() {
         });
         fetchUsers();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating user status:', error);
       toast({
         title: 'Error',
@@ -221,7 +221,7 @@ export default function AdminUsersPage() {
         });
         fetchUsers();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error deleting user:', error);
       toast({
         title: 'Error',

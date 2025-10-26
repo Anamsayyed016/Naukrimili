@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       message: 'Welcome email sent successfully'
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error in send-welcome-email API:', error);
     return NextResponse.json(
       { 

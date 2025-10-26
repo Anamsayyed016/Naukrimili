@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Job sync API error:', error);
     return NextResponse.json(
       { 
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get current job statistics
     const stats = await dailyScheduler.getStats();
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       stats
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Job stats API error:', error);
     return NextResponse.json(
       { 

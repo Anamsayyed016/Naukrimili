@@ -5,7 +5,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { getRedisClient } from '@/lib/redis';
-import { eventCollector } from './event-collector';
+// import { eventCollector } from './event-collector'; // Unused import
 
 export interface DashboardMetrics {
   // Job Seeker Metrics
@@ -112,7 +112,7 @@ export class AnalyticsProcessor {
     try {
       this.redisClient = getRedisClient();
       console.log('✅ Analytics Processor: Redis connected');
-    } catch (error) {
+    } catch {
       console.warn('⚠️ Analytics Processor: Redis not available');
     }
   }
@@ -270,20 +270,22 @@ export class AnalyticsProcessor {
    */
   private async getEmployerMetrics(userId: string): Promise<DashboardMetrics['employer']> {
     const [
-      user,
-      companies,
+      // _user,
+      // _companies,
       jobs,
       applications,
       recentApplications
     ] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: userId },
-        select: { companyName: true }
-      }),
-      prisma.company.findMany({
-        where: { createdBy: userId },
-        select: { id: true }
-      }),
+      // prisma.user.findUnique({
+      //   where: { id: userId },
+      //   select: { companyName: true }
+      // }),
+      // prisma.company.findMany({
+      //   where: { createdBy: userId },
+      //   select: { id: true }
+      // }),
+      Promise.resolve(null), // user
+      Promise.resolve(null), // companies
       prisma.job.findMany({
         where: { createdBy: userId },
         select: {
@@ -344,10 +346,10 @@ export class AnalyticsProcessor {
       shortlistedCount,
       jobViews: totalViews,
       topPerformingJobs,
-      recentApplications: recentApplications.map(app => ({
-        id: app.id,
-        jobTitle: app.job.title,
-        applicantName: `${app.user.firstName || ''} ${app.user.lastName || ''}`.trim() || 'Anonymous',
+      recentApplications: recentApplications.map((app: any) => ({
+        id: app.id.toString(),
+        jobTitle: app.job?.title || 'Unknown',
+        applicantName: `${app.user?.firstName || ''} ${app.user?.lastName || ''}`.trim() || 'Anonymous',
         appliedAt: app.appliedAt,
         status: app.status
       }))

@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
  * GET /api/resumes/check
  * Check if user has existing resumes and provide recommendations
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     // Get user session
     const session = await auth();
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Resume check error:', error);
     return NextResponse.json({
       success: false,

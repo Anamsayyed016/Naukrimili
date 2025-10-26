@@ -4,8 +4,6 @@
  */
 
 import { Server as SocketIOServer } from 'socket.io';
-import { NextRequest } from 'next/server';
-import { auth } from './nextauth-config';
 import { prisma } from './prisma';
 import { createNotification } from './notification-service';
 import { realTimeDashboard } from './analytics/real-time-dashboard';
@@ -138,7 +136,7 @@ class SocketNotificationService {
       try {
         const secret = process.env.NEXTAUTH_SECRET || 'fallback_secret';
         
-        const decoded = jwt.verify(token, secret) as any;
+        const decoded = jwt.verify(token, secret) as { userId?: string; sub?: string; id?: string };
         
         // Get user from database
         const user = await prisma.user.findUnique({
@@ -157,7 +155,7 @@ class SocketNotificationService {
             }
           };
         }
-      } catch (jwtError) {
+      } catch {
         console.log('⚠️ JWT verification failed, trying alternative methods');
       }
 
@@ -282,7 +280,7 @@ class SocketNotificationService {
   }
 
   // Private helper methods
-  private async joinCompanyRoom(socket: any, userId: string) {
+  private async joinCompanyRoom(socket: unknown, userId: string) {
     try {
       const companies = await prisma.company.findMany({
         where: { createdBy: userId },
@@ -291,7 +289,7 @@ class SocketNotificationService {
 
       for (const company of companies) {
         const companyRoom = `company:${company.id}`;
-        socket.join(companyRoom);
+        (socket as { join: (room: string) => void }).join(companyRoom);
         console.log(`🏢 User ${userId} joined company room: ${companyRoom}`);
       }
     } catch (error) {
@@ -409,7 +407,7 @@ class SocketNotificationService {
   /**
    * Send an existing notification via Socket.io (without creating a new one in database)
    */
-  sendExistingNotification(notification: any) {
+  sendExistingNotification(notification: { userId: string; title: string; [key: string]: unknown }) {
     try {
       console.log(`📤 Sending existing notification via Socket.io:`, notification.title);
 

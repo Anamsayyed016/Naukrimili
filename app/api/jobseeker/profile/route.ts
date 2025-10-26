@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
         stats
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching jobseeker profile:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch profile' },
@@ -219,7 +219,7 @@ export async function PUT(request: NextRequest) {
       data: updatedUser,
       message: 'Profile updated successfully'
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error updating jobseeker profile:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to update profile' },
@@ -228,7 +228,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     const session = await auth();
     
@@ -284,7 +284,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'Account deleted successfully'
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error deleting jobseeker account:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to delete account' },

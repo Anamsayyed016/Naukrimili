@@ -356,7 +356,7 @@ export class AdzunaService {
   /**
    * Check if job is remote
    */
-  private static isRemoteJob(description: string, location: any): boolean {
+  private static isRemoteJob(description: string, _location: any): boolean {
     const desc = description.toLowerCase();
     return desc.includes('remote') || desc.includes('work from home') || 
            desc.includes('wfh') || desc.includes('telecommute');

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Simple admin activity endpoint that always works
     return NextResponse.json({
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       },
       message: 'Admin activity endpoint working'
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Admin activity error:', error);
     return NextResponse.json({
       success: false,

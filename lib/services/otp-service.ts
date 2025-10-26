@@ -15,7 +15,7 @@ export interface OTPGenerationOptions {
   purpose?: string;
   ipAddress?: string;
   userAgent?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface OTPVerificationOptions {
@@ -160,12 +160,12 @@ export class OTPService {
         attemptsRemaining: this.MAX_ATTEMPTS
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ OTP generation error:', error);
       return {
         success: false,
         message: 'Failed to generate OTP',
-        error: error.message || 'UNKNOWN_ERROR'
+        error: error instanceof Error ? error.message : 'UNKNOWN_ERROR'
       };
     }
   }
@@ -287,12 +287,12 @@ export class OTPService {
         otpId: otpRecord.id
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ OTP verification error:', error);
       return {
         success: false,
         message: 'Failed to verify OTP',
-        error: error.message || 'UNKNOWN_ERROR'
+        error: error instanceof Error ? error.message : 'UNKNOWN_ERROR'
       };
     }
   }
@@ -385,7 +385,7 @@ export class OTPService {
       console.log(`🧹 Cleaned up ${result.count} expired OTPs`);
       return result.count;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Error cleaning up expired OTPs:', error);
       return 0;
     }
@@ -424,7 +424,7 @@ export class OTPService {
         successRate: Math.round(successRate * 100) / 100
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Error getting OTP stats:', error);
       return {
         totalGenerated: 0,

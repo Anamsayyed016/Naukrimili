@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching jobseeker resumes:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch resumes' },
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
       data: resume,
       message: 'Resume created successfully'
     }, { status: 201 });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error creating resume:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to create resume' },

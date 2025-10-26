@@ -83,7 +83,7 @@ export async function GET(
       success: true,
       data: application
     });
-  } catch (error) {
+  } catch (_error) {
     console.error("Error fetching application:", error);
     return NextResponse.json(
       { error: "Failed to fetch application" },
@@ -233,7 +233,7 @@ export async function PATCH(
       data: updatedApplication,
       message: "Application updated successfully"
     });
-  } catch (error) {
+  } catch (_error) {
     console.error("Error updating application:", error);
     return NextResponse.json(
       { error: "Failed to update application" },
@@ -340,7 +340,7 @@ export async function DELETE(
       success: true,
       message: "Application deleted successfully"
     });
-  } catch (error) {
+  } catch (_error) {
     console.error("Error deleting application:", error);
     return NextResponse.json(
       { error: "Failed to delete application" },

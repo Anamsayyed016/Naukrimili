@@ -182,7 +182,6 @@ export class ResumeAI {
   private static generateSummary(data: Partial<ResumeData>): string {
     const skills = data.skills || [];
     const hasExperience = data.workExperience && data.workExperience.length > 0;
-    const hasProjects = data.projects && data.projects.length > 0;
 
     if (skills.includes('React') || skills.includes('TypeScript')) {
       return hasExperience 

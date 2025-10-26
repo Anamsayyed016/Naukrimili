@@ -258,7 +258,7 @@ export class GeolocationService {
   /**
    * Reverse geocoding (mock implementation)
    */
-  private static async reverseGeocode(latitude: number, longitude: number): Promise<{
+  private static async reverseGeocode(_latitude: number, _longitude: number): Promise<{
     city: string;
     state?: string;
     country: string;
@@ -301,7 +301,7 @@ export class GeolocationService {
       try {
         const permission = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
         return permission.state;
-      } catch (error) {
+      } catch {
         return 'prompt';
       }
     }

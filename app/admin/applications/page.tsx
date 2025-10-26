@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Filter, Download, Eye, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Download, Eye } from 'lucide-react';
 
 interface Application {
   id: string;
@@ -26,14 +26,10 @@ export default function AdminApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchApplications();
-  }, [currentPage, statusFilter, searchTerm]);
-
-  const fetchApplications = async () => {
+  const fetchApplications = React.useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -49,12 +45,16 @@ export default function AdminApplicationsPage() {
         setApplications(data.applications || []);
         setTotalPages(data.totalPages || 1);
       }
-    } catch (error) {
-      console.error('Error fetching applications:', error);
+    } catch (_error) {
+      console.error('Error fetching applications:', _error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, statusFilter, searchTerm]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
   const handleStatusChange = async (applicationId: string, newStatus: string) => {
     try {
@@ -67,8 +67,8 @@ export default function AdminApplicationsPage() {
       if (response.ok) {
         fetchApplications(); // Refresh the list
       }
-    } catch (error) {
-      console.error('Error updating application status:', error);
+    } catch (_error) {
+      console.error('Error updating application status:', _error);
     }
   };
 

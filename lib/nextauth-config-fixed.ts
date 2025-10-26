@@ -3,7 +3,7 @@ import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
-import { generatePKCEPair, storePKCEVerifier, getPKCEVerifier, clearPKCEVerifier } from "@/lib/pkce-utils"
+import { generatePKCEPair } from "@/lib/pkce-utils"
 
 // Custom Prisma Adapter to handle name field mapping
 const baseAdapter = PrismaAdapter(prisma);
@@ -20,6 +20,8 @@ const adapter = {
 
     // Remove name field and add firstName/lastName
     const { name, ...userData } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    void name; // Suppress unused variable warning
 
     const newUser = await prisma.user.create({
       data: {
@@ -147,11 +149,13 @@ const nextAuthOptions = {
           }
         },
         // ✅ Custom authorization URL with PKCE
-        async authorization(params) {
+        async authorization(_params) {
           console.log('🔐 Generating PKCE pair for Google OAuth...');
           
           // Generate PKCE pair
           const { codeVerifier, codeChallenge } = generatePKCEPair();
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          void codeVerifier; // Suppress unused variable warning
           
           // Store code_verifier in session for later use
           // Note: In NextAuth.js v5, this is handled internally
@@ -174,7 +178,7 @@ const nextAuthOptions = {
           return authUrl.toString();
         },
         // ✅ Token exchange with PKCE verification
-        async token({ client, params, checks }) {
+        async token({ client, params, checks: _checks }) {
           console.log('🔄 Token exchange with PKCE verification...');
           
           // NextAuth.js v5 handles PKCE verification automatically
@@ -241,7 +245,7 @@ const nextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user, account, trigger }) {
+    async jwt({ token, user, account, trigger: _trigger }) {
       // ✅ Simplified JWT callback to reduce token size
       if (token.id) {
         // Only fetch essential user data to keep token small

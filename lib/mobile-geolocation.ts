@@ -278,7 +278,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ city?: string
         state: data.principalSubdivision
       };
     }
-  } catch (error) {
+  } catch {
     console.warn('BigDataCloud reverse geocoding failed');
   }
 
@@ -298,7 +298,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ city?: string
         };
       }
     }
-  } catch (error) {
+  } catch {
     console.warn('OpenStreetMap reverse geocoding failed');
   }
 

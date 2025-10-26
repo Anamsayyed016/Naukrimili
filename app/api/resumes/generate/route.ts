@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       success: true,
       data: enhancedResume
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Resume generation error:', error);
     return NextResponse.json(
       { error: 'Failed to generate resume' },

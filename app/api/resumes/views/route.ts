@@ -6,7 +6,7 @@ import { getUserResumeViews } from '@/lib/resume-view-tracker';
  * GET /api/resumes/views
  * Get all resume views for the authenticated user
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
     
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error getting user resume views:', error);
     return NextResponse.json({
       success: false,
