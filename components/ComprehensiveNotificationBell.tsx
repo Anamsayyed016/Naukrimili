@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Bell, Check, X, AlertCircle, CheckCircle, Info, Star, Calendar, Briefcase, User, Building, Settings } from 'lucide-react';
+import { Bell, X, Info, Star, Calendar, Briefcase, User, Building, Settings } from 'lucide-react';
 import { useSocket } from '@/hooks/useSocket';
 import { useComprehensiveNotifications } from '@/hooks/useComprehensiveNotifications';
 import { useSession } from 'next-auth/react';
@@ -50,12 +50,11 @@ const getPriorityBadge = (type: string) => {
 };
 
 export function ComprehensiveNotificationBell() {
-  const { socket, isConnected, notifications, unreadCount, markNotificationAsRead } = useSocket();
+  const { notifications, unreadCount, markNotificationAsRead } = useSocket();
   const { getNotificationStats, markNotificationsReadByType } = useComprehensiveNotifications();
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [notificationStats, setNotificationStats] = useState<Record<string, { read: number; unread: number }>>({});
   const [filter, setFilter] = useState<string>('all');
 
   // Fetch notification stats
