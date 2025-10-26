@@ -290,8 +290,6 @@ export function getSuggestedCountries(query?: string): CountryConfig[] {
     return SUPPORTED_COUNTRIES.filter(c => c.priority <= 4);
   }
 
-  const lowerQuery = query.toLowerCase();
-  
   // Check if query mentions a specific country
   const detectedCountry = detectCountryFromLocation(query);
   if (detectedCountry) {

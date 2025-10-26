@@ -3,7 +3,7 @@ export interface UserInteraction {
   type: 'search' | 'category_view' | 'job_view' | 'location_search' | 'filter_use';
   value: string;
   timestamp: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface TrendingMetrics {
@@ -149,9 +149,9 @@ class UserActivityService {
       .map((entry) => entry[0]);
   }
 
-  private extractKeywords(searchInteractions: UserInteraction[]): string[] {
+  private extractKeywords(_searchInteractions: UserInteraction[]): string[] {
     const keywords = new Map<string, number>();
-    searchInteractions.forEach((interaction) => {
+    _searchInteractions.forEach((interaction) => {
       const words = interaction.value.toLowerCase().split(/\s+/);
       words.forEach((word) => {
         if (word.length > 2) keywords.set(word, (keywords.get(word) || 0) + 1);
@@ -175,7 +175,7 @@ class UserActivityService {
     return { peak: peakPeriod, peakHour } as { peak: string; peakHour: number };
   }
 
-  private calculateSearchFrequency(searchInteractions: UserInteraction[]) {
+  private calculateSearchFrequency(_searchInteractions: UserInteraction[]) {
     const recent = this.getRecentInteractions(7);
     return {
       daily: recent.length / 7,
@@ -188,7 +188,7 @@ class UserActivityService {
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.interactions));
-      } catch (error) {
+      } catch {
         // swallow storage errors in production
         // console.warn('Failed to save user activity to localStorage', error);
       }
@@ -201,14 +201,14 @@ class UserActivityService {
         const stored = localStorage.getItem(this.STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          this.interactions = parsed.map((item: any) => ({
+          this.interactions = parsed.map((item: { timestamp: string; [key: string]: unknown }) => ({
             ...item,
             timestamp: new Date(item.timestamp),
           }));
         } else {
           this.interactions = [];
         }
-      } catch (error) {
+      } catch {
         this.interactions = [];
       }
     }
