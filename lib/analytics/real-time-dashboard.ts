@@ -60,7 +60,7 @@ export class RealTimeDashboard {
       try {
         this.redisClient = getRedisClient();
         console.log('✅ Real-time Dashboard: Redis connected');
-      } catch (error) {
+      } catch {
         console.warn('⚠️ Real-time Dashboard: Redis not available');
         this.config.enableRedis = false;
       }

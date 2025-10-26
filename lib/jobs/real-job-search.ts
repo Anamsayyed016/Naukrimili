@@ -71,7 +71,6 @@ export class RealJobSearch {
     const startTime = Date.now();
     const allJobs: any[] = [];
     const sources = { database: 0, external: 0, sample: 0 };
-    const sectors: string[] = [];
 
     // 1. Database jobs (real jobs)
     try {
@@ -466,7 +465,7 @@ export class RealJobSearch {
   /**
    * Sort jobs by relevance and recency
    */
-  private sortJobs(jobs: any[], options: { query: string; location: string }) {
+  private sortJobs(jobs: any[], _options: { query: string; location: string }) {
     return jobs.sort((a, b) => {
       // Featured jobs first
       if (a.isFeatured && !b.isFeatured) return -1;

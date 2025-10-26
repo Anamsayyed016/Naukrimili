@@ -9,7 +9,7 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">About NaukriMili</h1>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-            India's most trusted AI-powered job portal connecting talented professionals 
+            India&apos;s most trusted AI-powered job portal connecting talented professionals 
             with leading employers across the country.
           </p>
         </div>

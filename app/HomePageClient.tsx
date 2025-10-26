@@ -1,16 +1,13 @@
 "use client";
 
 import Link from 'next/link';
-import { useEffect, useState, useRef } from 'react';
-import { safeLength, safeArray } from '../lib/safe-array-utils';
-import { Search, Building, Briefcase, Users, TrendingUp, ArrowRight, Shield, Zap, Globe, Award, Clock, User, Sparkles, Upload, FileText, Building2, BriefcaseIcon, Target, Star, MapPin, Brain } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { safeLength } from '../lib/safe-array-utils';
+import { Search, ArrowRight, Award, Clock, MapPin, Upload, BriefcaseIcon, Building2, Briefcase } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import OAuthButtons from '../components/auth/OAuthButtons';
-import { Button } from "../components/ui/button";
 import SEOJobLink from '../components/SEOJobLink';
 import JobSearchHero from '../components/JobSearchHero';
-import ErrorBoundary from '../components/ErrorBoundary';
 
 interface HomePageJob {
   id: number | string;
@@ -42,11 +39,9 @@ interface HomePageClientProps {
 export default function HomePageClient({
   featuredJobs,
   topCompanies,
-  trendingSearches,
   popularLocations
 }: HomePageClientProps) {
   const { data: session, status } = useSession();
-  const router = useRouter();
   const [locationJobCounts, setLocationJobCounts] = useState<Record<string, number>>({});
   const [visibleElements, setVisibleElements] = useState<Set<string>>(new Set());
 
@@ -95,7 +90,7 @@ export default function HomePageClient({
   }, []);
 
   // Check if user is authenticated for conditional rendering
-  const isAuthenticated = status === 'authenticated' && session?.user;
+  // Remove unused authentication check
 
   // Utility function to get animation delay class
   const getDelayClass = (index: number) => {

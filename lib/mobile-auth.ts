@@ -47,7 +47,7 @@ export function supportsOAuthPopup(): boolean {
       testPopup.close();
       return true;
     }
-  } catch (error) {
+  } catch {
     return false;
   }
   
@@ -57,7 +57,7 @@ export function supportsOAuthPopup(): boolean {
 /**
  * Get mobile-optimized OAuth configuration
  */
-export function getMobileOAuthConfig(provider: string): any {
+export function getMobileOAuthConfig(_provider: string): any {
   const isMobile = isMobileDevice();
   
   if (isMobile) {

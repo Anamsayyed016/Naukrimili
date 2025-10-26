@@ -190,8 +190,6 @@ export class UnlimitedJobSearch {
 
     const allJobs: any[] = [];
     const sources = { database: 0, external: 0, sample: 0 };
-    const sectors: string[] = [];
-    const countries: string[] = [];
 
     // 1. Database jobs (unlimited)
     if (includeDatabase) {
@@ -455,7 +453,7 @@ export class UnlimitedJobSearch {
    * Prioritizes main target countries (India, USA, UAE, UK)
    */
   private async searchExternalJobs(options: any) {
-    const { query, location, country, page, limit } = options;
+    const { query, location, country } = options;
     const allJobs: any[] = [];
     
     // Determine countries to search - prioritize main target countries
@@ -590,7 +588,7 @@ export class UnlimitedJobSearch {
    * Prioritizes main target countries (India, USA, UAE, UK)
    */
   private async generateSampleJobs(options: any) {
-    const { query, location, country, sector, limit } = options;
+    const { location, country, sector, limit } = options;
     const sampleJobs: any[] = [];
 
     // Get multiple real companies for diverse sample jobs

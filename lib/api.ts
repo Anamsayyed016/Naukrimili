@@ -1,5 +1,5 @@
 import { apiClient } from './api-client';
-import type { Job, User, Application, Resume, Company } from '@/types';
+import type { Job, User, Application, Resume } from '@/types';
 import type { PaginatedResponse } from '@/types';
 
 // ===== JOB API METHODS =====
@@ -219,14 +219,16 @@ export const authApi = {
   async logout(): Promise<void> {
     try {
       await apiClient.post('/api/auth/logout');
-    } catch (err) {
+    } catch {
       // non-fatal
     } finally {
       if (typeof window !== 'undefined') {
         try {
           window.localStorage.removeItem('auth_token');
           window.sessionStorage.removeItem('auth_token');
-        } catch {}
+        } catch {
+          // Ignore storage errors
+        }
       }
     }
   },
