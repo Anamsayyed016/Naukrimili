@@ -19,12 +19,19 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
     setError(null);
     
     try {
-      // Simple direct redirect
+      // Simple direct redirect - no complex mobile optimization
       const signInUrl = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(callbackUrl || '/auth/role-selection')}`;
       console.log('📍 Redirect URL:', signInUrl);
       
-      // Use window.location.href for immediate redirect
+      // Multiple redirect methods for maximum compatibility
+      console.log('🔄 Attempting redirect with window.location.href...');
       window.location.href = signInUrl;
+      
+      // Fallback after 2 seconds if redirect doesn't work
+      setTimeout(() => {
+        console.log('⚠️ Fallback: Trying window.location.assign...');
+        window.location.assign(signInUrl);
+      }, 2000);
       
     } catch (error) {
       console.error('❌ Google sign-in error:', error);
