@@ -5,6 +5,8 @@ import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 
+console.log('🔧 Loading NextAuth configuration...');
+
 // Custom Prisma Adapter to handle name field mapping
 const baseAdapter = PrismaAdapter(prisma);
 
