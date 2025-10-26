@@ -19,7 +19,9 @@ const adapter = {
     const lastName = nameParts.slice(1).join(' ') || '';
 
     // Remove name field and add firstName/lastName
-    const { name: _name, ...userData } = user;
+    const { name, ...userData } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    void name; // Suppress unused variable warning
 
     const newUser = await prisma.user.create({
       data: {
@@ -151,7 +153,9 @@ const nextAuthOptions = {
           console.log('🔐 Generating PKCE pair for Google OAuth...');
           
           // Generate PKCE pair
-          const { codeVerifier: _codeVerifier, codeChallenge } = generatePKCEPair();
+          const { codeVerifier, codeChallenge } = generatePKCEPair();
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          void codeVerifier; // Suppress unused variable warning
           
           // Store code_verifier in session for later use
           // Note: In NextAuth.js v5, this is handled internally

@@ -174,7 +174,7 @@ export class OTPSocketService {
   /**
    * Broadcast OTP system status to admins
    */
-  async broadcastOTPSystemStatus(status: 'healthy' | 'degraded' | 'down', details?: any): Promise<void> {
+  async broadcastOTPSystemStatus(status: 'healthy' | 'degraded' | 'down', details?: Record<string, unknown>): Promise<void> {
     try {
       const socketService = getSocketService();
       if (!socketService) {
