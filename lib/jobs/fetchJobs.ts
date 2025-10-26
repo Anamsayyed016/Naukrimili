@@ -52,7 +52,6 @@ export async function fetchJobsAndUpsert(options: FetchOptions) {
   const radiusKm = options.radiusKm ?? 25;
   const page = options.page ?? 1;
   const adzunaCountry = (options.countryCode || 'IN').toLowerCase();
-  const jsearchCountry = (options.countryCode || 'IN').toUpperCase();
 
       // Job fetch started logged
   

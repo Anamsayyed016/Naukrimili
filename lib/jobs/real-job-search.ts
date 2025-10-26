@@ -72,7 +72,6 @@ export class RealJobSearch {
     const allJobs: any[] = [];
     const sources = { database: 0, external: 0, sample: 0 };
     const sectors: string[] = [];
-    const countries: string[] = [];
 
     // 1. Database jobs (real jobs)
     try {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { SkillsExtractionService } from '@/lib/services/skills-extraction';
-import { fetchFromCoresignal, checkCoresignalHealth } from './coresignal-service';
+import { checkCoresignalHealth } from './coresignal-service';
 
 export type NormalizedJob = {
   source: string;
