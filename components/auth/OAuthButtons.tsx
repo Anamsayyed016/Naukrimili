@@ -1,5 +1,6 @@
 'use client';
 
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -13,15 +14,16 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     console.log('🔄 Starting Google OAuth redirect...');
     setIsLoading(true);
     setError(null);
 
     try {
-      const signInUrl = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(callbackUrl || '/auth/role-selection')}`;
-      console.log('📍 Redirect URL:', signInUrl);
-      window.location.href = signInUrl;
+      await signIn('google', {
+        callbackUrl: callbackUrl || '/auth/role-selection',
+        redirect: true
+      });
     } catch (error) {
       console.error('❌ Google sign-in error:', error);
       setError('Sign-in failed. Please try again.');
