@@ -1,16 +1,16 @@
 import { handler } from "@/lib/nextauth-config"
-import { NextRequest } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { nextauth: string[] } }
+  context: { params: { nextauth: string[] } }
 ) {
-  return await handler(request, { params });
+  return handler(request, context);
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { nextauth: string[] } }
+  context: { params: { nextauth: string[] } }
 ) {
-  return await handler(request, { params });
+  return handler(request, context);
 }
