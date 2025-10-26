@@ -1,16 +1,10 @@
+import { NextRequest } from 'next/server'
 import NextAuth from "@/lib/nextauth-config"
-import type { NextRequest } from 'next/server'
 
-export async function GET(
-  request: NextRequest,
-  context: { params: { nextauth: string[] } }
-) {
-  return NextAuth(request, context)
+export const GET = async (req: NextRequest, context: { params: Promise<{ nextauth: string[] }> }) => {
+  return NextAuth(req as any, context as any)
 }
 
-export async function POST(
-  request: NextRequest,
-  context: { params: { nextauth: string[] } }
-) {
-  return NextAuth(request, context)
+export const POST = async (req: NextRequest, context: { params: Promise<{ nextauth: string[] }> }) => {
+  return NextAuth(req as any, context as any)
 }
