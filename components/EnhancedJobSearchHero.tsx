@@ -81,16 +81,6 @@ export default function EnhancedJobSearchHero({
   const { data: session } = useSession();
   const [isMounted, setIsMounted] = useState(false);
 
-  // Prevent hydration mismatch
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Don't render until mounted
-  if (!isMounted) {
-    return null;
-  }
-  
   // Search filters state
   const [filters, setFilters] = useState({
     query: '',
@@ -147,6 +137,16 @@ export default function EnhancedJobSearchHero({
     clearSuggestions,
     hasSuggestions
   } = useEnhancedSuggestions();
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Don't render until mounted
+  if (!isMounted) {
+    return null;
+  }
 
   // Fetch dynamic constants
   const fetchDynamicConstants = useCallback(async () => {
