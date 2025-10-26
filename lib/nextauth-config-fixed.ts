@@ -19,7 +19,7 @@ const adapter = {
     const lastName = nameParts.slice(1).join(' ') || '';
 
     // Remove name field and add firstName/lastName
-    const { name, ...userData } = user;
+    const { name: _name, ...userData } = user;
 
     const newUser = await prisma.user.create({
       data: {
@@ -151,7 +151,7 @@ const nextAuthOptions = {
           console.log('🔐 Generating PKCE pair for Google OAuth...');
           
           // Generate PKCE pair
-          const { codeVerifier, codeChallenge } = generatePKCEPair();
+          const { codeVerifier: _codeVerifier, codeChallenge } = generatePKCEPair();
           
           // Store code_verifier in session for later use
           // Note: In NextAuth.js v5, this is handled internally
