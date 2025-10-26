@@ -361,7 +361,7 @@ export async function resumeExists(
   }
 }
 
-export default {
+const resumeStorageService = {
   uploadResume,
   getResumeUrl,
   deleteResume,
@@ -370,4 +370,6 @@ export default {
   ALLOWED_TYPES,
   MAX_FILE_SIZE,
 };
+
+export default resumeStorageService;
 

@@ -19,7 +19,7 @@ export async function getSession() {
 export async function getCurrentUser() {
   const session = await getSession();
   if (session && typeof session === 'object' && 'user' in session) {
-    return (session as any).user ?? null;
+    return (session as { user?: unknown }).user ?? null;
   }
   return null;
 }

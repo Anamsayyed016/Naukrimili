@@ -15,7 +15,7 @@
  * - Support for both local dev and production environments
  */
 
-import { Storage, Bucket, File } from '@google-cloud/storage';
+import { Storage, Bucket } from '@google-cloud/storage';
 import { Readable } from 'stream';
 
 // Environment configuration
@@ -137,7 +137,14 @@ export async function uploadFileToGCS(
     const file = bucket.file(filePath);
     
     // Prepare upload options
-    const uploadOptions: any = {
+    const uploadOptions: {
+      metadata: {
+        contentType: string;
+        metadata: Record<string, string>;
+      };
+      resumable?: boolean;
+      validation?: string;
+    } = {
       metadata: {
         contentType: options.contentType || 'application/octet-stream',
         metadata: {
@@ -372,7 +379,7 @@ export async function listFilesInGCS(
  * @param filePath - Path to file in bucket
  * @returns File metadata
  */
-export async function getFileMetadata(filePath: string): Promise<any> {
+export async function getFileMetadata(filePath: string): Promise<Record<string, unknown> | null> {
   try {
     const bucket = getBucket();
     const file = bucket.file(filePath);
@@ -501,7 +508,7 @@ export const GCS_CONFIG = {
   environment: NODE_ENV,
 };
 
-export default {
+const googleCloudStorageService = {
   uploadFileToGCS,
   downloadFileFromGCS,
   deleteFileFromGCS,
@@ -514,4 +521,6 @@ export default {
   testGCSConnection,
   GCS_CONFIG,
 };
+
+export default googleCloudStorageService;
 

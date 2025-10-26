@@ -40,13 +40,13 @@ export function parseApiResponse<T>(
     if (!hasProperty(response, 'success') || !hasProperty(response, 'data')) {
       return { success: false, error: 'Missing required response fields' };
     }
-    if ((response as any).success !== true) {
+    if ((response as { success: unknown }).success !== true) {
       return { success: false, error: 'API request failed' };
     }
-    if (!validator((response as any).data)) {
+    if (!validator((response as { data: unknown }).data)) {
       return { success: false, error: 'Invalid response data format' };
     }
-    return { success: true, data: (response as any).data };
+    return { success: true, data: (response as { data: unknown }).data };
   } catch {
     return { success: false, error: 'Failed to parse response' };
   }
