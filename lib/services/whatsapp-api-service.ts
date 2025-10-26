@@ -13,7 +13,7 @@ export interface WhatsAppResponse {
   success: boolean;
   messageId?: string;
   error?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 export class WhatsAppAPIService {
@@ -67,7 +67,7 @@ export class WhatsAppAPIService {
 
       return response;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ WhatsApp OTP send error:', error);
       return {
         success: false,
@@ -93,7 +93,7 @@ export class WhatsAppAPIService {
 
       return await this.sendMessage(whatsappMessage);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ WhatsApp notification send error:', error);
       return {
         success: false,
@@ -157,7 +157,7 @@ export class WhatsAppAPIService {
         };
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ WhatsApp API request error:', error);
       return {
         success: false,
@@ -229,7 +229,7 @@ export class WhatsAppAPIService {
         };
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         valid: false,
         error: error.message || 'Failed to verify WhatsApp API configuration'
@@ -240,7 +240,7 @@ export class WhatsAppAPIService {
   /**
    * Get delivery status of a message
    */
-  async getMessageStatus(messageId: string): Promise<{ status: string; details?: any }> {
+  async getMessageStatus(messageId: string): Promise<{ status: string; details?: Record<string, unknown> }> {
     try {
       if (!this.apiToken) {
         return { status: 'simulated' };
@@ -262,7 +262,7 @@ export class WhatsAppAPIService {
         return { status: 'error' };
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Error getting message status:', error);
       return { status: 'error' };
     }

@@ -10,7 +10,7 @@ export interface OTPSocketNotification {
   phoneNumber: string;
   otpId?: string;
   message: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }
 
 export class OTPSocketService {
@@ -48,7 +48,7 @@ export class OTPSocketService {
       });
 
       console.log(`📱 OTP sent notification sent to user ${userId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Failed to send OTP sent notification:', error);
     }
   }
@@ -76,7 +76,7 @@ export class OTPSocketService {
       });
 
       console.log(`✅ OTP verified notification sent to user ${userId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Failed to send OTP verified notification:', error);
     }
   }
@@ -110,7 +110,7 @@ export class OTPSocketService {
       });
 
       console.log(`❌ OTP failed notification sent to user ${userId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Failed to send OTP failed notification:', error);
     }
   }
@@ -137,7 +137,7 @@ export class OTPSocketService {
       });
 
       console.log(`⏰ OTP expired notification sent to user ${userId}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Failed to send OTP expired notification:', error);
     }
   }
@@ -166,7 +166,7 @@ export class OTPSocketService {
       });
 
       console.log(`📱 OTP status update sent to user ${userId}: ${notification.type}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Failed to send OTP status update:', error);
     }
   }
@@ -195,7 +195,7 @@ export class OTPSocketService {
       });
 
       console.log(`📢 OTP system status broadcast: ${status}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Failed to broadcast OTP system status:', error);
     }
   }
