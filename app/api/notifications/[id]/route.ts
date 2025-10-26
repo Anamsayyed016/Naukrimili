@@ -58,7 +58,7 @@ export async function PATCH(
         );
     }
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error updating notification:', error);
     return NextResponse.json(
       { error: 'Failed to update notification' },
@@ -96,7 +96,7 @@ export async function DELETE(
       message: 'Notification deleted successfully'
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error deleting notification:', error);
     return NextResponse.json(
       { error: 'Failed to delete notification' },

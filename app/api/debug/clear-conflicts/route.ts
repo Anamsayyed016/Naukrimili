@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     console.log('🧹 Starting OAuth conflict cleanup...');
     
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       remainingUsers: users.length,
       remainingAccounts: accounts.length - deletedAccounts.count
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error clearing OAuth conflicts:', error);
     return NextResponse.json({
       success: false,

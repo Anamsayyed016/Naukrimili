@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       data: enhancedResult
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Google fallback API error:', error);
     return NextResponse.json({
       success: false,
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
       data: enhancedResult
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Google fallback API error:', error);
     return NextResponse.json({
       success: false,

@@ -48,7 +48,7 @@ export default function MobileNotificationTestPage() {
     try {
       const result = await testFn();
       addTestResult(testName, result ? 'success' : 'error', result ? 'Test passed' : 'Test failed');
-    } catch (error) {
+    } catch (_error) {
       addTestResult(testName, 'error', `Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };

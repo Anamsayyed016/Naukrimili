@@ -125,7 +125,7 @@ export default function SEOJobDetailsPage() {
               const cleanJob = cleanJobDataForSEO(data.data);
               const seoUrl = generateSEOJobUrl(cleanJob);
               canonical.setAttribute('href', `${window.location.origin}${seoUrl}`);
-            } catch (error) {
+            } catch (_error) {
               console.error('Error updating canonical URL:', error);
             }
           }
@@ -134,7 +134,7 @@ export default function SEOJobDetailsPage() {
         console.error('❌ SEO Job API error:', data.error);
         setError(data.error || 'Job data not available');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching job:', error);
       setError('Failed to load job details');
     } finally {
@@ -157,7 +157,7 @@ export default function SEOJobDetailsPage() {
       if (response.ok) {
         setBookmarked(!bookmarked);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error bookmarking job:', error);
     }
   };

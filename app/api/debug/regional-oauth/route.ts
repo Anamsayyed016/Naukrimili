@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       }
     });
     
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Regional OAuth Debug Error:', error);
     return NextResponse.json({
       success: false,
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       }
     });
     
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Regional OAuth Test Logging Error:', error);
     return NextResponse.json({
       success: false,

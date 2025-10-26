@@ -49,7 +49,7 @@ export default function AdminApplicationsPage() {
         setApplications(data.applications || []);
         setTotalPages(data.totalPages || 1);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching applications:', error);
     } finally {
       setLoading(false);
@@ -67,7 +67,7 @@ export default function AdminApplicationsPage() {
       if (response.ok) {
         fetchApplications(); // Refresh the list
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating application status:', error);
     }
   };

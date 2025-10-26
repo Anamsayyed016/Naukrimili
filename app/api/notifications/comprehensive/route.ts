@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       message: 'Notification sent successfully'
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error in comprehensive notifications API:', error);
     return NextResponse.json(
       { error: 'Failed to process notification request' },

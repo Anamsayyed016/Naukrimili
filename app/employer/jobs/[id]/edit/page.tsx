@@ -145,7 +145,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
           applicationDeadline: job.applicationDeadline ? new Date(job.applicationDeadline).toISOString().split('T')[0] : ''
         });
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching job:', error);
       toast.error('Failed to fetch job details', {
         description: 'Please try refreshing the page or contact support if the issue persists.',
@@ -165,7 +165,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
           setDynamicOptions(data.data);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching dynamic options:', error);
     }
   };
@@ -211,7 +211,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       } else {
         throw new Error('Failed to get AI suggestions');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('AI suggestion error:', error);
       toast.error('Failed to get AI suggestions', {
         description: 'Please try again or continue with manual input.',
@@ -356,7 +356,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       } else {
         throw new Error(result.error || 'Failed to update job');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating job:', error);
       toast.error('Failed to update job', {
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
@@ -395,7 +395,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       } else {
         throw new Error(result.error || 'Failed to delete job');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error deleting job:', error);
       toast.error('Failed to delete job', {
         description: error instanceof Error ? error.message : 'An unexpected error occurred',

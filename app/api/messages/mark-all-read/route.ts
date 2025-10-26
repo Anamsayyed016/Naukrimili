@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const session = await auth();
     
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       message: `${result.count} messages marked as read`
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error marking all messages as read:', error);
     return NextResponse.json(
       { error: 'Failed to mark all messages as read' },

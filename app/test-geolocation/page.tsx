@@ -19,7 +19,7 @@ export default function TestGeolocationPage() {
     try {
       const result = await testFn();
       setResults(prev => ({ ...prev, [testName]: result }));
-    } catch (error) {
+    } catch (_error) {
       setResults(prev => ({ ...prev, [testName]: { error: error.message } }));
     } finally {
       setLoading(null);

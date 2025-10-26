@@ -56,7 +56,7 @@ export default function SeedJobsPage() {
         setSectors(data.sectors);
         setStats(data.stats);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to load sectors:', error);
       toast({
         title: 'Error',

@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdminAuth } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Admin authentication required
     const auth = await requireAdminAuth();
@@ -771,7 +771,7 @@ export async function POST(request: NextRequest) {
         createdCount++;
         console.log(`✅ Created job: ${jobData.title} at ${jobData.company}`);
 
-      } catch (error) {
+      } catch (_error) {
         console.error(`❌ Error creating job ${jobData.title}:`, error);
       }
     }

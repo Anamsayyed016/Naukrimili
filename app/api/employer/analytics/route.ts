@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
         recentApplications
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error("Error fetching analytics:", error);
     return NextResponse.json(
       { error: "Failed to fetch analytics" },

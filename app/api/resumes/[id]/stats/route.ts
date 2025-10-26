@@ -62,7 +62,7 @@ export async function GET(
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error getting resume stats:', error);
     return NextResponse.json({
       success: false,

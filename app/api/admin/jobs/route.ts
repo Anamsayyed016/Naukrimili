@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { user } = auth;
+  const { user: _user } = auth;
 
   try {
     // Test database connection first
@@ -131,8 +131,8 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-  } catch (error) {
-    console.error('Admin jobs GET error:', error);
+  } catch (_error) {
+    console.error('Admin jobs GET error:', _error);
     
     // Return mock data if database connection fails
     return NextResponse.json({
@@ -156,11 +156,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { user } = auth;
+  const { user: _user } = auth;
 
   try {
     const body = await request.json();
-    const { action, jobIds, reason } = jobActionSchema.parse(body);
+    const { action, jobIds, reason: _reason } = jobActionSchema.parse(body);
 
     if (!jobIds || jobIds.length === 0) {
       return NextResponse.json(
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
       case 'delete':
         // Delete jobs
         await prisma.job.deleteMany({
-          where: { id: { in: jobIds } }
+          where: { id: { in: jobIds as string[] } }
         });
         return NextResponse.json({
           success: true,
@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
 
     // Update jobs
     const updatedJobs = await prisma.job.updateMany({
-      where: { id: { in: jobIds } },
+      where: { id: { in: jobIds as string[] } },
       data: updateData
     });
 
@@ -226,8 +226,8 @@ export async function POST(request: NextRequest) {
         updatedCount: updatedJobs.count
       }
     });
-  } catch (error) {
-    console.error('Admin jobs POST error:', error);
+  } catch (_error) {
+    console.error('Admin jobs POST error:', _error);
     return NextResponse.json(
       { success: false, error: 'Failed to perform job action' },
       { status: 500 }

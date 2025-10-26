@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching search history:', error);
     return NextResponse.json(
       { error: 'Failed to fetch search history' },
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
       data: searchEntry
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error creating search history:', error);
     return NextResponse.json(
       { error: 'Failed to create search history entry' },
@@ -211,7 +211,7 @@ export async function DELETE(request: NextRequest) {
       deletedCount: deletedCount.count
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error deleting search history:', error);
     return NextResponse.json(
       { error: 'Failed to delete search history' },

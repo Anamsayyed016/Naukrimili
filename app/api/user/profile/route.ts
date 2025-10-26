@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
       }))
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('GET user profile error:', error);
     return NextResponse.json({ 
       success: false,
@@ -127,7 +127,7 @@ export async function PUT(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('PUT user profile error:', error);
     return NextResponse.json({ 
       success: false,

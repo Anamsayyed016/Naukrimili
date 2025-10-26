@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       message: 'Test notification sent successfully'
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error creating test notification:', error);
     return NextResponse.json(
       { error: 'Failed to create test notification' },
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
     
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       message: 'Test notification sent successfully'
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error creating test notification:', error);
     return NextResponse.json(
       { error: 'Failed to create test notification' },

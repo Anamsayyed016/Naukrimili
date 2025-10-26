@@ -116,7 +116,7 @@ export default function SEOJobDetailsPage() {
       } else {
         setError('Job data not available');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching job:', error);
       setError('Failed to load job details');
     } finally {
@@ -139,7 +139,7 @@ export default function SEOJobDetailsPage() {
       if (response.ok) {
         setBookmarked(!bookmarked);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error bookmarking job:', error);
     }
   };

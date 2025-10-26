@@ -5,7 +5,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { getRedisClient } from '@/lib/redis';
-import { eventCollector } from './event-collector';
+// import { eventCollector } from './event-collector'; // Unused import
 
 export interface DashboardMetrics {
   // Job Seeker Metrics
@@ -112,7 +112,7 @@ export class AnalyticsProcessor {
     try {
       this.redisClient = getRedisClient();
       console.log('✅ Analytics Processor: Redis connected');
-    } catch (error) {
+    } catch (_error) {
       console.warn('⚠️ Analytics Processor: Redis not available');
     }
   }
@@ -270,8 +270,8 @@ export class AnalyticsProcessor {
    */
   private async getEmployerMetrics(userId: string): Promise<DashboardMetrics['employer']> {
     const [
-      user,
-      companies,
+      _user,
+      _companies,
       jobs,
       applications,
       recentApplications

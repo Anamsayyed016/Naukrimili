@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         
         dataSources.geminiData = convertedGeminiData;
         console.log('✅ Gemini data generated successfully');
-      } catch (error) {
+      } catch (_error) {
         console.warn('⚠️ Failed to generate Gemini data:', error);
       }
     }
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response);
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Advanced resume validation error:', error);
     
     return NextResponse.json({ 
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
  * 
  * Get validation schema and documentation
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const documentation = {
       title: 'Advanced Resume Validator API',
@@ -270,7 +270,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(documentation);
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Documentation API error:', error);
     
     return NextResponse.json({ 

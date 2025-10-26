@@ -36,7 +36,7 @@ export default function AdminCategoriesPage() {
         const data = await response.json();
         setCategories(data.categories || []);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching categories:', error);
     } finally {
       setLoading(false);
@@ -57,7 +57,7 @@ export default function AdminCategoriesPage() {
         setShowAddForm(false);
         fetchCategories();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error adding category:', error);
     }
   };
@@ -73,7 +73,7 @@ export default function AdminCategoriesPage() {
       if (response.ok) {
         fetchCategories();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating category status:', error);
     }
   };
@@ -89,7 +89,7 @@ export default function AdminCategoriesPage() {
       if (response.ok) {
         fetchCategories();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error deleting category:', error);
     }
   };

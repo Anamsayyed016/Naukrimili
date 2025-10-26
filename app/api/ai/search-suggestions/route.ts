@@ -8,7 +8,7 @@ if (process.env.OPENAI_API_KEY) {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
-  } catch (error) {
+  } catch (_error) {
     console.warn('OpenAI initialization failed:', error);
   }
 }
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
       suggestions: Array.isArray(suggestions) ? suggestions : [suggestions]
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('AI Search Suggestions Error:', error);
     
     // Fallback suggestions if AI fails
@@ -265,7 +265,7 @@ export async function POST(request: NextRequest) {
       suggestions: Array.isArray(suggestions) ? suggestions : [suggestions]
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('AI Search Suggestions Error:', error);
     
     // Fallback suggestions if AI fails

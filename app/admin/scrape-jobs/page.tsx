@@ -126,7 +126,7 @@ export default function JobScrapingPage() {
       } else {
         toast.error(data.error || 'Scraping failed');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Scraping error:', error);
       toast.error('Failed to start scraping');
     } finally {
@@ -143,7 +143,7 @@ export default function JobScrapingPage() {
       if (data.success) {
         setStats(data.stats);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to fetch stats:', error);
     }
   };

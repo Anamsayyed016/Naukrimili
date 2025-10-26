@@ -132,7 +132,7 @@ export default function EmployerDashboard() {
         setNotifications(data.notifications || []);
         setUnreadCount(data.unreadCount || 0);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching notifications:', error);
     }
   };
@@ -227,7 +227,7 @@ export default function EmployerDashboard() {
           } : null);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching additional data:', error);
     }
   };
@@ -262,7 +262,7 @@ export default function EmployerDashboard() {
       } else {
         throw new Error(result.error || 'Failed to delete job');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error deleting job:', error);
       toast.error('Failed to delete job', {
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
@@ -316,7 +316,7 @@ export default function EmployerDashboard() {
       }
       
       setAiInsights(insights);
-    } catch (error) {
+    } catch (_error) {
       console.error('Error generating AI insights:', error);
     }
   };

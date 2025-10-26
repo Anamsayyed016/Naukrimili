@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(testResults);
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Google fallback test error:', error);
     return NextResponse.json({
       success: false,
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Google fallback test error:', error);
     return NextResponse.json({
       success: false,

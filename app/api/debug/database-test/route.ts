@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('🔍 Database test endpoint called');
     
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       await prisma.$connect();
       debugInfo.connection = { status: 'Connected', success: true };
       debugInfo.success.push('Database connection successful');
-    } catch (error) {
+    } catch (_error) {
       debugInfo.connection = { 
         status: 'Failed', 
         success: false, 
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       const userCount = await prisma.user.count();
       debugInfo.userCount = userCount;
       debugInfo.success.push(`User count retrieved: ${userCount}`);
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`User count failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       const companyCount = await prisma.company.count();
       debugInfo.companyCount = companyCount;
       debugInfo.success.push(`Company count retrieved: ${companyCount}`);
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Company count failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       });
       debugInfo.sampleUsers = users;
       debugInfo.success.push(`Sample users retrieved: ${users.length}`);
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Sample users failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
       });
       debugInfo.sampleCompanies = companies;
       debugInfo.success.push(`Sample companies retrieved: ${companies.length}`);
-    } catch (error) {
+    } catch (_error) {
       debugInfo.errors.push(`Sample companies failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
       status: hasErrors ? 500 : 200 
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Database test error:', error);
     return NextResponse.json(
       { 

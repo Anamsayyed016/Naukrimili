@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireEmployerAuth, getAuthenticatedUser, getAuthenticatedEmployer } from '@/lib/auth-utils';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('🔍 Debug employer auth endpoint called');
     
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Debug employer auth error:', error);
     return NextResponse.json({
       success: false,

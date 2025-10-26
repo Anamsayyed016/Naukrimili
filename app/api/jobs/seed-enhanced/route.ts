@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
           await upsertNormalizedJob(job);
           totalCreated++;
 
-        } catch (error) {
+        } catch (_error) {
           errors.push(`Job ${job.title}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Enhanced job seeding failed:', error);
     return NextResponse.json(
       {

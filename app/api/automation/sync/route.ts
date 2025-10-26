@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jobAutomationSystem } from '@/lib/automation/job-automation-system';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     console.log('🔄 Manual sync triggered via API');
     
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Manual sync failed:', error);
     return NextResponse.json(
       {
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         }
       });
     }
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Failed to get sync status:', error);
     return NextResponse.json(
       {

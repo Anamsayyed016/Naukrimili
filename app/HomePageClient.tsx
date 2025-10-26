@@ -154,7 +154,7 @@ export default function HomePageClient({
                 [location]: 0
               }));
             }
-          } catch (error) {
+          } catch (_error) {
             console.warn(`Failed to fetch job count for ${location}:`, error);
             // Set count to 0 if API call fails
             setLocationJobCounts(prev => ({
@@ -163,7 +163,7 @@ export default function HomePageClient({
             }));
           }
         }
-      } catch (error) {
+      } catch (_error) {
         console.error('Failed to fetch location job counts:', error);
       }
     };

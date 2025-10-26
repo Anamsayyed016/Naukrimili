@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Test database connection
     const userCount = await prisma.user.count();
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       },
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({
       success: false,
       error: 'Database connection failed',

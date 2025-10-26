@@ -133,7 +133,7 @@ export default function MessagesPage() {
           setConversations(mockConversations);
           setLoading(false);
         }
-      } catch (error) {
+      } catch (_error) {
         if (isMounted) {
           console.error('Error fetching conversations:', error);
           setLoading(false);
@@ -192,7 +192,7 @@ export default function MessagesPage() {
             setMessages(mockMessages);
             setTimeout(scrollToBottom, 100);
           }
-        } catch (error) {
+        } catch (_error) {
           if (isMounted) {
             console.error('Error fetching messages:', error);
           }

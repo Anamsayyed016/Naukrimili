@@ -22,7 +22,7 @@ async function getCachedOrFetch(key: string, fetchFn: () => Promise<any>) {
     externalCache.set(key, { data, timestamp: now });
     console.log(`💾 Cached data for ${key}`);
     return data;
-  } catch (error) {
+  } catch (_error) {
     console.warn(`⚠️ Failed to fetch ${key}:`, error);
     return cached?.data || [];
   }
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
         select: { id: true }
       });
       sampleCompanyId = firstCompany?.id || 'sample-company-default';
-    } catch (error) {
+    } catch (_error) {
       console.log('No company found, using default sample company ID');
       sampleCompanyId = 'sample-company-default';
     }
@@ -355,7 +355,7 @@ export async function GET(request: NextRequest) {
               location: location || undefined,
               distanceKm: radius ? parseInt(radius) : undefined
             });
-          } catch (error) {
+          } catch (_error) {
             console.warn('⚠️ Adzuna API error:', error);
             return [];
           }
@@ -367,7 +367,7 @@ export async function GET(request: NextRequest) {
         const jsearchJobs = await getCachedOrFetch(`${cacheKey}-jsearch`, async () => {
           try {
             return await fetchFromJSearch(query || 'software engineer', 'IN', page);
-          } catch (error) {
+          } catch (_error) {
             console.warn('⚠️ JSearch API error:', error);
             return [];
           }
@@ -379,7 +379,7 @@ export async function GET(request: NextRequest) {
         const googleJobs = await getCachedOrFetch(`${cacheKey}-google`, async () => {
           try {
             return await fetchFromGoogleJobs(query || 'software engineer', location || 'India', page);
-          } catch (error) {
+          } catch (_error) {
             console.warn('⚠️ Google Jobs API error:', error);
             return [];
           }
@@ -394,7 +394,7 @@ export async function GET(request: NextRequest) {
               radius: radius ? parseInt(radius) : undefined,
               countryCode: country || 'in'
             });
-          } catch (error) {
+          } catch (_error) {
             console.warn('⚠️ Jooble API error:', error);
             return [];
           }
@@ -587,7 +587,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('💥 Unified Jobs API Error:', error);
     return NextResponse.json(
       { 

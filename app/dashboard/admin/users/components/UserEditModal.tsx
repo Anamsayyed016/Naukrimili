@@ -79,7 +79,7 @@ export default function UserEditModal({ user, isOpen, onClose, onSave }: UserEdi
       } else {
         throw new Error('Failed to update user');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating user:', error);
       toast({
         title: "Error",

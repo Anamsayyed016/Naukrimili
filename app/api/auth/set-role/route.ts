@@ -101,9 +101,10 @@ export async function POST(request: NextRequest) {
     // This will cause the JWT callback to run and fetch fresh user data
     try {
       // Import NextAuth's update function
-      const { update } = await import('next-auth/react');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { update: _update } = await import('next-auth/react');
       console.log('🔄 Triggering JWT token update for role change');
-    } catch (error) {
+    } catch (_err) {
       console.log('⚠️ Could not trigger JWT update (this is normal in API route)');
     }
 
@@ -113,20 +114,20 @@ export async function POST(request: NextRequest) {
       user: updatedUser
     });
 
-  } catch (error) {
-    console.error('❌ Error setting role:', error);
+  } catch (_error) {
+    console.error('❌ Error setting role:', _error);
     return NextResponse.json(
       { 
         success: false, 
         error: 'Failed to set role',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? (_error as Error).message : undefined
       },
       { status: 500 }
     );
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get the authenticated user
     const session = await auth();
@@ -164,13 +165,13 @@ export async function GET(request: NextRequest) {
       needsRoleSelection: !user.role
     });
 
-  } catch (error) {
-    console.error('❌ Error getting role status:', error);
+  } catch (_error) {
+    console.error('❌ Error getting role status:', _error);
     return NextResponse.json(
       { 
         success: false, 
         error: 'Failed to get role status',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? (_error as Error).message : undefined
       },
       { status: 500 }
     );

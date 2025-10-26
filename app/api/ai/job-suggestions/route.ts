@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       return getStaticSuggestions(type, field, value, context);
     }
 
-  } catch (error) {
+  } catch (_error) {
     console.error("Error generating job suggestions:", error);
     return NextResponse.json(
       { error: "Failed to generate suggestions" },
@@ -60,7 +60,7 @@ async function generateGeminiSuggestions(model: any, type: string, field: string
     // Parse the response to extract suggestions
     const suggestions = parseGeminiResponse(text);
     return suggestions;
-  } catch (error) {
+  } catch (_error) {
     console.error("Error generating Gemini content:", error);
     throw error;
   }

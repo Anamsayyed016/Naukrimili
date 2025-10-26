@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
           countryJobs.push(...adzunaJobs);
           adzunaCount += adzunaJobs.length;
 
-        } catch (error) {
+        } catch (_error) {
           console.error(`❌ Error fetching jobs for "${query}" in ${countryCode}:`, error);
         }
       }

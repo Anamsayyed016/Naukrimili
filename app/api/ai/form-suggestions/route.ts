@@ -138,8 +138,8 @@ export async function POST(request: NextRequest) {
       aiProvider: result.aiProvider
     });
 
-  } catch (error) {
-    console.error('AI form suggestions error:', error);
+  } catch (_error) {
+    console.error('AI form suggestions error:', _error);
     
     // Enhanced fallback when AI fails
     const fallbackSuggestions = getFallbackSuggestions(field, _value);

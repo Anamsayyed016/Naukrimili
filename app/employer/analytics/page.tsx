@@ -79,7 +79,7 @@ export default function EmployerAnalyticsPage() {
       if (data.success) {
         setAnalytics(data.data);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching analytics:', error);
     } finally {
       setLoading(false);

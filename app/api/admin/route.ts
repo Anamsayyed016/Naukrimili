@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, data } = body;
+    const { action, data: _data } = body;
 
     // Handle different admin actions
     switch (action) {

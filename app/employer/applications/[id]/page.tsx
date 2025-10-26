@@ -140,7 +140,7 @@ export default function ApplicationDetailPage() {
 
       setApplication(transformedApplication);
       setNotes(transformedApplication.notes || '');
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching application data:', error);
       setError(error instanceof Error ? error.message : 'Failed to fetch application data');
     } finally {
@@ -178,7 +178,7 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, status: newStatus as any } : null);
       
-    } catch (error) {
+    } catch (_error) {
       console.error('Error changing application status:', error);
       setError(error instanceof Error ? error.message : 'Failed to update application status');
     } finally {
@@ -216,7 +216,7 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, notes } : null);
       
-    } catch (error) {
+    } catch (_error) {
       console.error('Error saving notes:', error);
       setError(error instanceof Error ? error.message : 'Failed to save notes');
     } finally {
@@ -270,7 +270,7 @@ export default function ApplicationDetailPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-    } catch (error) {
+    } catch (_error) {
       console.error('Error downloading resume:', error);
       setError(error instanceof Error ? error.message : 'Failed to download resume');
     }
@@ -324,7 +324,7 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, status: 'shortlisted' } : null);
       
-    } catch (error) {
+    } catch (_error) {
       console.error('Error shortlisting candidate:', error);
       setError(error instanceof Error ? error.message : 'Failed to shortlist candidate');
     } finally {
@@ -360,7 +360,7 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, status: 'interview' } : null);
       
-    } catch (error) {
+    } catch (_error) {
       console.error('Error scheduling interview:', error);
       setError(error instanceof Error ? error.message : 'Failed to schedule interview');
     } finally {
@@ -395,7 +395,7 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, isFavorite: true } : null);
       
-    } catch (error) {
+    } catch (_error) {
       console.error('Error adding to favorites:', error);
       setError(error instanceof Error ? error.message : 'Failed to add to favorites');
     } finally {
@@ -427,7 +427,7 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, isFavorite: false } : null);
       
-    } catch (error) {
+    } catch (_error) {
       console.error('Error removing from favorites:', error);
       setError(error instanceof Error ? error.message : 'Failed to remove from favorites');
     } finally {
@@ -463,7 +463,7 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, status: 'rejected' } : null);
       
-    } catch (error) {
+    } catch (_error) {
       console.error('Error rejecting application:', error);
       setError(error instanceof Error ? error.message : 'Failed to reject application');
     } finally {

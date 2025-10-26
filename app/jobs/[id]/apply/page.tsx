@@ -243,7 +243,7 @@ export default function JobApplicationPage() {
         return job.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
       }
       return [];
-    } catch (error) {
+    } catch (_error) {
       console.warn('Failed to parse skills:', error);
       return [];
     }
@@ -271,7 +271,7 @@ export default function JobApplicationPage() {
         });
       }
       return null;
-    } catch (error) {
+    } catch (_error) {
       console.warn('Error formatting salary:', error);
       return null;
     }
@@ -282,7 +282,7 @@ export default function JobApplicationPage() {
     try {
       if (!job) return 'Not specified';
       return job.experienceLevel || 'Not specified';
-    } catch (error) {
+    } catch (_error) {
       console.warn('Error formatting experience level:', error);
       return 'Not specified';
     }
@@ -293,7 +293,7 @@ export default function JobApplicationPage() {
     try {
       if (!job) return 'Not specified';
       return job.jobType || 'Not specified';
-    } catch (error) {
+    } catch (_error) {
       console.warn('Error formatting job type:', error);
       return 'Not specified';
     }
@@ -318,7 +318,7 @@ export default function JobApplicationPage() {
         });
       }
       return 'Recently posted';
-    } catch (error) {
+    } catch (_error) {
       console.warn('Error formatting posted date:', error);
       return 'Recently posted';
     }

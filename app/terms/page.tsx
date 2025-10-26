@@ -172,7 +172,7 @@ By using our service, you acknowledge that you have read these terms of service 
           setContent(mockTerms);
           setLoading(false);
         }, 500);
-      } catch (error) {
+      } catch (_error) {
         setError('Failed to load terms of service');
         setLoading(false);
       }

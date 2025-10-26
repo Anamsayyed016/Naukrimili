@@ -94,7 +94,7 @@ export default function JobDetailsPage() {
         console.error('❌ Job API error:', data.error);
         setError(data.error || 'Failed to load job details');
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching job details:', error);
       setError('Failed to load job details');
     } finally {
@@ -117,7 +117,7 @@ export default function JobDetailsPage() {
       if (response.ok) {
         setBookmarked(!bookmarked);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error bookmarking job:', error);
     }
   };

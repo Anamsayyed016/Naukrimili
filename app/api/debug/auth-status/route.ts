@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error in debug auth status endpoint:', error);
     return NextResponse.json(
       { 

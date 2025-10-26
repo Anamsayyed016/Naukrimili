@@ -216,7 +216,7 @@ export default function GmailProfilePage() {
                       const result = await response.json();
                       console.log('Test notification result:', result);
                       toast.success('Test notification sent!');
-                    } catch (error) {
+                    } catch (_error) {
                       console.error('Test notification error:', error);
                       toast.error('Failed to send test notification');
                     }

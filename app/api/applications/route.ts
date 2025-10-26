@@ -258,7 +258,7 @@ export async function POST(request: NextRequest) {
             select: { id: true }
           });
           sampleCompanyId = firstCompany?.id;
-        } catch (error) {
+        } catch (_error) {
           console.log('No company found, sample job will be created without company link');
         }
 
@@ -610,7 +610,7 @@ export async function POST(request: NextRequest) {
         job.company || 'Unknown Company',
         application.id
       );
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Failed to track job application:', error);
     }
 
@@ -666,7 +666,7 @@ async function findJobWithFallback(jobId: string) {
           console.log('✅ Job found by numeric ID:', job.title);
           return job;
         }
-      } catch (error) {
+      } catch (_error) {
         console.warn('⚠️ Numeric ID lookup failed:', error);
       }
     }
@@ -688,7 +688,7 @@ async function findJobWithFallback(jobId: string) {
         console.log('✅ Job found by sourceId:', job.title);
         return job;
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn('⚠️ SourceId lookup failed:', error);
     }
     
@@ -713,13 +713,13 @@ async function findJobWithFallback(jobId: string) {
         console.log('✅ Job found by string ID:', job.title);
         return job;
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn('⚠️ String ID lookup failed:', error);
     }
     
     console.log(`❌ Job not found with any strategy: ${jobId}`);
     return null;
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Job lookup failed:', error);
     return null;
   }

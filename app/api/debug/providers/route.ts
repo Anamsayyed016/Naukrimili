@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check if Google OAuth is configured
     const googleClientId = process.env.GOOGLE_CLIENT_ID;

@@ -60,7 +60,7 @@ export default function MobileUrgentFixPage() {
       };
 
       setTestResults(results);
-    } catch (error) {
+    } catch (_error) {
       console.error('Test failed:', error);
       results.error = error;
       setTestResults(results);

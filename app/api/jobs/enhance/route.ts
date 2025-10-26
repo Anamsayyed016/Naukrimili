@@ -8,7 +8,7 @@ if (process.env.OPENAI_API_KEY) {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
-  } catch (error) {
+  } catch (_error) {
     console.warn('OpenAI not available:', error);
   }
 }
@@ -116,7 +116,7 @@ Guidelines:
       data: enhancedData
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error enhancing job data:', error);
     
     // Return fallback data if OpenAI fails

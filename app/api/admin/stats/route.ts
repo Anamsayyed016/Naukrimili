@@ -154,7 +154,7 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: stats
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Admin stats error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch admin statistics' },

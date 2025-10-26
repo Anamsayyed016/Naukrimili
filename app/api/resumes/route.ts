@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error fetching resumes:', error);
     return NextResponse.json({
       success: false,
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       error: 'Invalid action'
     }, { status: 400 });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('Error creating resume:', error);
     return NextResponse.json({
       success: false,

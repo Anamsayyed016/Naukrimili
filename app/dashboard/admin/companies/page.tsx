@@ -122,7 +122,7 @@ export default function AdminCompaniesPage() {
         console.error('Invalid API response:', data);
         setCompanies([]);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error fetching companies:', error);
       setCompanies([]); // Set empty array on error
       toast({
@@ -159,7 +159,7 @@ export default function AdminCompaniesPage() {
           fetchCompanies();
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error performing bulk action:', error);
       toast({
         title: 'Error',
@@ -200,7 +200,7 @@ export default function AdminCompaniesPage() {
         });
         fetchCompanies();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error updating company status:', error);
       toast({
         title: 'Error',
@@ -240,7 +240,7 @@ export default function AdminCompaniesPage() {
         });
         fetchCompanies();
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error deleting company:', error);
       toast({
         title: 'Error',

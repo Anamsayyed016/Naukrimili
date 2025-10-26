@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { optimizedJobSearch } from '@/lib/jobs/optimized-search';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     console.log('🔍 Debug job counts API called');
     
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
           hasMore: result.hasMore,
           sources: result.sources
         });
-      } catch (error) {
+      } catch (_error) {
         searchResults.push({
           limit,
           error: error instanceof Error ? error.message : 'Unknown error'

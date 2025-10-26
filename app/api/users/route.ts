@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Admin users GET error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch users' },
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
         updatedCount: updatedUsers.count
       }
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Admin users POST error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to perform user action' },

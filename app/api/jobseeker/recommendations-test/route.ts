@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error in test recommendations API:', error);
     return NextResponse.json(
       { 
