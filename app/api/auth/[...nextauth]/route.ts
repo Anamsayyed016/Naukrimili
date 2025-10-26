@@ -1,10 +1,10 @@
-import { NextRequest } from 'next/server'
-import NextAuth from "@/lib/nextauth-config"
+import NextAuthHandler from "@/lib/nextauth-config"
+import type { NextRequest } from 'next/server'
 
-export const GET = async (req: NextRequest, context: { params: Promise<{ nextauth: string[] }> }) => {
-  return NextAuth(req as any, context as any)
+export async function GET(req: NextRequest) {
+  return NextAuthHandler(req)
 }
 
-export const POST = async (req: NextRequest, context: { params: Promise<{ nextauth: string[] }> }) => {
-  return NextAuth(req as any, context as any)
+export async function POST(req: NextRequest) {
+  return NextAuthHandler(req)
 }
