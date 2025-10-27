@@ -104,6 +104,7 @@ export default function EmployerDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      setError(null);
       
       // Check if company exists
       const companyResponse = await fetch('/api/employer/company-profile');
@@ -142,7 +143,10 @@ export default function EmployerDashboard() {
           setHasCompany(false);
         }
       } else if (companyResponse.status === 401) {
-        // User not authenticated, redirect to login
+        // User not authenticated, stop retrying and redirect to login
+        console.error('User not authenticated, redirecting to login');
+        setError('Session expired. Please sign in again.');
+        setLoading(false);
         router.push('/auth/signin');
         return;
       } else if (companyResponse.status === 404) {
@@ -152,6 +156,7 @@ export default function EmployerDashboard() {
         // Other error
         console.error('Error fetching company profile:', companyResponse.status, companyResponse.statusText);
         setHasCompany(false);
+        setError(`Failed to load dashboard: ${companyResponse.status}`);
       }
     } catch (err) {
       console.error('Error in fetchDashboardData:', err);
@@ -172,16 +177,19 @@ export default function EmployerDashboard() {
       return;
     }
     
-    fetchDashboardData();
-    fetchNotifications();
-    
-    // Set up auto-refresh every 30 seconds
-    const refreshInterval = setInterval(() => {
+    // Only make API calls if we have an authenticated session with a user ID
+    if (session?.user?.id) {
       fetchDashboardData();
       fetchNotifications();
-    }, 30000);
-    
-    return () => clearInterval(refreshInterval);
+      
+      // Set up auto-refresh every 30 seconds
+      const refreshInterval = setInterval(() => {
+        fetchDashboardData();
+        fetchNotifications();
+      }, 30000);
+      
+      return () => clearInterval(refreshInterval);
+    }
   }, [status, session]);
 
   const fetchNotifications = async () => {
