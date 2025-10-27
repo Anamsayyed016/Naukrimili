@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
         source: 'manual',
         sourceId: `manual_${Date.now()}`,
         companyId: company.id,
+        createdBy: basicUser.id,
         rawJson: {
           ...body,
           // Enhanced location data
@@ -198,7 +199,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Error posting job:', error);
     console.error('❌ Error details:', {
       message: error instanceof Error ? error.message : 'Unknown error',
