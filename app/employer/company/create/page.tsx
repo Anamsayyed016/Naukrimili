@@ -234,7 +234,7 @@ export default function CreateCompanyPage() {
               }, 2000);
             }
           }
-        } catch (_error) {
+        } catch (error) {
           console.error('Error checking existing company:', error);
           // If there's an error checking, we'll allow the form to proceed
           // This handles cases where the API might be temporarily unavailable
@@ -443,6 +443,8 @@ export default function CreateCompanyPage() {
         if (response.status === 400) {
           try {
             const errorData = JSON.parse(errorText);
+            console.error("Parsed error data:", errorData);
+            
             if (errorData.error && errorData.error.includes("Company already exists")) {
               const companyName = errorData.existingCompany?.name || 'your company';
               toast.error('Company Profile Already Exists!', {
@@ -457,9 +459,40 @@ export default function CreateCompanyPage() {
                 router.push('/employer/dashboard');
               }, 3000);
               return;
+            } else if (errorData.missingFields && Array.isArray(errorData.missingFields)) {
+              // Show which fields are missing
+              const missingFieldsList = errorData.missingFields.join(', ');
+              toast.error('Missing Required Fields!', {
+                description: `Please fill in: ${missingFieldsList}`,
+                duration: 8000,
+              });
+              
+              // Navigate to the appropriate step
+              if (errorData.missingFields.includes('name') || errorData.missingFields.includes('description') || 
+                  errorData.missingFields.includes('location') || errorData.missingFields.includes('industry') || 
+                  errorData.missingFields.includes('size')) {
+                setCurrentStep(1);
+              } else if (errorData.missingFields.includes('streetAddress') || errorData.missingFields.includes('city') || 
+                         errorData.missingFields.includes('postalCode')) {
+                setCurrentStep(2);
+              }
+              
+              setLoading(false);
+              return;
+            } else if (errorData.error) {
+              toast.error('Validation Error!', {
+                description: errorData.error,
+                duration: 6000,
+              });
+              setLoading(false);
+              return;
             }
           } catch (parseError) {
             console.error("Error parsing error response:", parseError);
+            toast.error(`HTTP ${response.status} Error`, {
+              description: errorText,
+              duration: 5000,
+            });
           }
         }
         
@@ -491,14 +524,27 @@ export default function CreateCompanyPage() {
         console.error("API returned error:", data.error);
         toast.error(`Failed to create company: ${data.error || 'Unknown error'}`);
       }
-    } catch (_error) {
+    } catch (error) {
       console.error("Fetch error occurred:", error);
       console.error("Error details:", {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       });
-      toast.error("Failed to create company. Please try again.");
+      
+      // Show more specific error messages
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('Missing required fields')) {
+        toast.error('Missing Required Fields!', {
+          description: errorMessage,
+          duration: 5000,
+        });
+      } else {
+        toast.error("Failed to create company. Please check all fields and try again.", {
+          description: errorMessage,
+          duration: 5000,
+        });
+      }
     } finally {
       console.log("Setting loading to false");
       setLoading(false);
