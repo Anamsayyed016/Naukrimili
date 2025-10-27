@@ -8,7 +8,8 @@ export default function CompanyDashboardRedirect() {
 
   useEffect(() => {
     router.replace('/employer/dashboard');
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
