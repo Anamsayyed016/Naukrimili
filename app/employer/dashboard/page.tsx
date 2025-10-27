@@ -187,14 +187,14 @@ export default function EmployerDashboard() {
       fetchDashboardData();
       fetchNotifications();
       
-      // Set up auto-refresh every 30 seconds
+      // Set up auto-refresh every 5 minutes (300000ms) instead of 30 seconds
       const refreshInterval = setInterval(() => {
         // Only refresh if shouldRefresh flag is true
         if (shouldRefresh.current && session?.user?.id && session?.user?.role === 'employer') {
           fetchDashboardData();
           fetchNotifications();
         }
-      }, 30000);
+      }, 300000); // 5 minutes instead of 30 seconds
       
       return () => clearInterval(refreshInterval);
     }
@@ -215,8 +215,8 @@ export default function EmployerDashboard() {
 
   const fetchAdditionalData = async () => {
     try {
-      // Fetch recent jobs
-      const jobsResponse = await fetch('/api/jobs?limit=5');
+      // Fetch recent jobs - only from this employer's company
+      const jobsResponse = await fetch('/api/employer/jobs?limit=5');
       if (jobsResponse.ok) {
         const jobsData = await jobsResponse.json();
         if (jobsData.success) {

@@ -15,7 +15,44 @@ export async function DELETE(
       );
     }
 
-    console.log(`🗑️ Deleting job ${jobId}...`);
+    // Verify authentication and get user
+    const { requireEmployerAuth } = await import("@/lib/auth-utils");
+    const auth = await requireEmployerAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { user } = auth;
+    console.log(`🗑️ User ${user.id} attempting to delete job ${jobId}...`);
+
+    // Get the user's company
+    const company = await prisma.company.findFirst({
+      where: { createdBy: user.id }
+    });
+
+    if (!company) {
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if the job belongs to this company
+    const job = await prisma.job.findFirst({
+      where: {
+        id: jobId,
+        companyId: company.id
+      }
+    });
+
+    if (!job) {
+      return NextResponse.json(
+        { error: "Job not found or you don't have permission to delete this job" },
+        { status: 403 }
+      );
+    }
+
+    console.log(`✅ Job ${jobId} belongs to user's company, proceeding with deletion...`);
 
     // Delete the job
     await prisma.job.delete({
@@ -29,7 +66,7 @@ export async function DELETE(
       message: "Job deleted successfully"
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error("Error deleting job:", error);
     return NextResponse.json(
       { error: "Failed to delete job" },
