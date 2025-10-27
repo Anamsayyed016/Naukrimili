@@ -351,7 +351,7 @@ export default function CreateCompanyPage() {
         const errorData = await response.json();
         toast.error(errorData.error || 'Failed to generate AI content');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('AI generation error:', error);
       toast.error('Network error: Failed to generate AI content');
     } finally {
