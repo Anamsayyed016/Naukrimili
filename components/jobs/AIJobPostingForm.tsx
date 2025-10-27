@@ -728,8 +728,13 @@ export default function AIJobPostingForm() {
 
   // Instant fallback suggestions for professional feel
   const getInstantSuggestions = (field: string, value: string): AISuggestion => {
+    // Enhanced instant suggestions with technology-specific titles
     const instantSuggestions: { [key: string]: string[] } = {
       title: [
+        // Python-related
+        'Python Developer', 'Senior Python Developer', 'Python Software Engineer',
+        'Python Backend Developer', 'Python Data Engineer', 'Python Automation Engineer',
+        // General tech
         'Senior Software Engineer', 'Full Stack Developer', 'Frontend Developer',
         'Backend Developer', 'DevOps Engineer', 'Data Scientist',
         'Machine Learning Engineer', 'Product Manager', 'UI/UX Designer',
@@ -761,14 +766,24 @@ export default function AIJobPostingForm() {
     };
 
     const suggestions = instantSuggestions[field] || [];
-    const filteredSuggestions = suggestions.filter(suggestion => 
-      suggestion.toLowerCase().includes(value.toLowerCase()) ||
-      value.toLowerCase().includes(suggestion.toLowerCase())
-    ).slice(0, 5);
+    
+    // Smart filtering: prioritize exact matches, then partial matches
+    const lowerValue = value.toLowerCase();
+    const exactMatches = suggestions.filter(s => s.toLowerCase().includes(lowerValue));
+    const partialMatches = suggestions.filter(s => {
+      const words = s.toLowerCase().split(/\s+/);
+      return words.some(word => word.includes(lowerValue) || lowerValue.includes(word));
+    });
+    const allMatches = [...new Set([...exactMatches, ...partialMatches])];
+
+    // If no matches, return top 5 suggestions (no filtering)
+    const finalSuggestions = allMatches.length > 0 
+      ? allMatches.slice(0, 5) 
+      : suggestions.slice(0, 5);
 
     return {
       field,
-      suggestions: filteredSuggestions.length > 0 ? filteredSuggestions : suggestions.slice(0, 5),
+      suggestions: finalSuggestions,
       confidence: 85,
       reasoning: 'Instant suggestions for professional experience'
     };
