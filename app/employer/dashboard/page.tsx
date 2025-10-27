@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -65,6 +65,7 @@ export default function EmployerDashboard() {
   const [hasCompany, setHasCompany] = useState(false);
   const [deletingJob, setDeletingJob] = useState<string | null>(null);
   const [aiInsights, setAiInsights] = useState<any[]>([]);
+  const shouldRefresh = useRef(true);
 
   const quickActions: QuickAction[] = [
     {
@@ -145,6 +146,7 @@ export default function EmployerDashboard() {
       } else if (companyResponse.status === 401) {
         // User not authenticated, stop retrying and redirect to login
         console.error('User not authenticated, redirecting to login');
+        shouldRefresh.current = false; // Stop the auto-refresh loop
         setError('Session expired. Please sign in again.');
         setLoading(false);
         router.push('/auth/signin');
@@ -169,23 +171,29 @@ export default function EmployerDashboard() {
   useEffect(() => {
     if (status === 'loading') return;
     if (status === 'unauthenticated') {
+      shouldRefresh.current = false; // Stop refreshing on logout
       router.push('/auth/login?redirect=/employer/dashboard');
       return;
     }
     if (session?.user?.role !== 'employer') {
+      shouldRefresh.current = false; // Stop refreshing if not employer
       router.push('/dashboard');
       return;
     }
     
     // Only make API calls if we have an authenticated session with a user ID
     if (session?.user?.id) {
+      shouldRefresh.current = true; // Enable refreshing for valid session
       fetchDashboardData();
       fetchNotifications();
       
       // Set up auto-refresh every 30 seconds
       const refreshInterval = setInterval(() => {
-        fetchDashboardData();
-        fetchNotifications();
+        // Only refresh if shouldRefresh flag is true
+        if (shouldRefresh.current && session?.user?.id && session?.user?.role === 'employer') {
+          fetchDashboardData();
+          fetchNotifications();
+        }
       }, 30000);
       
       return () => clearInterval(refreshInterval);
