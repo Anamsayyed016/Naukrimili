@@ -62,7 +62,8 @@ export function ComprehensiveNotificationBell() {
     const fetchStats = async () => {
       try {
         const stats = await getNotificationStats();
-        setNotificationStats(stats);
+        // Stats fetched successfully - no need to store in state as it's managed by the hook
+        console.log('📊 Notification stats:', stats);
       } catch (error) {
         console.error('Failed to fetch notification stats:', error);
       }
@@ -120,9 +121,8 @@ export function ComprehensiveNotificationBell() {
   const handleMarkByTypeRead = async (type: string) => {
     try {
       await markNotificationsReadByType(type);
-      // Refresh stats
-      const stats = await getNotificationStats();
-      setNotificationStats(stats);
+      // Stats will be updated by the hook automatically
+      console.log('✅ Marked notifications as read by type:', type);
     } catch (error) {
       console.error('Failed to mark notifications as read by type:', error);
     }
@@ -154,41 +154,49 @@ export function ComprehensiveNotificationBell() {
         )}
       </button>
 
+      {/* Backdrop for mobile */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 sm:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
       {/* Notification Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border-0 z-50 max-h-96 overflow-hidden transform transition-all duration-200 ease-in-out mx-2 sm:mx-0" style={{ 
-          maxHeight: 'calc(100vh - 6rem)',
+        <div className="fixed inset-0 sm:inset-auto sm:absolute sm:right-0 sm:mt-2 w-full sm:w-80 md:w-96 h-screen sm:h-auto bg-white rounded-none sm:rounded-xl shadow-2xl border-0 z-50 max-h-screen sm:max-h-96 overflow-hidden transform transition-all duration-200 ease-in-out" style={{ 
+          maxHeight: '100vh',
           background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)'
         }}>
           {/* Header */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleMarkAllRead}
                   disabled={isLoading}
-                  className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                  className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
                 >
                   {isLoading ? 'Marking...' : 'Mark all read'}
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 p-1"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex space-x-1 mt-3">
+            <div className="flex space-x-1 mt-3 overflow-x-auto scrollbar-hide pb-2">
               {['all', 'unread', 'application', 'job', 'system'].map((filterType) => (
                 <button
                   key={filterType}
                   onClick={() => setFilter(filterType)}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                  className={`px-2 sm:px-3 py-1 text-xs rounded-full transition-colors whitespace-nowrap flex-shrink-0 ${
                     filter === filterType
                       ? 'bg-blue-100 text-blue-700'
                       : 'text-gray-600 hover:bg-gray-100'
