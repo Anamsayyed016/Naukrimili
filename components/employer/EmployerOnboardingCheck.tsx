@@ -66,27 +66,57 @@ export default function EmployerOnboardingCheck({
       
       if (response.ok) {
         const data = await response.json();
-        setCompanyData(data.company);
+        console.log('Company status check response:', data);
         
-        // Show onboarding if company doesn't exist and action is required
-        if (!data.company && requiredAction === 'company') {
-          setShowOnboarding(true);
-        } else if (data.company && requiredAction === 'job') {
-          // Company exists, allow job posting
-          setShowOnboarding(false);
-        } else if (!data.company && requiredAction === 'job') {
-          // Company doesn't exist but job posting is required
-          setShowOnboarding(true);
+        // API returns { success: true, data: {...company data...} }
+        const company = data.success && data.data ? data.data : null;
+        
+        if (company && company.id) {
+          setCompanyData({
+            id: company.id,
+            name: company.name,
+            isVerified: company.isVerified || false,
+            hasCompleteProfile: true
+          });
+          
+          // Company exists - check verification status and required action
+          if (requiredAction === 'job') {
+            // Company exists, allow job posting but show verification status
+            setShowOnboarding(false);
+            
+            // Show info message if company is not verified
+            if (!company.isVerified) {
+              toast.info('Company Profile is Pending Verification', {
+                description: 'Your company profile is being reviewed. You can post jobs, but they may be limited until verification is complete.',
+                duration: 8000,
+              });
+            }
+          } else if (requiredAction === 'company') {
+            // Company already exists, show onboarding as a reminder
+            setShowOnboarding(false);
+            // Don't redirect if they're trying to access company creation page
+          }
+        } else {
+          // No company found
+          setCompanyData(null);
+          if (requiredAction === 'company' || requiredAction === 'job') {
+            setShowOnboarding(true);
+          }
         }
       } else if (response.status === 404) {
         // No company found
+        setCompanyData(null);
         if (requiredAction === 'company' || requiredAction === 'job') {
           setShowOnboarding(true);
         }
       }
     } catch (error) {
       console.error('Error checking company status:', error);
-      toast.error('Failed to check company status');
+      // Allow form to proceed if API check fails
+      setCompanyData(null);
+      if (requiredAction === 'company' || requiredAction === 'job') {
+        setShowOnboarding(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +140,9 @@ export default function EmployerOnboardingCheck({
       </div>
     );
   }
+
+  // Show verification pending message if company exists but not verified
+  const showVerificationPending = companyData && !companyData.isVerified && requiredAction === 'job';
 
   if (showOnboarding) {
     return (
