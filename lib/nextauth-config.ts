@@ -48,4 +48,9 @@ const handler = NextAuth(authOptions)
 
 export default handler
 export { authOptions }
-export const { auth, signIn, signOut } = handler
+
+// Export auth function for use in API routes
+import { getServerSession } from "next-auth/next"
+export async function auth() {
+  return await getServerSession(authOptions)
+}

@@ -64,7 +64,7 @@ export async function GET() {
       }
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Error fetching company profile:', error);
     return NextResponse.json(
       { error: 'Failed to fetch company profile', details: error instanceof Error ? error.message : 'Unknown error' },
@@ -287,7 +287,7 @@ export async function POST(request: Request) {
       }
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Error creating company profile:', error);
     return NextResponse.json(
       { error: 'Failed to create company profile', details: error instanceof Error ? error.message : 'Unknown error' },
@@ -364,7 +364,7 @@ export async function PUT(request: Request) {
       }
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Error updating company profile:', error);
     return NextResponse.json(
       { error: 'Failed to update company profile', details: error instanceof Error ? error.message : 'Unknown error' },
@@ -414,7 +414,7 @@ export async function DELETE(request: Request) {
       message: 'Company profile deleted successfully'
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Error deleting company profile:', error);
     return NextResponse.json(
       { error: 'Failed to delete company profile', details: error instanceof Error ? error.message : 'Unknown error' },
