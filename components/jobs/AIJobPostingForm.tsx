@@ -330,6 +330,9 @@ export default function AIJobPostingForm() {
   const descriptionDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const requirementsDebounceRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Refs to track if suggestion was manually applied (to prevent re-trigger)
+  const manuallyAppliedRef = useRef<string | null>(null);
+  
   // Currency mapping based on country
   const getCurrencyByCountry = (countryCode: string) => {
     const currencyMap: { [key: string]: { symbol: string; code: string; name: string } } = {
@@ -402,6 +405,12 @@ export default function AIJobPostingForm() {
 
   // Dynamic AI suggestions with debouncing - auto-suggest as user types
   useEffect(() => {
+    // Skip if suggestion was just manually applied
+    if (manuallyAppliedRef.current === 'title') {
+      manuallyAppliedRef.current = null;
+      return;
+    }
+    
     // Auto-suggest for title field (debounced)
     if (formData.title && formData.title.length >= 3 && currentStep === 1) {
       if (titleDebounceRef.current) clearTimeout(titleDebounceRef.current);
@@ -418,6 +427,12 @@ export default function AIJobPostingForm() {
   }, [formData.title, currentStep]);
 
   useEffect(() => {
+    // Skip if suggestion was just manually applied
+    if (manuallyAppliedRef.current === 'description') {
+      manuallyAppliedRef.current = null;
+      return;
+    }
+    
     // Auto-suggest for description field (debounced)
     if (formData.description && formData.description.length >= 10 && currentStep === 1) {
       if (descriptionDebounceRef.current) clearTimeout(descriptionDebounceRef.current);
@@ -434,6 +449,12 @@ export default function AIJobPostingForm() {
   }, [formData.description, currentStep]);
 
   useEffect(() => {
+    // Skip if suggestion was just manually applied
+    if (manuallyAppliedRef.current === 'requirements') {
+      manuallyAppliedRef.current = null;
+      return;
+    }
+    
     // Auto-suggest for requirements field (debounced)
     if (formData.requirements && formData.requirements.length >= 10 && currentStep === 2) {
       if (requirementsDebounceRef.current) clearTimeout(requirementsDebounceRef.current);
@@ -1179,6 +1200,9 @@ export default function AIJobPostingForm() {
 
   const applyAISuggestion = (field: string, suggestion: string) => {
     console.log('Applying AI suggestion:', { field, suggestion });
+    
+    // Mark that we're manually applying a suggestion to prevent re-trigger
+    manuallyAppliedRef.current = field;
     
     // Apply the suggestion to form data
     setFormData(prev => {
