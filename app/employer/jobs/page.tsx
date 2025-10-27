@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import io, { Socket } from 'socket.io-client';
 import { 
   Search, 
   Filter, 
@@ -21,8 +23,6 @@ import {
   DollarSign,
   Briefcase,
   MoreHorizontal,
-  ArrowRight,
-  Clock,
   CheckCircle,
   AlertCircle,
   Brain,
@@ -49,16 +49,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useDebounce } from '@/hooks/useDebounce';
 import { ApiClient } from '@/lib/api-client';
@@ -161,6 +153,15 @@ export default function EmployerJobsPage() {
     { title: 'Featured Jobs', value: 0, change: 'Loading...', trend: 'neutral', icon: <Star className="w-6 h-6" /> }
   ]);
   
+  // Real-time Socket.io connection
+  const socketRef = useRef<any | null>(null);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  
+  // Chart data states
+  const [applicationsChartData, setApplicationsChartData] = useState<{ date: string; applications: number; jobTitle: string }[]>([]);
+  const [jobTypesChartData, setJobTypesChartData] = useState<{ name: string; value: number; fill: string }[]>([]);
+  const [experienceChartData, setExperienceChartData] = useState<{ level: string; count: number }[]>([]);
+  
   // Animated counters for stats
   const totalJobsCounter = useCounter({ end: typeof stats[0]?.value === 'number' ? stats[0].value : 0, duration: 1500 });
   const totalAppsCounter = useCounter({ end: typeof stats[1]?.value === 'number' ? stats[1].value : 0, duration: 1500 });
@@ -186,14 +187,7 @@ export default function EmployerJobsPage() {
     }
   }, [status, session, router]);
 
-  useEffect(() => {
-    fetchJobs();
-    fetchStats();
-    fetchDynamicOptions();
-  }, [currentPage, jobStatus, jobType, experienceLevel, debouncedSearch]);
-
-  // Fetch jobs with enhanced error handling and caching
-  const fetchJobs = useCallback(async () => {
+  const fetchJobsCallback = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -218,14 +212,15 @@ export default function EmployerJobsPage() {
         return;
       }
 
-      const response = await apiClient.get<any>('/api/jobs', params);
+      const response = await apiClient.get<JobsResponse>('/api/employer/jobs', params);
       
       if (response.success && response.data) {
-        setJobs(response.data.jobs);
-        setPagination(response.data.pagination);
+        const data = response.data as any;
+        setJobs(data.jobs);
+        setPagination(data.pagination);
         
         // Cache for 2 minutes with tags
-        cache.setWithTags(cacheKey, response.data, ['employer-jobs'], 120000);
+        cache.setWithTags(cacheKey, data, ['employer-jobs'], 120000);
       } else {
         // If API fails, set empty state instead of throwing error
         setJobs([]);
@@ -263,11 +258,76 @@ export default function EmployerJobsPage() {
     }
   }, [currentPage, jobStatus, jobType, experienceLevel, debouncedSearch, apiClient, session]);
 
-  // Handle search with dynamic updates
-  const handleSearch = useCallback(() => {
-    setCurrentPage(1);
-    fetchJobs();
-  }, [fetchJobs]);
+  // Initialize Socket.io connection for real-time updates
+  useEffect(() => {
+    if (!session?.user?.id || status === 'loading') return;
+    
+    // Initialize socket connection
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000', {
+      auth: {
+        token: session?.user?.id
+      },
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
+    });
+
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+      console.log('✅ Socket connected for employer dashboard');
+      setIsSocketConnected(true);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('❌ Socket disconnected');
+      setIsSocketConnected(false);
+    });
+
+    // Listen for real-time stats updates
+    socket.on('dashboard_update', (data) => {
+      console.log('📊 Dashboard update received:', data);
+      if (data.type === 'metrics') {
+        // Update stats in real-time
+        setStats(prev => prev.map(stat => {
+          if (stat.title === 'Total Applications') {
+            return { ...stat, value: data.data.totalApplications || stat.value };
+          }
+          if (stat.title === 'Active Jobs') {
+            return { ...stat, value: data.data.activeJobs || stat.value };
+          }
+          return stat;
+        }));
+      }
+    });
+
+    // Listen for new applications
+    socket.on('application_received', (data) => {
+      console.log('🎯 New application received:', data);
+      toast.success('New Application!', {
+        description: `You received a new application for ${data.jobTitle}`,
+        duration: 5000,
+      });
+      // Refresh jobs to show updated application count
+      fetchJobsCallback();
+    });
+
+    // Listen for job updates
+    socket.on('job_updated', () => {
+      console.log('📝 Job updated, refreshing list');
+      fetchJobsCallback();
+    });
+
+    // Listen for notification updates
+    socket.on('notification_count', (data) => {
+      console.log('🔔 Notification count update:', data.count);
+    });
+
+    return () => {
+      socket.disconnect();
+      setIsSocketConnected(false);
+    };
+  }, [session, status, fetchJobsCallback]);
 
   // Fetch enhanced stats with trends and caching
   const fetchStats = useCallback(async () => {
@@ -276,7 +336,7 @@ export default function EmployerJobsPage() {
       
       // Check cache first
       const cacheKey = cacheKeys.analytics('employer-stats', session?.user?.id || 'unknown');
-      const cached = cache.get<any>(cacheKey);
+      const cached = cache.get<DashboardStats[]>(cacheKey);
       
       if (cached) {
         setStats(cached);
@@ -284,10 +344,15 @@ export default function EmployerJobsPage() {
         return;
       }
       
-      const response = await apiClient.get<any>('/api/stats');
+      const response = await apiClient.get<any>('/api/employer/jobs');
       
       if (response.success && response.data) {
-        const { totalJobs, activeJobs, totalApplications } = response.data as any;
+        const statsData = response.data.stats || response.data.data?.stats;
+        const { totalJobs, activeJobs, totalApplications } = statsData || {
+          totalJobs: jobs.length,
+          activeJobs: jobs.filter(j => j.isActive).length,
+          totalApplications: jobs.reduce((sum, job) => sum + job._count.applications, 0)
+        };
         
         const newStats = [
           { 
@@ -400,12 +465,12 @@ export default function EmployerJobsPage() {
   // Fetch dynamic filter options
   const fetchDynamicOptions = useCallback(async () => {
     try {
-      const response = await apiClient.get<any>('/api/jobs/constants');
+      const response = await apiClient.get<{ jobTypes: Array<{ value: string; label: string; count: number }>; experienceLevels: Array<{ value: string; label: string; count: number }> }>('/api/jobs/constants');
       
       if (response.success && response.data) {
         setDynamicOptions({
-          jobTypes: (response.data as any).jobTypes || [],
-          experienceLevels: (response.data as any).experienceLevels || [],
+          jobTypes: response.data.jobTypes || [],
+          experienceLevels: response.data.experienceLevels || [],
           statuses: [
             { value: 'active', label: 'Active', count: 0 },
             { value: 'inactive', label: 'Inactive', count: 0 },
@@ -499,6 +564,54 @@ export default function EmployerJobsPage() {
     }
   }, [jobs, session]);
 
+  useEffect(() => {
+    fetchJobsCallback();
+    fetchStats();
+    fetchDynamicOptions();
+  }, [currentPage, jobStatus, jobType, experienceLevel, debouncedSearch, fetchJobsCallback, fetchStats, fetchDynamicOptions]);
+
+  // Handle search with dynamic updates
+  const handleSearch = useCallback(() => {
+    setCurrentPage(1);
+    fetchJobsCallback();
+  }, [fetchJobsCallback]);
+
+  // Process chart data from jobs
+  useEffect(() => {
+    if (jobs.length === 0) return;
+
+    // Applications chart data (last 7 days trend)
+    const applicationsData = jobs.map(job => ({
+      date: new Date(job.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      applications: job._count.applications,
+      jobTitle: job.title.substring(0, 20) + '...'
+    }));
+    setApplicationsChartData(applicationsData.slice(0, 7));
+
+    // Job types distribution
+    const jobTypeCount = jobs.reduce((acc, job) => {
+      acc[job.jobType] = (acc[job.jobType] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    const jobTypesData = Object.entries(jobTypeCount).map(([type, count]) => ({
+      name: type,
+      value: count,
+      fill: type === 'Full-time' ? '#3b82f6' : type === 'Part-time' ? '#10b981' : type === 'Contract' ? '#f59e0b' : '#8b5cf6'
+    }));
+    setJobTypesChartData(jobTypesData);
+
+    // Experience level distribution
+    const expCount = jobs.reduce((acc, job) => {
+      acc[job.experienceLevel] = (acc[job.experienceLevel] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    const expData = Object.entries(expCount).map(([level, count]) => ({
+      level,
+      count
+    }));
+    setExperienceChartData(expData);
+  }, [jobs]);
+
   // Auto-search when filters change (debounced) - this replaces the manual search trigger
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -508,7 +621,7 @@ export default function EmployerJobsPage() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [debouncedSearch, jobStatus, jobType, experienceLevel, handleSearch]);
+  }, [debouncedSearch, jobStatus, jobType, experienceLevel, handleSearch, search]);
 
   const handleDeleteJob = async (jobId: string) => {
     if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
@@ -528,7 +641,7 @@ export default function EmployerJobsPage() {
       cache.invalidateByTags(['employer-jobs', 'employer-stats']);
       
       toast.success('Job deleted successfully');
-      fetchJobs();
+      fetchJobsCallback();
       fetchStats();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to delete job');
@@ -553,7 +666,7 @@ export default function EmployerJobsPage() {
       cache.invalidateByTags(['employer-jobs', 'employer-stats']);
       
       toast.success(`Job ${!isActive ? 'activated' : 'deactivated'} successfully`);
-      fetchJobs();
+      fetchJobsCallback();
       fetchStats();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to update job status');
@@ -635,7 +748,7 @@ export default function EmployerJobsPage() {
             </Button>
             <Button 
               variant="outline" 
-              onClick={() => { fetchJobs(); fetchStats(); }}
+              onClick={() => { fetchJobsCallback(); fetchStats(); }}
               className="border-slate-300 text-slate-700 hover:bg-slate-50"
               disabled={loading || statsLoading}
             >
@@ -709,6 +822,174 @@ export default function EmployerJobsPage() {
                 )}
               </motion.div>
             ))}
+          </motion.div>
+        )}
+
+        {/* Charts Section */}
+        {jobs.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
+          >
+            {/* Applications Trend Chart */}
+            {applicationsChartData.length > 0 && (
+              <Card className="shadow-xl border-0">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <TrendingUp className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-bold text-slate-900">Applications Trend</CardTitle>
+                        <p className="text-sm text-slate-600">Recent job performance</p>
+                      </div>
+                    </div>
+                    {isSocketConnected && (
+                      <Badge className="bg-green-100 text-green-800 border-green-200">
+                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse" />
+                        Live
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={applicationsChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke="#64748b"
+                        fontSize={12}
+                      />
+                      <YAxis 
+                        stroke="#64748b"
+                        fontSize={12}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          background: '#fff', 
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="applications" 
+                        stroke="#3b82f6" 
+                        strokeWidth={2}
+                        dot={{ fill: '#3b82f6', r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Job Types Distribution */}
+            {jobTypesChartData.length > 0 && (
+              <Card className="shadow-xl border-0">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-indigo-100 rounded-lg">
+                        <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-bold text-slate-900">Job Types</CardTitle>
+                        <p className="text-sm text-slate-600">Distribution by type</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <PieChart>
+                      <Pie
+                        data={jobTypesChartData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({name, value}) => `${name}: ${value}`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {jobTypesChartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ 
+                          background: '#fff', 
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Experience Level Distribution */}
+            {experienceChartData.length > 0 && (
+              <Card className="shadow-xl border-0 lg:col-span-2">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <Users className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-bold text-slate-900">Experience Levels</CardTitle>
+                        <p className="text-sm text-slate-600">Target experience distribution</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={experienceChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis 
+                        dataKey="level" 
+                        stroke="#64748b"
+                        fontSize={12}
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                      />
+                      <YAxis 
+                        stroke="#64748b"
+                        fontSize={12}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          background: '#fff', 
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Legend />
+                      <Bar 
+                        dataKey="count" 
+                        fill="#8b5cf6" 
+                        radius={[8, 8, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
           </motion.div>
         )}
 
