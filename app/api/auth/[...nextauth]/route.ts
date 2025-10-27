@@ -49,17 +49,34 @@ const authOptions = {
             where: { email: user.email! }
           })
 
+          // Parse name into firstName and lastName
+          const nameParts = (user.name || '').split(' ')
+          const firstName = nameParts[0] || ''
+          const lastName = nameParts.slice(1).join(' ') || ''
+
           // If user doesn't exist, create them
           if (!dbUser) {
             dbUser = await prisma.user.create({
               data: {
                 email: user.email!,
-                name: user.name || '',
+                firstName,
+                lastName,
                 image: user.image || '',
               }
             })
             console.log('Created new user in database:', dbUser.id)
           } else {
+            // Update name if it changed
+            if (firstName && dbUser.firstName !== firstName) {
+              dbUser = await prisma.user.update({
+                where: { id: dbUser.id },
+                data: {
+                  firstName,
+                  lastName,
+                  image: user.image || dbUser.image
+                }
+              })
+            }
             console.log('User already exists in database:', dbUser.id)
           }
 
@@ -86,7 +103,7 @@ const authOptions = {
         if (dbUser) {
           session.user.id = dbUser.id.toString()
           session.user.role = dbUser.role
-          session.user.name = dbUser.name || null
+          session.user.name = `${dbUser.firstName || ''} ${dbUser.lastName || ''}`.trim() || null
           session.user.image = dbUser.image || null
         }
       }
