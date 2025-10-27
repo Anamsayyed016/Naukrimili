@@ -32,10 +32,17 @@ export default function SignInPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const router = useRouter();
 
+  const [hasRedirected, setHasRedirected] = useState(false);
+  
   // Handle OAuth users who are already authenticated
   useEffect(() => {
+    if (status === 'loading' || hasRedirected) {
+      return;
+    }
+    
     if (status === 'authenticated' && session?.user) {
       console.log('User already authenticated:', session.user);
+      setHasRedirected(true);
       
       // If user has no role, redirect to role selection
       if (!session.user.role) {
@@ -58,7 +65,7 @@ export default function SignInPage() {
         }
       }
     }
-  }, [session, status, router]);
+  }, [session, status]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
