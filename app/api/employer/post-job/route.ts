@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Error posting job:', error);
     console.error('❌ Error details:', {
       message: error instanceof Error ? error.message : 'Unknown error',
