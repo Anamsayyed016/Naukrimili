@@ -101,42 +101,6 @@ export default function EmployerDashboard() {
     }
   ];
 
-  useEffect(() => {
-    if (status === 'loading') return;
-    if (status === 'unauthenticated') {
-      router.push('/auth/login?redirect=/employer/dashboard');
-      return;
-    }
-    if (session?.user?.role !== 'employer') {
-      router.push('/dashboard');
-      return;
-    }
-    
-    fetchDashboardData();
-    fetchNotifications();
-    
-    // Set up auto-refresh every 30 seconds
-    const refreshInterval = setInterval(() => {
-      fetchDashboardData();
-      fetchNotifications();
-    }, 30000);
-    
-    return () => clearInterval(refreshInterval);
-  }, [status, session, router]);
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await fetch('/api/notifications');
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.notifications || []);
-        setUnreadCount(data.unreadCount || 0);
-      }
-    } catch (_error) {
-      console.error('Error fetching notifications:', error);
-    }
-  };
-
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -197,6 +161,42 @@ export default function EmployerDashboard() {
     }
   };
 
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (status === 'unauthenticated') {
+      router.push('/auth/login?redirect=/employer/dashboard');
+      return;
+    }
+    if (session?.user?.role !== 'employer') {
+      router.push('/dashboard');
+      return;
+    }
+    
+    fetchDashboardData();
+    fetchNotifications();
+    
+    // Set up auto-refresh every 30 seconds
+    const refreshInterval = setInterval(() => {
+      fetchDashboardData();
+      fetchNotifications();
+    }, 30000);
+    
+    return () => clearInterval(refreshInterval);
+  }, [status, session]);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('/api/notifications');
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (_error) {
+      console.error('Error fetching notifications:', _error);
+    }
+  };
+
   const fetchAdditionalData = async () => {
     try {
       // Fetch recent jobs
@@ -228,7 +228,7 @@ export default function EmployerDashboard() {
         }
       }
     } catch (_error) {
-      console.error('Error fetching additional data:', error);
+      console.error('Error fetching additional data:', _error);
     }
   };
 
@@ -262,10 +262,10 @@ export default function EmployerDashboard() {
       } else {
         throw new Error(result.error || 'Failed to delete job');
       }
-    } catch (_error) {
-      console.error('Error deleting job:', error);
+    } catch (err) {
+      console.error('Error deleting job:', err);
       toast.error('Failed to delete job', {
-        description: error instanceof Error ? error.message : 'An unexpected error occurred',
+        description: err instanceof Error ? err.message : 'An unexpected error occurred',
         duration: 5000,
       });
     } finally {
@@ -316,8 +316,8 @@ export default function EmployerDashboard() {
       }
       
       setAiInsights(insights);
-    } catch (_error) {
-      console.error('Error generating AI insights:', error);
+    } catch (err) {
+      console.error('Error generating AI insights:', err);
     }
   };
 
