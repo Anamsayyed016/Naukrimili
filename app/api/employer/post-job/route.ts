@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
         source: 'manual',
         sourceId: `manual_${Date.now()}`,
         companyId: company.id,
+        createdBy: basicUser.id,
         rawJson: {
           ...body,
           // Enhanced location data
