@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -325,6 +325,11 @@ export default function AIJobPostingForm() {
   const [currencySymbol, setCurrencySymbol] = useState<string>('$');
   const [currencyCode, setCurrencyCode] = useState<string>('USD');
   
+  // Refs for debouncing dynamic AI suggestions
+  const titleDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const descriptionDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const requirementsDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  
   // Currency mapping based on country
   const getCurrencyByCountry = (countryCode: string) => {
     const currencyMap: { [key: string]: { symbol: string; code: string; name: string } } = {
@@ -394,6 +399,55 @@ export default function AIJobPostingForm() {
     setCurrencyCode(currency.code);
     return data;
   });
+
+  // Dynamic AI suggestions with debouncing - auto-suggest as user types
+  useEffect(() => {
+    // Auto-suggest for title field (debounced)
+    if (formData.title && formData.title.length >= 3 && currentStep === 1) {
+      if (titleDebounceRef.current) clearTimeout(titleDebounceRef.current);
+      
+      titleDebounceRef.current = setTimeout(() => {
+        console.log('🤖 Auto-triggering AI suggestions for title:', formData.title);
+        getAISuggestions('title', formData.title);
+      }, 1500); // 1.5 second debounce for performance
+    }
+
+    return () => {
+      if (titleDebounceRef.current) clearTimeout(titleDebounceRef.current);
+    };
+  }, [formData.title, currentStep]);
+
+  useEffect(() => {
+    // Auto-suggest for description field (debounced)
+    if (formData.description && formData.description.length >= 10 && currentStep === 1) {
+      if (descriptionDebounceRef.current) clearTimeout(descriptionDebounceRef.current);
+      
+      descriptionDebounceRef.current = setTimeout(() => {
+        console.log('🤖 Auto-triggering AI suggestions for description');
+        getAISuggestions('description', formData.description);
+      }, 2000); // 2 second debounce for longer text
+    }
+
+    return () => {
+      if (descriptionDebounceRef.current) clearTimeout(descriptionDebounceRef.current);
+    };
+  }, [formData.description, currentStep]);
+
+  useEffect(() => {
+    // Auto-suggest for requirements field (debounced)
+    if (formData.requirements && formData.requirements.length >= 10 && currentStep === 2) {
+      if (requirementsDebounceRef.current) clearTimeout(requirementsDebounceRef.current);
+      
+      requirementsDebounceRef.current = setTimeout(() => {
+        console.log('🤖 Auto-triggering AI suggestions for requirements');
+        getAISuggestions('requirements', formData.requirements);
+      }, 2000); // 2 second debounce
+    }
+
+    return () => {
+      if (requirementsDebounceRef.current) clearTimeout(requirementsDebounceRef.current);
+    };
+  }, [formData.requirements, currentStep]);
 
   // Function to extract country from location string
   const extractCountryFromLocation = (locationString: string) => {

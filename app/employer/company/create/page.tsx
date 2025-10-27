@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import EmployerOnboardingCheck from '@/components/employer/EmployerOnboardingCheck';
@@ -179,6 +179,11 @@ export default function CreateCompanyPage() {
   const [loading, setLoading] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
   const [checkingExistingCompany, setCheckingExistingCompany] = useState(true);
+  
+  // Refs for debouncing dynamic AI suggestions in company form
+  const companyNameDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const companyDescriptionDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  
   const [formData, setFormData] = useState<CompanyFormData>({
     name: '',
     description: '',
@@ -248,6 +253,22 @@ export default function CreateCompanyPage() {
 
     checkExistingCompany();
   }, [status, session, router]);
+
+  // Dynamic AI suggestions for company description - auto-suggest as user types
+  useEffect(() => {
+    if (formData.description && formData.description.length >= 10 && formData.name) {
+      if (companyDescriptionDebounceRef.current) clearTimeout(companyDescriptionDebounceRef.current);
+      
+      companyDescriptionDebounceRef.current = setTimeout(() => {
+        console.log('🤖 Auto-triggering AI suggestions for company description');
+        generateAIContent('description');
+      }, 2000); // 2 second debounce
+    }
+
+    return () => {
+      if (companyDescriptionDebounceRef.current) clearTimeout(companyDescriptionDebounceRef.current);
+    };
+  }, [formData.description, formData.name]);
 
   const handleInputChange = (field: keyof CompanyFormData, value: string | string[]) => {
     console.log(`Updating field ${field} with value:`, value);
@@ -330,7 +351,7 @@ export default function CreateCompanyPage() {
         const errorData = await response.json();
         toast.error(errorData.error || 'Failed to generate AI content');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('AI generation error:', error);
       toast.error('Network error: Failed to generate AI content');
     } finally {
