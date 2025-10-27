@@ -5,9 +5,8 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import PostAuthRoleSelection from '@/components/auth/PostAuthRoleSelection';
 
@@ -19,15 +18,16 @@ export default function RoleSelectionPage() {
   console.log('RoleSelectionPage - User email:', session?.user?.email);
   console.log('RoleSelectionPage - User name:', session?.user?.name);
   const router = useRouter();
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    if (status === 'loading') {
-      console.log('Session is loading...');
-      return; // Still loading
+    if (status === 'loading' || hasRedirected) {
+      return; // Still loading or already redirected
     }
 
     if (status === 'unauthenticated') {
       console.log('User is not authenticated, redirecting to signin');
+      setHasRedirected(true);
       router.push('/auth/signin');
       return;
     }
@@ -39,6 +39,7 @@ export default function RoleSelectionPage() {
       // If user already has a role, redirect them to the appropriate page
       if (session.user.role) {
         console.log('User already has role:', session.user.role, '- redirecting from role selection page');
+        setHasRedirected(true);
         let targetUrl = '/dashboard';
         
         switch (session.user.role) {
@@ -57,14 +58,11 @@ export default function RoleSelectionPage() {
         
         const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
         console.log('Redirecting to:', finalUrl);
-        window.location.href = finalUrl;
+        router.push(finalUrl);
         return;
       }
-      
-      // Let the PostAuthRoleSelection component handle role-based logic
-      // This page only shows the role selection interface
     }
-  }, [session, status, router]);
+  }, [session, status]);
 
   if (status === 'loading') {
     return (
