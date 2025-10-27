@@ -128,7 +128,7 @@ export default function SignInPage() {
     setError('');
   };
 
-  const handleOTPVerified = async (verifiedOtpId: string) => {
+  const handleOTPVerified = async (data: Record<string, unknown>) => {
     try {
       // Verify phone number in database
       const response = await fetch('/api/auth/verify-phone', {
@@ -141,9 +141,9 @@ export default function SignInPage() {
         }),
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
-      if (data.success) {
+      if (result.success) {
         // Create a session for the phone-verified user
         // For now, redirect to role selection
         router.push('/auth/role-selection');
@@ -151,7 +151,7 @@ export default function SignInPage() {
         setError('Phone verification failed. Please try again.');
       }
     } catch (_error) {
-      console.error('Phone verification error:', error);
+      console.error('Phone verification error:', _error);
       setError('Phone verification failed. Please try again.');
     }
   };
@@ -292,7 +292,6 @@ export default function SignInPage() {
             <div className="space-y-4">
               <OAuthButtons 
                 callbackUrl="/auth/role-selection"
-                disabled={loading}
               />
               
               <Button
