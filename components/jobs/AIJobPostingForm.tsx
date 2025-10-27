@@ -1204,9 +1204,30 @@ export default function AIJobPostingForm() {
     // Mark that we're manually applying a suggestion to prevent re-trigger
     manuallyAppliedRef.current = field;
     
-    // Apply the suggestion to form data
+    // Apply the suggestion to form data - APPEND to existing content, don't replace
     setFormData(prev => {
-      const updated = { ...prev, [field]: suggestion };
+      const currentContent = prev[field as keyof typeof prev] as string || '';
+      let updatedContent;
+      
+      if (currentContent.trim() === '') {
+        // If field is empty, just use the suggestion
+        updatedContent = suggestion;
+      } else {
+        // If field has content, append the suggestion with proper formatting
+        const trimmedCurrent = currentContent.trim();
+        const needsPeriod = !trimmedCurrent.match(/[.!?]$/);
+        const separator = needsPeriod ? '. ' : ' ';
+        
+        // Check if suggestion is already in the content to avoid duplicates
+        if (trimmedCurrent.includes(suggestion)) {
+          console.log('Suggestion already exists in content, skipping append');
+          updatedContent = trimmedCurrent;
+        } else {
+          updatedContent = trimmedCurrent + separator + suggestion.trim();
+        }
+      }
+      
+      const updated = { ...prev, [field]: updatedContent };
       console.log('Updated form data:', updated);
       return updated;
     });
