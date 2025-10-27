@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (_error) {
-    console.error("Error generating job suggestions:", error);
+    console.error("Error generating job suggestions:", _error);
     return NextResponse.json(
       { error: "Failed to generate suggestions" },
       { status: 500 }
@@ -61,8 +61,8 @@ async function generateGeminiSuggestions(model: any, type: string, field: string
     const suggestions = parseGeminiResponse(text);
     return suggestions;
   } catch (_error) {
-    console.error("Error generating Gemini content:", error);
-    throw error;
+    console.error("Error generating Gemini content:", _error);
+    throw _error;
   }
 }
 
