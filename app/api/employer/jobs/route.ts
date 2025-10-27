@@ -5,8 +5,31 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
-    // Temporary bypass for debugging - return all jobs
-    console.log('🔍 Fetching jobs without authentication...');
+    // Verify authentication and get user
+    const auth = await requireEmployerAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { user } = auth;
+    console.log('🔍 Fetching jobs for employer:', user.id);
+    
+    // Get the user's company
+    const company = await prisma.company.findFirst({
+      where: { createdBy: user.id }
+    });
+
+    if (!company) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          jobs: [],
+          pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+          stats: { totalJobs: 0, totalApplications: 0 }
+        }
+      });
+    }
+
     const { searchParams } = new URL(request.url);
     
     const page = parseInt(searchParams.get("page") || "1");
@@ -18,8 +41,10 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    // For now, get all jobs (we'll filter by user later)
-    const where: any = {};
+    // Filter by company so employers only see their own jobs
+    const where: any = {
+      companyId: company.id
+    };
 
     if (status && status !== "all") {
       where.isActive = status === "active";
@@ -74,14 +99,17 @@ export async function GET(request: NextRequest) {
       prisma.job.count({ where })
     ]);
 
-    // Calculate statistics
+    // Calculate statistics for this company only
     const stats = await prisma.job.aggregate({
+      where: { companyId: company.id },
       _count: {
         id: true
       }
     });
 
-    const totalApplications = await prisma.application.count();
+    const totalApplications = await prisma.application.count({
+      where: { companyId: company.id }
+    });
 
     return NextResponse.json({
       success: true,
@@ -99,7 +127,7 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-  } catch (_error) {
+  } catch (error) {
     console.error("Error fetching company jobs:", error);
     return NextResponse.json(
       { error: "Failed to fetch jobs" },
@@ -188,7 +216,7 @@ export async function POST(request: NextRequest) {
       data: job,
       message: "Job posted successfully"
     }, { status: 201 });
-  } catch (_error) {
+  } catch (error) {
     console.error("Error creating job:", error);
     return NextResponse.json(
       { error: "Failed to create job" },
