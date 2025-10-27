@@ -72,9 +72,14 @@ function generatePrompt(type: string, field: string, value: string, context: any
   const industry = context?.industry || 'Technology';
   const department = context?.department || 'Engineering';
 
-  switch (type) {
+  // Map field types properly
+  const mappedType = type === 'title' ? 'jobTitle' : type;
+
+  switch (mappedType) {
     case 'jobTitle':
-      return `Generate 5 professional job titles for a ${experienceLevel} position in ${industry} industry, ${department} department. Current input: "${value}". Return only the job titles, one per line, without numbering or bullet points.`;
+    case 'title':
+      // Generate dynamic job titles based on keywords the user typed
+      return `Generate 8 professional job titles based on the keywords "${value}". Consider variations, seniority levels, and related roles. Be specific to the technology/skill mentioned. For example, if input is "python", suggest "Python Developer", "Senior Python Engineer", "Python Backend Developer", etc. Return only the job titles, one per line, without numbering.`;
     
     case 'description':
       return `Generate a professional job description for a "${value}" position in ${industry} industry. Include key responsibilities, what the company does, and what makes this role exciting. Keep it concise (150-200 words). Return only the description text.`;
@@ -89,7 +94,7 @@ function generatePrompt(type: string, field: string, value: string, context: any
       return `Generate 6-8 attractive benefits and perks for a ${industry} company offering a "${value}" position. Include both standard and industry-specific benefits. Return only the benefits, one per line, without numbering.`;
     
     default:
-      return `Generate 5 professional suggestions for "${field}" field with value "${value}" in context of ${industry} industry. Return only the suggestions, one per line.`;
+      return `Generate 5 professional suggestions based on "${value}" for "${field}" field in ${industry} industry. Be specific to the keywords and context. Return only the suggestions, one per line.`;
   }
 }
 
@@ -107,8 +112,12 @@ function parseGeminiResponse(text: string): string[] {
 function getStaticSuggestions(type: string, field: string, value: string, context: any) {
   let suggestions = [];
 
-  switch (type) {
+  // Map field types properly
+  const mappedType = type === 'title' ? 'jobTitle' : type;
+
+  switch (mappedType) {
     case 'jobTitle':
+    case 'title':
       suggestions = generateJobTitleSuggestions(field, value, context);
       break;
     case 'description':
@@ -139,82 +148,68 @@ function getStaticSuggestions(type: string, field: string, value: string, contex
 }
 
 function generateJobTitleSuggestions(field: string, value: string, context: any): string[] {
-  const industry = context?.industry || 'Technology';
-  const experience = context?.experienceLevel || 'Mid Level';
-  const department = context?.department || 'Engineering';
-
-  const jobTitles = {
-    'Technology': {
-      'Engineering': [
-        'Senior Software Engineer', 'Full Stack Developer', 'Frontend Developer',
-        'Backend Developer', 'DevOps Engineer', 'Cloud Engineer', 'Security Engineer',
-        'Machine Learning Engineer', 'Data Engineer', 'Solutions Architect',
-        'Technical Lead', 'Engineering Manager', 'Principal Engineer'
-      ],
-      'Product': [
-        'Product Manager', 'Senior Product Manager', 'Product Owner',
-        'Technical Product Manager', 'Product Marketing Manager', 'Product Analyst'
-      ],
-      'Design': [
-        'UI/UX Designer', 'Senior UX Designer', 'Product Designer',
-        'Visual Designer', 'Design System Designer', 'UX Researcher'
-      ],
-      'Data': [
-        'Data Scientist', 'Senior Data Scientist', 'Data Analyst',
-        'Business Intelligence Analyst', 'ML Engineer', 'Data Engineer'
-      ]
-    },
-    'Healthcare': {
-      'Clinical': [
-        'Registered Nurse', 'Senior Nurse', 'Nurse Practitioner',
-        'Physician Assistant', 'Clinical Nurse Specialist', 'Nurse Manager'
-      ],
-      'Administrative': [
-        'Healthcare Administrator', 'Medical Office Manager', 'Health Services Manager',
-        'Patient Care Coordinator', 'Healthcare Operations Manager'
-      ],
-      'Technology': [
-        'Healthcare IT Specialist', 'Medical Software Engineer', 'Health Informatics Specialist',
-        'Clinical Systems Analyst', 'Healthcare Data Analyst'
-      ]
-    },
-    'Finance': {
-      'Banking': [
-        'Financial Analyst', 'Senior Financial Analyst', 'Investment Analyst',
-        'Credit Analyst', 'Risk Analyst', 'Compliance Officer'
-      ],
-      'Investment': [
-        'Portfolio Manager', 'Investment Advisor', 'Wealth Manager',
-        'Financial Planner', 'Securities Analyst', 'Trading Specialist'
-      ],
-      'Accounting': [
-        'Senior Accountant', 'Financial Controller', 'Tax Specialist',
-        'Audit Manager', 'Cost Accountant', 'Budget Analyst'
-      ]
-    },
-    'Education': {
-      'Teaching': [
-        'Elementary School Teacher', 'High School Teacher', 'Special Education Teacher',
-        'Curriculum Specialist', 'Instructional Designer', 'Academic Coordinator'
-      ],
-      'Administration': [
-        'School Principal', 'Academic Dean', 'Student Affairs Coordinator',
-        'Educational Administrator', 'Program Director', 'Academic Advisor'
-      ]
-    }
-  };
-
-  const industryJobs = jobTitles[industry] || jobTitles['Technology'];
-  const departmentJobs = industryJobs[department] || industryJobs['Engineering'];
+  // Dynamic job title generation based on keywords in the input value
+  const lowerValue = value.toLowerCase();
+  const suggestions = new Set<string>();
   
-  // Filter based on experience level
-  const filteredJobs = departmentJobs.filter(job => {
-    if (experience === 'Entry Level' && job.toLowerCase().includes('senior')) return false;
-    if (experience === 'Senior Level' && !job.toLowerCase().includes('senior') && !job.toLowerCase().includes('lead') && !job.toLowerCase().includes('manager')) return false;
-    return true;
+  // Technology keywords mapping
+  const techKeywords = {
+    'python': ['Python Developer', 'Senior Python Developer', 'Python Backend Developer', 'Python Software Engineer', 'Python Data Engineer'],
+    'javascript': ['JavaScript Developer', 'Senior JavaScript Developer', 'Full Stack JavaScript Developer', 'JS Engineer', 'Node.js Developer'],
+    'react': ['React Developer', 'Senior React Developer', 'React Frontend Developer', 'React Native Developer', 'React Engineer'],
+    'node': ['Node.js Developer', 'Senior Node.js Developer', 'Backend Node.js Developer', 'Node.js Architect', 'Full Stack Developer'],
+    'java': ['Java Developer', 'Senior Java Developer', 'Java Backend Developer', 'Java Software Engineer', 'Java Architect'],
+    'php': ['PHP Developer', 'Senior PHP Developer', 'PHP Backend Developer', 'Laravel Developer', 'PHP Engineer'],
+    'sql': ['SQL Developer', 'Database Developer', 'Database Administrator', 'SQL Analyst', 'Data Engineer'],
+    'aws': ['AWS Cloud Engineer', 'Senior AWS Developer', 'DevOps Engineer', 'Cloud Architect', 'AWS Solutions Architect'],
+    'docker': ['DevOps Engineer', 'Senior DevOps Engineer', 'Infrastructure Engineer', 'DevOps Architect', 'Container Engineer'],
+    'kubernetes': ['DevOps Engineer', 'Kubernetes Engineer', 'Cloud Infrastructure Engineer', 'Container Platform Engineer', 'K8s Engineer'],
+    'data': ['Data Engineer', 'Data Scientist', 'Senior Data Engineer', 'Big Data Engineer', 'Data Analyst'],
+    'machine learning': ['ML Engineer', 'Machine Learning Engineer', 'Senior ML Engineer', 'AI Engineer', 'Data Scientist'],
+    'frontend': ['Frontend Developer', 'Senior Frontend Developer', 'UI Developer', 'React Developer', 'Angular Developer'],
+    'backend': ['Backend Developer', 'Senior Backend Developer', 'Backend Engineer', 'API Developer', 'Server-Side Developer'],
+    'full stack': ['Full Stack Developer', 'Senior Full Stack Developer', 'Full Stack Engineer', 'MERN Stack Developer', 'MEAN Stack Developer'],
+    'mobile': ['Mobile Developer', 'Senior Mobile Developer', 'iOS Developer', 'Android Developer', 'React Native Developer'],
+    'design': ['UI/UX Designer', 'Product Designer', 'Senior UX Designer', 'UI Designer', 'Design System Designer'],
+    'security': ['Security Engineer', 'Cybersecurity Engineer', 'Application Security Engineer', 'Senior Security Engineer', 'Penetration Tester'],
+    'devops': ['DevOps Engineer', 'Senior DevOps Engineer', 'DevOps Architect', 'Site Reliability Engineer', 'CI/CD Engineer']
+  };
+  
+  // Check for keyword matches
+  for (const [keyword, titles] of Object.entries(techKeywords)) {
+    if (lowerValue.includes(keyword)) {
+      titles.forEach(title => suggestions.add(title));
+    }
+  }
+  
+  // If no keyword matches, generate generic suggestions based on input
+  if (suggestions.size === 0) {
+    const capitalizedValue = value.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+    
+    suggestions.add(`${capitalizedValue} Developer`);
+    suggestions.add(`Senior ${capitalizedValue} Developer`);
+    suggestions.add(`${capitalizedValue} Engineer`);
+    suggestions.add(`Senior ${capitalizedValue} Engineer`);
+    suggestions.add(`${capitalizedValue} Specialist`);
+  }
+  
+  // Add experience variations
+  const baseSuggestions = Array.from(suggestions);
+  const allSuggestions = [...baseSuggestions];
+  
+  // Add Junior/Senior variations for the first 3 suggestions
+  baseSuggestions.slice(0, 3).forEach(title => {
+    if (!title.toLowerCase().includes('senior') && !title.toLowerCase().includes('junior')) {
+      allSuggestions.push(`Junior ${title}`);
+      allSuggestions.push(`Senior ${title}`);
+      allSuggestions.push(title.replace('Developer', 'Engineer'));
+      allSuggestions.push(title.replace('Engineer', 'Developer'));
+    }
   });
-
-  return filteredJobs.slice(0, 8);
+  
+  return [...new Set(allSuggestions)].slice(0, 8);
 }
 
 function generateDescriptionSuggestions(field: string, value: string, context: any): string[] {
