@@ -212,7 +212,7 @@ export default function EmployerJobsPage() {
         return;
       }
 
-      const response = await apiClient.get<JobsResponse>('/api/employer/jobs', params);
+      const response = await apiClient.get<JobsResponse>('/employer/jobs', params);
       
       if (response.success && response.data) {
         const data = response.data as any;
@@ -263,7 +263,7 @@ export default function EmployerJobsPage() {
     if (!session?.user?.id || status === 'loading') return;
     
     // Initialize socket connection
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000', {
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || typeof window !== 'undefined' ? window.location.origin : 'https://naukrimili.com', {
       auth: {
         token: session?.user?.id
       },
@@ -344,7 +344,7 @@ export default function EmployerJobsPage() {
         return;
       }
       
-      const response = await apiClient.get<any>('/api/employer/jobs');
+      const response = await apiClient.get<any>('/employer/jobs');
       
       if (response.success && response.data) {
         const statsData = response.data.stats || response.data.data?.stats;
@@ -465,7 +465,7 @@ export default function EmployerJobsPage() {
   // Fetch dynamic filter options
   const fetchDynamicOptions = useCallback(async () => {
     try {
-      const response = await apiClient.get<{ jobTypes: Array<{ value: string; label: string; count: number }>; experienceLevels: Array<{ value: string; label: string; count: number }> }>('/api/jobs/constants');
+      const response = await apiClient.get<{ jobTypes: Array<{ value: string; label: string; count: number }>; experienceLevels: Array<{ value: string; label: string; count: number }> }>('/jobs/constants');
       
       if (response.success && response.data) {
         setDynamicOptions({
