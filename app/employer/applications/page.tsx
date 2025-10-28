@@ -49,11 +49,16 @@ interface Application {
   notes?: string;
   user: {
     id: string;
-    name: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    name?: string;
     email: string;
-    phone: string;
-    location: string;
-    profilePicture: string;
+    phone?: string | null;
+    location?: string | null;
+    profilePicture?: string | null;
+    bio?: string | null;
+    skills?: string | string[] | null;
+    experience?: string | null;
   };
   job: {
     id: number;
@@ -463,11 +468,11 @@ export default function EmployerApplicationsPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-4">
                           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                            {application.user.name.charAt(0).toUpperCase()}
+                            {(application.user.name || application.user.firstName || application.user.email || 'U').charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <h3 className="font-bold text-xl text-slate-900 group-hover:text-blue-600 transition-colors">
-                              {application.user.name}
+                              {application.user.name || (application.user.firstName ? `${application.user.firstName} ${application.user.lastName || ''}`.trim() : application.user.email)}
                             </h3>
                             <p className="text-sm text-slate-600">{application.job.title}</p>
                           </div>
@@ -485,10 +490,12 @@ export default function EmployerApplicationsPage() {
                               {application.user.phone}
                             </span>
                           )}
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4 text-orange-600" />
-                            {application.user.location}
-                          </span>
+                          {application.user.location && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4 text-orange-600" />
+                              {application.user.location}
+                            </span>
+                          )}
                           <span className="flex items-center gap-1">
                             <Calendar className="h-4 w-4 text-purple-600" />
                             {formatDate(application.appliedAt)}
@@ -598,7 +605,7 @@ export default function EmployerApplicationsPage() {
                                   <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                                     <p className="font-semibold text-slate-900 mb-2">Application Details:</p>
                                     <p className="text-slate-700">
-                                      <strong>Candidate:</strong> {application.user.name}
+                                      <strong>Candidate:</strong> {application.user.name || (application.user.firstName ? `${application.user.firstName} ${application.user.lastName || ''}`.trim() : application.user.email)}
                                     </p>
                                     <p className="text-slate-700">
                                       <strong>Job:</strong> {application.job.title}

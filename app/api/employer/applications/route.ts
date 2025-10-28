@@ -45,49 +45,55 @@ export async function GET(request: NextRequest) {
 
     console.log('🔍 Querying applications with where clause:', where);
     
-    let applications, total;
-    try {
-      [applications, total] = await Promise.all([
-        prisma.application.findMany({
-          where,
-          include: {
-            user: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-                phone: true,
-                location: true,
-                profilePicture: true,
-                bio: true,
-                skills: true,
-                experience: true
-              }
-            },
-            job: {
-              select: {
-                id: true,
-                title: true,
-                location: true,
-                company: true,
-                jobType: true,
-                experienceLevel: true
-              }
+    const [applications, total] = await Promise.all([
+      prisma.application.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phone: true,
+              location: true,
+              profilePicture: true,
+              bio: true,
+              skills: true,
+              experience: true
             }
           },
-          orderBy: { appliedAt: "desc" },
-          skip,
-          take: limit
-        }),
-        prisma.application.count({ where })
-      ]);
-      
-      console.log(`📊 Successfully fetched ${applications.length} applications out of ${total} total for company ${user.company.id}`);
-    } catch (dbError) {
-      console.error('❌ Database query error:', dbError);
-      throw dbError;
-    }
+          job: {
+            select: {
+              id: true,
+              title: true,
+              location: true,
+              company: true,
+              jobType: true,
+              experienceLevel: true
+            }
+          }
+        },
+        orderBy: { appliedAt: "desc" },
+        skip,
+        take: limit
+      }),
+      prisma.application.count({ where })
+    ]);
+    
+    console.log(`📊 Successfully fetched ${applications.length} applications out of ${total} total for company ${user.company.id}`);
+
+    // Normalize application data to ensure consistent structure
+    const normalizedApplications = applications.map(app => ({
+      ...app,
+      user: {
+        ...app.user,
+        // Ensure name field exists by combining firstName and lastName
+        name: app.user.firstName && app.user.lastName 
+          ? `${app.user.firstName} ${app.user.lastName}`.trim()
+          : app.user.firstName || app.user.email || 'Unknown User'
+      }
+    }));
 
     // Calculate statistics
     const stats = await prisma.application.aggregate({
@@ -112,7 +118,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        applications,
+        applications: normalizedApplications,
         pagination: {
           page,
           limit,
@@ -128,7 +134,7 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-  } catch (_error) {
+  } catch (error) {
     console.error("Error fetching company applications:", error);
     
     // Provide more detailed error information for debugging
