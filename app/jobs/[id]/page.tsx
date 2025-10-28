@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search } from "lucide-react";
 import JobShare from "@/components/JobShare";
 import JobPostingSchema from "@/components/seo/JobPostingSchema";
+import { formatJobSalary } from "@/lib/currency-utils";
 
 interface Job {
   id: string;
@@ -329,42 +330,50 @@ export default function JobDetailsPage() {
               <CardContent>
                 {/* Job Info */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  {job.salary && (
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-green-600" />
+                  {job.salaryMin || job.salaryMax || job.salary ? (
+                    <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-100">
+                      <div className="p-2 bg-emerald-100 rounded-lg">
+                        <DollarSign className="w-4 h-4 text-emerald-600" />
+                      </div>
                       <div>
-                        <p className="text-sm text-gray-500">Salary</p>
-                        <p className="font-medium">{job.salary}</p>
+                        <p className="text-xs text-emerald-700 font-medium">Salary</p>
+                        <p className="font-bold text-emerald-900">{formatJobSalary(job)}</p>
                       </div>
                     </div>
-                  )}
+                  ) : null}
                   
                   {job.jobType && (
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-blue-600" />
+                    <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Briefcase className="w-4 h-4 text-blue-600" />
+                      </div>
                       <div>
-                        <p className="text-sm text-gray-500">Type</p>
-                        <p className="font-medium">{job.jobType}</p>
+                        <p className="text-xs text-blue-700 font-medium">Type</p>
+                        <p className="font-bold text-blue-900">{job.jobType}</p>
                       </div>
                     </div>
                   )}
                   
                   {job.experienceLevel && (
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-purple-600" />
+                    <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <Users className="w-4 h-4 text-purple-600" />
+                      </div>
                       <div>
-                        <p className="text-sm text-gray-500">Experience</p>
-                        <p className="font-medium">{job.experienceLevel}</p>
+                        <p className="text-xs text-purple-700 font-medium">Experience</p>
+                        <p className="font-bold text-purple-900 capitalize">{job.experienceLevel}</p>
                       </div>
                     </div>
                   )}
                   
                   {job.postedAt && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-orange-600" />
+                    <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-100">
+                      <div className="p-2 bg-orange-100 rounded-lg">
+                        <Calendar className="w-4 h-4 text-orange-600" />
+                      </div>
                       <div>
-                        <p className="text-sm text-gray-500">Posted</p>
-                        <p className="font-medium">{new Date(job.postedAt).toLocaleDateString()}</p>
+                        <p className="text-xs text-orange-700 font-medium">Posted</p>
+                        <p className="font-bold text-orange-900">{new Date(job.postedAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )}
@@ -428,26 +437,55 @@ export default function JobDetailsPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Job Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Job Statistics</CardTitle>
+            {/* Job Stats - Enhanced and Responsive */}
+            <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-blue-200 shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  📊 Job Statistics
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Views</span>
-                  <span className="font-semibold">{job.views || 0}</span>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100 hover:bg-white/80 transition-all">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-blue-100 rounded-lg">
+                      <Eye className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="text-slate-700 font-medium">Views</span>
+                  </div>
+                  <span className="font-bold text-blue-700 text-lg">{job.views || 0}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Applications</span>
-                  <span className="font-semibold">{job.applicationsCount || 0}</span>
+                <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-green-100 hover:bg-white/80 transition-all">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-green-100 rounded-lg">
+                      <Users className="w-4 h-4 text-green-600" />
+                    </div>
+                    <span className="text-slate-700 font-medium">Applications</span>
+                  </div>
+                  <span className="font-bold text-green-700 text-lg">{job.applicationsCount || 0}</span>
                 </div>
                 {job.sector && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Sector</span>
-                    <span className="font-semibold">{job.sector}</span>
+                  <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-purple-100 hover:bg-white/80 transition-all">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-purple-100 rounded-lg">
+                        <Building2 className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <span className="text-slate-700 font-medium">Sector</span>
+                    </div>
+                    <span className="font-bold text-purple-700 text-sm capitalize">{job.sector}</span>
                   </div>
                 )}
+                {/* Additional dynamic metrics */}
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-100">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-yellow-100 rounded-lg">
+                      <Sparkles className="w-4 h-4 text-yellow-600" />
+                    </div>
+                    <span className="text-slate-700 font-medium">Engagement</span>
+                  </div>
+                  <span className="font-bold text-yellow-700 text-lg">
+                    {Math.round(((job.applicationsCount || 0) / Math.max(job.views || 1, 1)) * 100)}%
+                  </span>
+                </div>
               </CardContent>
             </Card>
 
