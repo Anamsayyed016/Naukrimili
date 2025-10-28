@@ -276,7 +276,8 @@ export default function UnifiedUserProfile({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full right-0 mt-2 w-72 sm:w-80 md:w-96 bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] max-h-[calc(100vh-5rem)] overflow-y-auto"
+            className="absolute top-full right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-xl shadow-2xl z-[9999]"
+            style={{ maxHeight: 'calc(100vh - 5rem)' }}
           >
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-100">
@@ -295,7 +296,7 @@ export default function UnifiedUserProfile({
             </div>
 
             {/* Menu Items */}
-            <div className="py-2">
+            <div className="py-2 overflow-y-auto max-h-[calc(100vh-15rem)]">
               <button
                 onClick={() => {
                   router.push('/profile');
