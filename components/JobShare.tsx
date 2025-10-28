@@ -210,18 +210,6 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
               {/* Share Options */}
               <div className="p-4 max-h-[60vh] overflow-y-auto">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {/* Native Share (Mobile) */}
-                  {navigator.share && (
-                    <Button
-                      onClick={handleNativeShare}
-                      variant="outline"
-                      className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-gray-50 border-gray-200 touch-target"
-                    >
-                      <Share2 className="h-5 w-5 text-gray-600" />
-                      <span className="text-xs font-medium text-gray-700">Share</span>
-                    </Button>
-                  )}
-
                   {/* WhatsApp */}
                   <Button
                     onClick={() => handleExternalShare(shareUrls.whatsapp)}
