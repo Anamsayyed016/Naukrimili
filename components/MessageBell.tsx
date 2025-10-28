@@ -182,7 +182,7 @@ export function MessageBell() {
         </PopoverTrigger>
         
         <PopoverContent 
-          className="w-80 sm:w-96 p-0 mx-2 sm:mx-0 shadow-2xl border-0 rounded-xl" 
+          className="w-[calc(100vw-1rem)] sm:w-80 md:w-96 p-0 mx-2 sm:mx-0 shadow-2xl border border-gray-200 rounded-xl z-[9999]" 
           align="end"
           side="bottom"
           sideOffset={12}
@@ -195,7 +195,10 @@ export function MessageBell() {
             maxHeight: 'calc(100vh - 6rem)',
             overflow: 'hidden',
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)'
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+            transform: 'translateZ(0)',
+            willChange: 'transform, opacity',
+            backfaceVisibility: 'hidden'
           }}
         >
           <div className="p-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">

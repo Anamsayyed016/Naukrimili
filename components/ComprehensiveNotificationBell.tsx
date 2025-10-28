@@ -68,6 +68,19 @@ export function ComprehensiveNotificationBell() {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Lock body scroll when dropdown is open on mobile
+  useEffect(() => {
+    if (isOpen && isMobile) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, isMobile]);
+
   // Fetch notification stats
   useEffect(() => {
     const fetchStats = async () => {
@@ -168,18 +181,28 @@ export function ComprehensiveNotificationBell() {
       {/* Backdrop for mobile */}
       {isOpen && isMobile && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-black/30 z-[9997]"
           onClick={() => setIsOpen(false)}
+          style={{ 
+            backdropFilter: 'blur(2px)',
+            WebkitBackdropFilter: 'blur(2px)'
+          }}
         />
       )}
 
       {/* Notification Dropdown */}
       {isOpen && (
-        <div className="fixed inset-0 sm:inset-auto sm:absolute sm:right-0 sm:mt-2 w-full sm:w-80 md:w-96 h-screen sm:h-auto bg-white rounded-none sm:rounded-xl shadow-2xl border-0 z-50 max-h-screen sm:max-h-96 overflow-hidden transform transition-all duration-200 ease-in-out" style={{ 
-          maxHeight: '100vh',
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)'
-        }}>
+        <div 
+          className={isMobile ? "fixed top-16 left-2 right-2 sm:left-auto sm:right-0 sm:absolute sm:mt-2 w-auto sm:w-80 md:w-96 sm:h-auto bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-[calc(100vh-5rem)] overflow-hidden" : "fixed left-auto right-0 mt-2 w-80 md:w-96 h-auto bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-96 overflow-hidden"}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div style={{ 
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+            transform: 'translateZ(0)',
+            willChange: 'transform, opacity',
+            backfaceVisibility: 'hidden'
+          }}>
           {/* Header */}
           <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
             <div className="flex items-center justify-between">
@@ -292,6 +315,7 @@ export function ComprehensiveNotificationBell() {
                 View all
               </a>
             </div>
+          </div>
           </div>
         </div>
       )}
