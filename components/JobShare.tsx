@@ -210,71 +210,71 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
               </div>
 
               {/* Share Options */}
-              <div className="p-4 max-h-[60vh] overflow-y-auto" style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="p-3 sm:p-4 max-h-[60vh] overflow-y-auto" style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}>
+                <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3">
                   {/* WhatsApp */}
                   <Button
                     onClick={() => handleExternalShare(shareUrls.whatsapp)}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-green-50 hover:border-green-200 border-gray-200 touch-target"
+                    className="flex flex-col items-center gap-1 sm:gap-2 h-16 sm:h-20 p-2 sm:p-3 hover:bg-green-50 hover:border-green-200 border-gray-200 touch-target w-full"
                   >
-                    <MessageCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-xs font-medium text-gray-700">WhatsApp</span>
+                    <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                    <span className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">WhatsApp</span>
                   </Button>
 
                   {/* LinkedIn */}
                   <Button
                     onClick={() => handleExternalShare(shareUrls.linkedin)}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-blue-50 hover:border-blue-200 border-gray-200 touch-target"
+                    className="flex flex-col items-center gap-1 sm:gap-2 h-16 sm:h-20 p-2 sm:p-3 hover:bg-blue-50 hover:border-blue-200 border-gray-200 touch-target w-full"
                   >
-                    <Linkedin className="h-5 w-5 text-blue-600" />
-                    <span className="text-xs font-medium text-gray-700">LinkedIn</span>
+                    <Linkedin className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    <span className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">LinkedIn</span>
                   </Button>
 
                   {/* Twitter/X */}
                   <Button
                     onClick={() => handleExternalShare(shareUrls.twitter)}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-gray-50 hover:border-gray-200 border-gray-200 touch-target"
+                    className="flex flex-col items-center gap-1 sm:gap-2 h-16 sm:h-20 p-2 sm:p-3 hover:bg-gray-50 hover:border-gray-200 border-gray-200 touch-target w-full"
                   >
-                    <Twitter className="h-5 w-5 text-gray-600" />
-                    <span className="text-xs font-medium text-gray-700">Twitter/X</span>
+                    <Twitter className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
+                    <span className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">Twitter</span>
                   </Button>
 
                   {/* Email */}
                   <Button
                     onClick={() => handleExternalShare(shareUrls.email)}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-red-50 hover:border-red-200 border-gray-200 touch-target"
+                    className="flex flex-col items-center gap-1 sm:gap-2 h-16 sm:h-20 p-2 sm:p-3 hover:bg-red-50 hover:border-red-200 border-gray-200 touch-target w-full"
                   >
-                    <Mail className="h-5 w-5 text-red-600" />
-                    <span className="text-xs font-medium text-gray-700">Email</span>
+                    <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
+                    <span className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">Email</span>
                   </Button>
 
                   {/* Instagram */}
                   <Button
                     onClick={handleInstagramShare}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-pink-50 hover:border-pink-200 border-gray-200 touch-target"
+                    className="flex flex-col items-center gap-1 sm:gap-2 h-16 sm:h-20 p-2 sm:p-3 hover:bg-pink-50 hover:border-pink-200 border-gray-200 touch-target w-full"
                   >
-                    <Instagram className="h-5 w-5 text-pink-600" />
-                    <span className="text-xs font-medium text-gray-700">Instagram</span>
+                    <Instagram className="h-4 w-4 sm:h-5 sm:w-5 text-pink-600" />
+                    <span className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">Instagram</span>
                   </Button>
 
                   {/* Copy Link */}
                   <Button
                     onClick={handleCopyLink}
                     variant="outline"
-                    className="flex flex-col items-center gap-2 h-20 p-3 hover:bg-purple-50 hover:border-purple-200 border-gray-200 touch-target"
+                    className="flex flex-col items-center gap-1 sm:gap-2 h-16 sm:h-20 p-2 sm:p-3 hover:bg-purple-50 hover:border-purple-200 border-gray-200 touch-target w-full"
                   >
                     {copied ? (
-                      <Check className="h-5 w-5 text-green-600" />
+                      <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                     ) : (
-                      <Copy className="h-5 w-5 text-purple-600" />
+                      <Copy className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
                     )}
-                    <span className="text-xs font-medium text-gray-700">
-                      {copied ? 'Copied!' : 'Copy Link'}
+                    <span className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">
+                      {copied ? 'Copied!' : 'Copy'}
                     </span>
                   </Button>
                 </div>
