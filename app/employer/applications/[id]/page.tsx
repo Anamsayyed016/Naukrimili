@@ -54,6 +54,31 @@ interface ApplicationDetail {
   isFavorite?: boolean;
 }
 
+// Helper function to format phone numbers
+const formatPhoneNumber = (phone: string | null | undefined): string => {
+  if (!phone) return '';
+  
+  // Remove non-numeric characters
+  const cleaned = phone.replace(/\D/g, '');
+  
+  // Check if it looks like a timestamp (14 digits starting with year)
+  if (cleaned.length === 14 && cleaned.startsWith('20')) {
+    return 'Not provided'; // Likely a timestamp, not a phone number
+  }
+  
+  // If it's a valid phone number (10 digits)
+  if (cleaned.length === 10) {
+    return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`; // Indian format
+  }
+  
+  // Otherwise return the original if it's short or formatted
+  if (cleaned.length < 10 || cleaned.length > 15) {
+    return phone; // Return original if it doesn't match standard formats
+  }
+  
+  return phone;
+};
+
 export default function ApplicationDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -110,7 +135,7 @@ export default function ApplicationDetailPage() {
           ? `${apiApplication.user.firstName} ${apiApplication.user.lastName}` 
           : apiApplication.user.firstName || apiApplication.user.email || 'Unknown',
         applicantEmail: apiApplication.user.email,
-        applicantPhone: apiApplication.user.phone || applicationData.phone || 'Not provided',
+        applicantPhone: formatPhoneNumber(apiApplication.user.phone) || formatPhoneNumber(applicationData.phone) || 'Not provided',
         applicantLocation: apiApplication.user.location || applicationData.location || 'Not provided',
         status: apiApplication.status,
         appliedAt: apiApplication.appliedAt,
@@ -140,9 +165,9 @@ export default function ApplicationDetailPage() {
 
       setApplication(transformedApplication);
       setNotes(transformedApplication.notes || '');
-    } catch (_error) {
-      console.error('Error fetching application data:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch application data');
+    } catch (err) {
+      console.error('Error fetching application data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch application data');
     } finally {
       setLoading(false);
     }
@@ -178,9 +203,9 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, status: newStatus as any } : null);
       
-    } catch (_error) {
-      console.error('Error changing application status:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update application status');
+    } catch (err) {
+      console.error('Error changing application status:', err);
+      setError(err instanceof Error ? err.message : 'Failed to update application status');
     } finally {
       setSaving(false);
     }
@@ -216,9 +241,9 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, notes } : null);
       
-    } catch (_error) {
-      console.error('Error saving notes:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save notes');
+    } catch (err) {
+      console.error('Error saving notes:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save notes');
     } finally {
       setSaving(false);
     }
@@ -270,9 +295,9 @@ export default function ApplicationDetailPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-    } catch (_error) {
-      console.error('Error downloading resume:', error);
-      setError(error instanceof Error ? error.message : 'Failed to download resume');
+    } catch (err) {
+      console.error('Error downloading resume:', err);
+      setError(err instanceof Error ? err.message : 'Failed to download resume');
     }
   };
 
@@ -324,9 +349,9 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, status: 'shortlisted' } : null);
       
-    } catch (_error) {
-      console.error('Error shortlisting candidate:', error);
-      setError(error instanceof Error ? error.message : 'Failed to shortlist candidate');
+    } catch (err) {
+      console.error('Error shortlisting candidate:', err);
+      setError(err instanceof Error ? err.message : 'Failed to shortlist candidate');
     } finally {
       setActionLoading(null);
     }
@@ -360,9 +385,9 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, status: 'interview' } : null);
       
-    } catch (_error) {
-      console.error('Error scheduling interview:', error);
-      setError(error instanceof Error ? error.message : 'Failed to schedule interview');
+    } catch (err) {
+      console.error('Error scheduling interview:', err);
+      setError(err instanceof Error ? err.message : 'Failed to schedule interview');
     } finally {
       setActionLoading(null);
     }
@@ -395,9 +420,9 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, isFavorite: true } : null);
       
-    } catch (_error) {
-      console.error('Error adding to favorites:', error);
-      setError(error instanceof Error ? error.message : 'Failed to add to favorites');
+    } catch (err) {
+      console.error('Error adding to favorites:', err);
+      setError(err instanceof Error ? err.message : 'Failed to add to favorites');
     } finally {
       setActionLoading(null);
     }
@@ -427,9 +452,9 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, isFavorite: false } : null);
       
-    } catch (_error) {
-      console.error('Error removing from favorites:', error);
-      setError(error instanceof Error ? error.message : 'Failed to remove from favorites');
+    } catch (err) {
+      console.error('Error removing from favorites:', err);
+      setError(err instanceof Error ? err.message : 'Failed to remove from favorites');
     } finally {
       setActionLoading(null);
     }
@@ -463,9 +488,9 @@ export default function ApplicationDetailPage() {
       // Update local state
       setApplication(prev => prev ? { ...prev, status: 'rejected' } : null);
       
-    } catch (_error) {
-      console.error('Error rejecting application:', error);
-      setError(error instanceof Error ? error.message : 'Failed to reject application');
+    } catch (err) {
+      console.error('Error rejecting application:', err);
+      setError(err instanceof Error ? err.message : 'Failed to reject application');
     } finally {
       setActionLoading(null);
     }
@@ -523,42 +548,43 @@ export default function ApplicationDetailPage() {
 
   return (
     <AuthGuard allowedRoles={['employer']}>
-      <div className="container mx-auto p-6">
-        <div className="mb-8">
-          <Link href="/employer/applications" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Applications
-          </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Application Details</h1>
-              <p className="text-gray-600">
-                {application.applicantName} - {application.jobTitle}
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link href={`/employer/applications?jobId=${application.jobId}`}>
-                <Button variant="outline">
-                  <Briefcase className="h-4 w-4 mr-2" />
-                  View All Applications
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6 sm:mb-8">
+            <Link href="/employer/applications" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="text-sm sm:text-base">Back to Applications</span>
+            </Link>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Application Details</h1>
+                <p className="text-sm sm:text-base text-gray-600">
+                  {application.applicantName} - {application.jobTitle}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                <Link href={`/employer/applications?jobId=${application.jobId}`}>
+                  <Button variant="outline" className="w-full sm:w-auto">
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    View All
+                  </Button>
+                </Link>
+                <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Send Message
                 </Button>
-              </Link>
-              <Button>
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Send Message
-              </Button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
             {/* Application Status */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Application Status</span>
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <span className="text-lg sm:text-xl font-bold">Application Status</span>
                   {getStatusBadge(application.status)}
                 </CardTitle>
               </CardHeader>
@@ -593,10 +619,10 @@ export default function ApplicationDetailPage() {
             </Card>
 
             {/* Candidate Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl font-bold">
+                  <User className="h-5 w-5 text-blue-600" />
                   Candidate Information
                 </CardTitle>
               </CardHeader>
@@ -660,10 +686,10 @@ export default function ApplicationDetailPage() {
             </Card>
 
             {/* Skills */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl font-bold">
+                  <Award className="h-5 w-5 text-blue-600" />
                   Skills & Expertise
                 </CardTitle>
               </CardHeader>
@@ -691,9 +717,9 @@ export default function ApplicationDetailPage() {
             </Card>
 
             {/* Cover Letter */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Cover Letter</CardTitle>
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl font-bold">Cover Letter</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -703,15 +729,15 @@ export default function ApplicationDetailPage() {
             </Card>
 
             {/* Education */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5" />
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl font-bold">
+                  <GraduationCap className="h-5 w-5 text-blue-600" />
                   Education
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700">{application.education}</p>
+                <p className="text-gray-700 whitespace-pre-line">{application.education}</p>
               </CardContent>
             </Card>
           </div>
@@ -719,9 +745,9 @@ export default function ApplicationDetailPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl font-bold">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {application?.status !== 'shortlisted' && application?.status !== 'hired' && application?.status !== 'rejected' && (
@@ -829,9 +855,12 @@ export default function ApplicationDetailPage() {
             </Card>
 
             {/* Resume & Documents */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Documents</CardTitle>
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl font-bold flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                  Documents
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {application.resumeUrl && application.resumeId ? (
@@ -877,9 +906,9 @@ export default function ApplicationDetailPage() {
             </Card>
 
             {/* Notes */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Internal Notes</CardTitle>
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl font-bold">Internal Notes</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <textarea
@@ -900,9 +929,9 @@ export default function ApplicationDetailPage() {
             </Card>
 
             {/* Application Timeline */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Application Timeline</CardTitle>
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl font-bold">Application Timeline</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -937,6 +966,7 @@ export default function ApplicationDetailPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
           </div>
         </div>
       </div>

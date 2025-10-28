@@ -3,6 +3,7 @@ import { requireEmployerAuth } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { readFile, stat } from 'fs/promises';
 import { join } from 'path';
+import { uploadFileToGCS } from '@/lib/storage/google-cloud-storage';
 
 /**
  * GET /api/employer/resumes/[id]/download
@@ -142,6 +143,35 @@ export async function GET(
     // Read file
     const fileBuffer = await readFile(filepath);
     
+    // Save resume to GCS for employer storage
+    try {
+      const gcsResult = await uploadFileToGCS(
+        fileBuffer,
+        resume.fileName,
+        {
+          folder: `employers/${user.company.id}/resumes`,
+          metadata: {
+            resumeId: resume.id,
+            applicantId: resume.user.id,
+            applicantName: `${resume.user.firstName} ${resume.user.lastName}`.trim(),
+            applicantEmail: resume.user.email,
+            savedBy: user.id,
+            savedByCompany: user.company.id,
+            downloadedAt: new Date().toISOString()
+          },
+          contentType: resume.mimeType || 'application/pdf'
+        }
+      );
+      
+      if (gcsResult.success) {
+        console.log(`✅ Resume saved to GCS: ${gcsResult.filePath}`);
+        console.log(`📦 GCS URL: ${gcsResult.gsUrl}`);
+      }
+    } catch (gcsError) {
+      console.warn('Failed to save to GCS (continuing with download):', gcsError);
+      // Don't fail the download if GCS upload fails
+    }
+    
     // Determine content type based on file extension or mimeType
     let contentType = resume.mimeType || 'application/octet-stream';
     
@@ -186,7 +216,7 @@ export async function GET(
       headers
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('Error downloading resume file:', error);
     return NextResponse.json({
       success: false,
