@@ -276,8 +276,7 @@ export default function UnifiedUserProfile({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] overflow-hidden"
-            style={{ maxHeight: '500px' }}
+            className="absolute top-full right-0 mt-2 w-96 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999]"
           >
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-100 bg-white">
@@ -288,15 +287,15 @@ export default function UnifiedUserProfile({
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
-                  <p className="text-xs text-gray-600 truncate mt-0.5">{user.email}</p>
+                  <p className="text-sm font-semibold text-gray-900">{displayName}</p>
+                  <p className="text-xs text-gray-600 mt-0.5">{user.email}</p>
                   <p className="text-xs text-gray-500 capitalize mt-1 font-normal">{userRole}</p>
                 </div>
               </div>
             </div>
 
             {/* Menu Items */}
-            <div className="py-2 overflow-y-auto max-h-[400px]">
+            <div className="py-2">
               <button
                 onClick={() => {
                   router.push('/profile');
@@ -365,7 +364,7 @@ export default function UnifiedUserProfile({
                 className="w-full flex items-center gap-3 px-4 py-4 text-red-600 hover:bg-red-50 transition-colors text-left min-h-[48px] touch-target font-medium"
               >
                 <LogOut className="w-5 h-5 flex-shrink-0" />
-                <span className="text-sm font-medium truncate">Sign Out</span>
+                <span className="text-sm font-medium">Sign Out</span>
               </button>
             </div>
           </motion.div>
