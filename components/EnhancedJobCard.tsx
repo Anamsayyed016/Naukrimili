@@ -59,40 +59,40 @@ export default function EnhancedJobCard({
   };
 
 
-  // Get job type badge color
+  // Get job type badge color - Enhanced with gradients
   const getJobTypeBadgeColor = (type?: string) => {
     switch (type?.toLowerCase()) {
       case 'full-time':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-gradient-to-br from-green-100 to-emerald-100 text-green-800 border-green-300 shadow-sm';
       case 'part-time':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-800 border-blue-300 shadow-sm';
       case 'contract':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-gradient-to-br from-orange-100 to-amber-100 text-orange-800 border-orange-300 shadow-sm';
       case 'internship':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-gradient-to-br from-purple-100 to-pink-100 text-purple-800 border-purple-300 shadow-sm';
       case 'freelance':
-        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+        return 'bg-gradient-to-br from-indigo-100 to-violet-100 text-indigo-800 border-indigo-300 shadow-sm';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gradient-to-br from-gray-100 to-slate-100 text-gray-800 border-gray-300 shadow-sm';
     }
   };
 
-  // Get experience level color
+  // Get experience level color - Enhanced with modern colors
   const getExperienceLevelColor = (level?: string) => {
     switch (level?.toLowerCase()) {
       case 'entry':
       case 'fresher':
-        return 'bg-green-50 text-green-700 border-green-200';
+        return 'bg-gradient-to-br from-green-50 to-emerald-50 text-green-700 border-green-300 shadow-sm';
       case 'mid':
       case 'intermediate':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-gradient-to-br from-blue-50 to-sky-50 text-blue-700 border-blue-300 shadow-sm';
       case 'senior':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'bg-gradient-to-br from-purple-50 to-fuchsia-50 text-purple-700 border-purple-300 shadow-sm';
       case 'lead':
       case 'executive':
-        return 'bg-orange-50 text-orange-700 border-orange-200';
+        return 'bg-gradient-to-br from-orange-50 to-red-50 text-orange-700 border-orange-300 shadow-sm';
       default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+        return 'bg-gradient-to-br from-gray-50 to-slate-50 text-gray-700 border-gray-300 shadow-sm';
     }
   };
 
@@ -158,8 +158,10 @@ export default function EnhancedJobCard({
               </div>
               
               {formatJobSalary(normalizedJob) !== 'Salary not specified' && (
-                <div className="text-green-600 font-medium text-xs sm:text-sm mb-2">
-                  {formatJobSalary(normalizedJob)}
+                <div className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg mb-2">
+                  <span className="font-bold text-xs sm:text-sm bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
+                    {formatJobSalary(normalizedJob)}
+                  </span>
                 </div>
               )}
             </div>
@@ -219,14 +221,14 @@ export default function EnhancedJobCard({
         layoutId={`job-card-${job.id}`}
       >
         {/* Card Header */}
-        <div className="p-6">
+        <div className="p-6 bg-gradient-to-br from-white to-slate-50/50">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
-              {/* Status badges */}
+              {/* Status badges - Enhanced with gradients */}
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 {job.is_urgent && (
                   <motion.span 
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-300 text-xs font-semibold rounded-full shadow-sm"
                     initial={{ scale: 0.9 }}
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', duration: 0.3 }}
@@ -236,23 +238,23 @@ export default function EnhancedJobCard({
                   </motion.span>
                 )}
                 {job.is_featured && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-300 text-xs font-semibold rounded-full shadow-sm">
                     ⭐ Featured
                   </span>
                 )}
                 {isSampleJob && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 border border-gray-300 text-xs font-semibold rounded-full shadow-sm">
+                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-pulse"></span>
                     Sample Job
                   </span>
                 )}
                 {job.is_remote && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-300 text-xs font-semibold rounded-full shadow-sm">
                     🏠 Remote
                   </span>
                 )}
                 {job.is_hybrid && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border border-blue-300 text-xs font-semibold rounded-full shadow-sm">
                     🏢 Hybrid
                   </span>
                 )}
@@ -328,13 +330,15 @@ export default function EnhancedJobCard({
             </button>
           </div>
 
-          {/* Salary */}
+          {/* Salary - Enhanced with gradient */}
           {formatJobSalary(job) !== 'Salary not specified' && (
-            <div className="flex items-center text-green-600 font-semibold mb-4">
-              <span className="text-lg">{formatJobSalary(job)}</span>
+            <div className="flex items-center p-3 bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 rounded-xl border border-emerald-200 mb-4">
+              <span className="text-lg font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
+                {formatJobSalary(job)}
+              </span>
               {showSalaryInsights && (
-                <span className="ml-2 text-xs text-gray-500 font-normal">
-                  • Competitive
+                <span className="ml-3 px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
+                  Competitive
                 </span>
               )}
             </div>
@@ -393,12 +397,12 @@ export default function EnhancedJobCard({
           </div>
         </div>
 
-        {/* Card Footer Actions */}
-        <div className="px-6 py-4 bg-gray-50 flex gap-3">
+        {/* Card Footer Actions - Enhanced with gradients */}
+        <div className="px-6 py-4 bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 flex gap-3">
           {isSampleJob ? (
             <button
               disabled
-              className="flex-1 bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 bg-gradient-to-r from-gray-400 to-gray-500 text-white font-semibold py-3 px-6 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
               title="Sample job - not available for application"
             >
               Sample Job
@@ -407,7 +411,7 @@ export default function EnhancedJobCard({
           ) : (
             <Link
               href={seoJobUrl}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
+              className="flex-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105 hover:shadow-lg shadow-md"
             >
               View Details
               <ChevronRightIcon className="w-4 h-4" />
@@ -416,10 +420,10 @@ export default function EnhancedJobCard({
           
           <button 
             onClick={handleQuickView}
-            className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2"
+            className="px-4 py-3 border border-indigo-200 bg-white rounded-xl hover:bg-indigo-50 hover:border-indigo-300 transition-all flex items-center gap-2 shadow-sm hover:shadow-md"
             title="Quick view"
           >
-            <EyeIcon className="w-4 h-4" />
+            <EyeIcon className="w-4 h-4 text-indigo-600" />
           </button>
           
         </div>
