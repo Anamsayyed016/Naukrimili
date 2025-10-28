@@ -61,7 +61,7 @@ export default function UnifiedUserProfile({
     setIsDropdownOpen(false);
   }, []);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside and manage body scroll
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isDropdownOpen) {
@@ -72,11 +72,21 @@ export default function UnifiedUserProfile({
       }
     };
 
+    // Lock body scroll when dropdown is open (mobile only)
+    if (isMounted && isDropdownOpen && variant === 'mobile') {
+      document.body.style.overflow = 'hidden';
+    } else if (isMounted && !isDropdownOpen) {
+      document.body.style.overflow = '';
+    }
+
     if (isMounted) {
       document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.body.style.overflow = '';
+      };
     }
-  }, [isDropdownOpen, closeDropdown, isMounted]);
+  }, [isDropdownOpen, closeDropdown, isMounted, variant]);
 
   // Don't render until mounted to prevent hydration issues
   if (!isMounted) {
@@ -135,6 +145,10 @@ export default function UnifiedUserProfile({
               transition={{ duration: 0.2 }}
               className="fixed inset-0 bg-black/30 z-[9998]"
               onClick={closeDropdown}
+              style={{ 
+                backdropFilter: 'blur(2px)',
+                WebkitBackdropFilter: 'blur(2px)'
+              }}
             />
           )}
         </AnimatePresence>
@@ -147,7 +161,13 @@ export default function UnifiedUserProfile({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="fixed top-16 right-4 w-80 max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] max-h-[calc(100vh-5rem)] overflow-y-auto"
+              className="fixed top-16 sm:top-16 right-2 sm:right-4 w-[calc(100vw-1rem)] sm:w-80 max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-xl shadow-2xl z-[9999] max-h-[calc(100vh-4rem)] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+              style={{ 
+                transform: 'translateZ(0)',
+                willChange: 'transform, opacity',
+                backfaceVisibility: 'hidden'
+              }}
             >
               {/* User Info Header */}
               <div className="px-4 py-3 border-b border-gray-100">
@@ -268,16 +288,34 @@ export default function UnifiedUserProfile({
         />
       </button>
 
-      {/* Desktop User Profile Dropdown */}
+      {/* Desktop User Profile Dropdown - with backdrop overlay */}
       <AnimatePresence>
         {isDropdownOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-full right-0 mt-2 w-96 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999]"
-          >
+          <>
+            {/* Desktop Backdrop - only for desktop variant */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-transparent z-[9998]"
+              onClick={closeDropdown}
+            />
+            
+            {/* Desktop Dropdown */}
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl z-[9999]"
+              onClick={(e) => e.stopPropagation()}
+              style={{ 
+                transform: 'translateZ(0)',
+                willChange: 'transform, opacity',
+                backfaceVisibility: 'hidden'
+              }}
+            >
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-100 bg-white">
               <div className="flex items-center gap-3">
@@ -367,7 +405,8 @@ export default function UnifiedUserProfile({
                 <span className="text-sm font-medium flex-1 text-left">Sign Out</span>
               </button>
             </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
