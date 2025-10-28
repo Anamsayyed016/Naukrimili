@@ -237,18 +237,18 @@ export default function JobSearchHero({
         <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
       </div>
       
-      <div className="relative container mx-auto px-4 py-12 sm:py-16 lg:py-20">
-        <div className="text-center max-w-6xl mx-auto">
+      <div className="relative container mx-auto px-4 py-12 sm:py-16 lg:py-20 xl:py-24">
+        <div className="text-center max-w-7xl mx-auto">
           {/* Enhanced Header */}
-          <div className="mb-8">
+          <div className="mb-8 lg:mb-12">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
               Discover the Career You Deserve
             </h1>
           </div>
           
           {/* Unified Enhanced Search Interface */}
-          <div className="max-w-5xl mx-auto">
-            <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-4 sm:p-6 lg:p-8">
+          <div className="max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto">
+            <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 p-4 sm:p-6 lg:p-8 xl:p-10">
               {/* Search Header */}
               <div className="flex items-center justify-center gap-3 mb-6">
                 <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
@@ -268,8 +268,8 @@ export default function JobSearchHero({
               </div>
 
               {/* Main Search Form */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="space-y-4 lg:space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                   {/* Job Title Search */}
                   <div className="relative">
                     <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10" />
