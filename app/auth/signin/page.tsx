@@ -251,9 +251,9 @@ export default function SignInPage() {
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="px-8 pb-8 space-y-8 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0">
+          <CardContent className="px-8 pb-8 space-y-8 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
             {/* Left Column - Errors */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-3 space-y-4">
               {error && (
                 <Alert className="alert-error border-0 rounded-xl">
                   <AlertCircle className="h-5 w-5" />
@@ -293,6 +293,7 @@ export default function SignInPage() {
 
             {/* Left Column - OAuth Methods */}
             <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Sign In</h3>
               <OAuthButtons 
                 callbackUrl="/auth/role-selection"
               />
@@ -307,18 +308,14 @@ export default function SignInPage() {
               </Button>
             </div>
 
+            {/* Vertical Divider - Desktop Only */}
+            <div className="hidden lg:block">
+              <div className="h-full w-px bg-gray-200 mx-auto"></div>
+            </div>
+
             {/* Right Column - Email/Password Form */}
             <div className="space-y-6">
-              {/* Divider */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500 font-medium">Or use email & password</span>
-                </div>
-              </div>
-
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Sign In with Email</h3>
               <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
@@ -409,9 +406,10 @@ export default function SignInPage() {
                 )}
               </Button>
               </form>
+            </div>
 
-              {/* Sign Up Links */}
-              <div className="text-center space-y-6">
+            {/* Sign Up Links - Below Both Columns */}
+            <div className="lg:col-span-3 text-center space-y-6 pt-8 border-t border-gray-200">
                 <p className="text-base text-gray-600">
                   Don't have an account?{' '}
                   <Link href="/auth/signup" className="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition-colors">
@@ -436,7 +434,6 @@ export default function SignInPage() {
                   </Link>
                 </div>
               </div>
-            </div>
           </CardContent>
         </Card>
 
