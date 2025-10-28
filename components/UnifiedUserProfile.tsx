@@ -276,7 +276,7 @@ export default function UnifiedUserProfile({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full right-0 mt-2 w-72 sm:w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] max-h-[calc(100vh-5rem)] overflow-y-auto"
+            className="absolute top-full right-0 mt-2 w-72 sm:w-80 md:w-96 bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] max-h-[calc(100vh-5rem)] overflow-y-auto"
           >
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-100">
@@ -287,8 +287,8 @@ export default function UnifiedUserProfile({
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate max-w-[200px] sm:max-w-none">{displayName}</p>
-                  <p className="text-xs text-gray-600 truncate max-w-[200px] sm:max-w-none mt-0.5">{user.email}</p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+                  <p className="text-xs text-gray-600 truncate mt-0.5">{user.email}</p>
                   <p className="text-xs text-gray-500 capitalize mt-1 font-normal">{userRole}</p>
                 </div>
               </div>
@@ -301,10 +301,10 @@ export default function UnifiedUserProfile({
                   router.push('/profile');
                   closeDropdown();
                 }}
-                className="w-full flex items-center gap-3 px-4 py-4 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
               >
                 <User className="w-5 h-5 flex-shrink-0" />
-                <span className="text-sm font-medium truncate">Profile</span>
+                <span className="text-sm font-medium">Profile</span>
               </button>
 
               <button
@@ -312,10 +312,10 @@ export default function UnifiedUserProfile({
                   router.push('/settings');
                   closeDropdown();
                 }}
-                className="w-full flex items-center gap-3 px-4 py-4 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
+                className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
               >
                 <Settings className="w-5 h-5 flex-shrink-0" />
-                <span className="text-sm font-medium truncate">Settings</span>
+                <span className="text-sm font-medium">Settings</span>
               </button>
 
               {userRole === 'jobseeker' && (
@@ -324,10 +324,10 @@ export default function UnifiedUserProfile({
                     router.push('/dashboard/jobseeker');
                     closeDropdown();
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
                 >
                   <BarChartIcon className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium truncate">Dashboard</span>
+                  <span className="text-sm font-medium">Dashboard</span>
                 </button>
               )}
 
@@ -337,10 +337,10 @@ export default function UnifiedUserProfile({
                     router.push('/dashboard/company');
                     closeDropdown();
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
                 >
                   <BarChartIcon className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium truncate">Dashboard</span>
+                  <span className="text-sm font-medium">Dashboard</span>
                 </button>
               )}
 
@@ -350,10 +350,10 @@ export default function UnifiedUserProfile({
                     router.push('/dashboard/admin');
                     closeDropdown();
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-4 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-left min-h-[48px] touch-target"
                 >
                   <BarChartIcon className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium truncate">Admin Dashboard</span>
+                  <span className="text-sm font-medium">Admin Dashboard</span>
                 </button>
               )}
 
