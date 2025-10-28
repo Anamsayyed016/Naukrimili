@@ -133,7 +133,7 @@ export default function UnifiedUserProfile({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black bg-opacity-25 z-[9998]"
+              className="fixed inset-0 bg-black/30 z-[9998]"
               onClick={closeDropdown}
             />
           )}
@@ -276,11 +276,11 @@ export default function UnifiedUserProfile({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-xl shadow-2xl z-[9999]"
-            style={{ maxHeight: 'calc(100vh - 5rem)' }}
+            className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-[9999] overflow-hidden"
+            style={{ maxHeight: '500px' }}
           >
             {/* User Info Header */}
-            <div className="px-4 py-3 border-b border-gray-100">
+            <div className="px-4 py-3 border-b border-gray-100 bg-white">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-semibold text-sm">
@@ -296,7 +296,7 @@ export default function UnifiedUserProfile({
             </div>
 
             {/* Menu Items */}
-            <div className="py-2 overflow-y-auto max-h-[calc(100vh-15rem)]">
+            <div className="py-2 overflow-y-auto max-h-[400px]">
               <button
                 onClick={() => {
                   router.push('/profile');
