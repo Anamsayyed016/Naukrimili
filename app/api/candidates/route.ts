@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
 
-    // Build search criteria
+    // Build search criteria - use both user fields and parsed data
     const where: any = {
       isActive: true,
       user: {
@@ -43,29 +43,37 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    // Search in parsed data
+    // Add filters for query search
     if (query || location || skills || experienceLevel) {
-      where.parsedData = {};
+      where.OR = [];
       
+      // Search in user fields (more reliable)
       if (query) {
-        where.parsedData.OR = [
-          { fullName: { contains: query, mode: 'insensitive' } },
-          { summary: { contains: query, mode: 'insensitive' } },
-          { jobTitle: { contains: query, mode: 'insensitive' } }
-        ];
+        where.OR.push(
+          { user: { firstName: { contains: query, mode: 'insensitive' } } },
+          { user: { lastName: { contains: query, mode: 'insensitive' } } },
+          { user: { email: { contains: query, mode: 'insensitive' } } },
+          { user: { bio: { contains: query, mode: 'insensitive' } } },
+          { fileName: { contains: query, mode: 'insensitive' } }
+        );
       }
       
+      // Location filter in user field
       if (location) {
-        where.parsedData.location = { contains: location, mode: 'insensitive' };
+        where.user.location = { contains: location, mode: 'insensitive' };
       }
       
+      // Skills search in user field
       if (skills) {
-        const skillArray = skills.split(',').map(s => s.trim());
-        where.parsedData.skills = { hasSome: skillArray };
+        const skillArray = skills.split(',').map(s => s.trim().toLowerCase());
+        where.user.skills = {
+          array_contains: skillArray
+        };
       }
       
+      // Experience level filter in user field
       if (experienceLevel) {
-        where.parsedData.experienceLevel = { contains: experienceLevel, mode: 'insensitive' };
+        where.user.experience = { contains: experienceLevel, mode: 'insensitive' };
       }
     }
 
@@ -80,8 +88,15 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               firstName: true,
-        lastName: true,
+              lastName: true,
               email: true,
+              phone: true,
+              location: true,
+              bio: true,
+              skills: true,
+              experience: true,
+              education: true,
+              profilePicture: true,
               createdAt: true
             }
           },
@@ -106,18 +121,30 @@ export async function GET(request: NextRequest) {
       prisma.resume.count({ where })
     ]);
 
-    // Format candidates data
-    const formattedCandidates = candidates.map(candidate => ({
-      id: candidate.id,
-      userId: candidate.userId,
-      fileName: candidate.fileName,
-      atsScore: candidate.atsScore,
-      updatedAt: candidate.updatedAt,
-      user: candidate.user,
-      profile: candidate.parsedData,
-      recentApplications: candidate.applications,
-      isActive: candidate.isActive
-    }));
+    // Format candidates data with complete information
+    const formattedCandidates = candidates.map(candidate => {
+      const userName = candidate.user.firstName && candidate.user.lastName
+        ? `${candidate.user.firstName} ${candidate.user.lastName}`.trim()
+        : candidate.user.firstName || candidate.user.email || 'Unknown';
+      
+      return {
+        id: candidate.id,
+        userId: candidate.userId,
+        fileName: candidate.fileName,
+        fileUrl: candidate.fileUrl,
+        fileSize: candidate.fileSize,
+        atsScore: candidate.atsScore,
+        updatedAt: candidate.updatedAt,
+        createdAt: candidate.createdAt,
+        user: {
+          ...candidate.user,
+          fullName: userName
+        },
+        profile: candidate.parsedData,
+        recentApplications: candidate.applications,
+        isActive: candidate.isActive
+      };
+    });
 
     return NextResponse.json({
       success: true,
@@ -132,7 +159,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('Error fetching candidates:', error);
     return NextResponse.json({
       success: false,
