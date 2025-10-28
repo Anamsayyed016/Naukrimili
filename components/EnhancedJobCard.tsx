@@ -104,6 +104,7 @@ export default function EnhancedJobCard({
           className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 p-3 sm:p-4"
           whileHover={{ y: -2 }}
           layoutId={`job-card-${normalizedJob.id}`}
+          style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
@@ -217,6 +218,7 @@ export default function EnhancedJobCard({
         className={`group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden ${
           viewMode === 'grid' ? 'h-full' : ''
         }`}
+        style={{ willChange: 'transform', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
         whileHover={{ y: -4, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
         layoutId={`job-card-${job.id}`}
       >
@@ -229,9 +231,10 @@ export default function EnhancedJobCard({
                 {job.is_urgent && (
                   <motion.span 
                     className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-300 text-xs font-semibold rounded-full shadow-sm"
+                    style={{ willChange: 'transform' }}
                     initial={{ scale: 0.9 }}
                     animate={{ scale: 1 }}
-                    transition={{ type: 'spring', duration: 0.3 }}
+                    transition={{ type: 'spring', duration: 0.2 }}
                   >
                     <FireIcon className="w-3 h-3" />
                     Urgent Hiring

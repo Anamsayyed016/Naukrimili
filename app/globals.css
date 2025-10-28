@@ -407,6 +407,80 @@
   }
 }
 
+/* Mobile scroll performance optimizations */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+}
+
+body {
+  position: relative;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* GPU acceleration for smooth scrolling */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Prevent horizontal scroll on mobile */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Optimize animated elements for GPU */
+@supports (will-change: transform) {
+  [class*="motion-"],
+  .group:hover,
+  [class*="animate-"],
+  [class*="hover:"] {
+    will-change: transform, opacity;
+  }
+}
+
+/* Smooth transitions without layout shifts */
+@media (max-width: 768px) {
+  /* Disable hover effects on mobile to prevent touch issues */
+  @media (hover: none) and (pointer: coarse) {
+    .group:hover {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    
+    /* Keep only essential transforms on mobile */
+    [class*="hover:"]:not([class*="hover:bg-"]) {
+      transform: none !important;
+    }
+  }
+  
+  /* Reduce animation complexity on mobile */
+  .animate-spin,
+  [class*="animate-pulse"],
+  [class*="animate-bounce"] {
+    animation-duration: 0.8s !important;
+  }
+}
+
+/* GPU acceleration for heavy sections */
+.motion-section,
+.motion-card,
+.animated-section {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* Contain heavy layouts to prevent cascading reflows */
+.container,
+[class*="grid"],
+[class*="flex"] {
+  contain: layout style;
+}
+
 /* Ensure proper contrast for accessibility */
 .text-contrast {
   color: #1f2937 !important;
