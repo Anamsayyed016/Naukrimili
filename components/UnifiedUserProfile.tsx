@@ -298,8 +298,12 @@ export default function UnifiedUserProfile({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-transparent z-[9998]"
+              className="fixed inset-0 bg-black/20 z-[9998]"
               onClick={closeDropdown}
+              style={{ 
+                backdropFilter: 'blur(2px)',
+                WebkitBackdropFilter: 'blur(2px)'
+              }}
             />
             
             {/* Desktop Dropdown */}
@@ -311,13 +315,15 @@ export default function UnifiedUserProfile({
               className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl z-[9999]"
               onClick={(e) => e.stopPropagation()}
               style={{ 
+                backgroundColor: 'white',
                 transform: 'translateZ(0)',
                 willChange: 'transform, opacity',
-                backfaceVisibility: 'hidden'
+                backfaceVisibility: 'hidden',
+                isolation: 'isolate'
               }}
             >
             {/* User Info Header */}
-            <div className="px-4 py-3 border-b border-gray-100 bg-white">
+            <div className="px-4 py-3 border-b border-gray-100" style={{ backgroundColor: 'white' }}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-semibold text-sm">

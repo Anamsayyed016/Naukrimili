@@ -181,11 +181,11 @@ export function ComprehensiveNotificationBell() {
       {/* Backdrop for mobile */}
       {isOpen && isMobile && (
         <div 
-          className="fixed inset-0 bg-black/30 z-[9997]"
+          className="fixed inset-0 bg-black/50 z-[9997]"
           onClick={() => setIsOpen(false)}
           style={{ 
-            backdropFilter: 'blur(2px)',
-            WebkitBackdropFilter: 'blur(2px)'
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)'
           }}
         />
       )}
@@ -193,18 +193,24 @@ export function ComprehensiveNotificationBell() {
       {/* Notification Dropdown */}
       {isOpen && (
         <div 
-          className={isMobile ? "fixed top-16 left-2 right-2 sm:left-auto sm:right-0 sm:absolute sm:mt-2 w-auto sm:w-80 md:w-96 sm:h-auto bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-[calc(100vh-5rem)] overflow-hidden" : "fixed left-auto right-0 mt-2 w-80 md:w-96 h-auto bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-96 overflow-hidden"}
+          className={isMobile ? "fixed top-16 left-2 right-2 w-auto sm:w-80 md:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-[calc(100vh-5rem)] overflow-hidden" : "fixed left-auto right-0 mt-2 w-80 md:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-96 overflow-hidden"}
           onClick={(e) => e.stopPropagation()}
-        >
-          <div style={{ 
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          style={{ 
+            backgroundColor: 'white',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
             transform: 'translateZ(0)',
             willChange: 'transform, opacity',
-            backfaceVisibility: 'hidden'
+            backfaceVisibility: 'hidden',
+            isolation: 'isolate'
+          }}
+        >
+          <div style={{ 
+            backgroundColor: 'white',
+            width: '100%',
+            height: '100%'
           }}>
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10" style={{ backgroundColor: 'white' }}>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
               <div className="flex items-center space-x-2">
@@ -224,26 +230,28 @@ export function ComprehensiveNotificationBell() {
               </div>
             </div>
 
-            {/* Filter Tabs */}
-            <div className="flex space-x-1 mt-3 overflow-x-auto scrollbar-hide pb-2">
-              {['all', 'unread', 'application', 'job', 'system'].map((filterType) => (
-                <button
-                  key={filterType}
-                  onClick={() => setFilter(filterType)}
-                  className={`px-2 sm:px-3 py-1 text-xs rounded-full transition-colors whitespace-nowrap flex-shrink-0 ${
-                    filter === filterType
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
-                </button>
-              ))}
+            {/* Filter Tabs - Fixed width to prevent horizontal scroll */}
+            <div className="mt-3 pb-2">
+              <div className="flex space-x-1 flex-wrap gap-1">
+                {['all', 'unread', 'application', 'job', 'system'].map((filterType) => (
+                  <button
+                    key={filterType}
+                    onClick={() => setFilter(filterType)}
+                    className={`px-2 sm:px-3 py-1 text-xs rounded-full transition-colors whitespace-nowrap ${
+                      filter === filterType
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-64 overflow-y-auto">
+          <div className="max-h-64 sm:max-h-80 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#cbd5e1 white' }}>
             {safeLength(filteredNotifications) === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
