@@ -153,7 +153,7 @@ export default function JobSeekerDashboard() {
   return (
     <AuthGuard allowedRoles={['jobseeker']}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
           {/* Enhanced Header */}
           <div className="mb-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
