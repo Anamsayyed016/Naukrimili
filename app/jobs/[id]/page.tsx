@@ -329,51 +329,55 @@ export default function JobDetailsPage() {
               
               <CardContent>
                 {/* Job Info */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   {job.salaryMin || job.salaryMax || job.salary ? (
-                    <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-100">
-                      <div className="p-2 bg-emerald-100 rounded-lg">
-                        <DollarSign className="w-4 h-4 text-emerald-600" />
+                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 rounded-2xl border-2 border-emerald-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative p-3 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl shadow-inner">
+                        <DollarSign className="w-5 h-5 text-emerald-600" />
                       </div>
-                      <div>
-                        <p className="text-xs text-emerald-700 font-medium">Salary</p>
-                        <p className="font-bold text-emerald-900">{formatJobSalary(job)}</p>
+                      <div className="relative flex-1 min-w-0">
+                        <p className="text-xs text-emerald-700 font-semibold uppercase tracking-wider mb-1">Salary</p>
+                        <p className="font-extrabold text-emerald-900 text-sm">{formatJobSalary(job)}</p>
                       </div>
                     </div>
                   ) : null}
                   
                   {job.jobType && (
-                    <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Briefcase className="w-4 h-4 text-blue-600" />
+                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50 rounded-2xl border-2 border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl shadow-inner">
+                        <Briefcase className="w-5 h-5 text-blue-600" />
                       </div>
-                      <div>
-                        <p className="text-xs text-blue-700 font-medium">Type</p>
-                        <p className="font-bold text-blue-900">{job.jobType}</p>
+                      <div className="relative flex-1 min-w-0">
+                        <p className="text-xs text-blue-600 font-semibold uppercase tracking-wider mb-1">Type</p>
+                        <p className="font-extrabold text-blue-900 text-base uppercase tracking-wide">{job.jobType.replace(/-/g, ' ')}</p>
                       </div>
                     </div>
                   )}
                   
                   {job.experienceLevel && (
-                    <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100">
-                      <div className="p-2 bg-purple-100 rounded-lg">
-                        <Users className="w-4 h-4 text-purple-600" />
+                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-fuchsia-50 rounded-2xl border-2 border-purple-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl shadow-inner">
+                        <Users className="w-5 h-5 text-purple-600" />
                       </div>
-                      <div>
-                        <p className="text-xs text-purple-700 font-medium">Experience</p>
-                        <p className="font-bold text-purple-900 capitalize">{job.experienceLevel}</p>
+                      <div className="relative flex-1 min-w-0">
+                        <p className="text-xs text-purple-600 font-semibold uppercase tracking-wider mb-1">Experience</p>
+                        <p className="font-extrabold text-purple-900 text-base uppercase tracking-wide">{job.experienceLevel}</p>
                       </div>
                     </div>
                   )}
                   
                   {job.postedAt && (
-                    <div className="flex items-center gap-2 p-3 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-100">
-                      <div className="p-2 bg-orange-100 rounded-lg">
-                        <Calendar className="w-4 h-4 text-orange-600" />
+                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl border-2 border-orange-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="relative p-3 bg-gradient-to-br from-orange-100 to-amber-100 rounded-xl shadow-inner">
+                        <Calendar className="w-5 h-5 text-orange-600" />
                       </div>
-                      <div>
-                        <p className="text-xs text-orange-700 font-medium">Posted</p>
-                        <p className="font-bold text-orange-900">{new Date(job.postedAt).toLocaleDateString()}</p>
+                      <div className="relative flex-1 min-w-0">
+                        <p className="text-xs text-orange-600 font-semibold uppercase tracking-wider mb-1">Posted</p>
+                        <p className="font-extrabold text-orange-900 text-sm">{new Date(job.postedAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )}
