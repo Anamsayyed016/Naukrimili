@@ -179,15 +179,17 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
         <>
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9998]"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
+            style={{ zIndex: 10000 }}
           />
           
           {/* Modal Container */}
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 10001 }}>
             <div 
               className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md max-h-[90vh] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
+              style={{ position: 'relative', zIndex: 10001 }}
             >
               {/* Header */}
               <div className="p-4 border-b border-gray-100">
@@ -208,7 +210,7 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
               </div>
 
               {/* Share Options */}
-              <div className="p-4 max-h-[60vh] overflow-y-auto">
+              <div className="p-4 max-h-[60vh] overflow-y-auto" style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {/* WhatsApp */}
                   <Button
