@@ -295,8 +295,8 @@ export default function EnhancedJobCard({
                 {job.job_type && (
                   <>
                     <span>•</span>
-                    <span className={`px-2 py-1 text-xs rounded-full border ${getJobTypeBadgeColor(job.job_type)}`}>
-                      {job.job_type}
+                    <span className={`px-2 py-1 text-xs rounded-full border font-semibold ${getJobTypeBadgeColor(job.job_type)}`}>
+                      {job.job_type.replace(/-/g, ' ').toUpperCase()}
                     </span>
                   </>
                 )}
@@ -304,8 +304,8 @@ export default function EnhancedJobCard({
                 {job.experience_level && (
                   <>
                     <span>•</span>
-                    <span className={`px-2 py-1 text-xs rounded-full border ${getExperienceLevelColor(job.experience_level)}`}>
-                      {job.experience_level}
+                    <span className={`px-2 py-1 text-xs rounded-full border font-semibold ${getExperienceLevelColor(job.experience_level)}`}>
+                      {job.experience_level.toUpperCase()}
                     </span>
                   </>
                 )}
