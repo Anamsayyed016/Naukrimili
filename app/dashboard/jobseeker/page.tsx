@@ -243,9 +243,9 @@ export default function JobSeekerDashboard() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* Enhanced Quick Actions */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-3 space-y-6">
               <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800">
@@ -287,55 +287,49 @@ export default function JobSeekerDashboard() {
                 </CardContent>
               </Card>
 
-            </div>
-
-            {/* Enhanced Profile Completion - Now in main area */}
-            {stats && (
-              <div className="lg:col-span-2">
-                <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-50 to-blue-50/50 h-full">
+              {/* Enhanced Profile Completion - Moved to sidebar */}
+              {stats && (
+                <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-50 to-blue-50/50">
                   <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-2 text-xl font-bold text-gray-900">
-                      <User className="h-6 w-6 text-purple-600" />
+                    <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                      <User className="h-5 w-5 text-purple-600" />
                       Profile Complete
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="text-center space-y-4">
-                      <div className="flex justify-center items-baseline gap-2">
-                        <span className="text-6xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                          {stats.profileCompletion}%
-                        </span>
-                        <span className="text-2xl font-semibold text-gray-500">Complete</span>
-                      </div>
+                    <div className="text-center space-y-3">
+                      <span className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent block">
+                        {stats.profileCompletion}%
+                      </span>
                       <div className="space-y-2">
-                        <div className="w-full bg-gray-200/50 rounded-full h-4 overflow-hidden">
+                        <div className="w-full bg-gray-200/50 rounded-full h-3 overflow-hidden">
                           <div 
-                            className="bg-gradient-to-r from-purple-500 to-blue-500 h-4 rounded-full transition-all duration-500 ease-out"
+                            className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out"
                             style={{ width: `${stats.profileCompletion}%` }}
                           ></div>
                         </div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs text-gray-600">
                           {stats.profileCompletion < 50 ? 'Complete your profile to get better job matches' :
-                           stats.profileCompletion < 80 ? 'Great progress! Keep going to improve your visibility' :
+                           stats.profileCompletion < 80 ? 'Great progress! Keep going' :
                            'Excellent! Your profile is well-optimized'}
                         </p>
                       </div>
                     </div>
                     {stats.profileCompletion < 100 && (
                       <Link href="/dashboard/jobseeker/profile">
-                        <Button size="lg" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 text-base font-semibold">
+                        <Button size="sm" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold">
                           Complete Profile
-                          <ArrowRight className="ml-2 h-5 w-5" />
+                          <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                     )}
                   </CardContent>
                 </Card>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Enhanced Main Content */}
-            <div className="lg:col-span-3 space-y-6">
+            <div className="lg:col-span-9 space-y-6">
               {/* Enhanced Job Recommendations */}
               <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
                 <CardHeader className="pb-4">
