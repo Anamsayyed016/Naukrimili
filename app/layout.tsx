@@ -6,6 +6,7 @@ import SessionProvider from '@/components/SessionProvider';
 import MainNavigation from '@/components/MainNavigation';
 import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
+import { ScrollOptimization } from './layout-scroll-optimization';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -402,6 +403,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} font-body`}>
         <SessionProvider>
+          <ScrollOptimization />
           <MainNavigation />
           {children}
           <Footer />

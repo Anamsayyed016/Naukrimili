@@ -331,8 +331,8 @@ export default function JobDetailsPage() {
                 {/* Job Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   {job.salaryMin || job.salaryMax || job.salary ? (
-                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 rounded-2xl border-2 border-emerald-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 rounded-2xl border-2 border-emerald-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
+                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                       <div className="relative p-3 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl shadow-inner">
                         <DollarSign className="w-5 h-5 text-emerald-600" />
                       </div>
@@ -344,8 +344,8 @@ export default function JobDetailsPage() {
                   ) : null}
                   
                   {job.jobType && (
-                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50 rounded-2xl border-2 border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50 rounded-2xl border-2 border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                       <div className="relative p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl shadow-inner">
                         <Briefcase className="w-5 h-5 text-blue-600" />
                       </div>
@@ -357,8 +357,8 @@ export default function JobDetailsPage() {
                   )}
                   
                   {job.experienceLevel && (
-                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-fuchsia-50 rounded-2xl border-2 border-purple-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-fuchsia-50 rounded-2xl border-2 border-purple-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
+                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                       <div className="relative p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl shadow-inner">
                         <Users className="w-5 h-5 text-purple-600" />
                       </div>
@@ -370,8 +370,8 @@ export default function JobDetailsPage() {
                   )}
                   
                   {job.postedAt && (
-                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl border-2 border-orange-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl border-2 border-orange-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
+                      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                       <div className="relative p-3 bg-gradient-to-br from-orange-100 to-amber-100 rounded-xl shadow-inner">
                         <Calendar className="w-5 h-5 text-orange-600" />
                       </div>
@@ -442,14 +442,14 @@ export default function JobDetailsPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Job Stats - Enhanced and Responsive */}
-            <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-blue-200 shadow-lg">
+            <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-blue-200 shadow-lg" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   📊 Job Statistics
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100 hover:bg-white/80 transition-all">
+                <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-blue-100 rounded-lg">
                       <Eye className="w-4 h-4 text-blue-600" />
@@ -458,7 +458,7 @@ export default function JobDetailsPage() {
                   </div>
                   <span className="font-bold text-blue-700 text-lg">{job.views || 0}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-green-100 hover:bg-white/80 transition-all">
+                <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-green-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-green-100 rounded-lg">
                       <Users className="w-4 h-4 text-green-600" />
@@ -468,7 +468,7 @@ export default function JobDetailsPage() {
                   <span className="font-bold text-green-700 text-lg">{job.applicationsCount || 0}</span>
                 </div>
                 {job.sector && (
-                  <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-purple-100 hover:bg-white/80 transition-all">
+                  <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-purple-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
                     <div className="flex items-center gap-2">
                       <div className="p-1.5 bg-purple-100 rounded-lg">
                         <Building2 className="w-4 h-4 text-purple-600" />
@@ -479,7 +479,7 @@ export default function JobDetailsPage() {
                   </div>
                 )}
                 {/* Additional dynamic metrics */}
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-100">
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-100" style={{ contain: 'layout style' }}>
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-yellow-100 rounded-lg">
                       <Sparkles className="w-4 h-4 text-yellow-600" />

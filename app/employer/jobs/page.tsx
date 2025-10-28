@@ -713,8 +713,9 @@ export default function EmployerJobsPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.2 }}
           className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8"
+          style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
         >
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
@@ -769,16 +770,18 @@ export default function EmployerJobsPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.05, duration: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+            style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
           >
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + index * 0.1 }}
-                className="bg-white shadow-xl rounded-2xl p-6 border-0 hover:shadow-2xl transition-all duration-300 group"
+                transition={{ delay: index * 0.05, duration: 0.2 }}
+                className="bg-white shadow-xl rounded-2xl p-6 border-0 hover:shadow-2xl transition-all duration-200 group"
+                style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
               >
                 {statsLoading ? (
                   <div className="flex items-center justify-between">
@@ -830,8 +833,9 @@ export default function EmployerJobsPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.05, duration: 0.2 }}
             className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
+            style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
           >
             {/* Applications Trend Chart */}
             {applicationsChartData.length > 0 && (
@@ -997,8 +1001,9 @@ export default function EmployerJobsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.1, duration: 0.2 }}
           className="bg-white shadow-lg rounded-2xl p-6 border-0 mb-6"
+          style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
         >
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
@@ -1120,8 +1125,9 @@ export default function EmployerJobsPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.1, duration: 0.2 }}
             className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-200 mb-6"
+            style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -1176,7 +1182,9 @@ export default function EmployerJobsPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
             className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl"
+            style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
           >
             <div className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-red-600" />
@@ -1201,10 +1209,11 @@ export default function EmployerJobsPage() {
               key={job.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.03, duration: 0.2 }}
               className="group"
+              style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
             >
-              <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-all duration-300 group-hover:shadow-2xl">
+              <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-all duration-200 group-hover:shadow-2xl" style={{ contain: 'layout style' }}>
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div className="flex-1">
@@ -1374,8 +1383,9 @@ export default function EmployerJobsPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.1, duration: 0.2 }}
             className="flex justify-center mt-8"
+            style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
           >
             <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-lg p-2 border border-white/10">
               <Button
@@ -1406,7 +1416,9 @@ export default function EmployerJobsPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
             className="text-center py-12"
+            style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
           >
             <div className="w-24 h-24 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-500/30">
               <Briefcase className="h-12 w-12 text-emerald-400" />
