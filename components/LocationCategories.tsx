@@ -225,9 +225,9 @@ export default function LocationCategories({
   }
 
   return (
-    <div className={`mt-3 sm:mt-4 ${className}`}>
+    <div className={`mt-3 sm:mt-4 lg:mt-6 ${className}`}>
       {/* Compact Header */}
-      <div className="text-center mb-2 sm:mb-3">
+      <div className="text-center mb-2 sm:mb-3 lg:mb-4">
         <span className="text-xs sm:text-sm font-medium text-gray-700 flex items-center justify-center gap-2">
           <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
           AI-Powered Locations
@@ -270,7 +270,7 @@ export default function LocationCategories({
             {/* Category Locations - Compact Grid */}
             {expandedCategory === category.id && (
               <div className="px-2 sm:px-3 pb-2 sm:pb-3">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 sm:gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-1.5 sm:gap-2">
                   {category.locations.filter(location => (location.jobCount || 0) > 0).map((location) => (
                     <Button
                       key={location.id}

@@ -226,7 +226,7 @@ export default function SignInPage() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-purple-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="w-full max-w-md space-y-8 relative z-10">
+      <div className="w-full max-w-md lg:max-w-4xl space-y-8 relative z-10">
         {/* Header with enhanced branding */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg mb-4">
@@ -251,44 +251,47 @@ export default function SignInPage() {
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="px-8 pb-8 space-y-8">
-            {error && (
-              <Alert className="alert-error border-0 rounded-xl">
-                <AlertCircle className="h-5 w-5" />
-                <AlertDescription className="text-base">{error}</AlertDescription>
-              </Alert>
-            )}
+          <CardContent className="px-8 pb-8 space-y-8 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0">
+            {/* Left Column - Errors */}
+            <div className="lg:col-span-2 space-y-4">
+              {error && (
+                <Alert className="alert-error border-0 rounded-xl">
+                  <AlertCircle className="h-5 w-5" />
+                  <AlertDescription className="text-base">{error}</AlertDescription>
+                </Alert>
+              )}
 
-            {roleLockError && (
-              <Alert className="border-amber-200 bg-amber-50 border-0 rounded-xl">
-                <AlertCircle className="h-5 w-5 text-amber-600" />
-                <AlertDescription className="text-base">
-                  <div className="space-y-2">
-                    <p className="font-medium text-amber-800">{roleLockError.error}</p>
-                    {roleLockError.currentRole && (
-                      <p className="text-sm text-amber-700">
-                        Current role: <span className="font-medium">{roleLockError.currentRole}</span>
-                      </p>
-                    )}
-                    {roleLockError.reason && (
-                      <p className="text-sm text-amber-700">
-                        {roleLockError.reason}
-                      </p>
-                    )}
-                    <div className="mt-3">
-                      <Link 
-                        href="/auth/signin" 
-                        className="text-sm font-medium text-amber-800 hover:text-amber-900 underline"
-                      >
-                        Try logging in as {roleLockError.lockedRole}
-                      </Link>
+              {roleLockError && (
+                <Alert className="border-amber-200 bg-amber-50 border-0 rounded-xl">
+                  <AlertCircle className="h-5 w-5 text-amber-600" />
+                  <AlertDescription className="text-base">
+                    <div className="space-y-2">
+                      <p className="font-medium text-amber-800">{roleLockError.error}</p>
+                      {roleLockError.currentRole && (
+                        <p className="text-sm text-amber-700">
+                          Current role: <span className="font-medium">{roleLockError.currentRole}</span>
+                        </p>
+                      )}
+                      {roleLockError.reason && (
+                        <p className="text-sm text-amber-700">
+                          {roleLockError.reason}
+                        </p>
+                      )}
+                      <div className="mt-3">
+                        <Link 
+                          href="/auth/signin" 
+                          className="text-sm font-medium text-amber-800 hover:text-amber-900 underline"
+                        >
+                          Try logging in as {roleLockError.lockedRole}
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            )}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
 
-            {/* Enhanced Authentication Options */}
+            {/* Left Column - OAuth Methods */}
             <div className="space-y-4">
               <OAuthButtons 
                 callbackUrl="/auth/role-selection"
@@ -304,17 +307,19 @@ export default function SignInPage() {
               </Button>
             </div>
 
-            {/* Enhanced Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
+            {/* Right Column - Email/Password Form */}
+            <div className="space-y-6">
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-500 font-medium">Or use email & password</span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500 font-medium">Or use email & password</span>
-              </div>
-            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
                   Email Address
@@ -403,32 +408,33 @@ export default function SignInPage() {
                   </div>
                 )}
               </Button>
-            </form>
+              </form>
 
-            {/* Enhanced Sign Up Links */}
-            <div className="text-center space-y-6">
-              <p className="text-base text-gray-600">
-                Don't have an account?{' '}
-                <Link href="/auth/signup" className="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition-colors">
-                  Create account
-                </Link>
-              </p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Link
-                  href="/auth/register/jobseeker"
-                  className="group inline-flex items-center justify-center px-6 py-4 border-2 border-blue-200 rounded-xl text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 active:scale-95"
-                >
-                  <UserCheck className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                  Job Seeker
-                </Link>
-                <Link
-                  href="/auth/register/employer"
-                  className="group inline-flex items-center justify-center px-6 py-4 border-2 border-emerald-200 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-300 transform hover:scale-105 active:scale-95"
-                >
-                  <Building2 className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                  Employer
-                </Link>
+              {/* Sign Up Links */}
+              <div className="text-center space-y-6">
+                <p className="text-base text-gray-600">
+                  Don't have an account?{' '}
+                  <Link href="/auth/signup" className="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition-colors">
+                    Create account
+                  </Link>
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Link
+                    href="/auth/register/jobseeker"
+                    className="group inline-flex items-center justify-center px-6 py-4 border-2 border-blue-200 rounded-xl text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  >
+                    <UserCheck className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                    Job Seeker
+                  </Link>
+                  <Link
+                    href="/auth/register/employer"
+                    className="group inline-flex items-center justify-center px-6 py-4 border-2 border-emerald-200 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                  >
+                    <Building2 className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                    Employer
+                  </Link>
+                </div>
               </div>
             </div>
           </CardContent>
