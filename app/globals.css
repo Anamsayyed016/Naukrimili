@@ -413,6 +413,13 @@ html {
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
   overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -423,12 +430,54 @@ body {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+  touch-action: pan-y;
+  /* Prevent scroll bouncing and momentum on iOS */
+  overscroll-behavior: none;
 }
 
 /* Prevent horizontal scroll on mobile */
 * {
   max-width: 100%;
   box-sizing: border-box;
+}
+
+/* Fix for sticky header on mobile */
+nav.sticky, [class*="sticky"] {
+  touch-action: pan-y;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  perspective: 1000;
+}
+
+/* Prevent layout shifts during scroll */
+main, .container, [role="main"] {
+  contain: layout style;
+}
+
+/* Optimize scroll containers */
+[class*="overflow-"], [class*="scroll"] {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+/* Critical: Fix horizontal scroll and improve vertical scroll */
+#__next, #root, [id*="__next"], [data-scroll-container] {
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* Optimize all potentially animated elements */
+.group, [class*="motion"], [class*="animate"] {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* Optimize animated elements for GPU */
@@ -445,7 +494,8 @@ body {
 @media (max-width: 768px) {
   /* Disable hover effects on mobile to prevent touch issues */
   @media (hover: none) and (pointer: coarse) {
-    .group:hover {
+    .group:hover,
+    .group:active {
       transform: none !important;
       box-shadow: none !important;
     }
@@ -454,6 +504,20 @@ body {
     [class*="hover:"]:not([class*="hover:bg-"]) {
       transform: none !important;
     }
+    
+    /* Prevent touch delays */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    /* Allow text selection on content */
+    p, span, div, article, section, h1, h2, h3, h4, h5, h6 {
+      -webkit-user-select: text;
+      user-select: text;
+    }
   }
   
   /* Reduce animation complexity on mobile */
@@ -461,6 +525,18 @@ body {
   [class*="animate-pulse"],
   [class*="animate-bounce"] {
     animation-duration: 0.8s !important;
+  }
+  
+  /* Prevent body scroll bounce on iOS */
+  body {
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Optimize main scroll containers */
+  main {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
   }
 }
 
