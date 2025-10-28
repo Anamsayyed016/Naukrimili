@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from "@/components/ui/button";
 import { getJobUrl } from '@/components/SEOJobLink';
 import { 
@@ -30,10 +31,13 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
 
   // Check if device is mobile
   useEffect(() => {
+    setIsMounted(true);
+    
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -140,57 +144,22 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
     };
   }, [isOpen]);
 
-  return (
+  const modalContent = isOpen && isMounted ? (
     <>
-      <style jsx>{`
-        .touch-target {
-          min-height: 44px;
-          min-width: 44px;
-        }
-        
-        @media (max-width: 640px) {
-          .touch-target {
-            min-height: 48px;
-            min-width: 48px;
-          }
-        }
-        
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      `}</style>
-      <div className={`relative ${className}`}>
-      {/* Share Button */}
-      <Button
-        onClick={() => setIsOpen(!isOpen)}
-        variant="outline"
-        size="sm"
-        className="flex items-center gap-2 bg-white/90 backdrop-blur-sm border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-medium px-3 py-2 rounded-lg transition-all duration-200 text-sm min-w-[44px] min-h-[44px] touch-target"
-      >
-        <Share2 className="w-4 h-4 flex-shrink-0" />
-        <span className="hidden xs:inline">Share</span>
-      </Button>
-
-      {/* Share Modal */}
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm"
-            onClick={() => setIsOpen(false)}
-            style={{ zIndex: 10000 }}
-          />
-          
-          {/* Modal Container */}
-          <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 10001 }}>
-            <div 
-              className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md max-h-[90vh] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
-              onClick={(e) => e.stopPropagation()}
-              style={{ position: 'relative', zIndex: 10001 }}
-            >
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+        onClick={() => setIsOpen(false)}
+        style={{ zIndex: 10000 }}
+      />
+      
+      {/* Modal Container */}
+      <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 10001 }}>
+        <div 
+          className="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md max-h-[90vh] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
+          onClick={(e) => e.stopPropagation()}
+          style={{ position: 'relative', zIndex: 10001 }}
+        >
               {/* Header */}
               <div className="p-4 border-b border-gray-100">
                 <div className="flex items-center justify-between">
@@ -302,8 +271,49 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
             </div>
           </div>
         </>
-      )}
+      ) : null;
+
+  return (
+    <>
+      <style jsx>{`
+        .touch-target {
+          min-height: 44px;
+          min-width: 44px;
+        }
+        
+        @media (max-width: 640px) {
+          .touch-target {
+            min-height: 48px;
+            min-width: 48px;
+          }
+        }
+        
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
+      
+      <div className={`relative ${className}`}>
+        {/* Share Button */}
+        <Button
+          onClick={() => setIsOpen(!isOpen)}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2 bg-white/90 backdrop-blur-sm border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-medium px-3 py-2 rounded-lg transition-all duration-200 text-sm min-w-[44px] min-h-[44px] touch-target"
+        >
+          <Share2 className="w-4 h-4 flex-shrink-0" />
+          <span className="hidden xs:inline">Share</span>
+        </Button>
       </div>
+      
+      {/* Portal Modal to Body */}
+      {isMounted && typeof window !== 'undefined' && createPortal(
+        modalContent,
+        document.body
+      )}
     </>
   );
 }
