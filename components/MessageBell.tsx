@@ -20,6 +20,8 @@ import {
   ScrollArea,
 } from '@/components/ui/scroll-area';
 import { formatDistanceToNow } from 'date-fns';
+import { Z_INDEX } from '@/lib/utils';
+import { useResponsive } from '@/components/ui/use-mobile';
 
 interface Message {
   id: string;
@@ -35,6 +37,7 @@ interface Message {
 
 export function MessageBell() {
   const { socket, isConnected } = useSocket();
+  const { isMobile, isTablet } = useResponsive();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -182,17 +185,21 @@ export function MessageBell() {
         </PopoverTrigger>
         
         <PopoverContent 
-          className="w-[calc(100vw-1rem)] sm:w-80 md:w-96 p-0 mx-2 sm:mx-0 shadow-2xl border border-gray-200 rounded-xl z-[9999]" 
+          className="p-0 shadow-2xl border border-gray-200 rounded-xl" 
           align="end"
           side="bottom"
           sideOffset={12}
           avoidCollisions={true}
           collisionPadding={24}
           style={{ 
+            zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
+            width: isMobile ? 'calc(100vw - 2rem)' : '384px',
+            maxWidth: isMobile ? 'calc(100vw - 2rem)' : '384px',
+            margin: isMobile ? '0 1rem' : '0',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             WebkitFontSmoothing: 'antialiased',
             MozOsxFontSmoothing: 'grayscale',
-            maxHeight: 'calc(100vh - 6rem)',
+            maxHeight: isMobile ? 'calc(100vh - 6rem)' : '80vh',
             overflow: 'hidden',
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
@@ -236,7 +243,7 @@ export function MessageBell() {
             </div>
           </div>
           
-          <ScrollArea className="h-80 max-h-[50vh]">
+          <ScrollArea className={isMobile ? "max-h-[calc(100vh-12rem)]" : "h-80 max-h-[60vh]"}>
             {isLoading ? (
               <div className="p-4 text-center text-gray-500">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>

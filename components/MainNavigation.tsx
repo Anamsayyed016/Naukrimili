@@ -39,6 +39,7 @@ import UnifiedUserProfile from "./UnifiedUserProfile";
 import { NotificationBell } from "./NotificationBell";
 import { ComprehensiveNotificationBell } from "./ComprehensiveNotificationBell";
 import { MessageBell } from "./MessageBell";
+import { useResponsive } from "@/components/ui/use-mobile";
 
 interface MainNavigationProps {
   brandName?: string;
@@ -50,8 +51,8 @@ export default function MainNavigation({
   
   const pathname = usePathname();
   const router = useRouter();
+  const { isMobile, isTablet, isDesktop } = useResponsive();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const { data: session, status } = useSession();
@@ -63,26 +64,19 @@ export default function MainNavigation({
   // Prevent hydration mismatch
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  // Close mobile menu when switching to desktop
+  useEffect(() => {
+    if (!isMobile && isMenuOpen) {
+      setIsMenuOpen(false);
+    }
     
-    const checkScreenSize = () => {
-      const isMobileSize = window.innerWidth < 1024;
-      setIsMobile(isMobileSize);
-      
-      // Close mobile menu when switching to desktop
-      if (!isMobileSize && isMenuOpen) {
-        setIsMenuOpen(false);
-      }
-      
-      // Close dropdown when switching to mobile
-      if (isMobileSize && isDropdownOpen) {
-        setIsDropdownOpen(false);
-      }
-    };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, [isMenuOpen, isDropdownOpen]);
+    // Close dropdown when switching to mobile
+    if (isMobile && isDropdownOpen) {
+      setIsDropdownOpen(false);
+    }
+  }, [isMobile, isMenuOpen, isDropdownOpen]);
 
   // Don't render until mounted to prevent hydration mismatch
   if (!isMounted) {
