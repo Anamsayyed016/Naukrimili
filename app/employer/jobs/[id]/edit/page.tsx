@@ -637,7 +637,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             value={formData.title}
                             onChange={(e) => handleInputChange('title', e.target.value)}
                             placeholder="e.g., Senior React Developer"
-                            className="flex-1 w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 min-w-0"
+                            className="flex-1 w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm min-w-0"
                             required
                           />
                           <Button
@@ -646,7 +646,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             size="sm"
                             onClick={() => requestAISuggestions('title')}
                             disabled={!formData.title.trim() || aiLoading}
-                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 py-2 sm:px-2 sm:py-1 text-xs font-medium h-12 sm:min-w-fit w-full sm:w-auto shrink-0"
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium h-10 sm:h-12 w-full sm:w-auto shrink-0"
                             title="Get AI suggestions for job title"
                           >
                             {aiLoading && activeField === 'title' ? (
@@ -692,7 +692,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             value={formData.location}
                             onChange={(e) => handleInputChange('location', e.target.value)}
                             placeholder="e.g., Bangalore, India"
-                            className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0"
+                            className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0"
                             required
                           />
                         </div>
@@ -702,7 +702,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             Country
                           </Label>
                           <Select value={formData.country} onValueChange={(value) => handleInputChange('country', value)}>
-                            <SelectTrigger className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0">
+                            <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select country" />
                             </SelectTrigger>
                             <SelectContent 
@@ -729,7 +729,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             Job Type *
                           </Label>
                           <Select value={formData.jobType} onValueChange={(value) => handleInputChange('jobType', value)}>
-                            <SelectTrigger className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0">
+                            <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select job type" />
                             </SelectTrigger>
                             <SelectContent 
@@ -765,7 +765,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             Experience Level *
                           </Label>
                           <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
-                            <SelectTrigger className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0">
+                            <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select experience" />
                             </SelectTrigger>
                             <SelectContent 
@@ -801,7 +801,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             Sector *
                           </Label>
                           <Select value={formData.sector} onValueChange={(value) => handleInputChange('sector', value)}>
-                            <SelectTrigger className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0">
+                            <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select sector" />
                             </SelectTrigger>
                             <SelectContent 
@@ -842,7 +842,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           value={formData.salary}
                           onChange={(e) => handleInputChange('salary', e.target.value)}
                           placeholder="e.g., 50000-80000"
-                          className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0"
+                          className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0"
                         />
                       </div>
                     </div>
@@ -878,7 +878,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             onChange={(e) => handleInputChange('description', e.target.value)}
                             placeholder="Describe the role, responsibilities, and what makes this opportunity unique..."
                             rows={6}
-                            className="w-full text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200"
+                            className="w-full text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                             required
                           />
                           <div className="mt-2">
@@ -888,7 +888,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                               size="sm"
                               onClick={() => requestAISuggestions('description')}
                               disabled={!formData.title.trim() || aiLoading}
-                              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 py-2 text-xs font-medium"
+                              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
                             >
                               {aiLoading && activeField === 'description' ? (
                                 <>
@@ -935,7 +935,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             onChange={(e) => handleInputChange('requirements', e.target.value)}
                             placeholder="List the key requirements and qualifications..."
                             rows={4}
-                            className="w-full text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200"
+                            className="w-full text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                           />
                           <div className="mt-2">
                             <Button
@@ -991,7 +991,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             onChange={(e) => handleInputChange('benefits', e.target.value)}
                             placeholder="List the benefits, perks, and what you offer..."
                             rows={4}
-                            className="w-full text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200"
+                            className="w-full text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                           />
                           <div className="mt-2">
                             <Button
@@ -1067,7 +1067,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             value={skillsInput}
                             onChange={(e) => handleSkillsChange(e.target.value)}
                             placeholder="Type skills and press comma to add (e.g., React, Node.js,)"
-                            className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 min-w-0"
+                            className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm min-w-0"
                           />
                           <div className="mt-2">
                             <Button
@@ -1227,7 +1227,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             type="date"
                             value={formData.applicationDeadline}
                             onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
-                            className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0"
+                            className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0"
                           />
                         </div>
                       </div>
