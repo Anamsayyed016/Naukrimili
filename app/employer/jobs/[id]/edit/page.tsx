@@ -125,6 +125,91 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     }
   }, [jobId]);
 
+  // Inject mobile dropdown styles for proper z-index and positioning
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.id = 'edit-job-dropdown-styles';
+    style.textContent = `
+      /* Professional dropdown styling - matching working forms */
+      .radix-select-content {
+        z-index: 9999 !important;
+      }
+      
+      /* Fix for mobile and tablet visibility */
+      @media (max-width: 768px) {
+        [data-radix-popper-content-wrapper] {
+          z-index: 9999 !important;
+          position: fixed !important;
+          max-width: calc(100vw - 32px) !important;
+        }
+      }
+      
+      /* Additional specific fixes for Radix Select */
+      [data-radix-select-content][data-state="open"] {
+        z-index: 9999 !important;
+        position: fixed !important;
+      }
+      
+      [data-radix-select-viewport] {
+        z-index: 9999 !important;
+      }
+      
+      /* Ensure dropdown items are visible */
+      [data-radix-select-item] {
+        z-index: 9999 !important;
+      }
+      
+      /* Fix for any parent container clipping on mobile */
+      @media (max-width: 768px) {
+        .overflow-hidden,
+        [class*="overflow"] {
+          overflow: visible !important;
+        }
+      }
+      
+      /* Ensure proper stacking context for all dropdown elements */
+      [data-radix-popper-content-wrapper],
+      [data-radix-select-content],
+      [data-radix-select-viewport],
+      [data-radix-select-item] {
+        z-index: 9999 !important;
+      }
+      
+      /* Professional hover effects */
+      [data-radix-select-item]:hover {
+        background-color: #f8fafc !important;
+        color: #1e293b !important;
+      }
+      
+      [data-radix-select-item][data-highlighted] {
+        background-color: #3b82f6 !important;
+        color: white !important;
+      }
+      
+      [data-radix-select-item][data-state="checked"] {
+        background-color: #10b981 !important;
+        color: white !important;
+        font-weight: 600 !important;
+      }
+    `;
+    
+    // Remove existing style if it exists
+    const existingStyle = document.getElementById('edit-job-dropdown-styles');
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+    
+    document.head.appendChild(style);
+    
+    // Cleanup on unmount
+    return () => {
+      const styleToRemove = document.getElementById('edit-job-dropdown-styles');
+      if (styleToRemove) {
+        styleToRemove.remove();
+      }
+    };
+  }, []);
+
   const fetchJob = async () => {
     if (!jobId) return;
     
@@ -607,8 +692,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           </div>
 
         <form onSubmit={handleSubmit}>
-          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full relative z-10 overflow-hidden">
-            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 relative z-10 w-full">
+          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full relative z-10 overflow-visible">
+            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 relative z-10 w-full overflow-visible">
               <AnimatePresence mode="wait">
                 {currentStep === 1 && (
                   <motion.div
@@ -706,10 +791,9 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                               <SelectValue placeholder="Select country" />
                             </SelectTrigger>
                             <SelectContent 
-                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
-                              style={{ 
-                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN
-                              }}
+                              position="popper"
+                              sideOffset={8}
+                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl z-[9999]"
                             >
                               <SelectItem value="IN">🇮🇳 India</SelectItem>
                               <SelectItem value="US">🇺🇸 United States</SelectItem>
@@ -733,10 +817,9 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                               <SelectValue placeholder="Select job type" />
                             </SelectTrigger>
                             <SelectContent 
-                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
-                              style={{ 
-                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN
-                              }}
+                              position="popper"
+                              sideOffset={8}
+                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl z-[9999]"
                             >
                               {dynamicOptions?.jobTypes?.length ? (
                                 dynamicOptions.jobTypes.map((type) => (
@@ -769,10 +852,9 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                               <SelectValue placeholder="Select experience" />
                             </SelectTrigger>
                             <SelectContent 
-                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
-                              style={{ 
-                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN
-                              }}
+                              position="popper"
+                              sideOffset={8}
+                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl z-[9999]"
                             >
                               {dynamicOptions?.experienceLevels?.length ? (
                                 dynamicOptions.experienceLevels.map((level) => (
@@ -805,10 +887,9 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                               <SelectValue placeholder="Select sector" />
                             </SelectTrigger>
                             <SelectContent 
-                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
-                              style={{ 
-                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN
-                              }}
+                              position="popper"
+                              sideOffset={8}
+                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl z-[9999]"
                             >
                               {dynamicOptions?.sectors?.length ? (
                                 dynamicOptions.sectors.map((sector) => (
@@ -1057,6 +1138,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                     </div>
 
                     <div className="space-y-6">
+                      {/* Required Skills */}
                       <div>
                         <Label htmlFor="skills" className="text-sm sm:text-base font-bold text-gray-900">
                           Required Skills
@@ -1132,28 +1214,6 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           ))}
                         </div>
                       )}
-                    </div>
-                  </motion.div>
-                )}
-
-                {currentStep === 3 && (
-                  <motion.div
-                    key="step3"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                    className="space-y-6"
-                  >
-                    <div className="text-center mb-6">
-                      <div className="p-3 sm:p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
-                        <Target className="h-8 w-8 sm:h-10 sm:w-10 text-purple-600" />
-                      </div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Job Settings & Preferences</h2>
-                      <p className="text-gray-600 text-sm sm:text-base">Configure job visibility and application settings</p>
-                    </div>
-
-                    <div className="space-y-6">
 
                       {/* Job Settings */}
                       <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border-2 border-blue-200">
