@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { User, ChevronDown, LogOut, Settings, BarChartIcon, FileTextIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Z_INDEX } from '@/lib/utils';
 
 interface UnifiedUserProfileProps {
   className?: string;
@@ -143,9 +144,10 @@ export default function UnifiedUserProfile({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/30 z-[9998]"
+              className="fixed inset-0 bg-black/30"
               onClick={closeDropdown}
               style={{ 
+                zIndex: Z_INDEX.MODAL_BACKDROP,
                 backdropFilter: 'blur(2px)',
                 WebkitBackdropFilter: 'blur(2px)'
               }}
@@ -161,9 +163,12 @@ export default function UnifiedUserProfile({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="fixed top-16 sm:top-16 right-2 sm:right-4 w-[calc(100vw-1rem)] sm:w-80 max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-xl shadow-2xl z-[9999] max-h-[calc(100vh-4rem)] overflow-y-auto"
+              className="fixed top-16 sm:top-16 right-2 sm:right-4 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
               style={{ 
+                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
+                width: 'calc(100vw - 2rem)',
+                maxWidth: '384px',
                 transform: 'translateZ(0)',
                 willChange: 'transform, opacity',
                 backfaceVisibility: 'hidden'
@@ -298,9 +303,10 @@ export default function UnifiedUserProfile({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/20 z-[9998]"
+              className="fixed inset-0 bg-black/20"
               onClick={closeDropdown}
               style={{ 
+                zIndex: Z_INDEX.MODAL_BACKDROP,
                 backdropFilter: 'blur(2px)',
                 WebkitBackdropFilter: 'blur(2px)'
               }}
@@ -312,9 +318,12 @@ export default function UnifiedUserProfile({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-white border border-gray-200 rounded-xl shadow-2xl z-[9999]"
+              className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}
               style={{ 
+                zIndex: Z_INDEX.DROPDOWN_CONTENT,
+                width: '384px',
+                maxWidth: 'calc(100vw - 2rem)',
                 backgroundColor: 'white',
                 transform: 'translateZ(0)',
                 willChange: 'transform, opacity',

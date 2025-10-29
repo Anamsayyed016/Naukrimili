@@ -11,6 +11,8 @@ import { useSocket } from '@/hooks/useSocket';
 import { useComprehensiveNotifications } from '@/hooks/useComprehensiveNotifications';
 import { useSession } from 'next-auth/react';
 import { safeLength, safeArray } from '@/lib/safe-array-utils';
+import { useResponsive } from '@/components/ui/use-mobile';
+import { Z_INDEX } from '@/lib/utils';
 
 interface Notification {
   id: string;
@@ -53,20 +55,10 @@ export function ComprehensiveNotificationBell() {
   const { notifications, unreadCount, markNotificationAsRead } = useSocket();
   const { getNotificationStats, markNotificationsReadByType } = useComprehensiveNotifications();
   const { data: session } = useSession();
+  const { isMobile, isTablet, isDesktop } = useResponsive();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [filter, setFilter] = useState<string>('all');
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Check screen size
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
 
   // Lock body scroll when dropdown is open on mobile
   useEffect(() => {
@@ -181,9 +173,10 @@ export function ComprehensiveNotificationBell() {
       {/* Backdrop for mobile */}
       {isOpen && isMobile && (
         <div 
-          className="fixed inset-0 bg-black/50 z-[9997]"
+          className="fixed inset-0 bg-black/50"
           onClick={() => setIsOpen(false)}
           style={{ 
+            zIndex: Z_INDEX.BACKDROP,
             backdropFilter: 'blur(4px)',
             WebkitBackdropFilter: 'blur(4px)'
           }}
@@ -193,9 +186,15 @@ export function ComprehensiveNotificationBell() {
       {/* Notification Dropdown */}
       {isOpen && (
         <div 
-          className={isMobile ? "fixed top-16 left-2 right-2 w-auto sm:w-80 md:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-[calc(100vh-5rem)] overflow-hidden" : "fixed left-auto right-0 mt-2 w-80 md:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-[9999] max-h-96 overflow-hidden"}
-          onClick={(e) => e.stopPropagation()}
+          className={isMobile 
+            ? "fixed top-16 left-2 right-2 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-[calc(100vh-5rem)] overflow-hidden"
+            : "absolute top-full right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-[80vh] max-w-96 overflow-hidden"
+          }
           style={{ 
+            zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
+            width: isMobile ? 'auto' : '384px',
+            minWidth: isMobile ? 'auto' : '320px',
+            maxWidth: isMobile ? 'calc(100vw - 1rem)' : '384px',
             backgroundColor: 'white',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
             transform: 'translateZ(0)',
@@ -203,6 +202,7 @@ export function ComprehensiveNotificationBell() {
             backfaceVisibility: 'hidden',
             isolation: 'isolate'
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           <div style={{ 
             backgroundColor: 'white',
@@ -251,7 +251,10 @@ export function ComprehensiveNotificationBell() {
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-64 sm:max-h-80 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#cbd5e1 white' }}>
+          <div 
+            className={isMobile ? "max-h-[calc(100vh-12rem)] overflow-y-auto" : "max-h-[60vh] overflow-y-auto"} 
+            style={{ scrollbarWidth: 'thin', scrollbarColor: '#cbd5e1 white' }}
+          >
             {safeLength(filteredNotifications) === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />

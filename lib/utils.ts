@@ -34,3 +34,17 @@ export function isValidEmail(email: string) {
 export function isValidPassword(password: string) {
   return safeLength(String(password || '')) >= 6;
 }
+
+// Z-index constants - centralized to avoid conflicts
+// Usage: className={`z-[${Z_INDEX.DROPDOWN_CONTENT}]`} or style={{ zIndex: Z_INDEX.DROPDOWN_CONTENT }}
+export const Z_INDEX = {
+  BASE: 0,
+  DROPDOWN: 50,
+  STICKY: 50,
+  BACKDROP: 9997,
+  MODAL_BACKDROP: 9998,
+  DROPDOWN_CONTENT: 9998,
+  TOP_LEVEL_DROPDOWN: 9999,
+  NOTIFICATION: 9999,
+  MODAL: 10000,
+} as const;
