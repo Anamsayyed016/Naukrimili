@@ -46,7 +46,7 @@ export async function GET(
     });
 
   } catch (_error) {
-    console.error("Error fetching company:", error);
+    console.error("Error fetching company:", _error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch company" },
       { status: 500 }
@@ -147,7 +147,7 @@ export async function PUT(
     });
 
   } catch (_error) {
-    console.error("Error updating company:", error);
+    console.error("Error updating company:", _error);
     return NextResponse.json(
       { success: false, error: "Failed to update company" },
       { status: 500 }
@@ -189,7 +189,7 @@ export async function DELETE(
     });
 
   } catch (_error) {
-    console.error("Error deleting company:", error);
+    console.error("Error deleting company:", _error);
     return NextResponse.json(
       { success: false, error: "Failed to delete company" },
       { status: 500 }
