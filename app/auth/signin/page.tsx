@@ -82,8 +82,20 @@ export default function SignInPage() {
       });
 
       if (result?.ok) {
-        // Redirect to role selection or dashboard based on user role
-        router.push('/auth/role-selection');
+        // Fetch session to get user role and redirect accordingly
+        const sessionResponse = await fetch('/api/auth/session');
+        const sessionData = await sessionResponse.json();
+        
+        // Redirect based on user role
+        if (sessionData?.user?.role === 'admin') {
+          router.push('/dashboard/admin');
+        } else if (sessionData?.user?.role === 'employer') {
+          router.push('/dashboard/company');
+        } else if (sessionData?.user?.role === 'jobseeker') {
+          router.push('/dashboard/jobseeker');
+        } else {
+          router.push('/auth/role-selection');
+        }
       } else {
         // Check if the error is related to role lock
         if (result?.error && result.error.includes('Cannot login as')) {
