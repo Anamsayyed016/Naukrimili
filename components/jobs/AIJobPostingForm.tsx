@@ -35,6 +35,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { getSmartLocation, getMobileGeolocationOptions, isMobileDevice } from '@/lib/mobile-geolocation';
+import { useDebouncedCallback } from '@/hooks/useDebounce';
 
 interface JobFormData {
   title: string;
@@ -939,6 +940,14 @@ export default function AIJobPostingForm() {
     }
   }, [formData.jobType, formData.experienceLevel, formData.skills]);
 
+  // Debounced version of getAISuggestions to prevent excessive API calls
+  const debouncedGetAISuggestions = useDebouncedCallback(
+    (field: string, value: string) => {
+      getAISuggestions(field, value);
+    },
+    800 // 800ms debounce delay
+  );
+
   // Removed handleInputChangeWithSuggestions - now using direct handleInputChange for manual typing
 
   // Detect current location
@@ -1159,7 +1168,7 @@ export default function AIJobPostingForm() {
     
     if (typeof fieldValue === 'string' && fieldValue.trim().length > 0) {
       console.log('User requested AI suggestions for:', field, fieldValue);
-      getAISuggestions(field, fieldValue);
+      debouncedGetAISuggestions(field, fieldValue);
     } else {
       toast.error('Please enter some text first before requesting AI suggestions');
     }
