@@ -31,6 +31,7 @@ import { useRouter, useParams } from "next/navigation";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { motion, AnimatePresence } from "framer-motion";
 import { Z_INDEX } from "@/lib/utils";
+import { useResponsive } from "@/components/ui/use-mobile";
 
 interface JobFormData {
   title: string;
@@ -70,6 +71,7 @@ interface AISuggestions {
 export default function EditJobPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const router = useRouter();
   const urlParams = useParams();
+  const { isMobile, isTablet } = useResponsive();
   // Handle both Promise and direct params for Next.js 15 compatibility
   const resolvedId = params instanceof Promise ? null : (params as { id: string }).id;
   const jobId = resolvedId || (urlParams?.id as string) || '';
@@ -703,7 +705,16 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
                               <SelectValue placeholder="Select country" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" style={{ zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN }}>
+                            <SelectContent 
+                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
+                              style={{ 
+                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
+                                ...(isMobile && {
+                                  maxWidth: 'calc(100vw - 2rem)',
+                                  width: 'calc(100vw - 2rem)'
+                                })
+                              }}
+                            >
                               <SelectItem value="IN">🇮🇳 India</SelectItem>
                               <SelectItem value="US">🇺🇸 United States</SelectItem>
                               <SelectItem value="UK">🇬🇧 United Kingdom</SelectItem>
@@ -725,7 +736,16 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
                               <SelectValue placeholder="Select job type" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" style={{ zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN }}>
+                            <SelectContent 
+                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
+                              style={{ 
+                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
+                                ...(isMobile && {
+                                  maxWidth: 'calc(100vw - 2rem)',
+                                  width: 'calc(100vw - 2rem)'
+                                })
+                              }}
+                            >
                               {dynamicOptions?.jobTypes?.length ? (
                                 dynamicOptions.jobTypes.map((type) => (
                                   <SelectItem key={type.value} value={type.value}>
@@ -756,7 +776,16 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
                               <SelectValue placeholder="Select experience" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" style={{ zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN }}>
+                            <SelectContent 
+                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
+                              style={{ 
+                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
+                                ...(isMobile && {
+                                  maxWidth: 'calc(100vw - 2rem)',
+                                  width: 'calc(100vw - 2rem)'
+                                })
+                              }}
+                            >
                               {dynamicOptions?.experienceLevels?.length ? (
                                 dynamicOptions.experienceLevels.map((level) => (
                                   <SelectItem key={level.value} value={level.value}>
@@ -787,7 +816,16 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
                               <SelectValue placeholder="Select sector" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" style={{ zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN }}>
+                            <SelectContent 
+                              className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
+                              style={{ 
+                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
+                                ...(isMobile && {
+                                  maxWidth: 'calc(100vw - 2rem)',
+                                  width: 'calc(100vw - 2rem)'
+                                })
+                              }}
+                            >
                               {dynamicOptions?.sectors?.length ? (
                                 dynamicOptions.sectors.map((sector) => (
                                   <SelectItem key={sector.value} value={sector.value}>
