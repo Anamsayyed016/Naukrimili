@@ -27,9 +27,10 @@ import {
   Trash2
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { motion, AnimatePresence } from "framer-motion";
+import { Z_INDEX } from "@/lib/utils";
 
 interface JobFormData {
   title: string;
@@ -66,8 +67,13 @@ interface AISuggestions {
   skills: string;
 }
 
-export default function EditJobPage({ params }: { params: { id: string } }) {
+export default function EditJobPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const router = useRouter();
+  const urlParams = useParams();
+  // Handle both Promise and direct params for Next.js 15 compatibility
+  const resolvedId = params instanceof Promise ? null : (params as { id: string }).id;
+  const jobId = resolvedId || (urlParams?.id as string) || '';
+  
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -111,14 +117,18 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
   ];
 
   useEffect(() => {
-    fetchJob();
-    fetchDynamicOptions();
-  }, [params.id]);
+    if (jobId) {
+      fetchJob();
+      fetchDynamicOptions();
+    }
+  }, [jobId]);
 
   const fetchJob = async () => {
+    if (!jobId) return;
+    
     try {
       setFetching(true);
-      const response = await fetch(`/api/employer/jobs/${params.id}`);
+      const response = await fetch(`/api/employer/jobs/${jobId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch job');
       }
@@ -126,6 +136,40 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       const data = await response.json();
       if (data.success) {
         const job = data.data;
+        
+        // Parse requirements and benefits if they're JSON strings
+        let requirements = '';
+        let benefits = '';
+        
+        if (job.requirements) {
+          try {
+            const parsed = typeof job.requirements === 'string' ? JSON.parse(job.requirements) : job.requirements;
+            requirements = Array.isArray(parsed) ? (parsed[0] || '') : (parsed || '');
+          } catch {
+            requirements = typeof job.requirements === 'string' ? job.requirements : '';
+          }
+        }
+        
+        if (job.benefits) {
+          try {
+            const parsed = typeof job.benefits === 'string' ? JSON.parse(job.benefits) : job.benefits;
+            benefits = Array.isArray(parsed) ? (parsed[0] || '') : (parsed || '');
+          } catch {
+            benefits = typeof job.benefits === 'string' ? job.benefits : '';
+          }
+        }
+        
+        // Parse skills
+        let skills: string[] = [];
+        if (job.skills) {
+          try {
+            const parsed = typeof job.skills === 'string' ? JSON.parse(job.skills) : job.skills;
+            skills = Array.isArray(parsed) ? parsed : (typeof parsed === 'string' ? parsed.split(',').map(s => s.trim()).filter(s => s) : []);
+          } catch {
+            skills = typeof job.skills === 'string' ? job.skills.split(',').map(s => s.trim()).filter(s => s) : [];
+          }
+        }
+        
         setFormData({
           title: job.title || '',
           location: job.location || '',
@@ -134,18 +178,18 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
           experienceLevel: job.experienceLevel || '',
           salary: job.salary || '',
           description: job.description || '',
-          requirements: job.requirements?.[0] || '',
-          benefits: job.benefits?.[0] || '',
+          requirements: requirements,
+          benefits: benefits,
           isRemote: job.isRemote || false,
           isHybrid: job.isHybrid || false,
           isUrgent: job.isUrgent || false,
           isFeatured: job.isFeatured || false,
           sector: job.sector || '',
-          skills: Array.isArray(job.skills) ? job.skills : (typeof job.skills === 'string' ? job.skills.split(',').map(s => s.trim()).filter(s => s) : []),
+          skills: skills,
           applicationDeadline: job.applicationDeadline ? new Date(job.applicationDeadline).toISOString().split('T')[0] : ''
         });
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error fetching job:', error);
       toast.error('Failed to fetch job details', {
         description: 'Please try refreshing the page or contact support if the issue persists.',
@@ -165,7 +209,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
           setDynamicOptions(data.data);
         }
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error fetching dynamic options:', error);
     }
   };
@@ -211,7 +255,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       } else {
         throw new Error('Failed to get AI suggestions');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('AI suggestion error:', error);
       toast.error('Failed to get AI suggestions', {
         description: 'Please try again or continue with manual input.',
@@ -331,8 +375,14 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       return;
     }
 
+    if (!jobId) {
+      toast.error('Job ID is missing');
+      setLoading(false);
+      return;
+    }
+    
     try {
-      const response = await fetch(`/api/employer/jobs/${params.id}`, {
+      const response = await fetch(`/api/employer/jobs/${jobId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -356,7 +406,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       } else {
         throw new Error(result.error || 'Failed to update job');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error updating job:', error);
       toast.error('Failed to update job', {
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
@@ -368,6 +418,11 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
   };
 
   const handleDelete = async () => {
+    if (!jobId) {
+      toast.error('Job ID is missing');
+      return;
+    }
+    
     if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
       return;
     }
@@ -375,7 +430,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
     setDeleting(true);
 
     try {
-      const response = await fetch(`/api/jobs/${params.id}`, {
+      const response = await fetch(`/api/employer/jobs/${jobId}`, {
         method: 'DELETE',
       });
 
@@ -395,7 +450,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       } else {
         throw new Error(result.error || 'Failed to delete job');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error deleting job:', error);
       toast.error('Failed to delete job', {
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
@@ -648,7 +703,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
                             <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
                               <SelectValue placeholder="Select country" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl">
+                            <SelectContent className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" style={{ zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN }}>
                               <SelectItem value="IN">🇮🇳 India</SelectItem>
                               <SelectItem value="US">🇺🇸 United States</SelectItem>
                               <SelectItem value="UK">🇬🇧 United Kingdom</SelectItem>
@@ -670,7 +725,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
                             <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
                               <SelectValue placeholder="Select job type" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl">
+                            <SelectContent className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" style={{ zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN }}>
                               {dynamicOptions?.jobTypes?.length ? (
                                 dynamicOptions.jobTypes.map((type) => (
                                   <SelectItem key={type.value} value={type.value}>
@@ -701,7 +756,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
                             <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
                               <SelectValue placeholder="Select experience" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl">
+                            <SelectContent className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" style={{ zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN }}>
                               {dynamicOptions?.experienceLevels?.length ? (
                                 dynamicOptions.experienceLevels.map((level) => (
                                   <SelectItem key={level.value} value={level.value}>
@@ -732,7 +787,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
                             <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
                               <SelectValue placeholder="Select sector" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl">
+                            <SelectContent className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" style={{ zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN }}>
                               {dynamicOptions?.sectors?.length ? (
                                 dynamicOptions.sectors.map((sector) => (
                                   <SelectItem key={sector.value} value={sector.value}>
