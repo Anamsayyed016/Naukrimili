@@ -392,6 +392,45 @@
   z-index: 9999 !important;
 }
 
+/* Responsive dropdown fixes for mobile and tablet */
+@media (max-width: 768px) {
+  /* Ensure dropdowns respect viewport width on mobile */
+  [data-radix-popper-content-wrapper] {
+    max-width: calc(100vw - 2rem) !important;
+    width: calc(100vw - 2rem) !important;
+    position: fixed !important;
+    left: 1rem !important;
+    right: 1rem !important;
+  }
+  
+  [data-radix-select-content] {
+    max-width: calc(100vw - 2rem) !important;
+    width: calc(100vw - 2rem) !important;
+    position: fixed !important;
+  }
+  
+  /* Prevent horizontal overflow */
+  [data-radix-select-viewport] {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Ensure dropdown items are properly sized */
+  [data-radix-select-item] {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    min-height: 44px !important; /* Touch target compliance */
+    padding: 12px 16px !important;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  [data-radix-select-content] {
+    max-width: min(calc(100vw - 2rem), 400px) !important;
+  }
+}
+
 /* Mobile responsive improvements */
 @media (max-width: 640px) {
   .mobile-stack {
