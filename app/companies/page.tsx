@@ -321,27 +321,40 @@ export default function CompaniesPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-2 mt-4">
+                  <div className="flex flex-col gap-2 mt-4">
+                    {/* Primary Action - View Details */}
                     <Link
-                      href={`/jobs?company=${encodeURIComponent(company.name)}`}
+                      href={`/companies/${company.id}`}
                       className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
                     >
-                      <span>View Jobs</span>
+                      <span>View Details</span>
                       <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
                     </Link>
-
-                    {company.careerPageUrl && (
-                      <a
-                        href={company.careerPageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-105"
+                    
+                    {/* Secondary Actions */}
+                    <div className="flex flex-row gap-2">
+                      <Link
+                        href={`/jobs?company=${encodeURIComponent(company.name)}`}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium transition-all duration-200"
                       >
-                        <span className="hidden sm:inline">Career Page</span>
-                        <span className="sm:hidden">Careers</span>
-                        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
-                      </a>
-                    )}
+                        <Briefcase className="w-3 h-3" />
+                        <span className="hidden sm:inline">Jobs</span>
+                        <span className="sm:hidden">{company.jobCount}</span>
+                      </Link>
+
+                      {company.careerPageUrl && (
+                        <a
+                          href={company.careerPageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium transition-all duration-200"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          <span className="hidden sm:inline">Career</span>
+                          <span className="sm:hidden">Site</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
