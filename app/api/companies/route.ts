@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (_error) {
-    console.error("Error fetching companies:", error);
+    console.error("Error fetching companies:", _error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch companies" },
       { status: 500 }
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (_error) {
-    console.error("Error performing bulk action:", error);
+    console.error("Error performing bulk action:", _error);
     return NextResponse.json(
       { success: false, error: "Failed to perform action" },
       { status: 500 }
