@@ -404,72 +404,9 @@ export default function AIJobPostingForm() {
     return data;
   });
 
-  // Dynamic AI suggestions with debouncing - auto-suggest as user types
-  useEffect(() => {
-    // Skip if suggestion was just manually applied
-    if (manuallyAppliedRef.current === 'title') {
-      manuallyAppliedRef.current = null;
-      return;
-    }
-    
-    // Auto-suggest for title field (debounced)
-    if (formData.title && formData.title.length >= 3 && currentStep === 1) {
-      if (titleDebounceRef.current) clearTimeout(titleDebounceRef.current);
-      
-      titleDebounceRef.current = setTimeout(() => {
-        console.log('🤖 Auto-triggering AI suggestions for title:', formData.title);
-        getAISuggestions('title', formData.title);
-      }, 1500); // 1.5 second debounce for performance
-    }
-
-    return () => {
-      if (titleDebounceRef.current) clearTimeout(titleDebounceRef.current);
-    };
-  }, [formData.title, currentStep]);
-
-  useEffect(() => {
-    // Skip if suggestion was just manually applied
-    if (manuallyAppliedRef.current === 'description') {
-      manuallyAppliedRef.current = null;
-      return;
-    }
-    
-    // Auto-suggest for description field (debounced)
-    if (formData.description && formData.description.length >= 10 && currentStep === 1) {
-      if (descriptionDebounceRef.current) clearTimeout(descriptionDebounceRef.current);
-      
-      descriptionDebounceRef.current = setTimeout(() => {
-        console.log('🤖 Auto-triggering AI suggestions for description');
-        getAISuggestions('description', formData.description);
-      }, 2000); // 2 second debounce for longer text
-    }
-
-    return () => {
-      if (descriptionDebounceRef.current) clearTimeout(descriptionDebounceRef.current);
-    };
-  }, [formData.description, currentStep]);
-
-  useEffect(() => {
-    // Skip if suggestion was just manually applied
-    if (manuallyAppliedRef.current === 'requirements') {
-      manuallyAppliedRef.current = null;
-      return;
-    }
-    
-    // Auto-suggest for requirements field (debounced)
-    if (formData.requirements && formData.requirements.length >= 10 && currentStep === 2) {
-      if (requirementsDebounceRef.current) clearTimeout(requirementsDebounceRef.current);
-      
-      requirementsDebounceRef.current = setTimeout(() => {
-        console.log('🤖 Auto-triggering AI suggestions for requirements');
-        getAISuggestions('requirements', formData.requirements);
-      }, 2000); // 2 second debounce
-    }
-
-    return () => {
-      if (requirementsDebounceRef.current) clearTimeout(requirementsDebounceRef.current);
-    };
-  }, [formData.requirements, currentStep]);
+  // AI suggestions are now ONLY triggered when user explicitly clicks "AI Generate" button
+  // Removed auto-triggering useEffect hooks to prevent confusion and improve user flow clarity
+  // Users must click the "AI Generate" button to receive suggestions
 
   // Function to extract country from location string
   const extractCountryFromLocation = (locationString: string) => {
