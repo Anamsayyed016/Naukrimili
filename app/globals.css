@@ -443,51 +443,18 @@
 }
 
 /* Additional fixes for deeply nested dropdowns */
-/* Force dropdowns to always open downward - override collision detection */
-[data-radix-select-content][data-side="top"] {
-  /* Force convert upward dropdown to downward */
-  position: fixed !important;
-  transform: translateY(0) !important;
-  top: auto !important;
-  bottom: auto !important;
-  margin-top: 0 !important;
-}
-
+/* Allow Radix/Popper to handle placement; only constrain width */
 @media (max-width: 768px) {
-  /* Ensure dropdown opens below trigger on mobile */
-  [data-radix-select-content] {
-    /* Prevent upward flipping */
-    position: fixed !important;
-  }
-  
-  [data-radix-select-content][data-side="top"] {
-    /* Force convert upward dropdown to downward */
-    position: fixed !important;
-    transform: translateY(0) !important;
-    top: auto !important;
-    bottom: auto !important;
-    margin-top: 0 !important;
-  }
-  
-  /* Ensure popper wrapper doesn't position dropdown off-screen */
   [data-radix-popper-content-wrapper] {
-    transform: none !important;
-  }
-  
-  /* Force dropdown to appear centered/aligned when near screen edge */
-  [data-radix-select-content][data-side="left"],
-  [data-radix-select-content][data-side="right"] {
     max-width: calc(100vw - 2rem) !important;
     width: calc(100vw - 2rem) !important;
+    left: 1rem !important;
+    right: 1rem !important;
   }
-}
 
-/* Desktop: Also ensure dropdown opens downward */
-@media (min-width: 769px) {
-  /* Override collision detection to prefer downward opening */
-  [data-radix-select-content][data-side="top"] {
-    /* On desktop, still prefer bottom but allow more flexibility */
-    position: fixed !important;
+  [data-radix-select-content] {
+    max-width: calc(100vw - 2rem) !important;
+    width: calc(100vw - 2rem) !important;
   }
 }
 
