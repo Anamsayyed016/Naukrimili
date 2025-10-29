@@ -61,11 +61,32 @@ const authOptions = {
             return null;
           }
 
-          // Verify password using bcrypt
-          const isValidPassword = await bcrypt.compare(
-            credentials.password as string,
-            user.password
-          );
+          // Verify password using bcrypt; support legacy plaintext and upgrade in-place
+          let isValidPassword = false;
+          try {
+            isValidPassword = await bcrypt.compare(
+              credentials.password as string,
+              user.password
+            );
+          } catch (_e) {
+            isValidPassword = false;
+          }
+
+          // Legacy fallback: if stored password is plaintext and matches, hash and upgrade
+          if (!isValidPassword && user.password === (credentials.password as string)) {
+            try {
+              const newHash = await bcrypt.hash(credentials.password as string, 12);
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { password: newHash },
+              });
+              isValidPassword = true;
+              console.log('🔐 Upgraded legacy plaintext password to bcrypt hash for:', credentials.email);
+            } catch (upgradeError) {
+              console.error('❌ Failed upgrading legacy password hash:', upgradeError);
+              isValidPassword = true; // allow this login but log the error
+            }
+          }
 
           if (!isValidPassword) {
             console.error('❌ Invalid password for user:', credentials.email);
@@ -91,19 +112,21 @@ const authOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('NextAuth signIn callback - user:', user?.email, 'provider:', account?.provider)
+      console.log('NextAuth signIn callback - user:', user?.email, 'provider:', account?.provider, 'account:', account)
       
-      // Handle credentials provider
-      if (account?.provider === 'credentials') {
-        // Credentials are already validated in the authorize function
+      // Handle credentials provider - account may be null or have provider = 'credentials'
+      if (!account || account?.provider === 'credentials') {
+        // For credentials provider, user is already validated in authorize function
         // Just ensure the user object has required fields
         if (user?.id && user?.email) {
           console.log('✅ Credentials sign-in successful for:', user.email);
           return true;
         }
+        console.error('❌ Credentials sign-in failed - missing user data:', { hasId: !!user?.id, hasEmail: !!user?.email });
         return false;
       }
       
+      // Handle OAuth providers (Google, GitHub) - KEEP EXISTING CODE
       if (account?.provider === 'google' || account?.provider === 'github') {
         try {
           // Check if user exists in database
@@ -154,13 +177,17 @@ const authOptions = {
       return true
     },
     async jwt({ token, user, account }) {
-      // Initial sign in - user object is available
-      if (user && account) {
+      console.log('JWT callback - user:', user?.email, 'account provider:', account?.provider, 'has token.id:', !!token.id);
+      
+      // Initial sign in - user object is available (works for both credentials and OAuth)
+      // For credentials, account may be null/undefined, so check user only
+      if (user) {
         token.id = user.id;
         token.role = (user as any).role || 'jobseeker';
         token.email = user.email;
         token.name = user.name;
-        console.log('✅ JWT callback - Initial sign in:', { id: token.id, role: token.role, email: token.email });
+        token.image = (user as any).image;
+        console.log('✅ JWT callback - Initial sign in:', { id: token.id, role: token.role, email: token.email, provider: account?.provider || 'credentials' });
         return token;
       }
 
@@ -207,6 +234,9 @@ const authOptions = {
       if (new URL(url).origin === baseUrl) return url
       return `${baseUrl}/auth/role-selection`
     },
+  },
+  session: {
+    strategy: 'jwt' as const,
   },
 }
 
