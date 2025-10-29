@@ -35,9 +35,33 @@ export async function GET(
       ]
     });
 
-    return NextResponse.json(jobs);
+    // Normalize skills field to always be an array
+    const normalizedJobs = jobs.map(job => {
+      let skillsArray: string[] = [];
+      
+      if (job.skills) {
+        if (Array.isArray(job.skills)) {
+          skillsArray = job.skills;
+        } else if (typeof job.skills === 'string') {
+          try {
+            const parsed = JSON.parse(job.skills);
+            skillsArray = Array.isArray(parsed) ? parsed : (parsed ? [parsed] : []);
+          } catch {
+            // If parsing fails, treat as single skill string
+            skillsArray = [job.skills];
+          }
+        }
+      }
+      
+      return {
+        ...job,
+        skills: skillsArray
+      };
+    });
 
-  } catch (_error) {
+    return NextResponse.json(normalizedJobs);
+
+  } catch (error) {
     console.error('Error fetching company jobs:', error);
     return NextResponse.json(
       { error: 'Failed to fetch company jobs' },

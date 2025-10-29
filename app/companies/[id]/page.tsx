@@ -367,20 +367,38 @@ export default function CompanyProfilePage() {
                         )}
                       </div>
                       
-                      {job.skills && job.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {job.skills.slice(0, 5).map((skill, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {skill}
-                            </Badge>
-                          ))}
-                          {job.skills.length > 5 && (
-                            <span className="text-xs text-gray-500">
-                              +{job.skills.length - 5} more
-                            </span>
-                          )}
-                        </div>
-                      )}
+                      {(() => {
+                        // Safely parse and normalize skills to an array
+                        let skillsArray: string[] = [];
+                        if (job.skills) {
+                          if (Array.isArray(job.skills)) {
+                            skillsArray = job.skills;
+                          } else if (typeof job.skills === 'string') {
+                            try {
+                              const parsed = JSON.parse(job.skills);
+                              skillsArray = Array.isArray(parsed) ? parsed : [];
+                            } catch {
+                              // If parsing fails, treat as single skill string
+                              skillsArray = [job.skills];
+                            }
+                          }
+                        }
+                        
+                        return skillsArray.length > 0 ? (
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {skillsArray.slice(0, 5).map((skill, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {skill}
+                              </Badge>
+                            ))}
+                            {skillsArray.length > 5 && (
+                              <span className="text-xs text-gray-500">
+                                +{skillsArray.length - 5} more
+                              </span>
+                            )}
+                          </div>
+                        ) : null;
+                      })()}
                       
                       <div className="flex items-center justify-between text-sm text-gray-600">
                         <div className="flex items-center gap-4">
