@@ -406,12 +406,15 @@
   [data-radix-select-content] {
     max-width: calc(100vw - 2rem) !important;
     width: calc(100vw - 2rem) !important;
+    min-width: 0 !important;
     position: fixed !important;
   }
   
-  /* Prevent horizontal overflow */
+  /* Prevent horizontal overflow - override min-width constraints */
   [data-radix-select-viewport] {
     max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
     overflow-x: hidden !important;
   }
   
@@ -421,6 +424,8 @@
     word-wrap: break-word !important;
     min-height: 44px !important; /* Touch target compliance */
     padding: 12px 16px !important;
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
   }
 }
 
@@ -428,6 +433,27 @@
 @media (min-width: 641px) and (max-width: 1024px) {
   [data-radix-select-content] {
     max-width: min(calc(100vw - 2rem), 400px) !important;
+    min-width: 0 !important;
+  }
+  
+  [data-radix-select-viewport] {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Additional fixes for deeply nested dropdowns */
+@media (max-width: 768px) {
+  /* Ensure popper wrapper doesn't position dropdown off-screen */
+  [data-radix-popper-content-wrapper] {
+    transform: none !important;
+  }
+  
+  /* Force dropdown to appear centered/aligned when near screen edge */
+  [data-radix-select-content][data-side="left"],
+  [data-radix-select-content][data-side="right"] {
+    max-width: calc(100vw - 2rem) !important;
+    width: calc(100vw - 2rem) !important;
   }
 }
 
