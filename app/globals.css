@@ -446,6 +446,34 @@
   }
 }
 
+/* Form responsive fixes - ensure inputs and selects don't overflow */
+@media (max-width: 768px) {
+  form {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Ensure all form inputs respect container width */
+  input[type="text"],
+  input[type="date"],
+  textarea,
+  select {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Prevent flex items from overflowing */
+  .flex {
+    min-width: 0;
+  }
+  
+  /* Grid items should not overflow */
+  .grid > * {
+    min-width: 0;
+  }
+}
+
 /* Mobile scroll performance optimizations */
 html {
   scroll-behavior: smooth;

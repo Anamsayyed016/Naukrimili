@@ -516,9 +516,9 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
 
   return (
     <AuthGuard allowedRoles={['employer']}>
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8 overflow-x-hidden">
         {/* Enhanced Progress Steps */}
-        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl mb-6 sm:mb-8">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl mb-6 sm:mb-8 w-full">
           <div className="flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 overflow-x-auto">
             {steps.map((step, index) => {
               const StepIcon = step.icon;
@@ -554,10 +554,10 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
-        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative w-full">
           <div className="mb-6 sm:mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <Link href="/employer/jobs" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+              <Link href="/employer/jobs" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors w-fit">
                 <ArrowLeft className="h-4 w-4" />
                 Back to Jobs
               </Link>
@@ -566,7 +566,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                 onClick={handleDelete}
                 disabled={deleting}
                 variant="destructive"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 w-full sm:w-auto"
               >
                 {deleting ? (
                   <>
@@ -607,8 +607,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           </div>
 
         <form onSubmit={handleSubmit}>
-          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm mx-2 sm:mx-0 relative z-10">
-            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 relative z-10">
+          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full relative z-10 overflow-hidden">
+            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 relative z-10 w-full">
               <AnimatePresence mode="wait">
                 {currentStep === 1 && (
                   <motion.div
@@ -631,13 +631,13 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         <Label htmlFor="title" className="text-sm sm:text-base font-bold text-gray-900">
                           Job Title *
                         </Label>
-                        <div className="flex gap-2 mt-2">
+                        <div className="flex flex-col sm:flex-row gap-2 mt-2">
                           <Input
                             id="title"
                             value={formData.title}
                             onChange={(e) => handleInputChange('title', e.target.value)}
                             placeholder="e.g., Senior React Developer"
-                            className="flex-1 h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200"
+                            className="flex-1 w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 min-w-0"
                             required
                           />
                           <Button
@@ -646,7 +646,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             size="sm"
                             onClick={() => requestAISuggestions('title')}
                             disabled={!formData.title.trim() || aiLoading}
-                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-2 py-1 text-xs font-medium h-12 min-w-fit"
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 py-2 sm:px-2 sm:py-1 text-xs font-medium h-12 sm:min-w-fit w-full sm:w-auto shrink-0"
                             title="Get AI suggestions for job title"
                           >
                             {aiLoading && activeField === 'title' ? (
@@ -683,7 +683,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                        <div>
+                        <div className="min-w-0">
                           <Label htmlFor="location" className="text-sm sm:text-base font-bold text-gray-900">
                             Location *
                           </Label>
@@ -692,17 +692,17 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             value={formData.location}
                             onChange={(e) => handleInputChange('location', e.target.value)}
                             placeholder="e.g., Bangalore, India"
-                            className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2"
+                            className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0"
                             required
                           />
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                           <Label htmlFor="country" className="text-sm sm:text-base font-bold text-gray-900">
                             Country
                           </Label>
                           <Select value={formData.country} onValueChange={(value) => handleInputChange('country', value)}>
-                            <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
+                            <SelectTrigger className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0">
                               <SelectValue placeholder="Select country" />
                             </SelectTrigger>
                             <SelectContent 
@@ -727,13 +727,13 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                        <div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                        <div className="min-w-0">
                           <Label htmlFor="jobType" className="text-sm sm:text-base font-bold text-gray-900">
                             Job Type *
                           </Label>
                           <Select value={formData.jobType} onValueChange={(value) => handleInputChange('jobType', value)}>
-                            <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
+                            <SelectTrigger className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0">
                               <SelectValue placeholder="Select job type" />
                             </SelectTrigger>
                             <SelectContent 
@@ -768,12 +768,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           </Select>
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                           <Label htmlFor="experienceLevel" className="text-sm sm:text-base font-bold text-gray-900">
                             Experience Level *
                           </Label>
                           <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
-                            <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
+                            <SelectTrigger className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0">
                               <SelectValue placeholder="Select experience" />
                             </SelectTrigger>
                             <SelectContent 
@@ -808,12 +808,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           </Select>
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                           <Label htmlFor="sector" className="text-sm sm:text-base font-bold text-gray-900">
                             Sector *
                           </Label>
                           <Select value={formData.sector} onValueChange={(value) => handleInputChange('sector', value)}>
-                            <SelectTrigger className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2">
+                            <SelectTrigger className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0">
                               <SelectValue placeholder="Select sector" />
                             </SelectTrigger>
                             <SelectContent 
@@ -858,7 +858,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           value={formData.salary}
                           onChange={(e) => handleInputChange('salary', e.target.value)}
                           placeholder="e.g., 50000-80000"
-                          className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2"
+                          className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0"
                         />
                       </div>
                     </div>
@@ -1083,7 +1083,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             value={skillsInput}
                             onChange={(e) => handleSkillsChange(e.target.value)}
                             placeholder="Type skills and press comma to add (e.g., React, Node.js,)"
-                            className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200"
+                            className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 min-w-0"
                           />
                           <div className="mt-2">
                             <Button
@@ -1178,7 +1178,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           Job Settings
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 min-w-0">
                             <Checkbox
                               id="isRemote"
                               checked={formData.isRemote}
@@ -1190,7 +1190,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             </Label>
                           </div>
 
-                          <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 min-w-0">
                             <Checkbox
                               id="isHybrid"
                               checked={formData.isHybrid}
@@ -1202,7 +1202,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             </Label>
                           </div>
 
-                          <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 min-w-0">
                             <Checkbox
                               id="isUrgent"
                               checked={formData.isUrgent}
@@ -1214,7 +1214,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             </Label>
                           </div>
 
-                          <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200">
+                          <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 min-w-0">
                             <Checkbox
                               id="isFeatured"
                               checked={formData.isFeatured}
@@ -1243,7 +1243,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             type="date"
                             value={formData.applicationDeadline}
                             onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
-                            className="h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2"
+                            className="w-full h-12 text-sm sm:text-base rounded-xl border-2 border-gray-300 focus:border-blue-500 transition-all duration-200 mt-2 min-w-0"
                           />
                         </div>
                       </div>
@@ -1255,8 +1255,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           </Card>
           
           {/* Navigation Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-gray-200">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-8 p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-gray-200 w-full">
+            <div className="flex items-center gap-4 w-full sm:w-auto">
               {currentStep > 1 && (
                 <Button
                   type="button"
@@ -1270,8 +1270,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
               )}
             </div>
             
-            <div className="flex items-center gap-4">
-              <Link href="/employer/jobs">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
+              <Link href="/employer/jobs" className="w-full sm:w-auto">
                 <Button 
                   type="button"
                   variant="outline" 
