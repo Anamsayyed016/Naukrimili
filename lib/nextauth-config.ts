@@ -4,6 +4,7 @@ import GitHubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaClient } from "@prisma/client"
 import { getServerSession } from "next-auth/next"
+import bcrypt from "bcryptjs"
 
 const prisma = new PrismaClient()
 
@@ -32,16 +33,76 @@ const authOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          console.error('❌ Credentials missing: email or password not provided');
+          return null;
         }
-        // Add your custom authentication logic here
-        return null
+
+        try {
+          // Find user by email
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string }
+          });
+
+          // Check if user exists
+          if (!user) {
+            console.error('❌ User not found:', credentials.email);
+            return null;
+          }
+
+          // Check if user has a password (required for credentials login)
+          if (!user.password) {
+            console.error('❌ User has no password set:', credentials.email);
+            return null;
+          }
+
+          // Check if user is active
+          if (!user.isActive) {
+            console.error('❌ User account is inactive:', credentials.email);
+            return null;
+          }
+
+          // Verify password using bcrypt
+          const isValidPassword = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
+
+          if (!isValidPassword) {
+            console.error('❌ Invalid password for user:', credentials.email);
+            return null;
+          }
+
+          console.log('✅ Credentials authentication successful for:', credentials.email);
+
+          // Return user object for NextAuth
+          return {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+            image: user.image,
+            role: user.role || 'jobseeker',
+          };
+        } catch (error) {
+          console.error('❌ Credentials auth error:', error);
+          return null;
+        }
       }
     })
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('NextAuth signIn callback - user:', user?.email)
+      console.log('NextAuth signIn callback - user:', user?.email, 'provider:', account?.provider)
+      
+      // Handle credentials provider
+      if (account?.provider === 'credentials') {
+        // Credentials are already validated in the authorize function
+        // Just ensure the user object has required fields
+        if (user?.id && user?.email) {
+          console.log('✅ Credentials sign-in successful for:', user.email);
+          return true;
+        }
+        return false;
+      }
       
       if (account?.provider === 'google' || account?.provider === 'github') {
         try {
@@ -92,24 +153,54 @@ const authOptions = {
 
       return true
     },
-    async session({ session, token }) {
-      console.log('NextAuth session callback - token:', token)
-      
-      if (session?.user) {
-        // Get user from database
-        const dbUser = await prisma.user.findUnique({
-          where: { email: session.user.email! }
-        })
+    async jwt({ token, user, account }) {
+      // Initial sign in - user object is available
+      if (user && account) {
+        token.id = user.id;
+        token.role = (user as any).role || 'jobseeker';
+        token.email = user.email;
+        token.name = user.name;
+        console.log('✅ JWT callback - Initial sign in:', { id: token.id, role: token.role, email: token.email });
+        return token;
+      }
 
-        if (dbUser) {
-          session.user.id = dbUser.id.toString()
-          session.user.role = dbUser.role
-          session.user.name = `${dbUser.firstName || ''} ${dbUser.lastName || ''}`.trim() || null
-          session.user.image = dbUser.image || null
+      // Subsequent requests - fetch fresh user data from database
+      if (token.id) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string }
+          });
+
+          if (dbUser && dbUser.isActive) {
+            token.role = dbUser.role || 'jobseeker';
+            token.email = dbUser.email;
+            token.name = `${dbUser.firstName || ''} ${dbUser.lastName || ''}`.trim() || dbUser.email;
+            token.image = dbUser.image;
+          } else {
+            // User not found or inactive
+            console.error('❌ JWT callback - User not found or inactive:', token.id);
+            return {};
+          }
+        } catch (error) {
+          console.error('❌ JWT callback error:', error);
+          return {};
         }
       }
 
-      return session
+      return token;
+    },
+    async session({ session, token }) {
+      console.log('NextAuth session callback - token:', { id: token.id, role: token.role, email: token.email })
+      
+      if (session?.user && token) {
+        // Add user data from token to session
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.name = token.name as string;
+        session.user.image = token.image as string | null;
+      }
+
+      return session;
     },
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) return `${baseUrl}${url}`
