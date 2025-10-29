@@ -708,11 +708,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectContent 
                               className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
                               style={{ 
-                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
-                                ...(isMobile && {
-                                  maxWidth: 'calc(100vw - 2rem)',
-                                  width: 'calc(100vw - 2rem)'
-                                })
+                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN
                               }}
                             >
                               <SelectItem value="IN">🇮🇳 India</SelectItem>
@@ -739,11 +735,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectContent 
                               className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
                               style={{ 
-                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
-                                ...(isMobile && {
-                                  maxWidth: 'calc(100vw - 2rem)',
-                                  width: 'calc(100vw - 2rem)'
-                                })
+                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN
                               }}
                             >
                               {dynamicOptions?.jobTypes?.length ? (
@@ -779,11 +771,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectContent 
                               className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
                               style={{ 
-                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
-                                ...(isMobile && {
-                                  maxWidth: 'calc(100vw - 2rem)',
-                                  width: 'calc(100vw - 2rem)'
-                                })
+                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN
                               }}
                             >
                               {dynamicOptions?.experienceLevels?.length ? (
@@ -819,11 +807,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectContent 
                               className="max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl" 
                               style={{ 
-                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN,
-                                ...(isMobile && {
-                                  maxWidth: 'calc(100vw - 2rem)',
-                                  width: 'calc(100vw - 2rem)'
-                                })
+                                zIndex: Z_INDEX.TOP_LEVEL_DROPDOWN
                               }}
                             >
                               {dynamicOptions?.sectors?.length ? (
