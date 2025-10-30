@@ -454,6 +454,44 @@ export async function POST(request: NextRequest) {
       // Don't fail the application if notifications fail
     }
 
+    // Transactional emails (non-blocking)
+    try {
+      const { mailerService } = await import('@/lib/gmail-oauth2-mailer');
+      const jobTitle = (application as any).job?.title || 'the job';
+      const companyName = (application as any).job?.company || 'Unknown Company';
+      const applicantName = `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() || user.email || 'Applicant';
+
+      // 1) Jobseeker confirmation
+      await mailerService.sendApplicationNotification(user.email!, jobTitle, companyName);
+
+      // 2) Employer notification with resume link if available
+      if (application.companyId) {
+        const employer = await prisma.user.findFirst({
+          where: {
+            createdCompanies: { some: { id: application.companyId } }
+          },
+          select: { email: true }
+        });
+        if (employer?.email) {
+          await mailerService.sendApplicationReceivedEmail(applicantName, employer.email, jobTitle, companyName);
+        }
+      }
+
+      // 3) Admin notification (if configured)
+      const adminEmails = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',').map(e => e.trim()).filter(Boolean) : [];
+      if (adminEmails.length) {
+        await Promise.allSettled(adminEmails.map(admin => 
+          mailerService.sendCustomNotification(
+            `New Application: ${jobTitle}`,
+            `${applicantName} applied for ${jobTitle} at ${companyName}.`,
+            admin
+          )
+        ));
+      }
+    } catch (emailErr) {
+      console.warn('Transactional email send failed:', emailErr);
+    }
+
     // Create database notification for job seeker (legacy support)
     try {
       await prisma.notification.create({
