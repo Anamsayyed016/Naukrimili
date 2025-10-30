@@ -130,9 +130,6 @@ export default function HomePageClient({
             const urlWithCountry = `/api/jobs?location=${encodeURIComponent(location)}&country=${country}&view=list&days=60&limit=1`;
             let response = await fetch(urlWithCountry, { signal: controller.signal });
             
-              signal: controller.signal
-            });
-            
             clearTimeout(timeoutId);
             if (response.ok) {
               const data = await response.json();
@@ -181,7 +178,7 @@ export default function HomePageClient({
               }));
             }
           } catch (_error) {
-            console.warn(`Failed to fetch job count for ${location}:`, error);
+            console.warn(`Failed to fetch job count for ${location}:`, _error);
             // Set count to 0 if API call fails
             setLocationJobCounts(prev => ({
               ...prev,
@@ -190,7 +187,7 @@ export default function HomePageClient({
           }
         }
       } catch (_error) {
-        console.error('Failed to fetch location job counts:', error);
+        console.error('Failed to fetch location job counts:', _error);
       }
     };
 
