@@ -150,6 +150,15 @@ const authOptions = {
               }
             })
             console.log('Created new user in database:', dbUser.id)
+            // Fire-and-forget welcome email (non-blocking)
+            ;(async () => {
+              try {
+                const { mailerService } = await import('@/lib/gmail-oauth2-mailer')
+                await mailerService.sendWelcomeEmail(user.email!, firstName || user.email!, account.provider)
+              } catch (e) {
+                console.warn('Welcome email failed:', e)
+              }
+            })()
           } else {
             // Update name if it changed
             if (firstName && dbUser.firstName !== firstName) {
