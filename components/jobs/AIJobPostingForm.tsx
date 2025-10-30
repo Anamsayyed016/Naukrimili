@@ -306,12 +306,12 @@ export default function AIJobPostingForm() {
                     />
                       <Button
                         type="button"
-                        variant="outline"
                         onClick={() => getAiSuggestions('title')}
                         disabled={aiLoading.title}
-                        className="whitespace-nowrap"
+                        className="whitespace-nowrap bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4"
                       >
-                        {aiLoading.title ? 'AI…' : 'AI suggest'}
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        {aiLoading.title ? 'Generating…' : 'AI suggest'}
                       </Button>
                     </div>
                     {aiSuggestions.title?.length ? (
@@ -346,11 +346,12 @@ export default function AIJobPostingForm() {
                     />
                       <Button
                         type="button"
-                        variant="outline"
                         onClick={() => getAiSuggestions('description')}
                         disabled={aiLoading.description}
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4"
                       >
-                        {aiLoading.description ? 'AI…' : 'AI'}
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        {aiLoading.description ? 'Generating…' : 'AI'}
                       </Button>
                     </div>
                     {aiSuggestions.description?.length ? (
@@ -383,7 +384,7 @@ export default function AIJobPostingForm() {
                         align="start"
                         avoidCollisions
                         collisionPadding={16}
-                        className="z-[10000] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
+                        className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl max-h-64 overflow-y-auto"
                       >
                         {jobTypes.map((type) => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
@@ -460,11 +461,12 @@ export default function AIJobPostingForm() {
                       ))}
                       <Button
                         type="button"
-                        variant="secondary"
                         size="sm"
                         onClick={() => getAiSuggestions('skills')}
                         disabled={aiLoading.skills}
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg"
                       >
+                        <Sparkles className="h-3 w-3 mr-1.5" />
                         {aiLoading.skills ? 'AI…' : 'AI suggest'}
                       </Button>
                     </div>
@@ -502,7 +504,7 @@ export default function AIJobPostingForm() {
                         align="start"
                         avoidCollisions
                         collisionPadding={16}
-                        className="z-[10000] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
+                        className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl max-h-64 overflow-y-auto"
                       >
                         {experienceLevels.map((level) => (
                           <SelectItem key={level} value={level}>{level}</SelectItem>
@@ -548,7 +550,7 @@ export default function AIJobPostingForm() {
                         align="start"
                         avoidCollisions
                         collisionPadding={16}
-                        className="z-[10000] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
+                        className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl max-h-64 overflow-y-auto"
                       >
                         {locations.map((loc) => (
                           <SelectItem key={loc} value={loc}>{loc}</SelectItem>
