@@ -99,9 +99,30 @@ export async function GET(
 
     console.log('✅ Job found:', job.id);
 
+    // Increment views atomically (best-effort; ignore failures)
+    let updatedViews = (job as any).views || 0;
+    try {
+      const updated = await prisma.job.update({
+        where: { id: Number(job.id) as any },
+        data: { views: { increment: 1 } },
+        select: { views: true }
+      });
+      updatedViews = updated.views;
+    } catch (_incErr) {
+      // If job.id is not numeric or column missing, skip silently
+    }
+
+    // Normalize response: expose applicationsCount and views consistently
+    const applicationsCount = (job as any)._count?.applications ?? (job as any).applicationsCount ?? 0;
+    const normalizedJob = {
+      ...job,
+      applicationsCount,
+      views: updatedViews
+    };
+
     return NextResponse.json({
       success: true,
-      data: job
+      data: normalizedJob
     });
 
   } catch (_error) {
