@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, FileText } from 'lucide-react';
+import EnhancedLocationSearch from '@/components/EnhancedLocationSearch';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -30,6 +31,7 @@ interface JobFormData {
   isUrgent: boolean;
   isFeatured: boolean;
   openings: string;
+  locationRadiusKm?: number;
 }
 
 const steps = [
@@ -540,23 +542,24 @@ export default function AIJobPostingForm() {
                     <Label className="text-base font-semibold text-slate-900 mb-2 block">
                       Location *
                     </Label>
-                    <Select value={formData.location} onValueChange={(value) => handleInputChange('location', value)}>
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Select location" />
-                      </SelectTrigger>
-                      <SelectContent
-                        position="popper"
-                        sideOffset={8}
-                        align="start"
-                        avoidCollisions
-                        collisionPadding={16}
-                        className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl max-h-64 overflow-y-auto"
-                      >
-                        {locations.map((loc) => (
-                          <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <EnhancedLocationSearch
+                      onLocationChange={(loc) => handleInputChange('location', loc)}
+                      onRadiusChange={(r) => handleInputChange('locationRadiusKm', r)}
+                      className="mobile-job-form"
+                    />
+                    <div className="mt-3">
+                      <Label className="text-sm font-medium text-slate-700 mb-1 block">
+                        Search radius: {formData.locationRadiusKm || 25} km
+                      </Label>
+                      <input
+                        type="range"
+                        min={5}
+                        max={100}
+                        value={formData.locationRadiusKm || 25}
+                        onChange={(e) => handleInputChange('locationRadiusKm', parseInt(e.target.value))}
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
