@@ -115,8 +115,21 @@ export default function HomePageClient({
           try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            // Determine country hint to improve counts (e.g., Dubai → AE)
+            let country = 'IN';
+            const ll = location.toLowerCase();
+            if (ll.includes('new york') || ll.includes('san francisco') || ll.includes('los angeles') || ll.includes('chicago') || ll.includes('boston') || ll.includes('seattle')) {
+              country = 'US';
+            } else if (ll.includes('london') || ll.includes('manchester') || ll.includes('birmingham') || ll.includes('edinburgh')) {
+              country = 'GB';
+            } else if (ll.includes('dubai') || ll.includes('abu dhabi') || ll.includes('sharjah')) {
+              country = 'AE';
+            }
+
+            // First try with country+location (lenient OR on server). If 0, retry with country only.
+            const urlWithCountry = `/api/jobs?location=${encodeURIComponent(location)}&country=${country}&view=list&days=60&limit=1`;
+            let response = await fetch(urlWithCountry, { signal: controller.signal });
             
-            const response = await fetch(`/api/jobs?location=${encodeURIComponent(location)}&limit=1&includeExternal=true&includeDatabase=true`, {
               signal: controller.signal
             });
             
@@ -135,6 +148,19 @@ export default function HomePageClient({
                 jobCount = data.total;
               } else if (data.data?.total) {
                 jobCount = data.data.total;
+              }
+
+              // If no jobs found and we supplied a location, retry with country-only
+              if (jobCount === 0 && country !== 'IN') {
+                try {
+                  const fallbackResp = await fetch(`/api/jobs?country=${country}&view=list&days=60&limit=1`);
+                  if (fallbackResp.ok) {
+                    const fallbackData = await fallbackResp.json();
+                    if (fallbackData?.success && fallbackData.data?.pagination?.total) {
+                      jobCount = fallbackData.data.pagination.total;
+                    }
+                  }
+                } catch {}
               }
               
               console.log(`✅ Job count for ${location}:`, jobCount);
