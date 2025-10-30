@@ -546,6 +546,9 @@ export default function AIJobPostingForm() {
                       onLocationChange={(loc) => handleInputChange('location', loc)}
                       onRadiusChange={(r) => handleInputChange('locationRadiusKm', r)}
                       className="mobile-job-form"
+                      compact
+                      showPopular={false}
+                      showTips={false}
                     />
                     <div className="mt-3">
                       <Label className="text-sm font-medium text-slate-700 mb-1 block">
