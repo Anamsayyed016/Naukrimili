@@ -41,6 +41,8 @@ function normalize(job: ProviderJob) {
     location: job.location || '',
     country: normalizeCountry(job.country),
     description: job.description || '',
+    // Prisma schema requires a String; store JSON string of skills array
+    skills: JSON.stringify(job.skills || []),
     jobType: (job.jobType || '').toLowerCase(),
     experienceLevel: (job.experienceLevel || '').toLowerCase(),
     salaryMin: job.salaryMin || null,
