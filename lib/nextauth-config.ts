@@ -101,7 +101,7 @@ const authOptions = {
             email: user.email,
             name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
             image: user.image,
-            role: user.role || 'jobseeker',
+            role: user.role ?? null,
           };
         } catch (error) {
           console.error('❌ Credentials auth error:', error);
@@ -167,7 +167,7 @@ const authOptions = {
 
           // Attach the database user ID to the session user
           user.id = dbUser.id.toString()
-          user.role = dbUser.role || null
+          user.role = dbUser.role ?? null
         } catch (error) {
           console.error('Error in signIn callback:', error)
           return false
@@ -183,7 +183,7 @@ const authOptions = {
       // For credentials, account may be null/undefined, so check user only
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || 'jobseeker';
+        token.role = (user as any).role ?? null;
         token.email = user.email;
         token.name = user.name;
         token.image = (user as any).image;
@@ -199,7 +199,7 @@ const authOptions = {
           });
 
           if (dbUser && dbUser.isActive) {
-            token.role = dbUser.role || 'jobseeker';
+            token.role = dbUser.role ?? null;
             token.email = dbUser.email;
             token.name = `${dbUser.firstName || ''} ${dbUser.lastName || ''}`.trim() || dbUser.email;
             token.image = dbUser.image;
