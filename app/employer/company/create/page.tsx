@@ -610,7 +610,7 @@ export default function CreateCompanyPage() {
   return (
     <EmployerOnboardingCheck requiredAction="none">
       <div id="select-portal" className="fixed inset-0 pointer-events-none z-[9998]" />
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
+      <div className="mobile-job-form bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
       <style jsx global>{`
         [data-radix-popper-content-wrapper] {
           z-index: 9999 !important;
@@ -888,7 +888,7 @@ export default function CreateCompanyPage() {
                               <SelectValue placeholder="Select your industry" />
                             </SelectTrigger>
                             <SelectContent 
-                              className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
+                              className="z-[10000] max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto"
                               position="popper"
                               sideOffset={8}
                               align="start"
@@ -924,7 +924,7 @@ export default function CreateCompanyPage() {
                               <SelectValue placeholder="Select company size" />
                             </SelectTrigger>
                             <SelectContent 
-                              className="max-h-60 overflow-y-auto z-[9999] bg-white border border-gray-200 rounded-xl shadow-xl"
+                              className="z-[10000] max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto"
                               position="popper"
                               sideOffset={8}
                               align="start"
