@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import EnhancedJobCard from '@/components/EnhancedJobCard';
-import { JobResult } from '@/types/jobs';
 import { Job } from '@/types/job';
 import EnhancedPagination from '@/components/ui/enhanced-pagination';
 import { getCountriesToFetch } from '@/lib/utils/country-detection';
@@ -31,12 +30,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPrevPage, setHasPrevPage] = useState(false);
 
-  // Performance metrics
-  const [performanceMetrics, setPerformanceMetrics] = useState<{
-    responseTime: number;
-    cached: boolean;
-    sources: any;
-  } | null>(null);
+  // Optional performance metrics (removed to satisfy linter when unused)
 
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
@@ -58,18 +52,18 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       country?: string;
     } = {}
   ) => {
+    // Smart country detection using the country detection utility
+    const countriesToFetch = getCountriesToFetch({ location, country: filters.country || null });
+    const inferredCountry = (location ? countriesToFetch[0]?.code : undefined);
+    const explicitCountry = (filters.country || '').toUpperCase() || undefined;
+    const countryToUse = explicitCountry || inferredCountry; // only set when explicitly chosen or inferred from a provided location
+    console.log('🌍 Country detection:', { location, countriesToFetch, explicitCountry, inferredCountry, countryToUse });
+
     try {
       setLoading(true);
       setError(null);
 
       console.log('⚡ Fetching optimized jobs with query:', query, 'location:', location, 'page:', page);
-
-      // Smart country detection using the country detection utility
-      const countriesToFetch = getCountriesToFetch({ location, country: filters.country || null });
-      const inferredCountry = (location ? countriesToFetch[0]?.code : undefined);
-      const explicitCountry = (filters.country || '').toUpperCase() || undefined;
-      const countryToUse = explicitCountry || inferredCountry; // only set when explicitly chosen or inferred from a provided location
-      console.log('🌍 Country detection:', { location, countriesToFetch, explicitCountry, inferredCountry, countryToUse });
 
       // DB-first parameters (do not over-restrict by country; widen recency)
       const dbParams = new URLSearchParams({
@@ -113,12 +107,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         setHasNextPage(page < (data.data.pagination?.totalPages || 1));
         setHasPrevPage(page > 1);
 
-        // Update performance metrics with API tracking
-        setPerformanceMetrics({
-          responseTime,
-          cached: data.metadata?.cached || false,
-          sources: { ...(data.sources || {}), apiUsed }
-        });
+        // Optionally track performance via analytics (not stored in state to avoid lint)
 
         // Update last refresh time
         setLastRefresh(new Date());
@@ -151,7 +140,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         setTotalPages(data.pagination?.totalPages || 1);
         setHasNextPage(page < (data.pagination?.totalPages || 1));
         setHasPrevPage(page > 1);
-        setPerformanceMetrics({ responseTime, cached: false, sources: { apiUsed } });
+        // Optionally track performance via analytics (not stored in state to avoid lint)
         setLastRefresh(new Date());
 
       } else {
@@ -159,7 +148,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       }
 
     } catch (_error) {
-      console.error('❌ Error fetching jobs from API:', error);
+      console.error('❌ Error fetching jobs from API:', _error);
       
       // Primary DB call failed: try unified aggregator fallback (fresh + external)
       setJobs([]);
@@ -260,26 +249,14 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
   // Convert any job format to simple Job format
   function convertToSimpleJob(job: any): Job {
-    // Format salary consistently
-    let salaryFormatted = '';
-    if (job.salary) {
-      salaryFormatted = job.salary;
-    } else if (job.salaryMin && job.salaryMax) {
-      // Use formatJobSalary for proper currency formatting
-      salaryFormatted = formatJobSalary({
-        salaryMin: job.salaryMin,
-        salaryMax: job.salaryMax,
-        salaryCurrency: job.salaryCurrency,
-        country: job.country
-      });
-    } else if (job.salaryMin) {
-      // Use formatJobSalary for proper currency formatting
-      salaryFormatted = formatJobSalary({
-        salaryMin: job.salaryMin,
-        salaryCurrency: job.salaryCurrency,
-        country: job.country
-      });
-    }
+    // Format salary consistently using country-aware currency
+    const salaryFormatted = formatJobSalary({
+      salary: job.salary,
+      salaryMin: job.salaryMin,
+      salaryMax: job.salaryMax,
+      salaryCurrency: job.salaryCurrency,
+      country: job.country
+    });
 
     return {
       id: job.id || `job-${Math.random()}`,
