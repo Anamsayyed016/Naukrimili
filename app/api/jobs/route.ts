@@ -196,7 +196,7 @@ export async function GET(request: NextRequest) {
       }
     }, { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=600' } });
   } catch (_error) {
-    console.error("Error fetching jobs:", error);
+    console.error("Error fetching jobs:", _error);
     return NextResponse.json(
       { error: "Failed to fetch jobs" },
       { status: 500 }
