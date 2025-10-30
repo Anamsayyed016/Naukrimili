@@ -72,7 +72,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         ...(location && { location }),
         country: primaryCountry,
         page: page.toString(),
-        limit: '1000', // Increased limit for 1000+ jobs
+        limit: '50',
+        view: 'list', // ask API for lightweight list payload
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),

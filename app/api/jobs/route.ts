@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
     
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
+    const view = (searchParams.get('view') || '').toLowerCase(); // 'list' requests lightweight payload
     const skip = (page - 1) * limit;
 
     // Build dynamic where clause for filtering
@@ -96,43 +97,67 @@ export async function GET(request: NextRequest) {
     });
 
     const [jobs, total] = await Promise.all([
-      prisma.job.findMany({
-        where,
-        include: {
-          applications: {
+      view === 'list'
+        ? prisma.job.findMany({
+            where,
             select: {
               id: true,
-              status: true,
-              appliedAt: true,
-              user: {
+              title: true,
+              company: true,
+              location: true,
+              description: true,
+              salary: true,
+              salaryMin: true,
+              salaryMax: true,
+              salaryCurrency: true,
+              jobType: true,
+              experienceLevel: true,
+              isRemote: true,
+              isHybrid: true,
+              isFeatured: true,
+              postedAt: true,
+              createdAt: true,
+              source_url: true,
+              _count: { select: { applications: true, bookmarks: true } },
+            },
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: limit,
+          })
+        : prisma.job.findMany({
+            where,
+            include: {
+              applications: {
                 select: {
                   id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true
-                }
-              }
-            }
-          },
-          _count: {
-            select: {
-              applications: true,
-              bookmarks: true
-            }
-          }
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit
-      }),
-      prisma.job.count({ where })
+                  status: true,
+                  appliedAt: true,
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                      email: true,
+                    },
+                  },
+                },
+              },
+              _count: { select: { applications: true, bookmarks: true } },
+            },
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: limit,
+          }),
+      prisma.job.count({ where }),
     ]);
 
-    const stats = await prisma.job.aggregate({
-      _count: { id: true }
-    });
-
-    const totalApplications = await prisma.application.count();
+    // Avoid extra aggregates for list view to reduce latency
+    const stats = view === 'list'
+      ? undefined
+      : await prisma.job.aggregate({ _count: { id: true } });
+    const totalApplications = view === 'list'
+      ? undefined
+      : await prisma.application.count();
 
     return NextResponse.json({
       success: true,
@@ -144,10 +169,7 @@ export async function GET(request: NextRequest) {
           total,
           totalPages: Math.ceil(total / limit)
         },
-        stats: {
-          totalJobs: stats._count.id,
-          totalApplications
-        }
+        ...(stats ? { stats: { totalJobs: stats._count.id, totalApplications } } : {})
       }
     });
   } catch (_error) {
