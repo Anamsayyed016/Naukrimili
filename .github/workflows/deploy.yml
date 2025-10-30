@@ -63,7 +63,15 @@ jobs:
           exit 1
         fi
         
+        # Remove cache files to reduce size
+        echo "🧹 Removing cache files to reduce deployment size..."
+        rm -rf .next/cache/* || true
+        find .next -name "*.map" -delete || true
+        find .next -name ".DS_Store" -delete || true
+        
         echo "✅ Build completed successfully"
+        echo "📊 .next directory size:"
+        du -sh .next
         
     - name: 📥 Prepare SSH Key
       run: |
