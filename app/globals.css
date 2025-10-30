@@ -382,6 +382,33 @@
   z-index: 9999 !important;
 }
 
+/* Robust Radix Select sizing and positioning fixes */
+[data-radix-popper-content-wrapper] {
+  z-index: 10000 !important;
+}
+[data-radix-select-content] {
+  /* Keep menu at least as wide as trigger, but never overflow viewport */
+  min-width: var(--radix-select-trigger-width) !important;
+  max-width: calc(100vw - 2rem) !important;
+  width: auto !important;
+}
+[data-radix-select-viewport] {
+  max-height: 16rem !important; /* 256px */
+  overflow-y: auto !important;
+}
+
+/* Neutralize parent transforms creating new stacking contexts near selects */
+[data-radix-popper-content-wrapper] {
+  transform: translate3d(var(--radix-popper-transform-x, 0px), var(--radix-popper-transform-y, 0px), 0) !important;
+}
+
+@media (max-width: 768px) {
+  [data-radix-popper-content-wrapper] {
+    left: 1rem !important;
+    right: 1rem !important;
+  }
+}
+
 /* Ensure dropdowns are visible */
 [data-state="open"] {
   z-index: 9999 !important;
