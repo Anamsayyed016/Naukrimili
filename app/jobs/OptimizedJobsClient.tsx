@@ -43,7 +43,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
   const searchParams = useSearchParams();
 
-  // Fetch jobs using optimized API for better performance - memoized to prevent infinite loops
+  // Fetch jobs from DB-first API (fast, complete), with unified as optional fallback
   const fetchJobs = React.useCallback(async (
     query: string = '', 
     location: string = '', 
@@ -68,19 +68,14 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       const primaryCountry = countriesToFetch[0]?.code || 'IN';
       console.log('🌍 Country detection:', { location, countriesToFetch, primaryCountry });
 
-      // Optimized job fetching with multiple fallbacks to prevent chunk issues
-      const apiParams = new URLSearchParams({
+      // DB-first parameters (do not over-restrict by country; widen recency)
+      const dbParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
-        // Unified API can take multiple countries; keep primary for main API fallback
-        country: primaryCountry,
-        countries: TARGET_COUNTRIES.join(','),
         page: page.toString(),
         limit: '50',
         view: 'list', // ask API for lightweight list payload
-        days: '30', // freshness window
-        includeExternal: 'true',
-        includeSamples: 'false',
+        days: '60', // wider freshness window to match admin counts
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),
@@ -92,38 +87,20 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
       const startTime = Date.now();
       let response;
-      let apiUsed = 'real';
+      let apiUsed = 'db';
 
-      // Prefer unified API (real external + DB, deduped, fresh, multi-country)
-      apiUsed = 'unified';
-      response = await fetch(`/api/jobs/unified?${apiParams.toString()}`);
+      // 1) Prefer database API for complete, paginated results
+      response = await fetch(`/api/jobs?${dbParams.toString()}`);
       if (!response.ok) {
-        throw new Error(`Unified API failed: ${response.status} ${response.statusText}`);
+        throw new Error(`DB API failed: ${response.status} ${response.statusText}`);
       }
 
       const responseTime = Date.now() - startTime;
 
       const data = await response.json();
 
-      // Unified API shape: { success, jobs, pagination }
-      if (data.success && Array.isArray(data.jobs)) {
-        const jobs = (data.jobs || []).map(convertToSimpleJob);
-        
-        setJobs(jobs as any);
-        setTotalJobs(data.pagination?.total || (jobs || []).length);
-        setTotalPages(data.pagination?.totalPages || 1);
-        setHasNextPage(page < (data.pagination?.totalPages || 1));
-        setHasPrevPage(page > 1);
-
-        setPerformanceMetrics({
-          responseTime,
-          cached: false,
-          sources: { apiUsed }
-        });
-
-        setLastRefresh(new Date());
-      } else if (data.success && data.data && data.data.jobs) {
-        // Fallback to main API response shape
+      // DB API shape: { success, data: { jobs, pagination } }
+      if (data.success && data.data && data.data.jobs) {
         const jobs = (data.data.jobs || []).map(convertToSimpleJob);
         
         setJobs(jobs as any);
@@ -162,6 +139,17 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           shouldShowPagination: (data.data.pagination?.totalPages || 1) > 1 || page < (data.data.pagination?.totalPages || 1) || (data.data.pagination?.total || (jobs || []).length) > 50
         });
 
+      } else if (data.success && Array.isArray(data.jobs)) {
+        // Some APIs may still return jobs directly
+        const jobs = (data.jobs || []).map(convertToSimpleJob);
+        setJobs(jobs as any);
+        setTotalJobs(data.pagination?.total || jobs.length);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setHasNextPage(page < (data.pagination?.totalPages || 1));
+        setHasPrevPage(page > 1);
+        setPerformanceMetrics({ responseTime, cached: false, sources: { apiUsed } });
+        setLastRefresh(new Date());
+
       } else {
         throw new Error(data.error || 'Failed to fetch jobs');
       }
@@ -169,7 +157,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     } catch (_error) {
       console.error('❌ Error fetching jobs from API:', error);
       
-      // Primary unified call failed: try main API fallback (DB only)
+      // Primary DB call failed: try unified aggregator fallback (fresh + external)
       setJobs([]);
       setTotalJobs(0);
       setTotalPages(0);
@@ -177,28 +165,30 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       setHasPrevPage(false);
       setError('Failed to load jobs. Please check your connection and try again.');
       
-      // Fallback to main API
+      // Fallback to unified API (multi-country + external)
       try {
-        console.log('🔄 Trying fallback to main API...');
+        console.log('🔄 Trying fallback to unified API...');
         const fallbackParams = new URLSearchParams({
           ...(query && { query }),
           ...(location && { location }),
-          country: 'IN', // Default country for fallback
+          countries: TARGET_COUNTRIES.join(','),
           page: page.toString(),
           limit: '50',
           view: 'list',
-          days: '30'
+          days: '60',
+          includeExternal: 'true',
+          includeSamples: 'false'
         });
-        
-        const fallbackResponse = await fetch(`/api/jobs?${fallbackParams.toString()}`);
+        const fallbackResponse = await fetch(`/api/jobs/unified?${fallbackParams.toString()}`);
         if (fallbackResponse.ok) {
           const fallbackData = await fallbackResponse.json();
-          const fallbackJobs = (fallbackData.data?.jobs || []).map(convertToSimpleJob);
+          const fallbackJobs = ((fallbackData.data?.jobs ?? fallbackData.jobs) || []).map(convertToSimpleJob);
           
           setJobs(fallbackJobs as any);
-          setTotalJobs(fallbackData.data?.pagination?.total || (fallbackJobs || []).length);
-          setTotalPages(fallbackData.data?.pagination?.totalPages || 1);
-          setHasNextPage(page < (fallbackData.data?.pagination?.totalPages || 1));
+          const fp = fallbackData.data?.pagination || fallbackData.pagination;
+          setTotalJobs(fp?.total || (fallbackJobs || []).length);
+          setTotalPages(fp?.totalPages || 1);
+          setHasNextPage(page < (fp?.totalPages || 1));
           setHasPrevPage(page > 1);
           
           console.log('✅ Fallback successful:', fallbackJobs.length, 'jobs loaded');
