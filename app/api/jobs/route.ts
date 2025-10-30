@@ -23,6 +23,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const view = (searchParams.get('view') || '').toLowerCase(); // 'list' requests lightweight payload
     const skip = (page - 1) * limit;
+    const daysParam = searchParams.get('days');
+    const now = new Date();
+    const cutoff = daysParam ? new Date(now.getTime() - Math.max(1, parseInt(daysParam)) * 24 * 60 * 60 * 1000) : undefined;
 
     // Build dynamic where clause for filtering
     const where: any = {
@@ -90,6 +93,15 @@ export async function GET(request: NextRequest) {
     }
     if (salaryMax) {
       where.salaryMax = { lte: parseInt(salaryMax) };
+    }
+
+    // Freshness filtering when days param is provided
+    if (cutoff && !isNaN(cutoff.getTime())) {
+      where.AND = [
+        ...(where.AND || []),
+        { OR: [ { postedAt: { gte: cutoff } }, { createdAt: { gte: cutoff } } ] },
+        { OR: [ { expiryDate: null }, { expiryDate: { gt: now } } ] }
+      ];
     }
 
     console.log('🔍 Search filters applied:', {
@@ -171,7 +183,7 @@ export async function GET(request: NextRequest) {
         },
         ...(stats ? { stats: { totalJobs: stats._count.id, totalApplications } } : {})
       }
-    });
+    }, { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=600' } });
   } catch (_error) {
     console.error("Error fetching jobs:", error);
     return NextResponse.json(
