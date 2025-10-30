@@ -144,13 +144,23 @@ export default function AIJobPostingForm() {
         industry: 'Technology',
         skills: formData.skills,
       };
+      // Seed defaults so API doesn't reject empty _value
+      const seedDefaults: Record<string, string> = {
+        title: 'Software Engineer',
+        description: 'Write a concise job description for a software role',
+        requirements: 'List key requirements for a software role',
+        skills: JSON.stringify(formData.skills.length ? formData.skills : ['JavaScript','React','Node.js'])
+      };
       const value =
         field === 'skills'
-          ? JSON.stringify(formData.skills)
-          : (formData as any)[field] || '';
+          ? seedDefaults.skills
+          : ((formData as any)[field] && String((formData as any)[field]).trim().length > 0
+              ? (formData as any)[field]
+              : seedDefaults[field]);
       const res = await fetch('/api/ai/form-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ field, _value: value, context }),
       });
       const data = await res.json();
@@ -279,7 +289,7 @@ export default function AIJobPostingForm() {
                     <Label className="text-base font-semibold text-slate-900 mb-2 block">
                       Job Title *
                     </Label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <Input
                       value={formData.title}
                       onChange={(e) => handleInputChange('title', e.target.value)}
@@ -311,7 +321,7 @@ export default function AIJobPostingForm() {
                     <Label className="text-base font-semibold text-slate-900 mb-2 block">
                       Job Description *
                     </Label>
-                    <div className="flex items-start gap-2">
+                    <div className="flex flex-col sm:flex-row items-start gap-2">
                       <Textarea
                       value={formData.description}
                       onChange={(e) => handleInputChange('description', e.target.value)}
