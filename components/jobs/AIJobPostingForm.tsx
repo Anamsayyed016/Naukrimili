@@ -386,7 +386,7 @@ export default function AIJobPostingForm() {
                         align="start"
                         avoidCollisions
                         collisionPadding={16}
-                        className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl max-h-64 overflow-y-auto"
+                        className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
                       >
                         {jobTypes.map((type) => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
@@ -506,7 +506,7 @@ export default function AIJobPostingForm() {
                         align="start"
                         avoidCollisions
                         collisionPadding={16}
-                        className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl max-h-64 overflow-y-auto"
+                        className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
                       >
                         {experienceLevels.map((level) => (
                           <SelectItem key={level} value={level}>{level}</SelectItem>
