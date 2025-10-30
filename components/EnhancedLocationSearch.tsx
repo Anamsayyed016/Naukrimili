@@ -16,13 +16,19 @@ interface LocationSearchProps {
   onRadiusChange?: (radius: number) => void;
   onSortByDistance?: (enabled: boolean) => void;
   className?: string;
+  compact?: boolean; // hide extra sections for embedded use
+  showPopular?: boolean; // default true
+  showTips?: boolean; // default true
 }
 
 export default function EnhancedLocationSearch({
   onLocationChange,
   onRadiusChange,
   onSortByDistance,
-  className = ''
+  className = '',
+  compact = false,
+  showPopular = true,
+  showTips = true
 }: LocationSearchProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string>('');
@@ -221,33 +227,35 @@ export default function EnhancedLocationSearch({
       </div>
 
       {/* Popular Locations */}
-      <div className="space-y-3">
-        <h4 className="text-sm font-medium text-gray-700">Popular Locations</h4>
-        <div className="grid grid-cols-2 gap-2">
-          {popularLocations.filter(location => (location.jobCount || 0) > 0).map((location) => (
-            <Button
-              key={location.name}
-              variant="outline"
-              size="sm"
-              onClick={() => handleLocationSelect(location.name)}
-              className="justify-start h-auto p-3"
-            >
-              <div className="text-left">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{location.icon}</span>
-                  <span className="font-medium">{location.name}</span>
+      {!compact && showPopular && (
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-gray-700">Popular Locations</h4>
+          <div className="grid grid-cols-2 gap-2">
+            {popularLocations.filter(location => (location.jobCount || 0) > 0).map((location) => (
+              <Button
+                key={location.name}
+                variant="outline"
+                size="sm"
+                onClick={() => handleLocationSelect(location.name)}
+                className="justify-start h-auto p-3"
+              >
+                <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{location.icon}</span>
+                    <span className="font-medium">{location.name}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {location.jobCount} jobs available
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {location.jobCount} jobs available
-                </div>
-              </div>
-            </Button>
-          ))}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
              {/* Mobile-Specific Tips */}
-       {isMobile && (
+      {isMobile && !compact && showTips && (
          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
            <div className="flex items-start">
              <div className="text-blue-600 mr-2 mt-0.5">💡</div>
@@ -262,7 +270,7 @@ export default function EnhancedLocationSearch({
              </div>
            </div>
          </div>
-       )}
+      )}
     </div>
   );
 }
