@@ -48,6 +48,8 @@ export default function AIJobPostingForm() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState<{ [k: string]: boolean }>({});
+  const [aiSuggestions, setAiSuggestions] = useState<{ [k: string]: string[] }>({});
   const [formData, setFormData] = useState<JobFormData>({
     title: '',
     description: '',
@@ -128,6 +130,40 @@ export default function AIJobPostingForm() {
       });
       setCurrentStep(1);
       toast.success('Form cleared');
+    }
+  };
+
+  const getAiSuggestions = async (
+    field: 'title' | 'description' | 'requirements' | 'skills'
+  ) => {
+    try {
+      setAiLoading(prev => ({ ...prev, [field]: true }));
+      const context = {
+        jobType: formData.jobType,
+        experienceLevel: formData.experienceLevel,
+        industry: 'Technology',
+        skills: formData.skills,
+      };
+      const value =
+        field === 'skills'
+          ? JSON.stringify(formData.skills)
+          : (formData as any)[field] || '';
+      const res = await fetch('/api/ai/form-suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ field, _value: value, context }),
+      });
+      const data = await res.json();
+      if (data?.success && Array.isArray(data.suggestions)) {
+        setAiSuggestions(prev => ({ ...prev, [field]: data.suggestions.slice(0, 6) }));
+        toast.success('AI suggestions ready');
+      } else {
+        toast.error('Could not fetch suggestions');
+      }
+    } catch (_e) {
+      toast.error('AI suggestion error');
+    } finally {
+      setAiLoading(prev => ({ ...prev, [field]: false }));
     }
   };
 
@@ -243,25 +279,69 @@ export default function AIJobPostingForm() {
                     <Label className="text-base font-semibold text-slate-900 mb-2 block">
                       Job Title *
                     </Label>
-                    <Input
+                    <div className="flex gap-2">
+                      <Input
                       value={formData.title}
                       onChange={(e) => handleInputChange('title', e.target.value)}
                       placeholder="e.g., Senior Software Engineer"
-                      className="h-12"
+                      className="h-12 flex-1"
                     />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => getAiSuggestions('title')}
+                        disabled={aiLoading.title}
+                        className="whitespace-nowrap"
+                      >
+                        {aiLoading.title ? 'AI…' : 'AI suggest'}
+                      </Button>
+                    </div>
+                    {aiSuggestions.title?.length ? (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {aiSuggestions.title.map((s) => (
+                          <Button key={s} type="button" variant="secondary" size="sm" onClick={() => handleInputChange('title', s)}>
+                            {s}
+                          </Button>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
 
                   <div>
                     <Label className="text-base font-semibold text-slate-900 mb-2 block">
                       Job Description *
                     </Label>
-                    <Textarea
+                    <div className="flex items-start gap-2">
+                      <Textarea
                       value={formData.description}
                       onChange={(e) => handleInputChange('description', e.target.value)}
                       placeholder="Describe the role, responsibilities, and what you're looking for..."
                       rows={6}
                       className="resize-none"
                     />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => getAiSuggestions('description')}
+                        disabled={aiLoading.description}
+                      >
+                        {aiLoading.description ? 'AI…' : 'AI'}
+                      </Button>
+                    </div>
+                    {aiSuggestions.description?.length ? (
+                      <div className="mt-2 space-y-2">
+                        {aiSuggestions.description.map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => handleInputChange('description', s)}
+                            className="w-full text-left text-sm p-2 rounded border hover:bg-slate-50"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
 
                   <div>
@@ -346,7 +426,25 @@ export default function AIJobPostingForm() {
                           + {skill}
                         </Button>
                       ))}
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => getAiSuggestions('skills')}
+                        disabled={aiLoading.skills}
+                      >
+                        {aiLoading.skills ? 'AI…' : 'AI suggest'}
+                      </Button>
                     </div>
+                    {aiSuggestions.skills?.length ? (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {aiSuggestions.skills.map((s) => (
+                          <Button key={s} type="button" variant="outline" size="sm" onClick={() => addSkill(s)}>
+                            + {s}
+                          </Button>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
 
                   <div>
