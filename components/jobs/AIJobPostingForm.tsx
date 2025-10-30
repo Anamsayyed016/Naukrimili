@@ -177,6 +177,14 @@ export default function AIJobPostingForm() {
     }
   };
 
+  const applySuggestion = (
+    field: 'title' | 'description' | 'requirements',
+    value: string
+  ) => {
+    handleInputChange(field as keyof JobFormData, value);
+    setAiSuggestions(prev => ({ ...prev, [field]: [] }));
+  };
+
   const handleSubmit = async () => {
     if (!validateStep(1) || !validateStep(2) || !validateStep(3)) {
       toast.error('Please complete all required fields');
@@ -273,7 +281,7 @@ export default function AIJobPostingForm() {
         </div>
 
         {/* Main Form */}
-        <Card className="shadow-xl bg-white rounded-2xl border border-slate-200">
+        <Card className="shadow-xl bg-white/95 rounded-2xl border border-slate-200 backdrop-blur-sm">
           <CardContent className="p-6">
             <AnimatePresence mode="wait">
               {/* Step 1: Job Details */}
@@ -309,7 +317,14 @@ export default function AIJobPostingForm() {
                     {aiSuggestions.title?.length ? (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {aiSuggestions.title.map((s) => (
-                          <Button key={s} type="button" variant="secondary" size="sm" onClick={() => handleInputChange('title', s)}>
+                          <Button 
+                            key={s} 
+                            type="button" 
+                            variant="secondary" 
+                            size="sm" 
+                            className="bg-blue-50 text-blue-700 hover:bg-blue-100"
+                            onClick={() => applySuggestion('title', s)}
+                          >
                             {s}
                           </Button>
                         ))}
@@ -344,8 +359,8 @@ export default function AIJobPostingForm() {
                           <button
                             key={s}
                             type="button"
-                            onClick={() => handleInputChange('description', s)}
-                            className="w-full text-left text-sm p-2 rounded border hover:bg-slate-50"
+                            onClick={() => applySuggestion('description', s)}
+                            className="w-full text-left text-sm p-2 rounded border bg-white hover:bg-slate-50"
                           >
                             {s}
                           </button>
@@ -362,7 +377,14 @@ export default function AIJobPostingForm() {
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Select job type" />
                       </SelectTrigger>
-                      <SelectContent position="popper" className="z-[10000] max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto">
+                      <SelectContent
+                        position="popper"
+                        sideOffset={8}
+                        align="start"
+                        avoidCollisions
+                        collisionPadding={16}
+                        className="z-[10000] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
+                      >
                         {jobTypes.map((type) => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
@@ -449,7 +471,16 @@ export default function AIJobPostingForm() {
                     {aiSuggestions.skills?.length ? (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {aiSuggestions.skills.map((s) => (
-                          <Button key={s} type="button" variant="outline" size="sm" onClick={() => addSkill(s)}>
+                          <Button 
+                            key={s} 
+                            type="button" 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => {
+                              addSkill(s);
+                              setAiSuggestions(prev => ({ ...prev, skills: (prev.skills || []).filter(x => x !== s) }));
+                            }}
+                          >
                             + {s}
                           </Button>
                         ))}
@@ -465,7 +496,14 @@ export default function AIJobPostingForm() {
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Select experience level" />
                       </SelectTrigger>
-                      <SelectContent position="popper" className="z-[10000] max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto">
+                      <SelectContent
+                        position="popper"
+                        sideOffset={8}
+                        align="start"
+                        avoidCollisions
+                        collisionPadding={16}
+                        className="z-[10000] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
+                      >
                         {experienceLevels.map((level) => (
                           <SelectItem key={level} value={level}>{level}</SelectItem>
                         ))}
@@ -504,7 +542,14 @@ export default function AIJobPostingForm() {
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Select location" />
                       </SelectTrigger>
-                      <SelectContent position="popper" className="z-[10000] max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto">
+                      <SelectContent
+                        position="popper"
+                        sideOffset={8}
+                        align="start"
+                        avoidCollisions
+                        collisionPadding={16}
+                        className="z-[10000] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
+                      >
                         {locations.map((loc) => (
                           <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                         ))}
