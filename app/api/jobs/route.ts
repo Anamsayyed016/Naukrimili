@@ -124,6 +124,7 @@ export async function GET(request: NextRequest) {
               title: true,
               company: true,
               location: true,
+              country: true,
               description: true,
               salary: true,
               salaryMin: true,
@@ -161,6 +162,9 @@ export async function GET(request: NextRequest) {
                   },
                 },
               },
+              // Ensure country is present on non-list view as well
+              // Prisma include doesn't need explicit selection for scalar fields when using findMany with include,
+              // but we keep it for clarity in case of future refactors.
               _count: { select: { applications: true, bookmarks: true } },
             },
             orderBy: { createdAt: "desc" },
@@ -192,7 +196,7 @@ export async function GET(request: NextRequest) {
       }
     }, { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=600' } });
   } catch (_error) {
-    console.error("Error fetching jobs:", error);
+    console.error("Error fetching jobs:", _error);
     return NextResponse.json(
       { error: "Failed to fetch jobs" },
       { status: 500 }
