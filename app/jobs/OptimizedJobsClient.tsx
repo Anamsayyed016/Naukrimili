@@ -65,19 +65,21 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       console.log('⚡ Fetching optimized jobs with query:', query, 'location:', location, 'page:', page);
 
       // Smart country detection using the country detection utility
-      const countriesToFetch = getCountriesToFetch({ location, country: filters.country || 'ALL' });
-      const primaryCountry = (filters.country || countriesToFetch[0]?.code || '').toUpperCase() || 'IN';
-      console.log('🌍 Country detection:', { location, countriesToFetch, primaryCountry });
+      const countriesToFetch = getCountriesToFetch({ location, country: filters.country || null });
+      const inferredCountry = (location ? countriesToFetch[0]?.code : undefined);
+      const explicitCountry = (filters.country || '').toUpperCase() || undefined;
+      const countryToUse = explicitCountry || inferredCountry; // only set when explicitly chosen or inferred from a provided location
+      console.log('🌍 Country detection:', { location, countriesToFetch, explicitCountry, inferredCountry, countryToUse });
 
       // DB-first parameters (do not over-restrict by country; widen recency)
       const dbParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
-        ...(primaryCountry && primaryCountry !== 'ALL' ? { country: primaryCountry } : {}),
+        ...(countryToUse ? { country: countryToUse } : {}),
         page: page.toString(),
         limit: '50',
         view: 'list', // ask API for lightweight list payload
-        days: '60', // wider freshness window to match admin counts
+        // Do not constrain by recency unless user specifies via URL; align with admin totals
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),
@@ -173,11 +175,11 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         const fallbackParams = new URLSearchParams({
           ...(query && { query }),
           ...(location && { location }),
-          countries: TARGET_COUNTRIES.join(','),
+          ...(countryToUse ? { countries: countryToUse } : { countries: TARGET_COUNTRIES.join(',') }),
           page: page.toString(),
           limit: '50',
           view: 'list',
-          days: '60',
+          // do not force recency here either
           includeExternal: 'true',
           includeSamples: 'false'
         });
