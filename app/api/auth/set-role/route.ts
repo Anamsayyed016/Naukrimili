@@ -54,17 +54,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // If user already has a role (but not locked), don't allow changes
-    if (user.role && user.role !== role) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Role already set and cannot be changed',
-          currentRole: user.role
-        },
-        { status: 403 }
-      );
-    }
+    // If role is not locked, allow setting or changing the role
 
     // Update user role and lock it
     const updatedUser = await prisma.user.update({

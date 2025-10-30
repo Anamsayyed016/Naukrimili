@@ -182,7 +182,7 @@ export default function AIJobPostingForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="mobile-job-form min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl py-6 sm:py-8">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
@@ -272,7 +272,7 @@ export default function AIJobPostingForm() {
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Select job type" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" className="z-[10000] max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto">
                         {jobTypes.map((type) => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
                         ))}
@@ -357,7 +357,7 @@ export default function AIJobPostingForm() {
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Select experience level" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" className="z-[10000] max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto">
                         {experienceLevels.map((level) => (
                           <SelectItem key={level} value={level}>{level}</SelectItem>
                         ))}
@@ -396,7 +396,7 @@ export default function AIJobPostingForm() {
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Select location" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" className="z-[10000] max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto">
                         {locations.map((loc) => (
                           <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                         ))}
