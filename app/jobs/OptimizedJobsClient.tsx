@@ -16,6 +16,8 @@ interface OptimizedJobsClientProps {
 }
 
 export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClientProps) {
+  // Targeted countries for fresh, real jobs
+  const TARGET_COUNTRIES = ['US', 'IN', 'GB', 'AE'];
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,10 +72,15 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       const apiParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
+        // Unified API can take multiple countries; keep primary for main API fallback
         country: primaryCountry,
+        countries: TARGET_COUNTRIES.join(','),
         page: page.toString(),
         limit: '50',
         view: 'list', // ask API for lightweight list payload
+        days: '30', // freshness window
+        includeExternal: 'true',
+        includeSamples: 'false',
         // Add all filter parameters from home page search
         ...(filters.jobType && { jobType: filters.jobType }),
         ...(filters.experienceLevel && { experienceLevel: filters.experienceLevel }),
@@ -87,18 +94,36 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       let response;
       let apiUsed = 'real';
 
-      // Use main API directly - it now handles real jobs properly with filters
-      apiUsed = 'main';
-      response = await fetch(`/api/jobs?${apiParams.toString()}`);
+      // Prefer unified API (real external + DB, deduped, fresh, multi-country)
+      apiUsed = 'unified';
+      response = await fetch(`/api/jobs/unified?${apiParams.toString()}`);
       if (!response.ok) {
-        throw new Error(`Main API failed: ${response.status} ${response.statusText}`);
+        throw new Error(`Unified API failed: ${response.status} ${response.statusText}`);
       }
 
       const responseTime = Date.now() - startTime;
 
       const data = await response.json();
-      
-      if (data.success && data.data && data.data.jobs) {
+
+      // Unified API shape: { success, jobs, pagination }
+      if (data.success && Array.isArray(data.jobs)) {
+        const jobs = (data.jobs || []).map(convertToSimpleJob);
+        
+        setJobs(jobs as any);
+        setTotalJobs(data.pagination?.total || (jobs || []).length);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setHasNextPage(page < (data.pagination?.totalPages || 1));
+        setHasPrevPage(page > 1);
+
+        setPerformanceMetrics({
+          responseTime,
+          cached: false,
+          sources: { apiUsed }
+        });
+
+        setLastRefresh(new Date());
+      } else if (data.success && data.data && data.data.jobs) {
+        // Fallback to main API response shape
         const jobs = (data.data.jobs || []).map(convertToSimpleJob);
         
         setJobs(jobs as any);
@@ -111,10 +136,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         setPerformanceMetrics({
           responseTime,
           cached: data.metadata?.cached || false,
-          sources: {
-            ...data.sources,
-            apiUsed: apiUsed // Track which API was successful
-          }
+          sources: { ...(data.sources || {}), apiUsed }
         });
 
         // Update last refresh time
@@ -147,7 +169,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     } catch (_error) {
       console.error('❌ Error fetching jobs from API:', error);
       
-      // NO SAMPLE JOBS - Show empty state instead
+      // Primary unified call failed: try main API fallback (DB only)
       setJobs([]);
       setTotalJobs(0);
       setTotalPages(0);
@@ -163,7 +185,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           ...(location && { location }),
           country: 'IN', // Default country for fallback
           page: page.toString(),
-          limit: '200'
+          limit: '50',
+          view: 'list',
+          days: '30'
         });
         
         const fallbackResponse = await fetch(`/api/jobs?${fallbackParams.toString()}`);

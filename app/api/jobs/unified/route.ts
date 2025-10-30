@@ -45,6 +45,10 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('query') || '';
     const location = searchParams.get('location') || '';
     const country = searchParams.get('country') || 'IN';
+    const countriesParam = searchParams.get('countries'); // comma separated ISO codes
+    const countries = (countriesParam ? countriesParam.split(',') : [country])
+      .map(c => c.trim().toUpperCase())
+      .filter(Boolean);
     const source = searchParams.get('source') || 'all';
     
     // Additional filter parameters
@@ -61,15 +65,22 @@ export async function GET(request: NextRequest) {
     // Validate numeric parameters
     let page = 1;
     let limit = 50; // Increased default limit
+    let days = 30; // freshness window in days
     
     try {
       page = Math.max(1, parseInt(searchParams.get('page') || '1'));
       limit = Math.min(200, Math.max(1, parseInt(searchParams.get('limit') || '50'))); // Increased max limit
+      days = Math.min(180, Math.max(1, parseInt(searchParams.get('days') || '30')));
     } catch (parseError) {
       console.warn('⚠️ Parameter parsing error, using defaults:', parseError);
     }
     
-    const includeExternal = searchParams.get('includeExternal') === 'true';
+    const includeExternal = searchParams.get('includeExternal') !== 'false';
+    const includeSamples = searchParams.get('includeSamples') === 'true';
+
+    // Freshness cutoff
+    const now = new Date();
+    const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
 
     // Get the first company ID to link sample jobs to a real company
     let sampleCompanyId = null;
@@ -84,7 +95,7 @@ export async function GET(request: NextRequest) {
       sampleCompanyId = 'sample-company-default';
     }
 
-    // Sample jobs data for testing
+    // Sample jobs data for testing (disabled unless includeSamples=true)
     const sampleJobs = [
       {
         id: '1',
@@ -336,7 +347,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Filter sample jobs based on search criteria
-    let filteredJobs = sampleJobs;
+    let filteredJobs = includeSamples ? sampleJobs : [];
     let externalJobs: any[] = [];
     let externalJobsCount = 0;
 
@@ -351,7 +362,9 @@ export async function GET(request: NextRequest) {
         // Fetch from Adzuna with caching
         const adzunaJobs = await getCachedOrFetch(`${cacheKey}-adzuna`, async () => {
           try {
-            return await fetchFromAdzuna(query || 'software engineer', 'in', page, {
+            // Use first requested country for provider code (adzuna expects lowercase two-letter)
+            const adzCountry = (countries[0] || 'IN').toLowerCase();
+            return await fetchFromAdzuna(query || 'software engineer', adzCountry, page, {
               location: location || undefined,
               distanceKm: radius ? parseInt(radius) : undefined
             });
@@ -366,7 +379,7 @@ export async function GET(request: NextRequest) {
         // Fetch from JSearch with caching
         const jsearchJobs = await getCachedOrFetch(`${cacheKey}-jsearch`, async () => {
           try {
-            return await fetchFromJSearch(query || 'software engineer', 'IN', page);
+            return await fetchFromJSearch(query || 'software engineer', (countries[0] || 'IN'), page);
           } catch (_error) {
             console.warn('⚠️ JSearch API error:', error);
             return [];
@@ -378,7 +391,9 @@ export async function GET(request: NextRequest) {
         // Fetch from Google Jobs with caching
         const googleJobs = await getCachedOrFetch(`${cacheKey}-google`, async () => {
           try {
-            return await fetchFromGoogleJobs(query || 'software engineer', location || 'India', page);
+            // Use location text if provided; otherwise fallback to country name
+            const locText = location || (countries[0] === 'US' ? 'United States' : countries[0] === 'GB' ? 'United Kingdom' : 'India');
+            return await fetchFromGoogleJobs(query || 'software engineer', locText, page);
           } catch (_error) {
             console.warn('⚠️ Google Jobs API error:', error);
             return [];
@@ -392,7 +407,7 @@ export async function GET(request: NextRequest) {
           try {
             return await fetchFromJooble(query || 'software engineer', location || 'India', page, {
               radius: radius ? parseInt(radius) : undefined,
-              countryCode: country || 'in'
+              countryCode: (countries[0] || country || 'IN')
             });
           } catch (_error) {
             console.warn('⚠️ Jooble API error:', error);
@@ -451,11 +466,32 @@ export async function GET(request: NextRequest) {
 
     // Combine database jobs with sample jobs and external jobs
     console.log(`📊 Job counts: database=${transformedDatabaseJobs.length}, sample=${filteredJobs.length}, external=${externalJobs.length}, transformed=${transformedExternalJobs.length}`);
-    const allJobs = [...transformedDatabaseJobs, ...filteredJobs, ...transformedExternalJobs];
+    // Merge then enforce country allowlist and freshness, and de-duplicate
+    const requestedCountries = new Set(countries);
+    const allJobs = [...transformedDatabaseJobs, ...filteredJobs, ...transformedExternalJobs]
+      .filter(job => {
+        const jobCountry = (job.country || '').toString().toUpperCase();
+        return requestedCountries.has(jobCountry);
+      })
+      .filter(job => {
+        const d = new Date(job.postedAt || job.createdAt || 0);
+        return isFinite(d.getTime()) && d >= cutoff;
+      });
+
+    // De-duplicate across providers using a stable key
+    const seen = new Set<string>();
+    const uniqueJobs = [] as any[];
+    for (const j of allJobs) {
+      const key = `${(j.title||'').trim().toLowerCase()}|${(j.company||'').trim().toLowerCase()}|${(j.location||'').trim().toLowerCase()}|${(j.country||'').toString().toUpperCase()}|${(j.postedAt||j.createdAt||'').toString().slice(0,10)}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueJobs.push(j);
+      }
+    }
     console.log(`📊 Total jobs after combination: ${allJobs.length}`);
 
     // Apply filters to all jobs (sample + external)
-    let finalFilteredJobs = allJobs;
+    let finalFilteredJobs = uniqueJobs;
 
     // Apply query filter
     if (query && query.trim().length > 0) {
@@ -585,7 +621,7 @@ export async function GET(request: NextRequest) {
           external: externalJobsCount
         }
       }
-    });
+    }, { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=600' } });
 
   } catch (_error) {
     console.error('💥 Unified Jobs API Error:', error);
