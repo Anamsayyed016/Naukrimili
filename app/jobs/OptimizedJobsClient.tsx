@@ -55,6 +55,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       salaryMin?: string;
       salaryMax?: string;
       sector?: string;
+      country?: string;
     } = {}
   ) => {
     try {
@@ -64,14 +65,15 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       console.log('⚡ Fetching optimized jobs with query:', query, 'location:', location, 'page:', page);
 
       // Smart country detection using the country detection utility
-      const countriesToFetch = getCountriesToFetch({ location, country: 'ALL' });
-      const primaryCountry = countriesToFetch[0]?.code || 'IN';
+      const countriesToFetch = getCountriesToFetch({ location, country: filters.country || 'ALL' });
+      const primaryCountry = (filters.country || countriesToFetch[0]?.code || '').toUpperCase() || 'IN';
       console.log('🌍 Country detection:', { location, countriesToFetch, primaryCountry });
 
       // DB-first parameters (do not over-restrict by country; widen recency)
       const dbParams = new URLSearchParams({
         ...(query && { query }),
         ...(location && { location }),
+        ...(primaryCountry && primaryCountry !== 'ALL' ? { country: primaryCountry } : {}),
         page: page.toString(),
         limit: '50',
         view: 'list', // ask API for lightweight list payload
@@ -215,9 +217,10 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     const salaryMin = searchParams.get('salaryMin') || '';
     const salaryMax = searchParams.get('salaryMax') || '';
     const sector = searchParams.get('sector') || '';
+    const countryParam = (searchParams.get('country') || '').toUpperCase();
 
     console.log('⚡ OptimizedJobsClient initializing with params:', { 
-      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
+      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector, countryParam,
       allParams: Object.fromEntries(searchParams.entries()) // Debug: show all params
     });
 
@@ -226,7 +229,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     
     // Always fetch jobs using unlimited API with all filters
     fetchJobs(query, loc, 1, {
-      jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
+      jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
+      country: countryParam || undefined
     });
   }, [searchParams]); // Removed fetchJobs from dependencies to prevent infinite loop
 
@@ -311,10 +315,12 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     const salaryMin = searchParams.get('salaryMin') || '';
     const salaryMax = searchParams.get('salaryMax') || '';
     const sector = searchParams.get('sector') || '';
+    const countryParam = (searchParams.get('country') || '').toUpperCase();
     
     setCurrentPage(page);
     fetchJobs(query, location, page, {
-      jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
+      jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
+      country: countryParam || undefined
     });
   };
 
