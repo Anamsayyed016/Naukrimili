@@ -43,10 +43,17 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Location filtering
+    // Location filtering (be lenient when country is also provided)
     if (location) {
       const locationCondition = { location: { contains: location, mode: 'insensitive' } };
-      if (where.OR) {
+      // If a country filter is present, don't over-restrict with location; allow jobs that match country even if
+      // the free-text location (e.g., "Dubai") isn't present in the saved location string (e.g., "United Arab Emirates").
+      if (country) {
+        where.AND = [
+          ...(where.AND || []),
+          { OR: [ locationCondition, { country: country.toUpperCase() } ] }
+        ];
+      } else if (where.OR) {
         where.AND = [
           { OR: where.OR },
           locationCondition
