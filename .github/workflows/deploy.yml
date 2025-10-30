@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     
     steps:
     - name: 📥 Checkout code
@@ -63,7 +63,15 @@ jobs:
           exit 1
         fi
         
+        # Remove cache files to reduce size
+        echo "🧹 Removing cache files to reduce deployment size..."
+        rm -rf .next/cache/* || true
+        find .next -name "*.map" -delete || true
+        find .next -name ".DS_Store" -delete || true
+        
         echo "✅ Build completed successfully"
+        echo "📊 .next directory size:"
+        du -sh .next
         
     - name: 📥 Prepare SSH Key
       run: |
@@ -83,8 +91,8 @@ jobs:
         source: ".next/,public/,app/,components/,lib/,styles/,prisma/,package.json,package-lock.json,next.config.mjs,server.cjs,ecosystem.config.cjs,tsconfig.json,postcss.config.cjs,tailwind.config.cjs,.env"
         target: "/var/www/naukrimili"
         strip_components: 0
-        timeout: 180s
-        command_timeout: 30m
+        timeout: 600s
+        command_timeout: 45m
         debug: true
         overwrite: true
 
