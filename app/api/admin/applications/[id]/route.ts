@@ -79,21 +79,53 @@ export async function GET(
       );
     }
 
+    // Parse skills string to array if it's stored as JSON string
+    let parsedSkills: string[] = [];
+    if (application.user.skills) {
+      try {
+        // Try parsing as JSON string first
+        if (typeof application.user.skills === 'string') {
+          const parsed = JSON.parse(application.user.skills);
+          parsedSkills = Array.isArray(parsed) ? parsed : [];
+        } else if (Array.isArray(application.user.skills)) {
+          parsedSkills = application.user.skills;
+        }
+      } catch {
+        // If parsing fails, treat as empty array or comma-separated string
+        if (application.user.skills.includes(',')) {
+          parsedSkills = application.user.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        } else if (application.user.skills.trim().length > 0) {
+          parsedSkills = [application.user.skills.trim()];
+        }
+      }
+    }
+
+    // Normalize application data with parsed skills
+    const normalizedApplication = {
+      ...application,
+      user: {
+        ...application.user,
+        skills: parsedSkills
+      }
+    };
+
     console.log('🔍 Application data for admin:', {
-      applicationId: application.id,
-      userId: application.user.id,
-      jobId: application.job.id,
-      jobTitle: application.job.title,
-      resume: application.resume ? {
-        id: application.resume.id,
-        fileName: application.resume.fileName,
-        fileUrl: application.resume.fileUrl
+      applicationId: normalizedApplication.id,
+      userId: normalizedApplication.user.id,
+      jobId: normalizedApplication.job.id,
+      jobTitle: normalizedApplication.job.title,
+      skillsType: typeof application.user.skills,
+      skillsParsed: parsedSkills.length,
+      resume: normalizedApplication.resume ? {
+        id: normalizedApplication.resume.id,
+        fileName: normalizedApplication.resume.fileName,
+        fileUrl: normalizedApplication.resume.fileUrl
       } : 'No resume found'
     });
 
     return NextResponse.json({
       success: true,
-      data: application
+      data: normalizedApplication
     });
   } catch (error) {
     console.error("Error fetching application:", error);

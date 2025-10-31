@@ -103,6 +103,30 @@ export async function GET(request: NextRequest) {
     const appsWithResumes = applications.filter(app => app.resume).length;
     console.log(`📄 Applications with resumes: ${appsWithResumes} out of ${applications.length}`);
 
+    // Helper function to normalize skills
+    const normalizeSkills = (skills: any): string[] => {
+      if (!skills) return [];
+      if (Array.isArray(skills)) return skills.filter(skill => skill && typeof skill === 'string');
+      if (typeof skills === 'string') {
+        try {
+          const parsed = JSON.parse(skills);
+          if (Array.isArray(parsed)) {
+            return parsed.filter(skill => skill && typeof skill === 'string');
+          }
+          if (skills.includes(',')) {
+            return skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+          }
+          return skills.trim() ? [skills.trim()] : [];
+        } catch {
+          if (skills.includes(',')) {
+            return skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+          }
+          return skills.trim() ? [skills.trim()] : [];
+        }
+      }
+      return [];
+    };
+
     // Normalize application data to ensure consistent structure
     const normalizedApplications = applications.map(app => ({
       ...app,
@@ -121,6 +145,7 @@ export async function GET(request: NextRequest) {
       } : null,
       user: {
         ...app.user,
+        skills: normalizeSkills(app.user.skills),
         name: app.user.firstName && app.user.lastName 
           ? `${app.user.firstName} ${app.user.lastName}`.trim()
           : app.user.firstName || app.user.email || 'Unknown User'

@@ -87,6 +87,33 @@ export default function ApplicationDetailPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
+  // Helper function to normalize skills (handle string, array, or null)
+  const normalizeSkills = (skills: any): string[] => {
+    if (!skills) return [];
+    if (Array.isArray(skills)) return skills.filter(skill => skill && typeof skill === 'string');
+    if (typeof skills === 'string') {
+      try {
+        const parsed = JSON.parse(skills);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(skill => skill && typeof skill === 'string');
+        }
+        // If it's a comma-separated string
+        if (skills.includes(',')) {
+          return skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        }
+        // Single skill string
+        return skills.trim() ? [skills.trim()] : [];
+      } catch {
+        // Not JSON, treat as comma-separated or single string
+        if (skills.includes(',')) {
+          return skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        }
+        return skills.trim() ? [skills.trim()] : [];
+      }
+    }
+    return [];
+  };
+
   useEffect(() => {
     if (applicationId) {
       fetchApplication();
@@ -113,7 +140,15 @@ export default function ApplicationDetailPage() {
 
       const result = await response.json();
       if (result.success && result.data) {
-        setApplication(result.data);
+        // Normalize skills to ensure it's always an array
+        const normalizedData = {
+          ...result.data,
+          user: {
+            ...result.data.user,
+            skills: normalizeSkills(result.data.user.skills)
+          }
+        };
+        setApplication(normalizedData);
       } else {
         throw new Error(result.error || 'Failed to load application');
       }
@@ -330,16 +365,38 @@ export default function ApplicationDetailPage() {
                   </div>
                 )}
 
-                {application.user.skills && application.user.skills.length > 0 && (
-                  <div>
-                    <h4 className="font-medium mb-2">Skills</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {application.user.skills.map((skill, index) => (
-                        <Badge key={index} variant="secondary">{skill}</Badge>
-                      ))}
+                {(() => {
+                  // Safely handle skills - could be array, string, or null
+                  let skillsArray: string[] = [];
+                  if (application.user.skills) {
+                    if (Array.isArray(application.user.skills)) {
+                      skillsArray = application.user.skills.filter(skill => skill && typeof skill === 'string');
+                    } else if (typeof application.user.skills === 'string') {
+                      try {
+                        const parsed = JSON.parse(application.user.skills);
+                        skillsArray = Array.isArray(parsed) ? parsed.filter((s: any) => s && typeof s === 'string') : [];
+                      } catch {
+                        // Not JSON, try comma-separated
+                        if (application.user.skills.includes(',')) {
+                          skillsArray = application.user.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                        } else if (application.user.skills.trim()) {
+                          skillsArray = [application.user.skills.trim()];
+                        }
+                      }
+                    }
+                  }
+                  
+                  return skillsArray.length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-2">Skills</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {skillsArray.map((skill, index) => (
+                          <Badge key={index} variant="secondary">{String(skill)}</Badge>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {application.user.experience && (
                   <div>
