@@ -59,33 +59,42 @@ export default function AdminDashboardPage() {
         success: result.success,
         hasData: !!result.data,
         overview: result.data?.overview,
+        fullOverview: JSON.stringify(result.data?.overview, null, 2),
         timestamp: new Date().toISOString()
       });
       
       if (result.success && result.data) {
+        // Extract values with detailed logging
+        const overview = result.data.overview || {};
+        const totalViewsValue = overview.totalViews ?? 0;
+        const averageSalaryValue = overview.averageSalary ?? 0;
+        
+        console.log('🔍 Extracted values from API:', {
+          totalViewsRaw: overview.totalViews,
+          totalViewsValue,
+          averageSalaryRaw: overview.averageSalary,
+          averageSalaryValue,
+          overviewKeys: Object.keys(overview)
+        });
+        
         // Map the API response structure to component state
-        setStats({
-          totalUsers: result.data.overview?.totalUsers || 0,
-          totalJobs: result.data.overview?.totalJobs || 0,
-          totalCompanies: result.data.overview?.totalCompanies || 0,
-          totalApplications: result.data.overview?.totalApplications || 0,
-          pendingApplications: result.data.overview?.pendingApplications || 0,
-          activeJobs: result.data.overview?.activeJobs || 0,
+        const newStats = {
+          totalUsers: overview.totalUsers || 0,
+          totalJobs: overview.totalJobs || 0,
+          totalCompanies: overview.totalCompanies || 0,
+          totalApplications: overview.totalApplications || 0,
+          pendingApplications: overview.pendingApplications || 0,
+          activeJobs: overview.activeJobs || 0,
           newUsersToday: result.data.growth?.newUsersThisWeek || 0,
-          totalViews: result.data.overview?.totalViews || 0,
-          averageSalary: result.data.overview?.averageSalary || 0,
-          verifiedCompanies: result.data.overview?.verifiedCompanies || 0,
-          systemHealth: 'healthy' // Can be enhanced with actual system health check
-        });
+          totalViews: Number(totalViewsValue) || 0,
+          averageSalary: Number(averageSalaryValue) || 0,
+          verifiedCompanies: overview.verifiedCompanies || 0,
+          systemHealth: 'healthy' as const
+        };
+        
+        console.log('✅ Setting stats state:', newStats);
+        setStats(newStats);
         setLastUpdated(new Date());
-        console.log('✅ Dashboard stats updated:', {
-          totalUsers: result.data.overview?.totalUsers,
-          totalJobs: result.data.overview?.totalJobs,
-          totalApplications: result.data.overview?.totalApplications,
-          totalViews: result.data.overview?.totalViews,
-          averageSalary: result.data.overview?.averageSalary,
-          timestamp: new Date().toISOString()
-        });
       } else {
         throw new Error(result.error || 'Invalid response format');
       }
