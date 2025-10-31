@@ -67,6 +67,7 @@ interface AdminStats {
   totalApplications: number;
   activeUsers: number;
   pendingVerifications: number;
+  pendingApplications: number;
   recentSignups: any[];
   jobTypeDistribution: any[];
   userRoleDistribution: any[];
@@ -149,6 +150,7 @@ export default function AdminDashboard() {
             totalApplications: Number(overview.totalApplications) || 0,
             activeUsers: Number(overview.totalUsers) || 0,
             pendingVerifications: (Number(overview.totalCompanies) || 0) - (Number(overview.verifiedCompanies) || 0),
+            pendingApplications: Number(overview.pendingApplications) || 0,
             activeJobs: Number(overview.activeJobs) || 0,
             newUsersToday: Number(apiData.growth?.newUsersThisWeek) || 0,
             totalViews: Number(overview.totalViews) || 0,
@@ -483,20 +485,23 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white border-2 border-orange-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-gray-800">Applications</CardTitle>
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <FileText className="h-5 w-5 text-orange-600" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalApplications}</div>
-              <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                Total submissions
-              </p>
-            </CardContent>
-          </Card>
+          <Link href="/admin/applications">
+            <Card className="bg-white border-2 border-orange-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange-200 cursor-pointer group">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-orange-700">Applications</CardTitle>
+                <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
+                  <FileText className="h-5 w-5 text-orange-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalApplications}</div>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium">
+                  {stats.pendingApplications || 0} pending • {stats.totalApplications - (stats.pendingApplications || 0)} reviewed
+                </p>
+                <p className="text-xs text-orange-600 mt-1 font-medium">Click to manage →</p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Charts Section */}
@@ -701,6 +706,85 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* Recent Applications Section */}
+        {stats?.recent?.applications && stats.recent.applications.length > 0 && (
+          <Card className="bg-white border-2 border-orange-200 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Recent Applications
+                  </CardTitle>
+                  <CardDescription>Latest job applications from jobseekers</CardDescription>
+                </div>
+                <Link href="/admin/applications">
+                  <Button size="sm">
+                    <Eye className="h-4 w-4 mr-1" />
+                    View All
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {stats.recent.applications.slice(0, 5).map((application: any) => (
+                  <div key={application.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium truncate">
+                          {application.user?.firstName || application.applicantName || 'Unknown User'}
+                        </p>
+                        <Badge variant={application.status === 'pending' ? 'secondary' : application.status === 'shortlisted' ? 'default' : application.status === 'rejected' ? 'destructive' : 'default'} className="text-xs">
+                          {application.status || 'pending'}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-gray-500 truncate">
+                        {application.job?.title || application.jobTitle} • {application.job?.company || application.company}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {application.resume?.id && (
+                        <Link href={`/api/admin/resumes/${application.resume.id}/download`} target="_blank">
+                          <Button variant="outline" size="sm" title="View Resume">
+                            <FileText className="h-4 w-4 text-orange-600" />
+                          </Button>
+                        </Link>
+                      )}
+                      <Link href={`/admin/applications/${application.id}`}>
+                        <Button variant="outline" size="sm" title="View Details">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => window.location.href = `/admin/applications/${application.id}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          {application.resume?.id && (
+                            <DropdownMenuItem 
+                              onClick={() => window.open(`/api/admin/resumes/${application.resume.id}/download`, '_blank')}
+                            >
+                              <FileText className="h-4 w-4 mr-2" />
+                              View Resume
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Quick Actions */}
         <Card className="bg-white border-gray-200 shadow-sm">
           <CardHeader>
@@ -725,6 +809,18 @@ export default function AdminDashboard() {
                 <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-300">
                   <Building2 className="h-6 w-6" />
                   <span className="font-medium">Manage Companies</span>
+                </Button>
+              </Link>
+              <Link href="/admin/applications">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300">
+                  <FileText className="h-6 w-6" />
+                  <span className="font-medium">Applications</span>
+                </Button>
+              </Link>
+              <Link href="/admin/resumes">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100 hover:border-teal-300">
+                  <FileText className="h-6 w-6" />
+                  <span className="font-medium">Resumes</span>
                 </Button>
               </Link>
               <Link href="/admin/seed-jobs">
