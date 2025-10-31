@@ -130,13 +130,50 @@ export default function AdminApplicationsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Application Management</h1>
-        <p className="text-gray-600 mt-2">Manage and review job applications</p>
-      </div>
+    <>
+      {/* Portal container for dropdowns to render outside table overflow */}
+      <div id="select-portal-root" style={{ position: 'fixed', zIndex: 9999, pointerEvents: 'none' }} />
+      
+      {/* Dropdown positioning fix styles */}
+      <style jsx global>{`
+        /* Ensure Select dropdowns render in portal with proper z-index */
+        [data-radix-select-content] {
+          z-index: 10000 !important;
+        }
+        [data-radix-popper-content-wrapper] {
+          z-index: 10000 !important;
+        }
+        
+        /* Fix for table cells - prevent clipping */
+        [role="cell"] {
+          overflow: visible !important;
+        }
+        [role="row"] {
+          overflow: visible !important;
+        }
+        [role="table"] {
+          overflow: visible !important;
+        }
+        
+        /* Ensure dropdown is always visible */
+        [data-radix-select-viewport] {
+          z-index: 10000 !important;
+        }
+        
+        /* Prevent parent overflow from clipping dropdowns */
+        .overflow-x-auto {
+          overflow-x: auto !important;
+          overflow-y: visible !important;
+        }
+      `}</style>
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Application Management</h1>
+          <p className="text-gray-600 mt-2">Manage and review job applications</p>
+        </div>
 
-      <Card>
+        <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
@@ -168,7 +205,7 @@ export default function AdminApplicationsPage() {
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" side="bottom" sideOffset={4} avoidCollisions={true} collisionPadding={8}>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="reviewed">Reviewed</SelectItem>
@@ -247,7 +284,7 @@ export default function AdminApplicationsPage() {
                             <SelectTrigger className="w-32">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent position="popper" side="bottom" sideOffset={4} avoidCollisions={true} collisionPadding={8}>
                               <SelectItem value="pending">Pending</SelectItem>
                               <SelectItem value="reviewed">Reviewed</SelectItem>
                               <SelectItem value="shortlisted">Shortlisted</SelectItem>
@@ -299,5 +336,6 @@ export default function AdminApplicationsPage() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }
