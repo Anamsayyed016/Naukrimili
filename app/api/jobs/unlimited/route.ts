@@ -246,9 +246,11 @@ export async function GET(request: NextRequest) {
         prisma.job.count({ where })
       ]);
       
+      // IMPORTANT: All jobs fetched from our database should be marked as 'database'
+      // This ensures they're counted correctly, regardless of their original source (adzuna, external, etc.)
       jobs = jobsResult.map(job => ({
         ...job,
-        source: job.source || 'database' // Ensure database jobs have source field set
+        source: 'database' // Force all database-fetched jobs to be 'database' for counting
       }));
       total = totalResult;
       
