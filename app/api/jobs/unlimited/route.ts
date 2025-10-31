@@ -247,7 +247,14 @@ export async function GET(request: NextRequest) {
       const hasExternalApiKeys = hasAdzuna || hasRapidAPI || hasJooble;
       
       // Fetch external jobs in parallel for speed (like other job portals)
-      if (query && hasExternalApiKeys && searchParams.get('includeExternal') !== 'false') {
+      // Fetch external jobs if includeExternal=true (even without query) or if query is provided
+      const shouldFetchExternal = hasExternalApiKeys && 
+        (searchParams.get('includeExternal') === 'true' || (query && searchParams.get('includeExternal') !== 'false'));
+      
+      if (shouldFetchExternal) {
+        // Use a default query if none provided to fetch popular jobs
+        const searchQuery = query || 'developer OR engineer OR manager OR analyst OR designer';
+        
         console.log(`🚀 Fetching jobs from ${[hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean).join(', ')}`);
         
         try {
@@ -273,7 +280,7 @@ export async function GET(request: NextRequest) {
               // Adzuna API (Multi-country support)
               if (hasAdzuna) {
                 externalPromises.push(
-                  fetchFromAdzuna(query, countryConfig.adzunaCode, 1, { 
+                  fetchFromAdzuna(searchQuery, countryConfig.adzunaCode, 1, { 
                     location: location || undefined,
                     distanceKm: 50 
                   }).catch(err => {
@@ -286,7 +293,7 @@ export async function GET(request: NextRequest) {
               // JSearch API via RapidAPI (Global coverage)
               if (hasRapidAPI) {
                 externalPromises.push(
-                  fetchFromJSearch(query, countryConfig.jsearchCode, 1).catch(err => {
+                  fetchFromJSearch(searchQuery, countryConfig.jsearchCode, 1).catch(err => {
                     console.log(`⚠️ JSearch ${countryConfig.name} failed:`, err.message);
                     return [];
                   })
@@ -296,7 +303,7 @@ export async function GET(request: NextRequest) {
               // Jooble API (Additional job source)
               if (hasJooble) {
                 externalPromises.push(
-                  fetchFromJooble(query, countryConfig.joobleLocation, 1, {
+                  fetchFromJooble(searchQuery, countryConfig.joobleLocation, 1, {
                     countryCode: countryConfig.code
                   }).catch(err => {
                     console.log(`⚠️ Jooble ${countryConfig.name} failed:`, err.message);
@@ -315,7 +322,12 @@ export async function GET(request: NextRequest) {
               externalResults.forEach((result, index) => {
                 if (result.status === 'fulfilled' && result.value && Array.isArray(result.value) && result.value.length > 0) {
                   console.log(`✅ ${apiNames[index]}: ${result.value.length} jobs`);
-                  realExternalJobs.push(...result.value);
+                  // Normalize source field for external jobs
+                  const jobsWithSource = result.value.map((job: any) => ({
+                    ...job,
+                    source: job.source || apiNames[index]?.toLowerCase() || 'external'
+                  }));
+                  realExternalJobs.push(...jobsWithSource);
                 }
               });
               
@@ -377,11 +389,19 @@ export async function GET(request: NextRequest) {
               );
               
               // SMART DEDUPLICATION: Combine and deduplicate efficiently
+              const databaseJobsCountBeforeDedup = jobs.length;
               const combinedJobs = [...jobs, ...realExternalJobs];
               jobs = removeDuplicateJobs(combinedJobs);
-              total = jobs.length;
               
-              console.log(`✅ Total: ${jobs.length} jobs (${realExternalJobs.length} external + ${jobs.length - realExternalJobs.length} database, after dedup)`);
+              // Calculate total: database total + external jobs fetched
+              // Note: External jobs are fetched fresh each time, so we add the count we got
+              // Database total (totalResult) represents all matching jobs in DB across all pages
+              total = totalResult + realExternalJobs.length;
+              
+              const databaseJobsAfterDedup = jobs.filter(j => j.source === 'database' || j.source === 'employer').length;
+              const externalJobsAfterDedup = jobs.length - databaseJobsAfterDedup;
+              
+              console.log(`✅ Combined: ${jobs.length} jobs on this page (${databaseJobsAfterDedup} database + ${externalJobsAfterDedup} external after dedup). Total available: ${total} (${totalResult} database + ${realExternalJobs.length} external)`);
             }
           } catch (importError) {
             console.error('❌ Failed to import job providers:', importError);
