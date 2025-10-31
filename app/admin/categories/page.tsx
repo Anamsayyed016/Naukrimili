@@ -37,7 +37,7 @@ export default function AdminCategoriesPage() {
         setCategories(data.categories || []);
       }
     } catch (_error) {
-      console.error('Error fetching categories:', error);
+      console.error('Error fetching categories:', _error);
     } finally {
       setLoading(false);
     }
@@ -58,7 +58,7 @@ export default function AdminCategoriesPage() {
         fetchCategories();
       }
     } catch (_error) {
-      console.error('Error adding category:', error);
+      console.error('Error adding category:', _error);
     }
   };
 
@@ -74,7 +74,7 @@ export default function AdminCategoriesPage() {
         fetchCategories();
       }
     } catch (_error) {
-      console.error('Error updating category status:', error);
+      console.error('Error updating category status:', _error);
     }
   };
 
@@ -90,7 +90,7 @@ export default function AdminCategoriesPage() {
         fetchCategories();
       }
     } catch (_error) {
-      console.error('Error deleting category:', error);
+      console.error('Error deleting category:', _error);
     }
   };
 

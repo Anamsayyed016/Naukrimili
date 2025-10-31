@@ -18,23 +18,26 @@ export async function GET(_request: NextRequest) {
     // Get comprehensive system statistics with error handling
     let totalUsers = 0, newUsersThisWeek = 0, totalJobs = 0, activeJobs = 0, pendingJobs = 0;
     let totalCompanies = 0, verifiedCompanies = 0, totalApplications = 0, pendingApplications = 0;
+    let totalViews = 0, averageSalary = 0;
     let recentUsers = [], recentJobs = [], jobTypeDistribution = [], userRoleDistribution = [];
 
     try {
-      [
-        totalUsers,
-        newUsersThisWeek,
-        totalJobs,
-        activeJobs,
-        pendingJobs,
-        totalCompanies,
-        verifiedCompanies,
-        totalApplications,
-        pendingApplications,
-        recentUsers,
-        recentJobs,
-        jobTypeDistribution,
-        userRoleDistribution
+      const [
+        totalUsersResult,
+        newUsersThisWeekResult,
+        totalJobsResult,
+        activeJobsResult,
+        pendingJobsResult,
+        totalCompaniesResult,
+        verifiedCompaniesResult,
+        totalApplicationsResult,
+        pendingApplicationsResult,
+        viewsAggregateResult,
+        salaryAggregateResult,
+        recentUsersResult,
+        recentJobsResult,
+        jobTypeDistributionResult,
+        userRoleDistributionResult
       ] = await Promise.all([
         // User statistics
         prisma.user.count(),
@@ -52,6 +55,23 @@ export async function GET(_request: NextRequest) {
         // Application statistics
         prisma.application.count(),
         prisma.application.count({ where: { status: { in: ['pending', 'submitted'] } } }),
+        
+        // Platform views - sum of all job views
+        prisma.job.aggregate({
+          _sum: { views: true }
+        }),
+        
+        // Average salary calculation
+        prisma.job.aggregate({
+          where: {
+            salaryMin: { not: null },
+            salaryMax: { not: null }
+          },
+          _avg: {
+            salaryMin: true,
+            salaryMax: true
+          }
+        }),
         
         // Recent data
         prisma.user.findMany({
@@ -75,6 +95,30 @@ export async function GET(_request: NextRequest) {
           _count: { role: true }
         })
       ]);
+
+      // Extract values from results
+      totalUsers = totalUsersResult;
+      newUsersThisWeek = newUsersThisWeekResult;
+      totalJobs = totalJobsResult;
+      activeJobs = activeJobsResult;
+      pendingJobs = pendingJobsResult;
+      totalCompanies = totalCompaniesResult;
+      verifiedCompanies = verifiedCompaniesResult;
+      totalApplications = totalApplicationsResult;
+      pendingApplications = pendingApplicationsResult;
+      totalViews = viewsAggregateResult._sum.views || 0;
+      
+      // Calculate average salary
+      if (salaryAggregateResult._avg.salaryMin && salaryAggregateResult._avg.salaryMax) {
+        averageSalary = (Number(salaryAggregateResult._avg.salaryMin) + Number(salaryAggregateResult._avg.salaryMax)) / 2;
+      } else {
+        averageSalary = 0;
+      }
+      
+      recentUsers = recentUsersResult;
+      recentJobs = recentJobsResult;
+      jobTypeDistribution = jobTypeDistributionResult;
+      userRoleDistribution = userRoleDistributionResult;
     } catch (dbError) {
       console.error('❌ Database query failed:', dbError);
       // Return mock data if database fails
@@ -89,7 +133,9 @@ export async function GET(_request: NextRequest) {
             pendingApplications: 0,
             activeJobs: 0,
             pendingJobs: 0,
-            verifiedCompanies: 0
+            verifiedCompanies: 0,
+            totalViews: 0,
+            averageSalary: 0
           },
           growth: {
             newUsersThisWeek: 0,
@@ -131,7 +177,9 @@ export async function GET(_request: NextRequest) {
         pendingApplications,
         activeJobs,
         pendingJobs,
-        verifiedCompanies
+        verifiedCompanies,
+        totalViews,
+        averageSalary: Math.round(averageSalary)
       },
       growth: {
         newUsersThisWeek,
@@ -154,12 +202,22 @@ export async function GET(_request: NextRequest) {
       }
     };
 
+    console.log('📊 Admin stats calculated:', {
+      totalUsers,
+      totalJobs,
+      totalApplications,
+      activeJobs,
+      totalViews,
+      averageSalary: Math.round(averageSalary),
+      timestamp: new Date().toISOString()
+    });
+
     return NextResponse.json({
       success: true,
       data: stats
     });
   } catch (_error) {
-    console.error('Admin stats error:', error);
+    console.error('Admin stats error:', _error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch admin statistics' },
       { status: 500 }
