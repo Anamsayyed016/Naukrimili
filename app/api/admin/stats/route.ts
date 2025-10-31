@@ -16,10 +16,10 @@ export async function GET(_request: NextRequest) {
     console.log('✅ Database connected for admin stats');
 
     // Get comprehensive system statistics with error handling
-    let totalUsers = 0, newUsersThisWeek = 0, totalJobs = 0, activeJobs = 0, pendingJobs = 0;
+      let totalUsers = 0, newUsersThisWeek = 0, totalJobs = 0, activeJobs = 0, pendingJobs = 0;
     let totalCompanies = 0, verifiedCompanies = 0, totalApplications = 0, pendingApplications = 0;
     let totalViews = 0, averageSalary = 0;
-    let recentUsers = [], recentJobs = [], jobTypeDistribution = [], userRoleDistribution = [];
+    let recentUsers = [], recentJobs = [], recentApplications = [], jobTypeDistribution = [], userRoleDistribution = [];
 
     try {
       const [
@@ -36,6 +36,7 @@ export async function GET(_request: NextRequest) {
         salaryAggregateResult,
         recentUsersResult,
         recentJobsResult,
+        recentApplicationsResult,
         jobTypeDistributionResult,
         userRoleDistributionResult
       ] = await Promise.all([
@@ -83,6 +84,21 @@ export async function GET(_request: NextRequest) {
           orderBy: { createdAt: 'desc' },
           take: 5,
           select: { id: true, title: true, company: true, location: true, createdAt: true }
+        }),
+        prisma.application.findMany({
+          orderBy: { appliedAt: 'desc' },
+          take: 5,
+          include: {
+            user: {
+              select: { id: true, email: true, firstName: true, lastName: true }
+            },
+            job: {
+              select: { id: true, title: true, company: true }
+            },
+            resume: {
+              select: { id: true, fileName: true, fileUrl: true }
+            }
+          }
         }),
         
         // Distribution data
@@ -133,6 +149,7 @@ export async function GET(_request: NextRequest) {
       
       recentUsers = recentUsersResult;
       recentJobs = recentJobsResult;
+      recentApplications = recentApplicationsResult || [];
       jobTypeDistribution = jobTypeDistributionResult;
       userRoleDistribution = userRoleDistributionResult;
     } catch (dbError) {
@@ -208,7 +225,33 @@ export async function GET(_request: NextRequest) {
       },
       recent: {
         users: recentUsers,
-        jobs: recentJobs
+        jobs: recentJobs,
+        applications: recentApplications.map(app => ({
+          id: app.id,
+          status: app.status,
+          appliedAt: app.appliedAt.toISOString(),
+          user: {
+            id: app.user.id,
+            email: app.user.email,
+            firstName: app.user.firstName,
+            lastName: app.user.lastName
+          },
+          job: {
+            id: app.job.id,
+            title: app.job.title,
+            company: app.job.company
+          },
+          resume: app.resume ? {
+            id: app.resume.id,
+            fileName: app.resume.fileName,
+            fileUrl: app.resume.fileUrl
+          } : null,
+          applicantName: app.user.firstName && app.user.lastName 
+            ? `${app.user.firstName} ${app.user.lastName}`.trim()
+            : app.user.firstName || app.user.email || 'Unknown User',
+          jobTitle: app.job.title,
+          company: app.job.company || 'Unknown Company'
+        }))
       },
       distributions: {
         jobTypes: jobTypeDistribution.reduce((acc, item) => {
