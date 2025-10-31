@@ -272,18 +272,7 @@ export default function ApplicationDetailPage() {
   }
 
   return (
-    <>
-      {/* Dropdown positioning fix */}
-      <style jsx global>{`
-        [data-radix-select-content] {
-          z-index: 10000 !important;
-        }
-        [data-radix-popper-content-wrapper] {
-          z-index: 10000 !important;
-        }
-      `}</style>
-      
-      <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <Link href="/admin/applications">
             <Button variant="ghost" className="mb-4">
@@ -306,7 +295,7 @@ export default function ApplicationDetailPage() {
                 <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent position="popper" side="bottom" sideOffset={4}>
+                <SelectContent>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="reviewed">Reviewed</SelectItem>
                   <SelectItem value="shortlisted">Shortlisted</SelectItem>
@@ -571,7 +560,7 @@ export default function ApplicationDetailPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
