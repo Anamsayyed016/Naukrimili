@@ -87,24 +87,39 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       let response;
       let apiUsed = 'db';
 
-      // 1) Prefer database API for complete, paginated results
-      response = await fetch(`/api/jobs?${dbParams.toString()}`);
+      // 1) Prefer database API for complete, paginated results, with external jobs included
+      // Add includeExternal and includeDatabase to get total count including external sources
+      const enhancedParams = new URLSearchParams(dbParams);
+      enhancedParams.set('includeExternal', 'true');
+      enhancedParams.set('includeDatabase', 'true');
+      
+      response = await fetch(`/api/jobs/unlimited?${enhancedParams.toString()}`);
       if (!response.ok) {
-        throw new Error(`DB API failed: ${response.status} ${response.statusText}`);
+        // Fallback to regular API if unlimited fails
+        response = await fetch(`/api/jobs?${dbParams.toString()}`);
+        if (!response.ok) {
+          throw new Error(`DB API failed: ${response.status} ${response.statusText}`);
+        }
       }
 
       const responseTime = Date.now() - startTime;
 
       const data = await response.json();
 
+      // Unlimited API shape: { success, jobs, pagination: { totalJobs, totalPages } }
       // DB API shape: { success, data: { jobs, pagination } }
-      if (data.success && data.data && data.data.jobs) {
-        const jobs = (data.data.jobs || []).map(convertToSimpleJob);
+      if (data.success) {
+        const jobsData = data.jobs || data.data?.jobs || [];
+        const jobs = jobsData.map(convertToSimpleJob);
+        
+        // Get total from pagination - unlimited API uses totalJobs, DB API uses total
+        const totalCount = data.pagination?.totalJobs || data.data?.pagination?.total || jobs.length;
+        const totalPagesCount = data.pagination?.totalPages || data.data?.pagination?.totalPages || 1;
         
         setJobs(jobs as any);
-        setTotalJobs(data.data.pagination?.total || (jobs || []).length);
-        setTotalPages(data.data.pagination?.totalPages || 1);
-        setHasNextPage(page < (data.data.pagination?.totalPages || 1));
+        setTotalJobs(totalCount);
+        setTotalPages(totalPagesCount);
+        setHasNextPage(page < totalPagesCount);
         setHasPrevPage(page > 1);
 
         // Optionally track performance via analytics (not stored in state to avoid lint)
@@ -114,22 +129,22 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
         console.log('✅ Main API jobs loaded successfully:', {
           jobsCount: (jobs || []).length,
-          totalJobs: data.data.pagination?.total || (jobs || []).length,
+          totalJobs: totalCount,
           currentPage: page,
-          totalPages: data.data.pagination?.totalPages || 1,
-          hasMore: page < (data.data.pagination?.totalPages || 1),
-          sources: data.data.sources,
-          realJobsPercentage: data.data.metadata?.realJobsPercentage || 0,
-          performance: data.data.metadata?.performance
+          totalPages: totalPagesCount,
+          hasMore: page < totalPagesCount,
+          sources: data.sources || data.data?.sources,
+          realJobsPercentage: data.metadata?.realJobsPercentage || data.data?.metadata?.realJobsPercentage || 0,
+          performance: data.metadata?.performance || data.data?.metadata?.performance
         });
         
         console.log('🔍 Pagination Debug:', {
-          totalJobs: data.data.pagination?.total,
-          totalPages: data.data.pagination?.totalPages,
-          hasMore: page < (data.data.pagination?.totalPages || 1),
+          totalJobs: totalCount,
+          totalPages: totalPagesCount,
+          hasMore: page < totalPagesCount,
           currentPage: page,
           limit: 50,
-          shouldShowPagination: (data.data.pagination?.totalPages || 1) > 1 || page < (data.data.pagination?.totalPages || 1) || (data.data.pagination?.total || (jobs || []).length) > 50
+          shouldShowPagination: totalPagesCount > 1 || page < totalPagesCount || totalCount > 50
         });
 
       } else if (data.success && Array.isArray(data.jobs)) {
