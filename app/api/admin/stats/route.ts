@@ -106,14 +106,30 @@ export async function GET(_request: NextRequest) {
       verifiedCompanies = verifiedCompaniesResult;
       totalApplications = totalApplicationsResult;
       pendingApplications = pendingApplicationsResult;
-      totalViews = viewsAggregateResult._sum.views || 0;
+      // Extract total views - handle null/undefined cases
+      totalViews = viewsAggregateResult._sum?.views ?? 0;
+      if (totalViews === null || totalViews === undefined) {
+        totalViews = 0;
+      }
       
-      // Calculate average salary
-      if (salaryAggregateResult._avg.salaryMin && salaryAggregateResult._avg.salaryMax) {
-        averageSalary = (Number(salaryAggregateResult._avg.salaryMin) + Number(salaryAggregateResult._avg.salaryMax)) / 2;
+      // Calculate average salary - handle null/undefined cases
+      const avgMin = salaryAggregateResult._avg?.salaryMin;
+      const avgMax = salaryAggregateResult._avg?.salaryMax;
+      
+      if (avgMin !== null && avgMin !== undefined && avgMax !== null && avgMax !== undefined) {
+        averageSalary = (Number(avgMin) + Number(avgMax)) / 2;
       } else {
         averageSalary = 0;
       }
+      
+      console.log('🔍 Debug - Aggregate results:', {
+        viewsSum: viewsAggregateResult._sum,
+        totalViews,
+        salaryAvg: salaryAggregateResult._avg,
+        avgMin,
+        avgMax,
+        calculatedAverageSalary: averageSalary
+      });
       
       recentUsers = recentUsersResult;
       recentJobs = recentJobsResult;
@@ -168,6 +184,10 @@ export async function GET(_request: NextRequest) {
       ? ((currentWeekJobs - previousWeekJobs) / previousWeekJobs) * 100 
       : 0;
 
+    // Ensure values are numbers, not null/undefined
+    const safeTotalViews = Number(totalViews) || 0;
+    const safeAverageSalary = Math.round(Number(averageSalary) || 0);
+    
     const stats = {
       overview: {
         totalUsers,
@@ -178,8 +198,8 @@ export async function GET(_request: NextRequest) {
         activeJobs,
         pendingJobs,
         verifiedCompanies,
-        totalViews,
-        averageSalary: Math.round(averageSalary)
+        totalViews: safeTotalViews,
+        averageSalary: safeAverageSalary
       },
       growth: {
         newUsersThisWeek,
@@ -207,8 +227,10 @@ export async function GET(_request: NextRequest) {
       totalJobs,
       totalApplications,
       activeJobs,
-      totalViews,
-      averageSalary: Math.round(averageSalary),
+      totalViews: safeTotalViews,
+      averageSalary: safeAverageSalary,
+      verifiedCompanies,
+      pendingApplications,
       timestamp: new Date().toISOString()
     });
 
