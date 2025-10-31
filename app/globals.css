@@ -385,16 +385,20 @@
 /* Robust Radix Select sizing and positioning fixes */
 [data-radix-popper-content-wrapper] {
   z-index: 10000 !important;
+  position: fixed !important;
 }
 [data-radix-select-content] {
   /* Keep menu at least as wide as trigger, but never overflow viewport */
   min-width: var(--radix-select-trigger-width) !important;
   max-width: calc(100vw - 2rem) !important;
   width: auto !important;
+  z-index: 10000 !important;
+  position: relative !important;
 }
 [data-radix-select-viewport] {
   max-height: min(60vh, 20rem) !important; /* responsive cap */
   overflow-y: auto !important;
+  z-index: 10000 !important;
 }
 
 /* Neutralize parent transforms creating new stacking contexts near selects */
