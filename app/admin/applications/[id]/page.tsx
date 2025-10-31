@@ -30,6 +30,33 @@ import {
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
+// Helper function to normalize skills (handle string, array, or null)
+function normalizeSkills(skills: any): string[] {
+  if (!skills) return [];
+  if (Array.isArray(skills)) return skills.filter(skill => skill && typeof skill === 'string');
+  if (typeof skills === 'string') {
+    try {
+      const parsed = JSON.parse(skills);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(skill => skill && typeof skill === 'string');
+      }
+      // If it's a comma-separated string
+      if (skills.includes(',')) {
+        return skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      }
+      // Single skill string
+      return skills.trim() ? [skills.trim()] : [];
+    } catch {
+      // Not JSON, treat as comma-separated or single string
+      if (skills.includes(',')) {
+        return skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      }
+      return skills.trim() ? [skills.trim()] : [];
+    }
+  }
+  return [];
+}
+
 interface ApplicationDetail {
   id: string;
   status: string;
@@ -87,40 +114,7 @@ export default function ApplicationDetailPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  // Helper function to normalize skills (handle string, array, or null)
-  const normalizeSkills = (skills: any): string[] => {
-    if (!skills) return [];
-    if (Array.isArray(skills)) return skills.filter(skill => skill && typeof skill === 'string');
-    if (typeof skills === 'string') {
-      try {
-        const parsed = JSON.parse(skills);
-        if (Array.isArray(parsed)) {
-          return parsed.filter(skill => skill && typeof skill === 'string');
-        }
-        // If it's a comma-separated string
-        if (skills.includes(',')) {
-          return skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
-        }
-        // Single skill string
-        return skills.trim() ? [skills.trim()] : [];
-      } catch {
-        // Not JSON, treat as comma-separated or single string
-        if (skills.includes(',')) {
-          return skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
-        }
-        return skills.trim() ? [skills.trim()] : [];
-      }
-    }
-    return [];
-  };
-
-  useEffect(() => {
-    if (applicationId) {
-      fetchApplication();
-    }
-  }, [applicationId]);
-
-  const fetchApplication = async () => {
+  const fetchApplication = React.useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/admin/applications/${applicationId}`);
@@ -163,7 +157,13 @@ export default function ApplicationDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [applicationId, router]);
+
+  useEffect(() => {
+    if (applicationId) {
+      fetchApplication();
+    }
+  }, [applicationId, fetchApplication]);
 
   const handleStatusChange = async (newStatus: string) => {
     if (!application) return;
