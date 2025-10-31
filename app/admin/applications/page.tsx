@@ -19,6 +19,11 @@ interface Application {
   appliedAt: string;
   experience: string;
   location: string;
+  resume?: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+  } | null;
 }
 
 export default function AdminApplicationsPage() {
@@ -69,6 +74,36 @@ export default function AdminApplicationsPage() {
       }
     } catch (_error) {
       console.error('Error updating application status:', _error);
+    }
+  };
+
+  const handleDownloadResume = async (resumeId: string, fileName: string) => {
+    try {
+      const response = await fetch(`/api/admin/resumes/${resumeId}/download`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to download resume');
+      }
+
+      // Get filename from response headers or use provided filename
+      const contentDisposition = response.headers.get('content-disposition');
+      const downloadFilename = contentDisposition 
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
+        : fileName || 'resume.pdf';
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = downloadFilename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      alert('Failed to download resume. Please try again.');
     }
   };
 
@@ -164,9 +199,24 @@ export default function AdminApplicationsPage() {
                       <TableCell>{new Date(application.appliedAt).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.location.href = `/admin/applications/${application.id}`}
+                            title="View Application Details"
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
+                          {application.resume?.id && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleDownloadResume(application.resume!.id, application.resume!.fileName)}
+                              title="Download Resume"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Select
                             value={application.status}
                             onValueChange={(value) => handleStatusChange(application.id, value)}
