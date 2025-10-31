@@ -13,7 +13,8 @@ import { auth } from '@/lib/nextauth-config';
  * ENHANCED: Smart duplicate removal - handles variations and prioritizes database jobs
  */
 function removeDuplicateJobs(jobs: any[]): any[] {
-  const seen = new Map<string, any>();
+  const seenByKey = new Map<string, any>();
+  const seenById = new Map<string, any>(); // Track by ID to ensure uniqueness and preserve source
   
   jobs.forEach(job => {
     // Create multiple keys for better duplicate detection
@@ -27,28 +28,45 @@ function removeDuplicateJobs(jobs: any[]): any[] {
     // Secondary key: title + company only (for location variations)
     const secondaryKey = `${title}|${company}`;
     
-    // Check if we've seen this job before
-    if (!seen.has(primaryKey) && !seen.has(secondaryKey)) {
-      seen.set(primaryKey, job);
-      seen.set(secondaryKey, job);
+    // Job ID for final deduplication
+    const jobId = job.id || job.sourceId || `${job.source || 'unknown'}-${job.sourceId || 'unknown'}`;
+    
+    // Check if we've seen this job before by key
+    const existingByKey = seenByKey.get(primaryKey) || seenByKey.get(secondaryKey);
+    
+    if (!existingByKey) {
+      // New job - add it
+      seenByKey.set(primaryKey, job);
+      seenByKey.set(secondaryKey, job);
+      seenById.set(jobId, job);
     } else {
-      // Prefer database/employer jobs over external jobs
-      const existing = seen.get(primaryKey) || seen.get(secondaryKey);
-      if (job.source === 'employer' || (job.source === 'database' && existing.source === 'external')) {
-        seen.set(primaryKey, job);
-        seen.set(secondaryKey, job);
+      // Potential duplicate - prefer database/employer jobs over external jobs
+      const existingById = seenById.get(jobId);
+      if (existingById) {
+        // Same job by ID - keep the one with better source (database/employer > external)
+        const jobSourcePriority = job.source === 'employer' ? 3 : (job.source === 'database' ? 2 : 1);
+        const existingSourcePriority = existingById.source === 'employer' ? 3 : (existingById.source === 'database' ? 2 : 1);
+        
+        if (jobSourcePriority > existingSourcePriority) {
+          seenById.set(jobId, job);
+          seenByKey.set(primaryKey, job);
+          seenByKey.set(secondaryKey, job);
+        }
+      } else if (job.source === 'employer' || (job.source === 'database' && existingByKey.source === 'external')) {
+        // Different job ID but similar content - prefer database/employer
+        seenByKey.set(primaryKey, job);
+        seenByKey.set(secondaryKey, job);
+        seenById.set(jobId, job);
       }
     }
   });
   
-  // Return unique jobs
-  const uniqueJobs = Array.from(new Set(Array.from(seen.values()).map(j => j.id || j.sourceId)))
-    .map(id => Array.from(seen.values()).find(j => (j.id || j.sourceId) === id))
-    .filter(Boolean);
+  // Return unique jobs from seenById (ensures no duplicates by ID and preserves source field)
+  const uniqueJobs = Array.from(seenById.values());
   
   const removed = jobs.length - uniqueJobs.length;
   if (removed > 0) {
-    console.log(`🔄 Removed ${removed} duplicates`);
+    console.log(`🔄 Removed ${removed} duplicates (kept ${uniqueJobs.length} unique jobs)`);
   }
   
   return uniqueJobs;
@@ -504,8 +522,8 @@ export async function GET(request: NextRequest) {
         totalPages: totalPages
       },
       sources: {
-        database: jobs.filter(j => j.source === 'database' || j.source === 'employer').length,
-        external: jobs.filter(j => j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble').length,
+        database: formattedJobs.filter(j => j.source === 'database' || j.source === 'employer').length,
+        external: formattedJobs.filter(j => j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble').length,
         sample: 0
       },
       metadata: {
