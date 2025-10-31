@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     const experienceLevel = searchParams.get('experienceLevel') || '';
     const isRemote = searchParams.get('isRemote') === 'true' || searchParams.get('remote') === 'true' || searchParams.get('remote_only') === 'true';
     const sector = searchParams.get('sector') || '';
-    const country = searchParams.get('country') || 'IN';
+    const country = searchParams.get('country') || ''; // Only filter by country if explicitly provided
     const salaryMin = searchParams.get('salaryMin') || '';
     const salaryMax = searchParams.get('salaryMax') || '';
     
