@@ -1,31 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireEmployerAuth } from "@/lib/auth-utils";
+import { requireAdminAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 Employer applications API called');
-    const auth = await requireEmployerAuth();
+    console.log('🔍 Admin applications API called');
+    const auth = await requireAdminAuth();
     if ("error" in auth) {
-      console.log('❌ Employer auth failed:', auth.error);
+      console.log('❌ Admin auth failed:', auth.error);
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { user } = auth;
-    console.log('👤 Authenticated employer:', { userId: user.id, companyId: user.company.id, companyName: user.company.name });
+    console.log('👤 Authenticated admin:', { userId: user.id, email: user.email });
     const { searchParams } = new URL(request.url);
     
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const limit = parseInt(searchParams.get("limit") || "20");
     const status = searchParams.get("status");
     const jobId = searchParams.get("jobId");
     const search = searchParams.get("search");
 
     const skip = (page - 1) * limit;
 
-    const where: any = {
-      companyId: user.company.id
-    };
+    const where: any = {};
 
     if (status && status !== "all") {
       where.status = status;
@@ -39,7 +37,8 @@ export async function GET(request: NextRequest) {
       where.OR = [
         { user: { OR: [{ firstName: { contains: search, mode: "insensitive" } }, { lastName: { contains: search, mode: "insensitive" } }] } },
         { user: { email: { contains: search, mode: "insensitive" } } },
-        { job: { title: { contains: search, mode: "insensitive" } } }
+        { job: { title: { contains: search, mode: "insensitive" } } },
+        { job: { company: { contains: search, mode: "insensitive" } } }
       ];
     }
 
@@ -82,6 +81,13 @@ export async function GET(request: NextRequest) {
               mimeType: true,
               atsScore: true
             }
+          },
+          company: {
+            select: {
+              id: true,
+              name: true,
+              logo: true
+            }
           }
         },
         orderBy: { appliedAt: "desc" },
@@ -91,14 +97,21 @@ export async function GET(request: NextRequest) {
       prisma.application.count({ where })
     ]);
     
-    console.log(`📊 Successfully fetched ${applications.length} applications out of ${total} total for company ${user.company.id}`);
+    console.log(`📊 Successfully fetched ${applications.length} applications out of ${total} total for admin`);
 
     // Normalize application data to ensure consistent structure
     const normalizedApplications = applications.map(app => ({
       ...app,
+      applicantName: app.user.firstName && app.user.lastName 
+        ? `${app.user.firstName} ${app.user.lastName}`.trim()
+        : app.user.firstName || app.user.email || 'Unknown User',
+      applicantEmail: app.user.email,
+      jobTitle: app.job.title,
+      company: app.job.company || (app.company?.name || 'Unknown Company'),
+      experience: app.user.experience || 'Not specified',
+      location: app.user.location || app.job.location || 'Not specified',
       user: {
         ...app.user,
-        // Ensure name field exists by combining firstName and lastName
         name: app.user.firstName && app.user.lastName 
           ? `${app.user.firstName} ${app.user.lastName}`.trim()
           : app.user.firstName || app.user.email || 'Unknown User'
@@ -107,9 +120,6 @@ export async function GET(request: NextRequest) {
 
     // Calculate statistics
     const stats = await prisma.application.aggregate({
-      where: {
-        companyId: user.company.id
-      },
       _count: {
         id: true
       }
@@ -117,9 +127,6 @@ export async function GET(request: NextRequest) {
 
     const statusStats = await prisma.application.groupBy({
       by: ['status'],
-      where: {
-        companyId: user.company.id
-      },
       _count: {
         id: true
       }
@@ -127,27 +134,25 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: {
-        applications: normalizedApplications,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        },
-        stats: {
-          totalApplications: stats._count.id,
-          statusBreakdown: statusStats.reduce((acc, stat) => {
-            acc[stat.status] = stat._count.id;
-            return acc;
-          }, {} as Record<string, number>)
-        }
+      applications: normalizedApplications,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      },
+      totalPages: Math.ceil(total / limit),
+      stats: {
+        totalApplications: stats._count.id,
+        statusBreakdown: statusStats.reduce((acc, stat) => {
+          acc[stat.status] = stat._count.id;
+          return acc;
+        }, {} as Record<string, number>)
       }
     });
   } catch (error) {
-    console.error("Error fetching company applications:", error);
+    console.error("Error fetching admin applications:", error);
     
-    // Provide more detailed error information for debugging
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const errorStack = error instanceof Error ? error.stack : 'No stack trace';
     
@@ -170,3 +175,4 @@ export async function GET(request: NextRequest) {
 export async function OPTIONS() {
   return new NextResponse(null, { status: 200 });
 }
+
