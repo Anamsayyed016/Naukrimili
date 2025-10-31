@@ -52,11 +52,24 @@ function removeDuplicateJobs(jobs: any[]): any[] {
           seenByKey.set(primaryKey, job);
           seenByKey.set(secondaryKey, job);
         }
-      } else if (job.source === 'employer' || (job.source === 'database' && existingByKey.source === 'external')) {
-        // Different job ID but similar content - prefer database/employer
-        seenByKey.set(primaryKey, job);
-        seenByKey.set(secondaryKey, job);
-        seenById.set(jobId, job);
+      } else {
+        // Different job ID but similar content (same title+company+location)
+        // NEVER replace database/employer jobs with external jobs
+        const existingIsDatabase = existingByKey.source === 'database' || existingByKey.source === 'employer';
+        const jobIsDatabase = job.source === 'database' || job.source === 'employer';
+        
+        if (jobIsDatabase && !existingIsDatabase) {
+          // New job is database/employer, existing is external - replace it
+          seenByKey.set(primaryKey, job);
+          seenByKey.set(secondaryKey, job);
+          seenById.set(jobId, job);
+        } else if (!existingIsDatabase && jobIsDatabase) {
+          // Existing is external, new is database - replace it (this should not happen if we process database jobs first)
+          seenByKey.set(primaryKey, job);
+          seenByKey.set(secondaryKey, job);
+          seenById.set(jobId, job);
+        }
+        // If both are database or both are external, keep the existing one (first come, first served)
       }
     }
   });
@@ -239,22 +252,30 @@ export async function GET(request: NextRequest) {
       }));
       total = totalResult;
       
+      // Debug: Check source fields right after normalization
+      const dbJobsWithSource = jobs.filter(j => j.source === 'database' || j.source === 'employer').length;
+      const jobsWithNullSource = jobs.filter(j => !j.source || j.source === null).length;
+      
       console.log(`✅ Database query completed:`, {
         jobsFound: jobs.length,
         totalJobs: total,
+        dbJobsWithSource,
+        jobsWithNullSource,
         query: where,
         skip,
         limit,
         searchParams: { query, location, company, jobType, experienceLevel, isRemote, sector, country }
       });
       
-      // Debug: Show sample of found jobs
+      // Debug: Show sample of found jobs with their source values
       if (jobs.length > 0) {
-        console.log(`🔍 Sample jobs found:`, jobs.slice(0, 3).map(j => ({
-          title: j.title,
+        console.log(`🔍 Sample database jobs:`, jobs.slice(0, 3).map(j => ({
+          id: j.id,
+          title: j.title?.substring(0, 40),
           company: j.company,
-          location: j.location,
-          source: j.source
+          source: j.source,
+          sourceType: typeof j.source,
+          hasSource: j.source !== undefined && j.source !== null
         })));
       }
       
@@ -407,8 +428,9 @@ export async function GET(request: NextRequest) {
               );
               
               // SMART DEDUPLICATION: Combine and deduplicate efficiently
+              // IMPORTANT: Put database jobs first so they're processed first in deduplication
               const databaseJobsCountBeforeDedup = jobs.length;
-              const combinedJobs = [...jobs, ...realExternalJobs];
+              const combinedJobs = [...jobs, ...realExternalJobs]; // Database jobs first, then external
               jobs = removeDuplicateJobs(combinedJobs);
               
               // Calculate total: database total + external jobs fetched
@@ -416,10 +438,12 @@ export async function GET(request: NextRequest) {
               // Database total (totalResult) represents all matching jobs in DB across all pages
               total = totalResult + realExternalJobs.length;
               
-              const databaseJobsAfterDedup = jobs.filter(j => j.source === 'database' || j.source === 'employer').length;
-              const externalJobsAfterDedup = jobs.length - databaseJobsAfterDedup;
+              // Debug: Check source fields before formatting
+              const dbJobsBeforeFormat = jobs.filter(j => (j.source === 'database' || j.source === 'employer')).length;
+              const extJobsBeforeFormat = jobs.filter(j => (j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble')).length;
               
-              console.log(`✅ Combined: ${jobs.length} jobs on this page (${databaseJobsAfterDedup} database + ${externalJobsAfterDedup} external after dedup). Total available: ${total} (${totalResult} database + ${realExternalJobs.length} external)`);
+              console.log(`✅ Combined: ${jobs.length} jobs on this page (${dbJobsBeforeFormat} database + ${extJobsBeforeFormat} external after dedup). Total available: ${total} (${totalResult} database + ${realExternalJobs.length} external)`);
+              console.log(`🔍 Debug - Sample job sources:`, jobs.slice(0, 5).map(j => ({ id: j.id, source: j.source, title: j.title?.substring(0, 30) })));
             }
           } catch (importError) {
             console.error('❌ Failed to import job providers:', importError);
@@ -501,6 +525,12 @@ export async function GET(request: NextRequest) {
 
         return baseJob;
       });
+      
+      // Debug: Check source fields after formatting
+      const dbJobsAfterFormat = formattedJobs.filter(j => j.source === 'database' || j.source === 'employer').length;
+      const extJobsAfterFormat = formattedJobs.filter(j => j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble').length;
+      console.log(`🔍 After formatting: ${formattedJobs.length} jobs (${dbJobsAfterFormat} database + ${extJobsAfterFormat} external)`);
+      console.log(`🔍 Sample formatted job sources:`, formattedJobs.slice(0, 3).map(j => ({ id: j.id, source: j.source, title: j.title?.substring(0, 30) })));
     } catch (formatError) {
       console.error('❌ Job formatting failed:', formatError);
       formattedJobs = jobs; // Return raw jobs if formatting fails
