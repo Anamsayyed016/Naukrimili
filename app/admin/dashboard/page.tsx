@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,10 @@ import {
   AlertCircle, 
   CheckCircle,
   Activity,
-  Database
+  Database,
+  Eye,
+  DollarSign,
+  ArrowUp
 } from 'lucide-react';
 
 interface AdminStats {
@@ -23,43 +26,88 @@ interface AdminStats {
   pendingApplications: number;
   activeJobs: number;
   newUsersToday: number;
+  totalViews: number;
+  averageSalary: number;
+  verifiedCompanies: number;
   systemHealth: 'healthy' | 'warning' | 'error';
 }
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/stats');
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.data) {
-          // Map the API response structure to component state
-          setStats({
-            totalUsers: result.data.overview?.totalUsers || 0,
-            totalJobs: result.data.overview?.totalJobs || 0,
-            totalCompanies: result.data.overview?.totalCompanies || 0,
-            totalApplications: result.data.overview?.totalApplications || 0,
-            pendingApplications: result.data.overview?.pendingApplications || 0,
-            activeJobs: result.data.overview?.activeJobs || 0,
-            newUsersToday: result.data.growth?.newUsersThisWeek || 0,
-            systemHealth: 'healthy' // Can be enhanced with actual system health check
-          });
+      setError(null);
+      // Add cache busting to ensure fresh data
+      const response = await fetch(`/api/admin/stats?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
         }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch stats: ${response.status} ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      console.log('📥 Admin dashboard received API response:', {
+        success: result.success,
+        hasData: !!result.data,
+        overview: result.data?.overview,
+        timestamp: new Date().toISOString()
+      });
+      
+      if (result.success && result.data) {
+        // Map the API response structure to component state
+        setStats({
+          totalUsers: result.data.overview?.totalUsers || 0,
+          totalJobs: result.data.overview?.totalJobs || 0,
+          totalCompanies: result.data.overview?.totalCompanies || 0,
+          totalApplications: result.data.overview?.totalApplications || 0,
+          pendingApplications: result.data.overview?.pendingApplications || 0,
+          activeJobs: result.data.overview?.activeJobs || 0,
+          newUsersToday: result.data.growth?.newUsersThisWeek || 0,
+          totalViews: result.data.overview?.totalViews || 0,
+          averageSalary: result.data.overview?.averageSalary || 0,
+          verifiedCompanies: result.data.overview?.verifiedCompanies || 0,
+          systemHealth: 'healthy' // Can be enhanced with actual system health check
+        });
+        setLastUpdated(new Date());
+        console.log('✅ Dashboard stats updated:', {
+          totalUsers: result.data.overview?.totalUsers,
+          totalJobs: result.data.overview?.totalJobs,
+          totalApplications: result.data.overview?.totalApplications,
+          totalViews: result.data.overview?.totalViews,
+          averageSalary: result.data.overview?.averageSalary,
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        throw new Error(result.error || 'Invalid response format');
       }
     } catch (_error) {
-      console.error('Error fetching admin stats:', _error);
+      const errorMessage = _error instanceof Error ? _error.message : 'Failed to fetch dashboard statistics';
+      console.error('❌ Error fetching admin stats:', _error);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      fetchStats();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchStats]);
 
   const getSystemHealthBadge = (health: string) => {
     switch (health) {
@@ -87,56 +135,71 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-2">Overview of your job portal system</p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-600 mt-2">Overview of your job portal system</p>
+          {lastUpdated && (
+            <p className="text-xs text-gray-500 mt-1">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </p>
+          )}
+        </div>
+        <Button variant="outline" size="sm" onClick={fetchStats} disabled={loading}>
+          {loading ? 'Refreshing...' : 'Refresh'}
+        </Button>
       </div>
 
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 text-sm">Error: {error}</p>
+        </div>
+      )}
+
       {/* System Health */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            System Health
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Current system status</p>
-              {stats && getSystemHealthBadge(stats.systemHealth)}
+      {stats && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              System Health
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Current system status</p>
+                {getSystemHealthBadge(stats.systemHealth)}
+              </div>
             </div>
-            <Button variant="outline" size="sm" onClick={fetchStats}>
-              Refresh
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
             <p className="text-xs text-muted-foreground">
-              +{stats?.newUsersToday || 0} today
+              {stats?.newUsersToday || 0} active users
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
+            <Briefcase className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.activeJobs || 0}</div>
+            <div className="text-2xl font-bold">{stats?.totalJobs || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats?.totalJobs || 0} total jobs
+              {stats?.activeJobs || 0} active job postings
             </p>
           </CardContent>
         </Card>
@@ -144,12 +207,12 @@ export default function AdminDashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Companies</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <Building2 className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.totalCompanies || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Registered companies
+              {stats?.totalCompanies - stats?.verifiedCompanies || 0} pending verification
             </p>
           </CardContent>
         </Card>
@@ -157,12 +220,51 @@ export default function AdminDashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Applications</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.totalApplications || 0}</div>
             <p className="text-xs text-muted-foreground">
               {stats?.pendingApplications || 0} pending review
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Platform Views</CardTitle>
+            <Eye className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalViews?.toLocaleString() || '0'}</div>
+            <p className="text-xs text-muted-foreground">
+              Total job views
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Average Salary</CardTitle>
+            <DollarSign className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">₹{stats?.averageSalary?.toLocaleString() || '0'}</div>
+            <p className="text-xs text-muted-foreground">
+              Per annum
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Growth</CardTitle>
+            <ArrowUp className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+{stats?.newUsersToday || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              New users this week
             </p>
           </CardContent>
         </Card>

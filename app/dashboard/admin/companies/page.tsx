@@ -123,7 +123,7 @@ export default function AdminCompaniesPage() {
         setCompanies([]);
       }
     } catch (_error) {
-      console.error('Error fetching companies:', error);
+      console.error('Error fetching companies:', _error);
       setCompanies([]); // Set empty array on error
       toast({
         title: 'Error',
@@ -160,7 +160,7 @@ export default function AdminCompaniesPage() {
         }
       }
     } catch (_error) {
-      console.error('Error performing bulk action:', error);
+      console.error('Error performing bulk action:', _error);
       toast({
         title: 'Error',
         description: 'Failed to perform action',
@@ -201,7 +201,7 @@ export default function AdminCompaniesPage() {
         fetchCompanies();
       }
     } catch (_error) {
-      console.error('Error updating company status:', error);
+      console.error('Error updating company status:', _error);
       toast({
         title: 'Error',
         description: 'Failed to update company status',
@@ -241,7 +241,7 @@ export default function AdminCompaniesPage() {
         fetchCompanies();
       }
     } catch (_error) {
-      console.error('Error deleting company:', error);
+      console.error('Error deleting company:', _error);
       toast({
         title: 'Error',
         description: 'Failed to delete company',
