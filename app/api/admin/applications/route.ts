@@ -98,6 +98,10 @@ export async function GET(request: NextRequest) {
     ]);
     
     console.log(`📊 Successfully fetched ${applications.length} applications out of ${total} total for admin`);
+    
+    // Debug: Log resume data for first few applications
+    const appsWithResumes = applications.filter(app => app.resume).length;
+    console.log(`📄 Applications with resumes: ${appsWithResumes} out of ${applications.length}`);
 
     // Normalize application data to ensure consistent structure
     const normalizedApplications = applications.map(app => ({
@@ -110,6 +114,11 @@ export async function GET(request: NextRequest) {
       company: app.job.company || (app.company?.name || 'Unknown Company'),
       experience: app.user.experience || 'Not specified',
       location: app.user.location || app.job.location || 'Not specified',
+      resume: app.resume ? {
+        id: app.resume.id,
+        fileName: app.resume.fileName,
+        fileUrl: app.resume.fileUrl
+      } : null,
       user: {
         ...app.user,
         name: app.user.firstName && app.user.lastName 

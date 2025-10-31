@@ -1,8 +1,21 @@
-export default function UsersPage() {
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function AdminUsersPage() {
+  const router = useRouter();
+  
+  useEffect(() => {
+    router.replace('/dashboard/admin/users');
+  }, [router]);
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Users</h1>
-      <p className="text-gray-600">This page is under development.</p>
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-2 text-gray-600">Redirecting to Users Management...</p>
+      </div>
     </div>
   );
 }

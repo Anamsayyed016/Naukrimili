@@ -31,7 +31,7 @@ export default function AdminApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [currentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchApplications = React.useCallback(async () => {
@@ -47,8 +47,17 @@ export default function AdminApplicationsPage() {
       const response = await fetch(`/api/admin/applications?${params}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('📥 Admin applications data received:', {
+          total: data.applications?.length || 0,
+          applicationsWithResumes: data.applications?.filter((app: Application) => app.resume?.id).length || 0,
+          sampleApp: data.applications?.[0] ? {
+            id: data.applications[0].id,
+            hasResume: !!data.applications[0].resume,
+            resumeId: data.applications[0].resume?.id
+          } : null
+        });
         setApplications(data.applications || []);
-        setTotalPages(data.totalPages || 1);
+        setTotalPages(data.totalPages || data.pagination?.totalPages || 1);
       }
     } catch (_error) {
       console.error('Error fetching applications:', _error);
@@ -244,6 +253,33 @@ export default function AdminApplicationsPage() {
           {applications.length === 0 && !loading && (
             <div className="text-center py-8">
               <p className="text-gray-500">No applications found</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              <div className="text-sm text-gray-600">
+                Page {currentPage} of {totalPages}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

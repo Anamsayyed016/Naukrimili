@@ -130,7 +130,7 @@ export default function AdminJobsPage() {
         setTotalJobs(0);
       }
     } catch (_error) {
-      console.error('Error fetching jobs:', error);
+      console.error('Error fetching jobs:', _error);
       setJobs([]);
       setTotalPages(1);
       setTotalJobs(0);
@@ -167,7 +167,7 @@ export default function AdminJobsPage() {
         }
       }
     } catch (_error) {
-      console.error('Error performing bulk action:', error);
+      console.error('Error performing bulk action:', _error);
     }
   };
 
