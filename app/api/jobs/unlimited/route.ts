@@ -215,7 +215,10 @@ export async function GET(request: NextRequest) {
         prisma.job.count({ where })
       ]);
       
-      jobs = jobsResult;
+      jobs = jobsResult.map(job => ({
+        ...job,
+        source: job.source || 'database' // Ensure database jobs have source field set
+      }));
       total = totalResult;
       
       console.log(`✅ Database query completed:`, {
