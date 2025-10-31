@@ -1,39 +1,55 @@
 /**
  * Admin API - Real Database Integration
- * GET /api/admin - Get admin dashboard statistics
+ * GET /api/admin - Get admin dashboard statistics (deprecated - use /api/admin/stats instead)
  * POST /api/admin - Admin operations (bulk actions, etc.)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-
-// Mock admin data
-const mockAdminStats = {
-  totalUsers: 1250,
-  totalJobs: 456,
-  totalCompanies: 89,
-  totalApplications: 2340,
-  recentActivity: [
-    { type: 'user_registration', message: 'New user registered', timestamp: '2024-01-15T10:30:00Z' },
-    { type: 'job_posted', message: 'New job posted by TechCorp', timestamp: '2024-01-15T09:15:00Z' },
-    { type: 'application_submitted', message: 'New application for Senior Developer', timestamp: '2024-01-15T08:45:00Z' }
-  ]
-};
+import { requireAdminAuth } from '@/lib/auth-utils';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    // Check if user is admin (in real app, verify authentication)
-    const userRole = request.headers.get('x-user-role') || 'admin';
-    
-    if (userRole !== 'admin') {
-      return NextResponse.json({
-        success: false,
-        error: 'Admin access required'
-      }, { status: 403 });
+    const auth = await requireAdminAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
+    // Redirect to /api/admin/stats for better structure
+    // This endpoint is kept for backward compatibility
+    const statsResponse = await fetch(`${request.nextUrl.origin}/api/admin/stats`, {
+      headers: {
+        'Cookie': request.headers.get('Cookie') || ''
+      }
+    });
+
+    if (statsResponse.ok) {
+      const statsData = await statsResponse.json();
+      return NextResponse.json({
+        success: true,
+        data: {
+          totalUsers: statsData.data?.overview?.totalUsers || 0,
+          totalJobs: statsData.data?.overview?.totalJobs || 0,
+          totalCompanies: statsData.data?.overview?.totalCompanies || 0,
+          totalApplications: statsData.data?.overview?.totalApplications || 0,
+          activeJobs: statsData.data?.overview?.activeJobs || 0,
+          pendingApplications: statsData.data?.overview?.pendingApplications || 0
+        },
+        message: 'Admin dashboard data retrieved successfully'
+      });
+    }
+
+    // Fallback if stats API fails
     return NextResponse.json({
       success: true,
-      data: mockAdminStats,
+      data: {
+        totalUsers: 0,
+        totalJobs: 0,
+        totalCompanies: 0,
+        totalApplications: 0,
+        activeJobs: 0,
+        pendingApplications: 0
+      },
       message: 'Admin dashboard data retrieved successfully'
     });
 
@@ -49,6 +65,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdminAuth();
+    if ("error" in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
     const body = await request.json();
     const { action, data: _data } = body;
 

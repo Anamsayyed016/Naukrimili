@@ -39,11 +39,23 @@ export default function AdminDashboardPage() {
       setLoading(true);
       const response = await fetch('/api/admin/stats');
       if (response.ok) {
-        const data = await response.json();
-        setStats(data);
+        const result = await response.json();
+        if (result.success && result.data) {
+          // Map the API response structure to component state
+          setStats({
+            totalUsers: result.data.overview?.totalUsers || 0,
+            totalJobs: result.data.overview?.totalJobs || 0,
+            totalCompanies: result.data.overview?.totalCompanies || 0,
+            totalApplications: result.data.overview?.totalApplications || 0,
+            pendingApplications: result.data.overview?.pendingApplications || 0,
+            activeJobs: result.data.overview?.activeJobs || 0,
+            newUsersToday: result.data.growth?.newUsersThisWeek || 0,
+            systemHealth: 'healthy' // Can be enhanced with actual system health check
+          });
+        }
       }
     } catch (_error) {
-      console.error('Error fetching admin stats:', error);
+      console.error('Error fetching admin stats:', _error);
     } finally {
       setLoading(false);
     }
@@ -164,29 +176,53 @@ export default function AdminDashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2"
+              onClick={() => window.location.href = '/dashboard/admin/users'}
+            >
               <Users className="h-6 w-6" />
               <span>Manage Users</span>
             </Button>
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2"
+              onClick={() => window.location.href = '/dashboard/admin/jobs'}
+            >
               <Briefcase className="h-6 w-6" />
               <span>Manage Jobs</span>
             </Button>
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2"
+              onClick={() => window.location.href = '/admin/applications'}
+            >
               <Building2 className="h-6 w-6" />
+              <span>Manage Applications</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2"
+              onClick={() => window.location.href = '/dashboard/admin/companies'}
+            >
+              <Database className="h-6 w-6" />
               <span>Manage Companies</span>
             </Button>
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
-              <Database className="h-6 w-6" />
-              <span>System Logs</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2"
+              onClick={() => window.location.href = '/dashboard/admin/analytics'}
+            >
               <TrendingUp className="h-6 w-6" />
               <span>Analytics</span>
             </Button>
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center space-y-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2"
+              onClick={() => window.location.href = '/admin/applications'}
+            >
               <Activity className="h-6 w-6" />
-              <span>System Health</span>
+              <span>View Applications</span>
             </Button>
           </div>
         </CardContent>

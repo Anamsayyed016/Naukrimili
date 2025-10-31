@@ -17,7 +17,7 @@ export async function GET(_request: NextRequest) {
 
     // Get comprehensive system statistics with error handling
     let totalUsers = 0, newUsersThisWeek = 0, totalJobs = 0, activeJobs = 0, pendingJobs = 0;
-    let totalCompanies = 0, verifiedCompanies = 0, totalApplications = 0;
+    let totalCompanies = 0, verifiedCompanies = 0, totalApplications = 0, pendingApplications = 0;
     let recentUsers = [], recentJobs = [], jobTypeDistribution = [], userRoleDistribution = [];
 
     try {
@@ -30,6 +30,7 @@ export async function GET(_request: NextRequest) {
         totalCompanies,
         verifiedCompanies,
         totalApplications,
+        pendingApplications,
         recentUsers,
         recentJobs,
         jobTypeDistribution,
@@ -50,6 +51,7 @@ export async function GET(_request: NextRequest) {
         
         // Application statistics
         prisma.application.count(),
+        prisma.application.count({ where: { status: { in: ['pending', 'submitted'] } } }),
         
         // Recent data
         prisma.user.findMany({
@@ -84,6 +86,7 @@ export async function GET(_request: NextRequest) {
             totalJobs: 0,
             totalCompanies: 0,
             totalApplications: 0,
+            pendingApplications: 0,
             activeJobs: 0,
             pendingJobs: 0,
             verifiedCompanies: 0
@@ -125,6 +128,7 @@ export async function GET(_request: NextRequest) {
         totalJobs,
         totalCompanies,
         totalApplications,
+        pendingApplications,
         activeJobs,
         pendingJobs,
         verifiedCompanies

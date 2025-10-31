@@ -105,7 +105,7 @@ export default function AdminUsersPage() {
         setPagination(data.data.pagination);
       }
     } catch (_error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching users:', _error);
       toast({
         title: 'Error',
         description: 'Failed to fetch users',
@@ -141,7 +141,7 @@ export default function AdminUsersPage() {
         }
       }
     } catch (_error) {
-      console.error('Error performing bulk action:', error);
+      console.error('Error performing bulk action:', _error);
       toast({
         title: 'Error',
         description: 'Failed to perform action',
@@ -182,7 +182,7 @@ export default function AdminUsersPage() {
         fetchUsers();
       }
     } catch (_error) {
-      console.error('Error updating user status:', error);
+      console.error('Error updating user status:', _error);
       toast({
         title: 'Error',
         description: 'Failed to update user status',
@@ -222,7 +222,7 @@ export default function AdminUsersPage() {
         fetchUsers();
       }
     } catch (_error) {
-      console.error('Error deleting user:', error);
+      console.error('Error deleting user:', _error);
       toast({
         title: 'Error',
         description: 'Failed to delete user',
