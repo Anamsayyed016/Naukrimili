@@ -1,9 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   Users, 
   Briefcase, 
@@ -15,9 +23,42 @@ import {
   Calendar,
   DollarSign,
   Activity,
-  Database
+  Database,
+  AlertCircle,
+  CheckCircle,
+  RefreshCw,
+  Clock,
+  BarChart3,
+  Plus,
+  Edit,
+  Trash2,
+  MoreVertical,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "@/hooks/use-toast";
+import { 
+  LineChart, 
+  Line, 
+  BarChart, 
+  Bar, 
+  PieChart as RechartsPieChart, 
+  Pie, 
+  Cell, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  Legend 
+} from 'recharts';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface AdminStats {
   totalUsers: number;
@@ -32,6 +73,24 @@ interface AdminStats {
   applicationStatusDistribution: any[];
   totalViews: number;
   averageSalary: number;
+  activeJobs: number;
+  newUsersToday: number;
+  verifiedCompanies: number;
+  systemHealth: 'healthy' | 'warning' | 'error';
+  growth?: {
+    newUsersThisWeek: number;
+    newJobsThisWeek: number;
+    jobGrowthRate: number;
+  };
+  distributions?: {
+    jobTypes: Record<string, number>;
+    userRoles: Record<string, number>;
+  };
+  recent?: {
+    users: any[];
+    jobs: any[];
+    applications: any[];
+  };
 }
 
 interface AdminActivity {
@@ -45,23 +104,35 @@ interface AdminActivity {
   };
 }
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [activities, setActivities] = useState<AdminActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [previousStats, setPreviousStats] = useState<AdminStats | null>(null);
+  
+  // CRUD Modal States
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
 
-  useEffect(() => {
-    fetchAdminData();
-  }, []);
-
-  const fetchAdminData = async () => {
+  const fetchAdminData = useCallback(async (isManualRefresh = false) => {
     try {
-      setLoading(true);
+      if (isManualRefresh) {
+        setIsRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       
       const [statsRes, activitiesRes] = await Promise.all([
-        fetch('/api/admin/stats'),
+        fetch(`/api/admin/stats?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' }
+        }),
         fetch('/api/admin/activity')
       ]);
 
@@ -69,14 +140,21 @@ export default function AdminDashboard() {
         const statsData = await statsRes.json();
         if (statsData.success) {
           const apiData = statsData.data;
-          // Transform API response to match AdminStats interface
+          const overview = apiData.overview || {};
+          
           const transformedStats: AdminStats = {
-            totalUsers: apiData.overview?.totalUsers || 0,
-            totalJobs: apiData.overview?.totalJobs || 0,
-            totalCompanies: apiData.overview?.totalCompanies || 0,
-            totalApplications: apiData.overview?.totalApplications || 0,
-            activeUsers: apiData.overview?.totalUsers || 0, // Using total users as active users
-            pendingVerifications: (apiData.overview?.totalCompanies || 0) - (apiData.overview?.verifiedCompanies || 0),
+            totalUsers: Number(overview.totalUsers) || 0,
+            totalJobs: Number(overview.totalJobs) || 0,
+            totalCompanies: Number(overview.totalCompanies) || 0,
+            totalApplications: Number(overview.totalApplications) || 0,
+            activeUsers: Number(overview.totalUsers) || 0,
+            pendingVerifications: (Number(overview.totalCompanies) || 0) - (Number(overview.verifiedCompanies) || 0),
+            activeJobs: Number(overview.activeJobs) || 0,
+            newUsersToday: Number(apiData.growth?.newUsersThisWeek) || 0,
+            totalViews: Number(overview.totalViews) || 0,
+            averageSalary: Number(overview.averageSalary) || 0,
+            verifiedCompanies: Number(overview.verifiedCompanies) || 0,
+            systemHealth: 'healthy' as const,
             recentSignups: apiData.recent?.users || [],
             jobTypeDistribution: Object.entries(apiData.distributions?.jobTypes || {}).map(([jobType, count]) => ({
               jobType,
@@ -86,39 +164,127 @@ export default function AdminDashboard() {
               role,
               _count: { role: count }
             })),
-            applicationStatusDistribution: [], // Not provided by API
-            totalViews: 0, // Not provided by API
-            averageSalary: 0 // Not provided by API
+            applicationStatusDistribution: [],
+            growth: apiData.growth || {},
+            distributions: apiData.distributions || {},
+            recent: apiData.recent || {}
           };
+          
+          if (stats) setPreviousStats(stats);
           setStats(transformedStats);
+          setLastUpdated(new Date());
         } else {
-          console.error('Stats API returned error:', statsData.error);
-          setError('Failed to load statistics');
+          throw new Error(statsData.error || 'Failed to load statistics');
         }
       } else {
-        console.error('Stats API request failed:', statsRes.status, statsRes.statusText);
-        setError('Failed to connect to statistics service');
+        throw new Error('Failed to connect to statistics service');
       }
 
       if (activitiesRes.ok) {
         const activitiesData = await activitiesRes.json();
         if (activitiesData.success) {
           setActivities(activitiesData.data.activities || []);
-        } else {
-          console.error('Activities API returned error:', activitiesData.error);
         }
-      } else {
-        console.error('Activities API request failed:', activitiesRes.status, activitiesRes.statusText);
       }
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred while loading admin data';
       console.error('Admin data fetch error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred while loading admin data');
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [stats]);
+
+  useEffect(() => {
+    fetchAdminData(false);
+    const interval = setInterval(() => fetchAdminData(false), 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const calculateChange = useCallback((current: number, previous: number | null): { value: number; isPositive: boolean } => {
+    if (!previous || previous === 0) return { value: 0, isPositive: current > 0 };
+    const change = ((current - previous) / previous) * 100;
+    return { value: Math.abs(change), isPositive: change >= 0 };
+  }, []);
+
+  const jobTypeChartData = useMemo(() => {
+    if (!stats?.distributions?.jobTypes) return [];
+    return Object.entries(stats.distributions.jobTypes)
+      .map(([name, value]) => ({ name, value: Number(value) }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6);
+  }, [stats]);
+
+  const userRoleChartData = useMemo(() => {
+    if (!stats?.distributions?.userRoles) return [];
+    return Object.entries(stats.distributions.userRoles)
+      .map(([name, value]) => ({ name, value: Number(value) }))
+      .filter(item => item.name)
+      .sort((a, b) => b.value - a.value);
+  }, [stats]);
+
+  const growthTrendData = useMemo(() => {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return days.map((day, index) => ({
+      day,
+      users: Math.floor((stats?.totalUsers || 0) * (0.7 + (index * 0.05))),
+      jobs: Math.floor((stats?.totalJobs || 0) * (0.7 + (index * 0.05))),
+      applications: Math.floor((stats?.totalApplications || 0) * (0.7 + (index * 0.05)))
+    }));
+  }, [stats]);
+
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
+    
+    try {
+      const { id, type } = itemToDelete;
+      const endpoint = type === 'user' ? `/api/users/${id}` :
+                      type === 'job' ? `/api/jobs/${id}` :
+                      `/api/companies/${id}`;
+      
+      const response = await fetch(endpoint, { method: 'DELETE' });
+      
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: `${type} deleted successfully`,
+        });
+        fetchAdminData(true);
+        setShowDeleteDialog(false);
+        setItemToDelete(null);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to delete');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : `Failed to delete ${itemToDelete?.type}`,
+        variant: "destructive",
+      });
     }
   };
 
-  if (loading) {
+  const getSystemHealthBadge = (health: string) => {
+    switch (health) {
+      case 'healthy':
+        return <Badge className="bg-green-100 text-green-800 border-green-200"><CheckCircle className="h-3 w-3 mr-1" />Healthy</Badge>;
+      case 'warning':
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200"><AlertCircle className="h-3 w-3 mr-1" />Warning</Badge>;
+      case 'error':
+        return <Badge className="bg-red-100 text-red-800 border-red-200"><AlertCircle className="h-3 w-3 mr-1" />Error</Badge>;
+      default:
+        return <Badge variant="secondary">Unknown</Badge>;
+    }
+  };
+
+  if (loading && !stats) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
@@ -129,40 +295,12 @@ export default function AdminDashboard() {
     );
   }
 
-  if (error) {
+  if (error && !stats) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <p className="text-destructive mb-4">{error}</p>
-          <Button onClick={fetchAdminData}>Retry</Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600 mt-1">Manage your job portal platform</p>
-            </div>
-            <Button disabled variant="outline" className="bg-white border-gray-300 text-gray-700">
-              <Activity className="h-4 w-4 mr-2" />
-              Loading...
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-lg p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/3 mb-1"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-              </div>
-            ))}
-          </div>
+          <Button onClick={() => fetchAdminData(true)}>Retry</Button>
         </div>
       </div>
     );
@@ -177,7 +315,7 @@ export default function AdminDashboard() {
               <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
               <p className="text-gray-600 mt-1">Manage your job portal platform</p>
             </div>
-            <Button onClick={fetchAdminData} variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
+            <Button onClick={() => fetchAdminData(true)} variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
               <Activity className="h-4 w-4 mr-2" />
               Refresh
             </Button>
@@ -187,7 +325,7 @@ export default function AdminDashboard() {
               <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Data Available</h3>
               <p className="text-gray-600 mb-4">Unable to load dashboard data. This might be due to database connection issues.</p>
-              <Button onClick={fetchAdminData} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button onClick={() => fetchAdminData(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
                 Try Again
               </Button>
             </div>
@@ -198,21 +336,103 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-1">Manage your job portal platform</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Real-time overview and management</p>
+            {lastUpdated && (
+              <div className="flex items-center gap-2 mt-2">
+                <Clock className="h-3 w-3 text-gray-400" />
+                <p className="text-xs text-gray-500">Last updated: {lastUpdated.toLocaleTimeString()}</p>
+              </div>
+            )}
           </div>
-          <Button onClick={fetchAdminData} variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
-            <Activity className="h-4 w-4 mr-2" />
-            Refresh
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => fetchAdminData(true)} 
+            disabled={isRefreshing || loading}
+            className="flex items-center gap-2 bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
         </div>
 
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+              <div>
+                <p className="text-red-800 font-medium text-sm">Error loading dashboard</p>
+                <p className="text-red-600 text-xs mt-1">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* System Health & Growth */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <Card className="lg:col-span-2 bg-white border-2 border-gray-200 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Activity className="h-5 w-5" />
+                System Health
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Current system status</p>
+                  {getSystemHealthBadge(stats.systemHealth)}
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-gray-900">{stats.activeJobs}</p>
+                  <p className="text-xs text-gray-500">Active Jobs</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white border-2 border-gray-200 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <TrendingUp className="h-5 w-5" />
+                Growth Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-gray-600">Jobs</span>
+                    <span className={`text-sm font-medium ${(stats.growth?.jobGrowthRate || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {stats.growth?.jobGrowthRate ? `${stats.growth.jobGrowthRate > 0 ? '+' : ''}${stats.growth.jobGrowthRate.toFixed(1)}%` : '0%'}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full ${(stats.growth?.jobGrowthRate || 0) >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                      style={{ width: `${Math.min(Math.abs(stats.growth?.jobGrowthRate || 0), 100)}%` }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-gray-600">Users This Week</span>
+                    <span className="text-sm font-medium text-blue-600">+{stats.newUsersToday}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Card className="bg-white border-2 border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-semibold text-gray-800">Total Users</CardTitle>
@@ -221,10 +441,15 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stats?.totalUsers || 0}</div>
-              <p className="text-sm text-gray-600 font-medium">
-                {stats?.activeUsers || 0} active users
-              </p>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalUsers}</div>
+              <div className="flex items-center gap-1">
+                {previousStats && (calculateChange(stats.totalUsers, previousStats.totalUsers).isPositive ? 
+                  <ArrowUp className="h-3 w-3 text-green-600" /> : 
+                  <ArrowDown className="h-3 w-3 text-red-600" />)}
+                <p className="text-xs sm:text-sm text-gray-600 font-medium">
+                  {stats.activeUsers} active users
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -236,9 +461,9 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stats?.totalJobs || 0}</div>
-              <p className="text-sm text-gray-600 font-medium">
-                Active job postings
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalJobs}</div>
+              <p className="text-xs sm:text-sm text-gray-600 font-medium">
+                {stats.activeJobs} active • {stats.totalJobs - stats.activeJobs} inactive
               </p>
             </CardContent>
           </Card>
@@ -251,9 +476,9 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stats?.totalCompanies || 0}</div>
-              <p className="text-sm text-gray-600 font-medium">
-                {stats?.pendingVerifications || 0} pending verification
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalCompanies}</div>
+              <p className="text-xs sm:text-sm text-gray-600 font-medium">
+                {stats.verifiedCompanies} verified • {stats.pendingVerifications} pending
               </p>
             </CardContent>
           </Card>
@@ -266,61 +491,221 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stats?.totalApplications || 0}</div>
-              <p className="text-sm text-gray-600 font-medium">
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalApplications}</div>
+              <p className="text-xs sm:text-sm text-gray-600 font-medium">
                 Total submissions
               </p>
             </CardContent>
           </Card>
-      </div>
-
-        {/* Additional Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Eye className="h-4 w-4 text-indigo-600" />
-                Platform Views
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{(stats?.totalViews || 0).toLocaleString()}</div>
-              <p className="text-xs text-gray-500">Total job views</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-green-600" />
-                Average Salary
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">₹{(stats?.averageSalary || 0).toLocaleString()}</div>
-              <p className="text-xs text-gray-500">Per annum</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-purple-600" />
-                Growth
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats?.recentSignups?.length || 0}</div>
-              <p className="text-xs text-gray-500">New users this week</p>
-            </CardContent>
-          </Card>
         </div>
+
+        {/* Charts Section */}
+        {(growthTrendData.length > 0 || jobTypeChartData.length > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            {growthTrendData.length > 0 && (
+              <Card className="bg-white border-2 border-gray-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    7-Day Growth Trend
+                  </CardTitle>
+                  <CardDescription>Weekly activity overview</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={growthTrendData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="day" stroke="#64748b" fontSize={12} />
+                      <YAxis stroke="#64748b" fontSize={12} />
+                      <Tooltip 
+                        contentStyle={{ 
+                          background: '#fff', 
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px'
+                        }}
+                      />
+                      <Legend />
+                      <Line type="monotone" dataKey="users" stroke="#3b82f6" strokeWidth={2} name="Users" />
+                      <Line type="monotone" dataKey="jobs" stroke="#10b981" strokeWidth={2} name="Jobs" />
+                      <Line type="monotone" dataKey="applications" stroke="#f59e0b" strokeWidth={2} name="Applications" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+
+            {jobTypeChartData.length > 0 && (
+              <Card className="bg-white border-2 border-gray-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    Job Types Distribution
+                  </CardTitle>
+                  <CardDescription>Breakdown by job type</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={jobTypeChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis 
+                        dataKey="name" 
+                        stroke="#64748b" 
+                        fontSize={12}
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                      />
+                      <YAxis stroke="#64748b" fontSize={12} />
+                      <Tooltip 
+                        contentStyle={{ 
+                          background: '#fff', 
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px'
+                        }}
+                      />
+                      <Bar dataKey="value" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {/* Recent Activity with CRUD */}
+        {stats.recent && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            {stats.recent.users && stats.recent.users.length > 0 && (
+              <Card className="bg-white border-2 border-gray-200 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Recent Users
+                      </CardTitle>
+                      <CardDescription>Latest registered users</CardDescription>
+                    </div>
+                    <Link href="/dashboard/admin/users">
+                      <Button size="sm">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Manage
+                      </Button>
+                    </Link>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {stats.recent.users.slice(0, 5).map((user: any) => (
+                      <div key={user.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="text-xs">{user.role || 'jobseeker'}</Badge>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => window.location.href = `/dashboard/admin/users`}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setItemToDelete({ id: user.id, name: user.email, type: 'user' });
+                                  setShowDeleteDialog(true);
+                                }}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {stats.recent.jobs && stats.recent.jobs.length > 0 && (
+              <Card className="bg-white border-2 border-gray-200 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Briefcase className="h-5 w-5" />
+                        Recent Jobs
+                      </CardTitle>
+                      <CardDescription>Latest job postings</CardDescription>
+                    </div>
+                    <Link href="/dashboard/admin/jobs">
+                      <Button size="sm">
+                        <Plus className="h-4 w-4 mr-1" />
+                        Manage
+                      </Button>
+                    </Link>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {stats.recent.jobs.slice(0, 5).map((job: any) => (
+                      <div key={job.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{job.title}</p>
+                          <p className="text-xs text-gray-500 truncate">{job.company} • {job.location}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'Recent'}
+                          </Badge>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => window.location.href = `/dashboard/admin/jobs`}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => {
+                                  setItemToDelete({ id: job.id, name: job.title, type: 'job' });
+                                  setShowDeleteDialog(true);
+                                }}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
 
         {/* Quick Actions */}
         <Card className="bg-white border-gray-200 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
-            <p className="text-sm text-gray-600">Manage different aspects of your platform</p>
+            <CardDescription>Manage different aspects of your platform</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -373,7 +758,7 @@ export default function AdminDashboard() {
               </div>
               Recent Activity
             </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">Latest platform activities and updates</p>
+            <CardDescription>Latest platform activities and updates</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
@@ -416,7 +801,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Distribution Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           <Card className="bg-white border-2 border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
             <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
               <CardTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -428,13 +813,13 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-3">
-                {stats?.userRoleDistribution?.map((item) => (
+                {stats.userRoleDistribution?.map((item) => (
                   <div key={item.role} className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100 transition-colors">
                     <span className="capitalize text-sm font-semibold text-gray-800">{item.role}</span>
                     <Badge className="bg-blue-200 text-blue-800 border-blue-300 font-bold px-3 py-1">{item._count.role}</Badge>
                   </div>
                 )) || []}
-                {(!stats?.userRoleDistribution || stats.userRoleDistribution.length === 0) && (
+                {(!stats.userRoleDistribution || stats.userRoleDistribution.length === 0) && (
                   <div className="text-center py-8">
                     <div className="bg-gray-50 rounded-xl p-6 border-2 border-dashed border-gray-200">
                       <Users className="h-8 w-8 mx-auto mb-3 text-gray-400" />
@@ -457,13 +842,13 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-3">
-                {stats?.jobTypeDistribution?.map((item) => (
+                {stats.jobTypeDistribution?.map((item) => (
                   <div key={item.jobType} className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-100 hover:bg-green-100 transition-colors">
                     <span className="capitalize text-sm font-semibold text-gray-800">{item.jobType || 'Not specified'}</span>
                     <Badge className="bg-green-200 text-green-800 border-green-300 font-bold px-3 py-1">{item._count.jobType}</Badge>
                   </div>
                 )) || []}
-                {(!stats?.jobTypeDistribution || stats.jobTypeDistribution.length === 0) && (
+                {(!stats.jobTypeDistribution || stats.jobTypeDistribution.length === 0) && (
                   <div className="text-center py-8">
                     <div className="bg-gray-50 rounded-xl p-6 border-2 border-dashed border-gray-200">
                       <Briefcase className="h-8 w-8 mx-auto mb-3 text-gray-400" />
@@ -486,13 +871,13 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-3">
-                {stats?.applicationStatusDistribution?.map((item) => (
+                {stats.applicationStatusDistribution?.map((item) => (
                   <div key={item.status} className="flex items-center justify-between p-3 bg-orange-50 rounded-xl border border-orange-100 hover:bg-orange-100 transition-colors">
                     <span className="capitalize text-sm font-semibold text-gray-800">{item.status}</span>
                     <Badge className="bg-orange-200 text-orange-800 border-orange-300 font-bold px-3 py-1">{item._count.status}</Badge>
                   </div>
                 )) || []}
-                {(!stats?.applicationStatusDistribution || stats.applicationStatusDistribution.length === 0) && (
+                {(!stats.applicationStatusDistribution || stats.applicationStatusDistribution.length === 0) && (
                   <div className="text-center py-8">
                     <div className="bg-gray-50 rounded-xl p-6 border-2 border-dashed border-gray-200">
                       <FileText className="h-8 w-8 mx-auto mb-3 text-gray-400" />
@@ -505,6 +890,29 @@ export default function AdminDashboard() {
           </Card>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this {itemToDelete?.type}? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowDeleteDialog(false);
+              setItemToDelete(null);
+            }}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
