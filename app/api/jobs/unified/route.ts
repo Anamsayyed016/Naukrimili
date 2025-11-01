@@ -428,42 +428,60 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform external jobs to match frontend expectations
-    const transformedExternalJobs = externalJobs.map(job => {
-      const transformed = {
-        ...job,
-        id: `ext-${job.source}-${job.sourceId}`,
-        _count: {
-          applications: job.applicationsCount || 0,
-          bookmarks: 0
-        },
-        createdAt: job.postedAt || new Date().toISOString(),
-        isExternal: true,
-        rawData: job.raw
-      };
-      console.log('🔄 Transformed job:', { id: transformed.id, hasCount: !!transformed._count });
-      return transformed;
-    });
+    const transformedExternalJobs = externalJobs
+      .filter(job => {
+        // Validate job has sourceId
+        if (!job.sourceId) {
+          console.error('❌ External job missing sourceId, skipping:', { title: job.title, company: job.company, source: job.source });
+          return false;
+        }
+        return true;
+      })
+      .map(job => {
+        const transformed = {
+          ...job,
+          id: `ext-${job.source}-${job.sourceId}`,
+          _count: {
+            applications: job.applicationsCount || 0,
+            bookmarks: 0
+          },
+          createdAt: job.postedAt || new Date().toISOString(),
+          isExternal: true,
+          rawData: job.raw
+        };
+        console.log('🔄 Transformed external job:', { id: transformed.id, sourceId: job.sourceId, hasCount: !!transformed._count });
+        return transformed;
+      });
 
     // Transform database jobs to match frontend expectations
-    const transformedDatabaseJobs = databaseJobs.map(job => {
-      const transformed = {
-        ...job,
-        id: job.id,
-        _count: {
-          applications: job.applicationsCount || 0,
-          bookmarks: 0
-        },
-        createdAt: job.createdAt,
-        isExternal: false,
-        source: job.source || 'manual',
-        company: job.company || job.companyRelation?.name,
-        companyLogo: job.companyLogo || job.companyRelation?.logo,
-        companyLocation: job.companyRelation?.location,
-        companyIndustry: job.companyRelation?.industry
-      };
-      console.log('🔄 Transformed database job:', { id: transformed.id, company: transformed.company });
-      return transformed;
-    });
+    const transformedDatabaseJobs = databaseJobs
+      .filter(job => {
+        // Validate job has ID
+        if (!job.id) {
+          console.error('❌ Database job missing ID, skipping:', { title: job.title, company: job.company });
+          return false;
+        }
+        return true;
+      })
+      .map(job => {
+        const transformed = {
+          ...job,
+          id: job.id,
+          _count: {
+            applications: job.applicationsCount || 0,
+            bookmarks: 0
+          },
+          createdAt: job.createdAt,
+          isExternal: false,
+          source: job.source || 'manual',
+          company: job.company || job.companyRelation?.name,
+          companyLogo: job.companyLogo || job.companyRelation?.logo,
+          companyLocation: job.companyRelation?.location,
+          companyIndustry: job.companyRelation?.industry
+        };
+        console.log('🔄 Transformed database job:', { id: transformed.id, company: transformed.company });
+        return transformed;
+      });
 
     // Combine database jobs with sample jobs and external jobs
     console.log(`📊 Job counts: database=${transformedDatabaseJobs.length}, sample=${filteredJobs.length}, external=${externalJobs.length}, transformed=${transformedExternalJobs.length}`);
