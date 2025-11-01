@@ -274,7 +274,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     });
 
     return {
-      id: job.id || `job-${Math.random()}`,
+      id: job.id || `job-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
       title: job.title || 'Job Title',
       company: job.company || job.companyRelation?.name || 'Company',
       location: job.location || 'Location',
