@@ -530,6 +530,7 @@ export async function GET(request: NextRequest) {
         
         const baseJob = {
           id: job.id,
+          sourceId: job.sourceId,
           title: job.title,
           company: job.company || job.companyRelation?.name,
           companyLogo: job.companyLogo || job.companyRelation?.logo,
