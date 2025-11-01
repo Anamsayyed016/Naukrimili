@@ -273,294 +273,292 @@ export default function ApplicationDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <Link href="/admin/applications">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Applications
-            </Button>
-          </Link>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Application Details</h1>
-              <p className="text-gray-600 mt-1">Review and manage this job application</p>
-            </div>
-            <div className="flex items-center gap-3">
-              {getStatusBadge(application.status)}
-              <Select
-                value={application.status}
-                onValueChange={handleStatusChange}
-                disabled={updating}
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="reviewed">Reviewed</SelectItem>
-                  <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="hired">Hired</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="mb-6">
+        <Link href="/admin/applications">
+          <Button variant="ghost" className="mb-4">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Applications
+          </Button>
+        </Link>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Application Details</h1>
+            <p className="text-gray-600 mt-1">Review and manage this job application</p>
+          </div>
+          <div className="flex items-center gap-3">
+            {getStatusBadge(application.status)}
+            <Select
+              value={application.status}
+              onValueChange={handleStatusChange}
+              disabled={updating}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="reviewed">Reviewed</SelectItem>
+                <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="hired">Hired</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Applicant & Job Info */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Applicant Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Applicant Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-lg">
-                    {application.user.firstName && application.user.lastName
-                      ? `${application.user.firstName} ${application.user.lastName}`
-                      : application.user.email}
-                  </h3>
-                  <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
-                    {application.user.email && (
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        {application.user.email}
-                      </div>
-                    )}
-                    {application.user.phone && (
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        {application.user.phone}
-                      </div>
-                    )}
-                    {application.user.location && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        {application.user.location}
-                      </div>
-                    )}
-                  </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Applicant & Job Info */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Applicant Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Applicant Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg">
+                  {application.user.firstName && application.user.lastName
+                    ? `${application.user.firstName} ${application.user.lastName}`
+                    : application.user.email}
+                </h3>
+                <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
+                  {application.user.email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      {application.user.email}
+                    </div>
+                  )}
+                  {application.user.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      {application.user.phone}
+                    </div>
+                  )}
+                  {application.user.location && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      {application.user.location}
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                {application.user.bio && (
-                  <div>
-                    <h4 className="font-medium mb-2">About</h4>
-                    <p className="text-gray-600 text-sm">{application.user.bio}</p>
-                  </div>
-                )}
+              {application.user.bio && (
+                <div>
+                  <h4 className="font-medium mb-2">About</h4>
+                  <p className="text-gray-600 text-sm">{application.user.bio}</p>
+                </div>
+              )}
 
-                {(() => {
-                  // Safely handle skills - could be array, string, or null
-                  let skillsArray: string[] = [];
-                  if (application.user.skills) {
-                    if (Array.isArray(application.user.skills)) {
-                      skillsArray = application.user.skills.filter(skill => skill && typeof skill === 'string');
-                    } else if (typeof application.user.skills === 'string') {
-                      try {
-                        const parsed = JSON.parse(application.user.skills);
-                        skillsArray = Array.isArray(parsed) ? parsed.filter((s: any) => s && typeof s === 'string') : [];
-                      } catch {
-                        // Not JSON, try comma-separated
-                        if (application.user.skills.includes(',')) {
-                          skillsArray = application.user.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                        } else if (application.user.skills.trim()) {
-                          skillsArray = [application.user.skills.trim()];
-                        }
+              {(() => {
+                // Safely handle skills - could be array, string, or null
+                let skillsArray: string[] = [];
+                if (application.user.skills) {
+                  if (Array.isArray(application.user.skills)) {
+                    skillsArray = application.user.skills.filter(skill => skill && typeof skill === 'string');
+                  } else if (typeof application.user.skills === 'string') {
+                    try {
+                      const parsed = JSON.parse(application.user.skills);
+                      skillsArray = Array.isArray(parsed) ? parsed.filter((s: any) => s && typeof s === 'string') : [];
+                    } catch {
+                      // Not JSON, try comma-separated
+                      if (application.user.skills.includes(',')) {
+                        skillsArray = application.user.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                      } else if (application.user.skills.trim()) {
+                        skillsArray = [application.user.skills.trim()];
                       }
                     }
                   }
-                  
-                  return skillsArray.length > 0 && (
-                    <div>
-                      <h4 className="font-medium mb-2">Skills</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {skillsArray.map((skill, index) => (
-                          <Badge key={index} variant="secondary">{String(skill)}</Badge>
-                        ))}
-                      </div>
+                }
+                
+                return skillsArray.length > 0 ? (
+                  <div>
+                    <h4 className="font-medium mb-2">Skills</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {skillsArray.map((skill, index) => (
+                        <Badge key={index} variant="secondary">{String(skill)}</Badge>
+                      ))}
                     </div>
-                  );
-                })()}
-
-                {application.user.experience && (
-                  <div>
-                    <h4 className="font-medium mb-2">Experience</h4>
-                    <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.user.experience}</p>
                   </div>
-                )}
+                ) : null;
+              })()}
 
-                {application.user.education && (
-                  <div>
-                    <h4 className="font-medium mb-2">Education</h4>
-                    <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.user.education}</p>
-                  </div>
-                )}
-
-                {application.resume && (
-                  <div className="pt-4 border-t">
-                    <Button onClick={handleDownloadResume} className="w-full sm:w-auto">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download Resume
-                    </Button>
-                    <p className="text-xs text-gray-500 mt-2">
-                      {application.resume.fileName} 
-                      {application.resume.fileSize && ` • ${(application.resume.fileSize / 1024).toFixed(2)} KB`}
-                      {application.resume.atsScore && ` • ATS Score: ${application.resume.atsScore}%`}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Job Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Briefcase className="h-5 w-5" />
-                  Job Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              {application.user.experience && (
                 <div>
-                  <h3 className="font-semibold text-lg">{application.job.title}</h3>
-                  <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4" />
-                      {application.job.company}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      {application.job.location}
-                    </div>
-                    {application.job.jobType && (
-                      <Badge variant="outline">{application.job.jobType}</Badge>
-                    )}
-                    {application.job.experienceLevel && (
-                      <Badge variant="outline">{application.job.experienceLevel}</Badge>
-                    )}
-                  </div>
+                  <h4 className="font-medium mb-2">Experience</h4>
+                  <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.user.experience}</p>
                 </div>
+              )}
 
-                {(application.job.salaryMin || application.job.salaryMax) && (
-                  <div>
-                    <h4 className="font-medium mb-1">Salary</h4>
-                    <p className="text-gray-600">
-                      {application.job.salaryCurrency || '₹'}
-                      {application.job.salaryMin?.toLocaleString()}
-                      {application.job.salaryMax && application.job.salaryMin !== application.job.salaryMax && (
-                        <> - {application.job.salaryMax.toLocaleString()}</>
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                {application.job.description && (
-                  <div>
-                    <h4 className="font-medium mb-2">Job Description</h4>
-                    <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.job.description}</p>
-                  </div>
-                )}
-
-                <Link href={`/jobs/${application.job.id}`}>
-                  <Button variant="outline" className="w-full sm:w-auto">
-                    <Briefcase className="h-4 w-4 mr-2" />
-                    View Job Posting
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Cover Letter */}
-            {application.coverLetter && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Cover Letter
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 whitespace-pre-wrap">{application.coverLetter}</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Right Column - Application Details */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Application Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              {application.user.education && (
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Applied On</p>
-                  <p className="font-medium">
-                    {new Date(application.appliedAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
+                  <h4 className="font-medium mb-2">Education</h4>
+                  <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.user.education}</p>
                 </div>
+              )}
 
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Application ID</p>
-                  <p className="font-mono text-sm text-gray-700">{application.id}</p>
-                </div>
-
-                {application.resume && (
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Resume</p>
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-700">{application.resume.fileName}</span>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {application.resume && (
-                  <Button onClick={handleDownloadResume} className="w-full" variant="outline">
+              {application.resume && (
+                <div className="pt-4 border-t">
+                  <Button onClick={handleDownloadResume} className="w-full sm:w-auto">
                     <Download className="h-4 w-4 mr-2" />
                     Download Resume
                   </Button>
-                )}
-                <Link href={`/jobs/${application.job.id}`}>
-                  <Button variant="outline" className="w-full">
-                    <Briefcase className="h-4 w-4 mr-2" />
-                    View Job
-                  </Button>
-                </Link>
-                <Link href={`/admin/users/${application.user.id}`}>
-                  <Button variant="outline" className="w-full">
-                    <User className="h-4 w-4 mr-2" />
-                    View Applicant Profile
-                  </Button>
-                </Link>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {application.resume.fileName} 
+                    {application.resume.fileSize && ` • ${(application.resume.fileSize / 1024).toFixed(2)} KB`}
+                    {application.resume.atsScore && ` • ATS Score: ${application.resume.atsScore}%`}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Job Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5" />
+                Job Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg">{application.job.title}</h3>
+                <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    {application.job.company}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    {application.job.location}
+                  </div>
+                  {application.job.jobType && (
+                    <Badge variant="outline">{application.job.jobType}</Badge>
+                  )}
+                  {application.job.experienceLevel && (
+                    <Badge variant="outline">{application.job.experienceLevel}</Badge>
+                  )}
+                </div>
+              </div>
+
+              {(application.job.salaryMin || application.job.salaryMax) && (
+                <div>
+                  <h4 className="font-medium mb-1">Salary</h4>
+                  <p className="text-gray-600">
+                    {application.job.salaryCurrency || '₹'}
+                    {application.job.salaryMin?.toLocaleString()}
+                    {application.job.salaryMax && application.job.salaryMin !== application.job.salaryMax && (
+                      <> - {application.job.salaryMax.toLocaleString()}</>
+                    )}
+                  </p>
+                </div>
+              )}
+
+              {application.job.description && (
+                <div>
+                  <h4 className="font-medium mb-2">Job Description</h4>
+                  <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.job.description}</p>
+                </div>
+              )}
+
+              <Link href={`/jobs/${application.job.id}`}>
+                <Button variant="outline" className="w-full sm:w-auto">
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  View Job Posting
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Cover Letter */}
+          {application.coverLetter && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Cover Letter
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 whitespace-pre-wrap">{application.coverLetter}</p>
               </CardContent>
             </Card>
-          </div>
+          )}
+        </div>
+
+        {/* Right Column - Application Details */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Application Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Applied On</p>
+                <p className="font-medium">
+                  {new Date(application.appliedAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Application ID</p>
+                <p className="font-mono text-sm text-gray-700">{application.id}</p>
+              </div>
+
+              {application.resume && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Resume</p>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-gray-400" />
+                    <span className="text-sm text-gray-700">{application.resume.fileName}</span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {application.resume && (
+                <Button onClick={handleDownloadResume} className="w-full" variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Resume
+                </Button>
+              )}
+              <Link href={`/jobs/${application.job.id}`}>
+                <Button variant="outline" className="w-full">
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  View Job
+                </Button>
+              </Link>
+              <Link href={`/admin/users/${application.user.id}`}>
+                <Button variant="outline" className="w-full">
+                  <User className="h-4 w-4 mr-2" />
+                  View Applicant Profile
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
   );
 }
-
