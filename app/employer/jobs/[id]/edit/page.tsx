@@ -130,51 +130,6 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     const style = document.createElement('style');
     style.id = 'edit-job-dropdown-styles';
     style.textContent = `
-      /* Professional dropdown styling - matching working forms */
-      .radix-select-content {
-        z-index: 9999 !important;
-      }
-      
-      /* Fix for mobile and tablet visibility */
-      @media (max-width: 768px) {
-        [data-radix-popper-content-wrapper] {
-          z-index: 9999 !important;
-          position: fixed !important;
-          max-width: calc(100vw - 32px) !important;
-        }
-      }
-      
-      /* Additional specific fixes for Radix Select */
-      [data-radix-select-content][data-state="open"] {
-        z-index: 9999 !important;
-        position: fixed !important;
-      }
-      
-      [data-radix-select-viewport] {
-        z-index: 9999 !important;
-      }
-      
-      /* Ensure dropdown items are visible */
-      [data-radix-select-item] {
-        z-index: 9999 !important;
-      }
-      
-      /* Fix for any parent container clipping on mobile */
-      @media (max-width: 768px) {
-        .overflow-hidden,
-        [class*="overflow"] {
-          overflow: visible !important;
-        }
-      }
-      
-      /* Ensure proper stacking context for all dropdown elements */
-      [data-radix-popper-content-wrapper],
-      [data-radix-select-content],
-      [data-radix-select-viewport],
-      [data-radix-select-item] {
-        z-index: 9999 !important;
-      }
-      
       /* Professional hover effects */
       [data-radix-select-item]:hover {
         background-color: #f8fafc !important;
@@ -601,7 +556,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
 
   return (
     <AuthGuard allowedRoles={['employer']}>
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8 overflow-x-hidden">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
         {/* Enhanced Progress Steps */}
         <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl mb-6 sm:mb-8 w-full">
           <div className="flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 overflow-x-auto">
