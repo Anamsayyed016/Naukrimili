@@ -692,8 +692,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           </div>
 
         <form onSubmit={handleSubmit}>
-          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full relative z-10">
-            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 relative z-10 w-full">
+          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full">
+            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 w-full">
               <AnimatePresence mode="wait">
                 {currentStep === 1 && (
                   <motion.div
