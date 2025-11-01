@@ -473,12 +473,12 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       {!loading && !error && (jobs || []).length > 0 && (
         <div className="space-y-4">
           {/* View Mode Toggle and Refresh */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">View:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm text-gray-600 whitespace-nowrap">View:</span>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-1 rounded text-sm ${
+                className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
                   viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -486,7 +486,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-1 rounded text-sm ${
+                className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
                   viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -494,14 +494,14 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
               </button>
               <button
                 onClick={() => setViewMode('compact')}
-                className={`px-3 py-1 rounded text-sm ${
+                className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
                   viewMode === 'compact' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 Compact
               </button>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
               <button
                 onClick={() => {
                   const query = searchParams.get('q') || searchParams.get('query') || '';
@@ -525,13 +525,13 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 </svg>
                 Refresh
               </button>
-              <div className="text-sm text-gray-600">
-                {lastRefresh && (
-                  <span className="text-xs text-gray-400">
+              {lastRefresh && (
+                <div className="text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+                  <span className="text-gray-400">
                     Last updated: {lastRefresh.toLocaleTimeString()}
                   </span>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
 

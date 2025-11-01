@@ -658,6 +658,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                     className="space-y-6"
+                    style={{ overflow: 'visible' }}
                   >
                     <div className="text-center mb-6">
                       <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
@@ -877,6 +878,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                     className="space-y-6"
+                    style={{ overflow: 'visible' }}
                   >
                     <div className="text-center mb-6">
                       <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
@@ -1067,6 +1069,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                     className="space-y-6"
+                    style={{ overflow: 'visible' }}
                   >
                     <div className="text-center mb-6">
                       <div className="p-3 sm:p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
