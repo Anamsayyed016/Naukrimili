@@ -122,6 +122,8 @@ export async function GET(request: NextRequest) {
             where,
             select: {
               id: true,
+              sourceId: true,
+              source: true,
               title: true,
               company: true,
               location: true,
