@@ -207,9 +207,9 @@ export function parseSEOJobUrl(url: string): string | null {
     return cleanUrl;
   }
   
-  // Handle direct external job IDs (e.g., adzuna-12345, jsearch-67890, ext-timestamp-id)
-  if (/^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample)-/.test(cleanUrl)) {
-    console.log('✅ Found external job ID:', cleanUrl);
+  // Handle direct external job IDs (e.g., adzuna-12345, jsearch-67890, ext-timestamp-id, job-timestamp-id)
+  if (/^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample|job)-/.test(cleanUrl)) {
+    console.log('✅ Found external/generated job ID:', cleanUrl);
     return cleanUrl;
   }
   
@@ -238,6 +238,8 @@ export function parseSEOJobUrl(url: string): string | null {
   // Extract job ID from SEO URL patterns (in order of specificity)
   // Pattern priority: most specific to least specific
   const patterns = [
+    // Generated job IDs (e.g., job-1762036808263-199612)
+    /-(job-\d+-\d+)$/,
     // External job IDs with provider prefix (e.g., adzuna-1730-0-123456)
     /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+-\d+)$/,
     // External job IDs (e.g., ext-1730000000-123456)

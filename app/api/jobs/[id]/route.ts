@@ -58,13 +58,10 @@ export async function GET(
         }
       });
     } else {
-      // Try as string ID (for external jobs) - use sourceId field
+      // Try as string ID (for external jobs, generated jobs, etc.) - use sourceId field
       job = await prisma.job.findFirst({
         where: { 
-          OR: [
-            { sourceId: jobId },
-            { source: jobId.split('-')[0] } // Try matching by source prefix
-          ]
+          sourceId: jobId
         },
         include: {
           applications: {
