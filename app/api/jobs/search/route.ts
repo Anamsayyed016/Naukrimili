@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { filterValidJobs } from '@/lib/jobs/job-id-validator';
 
 // Compatibility wrapper: forwards to /api/jobs and adapts response format if needed
 export async function GET(request: NextRequest) {
@@ -71,16 +72,21 @@ export async function GET(request: NextRequest) {
         );
       }
       
+      // Filter out jobs with invalid IDs before returning
+      const rawJobs = Array.isArray(json.data?.jobs) ? json.data.jobs : 
+                      Array.isArray(json.jobs) ? json.jobs : [];
+      const validJobs = filterValidJobs(rawJobs);
+      
       // Ensure consistent shape for optimized hooks
       const response = {
         success: true,
         data: {
-          jobs: Array.isArray(json.jobs) ? json.jobs : [],
-          pagination: json.pagination || { 
-            total_results: 0, 
+          jobs: validJobs,
+          pagination: json.data?.pagination || json.pagination || { 
+            total_results: validJobs.length, 
             current_page: 1, 
             per_page: 20,
-            total: json.pagination?.total || json.pagination?.total_results || 0
+            total: validJobs.length
           },
         },
         filters: { 
