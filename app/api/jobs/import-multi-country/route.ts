@@ -25,26 +25,79 @@ const SUPPORTED_COUNTRIES = {
   BR: { name: 'Brazil', adzuna: 'br', jsearch: 'BR', google: 'Brazil', jooble: 'Brazil' }
 };
 
-// Popular job queries for each country
+// Comprehensive job queries for each country - EXPANDED for 5000-10000+ jobs
 const COUNTRY_SPECIFIC_QUERIES = {
-  IN: ['software developer', 'data analyst', 'product manager', 'UI/UX designer', 'DevOps engineer', 'marketing manager', 'sales executive', 'content writer', 'graphic designer', 'digital marketer'],
-  US: ['software engineer', 'data scientist', 'product manager', 'UX designer', 'DevOps engineer', 'marketing specialist', 'sales representative', 'content creator', 'graphic designer', 'digital marketing manager'],
-  UK: ['software developer', 'data analyst', 'product manager', 'UX designer', 'DevOps engineer', 'marketing executive', 'sales consultant', 'content writer', 'graphic designer', 'digital marketing specialist'],
-  AE: ['software engineer', 'data analyst', 'product manager', 'UX designer', 'DevOps engineer', 'marketing manager', 'sales executive', 'content writer', 'graphic designer', 'digital marketer'],
-  CA: ['software developer', 'data scientist', 'product manager', 'UX designer', 'DevOps engineer', 'marketing specialist', 'sales representative', 'content creator', 'graphic designer', 'digital marketing manager'],
-  AU: ['software engineer', 'data analyst', 'product manager', 'UX designer', 'DevOps engineer', 'marketing executive', 'sales consultant', 'content writer', 'graphic designer', 'digital marketing specialist']
+  IN: [
+    // Technology (High volume)
+    'software developer', 'software engineer', 'full stack developer', 'frontend developer', 'backend developer',
+    'data analyst', 'data scientist', 'data engineer', 'machine learning engineer', 'AI engineer',
+    'product manager', 'project manager', 'scrum master', 'business analyst', 'QA engineer',
+    'UI/UX designer', 'graphic designer', 'web designer', 'product designer',
+    'DevOps engineer', 'cloud engineer', 'system administrator', 'network engineer',
+    'mobile developer', 'android developer', 'iOS developer', 'react developer', 'node developer',
+    // Business & Marketing
+    'marketing manager', 'digital marketing', 'SEO specialist', 'content writer', 'copywriter',
+    'sales executive', 'business development', 'account manager', 'customer success',
+    // Finance & Consulting
+    'financial analyst', 'accountant', 'chartered accountant', 'tax consultant', 'auditor',
+    'HR manager', 'recruiter', 'talent acquisition', 'operations manager',
+    // Healthcare & Education
+    'doctor', 'nurse', 'pharmacist', 'healthcare manager', 'medical representative',
+    'teacher', 'professor', 'trainer', 'education counselor'
+  ],
+  US: [
+    'software engineer', 'software developer', 'full stack engineer', 'frontend engineer', 'backend engineer',
+    'data scientist', 'data analyst', 'data engineer', 'ML engineer', 'AI researcher',
+    'product manager', 'program manager', 'scrum master', 'business analyst', 'QA engineer',
+    'UX designer', 'UI designer', 'product designer', 'graphic designer',
+    'DevOps engineer', 'cloud architect', 'SRE', 'infrastructure engineer',
+    'mobile engineer', 'iOS developer', 'android developer', 'react developer',
+    'marketing manager', 'digital marketing specialist', 'content strategist', 'SEO expert',
+    'sales representative', 'account executive', 'business development manager',
+    'financial analyst', 'accountant', 'financial advisor', 'investment analyst',
+    'registered nurse', 'physician', 'healthcare administrator', 'medical assistant',
+    'teacher', 'professor', 'instructor', 'education administrator'
+  ],
+  UK: [
+    'software developer', 'software engineer', 'full stack developer', 'web developer',
+    'data analyst', 'data scientist', 'business intelligence analyst', 'data engineer',
+    'product manager', 'project manager', 'programme manager', 'business analyst',
+    'UX designer', 'UI designer', 'graphic designer', 'web designer',
+    'DevOps engineer', 'cloud engineer', 'systems engineer', 'network engineer',
+    'marketing executive', 'digital marketing manager', 'SEO specialist', 'content writer',
+    'sales consultant', 'account manager', 'business development executive',
+    'financial analyst', 'accountant', 'finance manager', 'chartered accountant',
+    'registered nurse', 'GP', 'consultant', 'healthcare manager',
+    'teacher', 'lecturer', 'education officer', 'training coordinator'
+  ],
+  AE: [
+    'software engineer', 'software developer', 'application developer', 'web developer',
+    'data analyst', 'data scientist', 'BI analyst', 'analytics manager',
+    'product manager', 'project manager', 'program manager', 'business analyst',
+    'UX designer', 'UI designer', 'graphic designer', 'creative director',
+    'DevOps engineer', 'cloud engineer', 'infrastructure engineer', 'IT manager',
+    'marketing manager', 'digital marketing specialist', 'brand manager', 'content creator',
+    'sales executive', 'business development manager', 'account director', 'relationship manager',
+    'financial analyst', 'accountant', 'finance manager', 'investment analyst',
+    'civil engineer', 'mechanical engineer', 'electrical engineer', 'architect',
+    'HR manager', 'recruiter', 'talent acquisition specialist', 'operations manager',
+    'hospitality manager', 'chef', 'restaurant manager', 'hotel manager'
+  ],
+  CA: ['software developer', 'data scientist', 'product manager', 'UX designer', 'DevOps engineer', 'marketing specialist', 'sales representative', 'financial analyst', 'nurse', 'teacher'],
+  AU: ['software engineer', 'data analyst', 'product manager', 'UX designer', 'DevOps engineer', 'marketing executive', 'sales consultant', 'accountant', 'registered nurse', 'educator']
 };
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
     const { 
-      countries = ['IN', 'US', 'UK', 'AE'], 
+      countries = ['IN', 'US', 'GB', 'AE'], // GB for UK
       queries = [], 
       page = 1, 
       location = '', 
-      radiusKm = 25,
-      maxJobsPerCountry = 50
+      radiusKm = 50,
+      maxJobsPerCountry = 200, // Increased from 50 to 200
+      pagesPerQuery = 3 // Multiple pages per query for more jobs
     } = body;
 
     console.log(`🚀 Starting multi-country job import for: ${countries.join(', ')}`);
@@ -69,22 +122,33 @@ export async function POST(request: NextRequest) {
 
       // Fetch jobs for each query in this country
       for (const query of countryQueries) {
-        try {
-          // Fetch from Adzuna
-          const adzunaJobs = await fetchFromAdzuna(query, countryConfig.adzuna, page, { 
-            location: location || undefined, 
-            distanceKm: radiusKm 
-          });
-          countryJobs.push(...adzunaJobs);
-          adzunaCount += adzunaJobs.length;
+        // Fetch multiple pages per query for more jobs
+        for (let currentPage = page; currentPage < page + (pagesPerQuery || 1); currentPage++) {
+          try {
+            // Fetch from Adzuna
+            const adzunaJobs = await fetchFromAdzuna(query, countryConfig.adzuna, currentPage, { 
+              location: location || undefined, 
+              distanceKm: radiusKm 
+            });
+            countryJobs.push(...adzunaJobs);
+            adzunaCount += adzunaJobs.length;
 
-        } catch (_error) {
-          console.error(`❌ Error fetching jobs for "${query}" in ${countryCode}:`, error);
+            // Small delay to avoid rate limiting
+            if (currentPage < page + (pagesPerQuery || 1) - 1) {
+              await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+          } catch (_error) {
+            console.error(`❌ Error fetching jobs for "${query}" page ${currentPage} in ${countryCode}:`, _error);
+          }
         }
+        
+        // Delay between queries to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
 
-      // Limit jobs per country to prevent overwhelming
-      if (countryJobs.length > maxJobsPerCountry) {
+      // Limit jobs per country if specified (0 = unlimited)
+      if (maxJobsPerCountry > 0 && countryJobs.length > maxJobsPerCountry) {
         countryJobs = countryJobs.slice(0, maxJobsPerCountry);
       }
 
@@ -174,8 +238,14 @@ export async function GET() {
         queries: ['software developer', 'data analyst'],
         page: 1,
         location: 'Bangalore',
-        radiusKm: 25,
-        maxJobsPerCountry: 50
+        radiusKm: 50,
+        maxJobsPerCountry: 200,
+        pagesPerQuery: 3
+      },
+      notes: {
+        maxJobsPerCountry: '200 jobs per country (0 for unlimited)',
+        pagesPerQuery: '3 pages per query for more results',
+        rateLimit: 'Automatic delays between requests to avoid API rate limits'
       }
     }
   });
