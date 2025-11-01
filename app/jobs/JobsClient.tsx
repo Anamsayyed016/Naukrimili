@@ -48,6 +48,12 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
   function convertToSimpleJob(job: any): Job {
     console.log('🔄 Converting job:', { id: job.id, title: job.title, company: job.company });
     
+    // CRITICAL: Validate job has an ID - don't create fake IDs
+    if (!job.id) {
+      console.error('❌ Job missing ID, skipping:', { title: job.title, company: job.company, source: job.source });
+      return null as any; // Will be filtered out
+    }
+    
     // Format salary consistently using proper currency formatting
     let salaryFormatted = '';
     if (job.salary) {
@@ -71,7 +77,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
     }
     
     return {
-      id: job.id || `job-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+      id: job.id,
       title: job.title || 'Job Title',
       company: job.company || job.companyRelation?.name || 'Company',
       location: job.location || 'Location',
@@ -224,7 +230,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
         console.log(`📊 Total jobs available: ${unlimitedData.pagination?.totalJobs || 0}`);
         console.log(`📊 Job sources: Database=${unlimitedData.sources?.database || 0}, External=${unlimitedData.sources?.external || 0}, Sample=${unlimitedData.sources?.sample || 0}`);
         
-        const newJobs = (unlimitedData.jobs || []).map(convertToSimpleJob);
+        const newJobs = (unlimitedData.jobs || []).map(convertToSimpleJob).filter(Boolean); // Filter out null entries
         setJobs(newJobs as any);
         
         // Update pagination state

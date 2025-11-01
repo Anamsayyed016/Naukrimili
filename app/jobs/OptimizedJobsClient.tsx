@@ -110,7 +110,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       // DB API shape: { success, data: { jobs, pagination } }
       if (data.success) {
         const jobsData = data.jobs || data.data?.jobs || [];
-        const jobs = jobsData.map(convertToSimpleJob);
+        const jobs = jobsData.map(convertToSimpleJob).filter(Boolean); // Filter out null entries from jobs without IDs
         
         // Get total from pagination - unlimited API uses totalJobs, DB API uses total
         const totalCount = data.pagination?.totalJobs || data.data?.pagination?.total || jobs.length;
@@ -149,7 +149,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
       } else if (data.success && Array.isArray(data.jobs)) {
         // Some APIs may still return jobs directly
-        const jobs = (data.jobs || []).map(convertToSimpleJob);
+        const jobs = (data.jobs || []).map(convertToSimpleJob).filter(Boolean); // Filter out null entries
         setJobs(jobs as any);
         setTotalJobs(data.pagination?.total || jobs.length);
         setTotalPages(data.pagination?.totalPages || 1);
@@ -190,7 +190,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         const fallbackResponse = await fetch(`/api/jobs/unified?${fallbackParams.toString()}`);
         if (fallbackResponse.ok) {
           const fallbackData = await fallbackResponse.json();
-          const fallbackJobs = ((fallbackData.data?.jobs ?? fallbackData.jobs) || []).map(convertToSimpleJob);
+          const fallbackJobs = ((fallbackData.data?.jobs ?? fallbackData.jobs) || []).map(convertToSimpleJob).filter(Boolean); // Filter out null entries
           
           setJobs(fallbackJobs as any);
           const fp = fallbackData.data?.pagination || fallbackData.pagination;
@@ -264,6 +264,12 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
   // Convert any job format to simple Job format
   function convertToSimpleJob(job: any): Job {
+    // CRITICAL: Validate job has an ID - don't create fake IDs
+    if (!job.id) {
+      console.error('❌ Job missing ID, skipping:', { title: job.title, company: job.company, source: job.source });
+      return null as any; // Will be filtered out
+    }
+
     // Format salary consistently using country-aware currency
     const salaryFormatted = formatJobSalary({
       salary: job.salary,
@@ -274,7 +280,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     });
 
     return {
-      id: job.id || `job-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+      id: job.id,
       title: job.title || 'Job Title',
       company: job.company || job.companyRelation?.name || 'Company',
       location: job.location || 'Location',
