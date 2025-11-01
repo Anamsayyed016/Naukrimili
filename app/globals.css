@@ -469,6 +469,18 @@ tr {
   overflow: visible !important;
 }
 
+/* CRITICAL: Prevent Framer Motion from hiding overflow during animations */
+[data-framer-motion],
+[data-framer-appear-id] {
+  overflow: visible !important;
+}
+
+/* Ensure all motion divs don't clip content */
+.motion-div,
+[class*="motion"] {
+  overflow: visible !important;
+}
+
 /* Mobile responsive improvements */
 @media (max-width: 640px) {
   .mobile-stack {
