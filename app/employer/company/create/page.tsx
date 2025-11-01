@@ -99,48 +99,6 @@ export default function CreateCompanyPage() {
     const style = document.createElement('style');
     style.id = 'company-dropdown-styles';
     style.textContent = `
-      /* Professional dropdown styling - matching company form */
-      .radix-select-content {
-        z-index: 9999 !important;
-      }
-      
-      /* Fix for mobile and tablet visibility */
-      @media (max-width: 768px) {
-        [data-radix-popper-content-wrapper] {
-          z-index: 9999 !important;
-          position: fixed !important;
-          max-width: calc(100vw - 32px) !important;
-        }
-      }
-      
-      /* Additional specific fixes for Radix Select */
-      [data-radix-select-content][data-state="open"] {
-        z-index: 9999 !important;
-        position: fixed !important;
-      }
-      
-      [data-radix-select-viewport] {
-        z-index: 9999 !important;
-      }
-      
-      /* Ensure dropdown items are visible */
-      [data-radix-select-item] {
-        z-index: 9999 !important;
-      }
-      
-      /* Fix for any parent container clipping */
-      .overflow-hidden {
-        overflow: visible !important;
-      }
-      
-      /* Ensure proper stacking context for all dropdown elements */
-      [data-radix-popper-content-wrapper],
-      [data-radix-select-content],
-      [data-radix-select-viewport],
-      [data-radix-select-item] {
-        z-index: 9999 !important;
-      }
-      
       /* Professional hover effects */
       [data-radix-select-item]:hover {
         background-color: #f8fafc !important;
@@ -609,88 +567,7 @@ export default function CreateCompanyPage() {
 
   return (
     <EmployerOnboardingCheck requiredAction="none">
-      <div id="select-portal" className="fixed inset-0 pointer-events-none z-[9998]" />
       <div className="mobile-job-form bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
-      <style jsx global>{`
-        [data-radix-popper-content-wrapper] {
-          z-index: 9999 !important;
-          position: fixed !important;
-        }
-        [data-radix-select-content] {
-          z-index: 9999 !important;
-          position: relative !important;
-          transform: none !important;
-        }
-        [data-radix-select-viewport] {
-          z-index: 9999 !important;
-        }
-        [data-radix-select-content] {
-          z-index: 9999 !important;
-          position: relative !important;
-        }
-        .select-content {
-          z-index: 9999 !important;
-        }
-        /* Ensure dropdowns are always visible */
-        [role="listbox"] {
-          z-index: 9999 !important;
-        }
-        /* Fix for any container overflow issues */
-        .overflow-hidden {
-          overflow: visible !important;
-        }
-        /* Ensure proper stacking context */
-        .relative {
-          z-index: 1;
-        }
-        /* Force dropdown visibility */
-        [data-state="open"] {
-          z-index: 9999 !important;
-        }
-        /* Additional dropdown visibility fixes */
-        [data-radix-popper-content-wrapper][data-side="bottom"] {
-          z-index: 9999 !important;
-          position: fixed !important;
-        }
-        [data-radix-select-content][data-side="bottom"] {
-          z-index: 9999 !important;
-        }
-        /* Ensure dropdown appears above all other elements */
-        .radix-select-content {
-          z-index: 9999 !important;
-        }
-        /* Fix for mobile and tablet visibility */
-        @media (max-width: 768px) {
-          [data-radix-popper-content-wrapper] {
-            z-index: 9999 !important;
-            position: fixed !important;
-            max-width: calc(100vw - 32px) !important;
-          }
-        }
-        /* Additional specific fixes for Radix Select */
-        [data-radix-select-content][data-state="open"] {
-          z-index: 9999 !important;
-          position: fixed !important;
-        }
-        [data-radix-select-viewport] {
-          z-index: 9999 !important;
-        }
-        /* Ensure dropdown items are visible */
-        [data-radix-select-item] {
-          z-index: 9999 !important;
-        }
-        /* Fix for any parent container clipping */
-        .overflow-hidden {
-          overflow: visible !important;
-        }
-        /* Ensure proper stacking context for all dropdown elements */
-        [data-radix-popper-content-wrapper],
-        [data-radix-select-content],
-        [data-radix-select-viewport],
-        [data-radix-select-item] {
-          z-index: 9999 !important;
-        }
-      `}</style>
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
@@ -887,16 +764,7 @@ export default function CreateCompanyPage() {
                             <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
                               <SelectValue placeholder="Select your industry" />
                             </SelectTrigger>
-                            <SelectContent 
-                              className="z-[10000] max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto"
-                              position="popper"
-                              sideOffset={8}
-                              align="start"
-                              avoidCollisions={true}
-                              collisionPadding={16}
-                              side="bottom"
-                              sticky="always"
-                            >
+                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl">
                               {industries.map((industry) => (
                                 <SelectItem 
                                   key={industry} 
@@ -923,16 +791,7 @@ export default function CreateCompanyPage() {
                             <SelectTrigger className="h-12 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 rounded-xl shadow-sm transition-all duration-200">
                               <SelectValue placeholder="Select company size" />
                             </SelectTrigger>
-                            <SelectContent 
-                              className="z-[10000] max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl max-w-[calc(100vw-2rem)] w-[calc(100vw-2rem)] sm:max-w-none sm:w-auto"
-                              position="popper"
-                              sideOffset={8}
-                              align="start"
-                              avoidCollisions={true}
-                              collisionPadding={16}
-                              side="bottom"
-                              sticky="always"
-                            >
+                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl">
                               {companySizes.map((size) => (
                                 <SelectItem 
                                   key={size} 
