@@ -403,7 +403,7 @@ export class EnhancedJobScraper {
 
     return (data?.data || []).map((job: any) => ({
       source: 'indeed',
-      sourceId: job.jobId || `indeed-${Date.now()}-${Math.random()}`,
+      sourceId: job.jobId || `indeed-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
       title: job.jobTitle || job.title || '',
       company: job.companyName || job.company || '',
       companyLogo: null,
@@ -459,7 +459,7 @@ export class EnhancedJobScraper {
 
     return (data?.jobs || []).map((job: any) => ({
       source: 'ziprecruiter',
-      sourceId: job.id || `ziprecruiter-${Date.now()}-${Math.random()}`,
+      sourceId: job.id || `ziprecruiter-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
       title: job.name || job.title || '',
       company: job.hiring_company?.name || job.company || '',
       companyLogo: null,

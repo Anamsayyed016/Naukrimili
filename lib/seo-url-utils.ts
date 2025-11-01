@@ -81,6 +81,31 @@ export function generateSalarySlug(salary?: string): string {
 }
 
 /**
+ * Validate job ID format
+ */
+export function isValidJobId(id: any): boolean {
+  if (!id) return false;
+  
+  const idStr = String(id);
+  
+  // Reject decimal numbers from Math.random()
+  if (/^\d*\.\d+$/.test(idStr)) {
+    console.warn('⚠️ Invalid job ID (decimal from Math.random()):', idStr);
+    return false;
+  }
+  
+  // Accept numeric IDs
+  if (/^\d+$/.test(idStr)) return true;
+  
+  // Accept string IDs with valid format (alphanumeric, hyphens, underscores)
+  if (/^[a-zA-Z0-9_-]+$/.test(idStr) && idStr.length > 0 && idStr.length < 200) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
  * Generate complete SEO-friendly job URL
  */
 export function generateSEOJobUrl(jobData: SEOJobData): string {
@@ -93,9 +118,15 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
     salary
   } = jobData;
 
+  // Validate job ID first
+  if (!isValidJobId(id)) {
+    console.error('❌ Invalid job ID for SEO URL generation:', id);
+    return `/jobs/invalid`;
+  }
+
   // Validate required fields - if missing, use simple ID URL
   if (!id || !title || !company || !location) {
-    return `/jobs/${id || 'unknown'}`;
+    return `/jobs/${id}`;
   }
 
   // Generate slugs
@@ -152,6 +183,7 @@ export function parseSEOJobUrl(url: string): string | null {
   let cleanUrl = url.trim().replace(/\/+$/, ''); // Remove trailing slashes
   cleanUrl = cleanUrl.replace(/\/apply$/, ''); // Remove /apply suffix
   cleanUrl = cleanUrl.replace(/\/details$/, ''); // Remove /details suffix
+  cleanUrl = cleanUrl.replace(/\/external$/, ''); // Remove /external suffix
   
   console.log('🧹 Cleaned URL:', cleanUrl);
   
@@ -161,28 +193,23 @@ export function parseSEOJobUrl(url: string): string | null {
     return cleanUrl;
   }
   
+  // Handle direct external job IDs (e.g., adzuna-12345, jsearch-67890, ext-timestamp-id)
+  if (/^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample)-/.test(cleanUrl)) {
+    console.log('✅ Found external job ID:', cleanUrl);
+    return cleanUrl;
+  }
+  
   // Handle direct string IDs (for external jobs)
-  if (/^[a-zA-Z0-9_-]+$/.test(cleanUrl) && !cleanUrl.includes('-')) {
+  if (/^[a-zA-Z0-9_-]+$/.test(cleanUrl) && cleanUrl.split('-').length <= 3) {
     console.log('✅ Found direct string ID:', cleanUrl);
     return cleanUrl;
   }
   
   // Special handling for sample job IDs that contain hyphens
-  const sampleJobMatch = cleanUrl.match(/-sample-([a-zA-Z0-9_-]+)$/);
+  const sampleJobMatch = cleanUrl.match(/-(sample-[a-zA-Z0-9_-]+)$/);
   if (sampleJobMatch) {
-    const jobId = `sample-${sampleJobMatch[1]}`;
+    const jobId = sampleJobMatch[1];
     console.log('✅ Found sample job ID:', jobId);
-    return jobId;
-  }
-  
-  // Special handling for sample jobs in SEO URLs
-  // Look for pattern: -1759851700270-18 (timestamp-number) which indicates sample job
-  const sampleTimestampMatch = cleanUrl.match(/-(\d{13})-(\d+)$/);
-  if (sampleTimestampMatch) {
-    const timestamp = sampleTimestampMatch[1];
-    const number = sampleTimestampMatch[2];
-    const jobId = `sample-${timestamp}-${number}`;
-    console.log('✅ Found sample job ID from timestamp pattern:', jobId);
     return jobId;
   }
   
@@ -195,32 +222,53 @@ export function parseSEOJobUrl(url: string): string | null {
   console.log('🧹 After removing invalid segments:', cleanUrl);
   
   // Extract job ID from SEO URL patterns (in order of specificity)
-  // For URLs like: cloud-engineer-devstudio-san-francisco-usa-entry-level-800000-2000000-diverse-1759317579085-9
+  // Pattern priority: most specific to least specific
   const patterns = [
-    /-([a-zA-Z0-9]{20,})$/,           // Long alphanumeric IDs (timestamp-id format)
-    /-([0-9]+\.[0-9]+)$/,             // Decimal numbers (but not Math.random format)
-    /-([0-9]+)$/,                     // Integer numbers (most common - matches "9" at the end)
-    /-([0-9]+)-([0-9]+)$/,            // Multi-number patterns (take last number)
-    /-([a-zA-Z0-9_-]+)$/              // Fallback pattern
+    // External job IDs with provider prefix (e.g., adzuna-1730-0-123456)
+    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+-\d+)$/,
+    // External job IDs (e.g., ext-1730000000-123456)
+    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+)$/,
+    // Sample job IDs (e.g., sample-1759851700270-18)
+    /-(sample-\d+-\d+)$/,
+    // Long alphanumeric IDs (timestamp-id format)
+    /-([a-zA-Z0-9]{20,})$/,
+    // Timestamp-number patterns (e.g., 1730000000-123456)
+    /-(\d{13,})-(\d+)$/,
+    // Long numbers (6+ digits - likely generated IDs)
+    /-([0-9]{6,})$/,
+    // Integer numbers (most common - matches "9" at the end)
+    /-([0-9]+)$/,
+    // Fallback pattern (alphanumeric with hyphens)
+    /-([a-zA-Z0-9_-]+)$/
   ];
   
   for (const pattern of patterns) {
     const match = cleanUrl.match(pattern);
     if (match) {
-      const jobId = match[(match || []).length - 1]; // Get last capture group
+      const jobId = match[1]; // Get first capture group (always the job ID)
       console.log('✅ Found job ID via pattern:', jobId, 'from pattern:', pattern);
-      return jobId;
+      // Validate the extracted ID doesn't look like a decimal from Math.random()
+      if (!/^\d*\.\d+$/.test(jobId)) {
+        return jobId;
+      } else {
+        console.warn('⚠️ Skipping decimal ID (likely from Math.random()):', jobId);
+        continue;
+      }
     }
   }
   
   // Final fallback: try to extract any ID-like string from the end
   const fallbackMatch = cleanUrl.match(/([a-zA-Z0-9_-]+)$/);
   if (fallbackMatch) {
-    console.log('✅ Found job ID via fallback:', fallbackMatch[1]);
-    return fallbackMatch[1];
+    const jobId = fallbackMatch[1];
+    // Skip if it looks like a decimal from Math.random()
+    if (!/^\d*\.\d+$/.test(jobId)) {
+      console.log('✅ Found job ID via fallback:', jobId);
+      return jobId;
+    }
   }
   
-  console.log('❌ No job ID found in URL:', url);
+  console.log('❌ No valid job ID found in URL:', url);
   return null;
 }
 
