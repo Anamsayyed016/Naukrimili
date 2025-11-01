@@ -269,132 +269,133 @@ export default function JobSeekerApplicationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold">Application Tracking</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold break-words">Application Tracking</h1>
             {/* Real-time Connection Status */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {isConnected ? (
-                <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
+                <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 text-xs">
                   <Wifi className="h-3 w-3 mr-1" />
                   Live
                 </Badge>
               ) : (
-                <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+                <Badge variant="secondary" className="bg-gray-100 text-gray-600 text-xs">
                   <WifiOff className="h-3 w-3 mr-1" />
                   Offline
                 </Badge>
               )}
               {lastUpdateTime && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 whitespace-nowrap">
                   Last updated: {lastUpdateTime.toLocaleTimeString()}
                 </span>
               )}
             </div>
           </div>
-          <p className="text-muted-foreground">Track your job applications and their status in real-time</p>
+          <p className="text-sm sm:text-base text-muted-foreground">Track your job applications and their status in real-time</p>
         </div>
-        <Link href="/jobs">
-          <Button>
+        <Link href="/jobs" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto">
             <Briefcase className="h-4 w-4 mr-2" />
             Browse Jobs
           </Button>
         </Link>
       </div>
 
-      {/* Application Stats - Real-time Updates */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      {/* Application Stats - Real-time Updates - Mobile Optimized */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
         <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-5 lg:p-6">
             <div className="flex items-center">
-              <Clock className="h-8 w-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Submitted</p>
-                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.submitted}</p>
+              <Clock className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-blue-600 flex-shrink-0" />
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Submitted</p>
+                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.submitted}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-5 lg:p-6">
             <div className="flex items-center">
-              <Eye className="h-8 w-8 text-purple-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Reviewed</p>
-                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.reviewed}</p>
+              <Eye className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-purple-600 flex-shrink-0" />
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Reviewed</p>
+                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.reviewed}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-5 lg:p-6">
             <div className="flex items-center">
-              <CheckCircle className="h-8 w-8 text-indigo-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Interview</p>
-                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.interview}</p>
+              <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-indigo-600 flex-shrink-0" />
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Interview</p>
+                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.interview}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-5 lg:p-6">
             <div className="flex items-center">
-              <Star className="h-8 w-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Hired</p>
-                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.hired}</p>
+              <Star className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-green-600 flex-shrink-0" />
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Hired</p>
+                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.hired}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-5 lg:p-6">
             <div className="flex items-center">
-              <XCircle className="h-8 w-8 text-red-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Rejected</p>
-                <p className="text-2xl font-bold transition-all duration-500">{statusCounts.rejected}</p>
+              <XCircle className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-red-600 flex-shrink-0" />
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Rejected</p>
+                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.rejected}</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
+      {/* Filters - Mobile Optimized */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
             Filters & Search
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Search</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="sm:col-span-2 lg:col-span-1">
+              <label className="text-xs sm:text-sm font-medium mb-2 block">Search</label>
               <div className="flex gap-2">
                 <Input
                   placeholder="Search jobs or companies..."
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   onKeyPress={(e) => e.key === 'Enter' && fetchApplications()}
+                  className="text-sm"
                 />
-                <Button onClick={fetchApplications} size="sm">
+                <Button onClick={fetchApplications} size="sm" className="flex-shrink-0">
                   <Search className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Status</label>
+              <label className="text-xs sm:text-sm font-medium mb-2 block">Status</label>
               <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -408,8 +409,8 @@ export default function JobSeekerApplicationsPage() {
               </Select>
             </div>
 
-            <div className="flex items-end">
-              <Button onClick={() => setFilters({ status: 'all', search: '' })} variant="outline" className="w-full">
+            <div className="flex items-end sm:col-span-2 lg:col-span-1">
+              <Button onClick={() => setFilters({ status: 'all', search: '' })} variant="outline" className="w-full text-sm">
                 Clear Filters
               </Button>
             </div>
@@ -438,50 +439,50 @@ export default function JobSeekerApplicationsPage() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {applications.map((application) => (
-                <div key={application.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-lg text-gray-900">
+                <div key={application.id} className="border rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+                        <h3 className="font-semibold text-base sm:text-lg text-gray-900 break-words pr-2">
                           {application.job.title}
                         </h3>
                         {getStatusBadge(application.status)}
                       </div>
                       
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                        <span className="flex items-center gap-1">
-                          <Building2 className="h-4 w-4" />
-                          {application.job.company}
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm text-gray-600 mb-3">
+                        <span className="flex items-center gap-1 min-w-0">
+                          <Building2 className="h-3 h-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{application.job.company}</span>
                         </span>
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {application.job.location}
+                        <span className="flex items-center gap-1 min-w-0">
+                          <MapPin className="h-3 h-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{application.job.location}</span>
                         </span>
-                        <span className="flex items-center gap-1">
-                          <Briefcase className="h-4 w-4" />
-                          {application.job.jobType}
+                        <span className="flex items-center gap-1 whitespace-nowrap">
+                          <Briefcase className="h-3 h-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm">{application.job.jobType}</span>
                         </span>
                         {application.job.isRemote && (
-                          <Badge variant="outline">Remote</Badge>
+                          <Badge variant="outline" className="text-xs">Remote</Badge>
                         )}
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          Applied {formatDate(application.appliedAt)}
+                        <span className="flex items-center gap-1 whitespace-nowrap w-full sm:w-auto">
+                          <Calendar className="h-3 h-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="text-xs sm:text-sm">Applied {formatDate(application.appliedAt)}</span>
                         </span>
                       </div>
 
                       {application.job.salary && (
-                        <div className="text-sm text-green-700 font-medium mb-3">
-                          {application.job.salary}
+                        <div className="text-xs sm:text-sm text-green-700 font-medium mb-3 break-words">
+                          💰 {application.job.salary}
                         </div>
                       )}
 
                       {application.coverLetter && (
                         <div className="mb-3">
-                          <p className="text-sm font-medium text-gray-700 mb-1">Cover Letter</p>
-                          <p className="text-sm text-gray-600 line-clamp-2">
+                          <p className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Cover Letter</p>
+                          <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 break-words">
                             {application.coverLetter}
                           </p>
                         </div>
@@ -489,25 +490,27 @@ export default function JobSeekerApplicationsPage() {
 
                       {application.notes && (
                         <div className="mb-3">
-                          <p className="text-sm font-medium text-gray-700 mb-1">Notes</p>
-                          <p className="text-sm text-gray-600 line-clamp-2">
+                          <p className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Notes</p>
+                          <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 break-words">
                             {application.notes}
                           </p>
                         </div>
                       )}
                     </div>
                     
-                    <div className="flex items-center gap-2 ml-4">
-                      <Link href={`/jobs/${application.job.id}/apply`}>
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Job
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 lg:ml-4 lg:flex-shrink-0">
+                      <Link href={`/jobs/${application.job.id}/apply`} className="w-full sm:w-auto">
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
+                          <Eye className="h-3 h-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                          <span className="hidden sm:inline">View Job</span>
+                          <span className="sm:hidden">View</span>
                         </Button>
                       </Link>
-                      <Link href={`/applications/${application.id}`}>
-                        <Button variant="outline" size="sm">
-                          <FileText className="h-4 w-4 mr-2" />
-                          View Details
+                      <Link href={`/applications/${application.id}`} className="w-full sm:w-auto">
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
+                          <FileText className="h-3 h-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                          <span className="hidden sm:inline">View Details</span>
+                          <span className="sm:hidden">Details</span>
                         </Button>
                       </Link>
                     </div>
