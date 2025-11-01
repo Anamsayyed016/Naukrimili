@@ -15,8 +15,12 @@ export async function GET(
     if (!jobId) {
       console.log('❌ Invalid job ID format:', params.id);
       return NextResponse.json(
-        { error: "Invalid job ID format" },
-        { status: 400 }
+        { 
+          error: "Job not found",
+          details: "Invalid job URL format. Please check the URL and try again.",
+          success: false
+        },
+        { status: 404 }
       );
     }
 
@@ -54,13 +58,12 @@ export async function GET(
         }
       });
     } else {
-      // Try as string ID (for external jobs)
+      // Try as string ID (for external jobs) - use sourceId field
       job = await prisma.job.findFirst({
         where: { 
           OR: [
-            { id: jobId as any },
-            { externalId: jobId },
-            { source: jobId }
+            { sourceId: jobId },
+            { source: jobId.split('-')[0] } // Try matching by source prefix
           ]
         },
         include: {
@@ -92,7 +95,11 @@ export async function GET(
     if (!job) {
       console.log('❌ Job not found:', jobId);
       return NextResponse.json(
-        { error: "Job not found" },
+        { 
+          error: "Job not found",
+          details: `No job found with ID: ${jobId}. The job may have expired or been removed.`,
+          success: false
+        },
         { status: 404 }
       );
     }

@@ -72,7 +72,7 @@ export async function fetchFromAdzuna(
 
     const jobs = (data.results || []).map((r: any, index: number): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.id ? `adzuna-${r.id}` : `adzuna-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+      sourceId: r.id ? `adzuna-${r.id}` : `adzuna-${Date.now()}-${index}-${Math.floor(Math.random() * 1000000)}`,
       title: r.title || r.position || '',
       company: r.company?.display_name || r.company || '',
       location: [
@@ -145,7 +145,7 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
 
     const jobs = (data?.data || []).map((r: any, index: number): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.job_id || r.job_link || `jsearch-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
+      sourceId: r.job_id || r.job_link || `jsearch-${Date.now()}-${index}-${Math.floor(Math.random() * 1000000)}`,
       title: r.job_title || r.title || '',
       company: r.employer_name || r.employer || '',
       location: [r.job_city, r.job_country].filter(Boolean).join(', '),
@@ -200,7 +200,7 @@ export async function fetchFromGoogleJobs(
 
     const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.job_id || `ext-${Date.now()}-${Math.random()}`,
+      sourceId: r.job_id || `ext-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
       title: r.job_title || r.title || '',
       company: r.company_name || r.employer || '',
       location: r.location || location,
@@ -276,7 +276,7 @@ export async function fetchFromJooble(
 
     const jobs = (data.jobs || []).map((r: any): NormalizedJob => ({
       source: 'jooble',
-      sourceId: r.id || `jooble-${Date.now()}-${Math.random()}`,
+      sourceId: r.id || `jooble-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
       title: r.title || '',
       company: r.company || '',
       location: r.location || location,
@@ -358,7 +358,7 @@ export async function fetchFromIndeed(
 
     const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.jobId || `indeed-${Date.now()}-${Math.random()}`,
+      sourceId: r.jobId || `indeed-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
       title: r.jobTitle || r.title || '',
       company: r.companyName || r.company || '',
       location: r.jobLocation || r.location || location,
@@ -419,7 +419,7 @@ export async function fetchFromZipRecruiter(
 
     const jobs = (data?.jobs || []).map((r: any): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.id || `ziprecruiter-${Date.now()}-${Math.random()}`,
+      sourceId: r.id || `ziprecruiter-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
       title: r.name || r.title || '',
       company: r.hiring_company?.name || r.company || '',
       location: r.location || location,
