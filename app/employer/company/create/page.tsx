@@ -568,7 +568,7 @@ export default function CreateCompanyPage() {
   return (
     <EmployerOnboardingCheck requiredAction="none">
       <div className="mobile-job-form bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
-      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
           <Link 
@@ -625,8 +625,8 @@ export default function CreateCompanyPage() {
         </div>
 
         {/* Form Content */}
-        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm mx-2 sm:mx-0 relative z-10">
-          <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 relative z-10">
+        <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm mx-2 sm:mx-0">
+          <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <motion.div
