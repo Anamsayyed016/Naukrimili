@@ -93,6 +93,11 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
     salary
   } = jobData;
 
+  // Validate required fields - if missing, use simple ID URL
+  if (!id || !title || !company || !location) {
+    return `/jobs/${id || 'unknown'}`;
+  }
+
   // Generate slugs
   const titleSlug = generateSlug(title);
   const companySlug = generateCompanySlug(company);
@@ -100,31 +105,36 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
   const experienceSlug = generateExperienceSlug(experienceLevel);
   const salarySlug = generateSalarySlug(salary);
 
-  // Build URL parts
+  // Build URL parts - only include valid slugs
   const urlParts = [
     titleSlug,
     companySlug,
     locationSlug
-  ];
+  ].filter(part => part && part !== 'undefined' && part !== 'null' && part.length > 0);
 
-  // Add experience if available
-  if (experienceSlug) {
+  // Add experience if available and valid
+  if (experienceSlug && experienceSlug !== 'undefined' && experienceSlug !== 'null' && experienceSlug.length > 0) {
     urlParts.push(experienceSlug);
   }
 
-  // Add salary if available (limit length)
-  if (salarySlug && (salarySlug || '').length <= 20) {
+  // Add salary if available, valid, and not too long
+  if (salarySlug && 
+      salarySlug !== 'undefined' && 
+      salarySlug !== 'null' && 
+      salarySlug !== 'salarynotspecified' &&
+      salarySlug.length > 0 && 
+      salarySlug.length <= 20) {
     urlParts.push(salarySlug);
   }
 
   // Join with hyphens and add job ID
-  const seoPath = urlParts.join('-');
+  const seoPath = urlParts.filter(Boolean).join('-');
   const finalUrl = `/jobs/${seoPath}-${id}`;
 
   // Ensure URL doesn't exceed reasonable length (SEO best practice)
   if ((finalUrl || '').length > 200) {
     // Fallback to shorter version
-    const shortPath = [titleSlug, companySlug, locationSlug].join('-');
+    const shortPath = [titleSlug, companySlug, locationSlug].filter(Boolean).join('-');
     return `/jobs/${shortPath}-${id}`;
   }
 
@@ -176,11 +186,19 @@ export function parseSEOJobUrl(url: string): string | null {
     return jobId;
   }
   
+  // Remove common invalid segments from URL before parsing
+  cleanUrl = cleanUrl.replace(/-undefined$/g, '');
+  cleanUrl = cleanUrl.replace(/-null$/g, '');
+  cleanUrl = cleanUrl.replace(/-salarynotspecified$/g, '');
+  cleanUrl = cleanUrl.replace(/-notspecified$/g, '');
+  
+  console.log('🧹 After removing invalid segments:', cleanUrl);
+  
   // Extract job ID from SEO URL patterns (in order of specificity)
   // For URLs like: cloud-engineer-devstudio-san-francisco-usa-entry-level-800000-2000000-diverse-1759317579085-9
   const patterns = [
     /-([a-zA-Z0-9]{20,})$/,           // Long alphanumeric IDs (timestamp-id format)
-    /-([0-9]+\.[0-9]+)$/,             // Decimal numbers
+    /-([0-9]+\.[0-9]+)$/,             // Decimal numbers (but not Math.random format)
     /-([0-9]+)$/,                     // Integer numbers (most common - matches "9" at the end)
     /-([0-9]+)-([0-9]+)$/,            // Multi-number patterns (take last number)
     /-([a-zA-Z0-9_-]+)$/              // Fallback pattern
@@ -264,15 +282,32 @@ export function generateLocationJobUrl(location: string): string {
  * Validate and clean job data for SEO URL generation
  */
 export function cleanJobDataForSEO(jobData: any): SEOJobData {
+  // Helper to check if value is valid and not placeholder text
+  const isValidValue = (val: any): boolean => {
+    if (!val) return false;
+    const str = String(val).toLowerCase().trim();
+    return str.length > 0 && 
+           str !== 'undefined' && 
+           str !== 'null' && 
+           str !== 'n/a' &&
+           str !== 'not specified' &&
+           str !== 'salary not specified';
+  };
+
   return {
-    id: jobData.id || '',
-    title: (jobData.title || 'job').trim(),
-    company: (jobData.company || jobData.companyRelation?.name || 'company').trim(),
-    location: (jobData.location || 'location').trim(),
-    experienceLevel: jobData.experienceLevel || jobData.experience,
-    salary: jobData.salary || jobData.salary_formatted,
-    jobType: jobData.jobType || jobData.job_type,
-    sector: jobData.sector || jobData.industry
+    id: jobData.id || jobData.sourceId || '',
+    title: isValidValue(jobData.title) ? jobData.title.trim() : 'job',
+    company: isValidValue(jobData.company) ? jobData.company.trim() : 
+             isValidValue(jobData.companyRelation?.name) ? jobData.companyRelation.name.trim() : 'company',
+    location: isValidValue(jobData.location) ? jobData.location.trim() : 'location',
+    experienceLevel: isValidValue(jobData.experienceLevel) ? jobData.experienceLevel : 
+                     isValidValue(jobData.experience) ? jobData.experience : undefined,
+    salary: isValidValue(jobData.salary) ? jobData.salary : 
+            isValidValue(jobData.salary_formatted) ? jobData.salary_formatted : undefined,
+    jobType: isValidValue(jobData.jobType) ? jobData.jobType : 
+             isValidValue(jobData.job_type) ? jobData.job_type : undefined,
+    sector: isValidValue(jobData.sector) ? jobData.sector : 
+            isValidValue(jobData.industry) ? jobData.industry : undefined
   };
 }
 
