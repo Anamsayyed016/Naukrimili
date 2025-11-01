@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from '@/lib/jobs/providers';
 import { prisma } from '@/lib/prisma';
+import { filterValidJobs } from '@/lib/jobs/job-id-validator';
 
 // Cache for external API responses (5 minutes)
 const externalCache = new Map<string, { data: any; timestamp: number }>();
@@ -468,7 +469,7 @@ export async function GET(request: NextRequest) {
     console.log(`📊 Job counts: database=${transformedDatabaseJobs.length}, sample=${filteredJobs.length}, external=${externalJobs.length}, transformed=${transformedExternalJobs.length}`);
     // Merge then enforce country allowlist and freshness, and de-duplicate
     const requestedCountries = new Set(countries);
-    const allJobs = [...transformedDatabaseJobs, ...filteredJobs, ...transformedExternalJobs]
+    const allJobs = filterValidJobs([...transformedDatabaseJobs, ...filteredJobs, ...transformedExternalJobs])
       .filter(job => {
         const jobCountry = (job.country || '').toString().toUpperCase();
         return requestedCountries.has(jobCountry);

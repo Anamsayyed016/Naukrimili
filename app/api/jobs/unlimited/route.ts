@@ -8,6 +8,7 @@ import { prisma } from '@/lib/prisma';
 import { calculateDistance } from '@/lib/geoUtils';
 import { trackJobSearch } from '@/lib/analytics/event-integration';
 import { auth } from '@/lib/nextauth-config';
+import { filterValidJobs } from '@/lib/jobs/job-id-validator';
 
 /**
  * ENHANCED: Smart duplicate removal - handles variations and prioritizes database jobs
@@ -247,12 +248,14 @@ export async function GET(request: NextRequest) {
       ]);
       
       // IMPORTANT: All jobs fetched from our database should be marked as 'database'
-      // This ensures they're counted correctly, regardless of their original source (adzuna, external, etc.)
-      jobs = jobsResult.map(job => ({
+      // CRITICAL: Filter out jobs with invalid IDs (decimals from Math.random())
+      const validJobsResult = filterValidJobs(jobsResult);
+      
+      jobs = validJobsResult.map(job => ({
         ...job,
         source: 'database' // Force all database-fetched jobs to be 'database' for counting
       }));
-      total = totalResult;
+      total = jobs.length; // Update total to reflect filtered count
       
       // Debug: Check source fields right after normalization
       const dbJobsWithSource = jobs.filter(j => j.source === 'database' || j.source === 'employer').length;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { filterValidJobs } from "@/lib/jobs/job-id-validator";
 
 export async function GET(request: NextRequest) {
   try {
@@ -174,6 +175,10 @@ export async function GET(request: NextRequest) {
       prisma.job.count({ where }),
     ]);
 
+    // CRITICAL: Filter out jobs with invalid IDs (decimals from Math.random())
+    const validJobs = filterValidJobs(jobs);
+    const filteredTotal = validJobs.length;
+    
     // Avoid extra aggregates for list view to reduce latency
     const stats = view === 'list'
       ? undefined
@@ -185,12 +190,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        jobs,
+        jobs: validJobs,
         pagination: {
           page,
           limit,
-          total,
-          totalPages: Math.ceil(total / limit)
+          total: filteredTotal,
+          totalPages: Math.ceil(filteredTotal / limit)
         },
         ...(stats ? { stats: { totalJobs: stats._count.id, totalApplications } } : {})
       }

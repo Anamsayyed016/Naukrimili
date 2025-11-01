@@ -118,14 +118,28 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
     salary
   } = jobData;
 
-  // Validate job ID first
+  // Validate required fields first
+  if (!id) {
+    console.error('❌ No job ID provided for URL generation');
+    return `/jobs`;
+  }
+
+  // If ID is invalid format, try to sanitize it
   if (!isValidJobId(id)) {
-    console.error('❌ Invalid job ID for SEO URL generation:', id);
-    return `/jobs/invalid`;
+    console.warn('⚠️ Invalid job ID format, attempting to sanitize:', id);
+    // Try to extract a valid part of the ID
+    const sanitized = String(id).replace(/[^a-zA-Z0-9_-]/g, '-');
+    // If sanitization results in something valid, use it; otherwise use simple numeric fallback
+    if (sanitized && sanitized.length > 0 && sanitized !== '-') {
+      return `/jobs/${sanitized}`;
+    }
+    // Last resort: use the ID as-is and let the API handle it
+    console.warn('⚠️ Using unsanitized ID as fallback:', id);
+    return `/jobs/${id}`;
   }
 
   // Validate required fields - if missing, use simple ID URL
-  if (!id || !title || !company || !location) {
+  if (!title || !company || !location) {
     return `/jobs/${id}`;
   }
 
