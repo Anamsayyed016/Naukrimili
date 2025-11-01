@@ -1,0 +1,28 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+/**
+ * Redirect /dashboard/recruiter/* to /employer/*
+ * "Recruiter" and "Employer" are the same role in this system
+ */
+export default function RecruiterRedirectPage() {
+  const router = useRouter();
+  
+  useEffect(() => {
+    // Redirect to employer dashboard
+    router.replace('/employer/dashboard');
+  }, [router]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600 font-medium">Redirecting to Employer Dashboard...</p>
+        <p className="mt-2 text-sm text-gray-500">The recruiter dashboard has been merged with the employer dashboard</p>
+      </div>
+    </div>
+  );
+}
+
