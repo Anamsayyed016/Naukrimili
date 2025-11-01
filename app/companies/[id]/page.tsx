@@ -141,84 +141,92 @@ export default function CompanyProfilePage() {
         </Link>
       </div>
 
-      {/* Company Header */}
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      {/* Company Header - Mobile Optimized */}
+      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
           {/* Company Logo */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 mx-auto lg:mx-0">
             {company.logo ? (
               <img
                 src={company.logo}
                 alt={`${company.name} logo`}
-                className="w-32 h-32 rounded-lg object-contain border border-gray-200"
+                className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-lg object-contain border border-gray-200"
               />
             ) : (
-              <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-200">
-                <Building2 className="w-16 h-16 text-gray-400" />
+              <div className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-200">
+                <Building2 className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-gray-400" />
               </div>
             )}
           </div>
 
           {/* Company Info */}
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-4">
-              <h1 className="text-3xl font-bold text-gray-900">{company.name}</h1>
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">{company.name}</h1>
               {company.isVerified && (
-                <Badge variant="secondary" className="gap-1">
-                  <CheckCircle className="w-4 h-4" />
+                <Badge variant="secondary" className="gap-1 self-start sm:self-auto">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                   Verified
                 </Badge>
               )}
             </div>
 
             {company.description && (
-              <p className="text-gray-600 text-lg mb-6 leading-relaxed">
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg mb-4 sm:mb-6 leading-relaxed break-words">
                 {company.description}
               </p>
             )}
 
-            {/* Company Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* Company Stats - Mobile Optimized */}
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
               {company.industry && (
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{company.industry}</div>
-                  <div className="text-sm text-gray-500">Industry</div>
+                <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-100">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600 truncate px-1" title={company.industry}>
+                    {company.industry}
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-500 mt-1">Industry</div>
                 </div>
               )}
               
               {company.location && (
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{company.location}</div>
-                  <div className="text-sm text-gray-500">Location</div>
+                <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg border border-green-100">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600 truncate px-1" title={company.location}>
+                    {company.location}
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-500 mt-1">Location</div>
                 </div>
               )}
               
               {company.size && (
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">{company.size}</div>
-                  <div className="text-sm text-gray-500">Company Size</div>
+                <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-100">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-600 truncate px-1" title={company.size}>
+                    {company.size}
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-500 mt-1">Company Size</div>
                 </div>
               )}
               
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">{company._count.jobs}</div>
-                <div className="text-sm text-gray-500">Open Jobs</div>
+              <div className="text-center p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-100">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600">
+                  {company._count.jobs}
+                </div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">Open Jobs</div>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3">
+            {/* Action Buttons - Mobile Optimized */}
+            <div className="flex flex-col sm:flex-row gap-3">
               {company.website && (
-                <Button variant="outline" asChild>
-                  <a href={company.website} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" asChild className="w-full sm:w-auto">
+                  <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
                     <Globe className="w-4 h-4 mr-2" />
                     Visit Website
                   </a>
                 </Button>
               )}
               
-              <Button asChild>
-                <Link href={`/jobs?company=${company.name}`}>
+              <Button asChild className="w-full sm:w-auto">
+                <Link href={`/jobs?company=${company.name}`} className="flex items-center justify-center">
                   <Briefcase className="w-4 h-4 mr-2" />
                   View All Jobs
                 </Link>
@@ -329,39 +337,39 @@ export default function CompanyProfilePage() {
               <Card key={job.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-xl font-semibold text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 break-words pr-2">
                           {job.title}
                         </h3>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-shrink-0">
                           {job.isUrgent && (
-                            <Badge variant="destructive">Urgent</Badge>
+                            <Badge variant="destructive" className="text-xs">Urgent</Badge>
                           )}
                           {job.isFeatured && (
-                            <Badge variant="secondary">Featured</Badge>
+                            <Badge variant="secondary" className="text-xs">Featured</Badge>
                           )}
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm text-gray-600 mb-3">
                         {job.location && (
                           <div className="flex items-center gap-1">
-                            <MapPin className="w-4 h-4" />
-                            {job.location}
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                            <span className="truncate">{job.location}</span>
                           </div>
                         )}
                         
                         {job.jobType && (
-                          <Badge variant="outline">{job.jobType}</Badge>
+                          <Badge variant="outline" className="text-xs">{job.jobType}</Badge>
                         )}
                         
                         {job.experienceLevel && (
-                          <Badge variant="outline">{job.experienceLevel}</Badge>
+                          <Badge variant="outline" className="text-xs">{job.experienceLevel}</Badge>
                         )}
                         
                         {(job.isRemote || job.isHybrid) && (
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
                             {job.isRemote ? 'Remote' : 'Hybrid'}
                           </Badge>
                         )}
@@ -400,22 +408,22 @@ export default function CompanyProfilePage() {
                         ) : null;
                       })()}
                       
-                      <div className="flex items-center justify-between text-sm text-gray-600">
-                        <div className="flex items-center gap-4">
-                          <span>💰 {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency)}</span>
-                          <span>👁️ {job.views} views</span>
-                          <span>📝 {job.applicationsCount} applications</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4">
+                          <span className="break-words">💰 {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency)}</span>
+                          <span className="whitespace-nowrap">👁️ {job.views} views</span>
+                          <span className="whitespace-nowrap">📝 {job.applicationsCount} applications</span>
                         </div>
                         
                         {job.postedAt && (
-                          <span>Posted {new Date(job.postedAt).toLocaleDateString()}</span>
+                          <span className="text-xs sm:text-sm whitespace-nowrap">Posted {new Date(job.postedAt).toLocaleDateString()}</span>
                         )}
                       </div>
                     </div>
                     
-                    <div className="flex-shrink-0">
-                      <Button asChild>
-                        <Link href={`/jobs/${job.id}/apply`}>
+                    <div className="flex-shrink-0 w-full lg:w-auto">
+                      <Button asChild className="w-full lg:w-auto">
+                        <Link href={`/jobs/${job.id}/apply`} className="flex items-center justify-center">
                           View Job
                         </Link>
                       </Button>
