@@ -63,7 +63,7 @@ export async function fetchFromAdzuna(
         app_id,
         app_key,
         what: query,
-        results_per_page: 20,
+        results_per_page: 50, // Increased from 20 to 50 for more jobs
         ...(options?.location ? { where: options.location } : {}),
         ...(options?.distanceKm ? { distance: options.distanceKm } : {}),
       },
@@ -252,7 +252,7 @@ export async function fetchFromJooble(
       keywords: query || 'software engineer',
       location: location || 'India',
       page: page.toString(),
-      ResultOnPage: '20',
+      ResultOnPage: '50', // Increased from 20 to 50 for more jobs
       SearchMode: '1', // 1 = Job search mode
       companysearch: 'false'
     };

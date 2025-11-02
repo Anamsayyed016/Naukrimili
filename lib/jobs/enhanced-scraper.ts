@@ -228,10 +228,10 @@ export class EnhancedJobScraper {
         app_id,
         app_key,
         what: query || 'software developer',
-        results_per_page: 50,
+        results_per_page: 100, // Increased from 50 to 100 for more jobs per request
         content_type: 'application/json'
       },
-      timeout: 15000
+      timeout: 20000 // Increased timeout for larger responses
     });
 
     return (data.results || []).map((job: any) => ({
