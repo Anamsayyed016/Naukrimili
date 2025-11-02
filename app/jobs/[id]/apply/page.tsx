@@ -550,10 +550,10 @@ export default function JobApplicationPage() {
       
       setSubmitted(true);
       
-      // Show success notification
-      toast.success('🎉 Application Submitted!', {
-        description: `Your application for ${job?.title} has been submitted successfully. You'll hear back from the employer soon!`,
-        duration: 5000,
+      // Show success notification with employer info
+      toast.success('🎉 Application Sent to Employer!', {
+        description: `Your application for ${job?.title} at ${job?.company} has been delivered. The hiring team will review it and contact you soon.`,
+        duration: 7000,
       });
       
       // Redirect to jobs listing instead of job details to avoid potential errors
@@ -587,9 +587,24 @@ export default function JobApplicationPage() {
     }
   };
 
-  // Removed external redirect - all jobs now use internal application
-  // This prevents geo-blocking issues from external platforms like Adzuna
-  const isExternalJob = false; // Force internal application for all jobs
+  // Check if this is an external job to show career search option
+  const isExternalJob = job?.source === 'external' || job?.source !== 'manual';
+  
+  const handleExternalCareerSearch = async () => {
+    if (!job) return;
+    
+    // Use smart career page finder to bypass geo-blocking
+    const { generateCompanyCareerSearchUrl } = await import('@/lib/company-career-finder');
+    
+    const careerSearchUrl = generateCompanyCareerSearchUrl(
+      job.company || 'Company',
+      job.title,
+      job.location || undefined
+    );
+    
+    console.log('🌐 Opening smart career search for external job');
+    window.open(careerSearchUrl, '_blank', 'noopener,noreferrer');
+  };
 
   // Show loading while checking authentication
   if (status === 'loading') {
@@ -690,9 +705,14 @@ export default function JobApplicationPage() {
               <CheckCircle className="h-12 w-12 text-green-600" />
             </div>
             <h2 className="text-3xl font-bold text-green-800 mb-3">Application Submitted!</h2>
-            <p className="text-green-700 mb-6 text-lg">
-              Your application has been submitted successfully.
+            <p className="text-green-700 mb-4 text-lg font-semibold">
+              Your application has been sent to {job?.company || 'the employer'}
             </p>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-left">
+              <p className="text-green-800 text-sm mb-2">✅ <strong>Application Delivered:</strong> Your details have been forwarded to the hiring team</p>
+              <p className="text-green-800 text-sm mb-2">✅ <strong>Notification Sent:</strong> The employer will review your application</p>
+              <p className="text-green-800 text-sm">✅ <strong>Next Steps:</strong> You'll receive updates via email and notifications</p>
+            </div>
             <div className="space-y-3">
               <Link
                 href="/jobs"
@@ -1172,34 +1192,53 @@ export default function JobApplicationPage() {
               )}
             </div>
 
-            {/* External Job Notice */}
-            {isExternalJob && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
-                <div className="flex items-start gap-4">
-                  <div className="bg-yellow-100 p-3 rounded-lg">
-                    <ExternalLink className="w-6 h-6 text-yellow-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-yellow-900 mb-2">External Job Application</h3>
-                    <p className="text-yellow-700 mb-4">
-                      This job is posted on an external platform. You will apply directly on the company's website.
+            {/* Application Process Information */}
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8">
+              <div className="flex items-start gap-4">
+                <div className="bg-blue-100 p-3 rounded-lg">
+                  <Send className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-blue-900 mb-2">How Your Application Works</h3>
+                  <div className="text-blue-700 space-y-2">
+                    <p className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">1.</span>
+                      <span>You submit your application on NaukriMili (no external redirects)</span>
                     </p>
-                    <button
-                      onClick={handleExternalApply}
-                      disabled={!job?.source_url}
-                      className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                      Apply on Company Site
-                    </button>
+                    <p className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">2.</span>
+                      <span>We instantly forward your details to <strong>{job?.company || 'the employer'}</strong></span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">3.</span>
+                      <span>The hiring team reviews and contacts you directly via email/phone</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">4.</span>
+                      <span>You'll receive notifications about your application status</span>
+                    </p>
                   </div>
+                  {isExternalJob && (
+                    <div className="mt-4 pt-4 border-t border-blue-200">
+                      <p className="text-blue-700 text-sm mb-3">
+                        <ExternalLink className="w-3 h-3 inline mr-1" />
+                        This job is sourced from a partner platform
+                      </p>
+                      <button
+                        onClick={handleExternalCareerSearch}
+                        className="text-sm text-green-700 hover:text-green-800 font-medium underline flex items-center gap-1"
+                      >
+                        <Globe className="w-3 h-3" />
+                        Or search {job?.company}'s career page directly (bypasses restrictions)
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* Application Form - Only show for internal jobs */}
-            {!isExternalJob && (
-              <div className="bg-white rounded-3xl shadow-2xl p-8 border-0">
+            {/* Application Form - Show for ALL jobs now */}
+            <div className="bg-white rounded-3xl shadow-2xl p-8 border-0">
                 <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
                     <FileText className="h-5 w-5 text-white" />
@@ -1401,12 +1440,10 @@ export default function JobApplicationPage() {
                   </button>
                 </form>
               </div>
-            )}
           </div>
 
-          {/* Resume Analysis Sidebar - Only show for internal jobs */}
-          {!isExternalJob && (
-            <div className="space-y-6">
+          {/* Resume Analysis Sidebar */}
+          <div className="space-y-6">
               {/* Socket Connection Status */}
               <div className="bg-white rounded-2xl shadow-2xl p-6 border-0">
                 <h3 className="text-xl font-bold flex items-center gap-3 mb-4">
@@ -1534,7 +1571,6 @@ export default function JobApplicationPage() {
                 </div>
               )}
             </div>
-          )}
         </div>
       </div>
     </div>

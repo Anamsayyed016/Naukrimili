@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search } from "lucide-react";
+import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2, Calendar, ArrowRight, Sparkles, Users, Eye, ExternalLink, Search, Send, Globe } from "lucide-react";
 import JobShare from "@/components/JobShare";
 import JobPostingSchema from "@/components/seo/JobPostingSchema";
 import { formatJobSalary } from "@/lib/currency-utils";
@@ -123,72 +123,41 @@ export default function JobDetailsPage() {
     }
   };
 
-    const handleExternalApply = () => {
+    const handleExternalApply = async () => {
     if (!job) {
       console.error('❌ Job data not available for external apply');
       return;
     }
 
-    // Try all possible URL fields in order of preference
-    const applyUrl = job.source_url || job.applyUrl || job.apply_url || 
-                     (job as any).redirect_url || (job as any).url || (job as any).link;
+    // Use smart career page finder to bypass geo-blocking
+    const { generateCompanyCareerSearchUrl } = await import('@/lib/company-career-finder');
     
-    if (!applyUrl) {
-      console.error('❌ No apply URL found for job:', {
-        id: job.id,
-        title: job.title,
-        source: job.source,
-        source_url: job.source_url,
-        applyUrl: job.applyUrl,
-        apply_url: job.apply_url,
-        redirect_url: (job as any).redirect_url,
-        url: (job as any).url,
-        link: (job as any).link
-      });
-      
-      // Show user-friendly error message
-      alert('Application URL not available for this job. Please try again later or contact support.');
-      return;
-    }
-
-    // Check if this is a dynamic/sample job with placeholder URL
-    if (job.source === 'dynamic' || applyUrl.includes('/careers/')) {
-      const confirmed = confirm(
-        `⚠️ Note: This appears to be a sample/aggregated job listing.\n\n` +
-        `The URL may not lead to an active job posting on the company website.\n\n` +
-        `Would you like to:\n` +
-        `• Visit the company's general careers page, or\n` +
-        `• Search for this position on job boards like LinkedIn or Indeed?\n\n` +
-        `Click OK to visit the URL anyway, or Cancel to search on job boards.`
-      );
-      
-      if (!confirmed) {
-        // Redirect to job search on LinkedIn or Indeed
-        const searchQuery = encodeURIComponent(`${job.title} ${job.company}`);
-        const linkedInUrl = `https://www.linkedin.com/jobs/search/?keywords=${searchQuery}`;
-        window.open(linkedInUrl, '_blank', 'noopener,noreferrer');
-        return;
-      }
-    }
-
-    console.log('🌐 Opening external apply URL:', applyUrl);
+    // Generate Google search for company career page
+    const careerSearchUrl = generateCompanyCareerSearchUrl(
+      job.company || 'Company',
+      job.title,
+      job.location || undefined
+    );
+    
+    console.log('🌐 Opening smart career search:', careerSearchUrl);
     console.log('📊 Job details:', {
       id: job.id,
       title: job.title,
-      source: job.source,
-      isExternal: job.isExternal
+      company: job.company,
+      source: job.source
     });
     
-    // Open in new tab with proper security attributes
-    window.open(applyUrl, '_blank', 'noopener,noreferrer');
+    // Open Google search for company career page (bypasses geo-restrictions)
+    window.open(careerSearchUrl, '_blank', 'noopener,noreferrer');
     
     // Track the click for analytics
     if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'job_apply_click', {
+      (window as any).gtag('event', 'company_career_search', {
         job_id: job.id,
         job_title: job.title,
         company: job.company,
-        source: job.source
+        source: job.source,
+        method: 'google_search'
       });
     }
   };
@@ -406,29 +375,43 @@ export default function JobDetailsPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex-1 space-y-4">
-                    <Button 
-                      onClick={handleInternalApply}
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-                    >
-                      Apply Now
-                    </Button>
-                    
-                    {isExternalJob && (
-                      <div className="text-center space-y-2">
-                        <p className="text-sm text-gray-600">
-                          <span className="inline-flex items-center gap-1">
-                            <ExternalLink className="w-3 h-3" />
-                            Sourced from {job.source === 'external' ? 'partner platform' : job.source}
-                          </span>
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Apply directly on our platform - No redirects required
-                        </p>
+                <div className="space-y-4">
+                  {/* Primary Action: Internal Application */}
+                  <Button 
+                    onClick={handleInternalApply}
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <Send className="w-5 h-5" />
+                    Apply on NaukriMili (Recommended)
+                  </Button>
+                  
+                  {/* Secondary Action: External Job Link */}
+                  {isExternalJob && job.source_url && (
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                          <span className="px-3 bg-white text-gray-500">Or</span>
+                        </div>
                       </div>
-                    )}
-                  </div>
+                      
+                      <Button 
+                        onClick={handleExternalApply}
+                        variant="outline"
+                        className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 py-4 px-8 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-2"
+                      >
+                        <Globe className="w-5 h-5" />
+                        Search Company Career Page
+                      </Button>
+                      
+                      <p className="text-xs text-center text-gray-500">
+                        <ExternalLink className="w-3 h-3 inline mr-1" />
+                        Opens Google search for {job.company}'s career page (bypasses geo-restrictions)
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
