@@ -1,0 +1,141 @@
+═══════════════════════════════════════════════════════════
+DATABASE CONNECTION FIX - QUICK REFERENCE
+═══════════════════════════════════════════════════════════
+
+PROBLEM: Website goes down when PostgreSQL/cPanel database fails
+
+SOLUTION: Optimized connection pooling + retry logic
+
+═══════════════════════════════════════════════════════════
+STEP 1: UPDATE DATABASE_URL (CRITICAL)
+═══════════════════════════════════════════════════════════
+
+OLD (BASIC):
+DATABASE_URL="postgresql://user:password@host:5432/database"
+
+NEW (OPTIMIZED - USE THIS):
+DATABASE_URL="postgresql://user:password@host:5432/database?connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30"
+
+WHAT THIS DOES:
+- connection_limit=10  → Max 10 connections (prevents overload)
+- pool_timeout=20      → Wait 20s for connection
+- connect_timeout=10   → 10s to connect initially
+- socket_timeout=30    → 30s for query timeout
+
+═══════════════════════════════════════════════════════════
+STEP 2: UPDATE YOUR .ENV FILE ON SERVER
+═══════════════════════════════════════════════════════════
+
+nano .env
+
+Then update DATABASE_URL with the optimized format above
+
+Save and exit (Ctrl+X, Y, Enter)
+
+═══════════════════════════════════════════════════════════
+STEP 3: TEST DATABASE CONNECTION
+═══════════════════════════════════════════════════════════
+
+node scripts/check-database.js
+
+This will test:
+✓ Basic connectivity
+✓ Query execution
+✓ Database version
+✓ Connection pooling
+
+═══════════════════════════════════════════════════════════
+STEP 4: RESTART APPLICATION
+═══════════════════════════════════════════════════════════
+
+pm2 restart naukrimili --update-env
+
+═══════════════════════════════════════════════════════════
+STEP 5: MONITOR DATABASE HEALTH
+═══════════════════════════════════════════════════════════
+
+# Check database health
+curl http://localhost:3000/api/health/database
+
+# Or from browser:
+https://naukrimili.com/api/health/database
+
+Expected response:
+{
+  "success": true,
+  "status": "healthy",
+  "database": "connected",
+  "responseTime": "50ms"
+}
+
+═══════════════════════════════════════════════════════════
+WHAT WAS FIXED IN CODE:
+═══════════════════════════════════════════════════════════
+
+1. lib/prisma.ts
+   ✓ Added automatic retry logic (3 attempts)
+   ✓ Added connection error detection
+   ✓ Added graceful shutdown
+   ✓ Added health check function
+
+2. app/api/health/database/route.ts
+   ✓ New endpoint to test database
+   ✓ Returns status immediately
+
+3. scripts/check-database.js
+   ✓ Quick CLI tool to test database
+
+═══════════════════════════════════════════════════════════
+GCS BUCKET (OPTIONAL - Can be disabled)
+═══════════════════════════════════════════════════════════
+
+To disable Google Cloud Storage (use local storage instead):
+
+export ENABLE_GCS_STORAGE=false
+pm2 restart naukrimili --update-env
+
+This removes dependency on GCS bucket but DATABASE is still REQUIRED!
+
+═══════════════════════════════════════════════════════════
+IMPORTANT NOTES:
+═══════════════════════════════════════════════════════════
+
+⚠️  YOU CANNOT REMOVE DATABASE - Website depends on it 100%
+✓ You CAN remove GCS bucket (optional storage)
+✓ Database will now auto-retry on connection failures
+✓ Connection pooling prevents database overload
+✓ Website stays responsive even with slow database
+
+═══════════════════════════════════════════════════════════
+MONITORING COMMANDS:
+═══════════════════════════════════════════════════════════
+
+# Watch database logs
+pm2 logs naukrimili | grep Database
+
+# Check database health repeatedly
+watch -n 5 'curl -s http://localhost:3000/api/health/database | jq'
+
+# Check PostgreSQL status (if on same server)
+systemctl status postgresql
+
+# Or for cPanel:
+service postgresql status
+
+═══════════════════════════════════════════════════════════
+IF DATABASE STILL FAILS:
+═══════════════════════════════════════════════════════════
+
+1. Check cPanel database settings
+2. Verify PostgreSQL service is running
+3. Check database user permissions
+4. Test connection manually:
+   psql -U your_user -d your_database -h localhost
+
+5. Check connection limits in PostgreSQL:
+   SELECT * FROM pg_stat_activity;
+
+6. Contact cPanel support if database service is down
+
+═══════════════════════════════════════════════════════════
+
