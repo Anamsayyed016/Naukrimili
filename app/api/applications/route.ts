@@ -366,11 +366,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Parse jobId to numeric (handle both numeric and string IDs)
+    const numericJobId = parseInt(jobId, 10);
+    const isNumericId = !isNaN(numericJobId);
+    
     // Create application with real user data
     const application = await prisma.application.create({
       data: {
         userId: user.id,
-        jobId: parseInt(jobId, 10),
+        jobId: isNumericId ? numericJobId : (job as any).id, // Use job.id if jobId is not numeric
         notes: coverLetter || null,
         status: 'submitted',
         appliedAt: new Date(),
@@ -702,6 +706,8 @@ async function findJobWithFallback(jobId: string) {
         });
         if (job) {
           console.log('✅ Job found by numeric ID:', job.title);
+          // Ensure country is set to fix "region not available"
+          if (!job.country) job.country = 'IN';
           return job;
         }
       } catch (_error) {
@@ -709,7 +715,7 @@ async function findJobWithFallback(jobId: string) {
       }
     }
     
-    // Strategy 2: SourceId lookup
+    // Strategy 2: SourceId lookup (for external jobs)
     try {
       const job = await prisma.job.findFirst({
         where: { sourceId: jobId },
@@ -724,35 +730,45 @@ async function findJobWithFallback(jobId: string) {
       });
       if (job) {
         console.log('✅ Job found by sourceId:', job.title);
+        // Ensure country is set to fix "region not available"
+        if (!job.country) job.country = 'IN';
         return job;
       }
     } catch (_error) {
       console.warn('⚠️ SourceId lookup failed:', error);
     }
     
-    // Strategy 3: String ID lookup (for external jobs)
-    try {
-      const job = await prisma.job.findFirst({
-        where: { 
-          OR: [
-            { sourceId: jobId }
-          ]
-        },
-        include: {
-          companyRelation: {
-            select: {
-              id: true,
-              name: true
+    // Strategy 3: Partial timestamp match for external jobs (external-123456-1 format)
+    if (jobId.startsWith('external-') || jobId.startsWith('ext-')) {
+      try {
+        const parts = jobId.split('-');
+        if (parts.length >= 2) {
+          const timestamp = parts[1];
+          const job = await prisma.job.findFirst({
+            where: { 
+              sourceId: {
+                contains: timestamp
+              }
+            },
+            include: {
+              companyRelation: {
+                select: {
+                  id: true,
+                  name: true
+                }
+              }
             }
+          });
+          if (job) {
+            console.log('✅ Job found by timestamp match:', job.title);
+            // Ensure country is set to fix "region not available"
+            if (!job.country) job.country = 'IN';
+            return job;
           }
         }
-      });
-      if (job) {
-        console.log('✅ Job found by string ID:', job.title);
-        return job;
+      } catch (_error) {
+        console.warn('⚠️ Timestamp lookup failed:', error);
       }
-    } catch (_error) {
-      console.warn('⚠️ String ID lookup failed:', error);
     }
     
     console.log(`❌ Job not found with any strategy: ${jobId}`);
