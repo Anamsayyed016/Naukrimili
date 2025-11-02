@@ -37,17 +37,13 @@ interface Company {
 interface HomePageClientProps {
   featuredJobs: HomePageJob[];
   topCompanies: Company[];
-  trendingSearches: string[];
-  popularLocations: string[];
 }
 
 export default function HomePageClient({
   featuredJobs,
-  topCompanies,
-  popularLocations
+  topCompanies
 }: HomePageClientProps) {
   const { data: session, status } = useSession();
-  const [locationJobCounts, setLocationJobCounts] = useState<Record<string, number>>({});
   const [visibleElements, setVisibleElements] = useState<Set<string>>(new Set());
 
   // Remove auto-redirect logic to prevent forced authentication
@@ -103,104 +99,6 @@ export default function HomePageClient({
     return delays[index] || 'delay-700';
   };
 
-  // Fetch job counts for popular locations
-  useEffect(() => {
-    const fetchJobCounts = async () => {
-      try {
-        const counts: Record<string, number> = {};
-        
-        // Set initial counts for all locations to show them immediately
-        for (const location of popularLocations || []) {
-          counts[location] = 0; // Will be updated when API responds
-        }
-        setLocationJobCounts(counts);
-        
-        // Then fetch actual counts with timeout
-        for (const location of popularLocations || []) {
-          try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-            // Determine country hint to improve counts (e.g., Dubai → AE)
-            let country = 'IN';
-            const ll = location.toLowerCase();
-            if (ll.includes('new york') || ll.includes('san francisco') || ll.includes('los angeles') || ll.includes('chicago') || ll.includes('boston') || ll.includes('seattle')) {
-              country = 'US';
-            } else if (ll.includes('london') || ll.includes('manchester') || ll.includes('birmingham') || ll.includes('edinburgh')) {
-              country = 'GB';
-            } else if (ll.includes('dubai') || ll.includes('abu dhabi') || ll.includes('sharjah')) {
-              country = 'AE';
-            }
-
-            // First try with country+location (lenient OR on server). If 0, retry with country only.
-            const urlWithCountry = `/api/jobs?location=${encodeURIComponent(location)}&country=${country}&view=list&days=60&limit=1`;
-            let response = await fetch(urlWithCountry, { signal: controller.signal });
-            
-            clearTimeout(timeoutId);
-            if (response.ok) {
-              const data = await response.json();
-              console.log(`🔍 API response for ${location}:`, data);
-              
-              // Handle different response structures
-              let jobCount = 0;
-              if (data.success && data.data?.pagination?.total) {
-                jobCount = data.data.pagination.total;
-              } else if (data.pagination?.total) {
-                jobCount = data.pagination.total;
-              } else if (data.total) {
-                jobCount = data.total;
-              } else if (data.data?.total) {
-                jobCount = data.data.total;
-              }
-
-              // If no jobs found and we supplied a location, retry with country-only
-              if (jobCount === 0 && country !== 'IN') {
-                try {
-                  const fallbackResp = await fetch(`/api/jobs?country=${country}&view=list&days=60&limit=1`);
-                  if (fallbackResp.ok) {
-                    const fallbackData = await fallbackResp.json();
-                    if (fallbackData?.success && fallbackData.data?.pagination?.total) {
-                      jobCount = fallbackData.data.pagination.total;
-                    }
-                  }
-                } catch {}
-              }
-              
-              console.log(`✅ Job count for ${location}:`, jobCount);
-              setLocationJobCounts(prev => {
-                const newCounts = {
-                  ...prev,
-                  [location]: jobCount
-                };
-                console.log(`🔄 Updated locationJobCounts:`, newCounts);
-                return newCounts;
-              });
-            } else {
-              console.warn(`API response not ok for ${location}:`, response.status);
-              // Set count to 0 if API call fails
-              setLocationJobCounts(prev => ({
-                ...prev,
-                [location]: 0
-              }));
-            }
-          } catch (_error) {
-            console.warn(`Failed to fetch job count for ${location}:`, _error);
-            // Set count to 0 if API call fails
-            setLocationJobCounts(prev => ({
-              ...prev,
-              [location]: 0
-            }));
-          }
-        }
-      } catch (_error) {
-        console.error('Failed to fetch location job counts:', _error);
-      }
-    };
-
-    if (popularLocations && popularLocations.length > 0) {
-      fetchJobCounts();
-    }
-  }, [popularLocations]);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
 
@@ -212,49 +110,6 @@ export default function HomePageClient({
       <JobSearchHero 
         showAdvancedFilters={true}
       />
-
-      {/* Popular Locations Section */}
-      <section className="relative py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="relative max-w-7xl mx-auto">
-          <div className="mb-8 sm:mb-12">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Popular Locations</h3>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {(popularLocations || []).map((location, index) => {
-                // Determine country based on location
-                let country = 'IN'; // Default to India
-                const locationLower = location.toLowerCase();
-                
-                if (locationLower.includes('new york') || locationLower.includes('san francisco') || 
-                    locationLower.includes('los angeles') || locationLower.includes('chicago') || 
-                    locationLower.includes('boston') || locationLower.includes('seattle')) {
-                  country = 'US';
-                } else if (locationLower.includes('london') || locationLower.includes('manchester') || 
-                           locationLower.includes('birmingham') || locationLower.includes('edinburgh')) {
-                  country = 'GB';
-                } else if (locationLower.includes('dubai') || locationLower.includes('abu dhabi') || 
-                           locationLower.includes('sharjah')) {
-                  country = 'AE';
-                }
-                
-                return (
-                  <Link
-                    key={index}
-                    href={`/jobs?location=${encodeURIComponent(location)}&country=${country}&limit=1000`}
-                    className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-white hover:border-blue-300 hover:text-blue-600 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md"
-                  >
-                    <MapPin className="w-4 h-4 mr-2" />
-                    <span>{location}</span>
-                    <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      {locationJobCounts[location] !== undefined ? `${locationJobCounts[location]} Jobs` : 'Jobs'}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
 
       {/* Featured Jobs Section */}
       <section 
