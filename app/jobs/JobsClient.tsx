@@ -46,11 +46,12 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
   // Convert any job format to simple Job format
   function convertToSimpleJob(job: any): Job {
-    console.log('🔄 Converting job:', { id: job.id, title: job.title, company: job.company });
+    // CRITICAL: Validate job has an ID (either id or sourceId)
+    const jobId = job.id || job.sourceId;
+    console.log('🔄 Converting job:', { id: jobId, title: job.title, company: job.company });
     
-    // CRITICAL: Validate job has an ID - don't create fake IDs
-    if (!job.id) {
-      console.error('❌ Job missing ID, skipping:', { title: job.title, company: job.company, source: job.source });
+    if (!jobId) {
+      console.error('❌ Job missing ID and sourceId, skipping:', { title: job.title, company: job.company, source: job.source });
       return null as any; // Will be filtered out
     }
     
@@ -77,7 +78,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
     }
     
     return {
-      id: job.id,
+      id: jobId,
       title: job.title || 'Job Title',
       company: job.company || job.companyRelation?.name || 'Company',
       location: job.location || 'Location',
