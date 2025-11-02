@@ -639,36 +639,10 @@ export default async function HomePage() {
     }
   }
 
-  const trendingSearches = [
-    'Software Engineer',
-    'Data Analyst',
-    'Product Manager',
-    'UI/UX Designer',
-    'DevOps Engineer',
-    'Marketing Manager',
-    'Sales Representative',
-    'Nurse',
-    'Teacher',
-    'Accountant'
-  ];
-
-  const popularLocations = [
-    // India
-    'Bangalore', 'Mumbai', 'Delhi', 'Hyderabad', 'Chennai', 'Pune',
-    // USA
-    'New York', 'San Francisco', 'Los Angeles', 'Chicago', 'Boston', 'Seattle',
-    // UAE
-    'Dubai', 'Abu Dhabi', 'Sharjah',
-    // UK
-    'London', 'Manchester', 'Birmingham', 'Edinburgh'
-  ];
-
   return (
     <HomePageClient 
       featuredJobs={featuredJobs || []}
       topCompanies={topCompanies || []}
-      trendingSearches={trendingSearches || []}
-      popularLocations={popularLocations || []}
     />
   );
 }
