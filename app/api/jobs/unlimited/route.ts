@@ -414,12 +414,15 @@ export async function GET(request: NextRequest) {
             // OPTIMIZED: Fast caching and deduplication
             if (realExternalJobs.length > 0) {
               // Cache external jobs in background (non-blocking)
-              const cachingPromises = realExternalJobs.map(job => 
-                prisma.job.upsert({
+              const cachingPromises = realExternalJobs.map(job => {
+                // CRITICAL FIX: Convert sourceId to string to avoid type errors with large numbers
+                const sourceIdString = String(job.sourceId || job.id || `external-${Date.now()}-${Math.random()}`);
+                
+                return prisma.job.upsert({
                   where: { 
                     source_sourceId: {
                       source: job.source || 'external',
-                      sourceId: job.sourceId || job.id
+                      sourceId: sourceIdString
                     }
                   },
                   update: {
@@ -428,7 +431,7 @@ export async function GET(request: NextRequest) {
                     views: { increment: 0 } // Touch the record
                   },
                   create: {
-                    sourceId: job.sourceId || job.id,
+                    sourceId: sourceIdString,
                     source: job.source || 'external',
                     title: job.title,
                     company: job.company,
@@ -456,8 +459,8 @@ export async function GET(request: NextRequest) {
                     applicationsCount: 0,
                     expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days expiry
                   }
-                }).catch(err => console.log(`⚠️ Cache failed for ${job.id}:`, err.message))
-              );
+                }).catch(err => console.log(`⚠️ Cache failed for ${job.id}:`, err.message));
+              });
               
               // Don't wait for caching - let it happen in background
               Promise.all(cachingPromises).then(() => 
