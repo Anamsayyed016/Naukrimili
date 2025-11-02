@@ -72,7 +72,7 @@ export async function fetchFromAdzuna(
 
     const jobs = (data.results || []).map((r: any, index: number): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.id ? `adzuna-${r.id}` : `adzuna-${Date.now()}-${index}-${Math.floor(Math.random() * 1000000)}`,
+      sourceId: r.id ? `adzuna-${r.id}` : `adzuna-${Date.now()}-${index}`,
       title: r.title || r.position || '',
       company: r.company?.display_name || r.company || '',
       location: [
@@ -145,7 +145,7 @@ export async function fetchFromJSearch(query: string, countryCode = 'US', page =
 
     const jobs = (data?.data || []).map((r: any, index: number): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.job_id || r.job_link || `jsearch-${Date.now()}-${index}-${Math.floor(Math.random() * 1000000)}`,
+      sourceId: r.job_id || r.job_link || `jsearch-${Date.now()}-${index}`,
       title: r.job_title || r.title || '',
       company: r.employer_name || r.employer || '',
       location: [r.job_city, r.job_country].filter(Boolean).join(', '),
@@ -198,9 +198,9 @@ export async function fetchFromGoogleJobs(
       timeout: 15000,
     });
 
-    const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
+    const jobs = (data?.data || []).map((r: any, index: number): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.job_id || `ext-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+      sourceId: r.job_id || `ext-${Date.now()}-${index}`,
       title: r.job_title || r.title || '',
       company: r.company_name || r.employer || '',
       location: r.location || location,
@@ -274,9 +274,9 @@ export async function fetchFromJooble(
 
     console.log(`🔍 Jooble API response status: ${data.status || 'success'}, jobs found: ${data.jobs?.length || 0}`);
 
-    const jobs = (data.jobs || []).map((r: any): NormalizedJob => ({
+    const jobs = (data.jobs || []).map((r: any, index: number): NormalizedJob => ({
       source: 'jooble',
-      sourceId: r.id || `jooble-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+      sourceId: r.id || `jooble-${Date.now()}-${index}`,
       title: r.title || '',
       company: r.company || '',
       location: r.location || location,
@@ -356,9 +356,9 @@ export async function fetchFromIndeed(
       timeout: 15000,
     });
 
-    const jobs = (data?.data || []).map((r: any): NormalizedJob => ({
+    const jobs = (data?.data || []).map((r: any, index: number): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.jobId || `indeed-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+      sourceId: r.jobId || `indeed-${Date.now()}-${index}`,
       title: r.jobTitle || r.title || '',
       company: r.companyName || r.company || '',
       location: r.jobLocation || r.location || location,
@@ -417,9 +417,9 @@ export async function fetchFromZipRecruiter(
       timeout: 15000,
     });
 
-    const jobs = (data?.jobs || []).map((r: any): NormalizedJob => ({
+    const jobs = (data?.jobs || []).map((r: any, index: number): NormalizedJob => ({
       source: 'external', // Generic external source - hides the provider
-      sourceId: r.id || `ziprecruiter-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+      sourceId: r.id || `ziprecruiter-${Date.now()}-${index}`,
       title: r.name || r.title || '',
       company: r.hiring_company?.name || r.company || '',
       location: r.location || location,

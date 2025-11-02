@@ -587,14 +587,9 @@ export default function JobApplicationPage() {
     }
   };
 
-  const handleExternalApply = () => {
-    if (job?.source_url) {
-      window.open(job.source_url, '_blank', 'noopener,noreferrer');
-    }
-  };
-
-  // Check if this is an external job
-  const isExternalJob = job?.isExternal || job?.source !== 'manual';
+  // Removed external redirect - all jobs now use internal application
+  // This prevents geo-blocking issues from external platforms like Adzuna
+  const isExternalJob = false; // Force internal application for all jobs
 
   // Show loading while checking authentication
   if (status === 'loading') {
