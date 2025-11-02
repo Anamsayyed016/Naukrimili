@@ -407,33 +407,28 @@ export default function JobDetailsPage() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4">
-                  {isExternalJob ? (
-                    <div className="flex-1 space-y-4">
-                      <Button 
-                        onClick={handleExternalApply}
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
-                      >
-                        <ExternalLink className="w-5 h-5" />
-                        Apply on Company Website
-                      </Button>
-                      
-                      <div className="text-center space-y-2">
-                        <p className="text-sm text-gray-600">
-                          This job is posted on {job.source === 'external' ? 'external platform' : job.source}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          You'll be redirected to the company's official website
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
+                  <div className="flex-1 space-y-4">
                     <Button 
                       onClick={handleInternalApply}
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                     >
                       Apply Now
                     </Button>
-                  )}
+                    
+                    {isExternalJob && (
+                      <div className="text-center space-y-2">
+                        <p className="text-sm text-gray-600">
+                          <span className="inline-flex items-center gap-1">
+                            <ExternalLink className="w-3 h-3" />
+                            Sourced from {job.source === 'external' ? 'partner platform' : job.source}
+                          </span>
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Apply directly on our platform - No redirects required
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
