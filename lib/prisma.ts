@@ -8,13 +8,6 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   
-  // Database connection configuration
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
-  
   // Performance monitoring and error handling
   ...(process.env.NODE_ENV === 'production' && {
     errorFormat: 'minimal' as const,
