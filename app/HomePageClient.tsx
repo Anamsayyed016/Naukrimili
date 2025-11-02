@@ -11,13 +11,19 @@ import JobSearchHero from '../components/JobSearchHero';
 
 interface HomePageJob {
   id: number | string;
+  sourceId?: string | null;
+  source?: string;
   title: string;
   company: string | null;
+  companyLogo?: string | null;
   location: string | null;
+  country?: string;
   salary: string | null;
   jobType: string | null;
+  experienceLevel?: string | null;
   isRemote: boolean;
   isFeatured: boolean;
+  sector?: string | null;
 }
 
 interface Company {
