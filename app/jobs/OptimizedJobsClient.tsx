@@ -107,15 +107,46 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
       const data = await response.json();
 
+      // CRITICAL DEBUG: Log the exact API response
+      console.log('🔍 RAW API RESPONSE:', {
+        success: data.success,
+        jobsCount: (data.jobs || data.data?.jobs || []).length,
+        pagination: data.pagination || data.data?.pagination,
+        firstJob: (data.jobs || data.data?.jobs || [])[0]
+      });
+
       // Unlimited API shape: { success, jobs, pagination: { totalJobs, totalPages } }
       // DB API shape: { success, data: { jobs, pagination } }
       if (data.success) {
         const jobsData = data.jobs || data.data?.jobs || [];
+        
+        // CRITICAL DEBUG: Check sourceId preservation
+        console.log('🔍 FIRST 3 JOBS BEFORE CONVERSION:', jobsData.slice(0, 3).map((j: any) => ({
+          id: j.id,
+          sourceId: j.sourceId,
+          source: j.source,
+          title: j.title?.substring(0, 30)
+        })));
+        
         const jobs = jobsData.map(convertToSimpleJob).filter(Boolean); // Filter out null entries from jobs without IDs
+        
+        // CRITICAL DEBUG: Check after conversion
+        console.log('🔍 FIRST 3 JOBS AFTER CONVERSION:', jobs.slice(0, 3).map((j: any) => ({
+          id: j.id,
+          sourceId: j.sourceId,
+          source: j.source,
+          title: j.title?.substring(0, 30)
+        })));
         
         // Get total from pagination - unlimited API uses totalJobs, DB API uses total
         const totalCount = data.pagination?.totalJobs || data.data?.pagination?.total || jobs.length;
         const totalPagesCount = data.pagination?.totalPages || data.data?.pagination?.totalPages || 1;
+        
+        console.log('🔍 PAGINATION DEBUG:', {
+          totalCount,
+          totalPagesCount,
+          paginationObject: data.pagination || data.data?.pagination
+        });
         
         setJobs(jobs as any);
         setTotalJobs(totalCount);
@@ -273,6 +304,17 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       console.error('❌ Job missing ID and sourceId, skipping:', { title: job.title, company: job.company, source: job.source });
       return null as any; // Will be filtered out
     }
+    
+    // CRITICAL DEBUG: Log what we're converting
+    if (Math.random() < 0.05) { // Log 5% of jobs to avoid spam
+      console.log('🔄 Converting job:', {
+        originalId: job.id,
+        originalSourceId: job.sourceId,
+        finalId: jobId,
+        source: job.source,
+        title: job.title?.substring(0, 30)
+      });
+    }
 
     // Format salary consistently using country-aware currency
     const salaryFormatted = formatJobSalary({
@@ -285,6 +327,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
     return {
       id: jobId,
+      sourceId: job.sourceId, // CRITICAL: Preserve sourceId for external jobs
       title: job.title || 'Job Title',
       company: job.company || job.companyRelation?.name || 'Company',
       location: job.location || 'Location',
@@ -293,12 +336,14 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       salary_formatted: salaryFormatted, // Add this for consistency
       postedAt: job.postedAt || job.createdAt || job.created_at,
       source_url: job.source_url || job.redirect_url || job.applyUrl,
-      source: job.source || (job.isExternal ? 'external' : 'database'),
+      source: job.source || (job.isExternal ? 'external' : 'database'), // CRITICAL for URL generation
       is_remote: job.is_remote || job.isRemote,
       is_featured: job.is_featured || job.isFeatured,
       // Add missing fields for better job display
       jobType: job.jobType || 'Full-time',
       experienceLevel: job.experienceLevel || 'Mid Level',
+      sector: job.sector, // CRITICAL for SEO URL
+      country: job.country, // CRITICAL for region validation
       skills: job.skills || [],
       isExternal: job.isExternal || job.source !== 'manual',
       applyUrl: job.applyUrl || job.source_url || job.redirect_url,
