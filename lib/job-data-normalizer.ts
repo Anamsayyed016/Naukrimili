@@ -16,7 +16,8 @@ export function normalizeJobData(job: any): JobResult {
   }
 
   return {
-    id: job.id?.toString() || '',
+    id: job.id?.toString() || job.sourceId || '', // CRITICAL FIX: Fallback to sourceId if id is missing
+    sourceId: job.sourceId, // CRITICAL FIX: Preserve sourceId for external jobs
     title: job.title || 'Job Title',
     company: job.company || job.companyRelation?.name || 'Company',
     companyLogo: job.companyLogo || job.companyRelation?.logo,
@@ -41,7 +42,7 @@ export function normalizeJobData(job: any): JobResult {
     sector: job.sector,
     posted_at: job.posted_at || job.postedAt,
     created_at: job.created_at || job.createdAt,
-    source: job.source || 'manual',
+    source: job.source || 'manual', // CRITICAL: This determines if sourceId is used for URL
     source_url: job.source_url || job.applyUrl,
     jobType: job.jobType || job.job_type,
     experienceLevel: job.experienceLevel || job.experience_level,

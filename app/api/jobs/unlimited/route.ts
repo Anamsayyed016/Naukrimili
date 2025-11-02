@@ -287,7 +287,7 @@ export async function GET(request: NextRequest) {
         ...job,
         source: 'database' // Force all database-fetched jobs to be 'database' for counting
       }));
-      total = jobs.length; // Update total to reflect filtered count
+      total = totalResult; // CRITICAL FIX: Use database count, not filtered count!
       
       // Debug: Check source fields right after normalization
       const dbJobsWithSource = jobs.filter(j => j.source === 'database' || j.source === 'employer').length;
@@ -645,7 +645,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(_request: NextRequest) {
   // Redirect POST to GET for consistency
-  return GET(request);
+  return GET(_request);
 }
 
 export async function OPTIONS() {
