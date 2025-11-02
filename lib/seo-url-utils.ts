@@ -360,8 +360,14 @@ export function cleanJobDataForSEO(jobData: any): SEOJobData {
            str !== 'salary not specified';
   };
 
+  // CRITICAL FIX: Prioritize sourceId for external jobs to avoid large number precision loss
+  // For external jobs (source !== 'manual' and sourceId exists), use sourceId
+  // For database jobs, use id
+  const isExternalJob = jobData.source && jobData.source !== 'manual' && jobData.source !== 'database';
+  const jobId = (isExternalJob && jobData.sourceId) ? jobData.sourceId : (jobData.id || jobData.sourceId || '');
+
   return {
-    id: jobData.id || jobData.sourceId || '',
+    id: jobId,
     title: isValidValue(jobData.title) ? jobData.title.trim() : 'job',
     company: isValidValue(jobData.company) ? jobData.company.trim() : 
              isValidValue(jobData.companyRelation?.name) ? jobData.companyRelation.name.trim() : 'company',
