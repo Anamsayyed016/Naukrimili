@@ -71,7 +71,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         ...(location && { location }),
         ...(countryToUse ? { country: countryToUse } : {}),
         page: page.toString(),
-        limit: '50',
+        limit: '200',
         view: 'list', // ask API for lightweight list payload
         // Do not constrain by recency unless user specifies via URL; align with admin totals
         // Add all filter parameters from home page search
@@ -143,8 +143,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           totalPages: totalPagesCount,
           hasMore: page < totalPagesCount,
           currentPage: page,
-          limit: 50,
-          shouldShowPagination: totalPagesCount > 1 || page < totalPagesCount || totalCount > 50
+          limit: 200,
+          shouldShowPagination: totalPagesCount > 1 || page < totalPagesCount || totalCount > 200
         });
 
       } else if (data.success && Array.isArray(data.jobs)) {
@@ -181,7 +181,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           ...(location && { location }),
           ...(countryToUse ? { countries: countryToUse } : { countries: TARGET_COUNTRIES.join(',') }),
           page: page.toString(),
-          limit: '50',
+          limit: '200',
           view: 'list',
           // do not force recency here either
           includeExternal: 'true',
@@ -566,7 +566,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
               <EnhancedPagination
                 config={{
                   page: currentPage,
-                  limit: 50,
+                  limit: 200,
                   total: totalJobs,
                   maxVisiblePages: 5,
                   showFirstLast: true,
