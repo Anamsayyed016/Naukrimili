@@ -401,9 +401,9 @@ export class EnhancedJobScraper {
       timeout: 15000,
     });
 
-    return (data?.data || []).map((job: any) => ({
+    return (data?.data || []).map((job: any, index: number) => ({
       source: 'indeed',
-      sourceId: job.jobId || `indeed-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+      sourceId: job.jobId || `indeed-${Date.now()}-${index}`,
       title: job.jobTitle || job.title || '',
       company: job.companyName || job.company || '',
       companyLogo: null,
@@ -457,9 +457,9 @@ export class EnhancedJobScraper {
       timeout: 15000,
     });
 
-    return (data?.jobs || []).map((job: any) => ({
+    return (data?.jobs || []).map((job: any, index: number) => ({
       source: 'ziprecruiter',
-      sourceId: job.id || `ziprecruiter-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+      sourceId: job.id || `ziprecruiter-${Date.now()}-${index}`,
       title: job.name || job.title || '',
       company: job.hiring_company?.name || job.company || '',
       companyLogo: null,

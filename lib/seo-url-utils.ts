@@ -238,18 +238,20 @@ export function parseSEOJobUrl(url: string): string | null {
   // Extract job ID from SEO URL patterns (in order of specificity)
   // Pattern priority: most specific to least specific
   const patterns = [
+    // External job IDs with full format (e.g., external-1762106256188-0)
+    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+)$/,
+    // External job IDs with 4 parts (e.g., adzuna-1730-0-123456)
+    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+-\d+)$/,
     // Generated job IDs (e.g., job-1762036808263-199612)
     /-(job-\d+-\d+)$/,
-    // External job IDs with provider prefix (e.g., adzuna-1730-0-123456)
-    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+-\d+)$/,
-    // External job IDs (e.g., ext-1730000000-123456)
-    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+)$/,
     // Sample job IDs (e.g., sample-1759851700270-18)
     /-(sample-\d+-\d+)$/,
+    // Timestamp-number patterns (e.g., 1730000000-123456)
+    /-(\d{13,}-\d+)$/,
     // Long alphanumeric IDs (timestamp-id format)
     /-([a-zA-Z0-9]{20,})$/,
-    // Timestamp-number patterns (e.g., 1730000000-123456)
-    /-(\d{13,})-(\d+)$/,
+    // Provider-specific IDs (e.g., adzuna-5461851969)
+    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter)-[a-zA-Z0-9]+)$/,
     // Long numbers (6+ digits - likely generated IDs)
     /-([0-9]{6,})$/,
     // Integer numbers (most common - matches "9" at the end)
