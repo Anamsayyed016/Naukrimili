@@ -461,10 +461,24 @@ export default function JobSearchHero({
                           </SelectTrigger>
                           <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
                             <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Types</SelectItem>
-                            <SelectItem value="full-time" className="text-gray-900 hover:bg-blue-50">Full-time</SelectItem>
-                            <SelectItem value="part-time" className="text-gray-900 hover:bg-blue-50">Part-time</SelectItem>
-                            <SelectItem value="contract" className="text-gray-900 hover:bg-blue-50">Contract</SelectItem>
-                            <SelectItem value="internship" className="text-gray-900 hover:bg-blue-50">Internship</SelectItem>
+                            {dynamicConstants.jobTypes && dynamicConstants.jobTypes.length > 0 ? (
+                              dynamicConstants.jobTypes.map((jobType: any) => (
+                                <SelectItem 
+                                  key={jobType.value || jobType} 
+                                  value={jobType.value || jobType} 
+                                  className="text-gray-900 hover:bg-blue-50"
+                                >
+                                  {jobType.label || jobType} {jobType.count ? `(${jobType.count})` : ''}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <>
+                                <SelectItem value="full-time" className="text-gray-900 hover:bg-blue-50">Full-time</SelectItem>
+                                <SelectItem value="part-time" className="text-gray-900 hover:bg-blue-50">Part-time</SelectItem>
+                                <SelectItem value="contract" className="text-gray-900 hover:bg-blue-50">Contract</SelectItem>
+                                <SelectItem value="internship" className="text-gray-900 hover:bg-blue-50">Internship</SelectItem>
+                              </>
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -481,11 +495,25 @@ export default function JobSearchHero({
                           </SelectTrigger>
                           <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
                             <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Levels</SelectItem>
-                            <SelectItem value="entry" className="text-gray-900 hover:bg-blue-50">Entry Level (0-2 years)</SelectItem>
-                            <SelectItem value="mid" className="text-gray-900 hover:bg-blue-50">Mid Level (2-5 years)</SelectItem>
-                            <SelectItem value="senior" className="text-gray-900 hover:bg-blue-50">Senior Level (5-10 years)</SelectItem>
-                            <SelectItem value="lead" className="text-gray-900 hover:bg-blue-50">Lead (10+ years)</SelectItem>
-                            <SelectItem value="executive" className="text-gray-900 hover:bg-blue-50">Executive</SelectItem>
+                            {dynamicConstants.experienceLevels && dynamicConstants.experienceLevels.length > 0 ? (
+                              dynamicConstants.experienceLevels.map((level: any) => (
+                                <SelectItem 
+                                  key={level.value || level} 
+                                  value={level.value || level} 
+                                  className="text-gray-900 hover:bg-blue-50"
+                                >
+                                  {level.label || level} {level.count ? `(${level.count})` : ''}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <>
+                                <SelectItem value="entry" className="text-gray-900 hover:bg-blue-50">Entry Level (0-2 years)</SelectItem>
+                                <SelectItem value="mid" className="text-gray-900 hover:bg-blue-50">Mid Level (2-5 years)</SelectItem>
+                                <SelectItem value="senior" className="text-gray-900 hover:bg-blue-50">Senior Level (5-10 years)</SelectItem>
+                                <SelectItem value="lead" className="text-gray-900 hover:bg-blue-50">Lead (10+ years)</SelectItem>
+                                <SelectItem value="executive" className="text-gray-900 hover:bg-blue-50">Executive</SelectItem>
+                              </>
+                            )}
                           </SelectContent>
                         </Select>
                       </div>

@@ -179,7 +179,10 @@ export async function GET(request: NextRequest) {
 
     // CRITICAL: Filter out jobs with invalid IDs (decimals from Math.random())
     const validJobs = filterValidJobs(jobs);
-    const filteredTotal = validJobs.length;
+    
+    // Use actual database count, not just filtered page results
+    // FIXED: This ensures location counts are accurate
+    const actualTotal = total; // Database count with filters applied
     
     // Avoid extra aggregates for list view to reduce latency
     const stats = view === 'list'
@@ -196,8 +199,8 @@ export async function GET(request: NextRequest) {
         pagination: {
           page,
           limit,
-          total: filteredTotal,
-          totalPages: Math.ceil(filteredTotal / limit)
+          total: actualTotal, // FIXED: Use actual database count for location counts
+          totalPages: Math.ceil(actualTotal / limit)
         },
         ...(stats ? { stats: { totalJobs: stats._count.id, totalApplications } } : {})
       }
