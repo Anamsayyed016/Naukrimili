@@ -58,36 +58,65 @@ function normalize(job: ProviderJob) {
 }
 
 async function upsertBatch(rows: ReturnType<typeof normalize>[]) {
-  if (!rows.length) return { upserted: 0 };
+  if (!rows.length) return { upserted: 0, updated: 0, created: 0 };
   let upserted = 0;
+  let created = 0;
+  let updated = 0;
+  
   // Upsert serially in safe chunks to respect DB constraints
   for (const r of rows) {
     if (!r.sourceId) continue;
-    await prisma.job.upsert({
-      where: { source_sourceId: { source: r.source, sourceId: r.sourceId } as any },
-      update: {
-        title: r.title,
-        company: r.company,
-        location: r.location,
-        country: r.country,
-        description: r.description,
-        jobType: r.jobType,
-        experienceLevel: r.experienceLevel,
-        salaryMin: r.salaryMin as any,
-        salaryMax: r.salaryMax as any,
-        salaryCurrency: r.salaryCurrency as any,
-        postedAt: r.postedAt,
-        applyUrl: r.applyUrl as any,
-        isActive: true,
-        isExternal: true,
-      },
-      create: {
-        ...r,
-      },
-    });
-    upserted++;
+    
+    try {
+      const result = await prisma.job.upsert({
+        where: { source_sourceId: { source: r.source, sourceId: r.sourceId } as any },
+        update: {
+          // Only update if job already exists - keeps existing data intact
+          title: r.title,
+          company: r.company,
+          location: r.location,
+          country: r.country,
+          description: r.description,
+          jobType: r.jobType,
+          experienceLevel: r.experienceLevel,
+          salaryMin: r.salaryMin as any,
+          salaryMax: r.salaryMax as any,
+          salaryCurrency: r.salaryCurrency as any,
+          postedAt: r.postedAt,
+          applyUrl: r.applyUrl as any,
+          source_url: r.applyUrl as any,
+          isActive: true,
+          updatedAt: new Date()
+        },
+        create: {
+          // Create new job with all fields including country default
+          ...r,
+          country: r.country || 'IN', // Ensure country is always set
+          source_url: r.applyUrl,
+          isActive: true
+        },
+        select: { id: true } // Only return ID to check if created or updated
+      });
+      
+      // Check if job was created or updated (simple heuristic)
+      const existing = await prisma.job.findFirst({
+        where: { source_sourceId: { source: r.source, sourceId: r.sourceId } as any },
+        select: { createdAt: true, updatedAt: true }
+      });
+      
+      if (existing && existing.createdAt.getTime() === existing.updatedAt.getTime()) {
+        created++;
+      } else {
+        updated++;
+      }
+      
+      upserted++;
+    } catch (error) {
+      console.error(`⚠️ Failed to upsert job ${r.sourceId}:`, error.message);
+    }
   }
-  return { upserted };
+  
+  return { upserted, created, updated };
 }
 
 export async function POST(req: NextRequest) {

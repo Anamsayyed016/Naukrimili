@@ -96,8 +96,8 @@ export async function POST(request: NextRequest) {
       page = 1, 
       location = '', 
       radiusKm = 50,
-      maxJobsPerCountry = 200, // Increased from 50 to 200
-      pagesPerQuery = 3 // Multiple pages per query for more jobs
+      maxJobsPerCountry = 1500, // Increased to 1500 for 5000-10000 total jobs
+      pagesPerQuery = 10 // Increased from 3 to 10 for more jobs per query
     } = body;
 
     console.log(`🚀 Starting multi-country job import for: ${countries.join(', ')}`);
