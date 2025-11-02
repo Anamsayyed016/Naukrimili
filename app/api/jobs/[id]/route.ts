@@ -29,10 +29,14 @@ export async function GET(
     // Try to find job by ID with multiple strategies
     let job;
     
-    // Strategy 1: Try as numeric ID for database jobs
-    if (!isNaN(Number(jobId))) {
+    // Strategy 1: Try as numeric ID for database jobs (but only if it's a safe integer)
+    // JavaScript's Number.MAX_SAFE_INTEGER is 9007199254740991 (2^53 - 1)
+    const numericId = Number(jobId);
+    const isSafeInteger = !isNaN(numericId) && Number.isSafeInteger(numericId) && numericId > 0;
+    
+    if (isSafeInteger) {
       job = await prisma.job.findUnique({
-        where: { id: Number(jobId) },
+        where: { id: numericId },
         include: {
           applications: {
             select: {
@@ -57,10 +61,14 @@ export async function GET(
           }
         }
       });
+      console.log('✅ Strategy 1 (numeric ID):', job ? 'Found' : 'Not found');
+    } else {
+      console.log('⚠️ Skipping numeric ID strategy - ID is not a safe integer:', jobId);
     }
     
     // Strategy 2: Try by sourceId for external jobs (external-*, ext-*, etc.)
     if (!job) {
+      console.log('🔍 Trying Strategy 2 (sourceId):', jobId);
       job = await prisma.job.findFirst({
         where: { 
           sourceId: jobId
