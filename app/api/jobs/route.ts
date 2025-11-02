@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const salaryMax = searchParams.get('salaryMax') || '';
     
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const limit = parseInt(searchParams.get("limit") || "200"); // Increased default from 10 to 200 for better UX
     const view = (searchParams.get('view') || '').toLowerCase(); // 'list' requests lightweight payload
     const skip = (page - 1) * limit;
     const daysParam = searchParams.get('days');

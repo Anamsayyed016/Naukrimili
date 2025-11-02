@@ -381,7 +381,15 @@ export default function EnhancedJobCard({
           {/* Description */}
           {job.description && (
             <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-              {job.description}
+              {job.description
+                .replace(/<[^>]*>/g, '') // Strip HTML tags
+                .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+                .replace(/&amp;/g, '&') // Replace &amp; with &
+                .replace(/&lt;/g, '<') // Replace &lt; with <
+                .replace(/&gt;/g, '>') // Replace &gt; with >
+                .replace(/&quot;/g, '"') // Replace &quot; with "
+                .trim()
+              }
             </p>
           )}
 
