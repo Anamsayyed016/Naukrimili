@@ -1,5 +1,6 @@
 export interface JobResult {
   id: string
+  sourceId?: string // CRITICAL: Source ID for external jobs (used for URL generation)
   title: string
   company: string
   companyLogo?: string
