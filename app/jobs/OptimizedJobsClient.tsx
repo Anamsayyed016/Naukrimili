@@ -50,6 +50,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       salaryMax?: string;
       sector?: string;
       country?: string;
+      limit?: string; // Add limit to filters
     } = {}
   ) => {
     // Smart country detection using the country detection utility
@@ -71,7 +72,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         ...(location && { location }),
         ...(countryToUse ? { country: countryToUse } : {}),
         page: page.toString(),
-        limit: '200',
+        limit: filters.limit || '200', // Use limit from filters or default to 200
         view: 'list', // ask API for lightweight list payload
         // Do not constrain by recency unless user specifies via URL; align with admin totals
         // Add all filter parameters from home page search
@@ -224,19 +225,21 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     const salaryMax = searchParams.get('salaryMax') || '';
     const sector = searchParams.get('sector') || '';
     const countryParam = (searchParams.get('country') || '').toUpperCase();
+    const limitParam = searchParams.get('limit') || '200'; // Read limit from URL, default 200
 
     console.log('⚡ OptimizedJobsClient initializing with params:', { 
-      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector, countryParam,
+      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector, countryParam, limitParam,
       allParams: Object.fromEntries(searchParams.entries()) // Debug: show all params
     });
 
     // Reset pagination when search params change
     setCurrentPage(1);
     
-    // Always fetch jobs using unlimited API with all filters
+    // Always fetch jobs using unlimited API with all filters (pass limit to fetchJobs)
     fetchJobs(query, loc, 1, {
       jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
-      country: countryParam || undefined
+      country: countryParam || undefined,
+      limit: limitParam // Pass limit to fetch function
     });
   }, [searchParams]); // Removed fetchJobs from dependencies to prevent infinite loop
 
