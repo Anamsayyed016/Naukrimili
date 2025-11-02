@@ -45,9 +45,13 @@ export async function GET(request: NextRequest) {
       ],
       select: {
         id: true,
+        sourceId: true, // CRITICAL: Needed for SEO URL generation
+        source: true, // CRITICAL: Needed to identify job type
         title: true,
         company: true,
+        companyLogo: true,
         location: true,
+        country: true, // CRITICAL: Needed for SEO URL and region validation
         salary: true,
         salaryMin: true,
         salaryMax: true,
@@ -62,17 +66,27 @@ export async function GET(request: NextRequest) {
         postedAt: true,
         createdAt: true,
         sector: true,
-        experienceLevel: true
+        experienceLevel: true,
+        applyUrl: true,
+        source_url: true,
+        apply_url: true
       }
     });
 
     const formattedJobs = jobs.map(job => ({
       id: job.id,
+      sourceId: job.sourceId, // CRITICAL: Include for URL generation
+      source: job.source || 'database', // CRITICAL: Include for job type identification
       title: job.title,
       company: job.company,
+      companyLogo: job.companyLogo,
       location: job.location,
+      country: job.country || 'IN', // CRITICAL: Always include country
       salary: job.salary || (job.salaryMin && job.salaryMax ? 
         `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'INR'}` : null),
+      salaryMin: job.salaryMin,
+      salaryMax: job.salaryMax,
+      salaryCurrency: job.salaryCurrency,
       jobType: job.jobType,
       isRemote: job.isRemote,
       isFeatured: job.isFeatured,
@@ -82,7 +96,10 @@ export async function GET(request: NextRequest) {
       skills: job.skills || [],
       sector: job.sector,
       experienceLevel: job.experienceLevel,
-      postedAt: job.postedAt?.toISOString() || job.createdAt.toISOString()
+      postedAt: job.postedAt?.toISOString() || job.createdAt.toISOString(),
+      applyUrl: job.applyUrl,
+      source_url: job.source_url,
+      apply_url: job.apply_url
     }));
 
     const res = NextResponse.json({
