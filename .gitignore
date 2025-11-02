@@ -125,3 +125,4 @@ secrets/
 # Uploads
 uploads/
 public/uploads/generate-refresh-token.cjs
+generate-refresh-token.cjs
