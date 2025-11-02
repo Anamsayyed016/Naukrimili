@@ -470,10 +470,9 @@ export async function GET(request: NextRequest) {
               const combinedJobs = [...jobs, ...realExternalJobs]; // Database jobs first, then external
               jobs = removeDuplicateJobs(combinedJobs);
               
-              // Calculate total: database total + external jobs fetched
-              // Note: External jobs are fetched fresh each time, so we add the count we got
-              // Database total (totalResult) represents all matching jobs in DB across all pages
-              total = totalResult + realExternalJobs.length;
+              // CRITICAL FIX: Keep total as database count only
+              // External jobs are mixed into the same pages, not added to page count
+              // total = totalResult (already set correctly above)
               
               // Debug: Check source fields before formatting
               const dbJobsBeforeFormat = jobs.filter(j => (j.source === 'database' || j.source === 'employer')).length;
