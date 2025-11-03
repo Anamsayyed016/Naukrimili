@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (_error) {
-    console.error('Error fetching jobseeker profile:', error);
+    console.error('Error fetching jobseeker profile:', _error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch profile' },
       { status: 500 }
@@ -220,7 +220,7 @@ export async function PUT(request: NextRequest) {
       message: 'Profile updated successfully'
     });
   } catch (_error) {
-    console.error('Error updating jobseeker profile:', error);
+    console.error('Error updating jobseeker profile:', _error);
     return NextResponse.json(
       { success: false, error: 'Failed to update profile' },
       { status: 500 }
@@ -285,7 +285,7 @@ export async function DELETE(_request: NextRequest) {
       message: 'Account deleted successfully'
     });
   } catch (_error) {
-    console.error('Error deleting jobseeker account:', error);
+    console.error('Error deleting jobseeker account:', _error);
     return NextResponse.json(
       { success: false, error: 'Failed to delete account' },
       { status: 500 }

@@ -16,9 +16,11 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "10");
-    const algorithm = searchParams.get("algorithm") || "skills"; // skills, location, experience, hybrid
+    const algorithm = searchParams.get("algorithm") || "hybrid"; // Default to hybrid for better results
 
-    // Get user profile
+    console.log(`🎯 Fetching job recommendations for user ${session.user.id} using ${algorithm} algorithm`);
+
+    // Get user profile with resume data
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
@@ -29,10 +31,23 @@ export async function GET(request: NextRequest) {
         jobTypePreference: true,
         remotePreference: true,
         salaryExpectation: true,
+        bio: true,
+        education: true,
         applications: {
           select: {
             jobId: true
           }
+        },
+        resumes: {
+          where: { isActive: true },
+          select: {
+            skills: true,
+            experience: true,
+            education: true,
+            summary: true
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1
         }
       }
     });
@@ -44,8 +59,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    console.log(`📄 User profile:`, {
+      hasSkills: (user.skills?.length || 0) > 0,
+      hasLocation: !!user.location,
+      hasResume: user.resumes.length > 0,
+      skillsCount: user.skills?.length || 0,
+      resumeSkills: user.resumes[0]?.skills?.length || 0
+    });
+
     // Get applied job IDs to exclude
     const appliedJobIds = user.applications.map(app => app.jobId);
+    
+    // ENHANCED: Combine user skills with resume skills
+    let allSkills = [...(user.skills || [])];
+    if (user.resumes.length > 0 && user.resumes[0].skills) {
+      allSkills = [...new Set([...allSkills, ...(user.resumes[0].skills || [])])];
+    }
+    
+    // ENHANCED: Get location from profile or resume
+    const userLocation = user.location || user.locationPreference;
 
     let where: any = {
       isActive: true,
@@ -54,83 +86,98 @@ export async function GET(request: NextRequest) {
 
     let orderBy: any = {};
 
-    // Apply recommendation algorithm
+    // ENHANCED: Apply recommendation algorithm using combined profile + resume data
     switch (algorithm) {
       case 'skills':
-        if (user.skills && user.skills.length > 0) {
-          where.OR = user.skills.map(skill => ({
-            skills: { has: skill }
+        if (allSkills.length > 0) {
+          where.OR = allSkills.map(skill => ({
+            OR: [
+              { skills: { contains: skill, mode: 'insensitive' } },
+              { title: { contains: skill, mode: 'insensitive' } },
+              { description: { contains: skill, mode: 'insensitive' } }
+            ]
           }));
           orderBy = { createdAt: 'desc' };
         }
         break;
 
       case 'location':
-        if (user.location || user.locationPreference) {
-          const location = user.location || user.locationPreference;
-          where.location = { contains: location, mode: 'insensitive' };
+        if (userLocation) {
+          where.OR = [
+            { location: { contains: userLocation, mode: 'insensitive' } },
+            { isRemote: true } // Also include remote jobs
+          ];
           orderBy = { createdAt: 'desc' };
         }
         break;
 
       case 'experience':
-        if (user.experience) {
-          // Simple experience matching based on keywords
-          const experienceKeywords = user.experience.toLowerCase().split(' ');
-          where.OR = experienceKeywords.map(keyword => ({
-            description: { contains: keyword, mode: 'insensitive' }
-          }));
+        if (user.experience || (user.resumes[0]?.experience)) {
+          const experienceText = user.experience || user.resumes[0]?.experience || '';
+          const experienceKeywords = experienceText.toLowerCase().split(' ').filter(w => w.length > 3);
+          if (experienceKeywords.length > 0) {
+            where.OR = experienceKeywords.map(keyword => ({
+              OR: [
+                { title: { contains: keyword, mode: 'insensitive' } },
+                { description: { contains: keyword, mode: 'insensitive' } }
+              ]
+            }));
+          }
           orderBy = { createdAt: 'desc' };
         }
         break;
 
       case 'hybrid':
-        // Combine multiple factors
-        const conditions = [];
+      default:
+        // ENHANCED: Combine multiple factors with broader matching
+        const orConditions = [];
         
-        // Skills match
-        if (user.skills && user.skills.length > 0) {
-          conditions.push({
-            OR: user.skills.map(skill => ({
-              skills: { has: skill }
-            }))
+        // Skills match - Check title, description, and skills field
+        if (allSkills.length > 0) {
+          allSkills.forEach(skill => {
+            orConditions.push({
+              OR: [
+                { skills: { contains: skill, mode: 'insensitive' } },
+                { title: { contains: skill, mode: 'insensitive' } },
+                { description: { contains: skill, mode: 'insensitive' } }
+              ]
+            });
           });
         }
 
-        // Location match
-        if (user.location || user.locationPreference) {
-          const location = user.location || user.locationPreference;
-          conditions.push({
-            location: { contains: location, mode: 'insensitive' }
+        // Location match - Flexible matching
+        if (userLocation) {
+          orConditions.push({
+            OR: [
+              { location: { contains: userLocation, mode: 'insensitive' } },
+              { isRemote: true },
+              { isHybrid: true }
+            ]
           });
         }
 
         // Job type preference
         if (user.jobTypePreference && user.jobTypePreference.length > 0) {
-          conditions.push({
-            jobType: { in: user.jobTypePreference }
+          orConditions.push({
+            jobType: { in: user.jobTypePreference, mode: 'insensitive' }
           });
         }
 
         // Remote preference
         if (user.remotePreference) {
-          conditions.push({
-            isRemote: true
-          });
+          orConditions.push({ isRemote: true });
         }
 
-        if (conditions.length > 0) {
-          where.AND = conditions;
+        // If we have conditions, use OR to get more results
+        if (orConditions.length > 0) {
+          where.OR = orConditions;
         }
         
         orderBy = { createdAt: 'desc' };
         break;
-
-      default:
-        orderBy = { createdAt: 'desc' };
     }
 
-    const jobs = await prisma.job.findMany({
+    let jobs = await prisma.job.findMany({
       where,
       include: {
         company: {
@@ -152,45 +199,107 @@ export async function GET(request: NextRequest) {
       take: limit
     });
 
+    console.log(`📊 Found ${jobs.length} jobs matching criteria`);
+
+    // FALLBACK: If no jobs found, get popular/recent jobs
+    if (jobs.length === 0) {
+      console.log(`🔄 No matching jobs found, fetching popular jobs as fallback...`);
+      
+      jobs = await prisma.job.findMany({
+        where: {
+          isActive: true,
+          id: { notIn: appliedJobIds }
+        },
+        include: {
+          company: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+              website: true
+            }
+          },
+          _count: {
+            select: {
+              applications: true,
+              bookmarks: true
+            }
+          }
+        },
+        orderBy: [
+          { isFeatured: 'desc' },
+          { createdAt: 'desc' }
+        ],
+        take: limit
+      });
+      
+      console.log(`✅ Fallback: Returning ${jobs.length} popular jobs`);
+    }
+
     // Calculate match scores for each job
     const jobsWithScores = jobs.map(job => {
       let score = 0;
       let reasons = [];
 
-      // Skills match
-      if (user.skills && user.skills.length > 0 && job.skills) {
-        const matchingSkills = user.skills.filter(skill => 
-          job.skills.includes(skill)
+      // ENHANCED: Skills match (check both user skills and resume skills)
+      if (allSkills.length > 0 && job.skills) {
+        const jobSkillsStr = typeof job.skills === 'string' ? job.skills.toLowerCase() : JSON.stringify(job.skills).toLowerCase();
+        const matchingSkills = allSkills.filter(skill => 
+          jobSkillsStr.includes(skill.toLowerCase())
         );
         if (matchingSkills.length > 0) {
-          score += (matchingSkills.length / user.skills.length) * 40;
+          score += (matchingSkills.length / allSkills.length) * 40;
           reasons.push(`${matchingSkills.length} skill(s) match`);
         }
       }
 
+      // Skills in title/description
+      if (allSkills.length > 0) {
+        const titleAndDesc = `${job.title} ${job.description}`.toLowerCase();
+        const titleMatches = allSkills.filter(skill => titleAndDesc.includes(skill.toLowerCase())).length;
+        if (titleMatches > 0 && !reasons.includes(`${titleMatches} skill(s) match`)) {
+          score += (titleMatches / allSkills.length) * 30;
+          reasons.push(`Skills in job description`);
+        }
+      }
+
       // Location match
-      if (user.location && job.location) {
-        if (job.location.toLowerCase().includes(user.location.toLowerCase())) {
-          score += 30;
+      if (userLocation && job.location) {
+        if (job.location.toLowerCase().includes(userLocation.toLowerCase())) {
+          score += 20;
           reasons.push('Location match');
         }
       }
 
-      // Job type preference
-      if (user.jobTypePreference && user.jobTypePreference.includes(job.jobType)) {
-        score += 20;
-        reasons.push('Preferred job type');
+      // Remote work preference
+      if (user.remotePreference && job.isRemote) {
+        score += 15;
+        reasons.push('Remote work available');
       }
 
-      // Remote preference
-      if (user.remotePreference && job.isRemote) {
+      // Job type preference
+      if (user.jobTypePreference && user.jobTypePreference.length > 0) {
+        if (user.jobTypePreference.some(pref => job.jobType?.toLowerCase().includes(pref.toLowerCase()))) {
+          score += 15;
+          reasons.push('Preferred job type');
+        }
+      }
+
+      // Recent posting bonus
+      const daysSincePosted = (Date.now() - new Date(job.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSincePosted <= 7) {
         score += 10;
-        reasons.push('Remote work available');
+        reasons.push('Recently posted');
+      }
+
+      // If no specific reasons, mark as popular
+      if (reasons.length === 0) {
+        reasons.push('Popular job');
       }
 
       return {
         ...job,
-        matchScore: Math.round(score),
+        matchScore: Math.min(100, Math.round(score)), // Cap at 100
         matchReasons: reasons
       };
     });
@@ -198,21 +307,31 @@ export async function GET(request: NextRequest) {
     // Sort by match score
     jobsWithScores.sort((a, b) => b.matchScore - a.matchScore);
 
+    console.log(`✅ Returning ${jobsWithScores.length} job recommendations (scores: ${jobsWithScores.map(j => j.matchScore).join(', ')})`);
+
     return NextResponse.json({
       success: true,
       data: {
         jobs: jobsWithScores,
         algorithm,
         userProfile: {
-          skills: user.skills,
-          location: user.location,
+          skills: allSkills,
+          resumeSkills: user.resumes[0]?.skills || [],
+          location: userLocation,
           jobTypePreference: user.jobTypePreference,
-          remotePreference: user.remotePreference
+          remotePreference: user.remotePreference,
+          hasResume: user.resumes.length > 0
+        },
+        metadata: {
+          totalMatched: jobsWithScores.length,
+          averageMatchScore: jobsWithScores.length > 0 
+            ? Math.round(jobsWithScores.reduce((sum, j) => sum + j.matchScore, 0) / jobsWithScores.length)
+            : 0
         }
       }
     });
   } catch (_error) {
-    console.error('Error fetching job recommendations:', error);
+    console.error('Error fetching job recommendations:', _error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch recommendations' },
       { status: 500 }
