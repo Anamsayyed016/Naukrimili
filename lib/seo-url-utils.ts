@@ -363,8 +363,18 @@ export function cleanJobDataForSEO(jobData: any): SEOJobData {
   // CRITICAL FIX: Prioritize sourceId for external jobs to avoid large number precision loss
   // For external jobs (source !== 'manual' and sourceId exists), use sourceId
   // For database jobs, use id
+  // ALSO: If ID is a large unsafe number (>= MAX_SAFE_INTEGER), prefer sourceId
   const isExternalJob = jobData.source && jobData.source !== 'manual' && jobData.source !== 'database';
-  const jobId = (isExternalJob && jobData.sourceId) ? jobData.sourceId : (jobData.id || jobData.sourceId || '');
+  const hasLargeNumericId = typeof jobData.id === 'number' && !Number.isSafeInteger(jobData.id);
+  const hasLargeStringId = typeof jobData.id === 'string' && /^\d{16,}$/.test(jobData.id); // 16+ digit string numbers
+  
+  // Use sourceId if: external job OR large unsafe numeric ID OR no source field but has sourceId
+  const shouldUseSourceId = (isExternalJob && jobData.sourceId) || 
+                            (hasLargeNumericId && jobData.sourceId) || 
+                            (hasLargeStringId && jobData.sourceId) ||
+                            (!jobData.source && jobData.sourceId && (hasLargeNumericId || hasLargeStringId));
+  
+  const jobId = shouldUseSourceId ? jobData.sourceId : (jobData.id || jobData.sourceId || '');
 
   return {
     id: jobId,

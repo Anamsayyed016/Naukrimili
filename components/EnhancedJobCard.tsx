@@ -196,7 +196,7 @@ export default function EnhancedJobCard({
                 </button>
               ) : (
                 <Link
-                  href={`/jobs/${normalizedJob.id}/apply`}
+                  href={`${seoJobUrl}/apply`}
                   className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
                 >
                   <span className="hidden sm:inline">Apply</span>
