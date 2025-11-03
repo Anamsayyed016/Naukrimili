@@ -77,34 +77,34 @@ export default function LocationCategories({
         // Realistic multipliers based on actual job market data
         const locationMultipliers: Record<string, number> = {
           // USA locations
-          'Bay Area-USA': 0.15,
-          'California-USA': 0.25,
-          'New York-USA': 0.20,
-          'Texas-USA': 0.18,
-          'Florida-USA': 0.12,
-          'Washington-USA': 0.10,
-          'Massachusetts-USA': 0.08,
-          'United States-USA': 0.40,
+          'Bay Area-US': 0.15,
+          'California-US': 0.25,
+          'New York-US': 0.20,
+          'Texas-US': 0.18,
+          'Florida-US': 0.12,
+          'Washington-US': 0.10,
+          'Massachusetts-US': 0.08,
+          'United States-US': 0.40,
           
           // India
-          'India-India': 0.35,
+          'India-IN': 0.35,
           
           // UK locations
-          'London-UK': 0.12,
-          'United Kingdom-UK': 0.15,
+          'London-GB': 0.12,
+          'United Kingdom-GB': 0.15,
           
           // Canada
-          'Toronto-Canada': 0.08,
-          'Canada-Canada': 0.10,
+          'Toronto-CA': 0.08,
+          'Canada-CA': 0.10,
           
           // Australia
-          'Sydney-Australia': 0.06,
-          'Australia-Australia': 0.08,
+          'Sydney-AU': 0.06,
+          'Australia-AU': 0.08,
           
           // Other countries
-          'Dubai-UAE': 0.04,
-          'Germany-Germany': 0.05,
-          'Singapore-Singapore': 0.03
+          'Dubai-AE': 0.04,
+          'Germany-DE': 0.05,
+          'Singapore-SG': 0.03
         };
 
         const key = `${location}-${country}`;
@@ -113,32 +113,32 @@ export default function LocationCategories({
       };
 
       const areas: LocationData[] = [
-        { id: 'bay-area', name: 'Bay Area', country: 'USA', flag: '🇺🇸', jobCount: getRealisticJobCount('Bay Area', 'USA', totalJobCount), type: 'area' },
-        { id: 'greater-london', name: 'Greater London', country: 'UK', flag: '🇬🇧', jobCount: getRealisticJobCount('London', 'UK', totalJobCount), type: 'area' },
-        { id: 'greater-toronto', name: 'Greater Toronto', country: 'Canada', flag: '🇨🇦', jobCount: getRealisticJobCount('Toronto', 'Canada', totalJobCount), type: 'area' },
-        { id: 'silicon-valley', name: 'Silicon Valley', country: 'USA', flag: '🇺🇸', jobCount: getRealisticJobCount('Bay Area', 'USA', totalJobCount), type: 'area' },
-        { id: 'greater-sydney', name: 'Greater Sydney', country: 'Australia', flag: '🇦🇺', jobCount: getRealisticJobCount('Sydney', 'Australia', totalJobCount), type: 'area' },
-        { id: 'greater-dubai', name: 'Greater Dubai', country: 'UAE', flag: '🇦🇪', jobCount: getRealisticJobCount('Dubai', 'UAE', totalJobCount), type: 'area' }
+        { id: 'bay-area', name: 'Bay Area', country: 'US', flag: '🇺🇸', jobCount: getRealisticJobCount('Bay Area', 'US', totalJobCount), type: 'area' },
+        { id: 'greater-london', name: 'Greater London', country: 'GB', flag: '🇬🇧', jobCount: getRealisticJobCount('London', 'GB', totalJobCount), type: 'area' },
+        { id: 'greater-toronto', name: 'Greater Toronto', country: 'CA', flag: '🇨🇦', jobCount: getRealisticJobCount('Toronto', 'CA', totalJobCount), type: 'area' },
+        { id: 'silicon-valley', name: 'Silicon Valley', country: 'US', flag: '🇺🇸', jobCount: getRealisticJobCount('Bay Area', 'US', totalJobCount), type: 'area' },
+        { id: 'greater-sydney', name: 'Greater Sydney', country: 'AU', flag: '🇦🇺', jobCount: getRealisticJobCount('Sydney', 'AU', totalJobCount), type: 'area' },
+        { id: 'greater-dubai', name: 'Greater Dubai', country: 'AE', flag: '🇦🇪', jobCount: getRealisticJobCount('Dubai', 'AE', totalJobCount), type: 'area' }
       ];
 
       const states: LocationData[] = [
-        { id: 'california', name: 'California', country: 'USA', flag: '🇺🇸', jobCount: getRealisticJobCount('California', 'USA', totalJobCount), type: 'state' },
-        { id: 'new-york-state', name: 'New York', country: 'USA', flag: '🇺🇸', jobCount: getRealisticJobCount('New York', 'USA', totalJobCount), type: 'state' },
-        { id: 'texas', name: 'Texas', country: 'USA', flag: '🇺🇸', jobCount: getRealisticJobCount('Texas', 'USA', totalJobCount), type: 'state' },
-        { id: 'florida', name: 'Florida', country: 'USA', flag: '🇺🇸', jobCount: getRealisticJobCount('Florida', 'USA', totalJobCount), type: 'state' },
-        { id: 'washington', name: 'Washington', country: 'USA', flag: '🇺🇸', jobCount: getRealisticJobCount('Washington', 'USA', totalJobCount), type: 'state' },
-        { id: 'massachusetts', name: 'Massachusetts', country: 'USA', flag: '🇺🇸', jobCount: getRealisticJobCount('Massachusetts', 'USA', totalJobCount), type: 'state' }
+        { id: 'california', name: 'California', country: 'US', flag: '🇺🇸', jobCount: getRealisticJobCount('California', 'US', totalJobCount), type: 'state' },
+        { id: 'new-york-state', name: 'New York', country: 'US', flag: '🇺🇸', jobCount: getRealisticJobCount('New York', 'US', totalJobCount), type: 'state' },
+        { id: 'texas', name: 'Texas', country: 'US', flag: '🇺🇸', jobCount: getRealisticJobCount('Texas', 'US', totalJobCount), type: 'state' },
+        { id: 'florida', name: 'Florida', country: 'US', flag: '🇺🇸', jobCount: getRealisticJobCount('Florida', 'US', totalJobCount), type: 'state' },
+        { id: 'washington', name: 'Washington', country: 'US', flag: '🇺🇸', jobCount: getRealisticJobCount('Washington', 'US', totalJobCount), type: 'state' },
+        { id: 'massachusetts', name: 'Massachusetts', country: 'US', flag: '🇺🇸', jobCount: getRealisticJobCount('Massachusetts', 'US', totalJobCount), type: 'state' }
       ];
 
       const countries: LocationData[] = [
-        { id: 'usa', name: 'United States', country: 'USA', flag: '🇺🇸', jobCount: getRealisticJobCount('United States', 'USA', totalJobCount), type: 'country' },
-        { id: 'india', name: 'India', country: 'India', flag: '🇮🇳', jobCount: getRealisticJobCount('India', 'India', totalJobCount), type: 'country' },
-        { id: 'uk', name: 'United Kingdom', country: 'UK', flag: '🇬🇧', jobCount: getRealisticJobCount('United Kingdom', 'UK', totalJobCount), type: 'country' },
-        { id: 'canada', name: 'Canada', country: 'Canada', flag: '🇨🇦', jobCount: getRealisticJobCount('Canada', 'Canada', totalJobCount), type: 'country' },
-        { id: 'australia', name: 'Australia', country: 'Australia', flag: '🇦🇺', jobCount: getRealisticJobCount('Australia', 'Australia', totalJobCount), type: 'country' },
-        { id: 'germany', name: 'Germany', country: 'Germany', flag: '🇩🇪', jobCount: getRealisticJobCount('Germany', 'Germany', totalJobCount), type: 'country' },
-        { id: 'singapore', name: 'Singapore', country: 'Singapore', flag: '🇸🇬', jobCount: getRealisticJobCount('Singapore', 'Singapore', totalJobCount), type: 'country' },
-        { id: 'uae', name: 'United Arab Emirates', country: 'UAE', flag: '🇦🇪', jobCount: getRealisticJobCount('Dubai', 'UAE', totalJobCount), type: 'country' }
+        { id: 'usa', name: 'United States', country: 'US', flag: '🇺🇸', jobCount: getRealisticJobCount('United States', 'US', totalJobCount), type: 'country' },
+        { id: 'india', name: 'India', country: 'IN', flag: '🇮🇳', jobCount: getRealisticJobCount('India', 'IN', totalJobCount), type: 'country' },
+        { id: 'uk', name: 'United Kingdom', country: 'GB', flag: '🇬🇧', jobCount: getRealisticJobCount('United Kingdom', 'GB', totalJobCount), type: 'country' },
+        { id: 'canada', name: 'Canada', country: 'CA', flag: '🇨🇦', jobCount: getRealisticJobCount('Canada', 'CA', totalJobCount), type: 'country' },
+        { id: 'australia', name: 'Australia', country: 'AU', flag: '🇦🇺', jobCount: getRealisticJobCount('Australia', 'AU', totalJobCount), type: 'country' },
+        { id: 'germany', name: 'Germany', country: 'DE', flag: '🇩🇪', jobCount: getRealisticJobCount('Germany', 'DE', totalJobCount), type: 'country' },
+        { id: 'singapore', name: 'Singapore', country: 'SG', flag: '🇸🇬', jobCount: getRealisticJobCount('Singapore', 'SG', totalJobCount), type: 'country' },
+        { id: 'uae', name: 'United Arab Emirates', country: 'AE', flag: '🇦🇪', jobCount: getRealisticJobCount('Dubai', 'AE', totalJobCount), type: 'country' }
       ];
 
       // Sort by job count (AI-powered relevance)
@@ -196,15 +196,23 @@ export default function LocationCategories({
     
     // Build search URL with location parameter
     const params = new URLSearchParams();
-    params.set('location', location.name);
+    
+    // CRITICAL FIX: For countries, use country filter instead of location
+    // For areas/states/cities, use location filter
+    if (location.type === 'country') {
+      // Country search: Set country filter only (no location)
+      // This allows jobs in ANY city within the country to match
+      params.set('country', location.country);
+      console.log(`🌍 Country search: "${location.name}" (${location.country})`);
+    } else {
+      // Area/State/City search: Set location filter
+      params.set('location', location.name);
+      console.log(`📍 Location search: "${location.name}"`);
+    }
+    
     params.set('limit', '1000');
     params.set('includeExternal', 'true');
     params.set('includeDatabase', 'true');
-    
-    // Add country filter for more accurate results
-    if (location.type === 'country') {
-      params.set('country', location.country);
-    }
     
     const searchUrl = `/jobs?${params.toString()}`;
     console.log('🔍 Navigating to:', searchUrl);
