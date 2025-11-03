@@ -283,8 +283,8 @@ export default function AIJobPostingForm() {
         </div>
 
         {/* Main Form */}
-        <Card className="shadow-xl bg-white/95 rounded-2xl border border-slate-200 backdrop-blur-sm">
-          <CardContent className="p-6">
+        <Card className="shadow-xl bg-white/95 rounded-2xl border border-slate-200 backdrop-blur-sm overflow-visible">
+          <CardContent className="p-6 overflow-visible">
             <AnimatePresence mode="wait">
               {/* Step 1: Job Details */}
               {currentStep === 1 && (
@@ -293,7 +293,8 @@ export default function AIJobPostingForm() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="space-y-6 overflow-visible"
+                  style={{ overflow: 'visible' }}
                 >
                   <div>
                     <Label className="text-base font-semibold text-slate-900 mb-2 block">
@@ -417,7 +418,8 @@ export default function AIJobPostingForm() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="space-y-6 overflow-visible"
+                  style={{ overflow: 'visible' }}
                 >
                   <div>
                     <Label className="text-base font-semibold text-slate-900 mb-2 block">
@@ -536,7 +538,8 @@ export default function AIJobPostingForm() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="space-y-6 overflow-visible"
+                  style={{ overflow: 'visible' }}
                 >
                   <div>
                     <Label className="text-base font-semibold text-slate-900 mb-2 block">
@@ -633,7 +636,8 @@ export default function AIJobPostingForm() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="space-y-6 overflow-visible"
+                  style={{ overflow: 'visible' }}
                 >
                   <Card className="bg-slate-50 border-slate-200">
                     <CardHeader>

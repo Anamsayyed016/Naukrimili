@@ -73,8 +73,8 @@ const SelectContent = React.forwardRef<
   // Extract positioning props - use provided values or sensible defaults
   const finalSide = side || "bottom";
   const finalAvoidCollisions = avoidCollisions !== undefined ? avoidCollisions : true;
-  const finalCollisionPadding = collisionPadding !== undefined ? collisionPadding : 8;
-  const finalSideOffset = sideOffset !== undefined ? sideOffset : 4;
+  const finalCollisionPadding = collisionPadding !== undefined ? collisionPadding : 16;
+  const finalSideOffset = sideOffset !== undefined ? sideOffset : 8;
 
   return (
   <SelectPrimitive.Portal>
@@ -83,12 +83,10 @@ const SelectContent = React.forwardRef<
       className={cn(
         // Base styles - let globals.css handle z-index
         "relative overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
-        // Animations
+        // Animations - reduced for better performance and less jank
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
-        "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        "data-[state=closed]:zoom-out-98 data-[state=open]:zoom-in-98",
         // Positioning offset when using popper
         position === "popper" &&
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
@@ -100,6 +98,8 @@ const SelectContent = React.forwardRef<
       sideOffset={finalSideOffset}
       collisionPadding={finalCollisionPadding}
       avoidCollisions={finalAvoidCollisions}
+      // Update position on scroll
+      onScroll={(e) => e.stopPropagation()}
       {...props}
     >
       <SelectScrollUpButton />
@@ -107,7 +107,7 @@ const SelectContent = React.forwardRef<
         className={cn(
           "p-1",
           position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full"
+            "min-h-[var(--radix-select-trigger-height)] w-full max-w-[var(--radix-select-content-available-width)]"
         )}
       >
         {children}

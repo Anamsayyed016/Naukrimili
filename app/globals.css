@@ -378,6 +378,9 @@
   z-index: 50000 !important;
   position: fixed !important;
   /* Allow Radix to calculate positioning - don't override transform */
+  /* Ensure wrapper is not clipped by parent transforms */
+  will-change: transform;
+  transform-style: preserve-3d;
 }
 
 /* Select dropdown content */
@@ -388,6 +391,9 @@
   min-width: max(var(--radix-select-trigger-width, 8rem), 8rem) !important;
   max-width: calc(100vw - 2rem) !important;
   width: auto !important;
+  /* Ensure dropdown stays visible during scroll */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 /* Select viewport (scrollable area) */
@@ -413,11 +419,17 @@
   [data-radix-select-content] {
     max-width: calc(100vw - 2rem) !important;
     min-width: min(var(--radix-select-trigger-width, 8rem), calc(100vw - 2rem)) !important;
+    /* Force dropdown to stay within viewport on mobile */
+    max-height: 60vh !important;
+    overflow-y: auto !important;
   }
   
   [data-radix-select-viewport] {
     max-width: 100% !important;
     width: 100% !important;
+    /* Smooth scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
   
   /* Touch-friendly dropdown items */
@@ -426,6 +438,14 @@
     padding: 12px 16px !important;
     white-space: normal !important;
     word-wrap: break-word !important;
+    /* Better touch targets */
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* Ensure dropdown portal is not affected by parent transforms on mobile */
+  [data-radix-popper-content-wrapper] {
+    transform: none !important;
   }
 }
 
@@ -481,6 +501,24 @@ tr {
   overflow: visible !important;
 }
 
+/* CRITICAL: Specific fix for AIJobPostingForm motion divs */
+.mobile-job-form,
+.mobile-job-form * {
+  overflow: visible !important;
+}
+
+/* Ensure Card components allow dropdown escape */
+[class*="card"] > *,
+.card-content,
+[class*="CardContent"] {
+  overflow: visible !important;
+}
+
+/* AnimatePresence wrapper must not clip */
+[data-framer-appear-id] > div {
+  overflow: visible !important;
+}
+
 /* Mobile responsive improvements */
 @media (max-width: 640px) {
   .mobile-stack {
@@ -531,6 +569,8 @@ html {
   overflow-x: hidden;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
+  /* Ensure dropdowns aren't affected by scroll transforms */
+  transform-style: flat;
 }
 
 html, body {
@@ -543,10 +583,8 @@ body {
   position: relative;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  /* GPU acceleration for smooth scrolling */
-  transform: translateZ(0);
+  /* Reduced GPU transforms to prevent dropdown positioning issues */
   backface-visibility: hidden;
-  perspective: 1000px;
   touch-action: pan-y;
   /* Prevent scroll bouncing and momentum on iOS */
   overscroll-behavior: none;
