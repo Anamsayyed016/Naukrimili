@@ -81,10 +81,17 @@ export default function JobSeekerProfilePage() {
 
       const data = await response.json();
       if (data.success) {
-        setProfile(data.data);
+        // CRITICAL FIX: Ensure arrays are never null
+        const profileData = {
+          ...data.data,
+          skills: data.data.skills || [],
+          jobTypePreference: data.data.jobTypePreference || [],
+          remotePreference: data.data.remotePreference || false
+        };
+        setProfile(profileData);
       }
     } catch (_error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error fetching profile:', _error);
       toast({
         title: 'Error',
         description: 'Failed to fetch profile data',
@@ -115,7 +122,14 @@ export default function JobSeekerProfilePage() {
 
       const data = await response.json();
       if (data.success) {
-        setProfile(data.data);
+        // CRITICAL FIX: Ensure arrays are never null after save
+        const profileData = {
+          ...data.data,
+          skills: data.data.skills || [],
+          jobTypePreference: data.data.jobTypePreference || [],
+          remotePreference: data.data.remotePreference || false
+        };
+        setProfile(profileData);
         setEditing(false);
         toast({
           title: 'Success',
@@ -123,10 +137,10 @@ export default function JobSeekerProfilePage() {
         });
       }
     } catch (_error) {
-      console.error('Error updating profile:', error);
+      console.error('Error updating profile:', _error);
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to update profile',
+        description: _error instanceof Error ? _error.message : 'Failed to update profile',
         variant: 'destructive'
       });
     } finally {
@@ -143,10 +157,18 @@ export default function JobSeekerProfilePage() {
     setSkillsInput(value);
     if (value.endsWith(',')) {
       const skill = value.slice(0, -1).trim();
-      if (skill && profile && !profile.skills.includes(skill)) {
+      // CRITICAL FIX: Check if profile.skills is null/undefined
+      if (skill && profile && profile.skills && !profile.skills.includes(skill)) {
         setProfile({
           ...profile,
           skills: [...profile.skills, skill]
+        });
+        setSkillsInput('');
+      } else if (skill && profile && !profile.skills) {
+        // Initialize skills array if null
+        setProfile({
+          ...profile,
+          skills: [skill]
         });
         setSkillsInput('');
       }
@@ -154,7 +176,7 @@ export default function JobSeekerProfilePage() {
   };
 
   const removeSkill = (skillToRemove: string) => {
-    if (!profile) return;
+    if (!profile || !profile.skills) return;
     setProfile({
       ...profile,
       skills: profile.skills.filter(skill => skill !== skillToRemove)
@@ -163,9 +185,11 @@ export default function JobSeekerProfilePage() {
 
   const toggleJobTypePreference = (jobType: string) => {
     if (!profile) return;
-    const updated = profile.jobTypePreference.includes(jobType)
-      ? profile.jobTypePreference.filter(type => type !== jobType)
-      : [...profile.jobTypePreference, jobType];
+    // CRITICAL FIX: Check if jobTypePreference is null/undefined
+    const currentPreferences = profile.jobTypePreference || [];
+    const updated = currentPreferences.includes(jobType)
+      ? currentPreferences.filter(type => type !== jobType)
+      : [...currentPreferences, jobType];
     setProfile({ ...profile, jobTypePreference: updated });
   };
 
@@ -408,7 +432,7 @@ export default function JobSeekerProfilePage() {
                       {['full-time', 'part-time', 'contract', 'internship', 'remote', 'hybrid'].map((jobType) => (
                         <label key={jobType} className="flex items-center space-x-2">
                           <Checkbox
-                            checked={profile.jobTypePreference.includes(jobType)}
+                            checked={(profile.jobTypePreference || []).includes(jobType)}
                             onCheckedChange={() => toggleJobTypePreference(jobType)}
                             disabled={!editing}
                           />
