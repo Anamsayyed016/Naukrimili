@@ -107,10 +107,12 @@ export async function GET(request: NextRequest) {
       success: true,
       data: normalizedUser
     });
-  } catch (_error) {
-    console.error('Error fetching jobseeker profile:', _error);
+  } catch (error: any) {
+    console.error('Error fetching jobseeker profile:', error);
+    // IMPROVED ERROR HANDLING: Show actual error message for debugging
+    const errorMessage = error?.message || 'Failed to fetch profile';
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch profile' },
+      { success: false, error: errorMessage, details: error?.toString() },
       { status: 500 }
     );
   }
@@ -156,42 +158,43 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Validate phone number format if provided
-    if (phone && !/^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/\s/g, ''))) {
+    // RELAXED VALIDATION: Make all validations optional and more flexible
+    // Phone validation - accept any format if provided
+    if (phone && phone.trim() && phone.length < 3) {
       return NextResponse.json(
         { success: false, error: 'Please provide a valid phone number' },
         { status: 400 }
       );
     }
 
-    // Validate salary expectation if provided
-    if (salaryExpectation && (isNaN(salaryExpectation) || salaryExpectation < 0)) {
+    // Salary validation - just check if it's a reasonable number
+    if (salaryExpectation && (isNaN(Number(salaryExpectation)) || Number(salaryExpectation) < 0)) {
       return NextResponse.json(
         { success: false, error: 'Please provide a valid salary expectation' },
         { status: 400 }
       );
     }
 
-    // Validate website URL if provided
-    if (website && !website.match(/^https?:\/\/.+/)) {
+    // URL validations - RELAXED: Just check if it looks like a URL
+    if (website && website.trim() && !website.match(/^https?:\/\/.+\..+/)) {
       return NextResponse.json(
         { success: false, error: 'Please provide a valid website URL (e.g., https://yoursite.com)' },
         { status: 400 }
       );
     }
 
-    // Validate LinkedIn URL if provided
-    if (linkedin && !linkedin.match(/^https?:\/\/(www\.)?linkedin\.com\/in\/.+/)) {
+    // LinkedIn - RELAXED: Accept any linkedin.com URL
+    if (linkedin && linkedin.trim() && !linkedin.match(/linkedin\.com/i)) {
       return NextResponse.json(
-        { success: false, error: 'Please provide a valid LinkedIn profile URL' },
+        { success: false, error: 'Please provide a valid LinkedIn URL' },
         { status: 400 }
       );
     }
 
-    // Validate GitHub URL if provided
-    if (github && !github.match(/^https?:\/\/(www\.)?github\.com\/.+/)) {
+    // GitHub - RELAXED: Accept any github.com URL
+    if (github && github.trim() && !github.match(/github\.com/i)) {
       return NextResponse.json(
-        { success: false, error: 'Please provide a valid GitHub profile URL' },
+        { success: false, error: 'Please provide a valid GitHub URL' },
         { status: 400 }
       );
     }
@@ -233,10 +236,12 @@ export async function PUT(request: NextRequest) {
       data: normalizedUser,
       message: 'Profile updated successfully'
     });
-  } catch (_error) {
-    console.error('Error updating jobseeker profile:', _error);
+  } catch (error: any) {
+    console.error('Error updating jobseeker profile:', error);
+    // IMPROVED ERROR HANDLING: Show actual error message for debugging
+    const errorMessage = error?.message || 'Failed to update profile';
     return NextResponse.json(
-      { success: false, error: 'Failed to update profile' },
+      { success: false, error: errorMessage, details: error?.toString() },
       { status: 500 }
     );
   }

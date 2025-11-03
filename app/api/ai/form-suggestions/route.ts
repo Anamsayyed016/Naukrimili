@@ -274,17 +274,19 @@ export async function POST(request: NextRequest) {
   try {
     const requestData = await request.json();
     field = requestData.field || 'skills';
-    _value = requestData._value || '';
+    // CRITICAL FIX: Frontend sends 'value', not '_value'
+    _value = requestData.value || requestData._value || '';
     context = requestData.context || {};
 
-    if (!field || !_value) {
+    // CRITICAL FIX: Only field is required, value can be empty for suggestions
+    if (!field) {
       return NextResponse.json({
         success: false,
-        error: 'Field and _value are required'
+        error: 'Field is required'
       }, { status: 400 });
     }
 
-    console.log(`🔮 Generating suggestions for field: ${field}, _value: ${_value}`);
+    console.log(`🔮 Generating suggestions for field: ${field}, value: ${_value}`);
 
     // Generate suggestions using hybrid AI
     const result = await hybridFormSuggestions.generateSuggestions(field, _value, context);
