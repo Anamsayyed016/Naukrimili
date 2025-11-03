@@ -36,7 +36,7 @@ interface JobFormData {
 
 const steps = [
   { id: 1, title: 'Details', description: 'Job information' },
-  { id: 2, title: 'Requirements', description: 'Skills & experience' },
+  { id: 2, title: 'Requirements & Skills', description: 'What you need' },
   { id: 3, title: 'Location', description: 'Job location' },
   { id: 4, title: 'Review', description: 'Review & publish' }
 ];
@@ -50,6 +50,8 @@ export default function AIJobPostingForm() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [companyProfile, setCompanyProfile] = useState<{ name: string; description: string; industry: string } | null>(null);
+  const [loadingCompany, setLoadingCompany] = useState(true);
   const [aiLoading, setAiLoading] = useState<{ [k: string]: boolean }>({});
   const [aiSuggestions, setAiSuggestions] = useState<{ [k: string]: string[] }>({});
   const [formData, setFormData] = useState<JobFormData>({
@@ -70,6 +72,30 @@ export default function AIJobPostingForm() {
     openings: '1'
   });
 
+  // Fetch company profile on mount
+  useEffect(() => {
+    const fetchCompanyProfile = async () => {
+      try {
+        const response = await fetch('/api/employer/company-profile');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setCompanyProfile({
+              name: data.data.name || '',
+              description: data.data.description || '',
+              industry: data.data.industry || 'Technology'
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching company profile:', error);
+      } finally {
+        setLoadingCompany(false);
+      }
+    };
+    fetchCompanyProfile();
+  }, []);
+
   const handleInputChange = (field: keyof JobFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -89,7 +115,8 @@ export default function AIJobPostingForm() {
       case 1:
         return formData.title.trim() !== '' && formData.description.trim() !== '';
       case 2:
-        return formData.requirements.trim() !== '' && formData.skills.length > 0;
+        // FIXED: Skills are now optional, only requirements required
+        return formData.requirements.trim() !== '';
       case 3:
         return formData.location.trim() !== '';
       case 4:
@@ -140,35 +167,45 @@ export default function AIJobPostingForm() {
   ) => {
     try {
       setAiLoading(prev => ({ ...prev, [field]: true }));
+      
+      // Enhanced context with company information
       const context = {
         jobType: formData.jobType,
         experienceLevel: formData.experienceLevel,
-        industry: 'Technology',
+        industry: companyProfile?.industry || 'Technology',
+        companyName: companyProfile?.name || '',
+        companyDescription: companyProfile?.description || '',
         skills: formData.skills,
+        jobTitle: formData.title,
+        jobDescription: formData.description,
       };
-      // Seed defaults so API doesn't reject empty _value
+      
+      // Dynamic seed defaults based on company context
       const seedDefaults: Record<string, string> = {
-        title: 'Software Engineer',
-        description: 'Write a concise job description for a software role',
-        requirements: 'List key requirements for a software role',
+        title: `${formData.jobType} position at ${companyProfile?.name || 'our company'}`,
+        description: `${companyProfile?.description || 'We are looking for talented professionals'}. ${formData.title || 'Join our team'}`,
+        requirements: `Based on ${companyProfile?.description || 'company needs'}, list key requirements for ${formData.title || 'this role'}`,
         skills: JSON.stringify(formData.skills.length ? formData.skills : ['JavaScript','React','Node.js'])
       };
+      
       const value =
         field === 'skills'
           ? seedDefaults.skills
           : ((formData as any)[field] && String((formData as any)[field]).trim().length > 0
               ? (formData as any)[field]
               : seedDefaults[field]);
+              
       const res = await fetch('/api/ai/form-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ field, _value: value, context }),
       });
+      
       const data = await res.json();
       if (data?.success && Array.isArray(data.suggestions)) {
         setAiSuggestions(prev => ({ ...prev, [field]: data.suggestions.slice(0, 6) }));
-        toast.success('AI suggestions ready');
+        toast.success(`✨ AI suggestions ready based on ${companyProfile?.name || 'your company'}`);
       } else {
         toast.error('Could not fetch suggestions');
       }
@@ -249,8 +286,18 @@ export default function AIJobPostingForm() {
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Post a Job</h1>
           </div>
           <p className="text-slate-600 text-sm sm:text-base">
-            Create a job posting to find the perfect candidates
+            {companyProfile ? (
+              <>AI-powered job posting for <span className="font-semibold text-blue-600">{companyProfile.name}</span></>
+            ) : (
+              'Create a job posting to find the perfect candidates'
+            )}
           </p>
+          {loadingCompany && (
+            <p className="text-xs text-slate-500 mt-2 flex items-center justify-center gap-2">
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+              Loading company profile for AI suggestions...
+            </p>
+          )}
         </div>
 
         {/* Progress Steps */}
@@ -411,7 +458,7 @@ export default function AIJobPostingForm() {
                 </motion.div>
               )}
 
-              {/* Step 2: Requirements */}
+              {/* Step 2: Requirements & Skills - Combined & Dynamic */}
               {currentStep === 2 && (
                 <motion.div
                   key="step2"
@@ -421,112 +468,163 @@ export default function AIJobPostingForm() {
                   className="space-y-6 overflow-visible"
                   style={{ overflow: 'visible' }}
                 >
-                  <div>
-                    <Label className="text-base font-semibold text-slate-900 mb-2 block">
-                      Requirements *
-                    </Label>
+                  {/* Requirements with AI */}
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-100">
+                    <div className="flex items-center justify-between mb-3">
+                      <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-blue-600" />
+                        Job Requirements *
+                      </Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => getAiSuggestions('requirements')}
+                        disabled={aiLoading.requirements || loadingCompany}
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+                      >
+                        <Sparkles className="h-3 w-3 mr-1.5" />
+                        {aiLoading.requirements ? 'Generating…' : 'AI Suggest'}
+                      </Button>
+                    </div>
                     <Textarea
                       value={formData.requirements}
                       onChange={(e) => handleInputChange('requirements', e.target.value)}
-                      placeholder="List the key requirements and qualifications..."
-                      rows={6}
-                      className="resize-none"
+                      placeholder={`List requirements for this ${formData.title || 'position'}...\n\nExample:\n• Bachelor's degree in relevant field\n• 3+ years of experience\n• Strong communication skills`}
+                      rows={7}
+                      className="resize-none bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400"
                     />
+                    {aiSuggestions.requirements?.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-xs text-slate-600 font-medium">💡 AI Suggestions based on {companyProfile?.name || 'your company'}:</p>
+                        {aiSuggestions.requirements.map((suggestion, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => applySuggestion('requirements', suggestion)}
+                            className="w-full text-left text-sm p-3 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 hover:border-blue-300 transition-all"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <Label className="text-base font-semibold text-slate-900 mb-3 block">
-                      Required Skills *
-                    </Label>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {formData.skills.map((skill) => (
-                        <Badge key={skill} variant="secondary" className="px-3 py-1">
-                          {skill}
-                          <button
-                            onClick={() => removeSkill(skill)}
-                            className="ml-2 hover:text-red-600"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {popularSkills.filter(skill => !formData.skills.includes(skill)).map((skill) => (
-                        <Button
-                          key={skill}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addSkill(skill)}
-                          className="h-8"
-                        >
-                          + {skill}
-                        </Button>
-                      ))}
+                  {/* Skills Section - Optional but encouraged */}
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-6 rounded-xl border border-purple-100">
+                    <div className="flex items-center justify-between mb-3">
+                      <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                        <Users className="h-5 w-5 text-purple-600" />
+                        Required Skills <span className="text-xs text-slate-500 font-normal">(Optional - AI can suggest based on requirements)</span>
+                      </Label>
                       <Button
                         type="button"
                         size="sm"
                         onClick={() => getAiSuggestions('skills')}
-                        disabled={aiLoading.skills}
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+                        disabled={aiLoading.skills || loadingCompany}
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg"
                       >
                         <Sparkles className="h-3 w-3 mr-1.5" />
-                        {aiLoading.skills ? 'AI…' : 'AI suggest'}
+                        {aiLoading.skills ? 'AI…' : 'AI Suggest Skills'}
                       </Button>
                     </div>
-                    {aiSuggestions.skills?.length ? (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {aiSuggestions.skills.map((s) => (
-                          <Button 
-                            key={s} 
-                            type="button" 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => {
-                              addSkill(s);
-                              setAiSuggestions(prev => ({ ...prev, skills: (prev.skills || []).filter(x => x !== s) }));
-                            }}
+                    
+                    {/* Selected Skills */}
+                    {formData.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3 p-3 bg-white rounded-lg border border-purple-200">
+                        {formData.skills.map((skill) => (
+                          <Badge key={skill} variant="secondary" className="px-3 py-1.5 bg-purple-100 text-purple-700 hover:bg-purple-200">
+                            {skill}
+                            <button
+                              onClick={() => removeSkill(skill)}
+                              className="ml-2 hover:text-red-600"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Popular Skills */}
+                    <div className="space-y-2">
+                      <p className="text-xs text-slate-600 font-medium">Popular Skills:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {popularSkills.filter(skill => !formData.skills.includes(skill)).map((skill) => (
+                          <Button
+                            key={skill}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addSkill(skill)}
+                            className="h-9 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
                           >
-                            + {s}
+                            + {skill}
                           </Button>
                         ))}
                       </div>
-                    ) : null}
+                    </div>
+                    
+                    {/* AI Suggested Skills */}
+                    {aiSuggestions.skills?.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-xs text-purple-600 font-medium">✨ AI Suggested Skills based on your requirements:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {aiSuggestions.skills.map((s) => (
+                            <Button 
+                              key={s} 
+                              type="button" 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => {
+                                addSkill(s);
+                                setAiSuggestions(prev => ({ ...prev, skills: (prev.skills || []).filter(x => x !== s) }));
+                              }}
+                              className="h-9 border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-700"
+                            >
+                              + {s}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <Label className="text-base font-semibold text-slate-900 mb-2 block">
-                      Experience Level
-                    </Label>
-                    <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Select experience level" />
-                      </SelectTrigger>
-                      <SelectContent
-                        position="popper"
-                        sideOffset={8}
-                        align="start"
-                        avoidCollisions
-                        collisionPadding={16}
-                        className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
-                      >
-                        {experienceLevels.map((level) => (
-                          <SelectItem key={level} value={level}>{level}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  {/* Experience & Salary */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-base font-semibold text-slate-900 mb-2 block">
+                        Experience Level
+                      </Label>
+                      <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Select experience level" />
+                        </SelectTrigger>
+                        <SelectContent
+                          position="popper"
+                          sideOffset={8}
+                          align="start"
+                          avoidCollisions
+                          collisionPadding={16}
+                          className="z-[10000] min-w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-xl shadow-xl"
+                        >
+                          {experienceLevels.map((level) => (
+                            <SelectItem key={level} value={level}>{level}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <div>
-                    <Label className="text-base font-semibold text-slate-900 mb-2 block">
-                      Salary (Optional)
-                    </Label>
-                    <Input
-                      value={formData.salary}
-                      onChange={(e) => handleInputChange('salary', e.target.value)}
-                      placeholder="e.g., ₹50,000 - ₹70,000"
-                      className="h-12"
-                    />
+                    <div>
+                      <Label className="text-base font-semibold text-slate-900 mb-2 block">
+                        Salary Range <span className="text-xs text-slate-500 font-normal">(Optional)</span>
+                      </Label>
+                      <Input
+                        value={formData.salary}
+                        onChange={(e) => handleInputChange('salary', e.target.value)}
+                        placeholder="e.g., ₹50,000 - ₹70,000 per month"
+                        className="h-12"
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}
