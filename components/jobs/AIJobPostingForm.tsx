@@ -651,9 +651,13 @@ export default function AIJobPostingForm() {
                       showPopular={false}
                       showTips={false}
                     />
-                    <div className="mt-3">
-                      <Label className="text-sm font-medium text-slate-700 mb-1 block">
-                        Search radius: {formData.locationRadiusKm || 25} km
+                    <div className="mt-4 p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200">
+                      <Label className="text-sm font-semibold text-slate-800 mb-3 flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-slate-600" />
+                          Search Radius
+                        </span>
+                        <span className="text-blue-600 font-bold text-base">{formData.locationRadiusKm || 25} km</span>
                       </Label>
                       <input
                         type="range"
@@ -661,67 +665,96 @@ export default function AIJobPostingForm() {
                         max={100}
                         value={formData.locationRadiusKm || 25}
                         onChange={(e) => handleInputChange('locationRadiusKm', parseInt(e.target.value))}
-                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                        className="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer slider-thumb"
+                        style={{
+                          background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((formData.locationRadiusKm || 25) - 5) / 95 * 100}%, #cbd5e1 ${((formData.locationRadiusKm || 25) - 5) / 95 * 100}%, #cbd5e1 100%)`
+                        }}
                       />
+                      <div className="flex justify-between text-xs text-slate-500 mt-2">
+                        <span>5 km</span>
+                        <span>50 km</span>
+                        <span>100 km</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="remote"
-                        checked={formData.isRemote}
-                        onCheckedChange={(checked) => handleInputChange('isRemote', checked)}
-                      />
-                      <Label htmlFor="remote" className="font-normal cursor-pointer">
-                        Remote Work
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="hybrid"
-                        checked={formData.isHybrid}
-                        onCheckedChange={(checked) => handleInputChange('isHybrid', checked)}
-                      />
-                      <Label htmlFor="hybrid" className="font-normal cursor-pointer">
-                        Hybrid Work
-                      </Label>
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 sm:p-5 rounded-xl border border-green-200">
+                    <Label className="text-base font-semibold text-slate-900 mb-3 block">
+                      Work Type Options
+                    </Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-green-200 hover:border-green-300 transition-all cursor-pointer">
+                        <Checkbox
+                          id="remote"
+                          checked={formData.isRemote}
+                          onCheckedChange={(checked) => handleInputChange('isRemote', checked)}
+                          className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                        />
+                        <Label htmlFor="remote" className="font-medium cursor-pointer text-sm sm:text-base flex-1">
+                          🏠 Remote Work
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-green-200 hover:border-green-300 transition-all cursor-pointer">
+                        <Checkbox
+                          id="hybrid"
+                          checked={formData.isHybrid}
+                          onCheckedChange={(checked) => handleInputChange('isHybrid', checked)}
+                          className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                        />
+                        <Label htmlFor="hybrid" className="font-medium cursor-pointer text-sm sm:text-base flex-1">
+                          🏢 Hybrid Work
+                        </Label>
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <Label className="text-base font-semibold text-slate-900 mb-2 block">
-                      Benefits (Optional)
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 sm:p-5 rounded-xl border border-amber-200">
+                    <Label className="text-base font-semibold text-slate-900 mb-2 flex items-center gap-2">
+                      <DollarSign className="h-5 w-5 text-amber-600" />
+                      Benefits <span className="text-xs text-slate-500 font-normal">(Optional)</span>
                     </Label>
                     <Textarea
                       value={formData.benefits}
                       onChange={(e) => handleInputChange('benefits', e.target.value)}
-                      placeholder="List the benefits you offer..."
-                      rows={4}
-                      className="resize-none"
+                      placeholder="List the benefits you offer...\n\nExample:\n• Health insurance\n• Flexible hours\n• Professional development"
+                      rows={5}
+                      className="resize-none bg-white border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                     />
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="urgent"
-                        checked={formData.isUrgent}
-                        onCheckedChange={(checked) => handleInputChange('isUrgent', checked)}
-                      />
-                      <Label htmlFor="urgent" className="font-normal cursor-pointer">
-                        Urgent Hiring
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="featured"
-                        checked={formData.isFeatured}
-                        onCheckedChange={(checked) => handleInputChange('isFeatured', checked)}
-                      />
-                      <Label htmlFor="featured" className="font-normal cursor-pointer">
-                        Feature this job posting (increases visibility)
-                      </Label>
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-5 rounded-xl border border-purple-200">
+                    <Label className="text-base font-semibold text-slate-900 mb-3 block">
+                      Job Visibility Settings
+                    </Label>
+                    <div className="space-y-3">
+                      <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-all">
+                        <Checkbox
+                          id="urgent"
+                          checked={formData.isUrgent}
+                          onCheckedChange={(checked) => handleInputChange('isUrgent', checked)}
+                          className="mt-0.5 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor="urgent" className="font-medium cursor-pointer text-sm sm:text-base block">
+                            ⚡ Urgent Hiring
+                          </Label>
+                          <p className="text-xs text-slate-500 mt-1">Mark this as an urgent position needing immediate attention</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-all">
+                        <Checkbox
+                          id="featured"
+                          checked={formData.isFeatured}
+                          onCheckedChange={(checked) => handleInputChange('isFeatured', checked)}
+                          className="mt-0.5 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor="featured" className="font-medium cursor-pointer text-sm sm:text-base block">
+                            ⭐ Featured Job Posting
+                          </Label>
+                          <p className="text-xs text-slate-500 mt-1">Increase visibility with premium placement on search results</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </motion.div>

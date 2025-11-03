@@ -152,19 +152,21 @@ export default function EnhancedLocationSearch({
 
         {/* Search Input */}
         <form onSubmit={handleSearchSubmit} className="relative">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Enter city, state, or country..."
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 pr-20"
-            />
+          <div className="relative flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Enter city, state, or country..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-10 h-12 w-full"
+              />
+            </div>
             <Button
               type="submit"
-              size="sm"
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 px-3"
+              size="default"
+              className="h-12 px-4 sm:px-6 whitespace-nowrap"
             >
               Search
             </Button>
@@ -173,20 +175,21 @@ export default function EnhancedLocationSearch({
 
         {/* Current Location Button */}
         <Button
+          type="button"
           onClick={detectCurrentLocation}
           disabled={isLoading}
           variant="outline"
-          className="w-full"
+          className="w-full h-12 text-sm sm:text-base"
         >
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Detecting location...
+              <span>Detecting location...</span>
             </>
           ) : (
             <>
               <Navigation className="w-4 h-4 mr-2" />
-              Use my current location
+              <span>Use my current location</span>
             </>
           )}
         </Button>
@@ -230,19 +233,20 @@ export default function EnhancedLocationSearch({
       {!compact && showPopular && (
         <div className="space-y-3">
           <h4 className="text-sm font-medium text-gray-700">Popular Locations</h4>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {popularLocations.filter(location => (location.jobCount || 0) > 0).map((location) => (
               <Button
                 key={location.name}
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => handleLocationSelect(location.name)}
-                className="justify-start h-auto p-3"
+                className="justify-start h-auto p-3 w-full"
               >
-                <div className="text-left">
+                <div className="text-left w-full">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{location.icon}</span>
-                    <span className="font-medium">{location.name}</span>
+                    <span className="font-medium text-sm sm:text-base">{location.name}</span>
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
                     {location.jobCount} jobs available
