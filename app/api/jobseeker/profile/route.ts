@@ -94,12 +94,18 @@ export async function GET(request: NextRequest) {
       profileCompletion
     };
 
+    // CRITICAL FIX: Ensure arrays are always arrays, never null
+    const normalizedUser = {
+      ...user,
+      skills: Array.isArray(user.skills) ? user.skills : [],
+      jobTypePreference: Array.isArray(user.jobTypePreference) ? user.jobTypePreference : [],
+      remotePreference: user.remotePreference || false,
+      stats
+    };
+
     return NextResponse.json({
       success: true,
-      data: {
-        ...user,
-        stats
-      }
+      data: normalizedUser
     });
   } catch (_error) {
     console.error('Error fetching jobseeker profile:', _error);
@@ -199,13 +205,13 @@ export async function PUT(request: NextRequest) {
         phone,
         location,
         bio,
-        skills: skills || [],
+        skills: Array.isArray(skills) ? skills : [],
         experience,
         education,
         profilePicture,
         locationPreference,
         salaryExpectation: salaryExpectation ? parseInt(salaryExpectation) : null,
-        jobTypePreference: jobTypePreference || [],
+        jobTypePreference: Array.isArray(jobTypePreference) ? jobTypePreference : [],
         remotePreference: remotePreference || false,
         website,
         linkedin,
@@ -214,9 +220,17 @@ export async function PUT(request: NextRequest) {
       }
     });
 
+    // CRITICAL FIX: Ensure arrays are always arrays in response
+    const normalizedUser = {
+      ...updatedUser,
+      skills: Array.isArray(updatedUser.skills) ? updatedUser.skills : [],
+      jobTypePreference: Array.isArray(updatedUser.jobTypePreference) ? updatedUser.jobTypePreference : [],
+      remotePreference: updatedUser.remotePreference || false
+    };
+
     return NextResponse.json({
       success: true,
-      data: updatedUser,
+      data: normalizedUser,
       message: 'Profile updated successfully'
     });
   } catch (_error) {

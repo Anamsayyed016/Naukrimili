@@ -109,11 +109,11 @@ export default function JobSeekerProfilePage() {
 
       const data = await response.json();
       if (data.success) {
-        // CRITICAL FIX: Ensure arrays are never null
+        // CRITICAL FIX: Ensure arrays are always arrays, never null or other types
         const profileData = {
           ...data.data,
-          skills: data.data.skills || [],
-          jobTypePreference: data.data.jobTypePreference || [],
+          skills: Array.isArray(data.data.skills) ? data.data.skills : [],
+          jobTypePreference: Array.isArray(data.data.jobTypePreference) ? data.data.jobTypePreference : [],
           remotePreference: data.data.remotePreference || false
         };
         setProfile(profileData);
@@ -150,11 +150,11 @@ export default function JobSeekerProfilePage() {
 
       const data = await response.json();
       if (data.success) {
-        // CRITICAL FIX: Ensure arrays are never null after save
+        // CRITICAL FIX: Ensure arrays are always arrays after save
         const profileData = {
           ...data.data,
-          skills: data.data.skills || [],
-          jobTypePreference: data.data.jobTypePreference || [],
+          skills: Array.isArray(data.data.skills) ? data.data.skills : [],
+          jobTypePreference: Array.isArray(data.data.jobTypePreference) ? data.data.jobTypePreference : [],
           remotePreference: data.data.remotePreference || false
         };
         setProfile(profileData);
@@ -201,11 +201,11 @@ export default function JobSeekerProfilePage() {
       
       const currentValue = (profile as any)[field];
       const context = {
-        skills: profile.skills,
+        skills: Array.isArray(profile.skills) ? profile.skills : [],
         experience: profile.experience,
         education: profile.education,
         location: profile.location,
-        jobTypePreference: profile.jobTypePreference,
+        jobTypePreference: Array.isArray(profile.jobTypePreference) ? profile.jobTypePreference : [],
         currentBio: profile.bio,
         userInput: currentValue // What user is typing
       };
@@ -276,16 +276,17 @@ export default function JobSeekerProfilePage() {
   };
 
   const removeSkill = (skillToRemove: string) => {
-    if (!profile || !profile.skills) return;
+    if (!profile) return;
+    const currentSkills = Array.isArray(profile.skills) ? profile.skills : [];
     setProfile({
       ...profile,
-      skills: profile.skills.filter(skill => skill !== skillToRemove)
+      skills: currentSkills.filter(skill => skill !== skillToRemove)
     });
   };
 
   const addPopularSkill = (skill: string) => {
     if (!profile) return;
-    const currentSkills = profile.skills || [];
+    const currentSkills = Array.isArray(profile.skills) ? profile.skills : [];
     if (!currentSkills.includes(skill)) {
       setProfile({
         ...profile,
@@ -296,7 +297,7 @@ export default function JobSeekerProfilePage() {
 
   const toggleJobTypePreference = (jobType: string) => {
     if (!profile) return;
-    const currentPreferences = profile.jobTypePreference || [];
+    const currentPreferences = Array.isArray(profile.jobTypePreference) ? profile.jobTypePreference : [];
     const updated = currentPreferences.includes(jobType)
       ? currentPreferences.filter(type => type !== jobType)
       : [...currentPreferences, jobType];
@@ -600,7 +601,7 @@ export default function JobSeekerProfilePage() {
                   </div>
 
                   {/* Selected Skills */}
-                  {profile.skills && profile.skills.length > 0 && (
+                  {Array.isArray(profile.skills) && profile.skills.length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-xs text-gray-600">Your Skills ({profile.skills.length})</Label>
                       <div className="flex flex-wrap gap-2">
@@ -663,7 +664,7 @@ export default function JobSeekerProfilePage() {
                         <p className="text-xs font-semibold text-gray-700">{category}</p>
                         <div className="flex flex-wrap gap-2">
                           {skills.map((skill) => {
-                            const alreadyAdded = (profile.skills || []).includes(skill);
+                            const alreadyAdded = (Array.isArray(profile.skills) ? profile.skills : []).includes(skill);
                             return (
                               <button
                                 key={skill}
