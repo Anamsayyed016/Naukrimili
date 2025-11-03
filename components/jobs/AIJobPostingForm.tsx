@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -96,8 +96,38 @@ export default function AIJobPostingForm() {
     fetchCompanyProfile();
   }, []);
 
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Debounce timer for auto AI suggestions
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleInputChange = (field: keyof JobFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Auto-trigger AI suggestions for title, description, and requirements as user types
+    if (field === 'title' || field === 'description' || field === 'requirements') {
+      // Clear existing timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      
+      // Only trigger if there's actual content (at least 3 characters)
+      if (typeof value === 'string' && value.trim().length >= 3) {
+        debounceTimerRef.current = setTimeout(() => {
+          getAiSuggestions(field);
+        }, 1500); // Wait 1.5 seconds after user stops typing
+      } else {
+        // Clear suggestions if input is too short
+        setAiSuggestions(prev => ({ ...prev, [field]: [] }));
+      }
+    }
   };
 
   const addSkill = (skill: string) => {
@@ -168,7 +198,11 @@ export default function AIJobPostingForm() {
     try {
       setAiLoading(prev => ({ ...prev, [field]: true }));
       
-      // Enhanced context with company information
+      // CRITICAL: Get current field value - this is what user is typing!
+      const currentFieldValue = (formData as any)[field];
+      const hasUserInput = currentFieldValue && String(currentFieldValue).trim().length > 0;
+      
+      // Enhanced context with company information AND user's current input
       const context = {
         jobType: formData.jobType,
         experienceLevel: formData.experienceLevel,
@@ -176,24 +210,23 @@ export default function AIJobPostingForm() {
         companyName: companyProfile?.name || '',
         companyDescription: companyProfile?.description || '',
         skills: formData.skills,
-        jobTitle: formData.title,
-        jobDescription: formData.description,
+        jobTitle: formData.title, // Current job title user is typing
+        jobDescription: formData.description, // Current description
+        userInput: hasUserInput ? String(currentFieldValue).trim() : '', // CRITICAL: The exact keywords user typed
       };
       
-      // Dynamic seed defaults based on company context
+      // Dynamic seed defaults - but ALWAYS prefer user input!
       const seedDefaults: Record<string, string> = {
-        title: `${formData.jobType} position at ${companyProfile?.name || 'our company'}`,
-        description: `${companyProfile?.description || 'We are looking for talented professionals'}. ${formData.title || 'Join our team'}`,
-        requirements: `Based on ${companyProfile?.description || 'company needs'}, list key requirements for ${formData.title || 'this role'}`,
-        skills: JSON.stringify(formData.skills.length ? formData.skills : ['JavaScript','React','Node.js'])
+        title: formData.title || `${formData.jobType} position`,
+        description: formData.description || `Job description for ${formData.title || 'this position'}`,
+        requirements: formData.requirements || `Requirements for ${formData.title || 'this position'}`,
+        skills: JSON.stringify(formData.skills.length ? formData.skills : [])
       };
       
-      const value =
-        field === 'skills'
-          ? seedDefaults.skills
-          : ((formData as any)[field] && String((formData as any)[field]).trim().length > 0
-              ? (formData as any)[field]
-              : seedDefaults[field]);
+      // ALWAYS use user input if available, never override with generic defaults
+      const value = hasUserInput 
+        ? String(currentFieldValue).trim() 
+        : (field === 'skills' ? seedDefaults.skills : seedDefaults[field]);
               
       const res = await fetch('/api/ai/form-suggestions', {
         method: 'POST',
@@ -348,22 +381,34 @@ export default function AIJobPostingForm() {
                       Job Title *
                     </Label>
                     <div className="flex flex-col sm:flex-row gap-2">
-                      <Input
-                      value={formData.title}
-                      onChange={(e) => handleInputChange('title', e.target.value)}
-                      placeholder="e.g., Senior Software Engineer"
-                      className="h-12 flex-1"
-                    />
+                      <div className="flex-1 relative">
+                        <Input
+                          value={formData.title}
+                          onChange={(e) => handleInputChange('title', e.target.value)}
+                          placeholder="e.g., BPO Team Leader, Software Engineer, Marketing Manager..."
+                          className="h-12 w-full"
+                        />
+                        {formData.title && formData.title.length >= 3 && aiLoading.title && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                          </div>
+                        )}
+                      </div>
                       <Button
                         type="button"
                         onClick={() => getAiSuggestions('title')}
-                        disabled={aiLoading.title}
+                        disabled={aiLoading.title || !formData.title || formData.title.length < 3}
                         className="whitespace-nowrap bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4"
                       >
                         <Sparkles className="h-4 w-4 mr-2" />
-                        {aiLoading.title ? 'Generating…' : 'AI suggest'}
+                        {aiLoading.title ? 'Generating…' : 'AI Suggest'}
                       </Button>
                     </div>
+                    {formData.title && formData.title.length >= 3 && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        💡 AI will auto-suggest in 1.5s after you stop typing, or click "AI Suggest" now
+                      </p>
+                    )}
                     {aiSuggestions.title?.length ? (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {aiSuggestions.title.map((s) => (
@@ -387,23 +432,35 @@ export default function AIJobPostingForm() {
                       Job Description *
                     </Label>
                     <div className="flex flex-col sm:flex-row items-start gap-2">
-                      <Textarea
-                      value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
-                      placeholder="Describe the role, responsibilities, and what you're looking for..."
-                      rows={6}
-                      className="resize-none"
-                    />
+                      <div className="flex-1 w-full relative">
+                        <Textarea
+                          value={formData.description}
+                          onChange={(e) => handleInputChange('description', e.target.value)}
+                          placeholder="Describe the role, responsibilities, and what you're looking for..."
+                          rows={6}
+                          className="resize-none w-full"
+                        />
+                        {formData.description && formData.description.length >= 3 && aiLoading.description && (
+                          <div className="absolute right-3 top-3">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                          </div>
+                        )}
+                      </div>
                       <Button
                         type="button"
                         onClick={() => getAiSuggestions('description')}
-                        disabled={aiLoading.description}
+                        disabled={aiLoading.description || !formData.description || formData.description.length < 3}
                         className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4"
                       >
                         <Sparkles className="h-4 w-4 mr-2" />
-                        {aiLoading.description ? 'Generating…' : 'AI'}
+                        {aiLoading.description ? 'Generating…' : 'AI Suggest'}
                       </Button>
                     </div>
+                    {formData.description && formData.description.length >= 3 && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        💡 AI analyzing your input... Suggestions appear below after you stop typing
+                      </p>
+                    )}
                     {aiSuggestions.description?.length ? (
                       <div className="mt-2 space-y-2">
                         {aiSuggestions.description.map((s) => (
