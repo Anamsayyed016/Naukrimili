@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -46,6 +47,7 @@ export default function LocationCategories({
   selectedLocation, 
   className = '' 
 }: LocationCategoriesProps) {
+  const router = useRouter();
   const [categories, setCategories] = useState<LocationCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -187,20 +189,29 @@ export default function LocationCategories({
   }, []);
 
   const handleLocationClick = useCallback((location: LocationData) => {
+    console.log('🗺️ Location clicked:', location);
+    
+    // Update parent component state
     onLocationSelect(location);
-    // Auto-trigger search when location is selected
-    setTimeout(() => {
-      if (onSearch) {
-        onSearch(); // Use the search function prop if available
-      } else {
-        // Fallback to DOM manipulation
-        const searchButton = document.querySelector('[data-testid="search-button"]') as HTMLButtonElement;
-        if (searchButton) {
-          searchButton.click();
-        }
-      }
-    }, 100);
-  }, [onLocationSelect, onSearch]);
+    
+    // Build search URL with location parameter
+    const params = new URLSearchParams();
+    params.set('location', location.name);
+    params.set('limit', '1000');
+    params.set('includeExternal', 'true');
+    params.set('includeDatabase', 'true');
+    
+    // Add country filter for more accurate results
+    if (location.type === 'country') {
+      params.set('country', location.country);
+    }
+    
+    const searchUrl = `/jobs?${params.toString()}`;
+    console.log('🔍 Navigating to:', searchUrl);
+    
+    // Navigate to jobs page with location filter
+    router.push(searchUrl);
+  }, [onLocationSelect, router]);
 
   // Initialize locations
   useEffect(() => {
@@ -307,15 +318,6 @@ export default function LocationCategories({
             )}
           </div>
         ))}
-      </div>
-
-      {/* Compact AI Info */}
-      <div className="mt-2 p-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-400/30">
-        <div className="text-center">
-          <div className="text-xs text-blue-200 font-medium">
-            AI analyzes job market data for optimal results
-          </div>
-        </div>
       </div>
     </div>
   );
