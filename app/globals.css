@@ -536,6 +536,49 @@ tr {
   overflow: visible !important;
 }
 
+/* CRITICAL: Job Search Hero Section - Prevent horizontal overflow on mobile */
+.job-search-hero,
+.job-search-hero * {
+  box-sizing: border-box;
+}
+
+/* Ensure search inputs don't overflow */
+input[type="text"],
+input[type="search"],
+input[placeholder*="Job title"],
+input[placeholder*="City"] {
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Prevent container overflow */
+@media (max-width: 767px) {
+  .container {
+    max-width: 100% !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  
+  /* Ensure no elements exceed viewport width */
+  body {
+    overflow-x: hidden;
+  }
+  
+  html {
+    overflow-x: hidden;
+  }
+  
+  /* Fix input placeholder text truncation */
+  input::placeholder {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 /* Mobile responsive improvements */
 @media (max-width: 640px) {
   .mobile-stack {
