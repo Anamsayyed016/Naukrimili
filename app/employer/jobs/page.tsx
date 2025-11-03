@@ -737,28 +737,30 @@ export default function EmployerJobsPage() {
           </div>
           
           {/* Enhanced Action Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto">
             <Button 
               variant="outline" 
               onClick={() => fetchAIOptimizations()}
-              className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              className="border-slate-300 text-slate-700 hover:bg-slate-50 h-10 sm:h-auto text-sm sm:text-base"
               disabled={loading || jobs.length === 0}
             >
-              <Brain className="h-4 w-4 mr-2" />
-              AI Insights
+              <Brain className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">AI Insights</span>
+              <span className="sm:hidden">AI</span>
             </Button>
             <Button 
               variant="outline" 
               onClick={() => { fetchJobsCallback(); fetchStats(); }}
-              className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              className="border-slate-300 text-slate-700 hover:bg-slate-50 h-10 sm:h-auto text-sm sm:text-base"
               disabled={loading || statsLoading}
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${(loading || statsLoading) ? 'animate-spin' : ''}`} />
-              Refresh
+              <RefreshCw className={`h-4 w-4 mr-1 sm:mr-2 ${(loading || statsLoading) ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+              <span className="sm:hidden">⟳</span>
             </Button>
-            <Link href="/employer/jobs/create">
-              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 shadow-lg">
-                <Plus className="h-5 w-5 mr-2" />
+            <Link href="/employer/jobs/create" className="flex-1 sm:flex-none">
+              <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 sm:px-6 py-2 sm:py-3 shadow-lg w-full sm:w-auto h-10 sm:h-auto text-sm sm:text-base">
+                <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                 Post New Job
               </Button>
             </Link>
@@ -1002,34 +1004,44 @@ export default function EmployerJobsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.2 }}
-          className="bg-white shadow-lg rounded-2xl p-6 border-0 mb-6"
+          className="bg-white shadow-lg rounded-2xl p-4 sm:p-6 border-0 mb-6 overflow-visible"
           style={{ willChange: 'transform, opacity', transform: 'translateZ(0)', contain: 'layout style' }}
         >
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
+          <div className="flex flex-col gap-4">
+            {/* Search Input - Full Width on All Screens */}
+            <div className="w-full">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5 pointer-events-none" />
                 <Input
                   placeholder="Search jobs..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && setCurrentPage(1)}
-                  className="pl-12 h-12 bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-500 focus:border-blue-500 focus:bg-white rounded-xl"
+                  className="pl-12 h-12 w-full bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-500 focus:border-blue-500 focus:bg-white rounded-xl"
                 />
               </div>
             </div>
             
+            {/* Filters Row - Responsive Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 overflow-visible">
+            
             <Select value={jobStatus} onValueChange={setJobStatus}>
-              <SelectTrigger className="w-full sm:w-40 h-12 bg-slate-50 border-slate-200 text-slate-900 rounded-xl">
+              <SelectTrigger className="w-full sm:w-40 md:w-44 h-12 bg-slate-50 border-slate-200 text-slate-900 rounded-xl">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-slate-200">
+              <SelectContent 
+                className="bg-white border-slate-200 max-w-[calc(100vw-2rem)] sm:max-w-xs"
+                position="popper"
+                sideOffset={8}
+                avoidCollisions
+                collisionPadding={16}
+              >
                 <SelectItem value="all" className="text-slate-900 hover:bg-slate-50">All Status</SelectItem>
                 {dynamicOptions?.statuses?.map((status) => (
                   <SelectItem key={status.value} value={status.value} className="text-slate-900 hover:bg-slate-50">
-                    <div className="flex items-center justify-between w-full">
-                      <span>{status.label}</span>
-                      <span className="text-xs text-slate-500 ml-2">({status.count})</span>
+                    <div className="flex items-center justify-between w-full max-w-full">
+                      <span className="truncate">{status.label}</span>
+                      <span className="text-xs text-slate-500 ml-2 flex-shrink-0">({status.count})</span>
                     </div>
                   </SelectItem>
                 )) || (
@@ -1044,16 +1056,22 @@ export default function EmployerJobsPage() {
             </Select>
             
             <Select value={jobType} onValueChange={setJobType}>
-              <SelectTrigger className="w-full sm:w-40 h-12 bg-slate-50 border-slate-200 text-slate-900 rounded-xl">
+              <SelectTrigger className="w-full sm:w-40 md:w-44 h-12 bg-slate-50 border-slate-200 text-slate-900 rounded-xl">
                 <SelectValue placeholder="Job Type" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-slate-200">
+              <SelectContent 
+                className="bg-white border-slate-200 max-w-[calc(100vw-2rem)] sm:max-w-xs"
+                position="popper"
+                sideOffset={8}
+                avoidCollisions
+                collisionPadding={16}
+              >
                 <SelectItem value="all" className="text-slate-900 hover:bg-slate-50">All Types</SelectItem>
                 {dynamicOptions?.jobTypes?.map((type) => (
                   <SelectItem key={type.value} value={type.value} className="text-slate-900 hover:bg-slate-50">
-                    <div className="flex items-center justify-between w-full">
-                      <span>{type.label}</span>
-                      <span className="text-xs text-slate-500 ml-2">({type.count})</span>
+                    <div className="flex items-center justify-between w-full max-w-full">
+                      <span className="truncate">{type.label}</span>
+                      <span className="text-xs text-slate-500 ml-2 flex-shrink-0">({type.count})</span>
                     </div>
                   </SelectItem>
                 )) || (
@@ -1068,16 +1086,22 @@ export default function EmployerJobsPage() {
             </Select>
             
             <Select value={experienceLevel} onValueChange={setExperienceLevel}>
-              <SelectTrigger className="w-full sm:w-40 h-12 bg-slate-50 border-slate-200 text-slate-900 rounded-xl">
+              <SelectTrigger className="w-full sm:w-40 md:w-48 h-12 bg-slate-50 border-slate-200 text-slate-900 rounded-xl">
                 <SelectValue placeholder="Experience" />
               </SelectTrigger>
-              <SelectContent className="bg-white border-slate-200">
+              <SelectContent 
+                className="bg-white border-slate-200 max-w-[calc(100vw-2rem)] sm:max-w-sm"
+                position="popper"
+                sideOffset={8}
+                avoidCollisions
+                collisionPadding={16}
+              >
                 <SelectItem value="all" className="text-slate-900 hover:bg-slate-50">All Levels</SelectItem>
                 {dynamicOptions?.experienceLevels?.map((level) => (
                   <SelectItem key={level.value} value={level.value} className="text-slate-900 hover:bg-slate-50">
-                    <div className="flex items-center justify-between w-full">
-                      <span>{level.label}</span>
-                      <span className="text-xs text-slate-500 ml-2">({level.count})</span>
+                    <div className="flex items-center justify-between w-full max-w-full gap-2">
+                      <span className="truncate flex-1">{level.label}</span>
+                      <span className="text-xs text-slate-500 flex-shrink-0">({level.count})</span>
                     </div>
                   </SelectItem>
                 )) || (
@@ -1091,12 +1115,12 @@ export default function EmployerJobsPage() {
                 )}
               </SelectContent>
             </Select>
-            
-            <div className="flex gap-2">
+              
+              {/* Action Buttons */}
               <Button 
                 onClick={() => setCurrentPage(1)} 
                 variant="outline" 
-                className="h-12 border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl"
+                className="h-12 w-full sm:w-auto border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl"
                 disabled={loading}
               >
                 <Filter className="h-4 w-4 mr-2" />
@@ -1111,7 +1135,7 @@ export default function EmployerJobsPage() {
                   setCurrentPage(1);
                 }} 
                 variant="outline" 
-                className="h-12 border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl"
+                className="h-12 w-full sm:w-auto border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl"
               >
                 <X className="h-4 w-4 mr-2" />
                 Clear
@@ -1241,28 +1265,28 @@ export default function EmployerJobsPage() {
                         </div>
                       </div>
                       
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 mb-4">
-                        <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
-                          <MapPin className="h-4 w-4 text-emerald-600" />
-                          <span className="text-slate-900">{job.location}</span>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-600 mb-4">
+                        <div className="flex items-center gap-1 bg-slate-50 px-2 sm:px-3 py-1 rounded-full">
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
+                          <span className="text-slate-900 truncate max-w-[120px] sm:max-w-none">{job.location}</span>
                         </div>
-                        <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
-                          <Briefcase className="h-4 w-4 text-blue-600" />
+                        <div className="flex items-center gap-1 bg-slate-50 px-2 sm:px-3 py-1 rounded-full">
+                          <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
                           <span className="text-slate-900">{job.jobType}</span>
                         </div>
                         {job.salary && (
-                          <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
-                            <DollarSign className="h-4 w-4 text-green-600" />
-                            <span className="text-slate-900">{job.salary}</span>
+                          <div className="flex items-center gap-1 bg-slate-50 px-2 sm:px-3 py-1 rounded-full">
+                            <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+                            <span className="text-slate-900 truncate max-w-[100px] sm:max-w-none">{job.salary}</span>
                           </div>
                         )}
-                        <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
-                          <Users className="h-4 w-4 text-purple-600" />
-                          <span className="text-slate-900">{job._count.applications} applications</span>
+                        <div className="flex items-center gap-1 bg-slate-50 px-2 sm:px-3 py-1 rounded-full">
+                          <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 flex-shrink-0" />
+                          <span className="text-slate-900 whitespace-nowrap">{job._count.applications} apps</span>
                         </div>
-                        <div className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full">
-                          <Calendar className="h-4 w-4 text-orange-600" />
-                          <span className="text-slate-900">Posted {new Date(job.createdAt).toLocaleDateString()}</span>
+                        <div className="flex items-center gap-1 bg-slate-50 px-2 sm:px-3 py-1 rounded-full">
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600 flex-shrink-0" />
+                          <span className="text-slate-900 whitespace-nowrap">{new Date(job.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                         </div>
                       </div>
                       
@@ -1321,49 +1345,53 @@ export default function EmployerJobsPage() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <Link href={`/employer/jobs/${job.id}/edit`}>
-                        <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link href={`/employer/jobs/${job.id}/edit`} className="flex-1 sm:flex-none">
+                        <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-slate-50 w-full sm:w-auto">
                           <Edit className="h-4 w-4 mr-1" />
-                          Edit
+                          <span className="hidden sm:inline">Edit</span>
                         </Button>
                       </Link>
                       
-                      <Link href={`/employer/applications?jobId=${job.id}`}>
-                        <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
+                      <Link href={`/employer/applications?jobId=${job.id}`} className="flex-1 sm:flex-none">
+                        <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-slate-50 w-full sm:w-auto">
                           <Eye className="h-4 w-4 mr-1" />
-                          View Applications
+                          <span className="hidden sm:inline">Applications</span>
+                          <span className="sm:hidden">Apps</span>
                         </Button>
                       </Link>
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
+                          <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:bg-slate-50">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
+                        <DropdownMenuContent 
+                          align="end" 
+                          className="bg-white border-slate-200 min-w-[180px]"
+                          sideOffset={8}
+                        >
                           <DropdownMenuItem 
                             onClick={() => toggleJobStatus(job.id, job.isActive)}
-                            className="text-white hover:bg-slate-700"
+                            className="text-slate-900 hover:bg-slate-100 cursor-pointer"
                           >
                             <CheckCircle className="h-4 w-4 mr-2" />
                             {job.isActive ? 'Deactivate' : 'Activate'}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => {
-                              // Duplicate job functionality
                               toast.success('Job duplication feature coming soon!');
                             }}
-                            className="text-white hover:bg-slate-700"
+                            className="text-slate-900 hover:bg-slate-100 cursor-pointer"
                           >
                             <Copy className="h-4 w-4 mr-2" />
                             Duplicate
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-slate-700" />
+                          <DropdownMenuSeparator className="bg-slate-200" />
                           <DropdownMenuItem 
                             onClick={() => handleDeleteJob(job.id)}
-                            className="text-red-400 hover:bg-red-500/20"
+                            className="text-red-600 hover:bg-red-50 cursor-pointer"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete

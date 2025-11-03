@@ -231,10 +231,10 @@ export default function JobDetailsPage() {
           </div>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2">
-            <Card className="mb-6">
+          <div className="lg:col-span-2 min-w-0">
+            <Card className="mb-4 sm:mb-6 overflow-visible">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -267,19 +267,19 @@ export default function JobDetailsPage() {
                       )}
                     </div>
                     
-                    <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                    <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 line-clamp-2">
                       {job.title}
                     </CardTitle>
                     
-                    <div className="flex items-center gap-4 text-gray-600 mb-4">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="w-4 h-4" />
-                        <span className="font-medium">{job.company}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-gray-600 mb-4">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Building2 className="w-4 h-4 flex-shrink-0" />
+                        <span className="font-medium truncate">{job.company}</span>
                       </div>
                       {job.location && (
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4" />
-                          <span>{job.location}</span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <MapPin className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{job.location}</span>
                         </div>
                       )}
                     </div>
@@ -298,7 +298,7 @@ export default function JobDetailsPage() {
               
               <CardContent>
                 {/* Job Info */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
                   {job.salaryMin || job.salaryMax || job.salary ? (
                     <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 rounded-2xl border-2 border-emerald-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
                       <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
@@ -368,9 +368,9 @@ export default function JobDetailsPage() {
 
                 {/* Job Description */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3">Job Description</h3>
-                  <div className="prose max-w-none">
-                    <p className="text-gray-700 whitespace-pre-wrap">{job.description}</p>
+                  <h3 className="text-base sm:text-lg font-semibold mb-3">Job Description</h3>
+                  <div className="prose prose-sm sm:prose max-w-none">
+                    <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{job.description}</p>
                   </div>
                 </div>
 
@@ -379,10 +379,11 @@ export default function JobDetailsPage() {
                   {/* Primary Action: Internal Application */}
                   <Button 
                     onClick={handleInternalApply}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                   >
-                    <Send className="w-5 h-5" />
-                    Apply on NaukriMili (Recommended)
+                    <Send className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                    <span className="hidden sm:inline">Apply on NaukriMili (Recommended)</span>
+                    <span className="sm:hidden">Apply on NaukriMili ⭐</span>
                   </Button>
                   
                   {/* Secondary Action: External Job Link */}
@@ -400,10 +401,11 @@ export default function JobDetailsPage() {
                       <Button 
                         onClick={handleExternalApply}
                         variant="outline"
-                        className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 py-4 px-8 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-2"
+                        className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base md:text-lg transition-all duration-200 flex items-center justify-center gap-2"
                       >
-                        <Globe className="w-5 h-5" />
-                        Search Company Career Page
+                        <Globe className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                        <span className="hidden sm:inline">Search Company Career Page</span>
+                        <span className="sm:hidden">Company Career Page</span>
                       </Button>
                       
                       <p className="text-xs text-center text-gray-500">
@@ -418,53 +420,53 @@ export default function JobDetailsPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 min-w-0">
             {/* Job Stats - Enhanced and Responsive */}
-            <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-blue-200 shadow-lg" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
+            <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-blue-200 shadow-lg overflow-visible" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <CardTitle className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   📊 Job Statistics
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-blue-100 rounded-lg">
-                      <Eye className="w-4 h-4 text-blue-600" />
+              <CardContent className="space-y-2 sm:space-y-3">
+                <div className="flex items-center justify-between p-2 sm:p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="p-1.5 bg-blue-100 rounded-lg flex-shrink-0">
+                      <Eye className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
                     </div>
-                    <span className="text-slate-700 font-medium">Views</span>
+                    <span className="text-slate-700 font-medium text-sm sm:text-base truncate">Views</span>
                   </div>
-                  <span className="font-bold text-blue-700 text-lg">{job.views || 0}</span>
+                  <span className="font-bold text-blue-700 text-base sm:text-lg flex-shrink-0 ml-2">{job.views || 0}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-green-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-green-100 rounded-lg">
-                      <Users className="w-4 h-4 text-green-600" />
+                <div className="flex items-center justify-between p-2 sm:p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-green-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="p-1.5 bg-green-100 rounded-lg flex-shrink-0">
+                      <Users className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                     </div>
-                    <span className="text-slate-700 font-medium">Applications</span>
+                    <span className="text-slate-700 font-medium text-sm sm:text-base truncate">Applications</span>
                   </div>
-                  <span className="font-bold text-green-700 text-lg">{job.applicationsCount || 0}</span>
+                  <span className="font-bold text-green-700 text-base sm:text-lg flex-shrink-0 ml-2">{job.applicationsCount || 0}</span>
                 </div>
                 {job.sector && (
-                  <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-purple-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-purple-100 rounded-lg">
-                        <Building2 className="w-4 h-4 text-purple-600" />
+                  <div className="flex items-center justify-between p-2 sm:p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-purple-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="p-1.5 bg-purple-100 rounded-lg flex-shrink-0">
+                        <Building2 className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
                       </div>
-                      <span className="text-slate-700 font-medium">Sector</span>
+                      <span className="text-slate-700 font-medium text-sm sm:text-base truncate">Sector</span>
                     </div>
-                    <span className="font-bold text-purple-700 text-sm capitalize">{job.sector}</span>
+                    <span className="font-bold text-purple-700 text-xs sm:text-sm capitalize flex-shrink-0 ml-2">{job.sector}</span>
                   </div>
                 )}
                 {/* Additional dynamic metrics */}
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-100" style={{ contain: 'layout style' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-yellow-100 rounded-lg">
-                      <Sparkles className="w-4 h-4 text-yellow-600" />
+                <div className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-100" style={{ contain: 'layout style' }}>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="p-1.5 bg-yellow-100 rounded-lg flex-shrink-0">
+                      <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600" />
                     </div>
-                    <span className="text-slate-700 font-medium">Engagement</span>
+                    <span className="text-slate-700 font-medium text-sm sm:text-base truncate">Engagement</span>
                   </div>
-                  <span className="font-bold text-yellow-700 text-lg">
+                  <span className="font-bold text-yellow-700 text-base sm:text-lg flex-shrink-0 ml-2">
                     {Math.round(((job.applicationsCount || 0) / Math.max(job.views || 1, 1)) * 100)}%
                   </span>
                 </div>
@@ -505,11 +507,11 @@ export default function JobDetailsPage() {
             )}
 
             {/* Share Job */}
-            <Card>
+            <Card className="overflow-visible">
               <CardHeader>
-                <CardTitle className="text-lg">Share This Job</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Share This Job</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="overflow-visible">
                 <JobShare job={job} />
               </CardContent>
             </Card>

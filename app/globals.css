@@ -441,6 +441,23 @@
     /* Better touch targets */
     display: flex !important;
     align-items: center !important;
+    /* Prevent text overflow */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  
+  /* Ensure dropdown item content doesn't overflow */
+  [data-radix-select-item] > span,
+  [data-radix-select-item] > div {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* Truncate long text in select items */
+  [data-radix-select-item] .truncate {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 
   /* Ensure dropdown portal is not affected by parent transforms on mobile */
