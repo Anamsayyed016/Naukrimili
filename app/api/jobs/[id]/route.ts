@@ -137,6 +137,35 @@ export async function GET(
       }
     }
 
+    // Strategy 4: Wait for external job to be cached if it's a recent search
+    // This handles race condition where user clicks job before background caching completes
+    if (!job && !isSafeInteger) {
+      console.log('🔍 Strategy 4: Waiting for potential external job caching...');
+      
+      // Wait a brief moment for background caching to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Try sourceId lookup again
+      job = await prisma.job.findFirst({
+        where: { sourceId: jobId },
+        include: {
+          applications: {
+            select: {
+              id: true,
+              status: true,
+              appliedAt: true,
+              user: { select: { id: true, firstName: true, lastName: true, email: true } }
+            }
+          },
+          _count: { select: { applications: true, bookmarks: true } }
+        }
+      });
+      
+      if (job) {
+        console.log('✅ Found external job after waiting for cache:', job.title);
+      }
+    }
+    
     if (!job) {
       console.log('❌ Job not found with any strategy:', jobId);
       return NextResponse.json(

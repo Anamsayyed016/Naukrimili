@@ -462,10 +462,10 @@ export async function GET(request: NextRequest) {
                 }).catch(err => console.log(`⚠️ Cache failed for ${job.id}:`, err.message));
               });
               
-              // Don't wait for caching - let it happen in background
-              Promise.all(cachingPromises).then(() => 
-                console.log(`💾 Cached ${realExternalJobs.length} external jobs`)
-              );
+              // CRITICAL FIX: Wait for caching to complete before showing jobs to users
+              // This prevents "job not found" errors when users click immediately
+              await Promise.all(cachingPromises);
+              console.log(`💾 Successfully cached ${realExternalJobs.length} external jobs to database`);
               
               // SMART DEDUPLICATION: Combine and deduplicate efficiently
               // IMPORTANT: Put database jobs first so they're processed first in deduplication
