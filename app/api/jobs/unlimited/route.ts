@@ -328,10 +328,22 @@ export async function GET(request: NextRequest) {
         (searchParams.get('includeExternal') === 'true' || (query && searchParams.get('includeExternal') !== 'false'));
       
       if (shouldFetchExternal) {
-        // Use a default query if none provided to fetch popular jobs
-        const searchQuery = query || 'developer OR engineer OR manager OR analyst OR designer';
+        // CRITICAL FIX: Include location in search query when no keywords provided
+        // This ensures external APIs respect the location filter
+        let searchQuery = query;
+        
+        if (!searchQuery && location) {
+          // User is searching by location only - include location in query
+          searchQuery = `jobs in ${location}`;
+          console.log(`🗺️ Location-only search detected. Using query: "${searchQuery}"`);
+        } else if (!searchQuery) {
+          // No query and no location - use default popular jobs query
+          searchQuery = 'developer OR engineer OR manager OR analyst OR designer';
+          console.log(`🔍 No search criteria. Using default query: "${searchQuery}"`);
+        }
         
         console.log(`🚀 Fetching jobs from ${[hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean).join(', ')}`);
+        console.log(`📍 Search query: "${searchQuery}", Location filter: "${location}"`);
         
         try {
           let realExternalJobs: any[] = [];
@@ -473,15 +485,21 @@ export async function GET(request: NextRequest) {
               const combinedJobs = [...jobs, ...realExternalJobs]; // Database jobs first, then external
               jobs = removeDuplicateJobs(combinedJobs);
               
-              // CRITICAL FIX: Keep total as database count only
-              // External jobs are mixed into the same pages, not added to page count
-              // total = totalResult (already set correctly above)
+              // CRITICAL FIX: Update total to include external jobs
+              // When database has few/no jobs but external APIs have many, total should reflect reality
+              const dbCount = jobs.filter(j => (j.source === 'database' || j.source === 'employer')).length;
+              const extCount = jobs.filter(j => (j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble')).length;
+              
+              // If we have external jobs, estimate total available jobs
+              if (extCount > 0) {
+                // Conservative estimate: current page size * 10 pages for external jobs
+                const estimatedExternalTotal = Math.max(extCount, limit * 10);
+                total = totalResult + estimatedExternalTotal;
+                console.log(`📊 Updated total: ${total} (${totalResult} database + ~${estimatedExternalTotal} estimated external)`);
+              }
               
               // Debug: Check source fields before formatting
-              const dbJobsBeforeFormat = jobs.filter(j => (j.source === 'database' || j.source === 'employer')).length;
-              const extJobsBeforeFormat = jobs.filter(j => (j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble')).length;
-              
-              console.log(`✅ Combined: ${jobs.length} jobs on this page (${dbJobsBeforeFormat} database + ${extJobsBeforeFormat} external after dedup). Total available: ${total} (${totalResult} database + ${realExternalJobs.length} external)`);
+              console.log(`✅ Combined: ${jobs.length} jobs on this page (${dbCount} database + ${extCount} external after dedup). Total available: ${total}`);
               console.log(`🔍 Debug - Sample job sources:`, jobs.slice(0, 5).map(j => ({ id: j.id, source: j.source, title: j.title?.substring(0, 30) })));
             }
           } catch (importError) {
