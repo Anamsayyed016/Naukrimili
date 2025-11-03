@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,18 +18,28 @@ import {
   Linkedin, 
   Github,
   Save,
-  Edit,
-  Upload,
   X,
-  Plus,
   CheckCircle,
   AlertCircle,
-  Star
+  Star,
+  Sparkles,
+  Loader2,
+  DollarSign,
+  Clock,
+  Target,
+  TrendingUp,
+  Zap,
+  Award,
+  Upload,
+  FileText,
+  Home as HomeIcon,
+  MapPinIcon,
+  Building2
 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { toast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ProfileData {
   id: string;
@@ -64,11 +74,29 @@ export default function JobSeekerProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [editing, setEditing] = useState(false);
   const [skillsInput, setSkillsInput] = useState("");
+  
+  // AI Suggestions State
+  const [aiSuggestions, setAiSuggestions] = useState<{ [key: string]: string[] }>({});
+  const [aiLoading, setAiLoading] = useState<{ [key: string]: boolean }>({});
+  const debounceTimerRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
+  
+  // Popular skills by category
+  const popularSkills = {
+    'Technical': ['JavaScript', 'Python', 'React', 'Node.js', 'SQL', 'AWS', 'Docker', 'Git'],
+    'Design': ['Figma', 'Adobe XD', 'Photoshop', 'UI/UX', 'Wireframing', 'Prototyping'],
+    'Marketing': ['SEO', 'Google Analytics', 'Content Writing', 'Social Media', 'Email Marketing'],
+    'Management': ['Project Management', 'Team Leadership', 'Agile', 'Scrum', 'Communication'],
+    'Data': ['Excel', 'Power BI', 'Tableau', 'Data Analysis', 'Statistics', 'Machine Learning']
+  };
 
   useEffect(() => {
     fetchProfile();
+    
+    // Cleanup debounce timers on unmount
+    return () => {
+      Object.values(debounceTimerRef.current).forEach(timer => clearTimeout(timer));
+    };
   }, []);
 
   const fetchProfile = async () => {
@@ -130,10 +158,9 @@ export default function JobSeekerProfilePage() {
           remotePreference: data.data.remotePreference || false
         };
         setProfile(profileData);
-        setEditing(false);
         toast({
-          title: 'Success',
-          description: 'Profile updated successfully',
+          title: '✅ Success',
+          description: 'Profile updated successfully! Your job recommendations will be refreshed.',
         });
       }
     } catch (_error) {
@@ -151,25 +178,98 @@ export default function JobSeekerProfilePage() {
   const handleInputChange = (field: keyof ProfileData, value: any) => {
     if (!profile) return;
     setProfile({ ...profile, [field]: value });
+    
+    // Auto-trigger AI suggestions for bio and experience fields (with debounce)
+    if ((field === 'bio' || field === 'experience') && typeof value === 'string' && value.length >= 10) {
+      // Clear existing timer
+      if (debounceTimerRef.current[field]) {
+        clearTimeout(debounceTimerRef.current[field]);
+      }
+      
+      // Set new timer
+      debounceTimerRef.current[field] = setTimeout(() => {
+        getAiSuggestions(field as 'bio' | 'experience');
+      }, 2000); // 2 second debounce
+    }
+  };
+
+  const getAiSuggestions = async (field: 'bio' | 'experience' | 'skills') => {
+    if (!profile) return;
+    
+    try {
+      setAiLoading(prev => ({ ...prev, [field]: true }));
+      
+      const currentValue = (profile as any)[field];
+      const context = {
+        skills: profile.skills,
+        experience: profile.experience,
+        education: profile.education,
+        location: profile.location,
+        jobTypePreference: profile.jobTypePreference,
+        currentBio: profile.bio,
+        userInput: currentValue // What user is typing
+      };
+      
+      const response = await fetch('/api/ai/form-suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          field,
+          value: currentValue || '',
+          context
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.suggestions) {
+          setAiSuggestions(prev => ({ ...prev, [field]: data.suggestions }));
+          toast({
+            title: '✨ AI Suggestions Ready',
+            description: `Got ${data.suggestions.length} suggestions for ${field}`,
+          });
+        }
+      }
+    } catch (_error) {
+      console.error('AI suggestions error:', _error);
+    } finally {
+      setAiLoading(prev => ({ ...prev, [field]: false }));
+    }
+  };
+
+  const applySuggestion = (field: string, suggestion: string) => {
+    if (!profile) return;
+    
+    if (field === 'skills') {
+      // Add skill if not already present
+      const currentSkills = profile.skills || [];
+      if (!currentSkills.includes(suggestion)) {
+        setProfile({
+          ...profile,
+          skills: [...currentSkills, suggestion]
+        });
+      }
+    } else {
+      // Replace field value with suggestion
+      setProfile({ ...profile, [field]: suggestion });
+    }
+    
+    // Clear suggestions after applying
+    setAiSuggestions(prev => ({ ...prev, [field]: [] }));
   };
 
   const handleSkillsChange = (value: string) => {
     setSkillsInput(value);
-    if (value.endsWith(',')) {
+    if (value.endsWith(',') || value.endsWith(' ')) {
       const skill = value.slice(0, -1).trim();
-      // CRITICAL FIX: Check if profile.skills is null/undefined
-      if (skill && profile && profile.skills && !profile.skills.includes(skill)) {
-        setProfile({
-          ...profile,
-          skills: [...profile.skills, skill]
-        });
-        setSkillsInput('');
-      } else if (skill && profile && !profile.skills) {
-        // Initialize skills array if null
-        setProfile({
-          ...profile,
-          skills: [skill]
-        });
+      if (skill && profile) {
+        const currentSkills = profile.skills || [];
+        if (!currentSkills.includes(skill)) {
+          setProfile({
+            ...profile,
+            skills: [...currentSkills, skill]
+          });
+        }
         setSkillsInput('');
       }
     }
@@ -183,9 +283,19 @@ export default function JobSeekerProfilePage() {
     });
   };
 
+  const addPopularSkill = (skill: string) => {
+    if (!profile) return;
+    const currentSkills = profile.skills || [];
+    if (!currentSkills.includes(skill)) {
+      setProfile({
+        ...profile,
+        skills: [...currentSkills, skill]
+      });
+    }
+  };
+
   const toggleJobTypePreference = (jobType: string) => {
     if (!profile) return;
-    // CRITICAL FIX: Check if jobTypePreference is null/undefined
     const currentPreferences = profile.jobTypePreference || [];
     const updated = currentPreferences.includes(jobType)
       ? currentPreferences.filter(type => type !== jobType)
@@ -195,383 +305,771 @@ export default function JobSeekerProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading your profile...</p>
+        </div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Profile not found</h3>
-          <p className="text-gray-600">Unable to load your profile data</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+        <Card className="max-w-md w-full shadow-xl">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Profile not found</h3>
+              <p className="text-gray-600 mb-6">Unable to load your profile data</p>
+              <Button onClick={fetchProfile} className="w-full">
+                Try Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
     <AuthGuard allowedRoles={['jobseeker']}>
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto p-6">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Profile Management</h1>
-                <p className="text-gray-600 mt-2">Manage your professional profile and preferences</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 max-w-7xl">
+          {/* Enhanced Header */}
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+              <div className="space-y-1 sm:space-y-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  AI-Powered Profile Management
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600">
+                  Optimize your profile for better job matches • AI suggestions available
+                </p>
               </div>
-              <div className="flex gap-3 mt-4 md:mt-0">
-                {editing ? (
+              <Button 
+                onClick={handleSave} 
+                disabled={saving}
+                className="w-full sm:w-auto h-11 sm:h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                {saving ? (
                   <>
-                    <Button variant="outline" onClick={() => setEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSave} disabled={saving}>
-                      {saving ? 'Saving...' : 'Save Changes'}
-                    </Button>
+                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 animate-spin" />
+                    Saving...
                   </>
                 ) : (
-                  <Button onClick={() => setEditing(true)} className="flex items-center gap-2">
-                    <Edit className="h-4 w-4" />
-                    Edit Profile
-                  </Button>
+                  <>
+                    <Save className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                    Save Changes
+                  </>
                 )}
-              </div>
+              </Button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Completion Banner */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <Card className="border-0 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500 text-white shadow-xl overflow-visible">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div className="p-2 sm:p-3 bg-white/20 rounded-full flex-shrink-0">
+                      <Target className="h-5 h-5 sm:h-6 sm:w-6" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base sm:text-lg font-bold mb-1">Profile Completion: {profile.stats.profileCompletion}%</h3>
+                      <div className="w-full bg-white/20 rounded-full h-2 sm:h-3 overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${profile.stats.profileCompletion}%` }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="bg-white h-full rounded-full"
+                        />
+                      </div>
+                      <p className="text-xs sm:text-sm mt-1 text-white/90">
+                        {profile.stats.profileCompletion < 50 ? '⚡ Complete your profile to unlock AI job matching' :
+                         profile.stats.profileCompletion < 80 ? '🎯 Almost there! Add more details for better matches' :
+                         '🌟 Excellent! Your profile is optimized for top opportunities'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
+                      <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      {profile.stats.totalApplications} Apps
+                    </Badge>
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
+                      <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      {profile.stats.totalBookmarks} Saved
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Main Profile Form */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Basic Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+              
+              {/* Basic Information - AI Enhanced */}
+              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <User className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                     Basic Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Full Name *</Label>
+                <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-visible" style={{ overflow: 'visible' }}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-sm font-semibold flex items-center gap-2">
+                        Full Name
+                        <Badge variant="destructive" className="text-xs">Required</Badge>
+                      </Label>
                       <Input
                         id="name"
                         value={profile.name || ''}
                         onChange={(e) => handleInputChange('name', e.target.value)}
-                        disabled={!editing}
                         placeholder="Enter your full name"
+                        className="h-11 sm:h-12"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
                       <Input
                         id="email"
                         value={profile.email}
                         disabled
-                        className="bg-gray-50"
+                        className="bg-gray-100 h-11 sm:h-12"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="phone">Phone Number</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-sm font-semibold flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-green-600" />
+                        Phone Number
+                      </Label>
                       <Input
                         id="phone"
                         value={profile.phone || ''}
                         onChange={(e) => handleInputChange('phone', e.target.value)}
-                        disabled={!editing}
-                        placeholder="Enter your phone number"
+                        placeholder="+1 234 567 8900"
+                        className="h-11 sm:h-12"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="location">Location</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="location" className="text-sm font-semibold flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-red-600" />
+                        Location
+                      </Label>
                       <Input
                         id="location"
                         value={profile.location || ''}
                         onChange={(e) => handleInputChange('location', e.target.value)}
-                        disabled={!editing}
-                        placeholder="Enter your location"
+                        placeholder="City, State, Country"
+                        className="h-11 sm:h-12"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea
-                      id="bio"
-                      value={profile.bio || ''}
-                      onChange={(e) => handleInputChange('bio', e.target.value)}
-                      disabled={!editing}
-                      placeholder="Tell us about yourself..."
-                      rows={4}
-                    />
+                  {/* Bio with AI */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="bio" className="text-sm font-semibold flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-purple-600" />
+                        Professional Bio
+                      </Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => getAiSuggestions('bio')}
+                        disabled={aiLoading.bio}
+                        className="h-8 text-xs border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+                      >
+                        {aiLoading.bio ? (
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3 w-3 mr-1 text-purple-600" />
+                        )}
+                        AI Suggest Bio
+                      </Button>
+                    </div>
+                    <div className="relative">
+                      <Textarea
+                        id="bio"
+                        value={profile.bio || ''}
+                        onChange={(e) => handleInputChange('bio', e.target.value)}
+                        placeholder="Write a compelling bio that highlights your skills, experience, and career goals... (AI will suggest based on your profile)"
+                        rows={4}
+                        className="resize-none"
+                      />
+                      {aiLoading.bio && (
+                        <div className="absolute top-2 right-2">
+                          <Loader2 className="h-4 w-4 text-purple-600 animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* AI Suggestions for Bio */}
+                    <AnimatePresence>
+                      {aiSuggestions.bio && aiSuggestions.bio.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="space-y-2 bg-purple-50 border border-purple-200 rounded-lg p-3"
+                        >
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-semibold text-purple-800 flex items-center gap-1">
+                              <Sparkles className="h-3 w-3" />
+                              AI Suggested Bios:
+                            </p>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setAiSuggestions(prev => ({ ...prev, bio: [] }))}
+                              className="h-6 w-6 p-0"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          {aiSuggestions.bio.map((suggestion, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => applySuggestion('bio', suggestion)}
+                              className="w-full text-left text-xs sm:text-sm p-2 sm:p-3 bg-white hover:bg-purple-100 border border-purple-200 hover:border-purple-400 rounded-lg transition-all duration-200"
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Skills */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Star className="h-5 w-5" />
-                    Skills
+              {/* Skills - AI Enhanced */}
+              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
+                <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Star className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+                    Skills & Expertise
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="skills">Add Skills</Label>
+                <CardContent className="p-4 sm:p-6 space-y-4 overflow-visible" style={{ overflow: 'visible' }}>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="skills" className="text-sm font-semibold">
+                        Add Skills (comma or space to add)
+                      </Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => getAiSuggestions('skills')}
+                        disabled={aiLoading.skills}
+                        className="h-8 text-xs border-green-200 hover:bg-green-50 hover:border-green-300"
+                      >
+                        {aiLoading.skills ? (
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3 w-3 mr-1 text-green-600" />
+                        )}
+                        AI Suggest Skills
+                      </Button>
+                    </div>
                     <Input
                       id="skills"
                       value={skillsInput}
                       onChange={(e) => handleSkillsChange(e.target.value)}
-                      disabled={!editing}
-                      placeholder="Type skills and press comma to add (e.g., React, Node.js,)"
+                      placeholder="e.g., React, Python, Project Management (press comma or space)"
+                      className="h-11 sm:h-12"
                     />
                   </div>
 
-                  {profile.skills && (Array.isArray(profile.skills) ? profile.skills : (typeof profile.skills === 'string' ? profile.skills.split(',').map(s => s.trim()).filter(s => s) : [])).length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {(Array.isArray(profile.skills) ? profile.skills : (typeof profile.skills === 'string' ? profile.skills.split(',').map(s => s.trim()).filter(s => s) : [])).map((skill, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
-                        >
-                          {skill}
-                          {editing && (
+                  {/* Selected Skills */}
+                  {profile.skills && profile.skills.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-xs text-gray-600">Your Skills ({profile.skills.length})</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {profile.skills.map((skill, index) => (
+                          <Badge
+                            key={index}
+                            className="bg-green-100 text-green-800 border-green-300 px-3 py-1.5 text-sm hover:bg-green-200 transition-colors"
+                          >
+                            {skill}
                             <button
                               type="button"
                               onClick={() => removeSkill(skill)}
-                              className="ml-1 hover:text-blue-600"
+                              className="ml-2 hover:text-green-900"
                             >
                               <X className="h-3 w-3" />
                             </button>
-                          )}
-                        </div>
-                      ))}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   )}
+
+                  {/* AI Suggested Skills */}
+                  <AnimatePresence>
+                    {aiSuggestions.skills && aiSuggestions.skills.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-2 bg-green-50 border border-green-200 rounded-lg p-3"
+                      >
+                        <p className="text-xs font-semibold text-green-800 flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          AI Suggested Skills (Click to add):
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {aiSuggestions.skills.map((skill, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => applySuggestion('skills', skill)}
+                              className="text-xs px-3 py-1.5 bg-white hover:bg-green-100 border border-green-300 hover:border-green-500 rounded-full transition-all duration-200 font-medium"
+                            >
+                              + {skill}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Popular Skills by Category */}
+                  <div className="space-y-3">
+                    <Label className="text-xs text-gray-600 flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      Popular Skills (Quick Add)
+                    </Label>
+                    {Object.entries(popularSkills).map(([category, skills]) => (
+                      <div key={category} className="space-y-2">
+                        <p className="text-xs font-semibold text-gray-700">{category}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {skills.map((skill) => {
+                            const alreadyAdded = (profile.skills || []).includes(skill);
+                            return (
+                              <button
+                                key={skill}
+                                type="button"
+                                onClick={() => !alreadyAdded && addPopularSkill(skill)}
+                                disabled={alreadyAdded}
+                                className={`text-xs px-2.5 py-1 rounded-full border transition-all duration-200 ${
+                                  alreadyAdded
+                                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                    : 'bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-400 text-blue-700 hover:shadow-sm'
+                                }`}
+                              >
+                                {alreadyAdded ? '✓ ' : '+ '}{skill}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Experience & Education */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" />
-                    Experience & Education
+              {/* Experience - AI Enhanced */}
+              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
+                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
+                    Work Experience
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="experience">Work Experience</Label>
-                    <Textarea
-                      id="experience"
-                      value={profile.experience || ''}
-                      onChange={(e) => handleInputChange('experience', e.target.value)}
-                      disabled={!editing}
-                      placeholder="Describe your work experience..."
-                      rows={4}
-                    />
+                <CardContent className="p-4 sm:p-6 space-y-4 overflow-visible" style={{ overflow: 'visible' }}>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="experience" className="text-sm font-semibold">
+                        Describe your work experience
+                      </Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => getAiSuggestions('experience')}
+                        disabled={aiLoading.experience}
+                        className="h-8 text-xs border-orange-200 hover:bg-orange-50 hover:border-orange-300"
+                      >
+                        {aiLoading.experience ? (
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3 w-3 mr-1 text-orange-600" />
+                        )}
+                        AI Enhance
+                      </Button>
+                    </div>
+                    <div className="relative">
+                      <Textarea
+                        id="experience"
+                        value={profile.experience || ''}
+                        onChange={(e) => handleInputChange('experience', e.target.value)}
+                        placeholder="Share your professional journey, key achievements, and roles you've held..."
+                        rows={6}
+                        className="resize-none"
+                      />
+                      {aiLoading.experience && (
+                        <div className="absolute top-2 right-2">
+                          <Loader2 className="h-4 w-4 text-orange-600 animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* AI Suggestions for Experience */}
+                    <AnimatePresence>
+                      {aiSuggestions.experience && aiSuggestions.experience.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="space-y-2 bg-orange-50 border border-orange-200 rounded-lg p-3"
+                        >
+                          <p className="text-xs font-semibold text-orange-800 flex items-center gap-1">
+                            <Sparkles className="h-3 w-3" />
+                            AI Enhanced Experience Descriptions:
+                          </p>
+                          {aiSuggestions.experience.map((suggestion, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => applySuggestion('experience', suggestion)}
+                              className="w-full text-left text-xs sm:text-sm p-3 bg-white hover:bg-orange-100 border border-orange-200 hover:border-orange-400 rounded-lg transition-all duration-200"
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
+                </CardContent>
+              </Card>
 
-                  <div>
-                    <Label htmlFor="education">Education</Label>
+              {/* Education */}
+              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
+                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
+                    Education
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 space-y-4 overflow-visible" style={{ overflow: 'visible' }}>
+                  <div className="space-y-2">
+                    <Label htmlFor="education" className="text-sm font-semibold">
+                      Educational Background
+                    </Label>
                     <Textarea
                       id="education"
                       value={profile.education || ''}
                       onChange={(e) => handleInputChange('education', e.target.value)}
-                      disabled={!editing}
-                      placeholder="Describe your educational background..."
+                      placeholder="Share your educational qualifications, degrees, certifications..."
                       rows={4}
+                      className="resize-none"
                     />
                   </div>
                 </CardContent>
               </Card>
 
               {/* Job Preferences */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" />
+              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-blue-100">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Target className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                     Job Preferences
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="locationPreference">Preferred Location</Label>
-                    <Input
-                      id="locationPreference"
-                      value={profile.locationPreference || ''}
-                      onChange={(e) => handleInputChange('locationPreference', e.target.value)}
-                      disabled={!editing}
-                      placeholder="Where would you like to work?"
-                    />
-                  </div>
+                <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-visible" style={{ overflow: 'visible' }}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="locationPreference" className="text-sm font-semibold flex items-center gap-2">
+                        <MapPinIcon className="h-4 w-4 text-blue-600" />
+                        Preferred Location
+                      </Label>
+                      <Input
+                        id="locationPreference"
+                        value={profile.locationPreference || ''}
+                        onChange={(e) => handleInputChange('locationPreference', e.target.value)}
+                        placeholder="Where would you like to work?"
+                        className="h-11 sm:h-12"
+                      />
+                    </div>
 
-                  <div>
-                    <Label htmlFor="salaryExpectation">Expected Salary (per year)</Label>
-                    <Input
-                      id="salaryExpectation"
-                      type="number"
-                      value={profile.salaryExpectation || ''}
-                      onChange={(e) => handleInputChange('salaryExpectation', parseInt(e.target.value) || null)}
-                      disabled={!editing}
-                      placeholder="Enter expected salary"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Preferred Job Types</Label>
-                    <div className="grid grid-cols-2 gap-3 mt-2">
-                      {['full-time', 'part-time', 'contract', 'internship', 'remote', 'hybrid'].map((jobType) => (
-                        <label key={jobType} className="flex items-center space-x-2">
-                          <Checkbox
-                            checked={(profile.jobTypePreference || []).includes(jobType)}
-                            onCheckedChange={() => toggleJobTypePreference(jobType)}
-                            disabled={!editing}
-                          />
-                          <span className="text-sm capitalize">{jobType.replace('-', ' ')}</span>
-                        </label>
-                      ))}
+                    <div className="space-y-2">
+                      <Label htmlFor="salaryExpectation" className="text-sm font-semibold flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-green-600" />
+                        Expected Salary (Annual)
+                      </Label>
+                      <Input
+                        id="salaryExpectation"
+                        type="number"
+                        value={profile.salaryExpectation || ''}
+                        onChange={(e) => handleInputChange('salaryExpectation', parseInt(e.target.value) || null)}
+                        placeholder="e.g., 50000"
+                        className="h-11 sm:h-12"
+                      />
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="remotePreference"
-                      checked={profile.remotePreference}
-                      onCheckedChange={(checked) => handleInputChange('remotePreference', checked)}
-                      disabled={!editing}
-                    />
-                    <Label htmlFor="remotePreference">Open to remote work</Label>
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold flex items-center gap-2">
+                      <Briefcase className="h-4 w-4 text-purple-600" />
+                      Preferred Job Types
+                    </Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance', 'Remote'].map((jobType) => {
+                        const value = jobType.toLowerCase().replace(' ', '-');
+                        const isChecked = (profile.jobTypePreference || []).includes(value);
+                        return (
+                          <label 
+                            key={jobType} 
+                            className={`flex items-center space-x-2 p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                              isChecked 
+                                ? 'bg-blue-50 border-blue-400 shadow-sm' 
+                                : 'bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'
+                            }`}
+                          >
+                            <Checkbox
+                              checked={isChecked}
+                              onCheckedChange={() => toggleJobTypePreference(value)}
+                            />
+                            <span className="text-xs sm:text-sm font-medium">{jobType}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg">
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <Checkbox
+                        id="remotePreference"
+                        checked={profile.remotePreference || false}
+                        onCheckedChange={(checked) => handleInputChange('remotePreference', checked)}
+                        className="h-5 w-5"
+                      />
+                      <div className="flex-1">
+                        <Label htmlFor="remotePreference" className="text-sm font-semibold cursor-pointer flex items-center gap-2">
+                          <HomeIcon className="h-4 w-4 text-green-600" />
+                          Open to Remote Work
+                        </Label>
+                        <p className="text-xs text-gray-600 mt-0.5">
+                          Show me remote job opportunities from anywhere
+                        </p>
+                      </div>
+                    </label>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Social Links */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Globe className="h-5 w-5" />
-                    Social Links
+              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
+                <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Globe className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
+                    Professional Links
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="website">Website</Label>
+                <CardContent className="p-4 sm:p-6 space-y-4 overflow-visible" style={{ overflow: 'visible' }}>
+                  <div className="space-y-2">
+                    <Label htmlFor="website" className="text-sm font-semibold flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-blue-600" />
+                      Website / Portfolio
+                    </Label>
                     <Input
                       id="website"
                       value={profile.website || ''}
                       onChange={(e) => handleInputChange('website', e.target.value)}
-                      disabled={!editing}
                       placeholder="https://yourwebsite.com"
+                      className="h-11 sm:h-12"
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="linkedin">LinkedIn</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="linkedin" className="text-sm font-semibold flex items-center gap-2">
+                      <Linkedin className="h-4 w-4 text-blue-700" />
+                      LinkedIn Profile
+                    </Label>
                     <Input
                       id="linkedin"
                       value={profile.linkedin || ''}
                       onChange={(e) => handleInputChange('linkedin', e.target.value)}
-                      disabled={!editing}
                       placeholder="https://linkedin.com/in/yourprofile"
+                      className="h-11 sm:h-12"
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="github">GitHub</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="github" className="text-sm font-semibold flex items-center gap-2">
+                      <Github className="h-4 w-4 text-gray-800" />
+                      GitHub Profile
+                    </Label>
                     <Input
                       id="github"
                       value={profile.github || ''}
                       onChange={(e) => handleInputChange('github', e.target.value)}
-                      disabled={!editing}
                       placeholder="https://github.com/yourusername"
+                      className="h-11 sm:h-12"
                     />
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Save Button - Mobile */}
+              <div className="lg:hidden">
+                <Button 
+                  onClick={handleSave} 
+                  disabled={saving}
+                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Saving Changes...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-5 w-5 mr-2" />
+                      Save All Changes
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Profile Stats */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Statistics</CardTitle>
+            <div className="space-y-4 sm:space-y-6">
+              {/* Profile Statistics */}
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-blue-50/30 overflow-visible" style={{ overflow: 'visible' }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Award className="h-5 w-5 text-blue-600" />
+                    Your Stats
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Applications</span>
-                    <span className="font-semibold">{profile.stats.totalApplications}</span>
+                <CardContent className="space-y-3 overflow-visible" style={{ overflow: 'visible' }}>
+                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-blue-100">
+                    <span className="text-sm text-gray-600 flex items-center gap-2">
+                      <Briefcase className="h-4 w-4 text-blue-600" />
+                      Applications
+                    </span>
+                    <span className="font-bold text-blue-600 text-lg">{profile.stats.totalApplications}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Active Applications</span>
-                    <span className="font-semibold text-green-600">{profile.stats.activeApplications}</span>
+                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-green-100">
+                    <span className="text-sm text-gray-600 flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      Active
+                    </span>
+                    <span className="font-bold text-green-600 text-lg">{profile.stats.activeApplications}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Saved Jobs</span>
-                    <span className="font-semibold">{profile.stats.totalBookmarks}</span>
+                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-red-100">
+                    <span className="text-sm text-gray-600 flex items-center gap-2">
+                      <Star className="h-4 w-4 text-red-600" />
+                      Saved Jobs
+                    </span>
+                    <span className="font-bold text-red-600 text-lg">{profile.stats.totalBookmarks}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Resumes</span>
-                    <span className="font-semibold">{profile.stats.totalResumes}</span>
+                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-purple-100">
+                    <span className="text-sm text-gray-600 flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-purple-600" />
+                      Resumes
+                    </span>
+                    <span className="font-bold text-purple-600 text-lg">{profile.stats.totalResumes}</span>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Profile Completion */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Completion</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Completion</span>
-                        <span>{profile.stats.profileCompletion}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${profile.stats.profileCompletion}%` }}
-                        ></div>
-                      </div>
+              {/* AI Job Matching Score */}
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-500 text-white overflow-visible" style={{ overflow: 'visible' }}>
+                <CardContent className="p-4 sm:p-6 overflow-visible" style={{ overflow: 'visible' }}>
+                  <div className="text-center space-y-3">
+                    <Sparkles className="h-8 w-8 mx-auto" />
+                    <h3 className="text-lg font-bold">AI Match Score</h3>
+                    <div className="text-5xl font-bold">{profile.stats.profileCompletion}%</div>
+                    <p className="text-xs text-white/90">
+                      {profile.stats.profileCompletion < 50 ? 'Add more details to improve match accuracy' :
+                       profile.stats.profileCompletion < 80 ? 'Great! Employers can easily find you' :
+                       'Perfect! You\'ll get top job recommendations'}
+                    </p>
+                    <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden mt-3">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${profile.stats.profileCompletion}%` }}
+                        transition={{ duration: 1 }}
+                        className="bg-white h-full rounded-full"
+                      />
                     </div>
-                    {profile.stats.profileCompletion < 100 && (
-                      <p className="text-xs text-gray-600">
-                        Complete your profile to get better job matches
-                      </p>
-                    )}
                   </div>
                 </CardContent>
               </Card>
 
               {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                    Quick Actions
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Resume
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Briefcase className="h-4 w-4 mr-2" />
-                    View Applications
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Star className="h-4 w-4 mr-2" />
-                    Saved Jobs
-                  </Button>
+                <CardContent className="space-y-2 overflow-visible" style={{ overflow: 'visible' }}>
+                  <a href="/dashboard/jobseeker/resumes">
+                    <Button variant="outline" className="w-full justify-start h-11 hover:bg-purple-50 hover:border-purple-300 transition-all">
+                      <Upload className="h-4 w-4 mr-2 text-purple-600" />
+                      <span className="text-sm font-medium">Upload Resume</span>
+                    </Button>
+                  </a>
+                  <a href="/dashboard/jobseeker/applications">
+                    <Button variant="outline" className="w-full justify-start h-11 hover:bg-blue-50 hover:border-blue-300 transition-all">
+                      <Briefcase className="h-4 w-4 mr-2 text-blue-600" />
+                      <span className="text-sm font-medium">View Applications</span>
+                    </Button>
+                  </a>
+                  <a href="/dashboard/jobseeker/bookmarks">
+                    <Button variant="outline" className="w-full justify-start h-11 hover:bg-red-50 hover:border-red-300 transition-all">
+                      <Star className="h-4 w-4 mr-2 text-red-600" />
+                      <span className="text-sm font-medium">Saved Jobs</span>
+                    </Button>
+                  </a>
+                  <a href="/jobs">
+                    <Button className="w-full justify-center h-11 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all">
+                      <Building2 className="h-4 w-4 mr-2" />
+                      <span className="text-sm font-medium">Browse Jobs</span>
+                    </Button>
+                  </a>
+                </CardContent>
+              </Card>
+
+              {/* AI Tips */}
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-orange-50 border-l-4 border-l-orange-400 overflow-visible" style={{ overflow: 'visible' }}>
+                <CardContent className="p-4 overflow-visible" style={{ overflow: 'visible' }}>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-orange-100 rounded-full flex-shrink-0">
+                      <Sparkles className="h-4 w-4 text-orange-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-orange-900 mb-1">💡 Pro Tip</h4>
+                      <p className="text-xs text-orange-800 leading-relaxed">
+                        Add 5-10 relevant skills and complete all sections to get 3x more job recommendations!
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
