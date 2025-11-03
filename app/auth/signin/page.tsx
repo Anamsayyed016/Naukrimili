@@ -238,34 +238,34 @@ export default function SignInPage() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-purple-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="w-full max-w-md lg:max-w-4xl space-y-8 relative z-10">
+      <div className="w-full max-w-md lg:max-w-5xl xl:max-w-6xl space-y-6 sm:space-y-8 relative z-10">
         {/* Header with enhanced branding */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg mb-4">
-            <span className="text-2xl font-bold text-white">N</span>
+        <div className="text-center space-y-3 sm:space-y-4">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg mb-2 sm:mb-4">
+            <span className="text-xl sm:text-2xl font-bold text-white">N</span>
           </div>
-          <h1 className="text-4xl font-bold font-heading gradient-text">
-            Welcome Back
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading gradient-text">
+            Your Career Journey Starts Here
           </h1>
-          <p className="text-gray-600 text-lg">
-            Sign in to your NaukriMili account
+          <p className="text-gray-600 text-base sm:text-lg px-4 sm:px-0">
+            Sign in to unlock personalized job opportunities
           </p>
         </div>
 
         {/* Enhanced Sign In Card with glass morphism */}
-        <Card className="auth-card shadow-2xl border-0 rounded-3xl overflow-hidden modern-card">
-          <CardHeader className="text-center pb-8 pt-8 px-8">
-            <CardTitle className="text-3xl font-bold font-heading text-gray-900 mb-2">
+        <Card className="auth-card shadow-2xl border-0 rounded-2xl sm:rounded-3xl overflow-hidden modern-card">
+          <CardHeader className="text-center pb-6 sm:pb-8 pt-6 sm:pt-8 px-4 sm:px-6 lg:px-8">
+            <CardTitle className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 mb-2">
               Sign In
             </CardTitle>
-            <CardDescription className="text-gray-600 text-base">
+            <CardDescription className="text-gray-600 text-sm sm:text-base">
               Access your personalized job portal experience
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="px-8 pb-8 space-y-8 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
-            {/* Left Column - Errors */}
-            <div className="lg:col-span-3 space-y-4">
+          <CardContent className="px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 space-y-6 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-12">
+            {/* Errors - Full Width */}
+            <div className="lg:col-span-2 space-y-4">
               {error && (
                 <Alert className="alert-error border-0 rounded-xl">
                   <AlertCircle className="h-5 w-5" />
@@ -304,8 +304,8 @@ export default function SignInPage() {
             </div>
 
             {/* Left Column - OAuth Methods */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Sign In</h3>
+            <div className="space-y-4 lg:space-y-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Quick Sign In</h3>
               <OAuthButtons 
                 callbackUrl="/auth/role-selection"
               />
@@ -313,28 +313,32 @@ export default function SignInPage() {
               <Button
                 onClick={handlePhoneOTPStart}
                 disabled={loading}
-                className="w-full h-12 text-base font-medium bg-green-600 hover:bg-green-700 text-white transition-all duration-200 rounded-xl"
+                className="w-full h-11 sm:h-12 text-sm sm:text-base font-medium bg-green-600 hover:bg-green-700 text-white transition-all duration-200 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
               >
-                <MessageSquare className="w-5 h-5 mr-3" />
+                <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                 Continue with WhatsApp OTP
               </Button>
             </div>
 
-            {/* Vertical Divider - Desktop Only */}
-            <div className="hidden lg:block">
-              <div className="h-full w-px bg-gray-200 mx-auto"></div>
+            {/* Horizontal Divider - Mobile Only */}
+            <div className="lg:hidden">
+              <div className="relative flex items-center justify-center my-6">
+                <div className="flex-1 border-t border-gray-200"></div>
+                <span className="px-4 text-xs font-medium text-gray-500 uppercase">Or</span>
+                <div className="flex-1 border-t border-gray-200"></div>
+              </div>
             </div>
 
             {/* Right Column - Email/Password Form */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Sign In with Email</h3>
-              <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-3">
-                <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+            <div className="space-y-4 lg:space-y-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Sign In with Email</h3>
+              <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+              <div className="space-y-2 sm:space-y-3">
+                <Label htmlFor="email" className="text-xs sm:text-sm font-semibold text-gray-700">
                   Email Address
                 </Label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                  <Mail className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors flex-shrink-0" />
                   <Input
                     id="email"
                     name="email"
@@ -342,18 +346,18 @@ export default function SignInPage() {
                     placeholder="Enter your email address"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="auth-input pl-12 h-14 text-base rounded-xl border-2 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                    className="auth-input pl-10 sm:pl-12 h-12 sm:h-14 text-sm sm:text-base rounded-xl border-2 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 w-full"
                     required
                   />
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
+              <div className="space-y-2 sm:space-y-3">
+                <Label htmlFor="password" className="text-xs sm:text-sm font-semibold text-gray-700">
                   Password
                 </Label>
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                  <Lock className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors flex-shrink-0" />
                   <Input
                     id="password"
                     name="password"
@@ -361,40 +365,40 @@ export default function SignInPage() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="auth-input pl-12 pr-12 h-14 text-base rounded-xl border-2 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300"
+                    className="auth-input pl-10 sm:pl-12 pr-12 h-12 sm:h-14 text-sm sm:text-base rounded-xl border-2 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 w-full"
                     required
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 hover:bg-gray-100 rounded-lg transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     )}
                   </Button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+                <div className="flex items-center space-x-2 sm:space-x-3">
                   <input
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-lg"
+                    className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="remember-me" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="remember-me" className="text-xs sm:text-sm font-medium text-gray-700">
                     Remember me
                   </label>
                 </div>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline transition-colors"
+                  className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -402,18 +406,18 @@ export default function SignInPage() {
 
               <Button 
                 type="submit" 
-                className="btn-primary w-full h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                className="btn-primary w-full h-12 sm:h-14 text-sm sm:text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                 disabled={loading}
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                    Signing In...
+                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2 sm:mr-3"></div>
+                    <span className="text-sm sm:text-base">Signing In...</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center">
-                    Sign In
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <span className="text-sm sm:text-base">Sign In</span>
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                   </div>
                 )}
               </Button>
@@ -421,28 +425,28 @@ export default function SignInPage() {
             </div>
 
             {/* Sign Up Links - Below Both Columns */}
-            <div className="lg:col-span-3 text-center space-y-6 pt-8 border-t border-gray-200">
-                <p className="text-base text-gray-600">
+            <div className="lg:col-span-2 text-center space-y-4 sm:space-y-6 pt-6 sm:pt-8 border-t border-gray-200">
+                <p className="text-sm sm:text-base text-gray-600 px-4 sm:px-0">
                   Don't have an account?{' '}
                   <Link href="/auth/signup" className="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition-colors">
                     Create account
                   </Link>
                 </p>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <Link
                     href="/auth/register/jobseeker"
-                    className="group inline-flex items-center justify-center px-6 py-4 border-2 border-blue-200 rounded-xl text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                    className="group inline-flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-2 border-blue-200 rounded-xl text-xs sm:text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
                   >
-                    <UserCheck className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                    Job Seeker
+                    <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:scale-110 transition-transform flex-shrink-0" />
+                    <span className="truncate">Job Seeker</span>
                   </Link>
                   <Link
                     href="/auth/register/employer"
-                    className="group inline-flex items-center justify-center px-6 py-4 border-2 border-emerald-200 rounded-xl text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                    className="group inline-flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-2 border-emerald-200 rounded-xl text-xs sm:text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
                   >
-                    <Building2 className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                    Employer
+                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:scale-110 transition-transform flex-shrink-0" />
+                    <span className="truncate">Employer</span>
                   </Link>
                 </div>
               </div>
