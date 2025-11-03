@@ -242,47 +242,20 @@ export class HybridFormSuggestions {
       jobType: context.jobType || 'Full-time',
       experienceLevel: context.experienceLevel || 'Mid-level',
       industry: context.industry || 'Technology',
-      skills: context.skills || []
+      skills: context.skills || [],
+      jobTitle: context.jobTitle || value || '',
+      companyName: context.companyName || '',
+      companyDescription: context.companyDescription || '',
+      userInput: value || ''
     };
 
+    const userInput = (value || '').toLowerCase().trim();
+
     const fallbackSuggestions: { [key: string]: string[] } = {
-      // Job posting specific fields
-      title: [
-        'Senior Software Engineer',
-        'Full Stack Developer',
-        'Frontend Developer',
-        'Backend Developer',
-        'DevOps Engineer',
-        'Data Scientist',
-        'Machine Learning Engineer',
-        'Product Manager',
-        'UI/UX Designer',
-        'Mobile App Developer',
-        'Cloud Engineer',
-        'Security Engineer',
-        'Solutions Architect',
-        'Technical Lead',
-        'Engineering Manager'
-      ],
-      description: [
-        'We are looking for a passionate and skilled developer to join our dynamic team. You will be responsible for developing high-quality software solutions and collaborating with cross-functional teams.',
-        'Join our innovative company as we build cutting-edge products. You will work on challenging projects, contribute to architectural decisions, and mentor junior developers.',
-        'We seek a talented professional to drive our technical initiatives forward. You will be involved in the full software development lifecycle and work with modern technologies.',
-        'Come be part of our growing team and help us scale our platform. You will work on exciting projects, learn new technologies, and make a real impact on our product.',
-        'We are hiring a skilled developer to help us build the next generation of our products. You will work in a collaborative environment with opportunities for growth and learning.'
-      ],
-      requirements: [
-        'Bachelor\'s degree in Computer Science or related field',
-        '3+ years of experience in software development',
-        'Strong problem-solving and analytical skills',
-        'Excellent communication and teamwork abilities',
-        'Experience with modern development practices and tools',
-        'Knowledge of software design patterns and best practices',
-        'Ability to work in an agile development environment',
-        'Strong attention to detail and code quality',
-        'Experience with version control systems (Git)',
-        'Understanding of database design and optimization'
-      ],
+      // DYNAMIC Job Title Suggestions based on keywords
+      title: this.getDynamicTitleSuggestions(userInput, baseContext),
+      description: this.getDynamicDescriptionSuggestions(userInput, baseContext),
+      requirements: this.getDynamicRequirementsSuggestions(userInput, baseContext),
       benefits: [
         'Competitive salary and performance bonuses',
         'Comprehensive health insurance coverage',
@@ -295,16 +268,8 @@ export class HybridFormSuggestions {
         'Mentorship programs and career growth opportunities',
         'Wellness programs and gym membership'
       ],
-      // Legacy fields for backward compatibility
-      skills: [
-        'JavaScript', 'Python', 'React', 'Node.js', 'TypeScript',
-        'AWS', 'Docker', 'Git', 'SQL', 'MongoDB', 'Express.js',
-        'Next.js', 'Vue.js', 'Angular', 'Java', 'C++', 'PHP',
-        'Laravel', 'Django', 'Flask', 'Spring Boot', 'PostgreSQL',
-        'Redis', 'GraphQL', 'REST API', 'Microservices', 'Kubernetes',
-        'TensorFlow', 'PyTorch', 'Machine Learning', 'Data Science',
-        'DevOps', 'CI/CD', 'Jenkins', 'GitLab', 'GitHub Actions'
-      ],
+      // Dynamic skills based on job context
+      skills: this.getDynamicSkillsSuggestions(userInput, baseContext),
       jobTitle: [
         'Software Engineer', 'Full Stack Developer', 'Frontend Developer',
         'Backend Developer', 'DevOps Engineer', 'Data Scientist',
@@ -487,5 +452,131 @@ export class HybridFormSuggestions {
    */
   private getFallbackSuggestions(field: string, value: string): FormSuggestion {
     return this.getEnhancedFallbackSuggestions(field, value, {});
+  }
+
+  /**
+   * DYNAMIC: Get job title suggestions based on user keywords
+   */
+  private getDynamicTitleSuggestions(userInput: string, context: any): string[] {
+    // BPO/Call Center/Customer Service
+    if (userInput.includes('bpo') || userInput.includes('call center') || userInput.includes('customer service') || userInput.includes('customer support')) {
+      return ['BPO Team Leader', 'Customer Service Representative', 'Call Center Manager', 'BPO Operations Manager', 'Technical Support Specialist', 'Customer Success Manager'];
+    }
+    // Teaching/Education
+    if (userInput.includes('teacher') || userInput.includes('education') || userInput.includes('tutor') || userInput.includes('lecturer') || userInput.includes('instructor')) {
+      return ['Primary Teacher', 'Secondary School Teacher', 'Subject Matter Expert', 'Online Tutor', 'Education Coordinator', 'Academic Instructor'];
+    }
+    // Marketing/Digital
+    if (userInput.includes('marketing') || userInput.includes('digital') || userInput.includes('seo') || userInput.includes('content')) {
+      return ['Digital Marketing Manager', 'Marketing Executive', 'SEO Specialist', 'Content Marketing Lead', 'Social Media Manager', 'Brand Manager'];
+    }
+    // Sales/BD
+    if (userInput.includes('sales') || userInput.includes('business development') || userInput.includes('bd')) {
+      return ['Sales Executive', 'Business Development Manager', 'Sales Manager', 'Account Manager', 'Sales Consultant', 'Regional Sales Head'];
+    }
+    // HR/Recruitment
+    if (userInput.includes('hr') || userInput.includes('recruiter') || userInput.includes('talent') || userInput.includes('human resource')) {
+      return ['HR Manager', 'Talent Acquisition Specialist', 'Recruitment Consultant', 'HR Executive', 'People Operations Manager', 'HR Business Partner'];
+    }
+    // Healthcare/Medical
+    if (userInput.includes('doctor') || userInput.includes('nurse') || userInput.includes('medical') || userInput.includes('healthcare') || userInput.includes('physician')) {
+      return ['Medical Officer', 'General Physician', 'Registered Nurse', 'Healthcare Specialist', 'Medical Consultant', 'Clinical Coordinator'];
+    }
+    // Finance/Accounting
+    if (userInput.includes('accountant') || userInput.includes('finance') || userInput.includes('audit') || userInput.includes('tax')) {
+      return ['Accountant', 'Finance Manager', 'Financial Analyst', 'Tax Consultant', 'Audit Executive', 'Senior Accountant'];
+    }
+    // Software/Tech
+    if (userInput.includes('software') || userInput.includes('developer') || userInput.includes('engineer') || userInput.includes('programmer') || userInput.includes('tech')) {
+      return ['Software Engineer', 'Full Stack Developer', 'Senior Software Developer', 'Backend Engineer', 'Frontend Developer', 'Technical Lead'];
+    }
+    // Generic dynamic based on user input
+    if (userInput) {
+      const capitalized = userInput.charAt(0).toUpperCase() + userInput.slice(1);
+      return [`Senior ${capitalized}`, `${capitalized} Manager`, `${capitalized} Executive`, `${capitalized} Specialist`, `Lead ${capitalized}`, `${capitalized} Consultant`];
+    }
+    // Default tech fallback
+    return ['Senior Software Engineer', 'Full Stack Developer', 'Frontend Developer', 'Backend Developer', 'DevOps Engineer'];
+  }
+
+  /**
+   * DYNAMIC: Get job description suggestions
+   */
+  private getDynamicDescriptionSuggestions(userInput: string, context: any): string[] {
+    const jobTitle = context.jobTitle || userInput || 'professional';
+    const companyName = context.companyName || 'our company';
+    const companyDesc = context.companyDescription || 'We are a growing organization';
+    
+    return [
+      `${companyDesc}. We are seeking a talented ${jobTitle} to join our team. You will play a key role in our operations and contribute to our success.`,
+      `Join ${companyName} as a ${jobTitle}. We are looking for someone who is passionate, skilled, and ready to make an impact. You will work with a dynamic team on exciting projects.`,
+      `We are hiring a ${jobTitle} to strengthen our team. You will be responsible for key initiatives, collaborate with cross-functional teams, and drive results.`,
+      `${companyName} is expanding! As a ${jobTitle}, you will have the opportunity to work on challenging projects, develop your skills, and grow your career with us.`,
+      `Looking for a ${jobTitle} who can bring fresh ideas and energy to our organization. You will be part of a supportive environment focused on innovation and excellence.`
+    ];
+  }
+
+  /**
+   * DYNAMIC: Get requirements suggestions
+   */
+  private getDynamicRequirementsSuggestions(userInput: string, context: any): string[] {
+    const jobTitle = context.jobTitle || userInput || 'this position';
+    const experienceLevel = context.experienceLevel || 'Mid Level';
+    const industry = context.industry || 'the field';
+    const yearsMatch = experienceLevel.match(/(\d+)-(\d+)/);
+    const minYears = yearsMatch ? yearsMatch[1] : '2';
+    
+    return [
+      `Relevant degree or equivalent experience in ${industry}`,
+      `${minYears}+ years of experience as a ${jobTitle} or similar role`,
+      `Strong communication and interpersonal skills`,
+      `Proven track record of delivering results in ${industry}`,
+      `Ability to work independently and as part of a team`,
+      `Problem-solving mindset with attention to detail`,
+      `Familiarity with industry best practices and standards`,
+      `Excellent organizational and time management skills`
+    ];
+  }
+
+  /**
+   * DYNAMIC: Get skills suggestions based on job keywords
+   */
+  private getDynamicSkillsSuggestions(userInput: string, context: any): string[] {
+    const input = (userInput || context.jobTitle || '').toLowerCase();
+    
+    // BPO/Customer Service
+    if (input.includes('bpo') || input.includes('customer service') || input.includes('call center')) {
+      return ['Communication Skills', 'Customer Service', 'Problem Solving', 'CRM Software', 'Active Listening', 'Empathy', 'Multi-tasking', 'Conflict Resolution'];
+    }
+    // Teaching/Education
+    if (input.includes('teacher') || input.includes('education') || input.includes('tutor')) {
+      return ['Teaching', 'Curriculum Development', 'Student Assessment', 'Classroom Management', 'Communication', 'Subject Expertise', 'Educational Technology', 'Patience'];
+    }
+    // Marketing
+    if (input.includes('marketing') || input.includes('digital') || input.includes('seo')) {
+      return ['Digital Marketing', 'SEO', 'Content Marketing', 'Social Media', 'Google Analytics', 'Email Marketing', 'Campaign Management', 'Copywriting'];
+    }
+    // Sales
+    if (input.includes('sales') || input.includes('business development')) {
+      return ['Sales', 'Negotiation', 'Lead Generation', 'CRM', 'Client Relationship', 'Presentation Skills', 'Market Research', 'Closing Deals'];
+    }
+    // HR
+    if (input.includes('hr') || input.includes('recruiter') || input.includes('talent')) {
+      return ['Recruitment', 'Talent Acquisition', 'Interviewing', 'HR Policies', 'Employee Relations', 'Onboarding', 'Performance Management', 'HRIS'];
+    }
+    // Healthcare
+    if (input.includes('doctor') || input.includes('nurse') || input.includes('medical')) {
+      return ['Patient Care', 'Medical Knowledge', 'Clinical Skills', 'Diagnostics', 'Treatment Planning', 'Healthcare Compliance', 'EMR Systems', 'Bedside Manner'];
+    }
+    // Finance/Accounting
+    if (input.includes('accountant') || input.includes('finance') || input.includes('audit')) {
+      return ['Accounting', 'Financial Reporting', 'Taxation', 'Auditing', 'Excel', 'Tally', 'SAP', 'Budgeting', 'Financial Analysis'];
+    }
+    // Software/Tech
+    if (input.includes('software') || input.includes('developer') || input.includes('engineer')) {
+      return ['JavaScript', 'Python', 'React', 'Node.js', 'TypeScript', 'AWS', 'Docker', 'Git', 'SQL', 'MongoDB'];
+    }
+    // Generic
+    return ['Communication', 'Teamwork', 'Problem Solving', 'Time Management', 'Leadership', 'Adaptability'];
   }
 }
