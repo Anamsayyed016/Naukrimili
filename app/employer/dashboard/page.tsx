@@ -114,8 +114,8 @@ export default function EmployerDashboard() {
         if (companyData.success) {
           setHasCompany(true);
           
-          // Fetch stats if company exists - use working API
-          const statsResponse = await fetch('/api/stats');
+          // Fetch stats ONLY for this employer's company
+          const statsResponse = await fetch('/api/employer/stats');
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
             if (statsData.success) {
@@ -128,8 +128,8 @@ export default function EmployerDashboard() {
                 profileViews: statsData.data.profileViews || 0,
                 companyRating: statsData.data.companyRating || 0,
                 recentJobs: [], // Will be fetched separately
-                jobTypeDistribution: [], // Will be fetched separately
-                applicationStatusDistribution: [] // Will be fetched separately
+                jobTypeDistribution: [], // Employer-specific, will be fetched
+                applicationStatusDistribution: statsData.data.applicationStatusDistribution || []
               };
               setStats(transformedStats);
               
@@ -226,23 +226,9 @@ export default function EmployerDashboard() {
           } : null);
         }
       }
-
-      // Fetch job type distribution
-      const jobTypesResponse = await fetch('/api/jobs/constants');
-      if (jobTypesResponse.ok) {
-        const jobTypesData = await jobTypesResponse.json();
-        if (jobTypesData.success) {
-          const jobTypeDistribution = jobTypesData.data.jobTypes.map((item: any) => ({
-            jobType: item.value,
-            _count: { jobType: item.count }
-          }));
-          
-          setStats(prev => prev ? {
-            ...prev,
-            jobTypeDistribution
-          } : null);
-        }
-      }
+      
+      // NOTE: Job Type Distribution removed - system-wide data should only be visible to admins
+      // Employers now see Application Status distribution instead (already fetched from /api/employer/stats)
     } catch (_error) {
       console.error('Error fetching additional data:', _error);
     }
@@ -451,73 +437,81 @@ export default function EmployerDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10"
           >
-            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100/50 pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-slate-800">Total Jobs</CardTitle>
-                  <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
-                    <Briefcase className="h-6 w-6 text-white" />
+            <Link href="/employer/jobs" className="block">
+              <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100/50 pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-slate-800">Total Jobs</CardTitle>
+                    <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                      <Briefcase className="h-6 w-6 text-white" />
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="text-4xl font-bold text-slate-900 mb-2">{stats.totalJobs}</div>
-                <p className="text-slate-600 font-medium">
-                  {stats.activeJobs} active
-                </p>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="text-4xl font-bold text-slate-900 mb-2">{stats.totalJobs}</div>
+                  <p className="text-slate-600 font-medium">
+                    {stats.activeJobs} active • Click to manage
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-slate-800">Applications</CardTitle>
-                  <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
-                    <Users className="h-6 w-6 text-white" />
+            <Link href="/employer/applications" className="block">
+              <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer">
+                <CardHeader className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-slate-800">Applications</CardTitle>
+                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                      <Users className="h-6 w-6 text-white" />
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="text-4xl font-bold text-slate-900 mb-2">{stats.totalApplications}</div>
-                <p className="text-slate-600 font-medium">
-                  {stats.pendingApplications} pending
-                </p>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="text-4xl font-bold text-slate-900 mb-2">{stats.totalApplications}</div>
+                  <p className="text-slate-600 font-medium">
+                    {stats.pendingApplications} pending • Click to review
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100/50 pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-slate-800">Profile Views</CardTitle>
-                  <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
-                    <Eye className="h-6 w-6 text-white" />
+            <Link href="/employer/company/profile" className="block">
+              <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer">
+                <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100/50 pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-slate-800">Profile Views</CardTitle>
+                    <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                      <Eye className="h-6 w-6 text-white" />
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="text-4xl font-bold text-slate-900 mb-2">{stats.profileViews}</div>
-                <p className="text-slate-600 font-medium">
-                  This month
-                </p>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="text-4xl font-bold text-slate-900 mb-2">{stats.profileViews}</div>
+                  <p className="text-slate-600 font-medium">
+                    This month • Click for profile
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group">
-              <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100/50 pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-slate-800">Company Rating</CardTitle>
-                  <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
-                    <Star className="h-6 w-6 text-white" />
+            <Link href="/employer/company/profile" className="block">
+              <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer">
+                <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100/50 pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-slate-800">Company Rating</CardTitle>
+                    <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
+                      <Star className="h-6 w-6 text-white" />
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="text-4xl font-bold text-slate-900 mb-2">{stats.companyRating}</div>
-                <p className="text-slate-600 font-medium">
-                  out of 5
-                </p>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="text-4xl font-bold text-slate-900 mb-2">{stats.companyRating}</div>
+                  <p className="text-slate-600 font-medium">
+                    out of 5 • View reviews
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           </motion.div>
         )}
 
@@ -696,119 +690,75 @@ export default function EmployerDashboard() {
           </motion.div>
         )}
 
-        {/* Analytics */}
-        {hasCompany && stats && (
+        {/* Application Status - Employer Specific */}
+        {hasCompany && stats && stats.applicationStatusDistribution.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+            className="mb-8"
           >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-blue-600" />
-                  Job Type Distribution
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {stats.jobTypeDistribution.length > 0 ? (
-                  <div className="space-y-4">
-                    {stats.jobTypeDistribution.map((item, index) => {
-                      const total = stats.jobTypeDistribution.reduce((sum, i) => sum + i._count.jobType, 0);
-                      const percentage = total > 0 ? (item._count.jobType / total) * 100 : 0;
-                      return (
-                        <div key={item.jobType} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="capitalize text-gray-700 font-medium">
-                              {item.jobType || 'Not specified'}
-                            </span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-gray-500">{percentage.toFixed(1)}%</span>
-                              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                                {item._count.jobType}
-                              </Badge>
-                            </div>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
-                              style={{ width: `${percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+            <Card className="shadow-xl border-0">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <TrendingUp className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-bold text-slate-900">Application Status</CardTitle>
+                      <p className="text-sm text-slate-600">Track your candidate pipeline</p>
+                    </div>
                   </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>No job type data available</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                  Application Status
-                </CardTitle>
+                  <Link href="/employer/applications">
+                    <Button variant="outline" className="text-green-600 border-green-300 hover:bg-green-50">
+                      View All
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </CardHeader>
-              <CardContent>
-                {stats.applicationStatusDistribution.length > 0 ? (
-                  <div className="space-y-4">
-                    {stats.applicationStatusDistribution.map((item, index) => {
-                      const total = stats.applicationStatusDistribution.reduce((sum, i) => sum + i._count.status, 0);
-                      const percentage = total > 0 ? (item._count.status / total) * 100 : 0;
-                      const statusColors = {
-                        'submitted': 'from-yellow-500 to-yellow-600',
-                        'reviewed': 'from-blue-500 to-blue-600',
-                        'shortlisted': 'from-purple-500 to-purple-600',
-                        'hired': 'from-green-500 to-green-600',
-                        'rejected': 'from-red-500 to-red-600'
-                      };
-                      const colorClass = statusColors[item.status as keyof typeof statusColors] || 'from-gray-500 to-gray-600';
-                      
-                      return (
-                        <div key={item.status} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="capitalize text-gray-700 font-medium">
+              <CardContent className="p-4 sm:p-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                  {stats.applicationStatusDistribution.map((item, index) => {
+                    const total = stats.applicationStatusDistribution.reduce((sum, i) => sum + i._count.status, 0);
+                    const percentage = total > 0 ? (item._count.status / total) * 100 : 0;
+                    const statusColors = {
+                      'pending': { bg: 'from-yellow-50 to-amber-50', border: 'border-yellow-200', text: 'text-yellow-700', badge: 'bg-yellow-100 text-yellow-800' },
+                      'submitted': { bg: 'from-blue-50 to-cyan-50', border: 'border-blue-200', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-800' },
+                      'reviewed': { bg: 'from-indigo-50 to-purple-50', border: 'border-indigo-200', text: 'text-indigo-700', badge: 'bg-indigo-100 text-indigo-800' },
+                      'shortlisted': { bg: 'from-purple-50 to-pink-50', border: 'border-purple-200', text: 'text-purple-700', badge: 'bg-purple-100 text-purple-800' },
+                      'hired': { bg: 'from-green-50 to-emerald-50', border: 'border-green-200', text: 'text-green-700', badge: 'bg-green-100 text-green-800' },
+                      'rejected': { bg: 'from-red-50 to-rose-50', border: 'border-red-200', text: 'text-red-700', badge: 'bg-red-100 text-red-800' }
+                    };
+                    const colors = statusColors[item.status as keyof typeof statusColors] || statusColors['pending'];
+                    
+                    return (
+                      <Link key={item.status} href={`/employer/applications?status=${item.status}`} className="block min-w-0">
+                        <div className={`bg-gradient-to-br ${colors.bg} border-2 ${colors.border} rounded-xl p-3 sm:p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group h-full`}>
+                          <div className="flex items-center justify-between mb-2 sm:mb-3">
+                            <span className={`capitalize ${colors.text} font-semibold text-xs sm:text-sm truncate`}>
                               {item.status}
                             </span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-gray-500">{percentage.toFixed(1)}%</span>
-                              <Badge 
-                                variant="secondary" 
-                                className={`${
-                                  item.status === 'hired' ? 'bg-green-100 text-green-800' :
-                                  item.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                  item.status === 'shortlisted' ? 'bg-purple-100 text-purple-800' :
-                                  item.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
-                                  'bg-yellow-100 text-yellow-800'
-                                }`}
-                              >
-                                {item._count.status}
-                              </Badge>
-                            </div>
+                            <Badge variant="secondary" className={`${colors.badge} flex-shrink-0 ml-1`}>
+                              {item._count.status}
+                            </Badge>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="mb-2">
+                            <div className="text-xl sm:text-2xl font-bold text-slate-900">{percentage.toFixed(0)}%</div>
+                            <p className="text-xs text-slate-600">of total</p>
+                          </div>
+                          <div className="w-full bg-white/50 rounded-full h-1.5 overflow-hidden">
                             <div 
-                              className={`bg-gradient-to-r ${colorClass} h-2 rounded-full transition-all duration-500`}
+                              className={`bg-gradient-to-r ${colors.bg} h-1.5 rounded-full transition-all duration-500 group-hover:h-2`}
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <TrendingUp className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>No application data available</p>
-                  </div>
-                )}
+                      </Link>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
           </motion.div>
