@@ -536,6 +536,27 @@ tr {
   overflow: visible !important;
 }
 
+/* CRITICAL: Dropdown Menu - Ensure proper z-index and positioning */
+[data-radix-dropdown-menu-content] {
+  z-index: 100 !important;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Ensure dropdown portal has high z-index */
+[data-radix-popper-content-wrapper][data-radix-dropdown-menu-content] {
+  z-index: 100 !important;
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
+/* Mobile dropdown improvements */
+@media (max-width: 1023px) {
+  [data-radix-dropdown-menu-content] {
+    max-width: calc(100vw - 2rem) !important;
+  }
+}
+
 /* CRITICAL: Job Search Hero Section - Prevent horizontal overflow on mobile */
 .job-search-hero,
 .job-search-hero * {
