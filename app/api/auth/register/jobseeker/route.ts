@@ -8,7 +8,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { createVerificationToken, sendVerificationEmail } from '@/lib/auth/email-verification';
+import { createVerificationToken } from '@/lib/auth/email-verification';
+import { sendVerificationEmail } from '@/lib/email-templates/verification-email';
 
 // Validation schema for jobseeker registration
 const jobseekerRegisterSchema = z.object({
