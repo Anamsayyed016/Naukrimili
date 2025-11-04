@@ -159,7 +159,7 @@ export default function MainNavigation({
           </Link>
 
           {/* Main Navigation - Enhanced Desktop */}
-          <div className="hidden lg:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => (
               <Link
                 key={link.title}
@@ -209,7 +209,7 @@ export default function MainNavigation({
           </div>
 
           {/* Desktop Right Side - Enhanced User Actions */}
-          <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
+          <div className="hidden md:flex items-center space-x-2 xl:space-x-4">
             {/* Desktop Notifications */}
             <ComprehensiveNotificationBell />
 
@@ -233,7 +233,7 @@ export default function MainNavigation({
           </div>
 
           {/* Mobile Navigation - REACT STATE APPROACH */}
-          {isMounted && isMobile && (
+          {isMounted && (isMobile || (!isDesktop && typeof window !== 'undefined' && window.innerWidth < 768)) && (
             <div className="flex items-center gap-2">
             {/* Mobile Get Started Button - Show when NOT logged in */}
             {isMounted && !isAuthenticated && (
@@ -295,7 +295,7 @@ export default function MainNavigation({
         </div>
 
         {/* Enhanced Mobile Menu */}
-        {isMounted && isMobile && isMenuOpen && (
+        {isMounted && (isMobile || (!isDesktop && typeof window !== 'undefined' && window.innerWidth < 768)) && isMenuOpen && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
