@@ -1,13 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { FiFacebook, FiTwitter, FiLinkedin, FiInstagram, FiLoader, FiCheck, FiAlertCircle, FiBriefcase, FiUsers, FiBook, FiMail, FiUser, FiBell, FiUpload, FiHeart, FiArrowRight } from "react-icons/fi";
+import { FiFacebook, FiTwitter, FiLinkedin, FiInstagram, FiLoader, FiCheck, FiAlertCircle, FiBriefcase, FiUsers, FiBook, FiMail, FiUser, FiBell, FiArrowRight } from "react-icons/fi";
 
 interface SocialIconProps { href: string; icon: React.ReactNode; label: string; }
 const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label }) => (
   <a 
     href={href} 
-    className="group w-12 h-12 bg-gray-800 hover:bg-blue-600 rounded-xl flex items-center justify-center text-gray-300 hover:text-white transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-xl" 
+    className="group w-12 h-12 bg-white border border-gray-200 hover:border-blue-500 hover:bg-blue-50 rounded-xl flex items-center justify-center text-gray-600 hover:text-blue-600 transition-all duration-300 hover:scale-110 shadow-sm hover:shadow-md" 
     target="_blank" 
     rel="noopener noreferrer" 
     aria-label={label}
@@ -24,9 +24,7 @@ const linkGroups = [
     { name: "Contact", href: "/contact", icon: <FiMail /> },
   ]},
   { title: "For Job Seekers", links: [
-    { name: "Create Profile", href: "/profile-setup", icon: <FiUser /> },
-    { name: "Job Alerts", href: "/settings", icon: <FiBell /> },
-    { name: "Dashboard", href: "/dashboard", icon: <FiBook /> },
+    { name: "Create Profile", href: "/auth/signin", icon: <FiUser /> },
   ]},
 ];
 
@@ -43,50 +41,52 @@ export default function Footer() {
     try {
       const res = await fetch("/api/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
       const data = await res.json().catch(() => ({}));
-      if (res.ok) { setStatus("success"); setMessage("Successfully subscribed to newsletter!"); setEmail(""); }
+      if (res.ok) { setStatus("success"); setMessage("Successfully subscribed!"); setEmail(""); }
       else { setStatus("error"); setMessage(data.error || "Subscription failed"); }
     } catch { setStatus("error"); setMessage("Network error"); } finally { setTimeout(() => setStatus("idle"), 4000); }
   };
 
   return (
-    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-300 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
+    <footer className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 border-t border-gray-200/50 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
       </div>
       
       <div className="relative max-w-7xl mx-auto pt-16 pb-8 px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
-          {/* Company Info - Enhanced */}
+          {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="mb-8">
               <div className="flex items-center mb-6">
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg mr-3">
+                  <span className="text-xl font-bold text-white">N</span>
+                </div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   NaukriMili
                 </h3>
               </div>
-              <p className="text-gray-300 text-base leading-relaxed max-w-md">
+              <p className="text-gray-600 text-base leading-relaxed max-w-md">
                 India's most trusted AI-powered job matching platform connecting top talent with leading employers. 
                 Experience the future of job searching.
               </p>
             </div>
             
-            {/* Enhanced Social Icons */}
+            {/* Social Icons */}
             <div className="flex space-x-4">
-              <SocialIcon href="https://facebook.com" icon={<FiFacebook size={20} />} label="Facebook" />
-              <SocialIcon href="https://twitter.com" icon={<FiTwitter size={20} />} label="Twitter" />
-              <SocialIcon href="https://linkedin.com" icon={<FiLinkedin size={20} />} label="LinkedIn" />
-              <SocialIcon href="https://instagram.com" icon={<FiInstagram size={20} />} label="Instagram" />
+              <SocialIcon href="https://facebook.com/naukrimili" icon={<FiFacebook size={20} />} label="Facebook" />
+              <SocialIcon href="https://twitter.com/naukrimili" icon={<FiTwitter size={20} />} label="Twitter" />
+              <SocialIcon href="https://linkedin.com/company/naukrimili" icon={<FiLinkedin size={20} />} label="LinkedIn" />
+              <SocialIcon href="https://instagram.com/naukrimili" icon={<FiInstagram size={20} />} label="Instagram" />
             </div>
           </div>
           
-          {/* Link Groups - Enhanced */}
+          {/* Link Groups */}
           {linkGroups.map(g => (
             <div key={g.title} className="space-y-6">
-              <h3 className="text-white font-semibold text-lg border-b border-gray-700 pb-2">
+              <h3 className="text-gray-900 font-bold text-lg border-b border-gray-200 pb-3">
                 {g.title}
               </h3>
               <ul className="space-y-4">
@@ -94,12 +94,12 @@ export default function Footer() {
                   <li key={l.name}>
                     <Link 
                       href={l.href} 
-                      className="group flex items-center gap-3 hover:text-blue-400 transition-all duration-300 hover:translate-x-1"
+                      className="group flex items-center gap-3 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-1"
                     >
-                      <span className="text-blue-400 group-hover:scale-110 transition-transform duration-300">
+                      <span className="text-blue-500 group-hover:scale-110 transition-transform duration-300">
                         {l.icon}
                       </span>
-                      <span className="text-gray-300 group-hover:text-blue-400 transition-colors">
+                      <span className="group-hover:text-blue-600 transition-colors">
                         {l.name}
                       </span>
                     </Link>
@@ -109,12 +109,12 @@ export default function Footer() {
             </div>
           ))}
           
-          {/* Newsletter - Enhanced */}
+          {/* Newsletter */}
           <div className="space-y-6">
-            <h3 className="text-white font-semibold text-lg border-b border-gray-700 pb-2">
+            <h3 className="text-gray-900 font-bold text-lg border-b border-gray-200 pb-3">
               Get Job Alerts
             </h3>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-gray-600 text-sm leading-relaxed">
               Subscribe to receive the latest job openings and career opportunities directly in your inbox.
             </p>
             
@@ -125,7 +125,7 @@ export default function Footer() {
                   value={email} 
                   onChange={e => setEmail(e.target.value)} 
                   placeholder="Your email address" 
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-100 placeholder-gray-400 transition-all duration-300" 
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400 transition-all duration-300 shadow-sm" 
                   required 
                 />
               </div>
@@ -133,9 +133,9 @@ export default function Footer() {
               <button 
                 type="submit" 
                 disabled={status === "loading"} 
-                className={`w-full px-6 py-3 rounded-xl text-white font-medium flex items-center justify-center gap-3 transition-all duration-300 ${
+                className={`w-full px-6 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-3 transition-all duration-300 ${
                   status === "loading" 
-                    ? "bg-gray-600 cursor-not-allowed" 
+                    ? "bg-gray-400 cursor-not-allowed" 
                     : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
                 }`}
               >
@@ -145,18 +145,21 @@ export default function Footer() {
                 {status === "idle" && (
                   <>
                     Subscribe
-                    <FiArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    <FiArrowRight size={16} />
                   </>
                 )}
+                {status === "loading" && "Subscribing..."}
+                {status === "success" && "Subscribed!"}
+                {status === "error" && "Try Again"}
               </button>
               
               {message && (
                 <p className={`text-sm px-4 py-2 rounded-lg ${
                   status === "success" 
-                    ? "text-green-400 bg-green-900/20 border border-green-700/30" 
+                    ? "text-green-700 bg-green-50 border border-green-200" 
                     : status === "error" 
-                    ? "text-red-400 bg-red-900/20 border border-red-700/30" 
-                    : "text-gray-400"
+                    ? "text-red-700 bg-red-50 border border-red-200" 
+                    : "text-gray-600"
                 }`}>
                   {message}
                 </p>
@@ -165,24 +168,23 @@ export default function Footer() {
           </div>
         </div>
         
-        {/* Bottom Section - Enhanced */}
-        <div className="border-t border-gray-800 pt-8">
+        {/* Bottom Section */}
+        <div className="border-t border-gray-200 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2 text-gray-400">
+            <div className="flex items-center gap-2 text-gray-600">
               <p className="text-sm">
                 © {new Date().getFullYear()} NaukriMili. All rights reserved.
               </p>
-              <FiHeart className="w-4 h-4 text-red-400 animate-pulse" />
             </div>
             
             <div className="flex flex-wrap justify-center gap-6 text-sm">
-              <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors duration-300 hover:underline">
+              <Link href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 hover:underline font-medium">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-gray-400 hover:text-white transition-colors duration-300 hover:underline">
+              <Link href="/terms" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 hover:underline font-medium">
                 Terms of Service
               </Link>
-              <Link href="/cookies" className="text-gray-400 hover:text-white transition-colors duration-300 hover:underline">
+              <Link href="/cookies" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 hover:underline font-medium">
                 Cookie Policy
               </Link>
             </div>
