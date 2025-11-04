@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Download, Eye, Trash2, Upload, FileText, Calendar, TrendingUp } from 'lucide-react';
+import { AlertCircle, Download, Eye, Trash2, Upload, FileText, Calendar, TrendingUp, CheckCircle2, X } from 'lucide-react';
 import { useResumesApi, Resume } from '@/hooks/useResumesApi';
 import ResumeUpload from '@/components/resume/ResumeUpload';
 import AuthGuard from '@/components/auth/AuthGuard';
+import Link from 'next/link';
 import { 
   Dialog, 
   DialogContent, 
@@ -33,13 +35,22 @@ interface ExtendedResume extends Resume {
 }
 
 export default function ResumesPage() {
+  const searchParams = useSearchParams();
   const { resumes, loading, error, fetchResumes, deleteResume } = useResumesApi();
   const [selectedResume, setSelectedResume] = useState<ExtendedResume | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState<string | null>(null);
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
 
   useEffect(() => {
     fetchResumes();
+    // Check if redirected from upload page
+    const uploaded = searchParams?.get('uploaded');
+    if (uploaded === 'true') {
+      setShowSuccessBanner(true);
+      // Auto-hide after 10 seconds
+      setTimeout(() => setShowSuccessBanner(false), 10000);
+    }
   }, []); // Removed fetchResumes to prevent infinite loop
 
   const handleDelete = async (resumeId: string) => {
@@ -120,6 +131,49 @@ export default function ResumesPage() {
         {/* Main Content */}
         {!showUploadForm && !loading && !error && (
           <>
+            {/* Success Banner */}
+            {showSuccessBanner && (
+              <Alert className="mb-6 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 shadow-lg animate-in slide-in-from-top duration-500">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 p-2 bg-green-100 rounded-full">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <AlertTitle className="text-green-900 font-bold text-lg mb-1">
+                        🎉 Resume Uploaded Successfully!
+                      </AlertTitle>
+                      <AlertDescription className="text-green-700 space-y-2">
+                        <p>Your resume has been analyzed with AI and is ready to use.</p>
+                        <div className="flex flex-wrap gap-3 mt-3">
+                          <Link href="/dashboard/jobseeker/profile">
+                            <Button size="sm" variant="outline" className="border-green-300 hover:bg-green-100 text-green-700">
+                              <FileText className="w-3 h-3 mr-2" />
+                              Complete Profile
+                            </Button>
+                          </Link>
+                          <Link href="/jobs">
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                              <TrendingUp className="w-3 h-3 mr-2" />
+                              Find Jobs
+                            </Button>
+                          </Link>
+                        </div>
+                      </AlertDescription>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowSuccessBanner(false)}
+                    className="text-green-600 hover:text-green-700 hover:bg-green-100"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </Alert>
+            )}
+
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <div>
@@ -128,7 +182,7 @@ export default function ResumesPage() {
               </div>
               <Button 
                 onClick={() => setShowUploadForm(true)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
                 <Upload className="w-4 h-4" />
                 Upload Resume

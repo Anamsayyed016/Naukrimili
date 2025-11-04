@@ -182,64 +182,88 @@ export default function JobSeekerDashboard() {
             </div>
           </div>
 
-          {/* Enhanced Stats Cards */}
+          {/* Enhanced Stats Cards - Now Clickable */}
           {stats && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-              <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100/50 hover:from-blue-100 hover:to-blue-200/50">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <p className="text-xs sm:text-sm font-medium text-blue-700/80">Total Applications</p>
-                      <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.totalApplications}</p>
+              {/* Total Applications Card - Clickable */}
+              <Link href="/dashboard/jobseeker/applications" className="block">
+                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100/50 hover:from-blue-100 hover:to-blue-200/50 cursor-pointer">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <p className="text-xs sm:text-sm font-medium text-blue-700/80">Total Applications</p>
+                        <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.totalApplications}</p>
+                      </div>
+                      <div className="p-2 sm:p-3 bg-blue-200/50 rounded-full group-hover:bg-blue-300/50 transition-colors">
+                        <Send className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+                      </div>
                     </div>
-                    <div className="p-2 sm:p-3 bg-blue-200/50 rounded-full group-hover:bg-blue-300/50 transition-colors">
-                      <Send className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+                    <div className="mt-2 text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Click to view all →
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
 
-              <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-green-100/50 hover:from-green-100 hover:to-green-200/50">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <p className="text-xs sm:text-sm font-medium text-green-700/80">Active Applications</p>
-                      <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.activeApplications}</p>
+              {/* Active Applications Card - Clickable */}
+              <Link href="/dashboard/jobseeker/applications" className="block">
+                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-green-100/50 hover:from-green-100 hover:to-green-200/50 cursor-pointer">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <p className="text-xs sm:text-sm font-medium text-green-700/80">Active Applications</p>
+                        <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.activeApplications}</p>
+                      </div>
+                      <div className="p-2 sm:p-3 bg-green-200/50 rounded-full group-hover:bg-green-300/50 transition-colors">
+                        <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+                      </div>
                     </div>
-                    <div className="p-2 sm:p-3 bg-green-200/50 rounded-full group-hover:bg-green-300/50 transition-colors">
-                      <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+                    <div className="mt-2 text-xs text-green-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Click to view active →
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
 
-              <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-red-50 to-red-100/50 hover:from-red-100 hover:to-red-200/50">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <p className="text-xs sm:text-sm font-medium text-red-700/80">Saved Jobs</p>
-                      <p className="text-xl sm:text-2xl font-bold text-red-600">{stats.totalBookmarks}</p>
+              {/* Saved Jobs Card - Clickable */}
+              <Link href="/dashboard/jobseeker/bookmarks" className="block">
+                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-0 bg-gradient-to-br from-red-50 to-red-100/50 hover:from-red-100 hover:to-red-200/50 cursor-pointer">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <p className="text-xs sm:text-sm font-medium text-red-700/80">Saved Jobs</p>
+                        <p className="text-xl sm:text-2xl font-bold text-red-600">{stats.totalBookmarks}</p>
+                      </div>
+                      <div className="p-2 sm:p-3 bg-red-200/50 rounded-full group-hover:bg-red-300/50 transition-colors">
+                        <Bookmark className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
+                      </div>
                     </div>
-                    <div className="p-2 sm:p-3 bg-red-200/50 rounded-full group-hover:bg-red-300/50 transition-colors">
-                      <Bookmark className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
+                    <div className="mt-2 text-xs text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Click to view saved →
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
 
-              <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100/50 hover:from-purple-100 hover:to-purple-200/50">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <p className="text-xs sm:text-sm font-medium text-purple-700/80">Profile Complete</p>
-                      <p className="text-xl sm:text-2xl font-bold text-purple-600">{stats.profileCompletion}%</p>
+              {/* Profile Complete Card - Clickable */}
+              <Link href="/dashboard/jobseeker/profile" className="block">
+                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100/50 hover:from-purple-100 hover:to-purple-200/50 cursor-pointer">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <p className="text-xs sm:text-sm font-medium text-purple-700/80">Profile Complete</p>
+                        <p className="text-xl sm:text-2xl font-bold text-purple-600">{stats.profileCompletion}%</p>
+                      </div>
+                      <div className="p-2 sm:p-3 bg-purple-200/50 rounded-full group-hover:bg-purple-300/50 transition-colors">
+                        <User className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+                      </div>
                     </div>
-                    <div className="p-2 sm:p-3 bg-purple-200/50 rounded-full group-hover:bg-purple-300/50 transition-colors">
-                      <User className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+                    <div className="mt-2 text-xs text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Click to complete →
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             </div>
           )}
 
