@@ -199,10 +199,10 @@ export default function SignInPage() {
                       <span className="text-4xl font-bold text-white">N</span>
                     </div>
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading leading-tight">
-                      Welcome Back!
+                      Welcome to NaukriMili
                     </h1>
                     <p className="text-base sm:text-lg text-white/90 max-w-sm mx-auto leading-relaxed px-4">
-                      To keep connected with us, please sign in with your personal account
+                      Sign in to access your personalized job portal and unlock career opportunities
                     </p>
                     <button
                       onClick={() => {
