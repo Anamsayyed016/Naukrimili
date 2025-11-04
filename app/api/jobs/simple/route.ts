@@ -43,8 +43,13 @@ export async function GET(request: NextRequest) {
       );
     }
     
+    // Enhanced dynamic location filtering
     if (location) {
-      orConditions.push({ location: { contains: location, mode: 'insensitive' } });
+      const locationParts = location.split(',').map(part => part.trim()).filter(Boolean);
+      locationParts.forEach(part => {
+        orConditions.push({ location: { contains: part, mode: 'insensitive' } });
+        orConditions.push({ country: { contains: part, mode: 'insensitive' } });
+      });
     }
     
     // Apply OR conditions if any exist

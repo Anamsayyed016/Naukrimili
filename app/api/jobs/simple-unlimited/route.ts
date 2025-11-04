@@ -32,8 +32,23 @@ export async function GET(request: NextRequest) {
       ];
     }
     
+    // Enhanced dynamic location filtering
     if (location) {
-      where.location = { contains: location, mode: 'insensitive' };
+      const locationParts = location.split(',').map(part => part.trim()).filter(Boolean);
+      const locationConditions = locationParts.flatMap(part => [
+        { location: { contains: part, mode: 'insensitive' } },
+        { country: { contains: part, mode: 'insensitive' } }
+      ]);
+      
+      if (where.OR) {
+        where.AND = [
+          { OR: where.OR },
+          { OR: locationConditions }
+        ];
+        delete where.OR;
+      } else {
+        where.OR = locationConditions;
+      }
     }
     
     if (country) {

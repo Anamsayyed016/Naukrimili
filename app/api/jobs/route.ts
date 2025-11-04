@@ -44,24 +44,33 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Location filtering (be lenient when country is also provided)
+    // Enhanced dynamic location filtering - works for city, state, country, or any combination
     if (location) {
-      const locationCondition = { location: { contains: location, mode: 'insensitive' } };
-      // If a country filter is present, don't over-restrict with location; allow jobs that match country even if
-      // the free-text location (e.g., "Dubai") isn't present in the saved location string (e.g., "United Arab Emirates").
+      // Split by comma to support "Mumbai, India" or "New York, USA" format
+      const locationParts = location.split(',').map(part => part.trim()).filter(Boolean);
+      
+      // Create OR conditions for each part to match against location string or country
+      const locationConditions = locationParts.flatMap(part => [
+        { location: { contains: part, mode: 'insensitive' } },
+        { country: { contains: part, mode: 'insensitive' } }
+      ]);
+      
+      // Also match full location string if country is specified
       if (country) {
+        locationConditions.push({ country: country.toUpperCase() });
+      }
+      
+      // If there's already an OR clause (from query), combine with AND
+      if (where.OR) {
         where.AND = [
           ...(where.AND || []),
-          { OR: [ locationCondition, { country: country.toUpperCase() } ] }
-        ];
-      } else if (where.OR) {
-        where.AND = [
           { OR: where.OR },
-          locationCondition
+          { OR: locationConditions }
         ];
         delete where.OR;
       } else {
-        where.location = { contains: location, mode: 'insensitive' };
+        // Otherwise, use OR directly
+        where.OR = locationConditions;
       }
     }
 

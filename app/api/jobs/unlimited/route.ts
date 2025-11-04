@@ -157,21 +157,29 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Location-based filtering with variations
+    // Enhanced dynamic location filtering - works for city, state, country, or any combination
     if (location) {
-      const locationVariations = [
-        location,
-        location.toLowerCase(),
-        location.toUpperCase(),
-        ...location.split(' ').map(word => word.toLowerCase())
-      ];
+      // Split by comma to support "Mumbai, India" or "New York, USA" format
+      const locationParts = location.split(',').map(part => part.trim()).filter(Boolean);
       
-      where.OR = where.OR ? [
-        ...where.OR,
-        { location: { in: locationVariations, mode: 'insensitive' } }
-      ] : [
-        { location: { in: locationVariations, mode: 'insensitive' } }
-      ];
+      // Create OR conditions for each part to match against location string or country
+      const locationConditions = locationParts.flatMap(part => [
+        { location: { contains: part, mode: 'insensitive' } },
+        { country: { contains: part, mode: 'insensitive' } }
+      ]);
+      
+      // If there's already an OR clause (from query), combine with AND
+      if (where.OR) {
+        where.AND = [
+          ...(where.AND || []),
+          { OR: where.OR },
+          { OR: locationConditions }
+        ];
+        delete where.OR;
+      } else {
+        // Otherwise, use OR directly
+        where.OR = locationConditions;
+      }
     }
 
     // Company filtering
