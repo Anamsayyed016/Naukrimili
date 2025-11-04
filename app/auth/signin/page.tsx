@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight, UserCheck, Building2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import ConditionalOAuthButton from '@/components/auth/ConditionalOAuthButton';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
@@ -334,23 +334,6 @@ export default function SignInPage() {
                     Create account
                   </Link>
                 </p>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <Link
-                    href="/auth/register/jobseeker"
-                    className="group inline-flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-2 border-blue-200 rounded-xl text-xs sm:text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
-                  >
-                    <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:scale-110 transition-transform flex-shrink-0" />
-                    <span className="truncate">Job Seeker</span>
-                  </Link>
-                  <Link
-                    href="/auth/register/employer"
-                    className="group inline-flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-2 border-emerald-200 rounded-xl text-xs sm:text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
-                  >
-                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:scale-110 transition-transform flex-shrink-0" />
-                    <span className="truncate">Employer</span>
-                  </Link>
-                </div>
               </div>
           </CardContent>
         </Card>
