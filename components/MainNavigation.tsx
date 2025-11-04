@@ -234,24 +234,34 @@ export default function MainNavigation({
 
           {/* Mobile Navigation - REACT STATE APPROACH */}
           {isMounted && isMobile && (
-            <div className="flex items-center">
+            <div className="flex items-center gap-2">
+            {/* Mobile Get Started Button - Show when NOT logged in */}
+            {isMounted && !isAuthenticated && (
+              <Link
+                href="/auth/signin"
+                className="px-3 py-2 text-sm bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-lg transition-all duration-300 font-medium shadow-md"
+              >
+                Get Started
+              </Link>
+            )}
+            
             {/* Mobile Notifications - Show when logged in */}
             {isMounted && isAuthenticated && user && (
-              <div className="mr-2">
+              <div className="mr-1">
                 <ComprehensiveNotificationBell />
               </div>
             )}
             
             {/* Mobile Messages - Show when logged in */}
             {isMounted && isAuthenticated && user && (
-              <div className="mr-2">
+              <div className="mr-1">
                 <MessageBell />
               </div>
             )}
 
             {/* Mobile User Profile - Show when logged in */}
             {isMounted && isAuthenticated && user && (
-              <div className="mr-3">
+              <div className="mr-2">
                 <UnifiedUserProfile variant="mobile" />
               </div>
             )}
