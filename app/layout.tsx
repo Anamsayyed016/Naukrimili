@@ -21,13 +21,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://www.naukrimili.com',
+    url: 'https://naukrimili.com',
     siteName: 'Naukrimili',
     title: 'Jobs - Recruitment - Job Search - Employment - Free Resume Builder | Naukrimili',
     description: 'Find the latest jobs in India, USA, UK, and UAE on Naukrimili. Build your free professional resume and apply for top companies worldwide.',
     images: [
       {
-        url: 'https://www.naukrimili.com/og-image.jpg',
+        url: 'https://naukrimili.com/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Naukrimili - Job Portal with Free Resume Builder',
@@ -38,17 +38,17 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Jobs - Recruitment - Job Search - Employment - Free Resume Builder | Naukrimili',
     description: 'Find the latest jobs in India, USA, UK, and UAE on Naukrimili. Build your free professional resume and apply for top companies worldwide.',
-    images: ['https://www.naukrimili.com/og-image.jpg'],
+    images: ['https://naukrimili.com/og-image.jpg'],
     creator: '@naukrimili',
     site: '@naukrimili',
   },
   alternates: {
-    canonical: 'https://www.naukrimili.com',
+    canonical: 'https://naukrimili.com',
     languages: {
-      'en-IN': 'https://www.naukrimili.com/en-in',
-      'en-US': 'https://www.naukrimili.com/en-us',
-      'en-GB': 'https://www.naukrimili.com/en-gb',
-      'ar-AE': 'https://www.naukrimili.com/ar-ae',
+      'en-IN': 'https://naukrimili.com/en-in',
+      'en-US': 'https://naukrimili.com/en-us',
+      'en-GB': 'https://naukrimili.com/en-gb',
+      'ar-AE': 'https://naukrimili.com/ar-ae',
     },
   },
   verification: {
