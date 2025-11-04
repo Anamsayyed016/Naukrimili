@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/ui/back-button";
 import { 
   Bookmark, 
   Heart, 
@@ -396,6 +397,11 @@ export default function JobSeekerBookmarksPage() {
     <AuthGuard allowedRoles={['jobseeker']}>
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto p-6">
+          {/* Back Button */}
+          <div className="mb-4">
+            <BackButton fallbackUrl="/dashboard/jobseeker" label="Back to Dashboard" />
+          </div>
+
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Saved Jobs</h1>

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/ui/back-button";
 import { 
   User, 
   Mail, 
@@ -338,6 +339,11 @@ export default function JobSeekerProfilePage() {
     <AuthGuard allowedRoles={['jobseeker']}>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
         <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 max-w-7xl">
+          {/* Back Button */}
+          <div className="mb-4">
+            <BackButton fallbackUrl="/dashboard/jobseeker" label="Back to Dashboard" />
+          </div>
+
           {/* Enhanced Header */}
           <div className="mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">

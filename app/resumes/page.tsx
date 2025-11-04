@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { BackButton } from '@/components/ui/back-button';
 import { AlertCircle, Download, Eye, Trash2, Upload, FileText, Calendar, TrendingUp, CheckCircle2, X } from 'lucide-react';
 import { useResumesApi, Resume } from '@/hooks/useResumesApi';
 import ResumeUpload from '@/components/resume/ResumeUpload';
@@ -43,15 +44,16 @@ export default function ResumesPage() {
   const [showSuccessBanner, setShowSuccessBanner] = useState(false);
 
   useEffect(() => {
-    fetchResumes();
     // Check if redirected from upload page
     const uploaded = searchParams?.get('uploaded');
     if (uploaded === 'true') {
       setShowSuccessBanner(true);
+      // Refresh resumes list after upload
+      fetchResumes();
       // Auto-hide after 10 seconds
       setTimeout(() => setShowSuccessBanner(false), 10000);
     }
-  }, []); // Removed fetchResumes to prevent infinite loop
+  }, [searchParams, fetchResumes]);
 
   const handleDelete = async (resumeId: string) => {
     await deleteResume(resumeId);
@@ -88,6 +90,13 @@ export default function ResumesPage() {
   return (
     <AuthGuard>
       <div className="container mx-auto p-6">
+        {/* Back Button */}
+        {!showUploadForm && (
+          <div className="mb-4">
+            <BackButton fallbackUrl="/dashboard/jobseeker" label="Back to Dashboard" />
+          </div>
+        )}
+
         {/* Upload Form State */}
         {showUploadForm && (
           <>

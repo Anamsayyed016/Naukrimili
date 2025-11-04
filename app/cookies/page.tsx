@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { BackButton } from '@/components/ui/back-button';
 import { Cookie, CheckCircle, XCircle, Settings, Shield, Eye, Target } from 'lucide-react';
 
 export default function CookiePolicyPage() {
@@ -34,6 +35,11 @@ export default function CookiePolicyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
+        {/* Back Button */}
+        <div>
+          <BackButton fallbackUrl="/" label="Back to Home" />
+        </div>
+
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg mb-4">

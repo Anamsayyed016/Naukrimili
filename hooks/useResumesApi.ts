@@ -20,8 +20,15 @@ export function useResumesApi() {
     try {
       const res = await fetch('/api/resumes');
       if (res.ok) {
-        const data = await res.json();
-        setResumes(Array.isArray(data) ? data : data.resumes || []);
+        const result = await res.json();
+        // API returns { success, data: { resumes, pagination } }
+        if (result.success && result.data?.resumes) {
+          setResumes(result.data.resumes);
+        } else if (Array.isArray(result)) {
+          setResumes(result);
+        } else {
+          setResumes([]);
+        }
       } else {
         setResumes([]);
       }
