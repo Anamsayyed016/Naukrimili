@@ -205,14 +205,16 @@ export default function ResumesPage() {
                   const extendedResume: ExtendedResume = {
                     ...resume,
                     id: String(resume.id || ''),
-                    filename: resume.name || 'Unknown',
+                    filename: resume.fileName || resume.name || 'resume.pdf',
                     uploadedAt: typeof resume.createdAt === 'string' 
                       ? resume.createdAt 
                       : resume.createdAt?.toISOString() || new Date().toISOString(),
-                    size: 0, // Default size
+                    size: resume.fileSize || 0,
                     views: 0,
                     downloads: 0,
-                    isActive: true
+                    isActive: resume.isActive !== undefined ? resume.isActive : true,
+                    atsScore: resume.atsScore || undefined,
+                    skillsMatch: resume.parsedData?.skills || []
                   };
                   return (
                   <Card key={extendedResume.id} className="hover:shadow-lg transition-shadow duration-300">

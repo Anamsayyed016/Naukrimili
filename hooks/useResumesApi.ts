@@ -4,7 +4,13 @@ export interface Resume {
   id?: number | string;
   userId: number | string;
   fileUrl: string;
+  fileName?: string;
   name?: string;
+  fileSize?: number;
+  mimeType?: string;
+  atsScore?: number;
+  isActive?: boolean;
+  parsedData?: any;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }
