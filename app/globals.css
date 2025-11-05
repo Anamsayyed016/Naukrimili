@@ -1,846 +1,101 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Tailwind v4 CSS Variables - Theme Configuration */
-@theme {
-  --color-background: 0 0% 100%;
-  --color-foreground: 222.2 84% 4.9%;
-  --color-card: 0 0% 100%;
-  --color-card-foreground: 222.2 84% 4.9%;
-  --color-popover: 0 0% 100%;
-  --color-popover-foreground: 222.2 84% 4.9%;
-  --color-primary: 221.2 83.2% 53.3%;
-  --color-primary-foreground: 210 40% 98%;
-  --color-secondary: 210 40% 96.1%;
-  --color-secondary-foreground: 222.2 47.4% 11.2%;
-  --color-muted: 210 40% 96.1%;
-  --color-muted-foreground: 215.4 16.3% 46.9%;
-  --color-accent: 210 40% 96.1%;
-  --color-accent-foreground: 222.2 47.4% 11.2%;
-  --color-destructive: 0 84.2% 60.2%;
-  --color-destructive-foreground: 210 40% 98%;
-  --color-border: 214.3 31.8% 91.4%;
-  --color-input: 214.3 31.8% 91.4%;
-  --color-ring: 221.2 83.2% 53.3%;
-  
-  /* Border radius tokens */
-  --radius-sm: calc(0.5rem - 4px);
-  --radius-md: calc(0.5rem - 2px);
-  --radius-lg: 0.5rem;
-  
-  /* Breakpoints */
-  --breakpoint-xs: 475px;
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
-}
-
-/* Dark mode theme overrides */
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --color-background: 222.2 84% 4.9%;
-    --color-foreground: 210 40% 98%;
-    --color-card: 222.2 84% 4.9%;
-    --color-card-foreground: 210 40% 98%;
-    --color-popover: 222.2 84% 4.9%;
-    --color-popover-foreground: 210 40% 98%;
-    --color-primary: 217.2 91.2% 59.8%;
-    --color-primary-foreground: 222.2 47.4% 11.2%;
-    --color-secondary: 217.2 32.6% 17.5%;
-    --color-secondary-foreground: 210 40% 98%;
-    --color-muted: 217.2 32.6% 17.5%;
-    --color-muted-foreground: 215 20.2% 65.1%;
-    --color-accent: 217.2 32.6% 17.5%;
-    --color-accent-foreground: 210 40% 98%;
-    --color-destructive: 0 62.8% 30.6%;
-    --color-destructive-foreground: 210 40% 98%;
-    --color-border: 217.2 32.6% 17.5%;
-    --color-input: 217.2 32.6% 17.5%;
-    --color-ring: 224.3 76.3% 48%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
   }
 }
 
-/* Class-based dark mode support */
-.dark {
-  --color-background: 222.2 84% 4.9%;
-  --color-foreground: 210 40% 98%;
-  --color-card: 222.2 84% 4.9%;
-  --color-card-foreground: 210 40% 98%;
-  --color-popover: 222.2 84% 4.9%;
-  --color-popover-foreground: 210 40% 98%;
-  --color-primary: 217.2 91.2% 59.8%;
-  --color-primary-foreground: 222.2 47.4% 11.2%;
-  --color-secondary: 217.2 32.6% 17.5%;
-  --color-secondary-foreground: 210 40% 98%;
-  --color-muted: 217.2 32.6% 17.5%;
-  --color-muted-foreground: 215 20.2% 65.1%;
-  --color-accent: 217.2 32.6% 17.5%;
-  --color-accent-foreground: 210 40% 98%;
-  --color-destructive: 0 62.8% 30.6%;
-  --color-destructive-foreground: 210 40% 98%;
-  --color-border: 217.2 32.6% 17.5%;
-  --color-input: 217.2 32.6% 17.5%;
-  --color-ring: 224.3 76.3% 48%;
-}
-
-/* Legacy CSS variable names for backwards compatibility */
-:root {
-  --background: var(--color-background);
-  --foreground: var(--color-foreground);
-  --card: var(--color-card);
-  --card-foreground: var(--color-card-foreground);
-  --popover: var(--color-popover);
-  --popover-foreground: var(--color-popover-foreground);
-  --primary: var(--color-primary);
-  --primary-foreground: var(--color-primary-foreground);
-  --secondary: var(--color-secondary);
-  --secondary-foreground: var(--color-secondary-foreground);
-  --muted: var(--color-muted);
-  --muted-foreground: var(--color-muted-foreground);
-  --accent: var(--color-accent);
-  --accent-foreground: var(--color-accent-foreground);
-  --destructive: var(--color-destructive);
-  --destructive-foreground: var(--color-destructive-foreground);
-  --border: var(--color-border);
-  --input: var(--color-input);
-  --ring: var(--color-ring);
-  --radius: var(--radius-lg);
-}
-
-/* Mobile Notification Styles - Inlined to avoid @import warnings */
-.mobile-notification {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: "kern" 1;
-  font-kerning: normal;
-}
-
-.mobile-notification-container {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  right: 1rem;
-  z-index: 9999;
-  max-width: 100%;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  padding: 1rem;
-  transform: translateY(-100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.mobile-notification-container.show {
-  transform: translateY(0);
-}
-
-.mobile-notification-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
-
-.mobile-notification-icon {
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  background: #dbeafe;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.mobile-notification-icon svg {
-  width: 1rem;
-  height: 1rem;
-  color: #2563eb;
-}
-
-.mobile-notification-text {
-  flex: 1;
-  min-width: 0;
-}
-
-.mobile-notification-title {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #111827;
-  line-height: 1.25;
-  margin: 0;
-}
-
-.mobile-notification-body {
-  font-size: 0.875rem;
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0.25rem 0 0 0;
-}
-
-.mobile-notification-close {
-  flex-shrink: 0;
-  margin-left: 0.5rem;
-  color: #9ca3af;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mobile-notification-close:hover {
-  color: #6b7280;
-  background: #f3f4f6;
-}
-
-.mobile-notification-close svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-/* Mobile Job Form Styles - Inlined to avoid @import warnings */
-@media (max-width: 768px) {
-  .mobile-job-form input,
-  .mobile-job-form textarea,
-  .mobile-job-form select,
-  .mobile-job-form button {
-    min-height: 48px;
-    font-size: 16px;
-    -webkit-appearance: none;
-    appearance: none;
-    border-radius: 12px;
+@layer base {
+  * {
+    @apply border-border;
   }
-
-  .mobile-job-form .button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .mobile-job-form .button-group button {
-    width: 100%;
-    min-height: 48px;
-    padding: 12px 16px;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  .mobile-job-form .form-step {
-    padding: 16px;
-  }
-
-  .mobile-job-form .form-field {
-    margin-bottom: 20px;
-  }
-
-  .mobile-job-form input:focus,
-  .mobile-job-form textarea:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  .mobile-job-form .ai-suggestion-card {
-    margin: 8px 0;
-    padding: 12px;
-    border-radius: 12px;
-    border: 2px solid #e5e7eb;
-    background: white;
-  }
-
-  .mobile-job-form .ai-suggestion-card button {
-    width: 100%;
-    text-align: left;
-    padding: 12px;
-    min-height: 48px;
-    border-radius: 8px;
-  }
-
-  .mobile-job-form .skills-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-  }
-
-  .mobile-job-form .skill-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 12px;
-    background: #f3f4f6;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .mobile-job-form .skill-badge button {
-    margin-left: 8px;
-    padding: 2px;
-    min-height: 20px;
-    min-width: 20px;
-    border-radius: 50%;
-    background: #ef4444;
-    color: white;
-    border: none;
-  }
-
-  .mobile-job-form .step-navigation {
-    position: sticky;
-    bottom: 0;
-    background: white;
-    border-top: 1px solid #e5e7eb;
-    padding: 16px;
-    margin: 0 -16px -16px -16px;
-  }
-
-  .mobile-job-form .validation-error {
-    color: #ef4444;
-    font-size: 14px;
-    margin-top: 4px;
-    display: block;
-  }
-
-  .mobile-job-form .loading-spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #e5e7eb;
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  .mobile-job-form {
-    -webkit-overflow-scrolling: touch;
-    overflow-x: hidden;
-  }
-
-  .mobile-job-form .ai-suggestions-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 50;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-
-  .mobile-job-form .ai-suggestions-modal {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    max-width: 100%;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-}
-
-.mobile-job-form {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.mobile-job-form button:focus,
-.mobile-job-form input:focus,
-.mobile-job-form textarea:focus,
-.mobile-job-form select:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-@media (hover: none) and (pointer: coarse) {
-  .mobile-job-form .interactive-element {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
-/* ==========================================================================
-   RADIX UI SELECT & DROPDOWN FIXES - UNIFIED SOLUTION
-   ========================================================================== */
-
-/* CRITICAL: Dropdown wrapper must always be fixed and above all content */
-[data-radix-popper-content-wrapper] {
-  z-index: 50000 !important;
-  position: fixed !important;
-  /* Allow Radix to calculate positioning - don't override transform */
-  /* Ensure wrapper is not clipped by parent transforms */
-  will-change: transform;
-  transform-style: preserve-3d;
-}
-
-/* Select dropdown content */
-[data-radix-select-content] {
-  z-index: 50000 !important;
-  position: relative !important;
-  /* Responsive width constraints */
-  min-width: max(var(--radix-select-trigger-width, 8rem), 8rem) !important;
-  max-width: calc(100vw - 2rem) !important;
-  width: auto !important;
-  /* Ensure dropdown stays visible during scroll */
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-}
-
-/* Select viewport (scrollable area) */
-[data-radix-select-viewport] {
-  z-index: 50000 !important;
-  max-height: min(60vh, 20rem) !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-}
-
-/* Ensure all open dropdowns are visible */
-[data-state="open"][data-radix-select-content],
-[data-state="open"][role="listbox"] {
-  z-index: 50000 !important;
-}
-
-/* ==========================================================================
-   RESPONSIVE DROPDOWN FIXES
-   ========================================================================== */
-
-/* Mobile (< 768px) */
-@media (max-width: 767px) {
-  [data-radix-select-content] {
-    max-width: calc(100vw - 2rem) !important;
-    min-width: min(var(--radix-select-trigger-width, 8rem), calc(100vw - 2rem)) !important;
-    /* Force dropdown to stay within viewport on mobile */
-    max-height: 60vh !important;
-    overflow-y: auto !important;
-  }
-  
-  [data-radix-select-viewport] {
-    max-width: 100% !important;
-    width: 100% !important;
-    /* Smooth scrolling on mobile */
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-  }
-  
-  /* Touch-friendly dropdown items */
-  [data-radix-select-item] {
-    min-height: 44px !important;
-    padding: 12px 16px !important;
-    white-space: normal !important;
-    word-wrap: break-word !important;
-    /* Better touch targets */
-    display: flex !important;
-    align-items: center !important;
-    /* Prevent text overflow */
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-  
-  /* Ensure dropdown item content doesn't overflow */
-  [data-radix-select-item] > span,
-  [data-radix-select-item] > div {
-    max-width: 100% !important;
-    overflow: hidden !important;
-  }
-  
-  /* Truncate long text in select items */
-  [data-radix-select-item] .truncate {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-
-  /* Ensure dropdown portal is not affected by parent transforms on mobile */
-  [data-radix-popper-content-wrapper] {
-    transform: none !important;
-  }
-}
-
-/* Tablet (768px - 1024px) */
-@media (min-width: 768px) and (max-width: 1024px) {
-  [data-radix-select-content] {
-    max-width: min(calc(100vw - 4rem), 400px) !important;
-  }
-}
-
-/* ==========================================================================
-   CONTAINER & OVERFLOW FIXES - PREVENT DROPDOWN CLIPPING
-   ========================================================================== */
-
-/* CRITICAL: Allow dropdowns to escape parent overflow constraints */
-.container,
-[role="main"],
-main {
-  /* Don't use overflow-hidden on containers with dropdowns */
-  overflow: visible !important;
-}
-
-/* Tables should allow dropdown overflow */
-table,
-[role="table"],
-.table-container {
-  overflow: visible !important;
-}
-
-/* Table cells and rows - allow overflow for dropdowns */
-[role="cell"],
-[role="row"],
-td,
-tr {
-  overflow: visible !important;
-}
-
-/* Cards and panels - allow dropdown escape */
-[class*="card"],
-[class*="panel"] {
-  overflow: visible !important;
-}
-
-/* CRITICAL: Prevent Framer Motion from hiding overflow during animations */
-[data-framer-motion],
-[data-framer-appear-id] {
-  overflow: visible !important;
-}
-
-/* Ensure all motion divs don't clip content */
-.motion-div,
-[class*="motion"] {
-  overflow: visible !important;
-}
-
-/* CRITICAL: Specific fix for AIJobPostingForm motion divs */
-.mobile-job-form,
-.mobile-job-form * {
-  overflow: visible !important;
-}
-
-/* Ensure Card components allow dropdown escape */
-[class*="card"] > *,
-.card-content,
-[class*="CardContent"] {
-  overflow: visible !important;
-}
-
-/* AnimatePresence wrapper must not clip */
-[data-framer-appear-id] > div {
-  overflow: visible !important;
-}
-
-/* CRITICAL: Dropdown Menu - Ensure proper z-index and positioning */
-[data-radix-dropdown-menu-content] {
-  z-index: 100 !important;
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-}
-
-/* Ensure dropdown portal has high z-index */
-[data-radix-popper-content-wrapper][data-radix-dropdown-menu-content] {
-  z-index: 100 !important;
-  will-change: transform;
-  transform-style: preserve-3d;
-}
-
-/* Mobile dropdown improvements */
-@media (max-width: 1023px) {
-  [data-radix-dropdown-menu-content] {
-    max-width: calc(100vw - 2rem) !important;
-  }
-}
-
-/* CRITICAL: Job Search Hero Section - Prevent horizontal overflow on mobile */
-.job-search-hero,
-.job-search-hero * {
-  box-sizing: border-box;
-}
-
-/* Ensure search inputs don't overflow */
-input[type="text"],
-input[type="search"],
-input[placeholder*="Job title"],
-input[placeholder*="City"] {
-  max-width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Prevent container overflow */
-@media (max-width: 767px) {
-  .container {
-    max-width: 100% !important;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-  }
-  
-  /* Ensure no elements exceed viewport width */
   body {
-    overflow-x: hidden;
-  }
-  
-  html {
-    overflow-x: hidden;
-  }
-  
-  /* Fix input placeholder text truncation */
-  input::placeholder {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Mobile responsive improvements */
-@media (max-width: 640px) {
-  .mobile-stack {
-    flex-direction: column !important;
-  }
-  
-  .mobile-full {
-    width: 100% !important;
-  }
-  
-  .mobile-text-sm {
-    font-size: 0.875rem !important;
-  }
-}
-
-/* Form responsive fixes - ensure inputs and selects don't overflow */
-@media (max-width: 768px) {
-  form {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  
-  /* Ensure all form inputs respect container width */
-  input[type="text"],
-  input[type="date"],
+/* Mobile zoom prevention - Critical for iOS Safari */
+@media screen and (max-width: 768px) {
+  input,
   textarea,
-  select {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
+  select,
+  button {
+    font-size: 16px !important; /* Prevent iOS auto-zoom on focus */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    touch-action: manipulation; /* Disable double-tap zoom */
   }
   
-  /* Prevent flex items from overflowing */
-  .flex {
-    min-width: 0;
-  }
-  
-  /* Grid items should not overflow */
-  .grid > * {
-    min-width: 0;
+  /* Prevent zoom on button tap */
+  button,
+  a {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
 }
 
-/* Mobile scroll performance optimizations */
+/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  overflow-x: hidden;
-  overscroll-behavior-y: contain;
-  touch-action: pan-y;
-  /* Ensure dropdowns aren't affected by scroll transforms */
-  transform-style: flat;
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
 }
 
-body {
-  position: relative;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  /* Reduced GPU transforms to prevent dropdown positioning issues */
-  backface-visibility: hidden;
-  touch-action: pan-y;
-  /* Prevent scroll bouncing and momentum on iOS */
-  overscroll-behavior: none;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-/* Prevent horizontal scroll on mobile */
-* {
-  max-width: 100%;
-  box-sizing: border-box;
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
 }
 
-/* Fix for sticky header on mobile */
-nav.sticky, [class*="sticky"] {
-  touch-action: pan-y;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-perspective: 1000;
-  perspective: 1000;
-}
-
-/* Prevent layout shifts during scroll */
-main, .container, [role="main"] {
-  contain: layout style;
-}
-
-/* Optimize scroll containers */
-[class*="overflow-"], [class*="scroll"] {
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-}
-
-/* Critical: Fix horizontal scroll and improve vertical scroll */
-#__next, #root, [id*="__next"], [data-scroll-container] {
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-}
-
-/* Optimize all potentially animated elements */
-.group, [class*="motion"], [class*="animate"] {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
-/* Optimize animated elements for GPU */
-@supports (will-change: transform) {
-  [class*="motion-"],
-  .group:hover,
-  [class*="animate-"],
-  [class*="hover:"] {
-    will-change: transform, opacity;
-  }
-}
-
-/* Smooth transitions without layout shifts */
-@media (max-width: 768px) {
-  /* Disable hover effects on mobile to prevent touch issues */
-  @media (hover: none) and (pointer: coarse) {
-    .group:hover,
-    .group:active {
-      transform: none !important;
-      box-shadow: none !important;
-    }
-    
-    /* Keep only essential transforms on mobile */
-    [class*="hover:"]:not([class*="hover:bg-"]) {
-      transform: none !important;
-    }
-    
-    /* Prevent touch delays */
-    * {
-      -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    
-    /* Allow text selection on content */
-    p, span, div, article, section, h1, h2, h3, h4, h5, h6 {
-      -webkit-user-select: text;
-      user-select: text;
-    }
-  }
-  
-  /* Reduce animation complexity on mobile */
-  .animate-spin,
-  [class*="animate-pulse"],
-  [class*="animate-bounce"] {
-    animation-duration: 0.8s !important;
-  }
-  
-  /* Prevent body scroll bounce on iOS */
-  body {
-    overscroll-behavior-y: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Optimize main scroll containers */
-  main {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none;
-  }
-}
-
-/* GPU acceleration for heavy sections */
-.motion-section,
-.motion-card,
-.animated-section {
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-font-smoothing: subpixel-antialiased;
-}
-
-/* Contain heavy layouts to prevent cascading reflows */
-.container,
-[class*="grid"],
-[class*="flex"] {
-  contain: layout style;
-}
-
-/* Ensure proper contrast for accessibility */
-.text-contrast {
-  color: #1f2937 !important;
-}
-
-.bg-contrast {
-  background-color: #ffffff !important;
-}
-
-.border-contrast {
-  border-color: #d1d5db !important;
-}
-
-/* Hover states for better UX */
-.hover-lift {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Focus states for accessibility */
-.focus-ring:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* Loading states */
-.loading-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: .5;
-  }
-}
-
-/* CSS Loading States - Removed visibility hidden to prevent blank pages */
-body {
-  visibility: visible;
-}
-
-body.css-loaded {
-  visibility: visible;
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
