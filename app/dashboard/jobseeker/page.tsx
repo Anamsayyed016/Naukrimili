@@ -309,10 +309,10 @@ export default function JobSeekerDashboard() {
 
                   {/* Experience Filter */}
                   <Select value={experienceFilter} onValueChange={setExperienceFilter}>
-                    <SelectTrigger className="h-10">
+                    <SelectTrigger id="experienceFilter" className="h-10 bg-white">
                       <SelectValue placeholder="Experience level" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white z-[10000]">
                       <SelectItem value="all">All Levels</SelectItem>
                       <SelectItem value="entry">Entry Level</SelectItem>
                       <SelectItem value="mid">Mid Level</SelectItem>

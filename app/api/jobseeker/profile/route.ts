@@ -150,8 +150,18 @@ export async function PUT(request: NextRequest) {
       github
     } = body;
 
+    // Split name into firstName and lastName if provided
+    let userFirstName = firstName;
+    let userLastName = lastName;
+    
+    if (name && !firstName && !lastName) {
+      const nameParts = name.trim().split(' ');
+      userFirstName = nameParts[0];
+      userLastName = nameParts.slice(1).join(' ') || '';
+    }
+
     // Validate required fields
-    if (!name) {
+    if (!name && !firstName) {
       return NextResponse.json(
         { success: false, error: 'Name is required' },
         { status: 400 }
@@ -202,9 +212,8 @@ export async function PUT(request: NextRequest) {
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        name,
-        firstName,
-        lastName,
+        firstName: userFirstName,
+        lastName: userLastName,
         phone,
         location,
         bio,

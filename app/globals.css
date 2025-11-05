@@ -70,6 +70,22 @@
   --ring: 224.3 76.3% 48%;
 }
 
+/* Select Dropdown z-index fix - CRITICAL for proper layering */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+[role="listbox"],
+[data-radix-select-content] {
+  z-index: 9999 !important;
+  position: relative;
+}
+
+/* Ensure Select Portal is above all form elements */
+.select-portal {
+  z-index: 9999;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

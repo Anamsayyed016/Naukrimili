@@ -199,12 +199,11 @@ export default function ShortProfileForm({ onComplete, extractedData }: ShortPro
               <Select 
                 value={formData.experienceLevel} 
                 onValueChange={(value) => setFormData({ ...formData, experienceLevel: value })}
-                required
               >
-                <SelectTrigger className="h-11">
+                <SelectTrigger id="experienceLevel" className="h-11 bg-white">
                   <SelectValue placeholder="Select experience" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white z-[10000]">
                   <SelectItem value="0-1 years">Entry Level (0-1 years)</SelectItem>
                   <SelectItem value="1-3 years">Junior (1-3 years)</SelectItem>
                   <SelectItem value="3-5 years">Mid Level (3-5 years)</SelectItem>
@@ -225,10 +224,10 @@ export default function ShortProfileForm({ onComplete, extractedData }: ShortPro
                 value={formData.jobType} 
                 onValueChange={(value) => setFormData({ ...formData, jobType: value })}
               >
-                <SelectTrigger className="h-11">
+                <SelectTrigger id="jobType" className="h-11 bg-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white z-[10000]">
                   <SelectItem value="Full-time">Full-time</SelectItem>
                   <SelectItem value="Part-time">Part-time</SelectItem>
                   <SelectItem value="Contract">Contract</SelectItem>

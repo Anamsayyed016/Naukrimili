@@ -77,12 +77,12 @@ const SelectContent = React.forwardRef<
   const finalSideOffset = sideOffset !== undefined ? sideOffset : 8;
 
   return (
-  <SelectPrimitive.Portal>
+  <SelectPrimitive.Portal className="select-portal">
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        // Base styles - let globals.css handle z-index
-        "relative overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+        // Base styles with high z-index to prevent overlap
+        "relative z-[9999] overflow-hidden rounded-md border bg-white text-gray-900 shadow-2xl",
         // Animations - reduced for better performance and less jank
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
