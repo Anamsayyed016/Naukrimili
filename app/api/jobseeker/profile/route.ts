@@ -94,11 +94,33 @@ export async function GET(request: NextRequest) {
       profileCompletion
     };
 
-    // CRITICAL FIX: Ensure arrays are always arrays, never null
+    // CRITICAL FIX: Parse JSON strings to arrays
+    let parsedSkills = [];
+    try {
+      parsedSkills = typeof user.skills === 'string' 
+        ? JSON.parse(user.skills) 
+        : Array.isArray(user.skills) 
+        ? user.skills 
+        : [];
+    } catch (e) {
+      parsedSkills = [];
+    }
+
+    let parsedJobTypes = [];
+    try {
+      parsedJobTypes = typeof user.jobTypePreference === 'string' 
+        ? JSON.parse(user.jobTypePreference) 
+        : Array.isArray(user.jobTypePreference) 
+        ? user.jobTypePreference 
+        : [];
+    } catch (e) {
+      parsedJobTypes = [];
+    }
+
     const normalizedUser = {
       ...user,
-      skills: Array.isArray(user.skills) ? user.skills : [],
-      jobTypePreference: Array.isArray(user.jobTypePreference) ? user.jobTypePreference : [],
+      skills: parsedSkills,
+      jobTypePreference: parsedJobTypes,
       remotePreference: user.remotePreference || false,
       stats
     };
@@ -209,6 +231,19 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // CRITICAL FIX: Convert arrays to JSON strings for Prisma String fields
+    const skillsString = Array.isArray(skills) 
+      ? JSON.stringify(skills) 
+      : typeof skills === 'string' 
+      ? skills 
+      : '[]';
+    
+    const jobTypeString = Array.isArray(jobTypePreference) 
+      ? JSON.stringify(jobTypePreference) 
+      : typeof jobTypePreference === 'string' 
+      ? jobTypePreference 
+      : null;
+
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
       data: {
@@ -217,13 +252,13 @@ export async function PUT(request: NextRequest) {
         phone,
         location,
         bio,
-        skills: Array.isArray(skills) ? skills : [],
+        skills: skillsString,
         experience,
         education,
         profilePicture,
         locationPreference,
         salaryExpectation: salaryExpectation ? parseInt(salaryExpectation) : null,
-        jobTypePreference: Array.isArray(jobTypePreference) ? jobTypePreference : [],
+        jobTypePreference: jobTypeString,
         remotePreference: remotePreference || false,
         website,
         linkedin,
@@ -232,11 +267,33 @@ export async function PUT(request: NextRequest) {
       }
     });
 
-    // CRITICAL FIX: Ensure arrays are always arrays in response
+    // CRITICAL FIX: Parse JSON strings back to arrays for response
+    let responseSkills = [];
+    try {
+      responseSkills = typeof updatedUser.skills === 'string' 
+        ? JSON.parse(updatedUser.skills) 
+        : Array.isArray(updatedUser.skills) 
+        ? updatedUser.skills 
+        : [];
+    } catch (e) {
+      responseSkills = [];
+    }
+
+    let responseJobTypes = [];
+    try {
+      responseJobTypes = typeof updatedUser.jobTypePreference === 'string' 
+        ? JSON.parse(updatedUser.jobTypePreference) 
+        : Array.isArray(updatedUser.jobTypePreference) 
+        ? updatedUser.jobTypePreference 
+        : [];
+    } catch (e) {
+      responseJobTypes = [];
+    }
+
     const normalizedUser = {
       ...updatedUser,
-      skills: Array.isArray(updatedUser.skills) ? updatedUser.skills : [],
-      jobTypePreference: Array.isArray(updatedUser.jobTypePreference) ? updatedUser.jobTypePreference : [],
+      skills: responseSkills,
+      jobTypePreference: responseJobTypes,
       remotePreference: updatedUser.remotePreference || false
     };
 

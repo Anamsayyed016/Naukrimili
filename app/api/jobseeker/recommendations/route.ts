@@ -59,11 +59,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // CRITICAL FIX: Parse skills from JSON string
+    let userSkills = [];
+    try {
+      userSkills = typeof user.skills === 'string' 
+        ? JSON.parse(user.skills) 
+        : Array.isArray(user.skills) 
+        ? user.skills 
+        : [];
+    } catch (e) {
+      userSkills = [];
+    }
+
     console.log(`📄 User profile:`, {
-      hasSkills: (user.skills?.length || 0) > 0,
+      hasSkills: userSkills.length > 0,
       hasLocation: !!user.location,
       hasResume: user.resumes.length > 0,
-      skillsCount: user.skills?.length || 0,
+      skillsCount: userSkills.length,
       resumeSkills: user.resumes[0]?.skills?.length || 0
     });
 
@@ -71,7 +83,7 @@ export async function GET(request: NextRequest) {
     const appliedJobIds = user.applications.map(app => app.jobId);
     
     // ENHANCED: Combine user skills with resume skills
-    let allSkills = [...(user.skills || [])];
+    let allSkills = [...userSkills];
     if (user.resumes.length > 0 && user.resumes[0].skills) {
       allSkills = [...new Set([...allSkills, ...(user.resumes[0].skills || [])])];
     }
@@ -157,9 +169,18 @@ export async function GET(request: NextRequest) {
         }
 
         // Job type preference
-        if (user.jobTypePreference && user.jobTypePreference.length > 0) {
+        let userJobTypes = [];
+        try {
+          userJobTypes = typeof user.jobTypePreference === 'string' 
+            ? (user.jobTypePreference ? JSON.parse(user.jobTypePreference) : [])
+            : (Array.isArray(user.jobTypePreference) ? user.jobTypePreference : []);
+        } catch (e) {
+          userJobTypes = [];
+        }
+        
+        if (userJobTypes.length > 0) {
           orConditions.push({
-            jobType: { in: user.jobTypePreference, mode: 'insensitive' }
+            jobType: { in: userJobTypes, mode: 'insensitive' }
           });
         }
 
@@ -278,8 +299,17 @@ export async function GET(request: NextRequest) {
       }
 
       // Job type preference
-      if (user.jobTypePreference && user.jobTypePreference.length > 0) {
-        if (user.jobTypePreference.some(pref => job.jobType?.toLowerCase().includes(pref.toLowerCase()))) {
+      let userJobTypesForScore = [];
+      try {
+        userJobTypesForScore = typeof user.jobTypePreference === 'string' 
+          ? (user.jobTypePreference ? JSON.parse(user.jobTypePreference) : [])
+          : (Array.isArray(user.jobTypePreference) ? user.jobTypePreference : []);
+      } catch (e) {
+        userJobTypesForScore = [];
+      }
+      
+      if (userJobTypesForScore.length > 0) {
+        if (userJobTypesForScore.some(pref => job.jobType?.toLowerCase().includes(pref.toLowerCase()))) {
           score += 15;
           reasons.push('Preferred job type');
         }
@@ -311,17 +341,19 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: {
-        jobs: jobsWithScores,
-        algorithm,
-        userProfile: {
-          skills: allSkills,
-          resumeSkills: user.resumes[0]?.skills || [],
-          location: userLocation,
-          jobTypePreference: user.jobTypePreference,
-          remotePreference: user.remotePreference,
-          hasResume: user.resumes.length > 0
-        },
+        data: {
+          jobs: jobsWithScores,
+          algorithm,
+          userProfile: {
+            skills: allSkills,
+            resumeSkills: user.resumes[0]?.skills || [],
+            location: userLocation,
+            jobTypePreference: typeof user.jobTypePreference === 'string' 
+              ? (user.jobTypePreference ? JSON.parse(user.jobTypePreference) : [])
+              : (Array.isArray(user.jobTypePreference) ? user.jobTypePreference : []),
+            remotePreference: user.remotePreference,
+            hasResume: user.resumes.length > 0
+          },
         metadata: {
           totalMatched: jobsWithScores.length,
           averageMatchScore: jobsWithScores.length > 0 
