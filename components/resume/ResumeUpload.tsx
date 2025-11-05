@@ -7,7 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
 interface ResumeUploadProps {
-  onComplete?: () => void;
+  onComplete?: (data?: any) => void;
 }
 
 export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
@@ -73,12 +73,14 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         // Reset form
         setFile(null);
         
-        // Trigger redirect to resume management page
-        setTimeout(() => {
-          if (onComplete) {
-            onComplete();
-          }
-        }, 1500);
+        // Pass extracted data back to parent
+        if (onComplete) {
+          onComplete({
+            extractedData: result.extractedData,
+            resumeId: result.resumeId,
+            recommendations: result.recommendations
+          });
+        }
       } else {
         throw new Error(result.error || 'Failed to analyze resume');
       }

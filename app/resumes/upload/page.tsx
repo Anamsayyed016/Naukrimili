@@ -2,14 +2,17 @@
 
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ResumeUpload from '@/components/resume/ResumeUpload';
-import { Upload, FileText, Sparkles, TrendingUp } from 'lucide-react';
+import ShortProfileForm from '@/components/jobseeker/ShortProfileForm';
+import { Upload, FileText, Sparkles, TrendingUp, CheckCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export default function ResumeUploadPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [uploadComplete, setUploadComplete] = useState(false);
+  const [extractedData, setExtractedData] = useState<any>(null);
 
   // Redirect if not authenticated or not a jobseeker
   useEffect(() => {
@@ -21,17 +24,31 @@ export default function ResumeUploadPage() {
     }
   }, [status, session, router]);
 
-  const handleUploadComplete = () => {
-    // Show success toast
+  const handleUploadComplete = (data?: any) => {
+    // Store extracted data from AI parsing
+    if (data?.extractedData) {
+      setExtractedData(data.extractedData);
+    }
+    
+    // Show success and move to profile form
     toast({
       title: '✅ Resume Uploaded Successfully!',
-      description: 'Redirecting to your resumes...',
+      description: 'Now let\'s complete your profile...',
       variant: 'default',
     });
     
-    // Redirect to resume management page with success parameter
+    setUploadComplete(true);
+  };
+
+  const handleProfileComplete = () => {
+    // Redirect to dashboard to see job recommendations
+    toast({
+      title: '🎉 All Set!',
+      description: 'Redirecting to your personalized job matches...',
+    });
+    
     setTimeout(() => {
-      router.push('/resumes?uploaded=true');
+      router.push('/dashboard/jobseeker');
     }, 1500);
   };
 
@@ -71,33 +88,50 @@ export default function ResumeUploadPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Upload Your Resume
+                {uploadComplete ? 'Complete Your Profile' : 'Upload Your Resume'}
               </h1>
               <p className="text-gray-600 mt-1 text-sm sm:text-base">
-                AI-powered resume analysis for better job matches
+                {uploadComplete 
+                  ? 'Just a few details to find perfect job matches' 
+                  : 'AI-powered resume analysis for better job matches'}
               </p>
             </div>
-            <button
-              onClick={() => router.push('/resumes')}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
-            >
-              <FileText className="w-4 h-4" />
-              My Resumes
-            </button>
+            {!uploadComplete && (
+              <button
+                onClick={() => router.push('/resumes')}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
+              >
+                <FileText className="w-4 h-4" />
+                My Resumes
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Upload Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden">
-          <div className="p-6 sm:p-8 lg:p-12">
-            <ResumeUpload 
-              onComplete={handleUploadComplete}
+        
+        {/* Step 1: Resume Upload */}
+        {!uploadComplete && (
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden">
+            <div className="p-6 sm:p-8 lg:p-12">
+              <ResumeUpload 
+                onComplete={handleUploadComplete}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Short Profile Form */}
+        {uploadComplete && (
+          <div className="animate-in slide-in-from-top duration-500">
+            <ShortProfileForm 
+              onComplete={handleProfileComplete}
+              extractedData={extractedData}
             />
           </div>
-        </div>
+        )}
 
         {/* Benefits Section */}
         <div className="mt-8 sm:mt-12">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +38,7 @@ interface ExtendedResume extends Resume {
 
 export default function ResumesPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { resumes, loading, error, fetchResumes, deleteResume } = useResumesApi();
   const [selectedResume, setSelectedResume] = useState<ExtendedResume | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState<string | null>(null);
@@ -74,9 +75,20 @@ export default function ResumesPage() {
     }
   };
 
-  const handleUploadComplete = () => {
+  const handleUploadComplete = (data?: any) => {
     setShowUploadForm(false);
     fetchResumes(); // Refresh the list
+    
+    // Show success and redirect to dashboard for new users
+    if (data?.extractedData) {
+      toast({
+        title: '✅ Resume Uploaded!',
+        description: 'Complete your profile to get job recommendations.',
+      });
+      setTimeout(() => {
+        router.push('/dashboard/jobseeker');
+      }, 2000);
+    }
   };
 
   const handleViewResume = (resume: ExtendedResume) => {

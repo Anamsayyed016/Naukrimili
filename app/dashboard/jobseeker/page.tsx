@@ -7,34 +7,28 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Briefcase, 
   Search, 
-  TrendingUp, 
-  Calendar, 
   MapPin, 
   Building2, 
-  Clock,
   Eye,
   Bookmark,
   FileText,
   User,
-  Settings,
-  Bell,
-  Star,
   ArrowRight,
-  Plus,
-  Target,
-  BarChart3,
-  Users,
-  CheckCircle,
-  AlertCircle,
-  Edit,
   Upload,
   Heart,
-  Send,
+  DollarSign,
+  Target,
+  CheckCircle,
+  Edit,
+  TrendingUp,
+  Sparkles,
   Filter
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import AuthGuard from "@/components/auth/AuthGuard";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface DashboardStats {
   totalApplications: number;
@@ -42,15 +36,6 @@ interface DashboardStats {
   totalBookmarks: number;
   totalResumes: number;
   profileCompletion: number;
-}
-
-interface RecentActivity {
-  id: string;
-  type: 'application' | 'bookmark' | 'resume';
-  title: string;
-  company?: string;
-  date: string;
-  status?: string;
 }
 
 interface JobRecommendation {
@@ -64,18 +49,63 @@ interface JobRecommendation {
   matchScore: number;
   matchReasons: string[];
   createdAt: string;
+  description?: string;
 }
 
 export default function JobSeekerDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [recommendations, setRecommendations] = useState<JobRecommendation[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<JobRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Client-side filters
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [experienceFilter, setExperienceFilter] = useState<string>('all');
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // Client-side filtering logic
+  useEffect(() => {
+    if (recommendations.length === 0) {
+      setFilteredJobs([]);
+      return;
+    }
+
+    let filtered = [...recommendations];
+
+    // Role filter - Check title and description
+    if (roleFilter && roleFilter !== 'all') {
+      filtered = filtered.filter(job => 
+        job.title.toLowerCase().includes(roleFilter.toLowerCase()) ||
+        job.description?.toLowerCase().includes(roleFilter.toLowerCase())
+      );
+    }
+
+    // Location filter
+    if (locationFilter && locationFilter !== 'all') {
+      filtered = filtered.filter(job => 
+        job.location?.toLowerCase().includes(locationFilter.toLowerCase()) ||
+        (job.isRemote && locationFilter.toLowerCase() === 'remote')
+      );
+    }
+
+    // Experience filter - Check job type or title
+    if (experienceFilter && experienceFilter !== 'all') {
+      filtered = filtered.filter(job => 
+        job.title.toLowerCase().includes(experienceFilter.toLowerCase()) ||
+        job.jobType?.toLowerCase().includes(experienceFilter.toLowerCase())
+      );
+    }
+
+    // Sort by match score
+    filtered.sort((a, b) => b.matchScore - a.matchScore);
+
+    setFilteredJobs(filtered);
+  }, [recommendations, roleFilter, locationFilter, experienceFilter]);
 
   const fetchDashboardData = async () => {
     try {
@@ -90,29 +120,13 @@ export default function JobSeekerDashboard() {
         }
       }
 
-      // Fetch recent activity
-      const applicationsResponse = await fetch('/api/jobseeker/applications?limit=5');
-      if (applicationsResponse.ok) {
-        const applicationsData = await applicationsResponse.json();
-        if (applicationsData.success) {
-          const activities: RecentActivity[] = applicationsData.data.applications.map((app: any) => ({
-            id: app.id,
-            type: 'application',
-            title: app.job.title,
-            company: app.job.company,
-            date: app.appliedAt,
-            status: app.status
-          }));
-          setRecentActivity(activities);
-        }
-      }
-
-      // Fetch job recommendations
-      const recommendationsResponse = await fetch('/api/jobseeker/recommendations?limit=6');
+      // Fetch job recommendations with broader matching
+      const recommendationsResponse = await fetch('/api/jobseeker/recommendations?limit=20&algorithm=hybrid');
       if (recommendationsResponse.ok) {
         const recommendationsData = await recommendationsResponse.json();
         if (recommendationsData.success) {
           setRecommendations(recommendationsData.data.jobs);
+          setFilteredJobs(recommendationsData.data.jobs);
         }
       }
     } catch (_error) {
@@ -122,381 +136,377 @@ export default function JobSeekerDashboard() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'submitted': return 'bg-blue-100 text-blue-800';
-      case 'reviewed': return 'bg-yellow-100 text-yellow-800';
-      case 'interview': return 'bg-purple-100 text-purple-800';
-      case 'hired': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'application': return <Send className="h-4 w-4 text-blue-500" />;
-      case 'bookmark': return <Bookmark className="h-4 w-4 text-red-500" />;
-      case 'resume': return <FileText className="h-4 w-4 text-green-500" />;
-      default: return <Briefcase className="h-4 w-4 text-gray-500" />;
-    }
+  const clearFilters = () => {
+    setRoleFilter('all');
+    setLocationFilter('all');
+    setExperienceFilter('all');
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-      </div>
+      <AuthGuard allowedRoles={['jobseeker']}>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your dashboard...</p>
+          </div>
+        </div>
+      </AuthGuard>
     );
   }
 
   return (
     <AuthGuard allowedRoles={['jobseeker']}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
-        <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-          {/* Enhanced Header */}
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          
+          {/* Simple Header */}
           <div className="mb-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="space-y-2">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
-                  Welcome back, {(session?.user as any)?.firstName || session?.user?.name || 'Job Seeker'}! 👋
-                </h1>
-                <p className="text-gray-600 text-sm sm:text-base">
-                  Here's what's happening with your job search journey
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/jobs">
-                  <Button className="w-full sm:w-auto flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300">
-                    <Search className="h-4 w-4" />
-                    Search Jobs
-                  </Button>
-                </Link>
-                <Link href="/resumes/upload">
-                  <Button variant="outline" className="w-full sm:w-auto flex items-center gap-2 border-2 hover:bg-gray-50 transition-all duration-300">
-                    <Upload className="h-4 w-4" />
-                    Upload Resume
-                  </Button>
-                </Link>
-              </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+              Welcome back, {(session?.user as any)?.firstName || session?.user?.name || 'Job Seeker'}! 👋
+            </h1>
+            <p className="text-gray-600">
+              Your personalized job search dashboard
+            </p>
+          </div>
+
+          {/* A) Profile Completion Progress - Single Clean Section */}
+          {stats && stats.profileCompletion < 100 && (
+            <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-purple-50 to-blue-50">
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Target className="h-6 w-6 text-purple-600" />
+                      <h2 className="text-xl font-bold text-gray-900">Complete Your Profile</h2>
+                      <Badge className="bg-purple-600 text-white">{stats.profileCompletion}%</Badge>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                      <div 
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${stats.profileCompletion}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      {stats.profileCompletion < 50 
+                        ? 'Add more details to get better job matches' 
+                        : stats.profileCompletion < 80 
+                        ? 'Almost there! Complete your profile' 
+                        : 'Great! Just a few more details'}
+                    </p>
+                  </div>
+                  <Link href="/dashboard/jobseeker/profile">
+                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg">
+                      Complete Now
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* B) Quick Actions - 3 Primary Buttons Only */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-blue-600" />
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              
+              {/* Upload Resume */}
+              <Link href="/resumes/upload" className="block">
+                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-blue-300 cursor-pointer">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all">
+                      <Upload className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-1">Upload Resume</h3>
+                    <p className="text-sm text-gray-600">AI-powered analysis</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Edit Profile */}
+              <Link href="/dashboard/jobseeker/profile" className="block">
+                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-purple-300 cursor-pointer">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center group-hover:from-purple-200 group-hover:to-purple-300 transition-all">
+                      <Edit className="h-8 w-8 text-purple-600" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-1">Edit Profile</h3>
+                    <p className="text-sm text-gray-600">Update your details</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* View All Jobs */}
+              <Link href="/jobs" className="block">
+                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-green-300 cursor-pointer">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center group-hover:from-green-200 group-hover:to-green-300 transition-all">
+                      <Search className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-1">View Jobs</h3>
+                    <p className="text-sm text-gray-600">Browse all openings</p>
+                  </CardContent>
+                </Card>
+              </Link>
             </div>
           </div>
 
-          {/* Enhanced Stats Cards - Now Clickable */}
+          {/* C) Recommended Jobs - Clean List with Client-Side Filtering */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="border-b border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <CardTitle className="flex items-center gap-2 text-2xl font-bold text-gray-900">
+                  <TrendingUp className="h-6 w-6 text-blue-600" />
+                  Recommended Jobs
+                  {filteredJobs.length > 0 && (
+                    <Badge className="bg-blue-100 text-blue-800 text-sm">
+                      {filteredJobs.length} matches
+                    </Badge>
+                  )}
+                </CardTitle>
+              </div>
+
+              {/* Client-Side Filters - Instant Updates */}
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <Filter className="h-4 w-4 text-gray-600" />
+                  <span className="text-sm font-medium text-gray-700">Filter by:</span>
+                  {(roleFilter !== 'all' || locationFilter !== 'all' || experienceFilter !== 'all') && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={clearFilters}
+                      className="text-xs text-blue-600 hover:text-blue-700"
+                    >
+                      Clear all
+                    </Button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Role Filter */}
+                  <div>
+                    <Input
+                      placeholder="Filter by role (e.g., Developer)"
+                      value={roleFilter === 'all' ? '' : roleFilter}
+                      onChange={(e) => setRoleFilter(e.target.value || 'all')}
+                      className="h-10"
+                    />
+                  </div>
+
+                  {/* Location Filter */}
+                  <div>
+                    <Input
+                      placeholder="Filter by location (e.g., Mumbai)"
+                      value={locationFilter === 'all' ? '' : locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value || 'all')}
+                      className="h-10"
+                    />
+                  </div>
+
+                  {/* Experience Filter */}
+                  <Select value={experienceFilter} onValueChange={setExperienceFilter}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Experience level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Levels</SelectItem>
+                      <SelectItem value="entry">Entry Level</SelectItem>
+                      <SelectItem value="mid">Mid Level</SelectItem>
+                      <SelectItem value="senior">Senior Level</SelectItem>
+                      <SelectItem value="lead">Lead</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="p-6">
+              {/* Jobs List - Clean & Minimal */}
+              {filteredJobs.length > 0 ? (
+                <div className="space-y-4">
+                  {filteredJobs.map((job) => (
+                    <div 
+                      key={job.id} 
+                      className="group border border-gray-200 rounded-xl p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 bg-white"
+                    >
+                      {/* Job Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-700 transition-colors">
+                              {job.title}
+                            </h3>
+                            {job.matchScore >= 70 && (
+                              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-sm">
+                                {job.matchScore}% Match
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-gray-700 font-medium flex items-center gap-2">
+                            <Building2 className="h-4 w-4 text-gray-500" />
+                            {job.company}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="hover:bg-red-50 hover:text-red-600"
+                          >
+                            <Heart className="h-5 w-5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Job Details */}
+                      <div className="flex flex-wrap items-center gap-4 mb-4">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <MapPin className="h-4 w-4 text-blue-500" />
+                          <span>{job.location}</span>
+                          {job.isRemote && (
+                            <Badge variant="outline" className="ml-1 text-xs bg-green-50 text-green-700 border-green-200">
+                              Remote
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Briefcase className="h-4 w-4 text-purple-500" />
+                          <span>{job.jobType}</span>
+                        </div>
+                        {job.salary && (
+                          <div className="flex items-center gap-2 text-sm font-semibold text-green-600">
+                            <DollarSign className="h-4 w-4" />
+                            <span>{job.salary}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Match Reasons */}
+                      {job.matchReasons && job.matchReasons.length > 0 && (
+                        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                          <p className="text-xs font-medium text-blue-900 mb-2">Why this matches you:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {job.matchReasons.map((reason, idx) => (
+                              <Badge key={idx} variant="outline" className="text-xs bg-white text-blue-700 border-blue-200">
+                                {reason}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Action Button */}
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Link href={`/jobs/${job.id}`} className="flex-1">
+                          <Button 
+                            variant="outline" 
+                            className="w-full border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Button>
+                        </Link>
+                        <Link href={`/jobs/${job.id}/apply`} className="flex-1">
+                          <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all">
+                            Apply Now
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Empty State - Guide User */
+                <div className="text-center py-16">
+                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                    <Briefcase className="h-12 w-12 text-blue-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                    {stats?.totalResumes === 0 
+                      ? 'Upload Your Resume to Get Started' 
+                      : stats?.profileCompletion < 50
+                      ? 'Complete Your Profile for Better Matches'
+                      : 'No Matches Found'}
+                  </h3>
+                  <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                    {stats?.totalResumes === 0 
+                      ? 'Upload your resume and we\'ll use AI to find the perfect jobs for you based on your skills and experience.'
+                      : stats?.profileCompletion < 50
+                      ? 'Add your skills, experience, and preferences to get personalized job recommendations.'
+                      : 'Try adjusting your filters or update your profile to see more opportunities.'}
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    {stats?.totalResumes === 0 ? (
+                      <Link href="/resumes/upload">
+                        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg px-8">
+                          <Upload className="h-5 w-5 mr-2" />
+                          Upload Resume
+                        </Button>
+                      </Link>
+                    ) : (
+                      <>
+                        <Link href="/dashboard/jobseeker/profile">
+                          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg px-8">
+                            <User className="h-5 w-5 mr-2" />
+                            Complete Profile
+                          </Button>
+                        </Link>
+                        <Link href="/jobs">
+                          <Button variant="outline" className="px-8">
+                            <Search className="h-5 w-5 mr-2" />
+                            Browse All Jobs
+                          </Button>
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Small Stats Summary at Bottom */}
           {stats && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-              {/* Total Applications Card - Clickable */}
-              <Link href="/dashboard/jobseeker/applications" className="block">
-                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100/50 hover:from-blue-100 hover:to-blue-200/50 cursor-pointer">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <p className="text-xs sm:text-sm font-medium text-blue-700/80">Total Applications</p>
-                        <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.totalApplications}</p>
-                      </div>
-                      <div className="p-2 sm:p-3 bg-blue-200/50 rounded-full group-hover:bg-blue-300/50 transition-colors">
-                        <Send className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-                      </div>
-                    </div>
-                    <div className="mt-2 text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Click to view all →
-                    </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+              <Link href="/dashboard/jobseeker/applications">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-bold text-blue-600">{stats.totalApplications}</p>
+                    <p className="text-xs text-gray-600">Applications</p>
                   </CardContent>
                 </Card>
               </Link>
-
-              {/* Active Applications Card - Clickable */}
-              <Link href="/dashboard/jobseeker/applications" className="block">
-                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-green-100/50 hover:from-green-100 hover:to-green-200/50 cursor-pointer">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <p className="text-xs sm:text-sm font-medium text-green-700/80">Active Applications</p>
-                        <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.activeApplications}</p>
-                      </div>
-                      <div className="p-2 sm:p-3 bg-green-200/50 rounded-full group-hover:bg-green-300/50 transition-colors">
-                        <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
-                      </div>
-                    </div>
-                    <div className="mt-2 text-xs text-green-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Click to view active →
-                    </div>
+              <Link href="/dashboard/jobseeker/applications">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-bold text-green-600">{stats.activeApplications}</p>
+                    <p className="text-xs text-gray-600">Active</p>
                   </CardContent>
                 </Card>
               </Link>
-
-              {/* Saved Jobs Card - Clickable */}
-              <Link href="/dashboard/jobseeker/bookmarks" className="block">
-                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-0 bg-gradient-to-br from-red-50 to-red-100/50 hover:from-red-100 hover:to-red-200/50 cursor-pointer">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <p className="text-xs sm:text-sm font-medium text-red-700/80">Saved Jobs</p>
-                        <p className="text-xl sm:text-2xl font-bold text-red-600">{stats.totalBookmarks}</p>
-                      </div>
-                      <div className="p-2 sm:p-3 bg-red-200/50 rounded-full group-hover:bg-red-300/50 transition-colors">
-                        <Bookmark className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
-                      </div>
-                    </div>
-                    <div className="mt-2 text-xs text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Click to view saved →
-                    </div>
+              <Link href="/dashboard/jobseeker/bookmarks">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-bold text-red-600">{stats.totalBookmarks}</p>
+                    <p className="text-xs text-gray-600">Saved Jobs</p>
                   </CardContent>
                 </Card>
               </Link>
-
-              {/* Profile Complete Card - Clickable */}
-              <Link href="/dashboard/jobseeker/profile" className="block">
-                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100/50 hover:from-purple-100 hover:to-purple-200/50 cursor-pointer">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <p className="text-xs sm:text-sm font-medium text-purple-700/80">Profile Complete</p>
-                        <p className="text-xl sm:text-2xl font-bold text-purple-600">{stats.profileCompletion}%</p>
-                      </div>
-                      <div className="p-2 sm:p-3 bg-purple-200/50 rounded-full group-hover:bg-purple-300/50 transition-colors">
-                        <User className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
-                      </div>
-                    </div>
-                    <div className="mt-2 text-xs text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Click to complete →
-                    </div>
+              <Link href="/resumes">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-bold text-purple-600">{stats.totalResumes}</p>
+                    <p className="text-xs text-gray-600">Resumes</p>
                   </CardContent>
                 </Card>
               </Link>
             </div>
           )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            {/* Enhanced Quick Actions */}
-            <div className="lg:col-span-3 space-y-6">
-              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800">
-                    <Target className="h-5 w-5 text-blue-600" />
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Link href="/jobs">
-                    <Button variant="outline" className="w-full justify-start h-12 hover:bg-blue-50 hover:border-blue-200 transition-all duration-300 group">
-                      <Search className="h-4 w-4 mr-3 text-blue-600 group-hover:text-blue-700" />
-                      <span className="font-medium">Search Jobs</span>
-                    </Button>
-                  </Link>
-                  <Link href="/dashboard/jobseeker/applications">
-                    <Button variant="outline" className="w-full justify-start h-12 hover:bg-green-50 hover:border-green-200 transition-all duration-300 group">
-                      <Briefcase className="h-4 w-4 mr-3 text-green-600 group-hover:text-green-700" />
-                      <span className="font-medium">My Applications</span>
-                    </Button>
-                  </Link>
-                  <Link href="/dashboard/jobseeker/bookmarks">
-                    <Button variant="outline" className="w-full justify-start h-12 hover:bg-red-50 hover:border-red-200 transition-all duration-300 group">
-                      <Bookmark className="h-4 w-4 mr-3 text-red-600 group-hover:text-red-700" />
-                      <span className="font-medium">Saved Jobs</span>
-                    </Button>
-                  </Link>
-                  <Link href="/dashboard/jobseeker/resumes">
-                    <Button variant="outline" className="w-full justify-start h-12 hover:bg-purple-50 hover:border-purple-200 transition-all duration-300 group">
-                      <FileText className="h-4 w-4 mr-3 text-purple-600 group-hover:text-purple-700" />
-                      <span className="font-medium">My Resumes</span>
-                    </Button>
-                  </Link>
-                  <Link href="/dashboard/jobseeker/profile">
-                    <Button variant="outline" className="w-full justify-start h-12 hover:bg-orange-50 hover:border-orange-200 transition-all duration-300 group">
-                      <Edit className="h-4 w-4 mr-3 text-orange-600 group-hover:text-orange-700" />
-                      <span className="font-medium">Edit Profile</span>
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              {/* Enhanced Profile Completion - Moved to sidebar */}
-              {stats && (
-                <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-50 to-blue-50/50">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                      <User className="h-5 w-5 text-purple-600" />
-                      Profile Complete
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="text-center space-y-3">
-                      <span className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent block">
-                        {stats.profileCompletion}%
-                      </span>
-                      <div className="space-y-2">
-                        <div className="w-full bg-gray-200/50 rounded-full h-3 overflow-hidden">
-                          <div 
-                            className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out"
-                            style={{ width: `${stats.profileCompletion}%` }}
-                          ></div>
-                        </div>
-                        <p className="text-xs text-gray-600">
-                          {stats.profileCompletion < 50 ? 'Complete your profile to get better job matches' :
-                           stats.profileCompletion < 80 ? 'Great progress! Keep going' :
-                           'Excellent! Your profile is well-optimized'}
-                        </p>
-                      </div>
-                    </div>
-                    {stats.profileCompletion < 100 && (
-                      <Link href="/dashboard/jobseeker/profile">
-                        <Button size="sm" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold">
-                          Complete Profile
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* Enhanced Main Content */}
-            <div className="lg:col-span-9 space-y-6">
-              {/* Enhanced Job Recommendations */}
-              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800">
-                      <Star className="h-5 w-5 text-yellow-500" />
-                      Recommended Jobs
-                    </CardTitle>
-                    <Link href="/jobs">
-                      <Button variant="outline" size="sm" className="w-full sm:w-auto hover:bg-blue-50 hover:border-blue-200 transition-all duration-300">
-                        View All
-                        <ArrowRight className="h-4 w-4 ml-1" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {recommendations.length > 0 ? (
-                    <div className="space-y-4">
-                      {recommendations.map((job) => (
-                        <div key={job.id} className="group border border-gray-200 rounded-xl p-4 sm:p-6 hover:shadow-lg hover:border-blue-200 transition-all duration-300 bg-white/50 hover:bg-white">
-                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-3">
-                            <div className="flex-1 space-y-1">
-                              <h3 className="font-semibold text-gray-900 text-lg group-hover:text-blue-700 transition-colors">{job.title}</h3>
-                              <p className="text-sm text-gray-600 font-medium">{job.company}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200">
-                                {job.matchScore}% match
-                              </Badge>
-                              <Button size="sm" variant="outline" className="hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all duration-300">
-                                <Heart className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4 text-blue-500" />
-                              <span>{job.location}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Briefcase className="h-4 w-4 text-green-500" />
-                              <span>{job.jobType}</span>
-                            </div>
-                            {job.salary && (
-                              <div className="flex items-center gap-1">
-                                <span className="font-medium text-purple-600">{job.salary}</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                            <div className="text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-lg">
-                              <span className="font-medium">Why this matches:</span> {job.matchReasons.join(', ')}
-                            </div>
-                            <Link href={`/jobs/${job.id}/apply`}>
-                              <Button size="sm" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300">
-                                View Job
-                              </Button>
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Briefcase className="h-10 w-10 text-blue-500" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No recommendations yet</h3>
-                      <p className="text-gray-600 mb-6 max-w-md mx-auto">Complete your profile to get personalized job recommendations tailored to your skills and preferences</p>
-                      <Link href="/dashboard/jobseeker/profile">
-                        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300">
-                          Complete Profile
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Enhanced Recent Activity */}
-              <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800">
-                      <Clock className="h-5 w-5 text-blue-500" />
-                      Recent Activity
-                    </CardTitle>
-                    <Link href="/dashboard/jobseeker/applications">
-                      <Button variant="outline" size="sm" className="w-full sm:w-auto hover:bg-blue-50 hover:border-blue-200 transition-all duration-300">
-                        View All
-                        <ArrowRight className="h-4 w-4 ml-1" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {recentActivity.length > 0 ? (
-                    <div className="space-y-4">
-                      {recentActivity.map((activity) => (
-                        <div key={activity.id} className="group flex items-center gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md hover:border-blue-200 transition-all duration-300 bg-white/50 hover:bg-white">
-                          <div className="p-3 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300">
-                            {getActivityIcon(activity.type)}
-                          </div>
-                          <div className="flex-1 space-y-1">
-                            <p className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">{activity.title}</p>
-                            {activity.company && (
-                              <p className="text-sm text-gray-600 font-medium">{activity.company}</p>
-                            )}
-                            <p className="text-xs text-gray-500">
-                              {new Date(activity.date).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                            </p>
-                          </div>
-                          {activity.status && (
-                            <Badge className={`${getStatusColor(activity.status)} border-0 shadow-sm`}>
-                              {activity.status}
-                            </Badge>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Clock className="h-10 w-10 text-gray-500" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No recent activity</h3>
-                      <p className="text-gray-600 mb-6 max-w-md mx-auto">Start applying to jobs to see your activity and track your progress here</p>
-                      <Link href="/jobs">
-                        <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300">
-                          Browse Jobs
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
         </div>
       </div>
     </AuthGuard>
