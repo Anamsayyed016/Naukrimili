@@ -380,19 +380,19 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-        data: {
-          jobs: jobsWithScores,
-          algorithm,
-          userProfile: {
-            skills: allSkills,
-            resumeSkills: user.resumes[0]?.skills || [],
-            location: userLocation,
-            jobTypePreference: typeof user.jobTypePreference === 'string' 
-              ? (user.jobTypePreference ? JSON.parse(user.jobTypePreference) : [])
-              : (Array.isArray(user.jobTypePreference) ? user.jobTypePreference : []),
-            remotePreference: user.remotePreference,
-            hasResume: user.resumes.length > 0
-          },
+      data: {
+        jobs: jobsWithScores,
+        algorithm,
+        userProfile: {
+          skills: allSkills,
+          resumeSkills: user.resumes[0]?.skills || [],
+          location: userLocation,
+          jobTypePreference: typeof user.jobTypePreference === 'string' 
+            ? (user.jobTypePreference ? JSON.parse(user.jobTypePreference) : [])
+            : (Array.isArray(user.jobTypePreference) ? user.jobTypePreference : []),
+          remotePreference: user.remotePreference,
+          hasResume: user.resumes.length > 0
+        },
         metadata: {
           totalMatched: jobsWithScores.length,
           averageMatchScore: jobsWithScores.length > 0 
@@ -402,9 +402,18 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (_error) {
-    console.error('Error fetching job recommendations:', _error);
+    const error = _error as Error;
+    console.error('❌ Error fetching job recommendations:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch recommendations' },
+      { 
+        success: false, 
+        error: 'Failed to fetch recommendations',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     );
   }
