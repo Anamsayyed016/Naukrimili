@@ -50,25 +50,6 @@
   }
 }
 
-/* Mobile zoom prevention - Critical for iOS Safari */
-@media screen and (max-width: 768px) {
-  input,
-  textarea,
-  select,
-  button {
-    font-size: 16px !important; /* Prevent iOS auto-zoom on focus */
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-    touch-action: manipulation; /* Disable double-tap zoom */
-  }
-  
-  /* Prevent zoom on button tap */
-  button,
-  a {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-  }
-}
-
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

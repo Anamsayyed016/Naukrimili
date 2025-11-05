@@ -247,10 +247,10 @@ export default function LocationCategories({
     <div className={`mt-3 sm:mt-4 lg:mt-6 ${className}`}>
       {/* Compact Header */}
       <div className="text-center mb-2 sm:mb-3 lg:mb-4">
-        <span className="text-base sm:text-sm font-medium text-gray-700 flex items-center justify-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-500" />
+        <span className="text-xs sm:text-sm font-medium text-gray-700 flex items-center justify-center gap-2">
+          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
           AI-Powered Locations
-          <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 text-sm font-bold px-2 py-0.5">
+          <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 text-xs font-bold px-2 py-0.5">
             Smart
           </Badge>
         </span>
@@ -271,10 +271,10 @@ export default function LocationCategories({
                   {category.icon}
                 </div>
                 <div className="text-left">
-                  <div className="font-semibold text-white text-base sm:text-sm">
+                  <div className="font-semibold text-white text-xs sm:text-sm">
                     {category.name}
                   </div>
-                  <div className="text-sm text-blue-200">
+                  <div className="text-xs text-blue-200">
                     {category.locations.length} locations • {(category.locations.reduce((sum, loc) => sum + (loc.jobCount || 0), 0)).toLocaleString()} jobs
                   </div>
                 </div>
@@ -303,13 +303,13 @@ export default function LocationCategories({
                       }`}
                     >
                       <div className="flex items-center gap-1 sm:gap-2 w-full">
-                        <span className="text-lg">{location.flag}</span>
+                        <span className="text-sm sm:text-base">{location.flag}</span>
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">
+                          <div className="font-medium text-xs truncate">
                             {location.name}
                           </div>
                           <div className="flex items-center gap-1 mt-0.5">
-                            <Badge variant="secondary" className={`text-sm border-0 px-1.5 py-0.5 ${
+                            <Badge variant="secondary" className={`text-xs border-0 px-1 py-0 ${
                               selectedLocation?.id === location.id
                                 ? 'bg-white/20 text-white'
                                 : 'bg-green-100 text-green-800'
