@@ -41,10 +41,8 @@ export async function GET(request: NextRequest) {
         resumes: {
           where: { isActive: true },
           select: {
-            skills: true,
-            experience: true,
-            education: true,
-            summary: true
+            parsedData: true,
+            atsScore: true
           },
           orderBy: { createdAt: 'desc' },
           take: 1
@@ -71,12 +69,19 @@ export async function GET(request: NextRequest) {
       userSkills = [];
     }
 
+    // Extract skills from resume parsedData
+    let resumeSkills: string[] = [];
+    if (user.resumes.length > 0 && user.resumes[0].parsedData) {
+      const parsedData = user.resumes[0].parsedData as any;
+      resumeSkills = parsedData?.skills || parsedData?.extractedSkills || [];
+    }
+
     console.log(`📄 User profile:`, {
       hasSkills: userSkills.length > 0,
       hasLocation: !!user.location,
       hasResume: user.resumes.length > 0,
       skillsCount: userSkills.length,
-      resumeSkills: user.resumes[0]?.skills?.length || 0
+      resumeSkills: resumeSkills.length
     });
 
     // Get applied job IDs (but don't exclude them - just mark them)
@@ -84,8 +89,8 @@ export async function GET(request: NextRequest) {
     
     // ENHANCED: Combine user skills with resume skills
     let allSkills = [...userSkills];
-    if (user.resumes.length > 0 && user.resumes[0].skills) {
-      allSkills = [...new Set([...allSkills, ...(user.resumes[0].skills || [])])];
+    if (resumeSkills.length > 0) {
+      allSkills = [...new Set([...allSkills, ...resumeSkills])];
     }
     
     // ENHANCED: Get location from profile or resume
@@ -385,7 +390,7 @@ export async function GET(request: NextRequest) {
         algorithm,
         userProfile: {
           skills: allSkills,
-          resumeSkills: user.resumes[0]?.skills || [],
+          resumeSkills: resumeSkills,
           location: userLocation,
           jobTypePreference: typeof user.jobTypePreference === 'string' 
             ? (user.jobTypePreference ? JSON.parse(user.jobTypePreference) : [])
