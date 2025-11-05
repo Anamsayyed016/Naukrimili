@@ -134,20 +134,58 @@ export default function ResumeUploadPage() {
     }
   };
 
-  // Fetch job recommendations
+  // Fetch job recommendations with fallback
   const fetchRecommendations = async () => {
     try {
       setLoadingRecommendations(true);
-      const response = await fetch('/api/jobseeker/recommendations?limit=10&algorithm=hybrid');
+      console.log('🔍 Fetching job recommendations...');
+      
+      // Try recommendations API first
+      const response = await fetch('/api/jobseeker/recommendations?limit=20&algorithm=hybrid');
       
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
+        console.log('📊 Recommendations API response:', data);
+        
+        if (data.success && data.data.jobs && data.data.jobs.length > 0) {
+          console.log(`✅ Found ${data.data.jobs.length} recommendations`);
           setRecommendations(data.data.jobs);
+          return;
+        }
+      }
+
+      // FALLBACK: If no recommendations, fetch all active jobs
+      console.log('🔄 No matches from recommendations, fetching all active jobs...');
+      const fallbackResponse = await fetch('/api/jobs?limit=20&isActive=true&includeDatabase=true&includeExternal=false');
+      
+      if (fallbackResponse.ok) {
+        const fallbackData = await fallbackResponse.json();
+        console.log('📊 Fallback jobs response:', fallbackData);
+        
+        if (fallbackData.jobs && fallbackData.jobs.length > 0) {
+          // Convert to recommendation format
+          const fallbackJobs = fallbackData.jobs.map((job: any) => ({
+            ...job,
+            matchScore: 50, // Default match score
+            matchReasons: ['Recently posted']
+          }));
+          console.log(`✅ Showing ${fallbackJobs.length} fallback jobs`);
+          setRecommendations(fallbackJobs);
+          
+          toast({
+            title: '💡 Showing All Jobs',
+            description: 'No exact matches yet, here are recent openings you might like',
+          });
+        } else {
+          console.warn('❌ No jobs found in fallback either');
         }
       }
     } catch (error) {
-      console.error('Error fetching recommendations:', error);
+      console.error('❌ Error fetching recommendations:', error);
+      toast({
+        title: 'Info',
+        description: 'Browse jobs page to see all available openings',
+      });
     } finally {
       setLoadingRecommendations(false);
     }
@@ -418,7 +456,9 @@ export default function ResumeUploadPage() {
                         <Badge className="bg-green-600 text-white">Step 3 of 3</Badge>
                       </CardTitle>
                       <p className="text-sm text-gray-600 mt-1">
-                        Here are {recommendations.length} jobs matched to your profile
+                        {recommendations.length > 0 
+                          ? `Here are ${recommendations.length} jobs matched to your profile` 
+                          : 'Loading your personalized job matches...'}
                       </p>
                     </div>
                   </div>

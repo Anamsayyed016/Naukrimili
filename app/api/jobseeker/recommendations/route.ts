@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       resumeSkills: user.resumes[0]?.skills?.length || 0
     });
 
-    // Get applied job IDs to exclude
+    // Get applied job IDs (but don't exclude them - just mark them)
     const appliedJobIds = user.applications.map(app => app.jobId);
     
     // ENHANCED: Combine user skills with resume skills
@@ -91,9 +91,9 @@ export async function GET(request: NextRequest) {
     // ENHANCED: Get location from profile or resume
     const userLocation = user.location || user.locationPreference;
 
+    // CRITICAL FIX: Don't exclude applied jobs - show all active jobs
     let where: any = {
-      isActive: true,
-      id: { notIn: appliedJobIds }
+      isActive: true
     };
 
     let orderBy: any = {};
@@ -222,14 +222,13 @@ export async function GET(request: NextRequest) {
 
     console.log(`📊 Found ${jobs.length} jobs matching criteria`);
 
-    // FALLBACK: If no jobs found, get popular/recent jobs
+    // ENHANCED FALLBACK: If no jobs found, get ALL active jobs
     if (jobs.length === 0) {
-      console.log(`🔄 No matching jobs found, fetching popular jobs as fallback...`);
+      console.log(`🔄 No matching jobs found, fetching all active jobs as fallback...`);
       
       jobs = await prisma.job.findMany({
         where: {
-          isActive: true,
-          id: { notIn: appliedJobIds }
+          isActive: true
         },
         include: {
           company: {
@@ -251,16 +250,48 @@ export async function GET(request: NextRequest) {
           { isFeatured: 'desc' },
           { createdAt: 'desc' }
         ],
-        take: limit
+        take: limit * 2 // Get more jobs for better selection
       });
       
-      console.log(`✅ Fallback: Returning ${jobs.length} popular jobs`);
+      console.log(`✅ Fallback: Returning ${jobs.length} active jobs`);
+    }
+    
+    // CRITICAL: Always ensure we have jobs to show
+    if (jobs.length === 0) {
+      console.log(`⚠️ Still no jobs found, getting ANY jobs from database...`);
+      jobs = await prisma.job.findMany({
+        include: {
+          company: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+              website: true
+            }
+          },
+          _count: {
+            select: {
+              applications: true,
+              bookmarks: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit
+      });
+      console.log(`✅ Emergency fallback: Returning ${jobs.length} total jobs`);
     }
 
     // Calculate match scores for each job
     const jobsWithScores = jobs.map(job => {
       let score = 0;
       let reasons = [];
+
+      // Mark if already applied
+      const alreadyApplied = appliedJobIds.includes(job.id);
+      if (alreadyApplied) {
+        reasons.push('Already applied');
+      }
 
       // ENHANCED: Skills match (check both user skills and resume skills)
       if (allSkills.length > 0 && job.skills) {
@@ -330,14 +361,22 @@ export async function GET(request: NextRequest) {
       return {
         ...job,
         matchScore: Math.min(100, Math.round(score)), // Cap at 100
-        matchReasons: reasons
+        matchReasons: reasons.length > 0 ? reasons : ['New opportunity'],
+        alreadyApplied
       };
     });
 
-    // Sort by match score
-    jobsWithScores.sort((a, b) => b.matchScore - a.matchScore);
+    // Sort by match score (prioritize not-applied jobs)
+    jobsWithScores.sort((a, b) => {
+      // First, prioritize jobs not applied to
+      if (a.alreadyApplied && !b.alreadyApplied) return 1;
+      if (!a.alreadyApplied && b.alreadyApplied) return -1;
+      // Then sort by match score
+      return b.matchScore - a.matchScore;
+    });
 
     console.log(`✅ Returning ${jobsWithScores.length} job recommendations (scores: ${jobsWithScores.map(j => j.matchScore).join(', ')})`);
+    console.log(`📊 Applied jobs: ${jobsWithScores.filter(j => j.alreadyApplied).length}, New jobs: ${jobsWithScores.filter(j => !j.alreadyApplied).length}`);
 
     return NextResponse.json({
       success: true,
