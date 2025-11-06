@@ -1,5 +1,21 @@
 import { MetadataRoute } from 'next'
-import { prisma } from '@/lib/prisma'
+
+// Revalidate every hour
+export const revalidate = 3600
+
+// Dynamic rendering
+export const dynamic = 'force-dynamic'
+
+// Dynamic import to avoid build-time issues
+async function getPrismaClient() {
+  try {
+    const { prisma } = await import('@/lib/prisma')
+    return prisma
+  } catch (error) {
+    console.error('Prisma import failed:', error)
+    return null
+  }
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://naukrimili.com'
@@ -93,6 +109,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   try {
+    // Get Prisma client
+    const prisma = await getPrismaClient()
+    
+    // If Prisma is not available, return static routes only
+    if (!prisma) {
+      console.log('Prisma not available, returning static routes only')
+      return staticRoutes
+    }
+
     // Fetch active jobs (limit to recent 10,000 for sitemap size)
     const jobs = await prisma.job.findMany({
       where: {
