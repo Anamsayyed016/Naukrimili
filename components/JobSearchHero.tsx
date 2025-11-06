@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -20,10 +21,14 @@ import {
   SlidersHorizontal,
   ChevronDown,
   Map,
-  Target
+  Target,
+  History,
+  Clock,
+  TrendingUp
 } from 'lucide-react';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
 import LocationCategories from './LocationCategories';
 // import SmartFilterSuggestions from './SmartFilterSuggestions'; // Removed - causing infinite re-render
 
@@ -58,6 +63,7 @@ export default function JobSearchHero({
   showAdvancedFilters = true 
 }: JobSearchHeroProps) {
   const router = useRouter();
+  const { data: session } = useSession();
   
   // Search filters state
   const [filters, setFilters] = useState({
@@ -71,7 +77,7 @@ export default function JobSearchHero({
   });
 
   // Debounced filters for auto-search (fast response)
-  const debouncedQuery = useDebounce(filters.query, 500);
+  const debouncedQuery = useDebounce(filters.query, 300);
   const debouncedLocation = useDebounce(filters.location, 500);
   
   // Advanced filters state
@@ -82,12 +88,25 @@ export default function JobSearchHero({
   const [searchRadius, setSearchRadius] = useState(25);
   const [sortByDistance, setSortByDistance] = useState(false);
   
+  // Suggestions & History state
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  
+  // Refs for click outside detection
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const queryInputRef = useRef<HTMLInputElement>(null);
+  
   // Dynamic constants
   const [dynamicConstants, setDynamicConstants] = useState({
     jobTypes: ['Full-time', 'Part-time', 'Contract', 'Internship'],
     experienceLevels: ['Entry Level', 'Mid Level', 'Senior Level', 'Lead', 'Executive'],
     locations: []
   });
+  
+  // Search history hook
+  const { data: searchHistoryData, createSearchHistory } = useSearchHistory();
 
 
   // Fetch dynamic constants
@@ -105,8 +124,31 @@ export default function JobSearchHero({
     }
   }, []);
 
+  // Fetch job suggestions
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (!query || query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      setLoadingSuggestions(true);
+      const response = await fetch(`/api/search-suggestions?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      
+      if (data.success && data.suggestions) {
+        setSuggestions(data.suggestions.slice(0, 8)); // Show top 8 suggestions
+      }
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+      setSuggestions([]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  }, []);
+
   // Handle search submission with unlimited search
-  const handleSearch = useCallback(() => {
+  const handleSearch = useCallback(async () => {
     const params = new URLSearchParams();
     
     // Use unlimited search parameters - FIXED: Use correct parameter names
@@ -132,11 +174,32 @@ export default function JobSearchHero({
       if (sortByDistance) params.set('sortByDistance', 'true');
     }
 
+    // Save search history if user is authenticated
+    if (session?.user?.id && filters.query) {
+      await createSearchHistory({
+        query: filters.query,
+        location: filters.location || undefined,
+        filters: {
+          jobType: filters.jobType,
+          experienceLevel: filters.experienceLevel,
+          isRemote: filters.isRemote,
+          salaryMin: filters.salaryMin,
+          salaryMax: filters.salaryMax
+        },
+        searchType: 'job',
+        source: 'web'
+      });
+    }
+
+    // Hide dropdowns
+    setShowSuggestions(false);
+    setShowHistory(false);
+
     // FIXED: Use the unlimited search API endpoint directly
     const searchUrl = `/jobs?${params.toString()}`;
     console.log('🔍 Search URL:', searchUrl); // Debug log
     router.push(searchUrl);
-  }, [filters, userLocation, searchRadius, sortByDistance]);
+  }, [filters, userLocation, searchRadius, sortByDistance, session, createSearchHistory]);
 
   // Location detection with improved error handling
   const detectCurrentLocation = useCallback(async () => {
@@ -222,6 +285,57 @@ export default function JobSearchHero({
     setLocationError(null);
   }, []);
 
+  // Fetch suggestions when user types
+  useEffect(() => {
+    if (debouncedQuery && debouncedQuery.length >= 2) {
+      fetchSuggestions(debouncedQuery);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [debouncedQuery, fetchSuggestions]);
+
+  // Show history when user focuses on empty input
+  const handleQueryFocus = useCallback(() => {
+    if (!filters.query && searchHistoryData && searchHistoryData.history.length > 0) {
+      setShowHistory(true);
+      setShowSuggestions(false);
+    }
+  }, [filters.query, searchHistoryData]);
+
+  // Hide dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node) &&
+          queryInputRef.current && !queryInputRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+        setShowHistory(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Handle suggestion selection
+  const handleSuggestionSelect = useCallback((suggestion: string) => {
+    setFilters(prev => ({ ...prev, query: suggestion }));
+    setShowSuggestions(false);
+    setShowHistory(false);
+  }, []);
+
+  // Handle history selection
+  const handleHistorySelect = useCallback((historyItem: any) => {
+    setFilters(prev => ({
+      ...prev,
+      query: historyItem.query,
+      location: historyItem.location || prev.location
+    }));
+    setShowHistory(false);
+    setShowSuggestions(false);
+  }, []);
+
   // Initialize dynamic constants
   useEffect(() => {
     fetchDynamicConstants();
@@ -270,16 +384,100 @@ export default function JobSearchHero({
               {/* Main Search Form */}
               <div className="space-y-4 lg:space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                  {/* Job Title Search */}
+                  {/* Job Title Search with Suggestions & History */}
                   <div className="relative w-full min-w-0">
                     <Search className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10 flex-shrink-0" />
                     <Input
+                      ref={queryInputRef}
                       type="text"
                       placeholder="Job title, keywords, company"
                       value={filters.query}
-                      onChange={(e) => setFilters(prev => ({ ...prev, query: e.target.value }))}
+                      onChange={(e) => {
+                        setFilters(prev => ({ ...prev, query: e.target.value }));
+                        if (e.target.value.length >= 2) {
+                          setShowHistory(false);
+                        }
+                      }}
+                      onFocus={handleQueryFocus}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSearch();
+                        }
+                      }}
                       className="w-full min-w-0 pl-8 sm:pl-10 lg:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 lg:py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-lg sm:rounded-xl text-xs sm:text-sm lg:text-base font-medium transition-all duration-200 shadow-sm"
                     />
+                    
+                    {/* Suggestions & History Dropdown */}
+                    {(showSuggestions || showHistory) && (
+                      <div
+                        ref={suggestionsRef}
+                        className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 max-h-80 overflow-y-auto"
+                      >
+                        {/* Search History */}
+                        {showHistory && searchHistoryData && searchHistoryData.history.length > 0 && (
+                          <div className="p-2">
+                            <div className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                              <div className="flex items-center gap-2">
+                                <History className="w-3 h-3" />
+                                <span>Recent Searches</span>
+                              </div>
+                              <button
+                                onClick={() => setShowHistory(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                            {searchHistoryData.history.slice(0, 5).map((item) => (
+                              <button
+                                key={item.id}
+                                onClick={() => handleHistorySelect(item)}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-blue-50 rounded-lg transition-colors text-left group"
+                              >
+                                <Clock className="w-4 h-4 text-gray-400 group-hover:text-blue-600 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium text-gray-900 truncate">{item.query}</div>
+                                  {item.location && (
+                                    <div className="text-xs text-gray-500 truncate">{item.location}</div>
+                                  )}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Job Suggestions */}
+                        {showSuggestions && (
+                          <div className="p-2">
+                            <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                              <TrendingUp className="w-3 h-3" />
+                              <span>Suggestions</span>
+                            </div>
+                            {loadingSuggestions ? (
+                              <div className="flex items-center justify-center py-4">
+                                <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                              </div>
+                            ) : suggestions.length > 0 ? (
+                              suggestions.map((suggestion, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => handleSuggestionSelect(suggestion)}
+                                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-blue-50 rounded-lg transition-colors text-left group"
+                                >
+                                  <Search className="w-4 h-4 text-gray-400 group-hover:text-blue-600 flex-shrink-0" />
+                                  <span className="text-sm font-medium text-gray-900 truncate">{suggestion}</span>
+                                </button>
+                              ))
+                            ) : (
+                              <div className="px-3 py-4 text-sm text-gray-500 text-center">
+                                No suggestions found
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Location Search with Enhanced Geolocation */}
