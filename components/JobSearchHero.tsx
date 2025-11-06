@@ -137,7 +137,7 @@ export default function JobSearchHero({
       const data = await response.json();
       
       if (data.success && data.suggestions) {
-        setSuggestions(data.suggestions.slice(0, 8)); // Show top 8 suggestions
+        setSuggestions(data.suggestions); // Show all suggestions (API limits to 15)
       }
     } catch (error) {
       console.error('Error fetching suggestions:', error);
