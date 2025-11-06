@@ -1,35 +1,14 @@
-import { ImageResponse } from 'next/og'
- 
-// Image metadata
+export const runtime = 'edge'
+
 export const size = {
   width: 180,
   height: 180,
 }
 export const contentType = 'image/png'
- 
-// Image generation
-export default function AppleIcon() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          fontSize: 120,
-          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          fontWeight: 'bold',
-        }}
-      >
-        N
-      </div>
-    ),
-    {
-      ...size,
-    }
-  )
-}
+
+export default async function AppleIcon() {
+  // Fetch the Cloudinary image
+  const imageUrl = 'https://res.cloudinary.com/dko2hk0yo/image/upload/e_make_transparent:10,w_180,h_180,c_fit/v1762455309/nukrimilogo2_tybkqx.png'
+  
+  return fetch(imageUrl).then(res => res)
 
