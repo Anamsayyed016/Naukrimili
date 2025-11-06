@@ -14,6 +14,20 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/dko2hk0yo/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.icons8.com',
+      },
+    ],
+    unoptimized: false,
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Don't bundle Node.js modules on client side

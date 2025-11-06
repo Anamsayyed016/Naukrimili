@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import {
@@ -84,10 +85,16 @@ export default function MainNavigation({
       <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ touchAction: 'pan-y', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <Link href="/" className="flex items-center hover:opacity-80 transition-all duration-300 group">
-              <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                {brandName}
-              </span>
+            <Link href="/" className="flex items-center hover:opacity-90 transition-all duration-300 group">
+              <Image 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762455346/naukrimililogo1_bepp4v.png" 
+                alt="NaukriMili - Job Portal" 
+                className="h-8 sm:h-10 lg:h-12 w-auto object-contain"
+                width={180}
+                height={48}
+                priority
+                unoptimized
+              />
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
           </div>
@@ -151,11 +158,17 @@ export default function MainNavigation({
     <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ touchAction: 'pan-y', backfaceVisibility: 'hidden', transform: 'translateZ(0)', willChange: 'transform' }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Brand - Clean Text Only */}
-          <Link href="/" className="flex items-center hover:opacity-80 transition-all duration-300 group">
-            <span className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              {brandName}
-            </span>
+          {/* Brand Logo */}
+          <Link href="/" className="flex items-center hover:opacity-90 transition-all duration-300 group">
+            <Image 
+              src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762455346/naukrimililogo1_bepp4v.png" 
+              alt="NaukriMili - Job Portal" 
+              className="h-8 sm:h-10 lg:h-12 w-auto object-contain"
+              width={180}
+              height={48}
+              priority
+              unoptimized
+            />
           </Link>
 
           {/* Main Navigation - Enhanced Desktop */}

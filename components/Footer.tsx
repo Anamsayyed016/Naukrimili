@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FiFacebook, FiTwitter, FiLinkedin, FiInstagram, FiLoader, FiCheck, FiAlertCircle, FiBriefcase, FiUsers, FiBook, FiMail, FiUser, FiBell, FiArrowRight } from "react-icons/fi";
 
 interface SocialIconProps { href: string; icon: React.ReactNode; label: string; }
@@ -61,12 +62,14 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <div className="mb-8">
               <div className="flex items-center mb-6">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg mr-3">
-                  <span className="text-xl font-bold text-white">N</span>
-                </div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  NaukriMili
-                </h3>
+                <Image 
+                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762455346/naukrimililogo1_bepp4v.png" 
+                  alt="NaukriMili - AI-Powered Job Portal" 
+                  className="h-10 w-auto object-contain"
+                  width={160}
+                  height={40}
+                  unoptimized
+                />
               </div>
               <p className="text-gray-600 text-base leading-relaxed max-w-md">
                 India's most trusted AI-powered job matching platform connecting top talent with leading employers. 
