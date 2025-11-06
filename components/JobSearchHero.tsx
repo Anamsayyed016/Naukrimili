@@ -91,7 +91,7 @@ export default function JobSearchHero({
   // Suggestions & History state
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<Array<{type: string; value: string}>>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   
   // Refs for click outside detection
@@ -319,8 +319,8 @@ export default function JobSearchHero({
   }, []);
 
   // Handle suggestion selection
-  const handleSuggestionSelect = useCallback((suggestion: string) => {
-    setFilters(prev => ({ ...prev, query: suggestion }));
+  const handleSuggestionSelect = useCallback((suggestion: {type: string; value: string}) => {
+    setFilters(prev => ({ ...prev, query: suggestion.value }));
     setShowSuggestions(false);
     setShowHistory(false);
   }, []);
@@ -466,7 +466,12 @@ export default function JobSearchHero({
                                   className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-blue-50 rounded-lg transition-colors text-left group"
                                 >
                                   <Search className="w-4 h-4 text-gray-400 group-hover:text-blue-600 flex-shrink-0" />
-                                  <span className="text-sm font-medium text-gray-900 truncate">{suggestion}</span>
+                                  <div className="flex-1 min-w-0">
+                                    <span className="text-sm font-medium text-gray-900 truncate">{suggestion.value}</span>
+                                    <Badge variant="outline" className="ml-2 text-xs bg-gray-50 text-gray-600 border-gray-300">
+                                      {suggestion.type}
+                                    </Badge>
+                                  </div>
                                 </button>
                               ))
                             ) : (
