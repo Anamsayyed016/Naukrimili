@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, UserCheck, Briefcase } from 'lucide-react';
+import SmoothTransition from '@/components/auth/SmoothTransition';
 
 interface PostAuthRoleSelectionProps {
   user: Record<string, unknown>;
@@ -49,9 +50,8 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
             break;
         }
         
-        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
-        console.log('🔄 Redirecting user with existing role to:', finalUrl);
-        window.location.href = finalUrl;
+        console.log('🔄 Redirecting user with existing role to:', targetUrl);
+        router.push(targetUrl);
         return;
       }
       
@@ -68,9 +68,8 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
             targetUrl = '/dashboard';
         }
         
-        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
-        console.log('🔄 Immediate redirect URL:', finalUrl);
-        window.location.href = finalUrl;
+        console.log('🔄 Immediate redirect URL:', targetUrl);
+        router.push(targetUrl);
       }
     }
     
@@ -93,11 +92,10 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
           targetUrl = '/dashboard';
       }
       
-      const finalUrl = `${targetUrl}?role_locked=true&timestamp=${Date.now()}`;
-      console.log('🔄 Role-locked redirect URL:', finalUrl);
-      window.location.href = finalUrl;
+      console.log('🔄 Role-locked redirect URL:', targetUrl);
+      router.push(targetUrl);
     }
-  }, [user?.role, user?.roleLocked, user?.lockedRole]);
+  }, [user?.role, user?.roleLocked, user?.lockedRole, router]);
 
   const handleRoleSelection = async (role: 'jobseeker' | 'employer') => {
     setSelectedRole(role);
@@ -164,8 +162,8 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         await updateSession();
         console.log('✅ Session updated');
         
-        // Add a longer delay to ensure session is fully updated and database changes are reflected
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Minimal delay to ensure session update completes
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // Determine target URL based on role
         let targetUrl = '/dashboard';
@@ -183,12 +181,8 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         
         console.log('🚀 Redirecting to:', targetUrl);
         
-        // Add URL parameter to prevent immediate redirect back
-        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
-        
-        // Use window.location.href to force a full page reload and fresh session
-        console.log('🔄 Final redirect URL:', finalUrl);
-        window.location.href = finalUrl;
+        // Use router.push for smooth client-side navigation
+        router.push(targetUrl);
         
         if (onComplete) {
           onComplete({ ...user, role });
@@ -242,15 +236,15 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                 </p>
               </div>
 
-              <Button
-                onClick={() => {
-                  const targetUrl = user.lockedRole === 'jobseeker' ? '/dashboard/jobseeker' : '/dashboard/company';
-                  window.location.href = targetUrl;
-                }}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
-              >
-                Continue to Dashboard →
-              </Button>
+                <Button
+                  onClick={() => {
+                    const targetUrl = user.lockedRole === 'jobseeker' ? '/dashboard/jobseeker' : '/dashboard/company';
+                    router.push(targetUrl);
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
+                >
+                  Continue to Dashboard →
+                </Button>
             </div>
           </div>
         </div>
@@ -319,8 +313,8 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                 {user.role === 'jobseeker' ? (
                   <Button
                     onClick={() => {
-                      console.log('Direct redirect to jobseeker options');
-                      window.location.href = '/jobseeker/options';
+                      console.log('Direct redirect to jobseeker dashboard');
+                      router.push('/dashboard/jobseeker');
                     }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                   >
@@ -377,8 +371,8 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                 {user.role === 'employer' ? (
                   <Button
                     onClick={() => {
-                      console.log('Direct redirect to employer options');
-                      window.location.href = '/employer/options';
+                      console.log('Direct redirect to employer dashboard');
+                      router.push('/dashboard/company');
                     }}
                     className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                   >
@@ -404,21 +398,9 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
     );
   }
 
-  // Show redirecting state
-  if (isRedirecting) {
-    return (
-      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Setting up your {selectedRole === 'jobseeker' ? 'Job Seeker' : 'Employer'} account...
-          </h2>
-          <p className="text-gray-600">
-            Please wait while we redirect you to your dashboard.
-          </p>
-        </div>
-      </div>
-    );
+  // Show smooth transition during redirect
+  if (isRedirecting && selectedRole) {
+    return <SmoothTransition role={selectedRole} />;
   }
 
   // Role selection for new users - Modern Design

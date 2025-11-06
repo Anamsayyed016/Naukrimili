@@ -28,7 +28,7 @@ export default function SignInPage() {
   const router = useRouter();
   const [hasRedirected, setHasRedirected] = useState(false);
   
-  // Handle OAuth users who are already authenticated
+  // Handle OAuth users who are already authenticated - instant redirect
   useEffect(() => {
     if (status === 'loading' || hasRedirected) return;
     
@@ -37,20 +37,20 @@ export default function SignInPage() {
       setHasRedirected(true);
       
       if (!session.user.role) {
-        router.push('/auth/role-selection');
+        router.replace('/auth/role-selection');
       } else {
         switch (session.user.role) {
           case 'admin':
-            router.push('/dashboard/admin');
+            router.replace('/dashboard/admin');
             break;
           case 'jobseeker':
-            router.push('/dashboard/jobseeker');
+            router.replace('/dashboard/jobseeker');
             break;
           case 'employer':
-            router.push('/dashboard/company');
+            router.replace('/dashboard/company');
             break;
           default:
-            router.push('/auth/role-selection');
+            router.replace('/auth/role-selection');
         }
       }
     }

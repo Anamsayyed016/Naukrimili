@@ -56,13 +56,12 @@ export default function RoleSelectionPage() {
             targetUrl = '/dashboard';
         }
         
-        const finalUrl = `${targetUrl}?role_selected=true&timestamp=${Date.now()}`;
-        console.log('Redirecting to:', finalUrl);
-        router.push(finalUrl);
+        console.log('Redirecting to:', targetUrl);
+        router.push(targetUrl);
         return;
       }
     }
-  }, [session, status]);
+  }, [session, status, router]);
 
   if (status === 'loading') {
     return (

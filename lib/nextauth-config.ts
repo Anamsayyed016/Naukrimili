@@ -239,8 +239,33 @@ const authOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Handle relative URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`
+      
+      // Handle same-origin URLs
       if (new URL(url).origin === baseUrl) return url
+      
+      // For OAuth callbacks, check user role and redirect directly
+      // This eliminates the blank screen by going straight to the right dashboard
+      try {
+        const session = await getServerSession(authOptions);
+        if (session?.user?.role) {
+          switch (session.user.role) {
+            case 'jobseeker':
+              return `${baseUrl}/dashboard/jobseeker`;
+            case 'employer':
+              return `${baseUrl}/dashboard/company`;
+            case 'admin':
+              return `${baseUrl}/dashboard/admin`;
+            default:
+              return `${baseUrl}/auth/role-selection`;
+          }
+        }
+      } catch (error) {
+        console.log('Redirect callback - error checking role:', error);
+      }
+      
+      // Default to role selection for new users
       return `${baseUrl}/auth/role-selection`
     },
   },

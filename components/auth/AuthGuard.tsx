@@ -74,7 +74,8 @@ export default function AuthGuard({
         sessionStorage.setItem("auth_redirect_reason", reason);
       } catch {}
     }
-    setTimeout(() => router.push(path), 500);
+    // Immediate redirect without delay
+    router.push(path);
   }, [router, pathname]);
 
   useEffect(() => {
@@ -90,13 +91,14 @@ export default function AuthGuard({
     }
   }, [evaluateAccess, handleRedirect]);
 
-  if (status === "loading" || showLoader) {
+  // Only show loading during initial status check, not during redirects
+  if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="text-white text-center">
-          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" />
-          <p className="text-sm font-medium tracking-wide uppercase text-purple-200/80">
-            {redirectState.reason || "Checking access"}
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-sm font-medium text-gray-600">
+            Loading...
           </p>
         </motion.div>
       </div>

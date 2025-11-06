@@ -142,18 +142,7 @@ export default function JobSeekerDashboard() {
     setExperienceFilter('all');
   };
 
-  if (loading) {
-    return (
-      <AuthGuard allowedRoles={['jobseeker']}>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your dashboard...</p>
-          </div>
-        </div>
-      </AuthGuard>
-    );
-  }
+  // Don't show full-screen loading, render dashboard skeleton instead
 
   return (
     <AuthGuard allowedRoles={['jobseeker']}>
@@ -168,6 +157,12 @@ export default function JobSeekerDashboard() {
             <p className="text-gray-600">
               Your personalized job search dashboard
             </p>
+            {loading && (
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <span>Loading your personalized recommendations...</span>
+              </div>
+            )}
           </div>
 
           {/* A) Profile Completion Progress - Single Clean Section */}

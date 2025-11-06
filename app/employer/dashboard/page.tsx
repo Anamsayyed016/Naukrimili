@@ -323,22 +323,12 @@ export default function EmployerDashboard() {
     }
   };
 
-  if (status === 'loading' || loading) {
-    return (
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Don't show blank loading screen, render dashboard skeleton immediately
   if (status === 'unauthenticated') {
     return null;
   }
 
-  if (session?.user?.role !== 'employer') {
+  if (status === 'authenticated' && session?.user?.role !== 'employer') {
     return null;
   }
 
@@ -352,6 +342,9 @@ export default function EmployerDashboard() {
               <h1 className="text-5xl font-bold text-slate-900">
                 Welcome back, {(session?.user as any)?.firstName || 'Employer'}! 👋
               </h1>
+              {loading && (
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              )}
               {/* Notification Bell */}
               <div className="relative">
                 <Button
