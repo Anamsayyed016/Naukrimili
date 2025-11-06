@@ -327,22 +327,11 @@ export default function SignInPage() {
                     <p className="text-sm text-gray-600 mb-4">Join thousands of job seekers and employers</p>
 
                     {error && (
-                      <Alert className="mb-6 border-red-200 bg-red-50 border-0 rounded-xl">
+                      <Alert className="mb-4 border-red-200 bg-red-50 border-0 rounded-xl">
                         <AlertCircle className="h-5 w-5 text-red-600" />
                         <AlertDescription className="text-red-800">{error}</AlertDescription>
                       </Alert>
                     )}
-
-                    {/* OAuth Buttons */}
-                    <div className="mb-4">
-                      <OAuthButtons callbackUrl="/auth/role-selection" />
-                    </div>
-
-                    <div className="relative flex items-center justify-center my-4">
-                      <div className="flex-1 border-t border-gray-200"></div>
-                      <span className="px-3 text-xs text-gray-500 font-medium">or use email</span>
-                      <div className="flex-1 border-t border-gray-200"></div>
-                    </div>
 
                     <form onSubmit={handleSignUp} className="space-y-3">
                       <div className="relative">
@@ -418,17 +407,42 @@ export default function SignInPage() {
 
                       <Button 
                         type="submit" 
-                        className="w-full h-12 sm:h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 uppercase tracking-wide"
+                        className="w-full h-10 sm:h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300"
                         disabled={loading}
                       >
-                        {loading ? 'Creating Account...' : 'Sign Up'}
+                        {loading ? 'Creating...' : 'Create Account'}
                       </Button>
                     </form>
+
+                    <div className="relative flex items-center justify-center my-4">
+                      <div className="flex-1 border-t border-gray-200"></div>
+                      <span className="px-3 text-xs text-gray-500 font-medium">or continue with</span>
+                      <div className="flex-1 border-t border-gray-200"></div>
+                    </div>
+
+                    {/* OAuth Buttons - Moved to bottom */}
+                    <div className="mb-4">
+                      <OAuthButtons callbackUrl="/auth/role-selection" />
+                    </div>
+
+                    <p className="mt-4 text-center text-xs sm:text-sm text-gray-600">
+                      Already have an account?{' '}
+                      <button
+                        onClick={() => {
+                          setShowSignIn(true);
+                          setError(null);
+                          setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+                        }}
+                        className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
+                      >
+                        Sign in
+                      </button>
+                    </p>
                   </div>
                 </div>
 
                 {/* Right Panel - Professional Welcome (40% width) */}
-                <div className="md:col-span-2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 p-8 sm:p-12 lg:p-16 flex flex-col items-center justify-center text-white relative overflow-hidden min-h-[400px] md:min-h-[600px] order-1 md:order-2">
+                <div className="md:col-span-2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 p-6 sm:p-8 lg:p-12 flex flex-col items-center justify-center text-white relative overflow-hidden min-h-[280px] md:min-h-[600px] order-1 md:order-2">
                   <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-10 right-10 w-32 h-32 border-4 border-white -rotate-45"></div>
                     <div className="absolute bottom-20 left-10 w-24 h-24 border-4 border-white rotate-12"></div>
