@@ -62,14 +62,16 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <div className="mb-8">
               <div className="flex items-center mb-6">
-                <Image 
-                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_background_removal/v1762455346/naukrimililogo1_bepp4v.png" 
-                  alt="NaukriMili - AI-Powered Job Portal" 
-                  className="h-12 w-auto object-contain"
-                  width={180}
-                  height={48}
-                  unoptimized
-                />
+                <div className="relative bg-white px-3 py-1.5 rounded-lg">
+                  <Image 
+                    src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762455346/naukrimililogo1_bepp4v.png" 
+                    alt="NaukriMili - AI-Powered Job Portal" 
+                    className="h-10 w-auto object-contain"
+                    width={180}
+                    height={40}
+                    unoptimized
+                  />
+                </div>
               </div>
               <p className="text-gray-600 text-base leading-relaxed max-w-md">
                 India's most trusted AI-powered job matching platform connecting top talent with leading employers. 

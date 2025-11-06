@@ -86,15 +86,17 @@ export default function MainNavigation({
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center hover:opacity-90 transition-all duration-300 group">
-              <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_background_removal/v1762455346/naukrimililogo1_bepp4v.png" 
-                alt="NaukriMili - Job Portal" 
-                className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
-                width={220}
-                height={64}
-                priority
-                unoptimized
-              />
+              <div className="relative bg-white px-3 py-1.5 rounded-lg">
+                <Image 
+                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762455346/naukrimililogo1_bepp4v.png" 
+                  alt="NaukriMili - Job Portal" 
+                  className="h-10 sm:h-12 lg:h-14 w-auto object-contain"
+                  width={200}
+                  height={56}
+                  priority
+                  unoptimized
+                />
+              </div>
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
           </div>
@@ -160,15 +162,17 @@ export default function MainNavigation({
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center hover:opacity-90 transition-all duration-300 group">
-            <Image 
-              src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_background_removal/v1762455346/naukrimililogo1_bepp4v.png" 
-              alt="NaukriMili - Job Portal" 
-              className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
-              width={220}
-              height={64}
-              priority
-              unoptimized
-            />
+            <div className="relative bg-white px-3 py-1.5 rounded-lg">
+              <Image 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762455346/naukrimililogo1_bepp4v.png" 
+                alt="NaukriMili - Job Portal" 
+                className="h-10 sm:h-12 lg:h-14 w-auto object-contain"
+                width={200}
+                height={56}
+                priority
+                unoptimized
+              />
+            </div>
           </Link>
 
           {/* Main Navigation - Enhanced Desktop */}
