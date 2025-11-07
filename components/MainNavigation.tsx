@@ -87,11 +87,11 @@ export default function MainNavigation({
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
               <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_trim/v1762546509/1naukkkLogo_gw9g5z.jpg" 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/f_png,e_trim,e_bgremoval,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
                 alt="NaukriMili - Job Portal" 
-                className="h-20 sm:h-24 lg:h-28 w-auto"
-                width={360}
-                height={112}
+                className="h-10 sm:h-12 lg:h-14 w-auto"
+                width={200}
+                height={56}
                 priority
                 unoptimized
                 style={{ display: 'block' }}
@@ -162,11 +162,11 @@ export default function MainNavigation({
           {/* Brand Logo */}
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
             <Image 
-              src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_trim/v1762546509/1naukkkLogo_gw9g5z.jpg" 
+              src="https://res.cloudinary.com/dko2hk0yo/image/upload/f_png,e_trim,e_bgremoval,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
               alt="NaukriMili - Job Portal" 
-              className="h-20 sm:h-24 lg:h-28 w-auto"
-              width={360}
-              height={112}
+              className="h-10 sm:h-12 lg:h-14 w-auto"
+              width={200}
+              height={56}
               priority
               unoptimized
               style={{ display: 'block' }}
