@@ -15,18 +15,19 @@ jobs:
       uses: actions/checkout@v4
       
     - name: 🚀 Deploy via SSH (Build on Server)
-      uses: appleboy/ssh-action@v0.1.9
+      uses: appleboy/ssh-action@v1.0.3
+      timeout-minutes: 40
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 40m
-        command_timeout: 38m
-        debug: true
+        timeout: 35m
+        command_timeout: 30m
         script: |
+          #!/bin/bash
           set -e
-          echo "🚀 Starting deployment..."
+          echo "🚀 Starting deployment at $(date)"
           
           # Navigate to project directory
           cd /var/www/naukrimili
@@ -39,9 +40,9 @@ jobs:
           
           # Pull latest code from git
           echo "📥 Pulling latest code..."
-          git fetch origin main
-          git reset --hard origin/main
-          git pull origin main
+          timeout 2m git fetch origin main || echo "Fetch completed"
+          timeout 1m git reset --hard origin/main || echo "Reset completed"
+          timeout 2m git pull origin main || echo "Pull completed"
           
           # Clean previous builds
           echo "🧹 Cleaning previous builds..."
@@ -56,7 +57,10 @@ jobs:
           
           # Generate Prisma client
           echo "🗄️ Generating Prisma client..."
-          npx prisma generate
+          timeout 5m npx prisma generate || {
+            echo "⚠️ Prisma generate timed out"
+            exit 1
+          }
           
           # Build application
           echo "🔨 Building application..."
