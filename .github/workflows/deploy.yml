@@ -8,134 +8,69 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 25
     
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
       
-    - name: 🚀 Deploy via SSH (Build on Server)
-      uses: appleboy/ssh-action@v1.0.3
-      timeout-minutes: 40
+    - name: 🚀 Deploy via SSH
+      uses: appleboy/ssh-action@v0.1.9
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        timeout: 35m
-        command_timeout: 30m
+        timeout: 15m
+        command_timeout: 12m
         script: |
-          #!/bin/bash
           set -e
-          echo "🚀 Starting deployment at $(date)"
+          echo "🚀 Starting deployment..."
           
-          # Navigate to project directory
           cd /var/www/naukrimili
           echo "📁 Working in: $(pwd)"
           
-          # Stop PM2 first to free up memory
-          echo "🛑 Stopping PM2..."
           pm2 stop naukrimili 2>/dev/null || true
           pm2 delete naukrimili 2>/dev/null || true
           
-          # Pull latest code from git
-          echo "📥 Pulling latest code..."
-          timeout 2m git fetch origin main || echo "Fetch completed"
-          timeout 1m git reset --hard origin/main || echo "Reset completed"
-          timeout 2m git pull origin main || echo "Pull completed"
+          git fetch origin main
+          git reset --hard origin/main
+          git pull origin main
           
-          # Clean previous builds
-          echo "🧹 Cleaning previous builds..."
           rm -rf .next
           
-          # Install/update dependencies
-          echo "📦 Installing dependencies..."
-          timeout 10m npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || {
-            echo "⚠️ npm ci failed, trying npm install..."
-            timeout 10m npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
-          }
+          npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
           
-          # Generate Prisma client
-          echo "🗄️ Generating Prisma client..."
-          timeout 5m npx prisma generate || {
-            echo "⚠️ Prisma generate timed out"
-            exit 1
-          }
+          npx prisma generate
           
-          # Build application
-          echo "🔨 Building application..."
           export NODE_ENV=production
           export NEXT_TELEMETRY_DISABLED=1
           export NODE_OPTIONS="--max-old-space-size=4096"
+          npm run build
           
-          # Build with timeout (30 minutes max)
-          timeout 30m npm run build || {
-            echo "❌ Build timed out or failed"
-            exit 1
-          }
-          
-          # Verify build
           if [ ! -d ".next" ]; then
-            echo "❌ Build failed - .next directory not found"
+            echo "❌ Build failed"
             exit 1
           fi
           
           echo "✅ Build completed"
-          du -sh .next
           
-          # Create logs directory
           mkdir -p ./logs
           
-          # Start with PM2
-          echo "🚀 Starting with PM2..."
-          pm2 start ecosystem.config.cjs --env production --update-env 2>&1 || {
-            echo "⚠️ PM2 start encountered an issue, checking if already running..."
-          }
+          pm2 start ecosystem.config.cjs --env production --update-env
           
-          # Wait for startup
-          echo "⏳ Waiting for app to initialize..."
-          sleep 15
+          sleep 10
+          pm2 status
           
-          # Check status
-          echo "📊 PM2 Status:"
-          pm2 list 2>&1 | grep -E "naukrimili|online|status" | head -5 || pm2 status | head -5
-          
-          # Health check
-          echo "🏥 Running health check..."
-          HEALTH_PASSED=false
           for i in {1..5}; do
             if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
               echo "✅ Health check passed!"
-              HEALTH_PASSED=true
               break
             else
               echo "❌ Health check failed (attempt $i/5)"
-              if [ $i -lt 5 ]; then
-                sleep 5
-              fi
+              sleep 5
             fi
           done
           
-          # Save PM2 configuration
-          echo "💾 Saving PM2 config..."
-          pm2 save --force 2>&1 | head -3 || echo "PM2 config saved"
-          
-          if [ "$HEALTH_PASSED" = true ]; then
-            echo "✅ Deployment completed successfully!"
-          else
-            echo "⚠️ Deployment completed but health check failed"
-            pm2 logs naukrimili --lines 10 --nostream 2>&1 | head -10 || true
-          fi
-          
-          echo "🎯 Deployment script finished at $(date)"
-          
-          # Kill any lingering pm2 processes
-          pkill -9 -f "pm2 logs" 2>/dev/null || true
-          pkill -9 -f "pm2 monit" 2>/dev/null || true
-          
-          # Close file descriptors
-          exec 1>&-
-          exec 2>&-
-          
-          # Force exit
-          exit 0
+          pm2 save
+          echo "✅ Deployment completed!"
