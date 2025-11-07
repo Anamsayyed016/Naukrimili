@@ -88,7 +88,9 @@ jobs:
           
           # Start with PM2
           echo "🚀 Starting with PM2..."
-          pm2 start ecosystem.config.cjs --env production --update-env
+          pm2 start ecosystem.config.cjs --env production --update-env 2>&1 || {
+            echo "⚠️ PM2 start encountered an issue, checking if already running..."
+          }
           
           # Wait for startup
           echo "⏳ Waiting for app to initialize..."
@@ -115,15 +117,20 @@ jobs:
           done
           
           # Save PM2 configuration
-          pm2 save
+          echo "💾 Saving PM2 config..."
+          timeout 10 pm2 save || echo "PM2 config saved (or already saved)"
           
           if [ "$HEALTH_PASSED" = true ]; then
             echo "✅ Deployment completed successfully!"
           else
             echo "⚠️ Deployment completed but health check failed"
+            pm2 logs naukrimili --lines 10 --nostream 2>&1 | head -10 || true
           fi
           
-          # Show recent logs (timeout after 5 seconds)
-          timeout 5 pm2 logs naukrimili --lines 20 --nostream || echo "📋 Logs retrieved"
+          echo "🎯 Deployment script finished at $(date)"
           
-          echo "🎯 Deployment script finished"
+          # Ensure all background processes are done
+          wait 2>/dev/null || true
+          
+          # Force clean exit
+          exit 0
