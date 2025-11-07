@@ -8,12 +8,12 @@
   "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "https://res.cloudinary.com/dko2hk0yo/image/upload/w_192,h_192,c_fit/v1762546542/naukkklogo2_kjlavn.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "https://res.cloudinary.com/dko2hk0yo/image/upload/w_512,h_512,c_fit/v1762546542/naukkklogo2_kjlavn.png",
       "sizes": "512x512",
       "type": "image/png"
     }

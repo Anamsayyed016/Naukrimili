@@ -86,17 +86,15 @@ export default function MainNavigation({
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center hover:opacity-90 transition-all duration-300 group">
-              <div className="relative">
-                <Image 
-                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/f_png,e_make_transparent:20/v1762546509/1naukkkLogo_gw9g5z.jpg" 
-                  alt="NaukriMili - Job Portal" 
-                  className="h-16 sm:h-20 lg:h-24 w-auto object-contain relative z-10"
-                  width={320}
-                  height={96}
-                  priority
-                  unoptimized
-                />
-              </div>
+              <Image 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762546542/naukkklogo2_kjlavn.png" 
+                alt="NaukriMili - Job Portal" 
+                className="h-16 sm:h-20 lg:h-24 w-auto object-contain"
+                width={320}
+                height={96}
+                priority
+                unoptimized
+              />
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
           </div>
@@ -162,17 +160,15 @@ export default function MainNavigation({
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center hover:opacity-90 transition-all duration-300 group">
-            <div className="relative">
-              <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/f_png,e_make_transparent:20/v1762546509/1naukkkLogo_gw9g5z.jpg" 
-                alt="NaukriMili - Job Portal" 
-                className="h-16 sm:h-20 lg:h-24 w-auto object-contain relative z-10"
-                width={320}
-                height={96}
-                priority
-                unoptimized
-              />
-            </div>
+            <Image 
+              src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762546542/naukkklogo2_kjlavn.png" 
+              alt="NaukriMili - Job Portal" 
+              className="h-16 sm:h-20 lg:h-24 w-auto object-contain"
+              width={320}
+              height={96}
+              priority
+              unoptimized
+            />
           </Link>
 
           {/* Main Navigation - Enhanced Desktop */}
