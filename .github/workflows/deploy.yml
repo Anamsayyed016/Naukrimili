@@ -98,7 +98,7 @@ jobs:
           
           # Check status
           echo "📊 PM2 Status:"
-          pm2 status | head -20
+          pm2 list 2>&1 | grep -E "naukrimili|online|status" | head -5 || pm2 status | head -5
           
           # Health check
           echo "🏥 Running health check..."
@@ -118,7 +118,7 @@ jobs:
           
           # Save PM2 configuration
           echo "💾 Saving PM2 config..."
-          timeout 10 pm2 save || echo "PM2 config saved (or already saved)"
+          pm2 save --force 2>&1 | head -3 || echo "PM2 config saved"
           
           if [ "$HEALTH_PASSED" = true ]; then
             echo "✅ Deployment completed successfully!"
@@ -129,8 +129,13 @@ jobs:
           
           echo "🎯 Deployment script finished at $(date)"
           
-          # Ensure all background processes are done
-          wait 2>/dev/null || true
+          # Kill any lingering pm2 processes
+          pkill -9 -f "pm2 logs" 2>/dev/null || true
+          pkill -9 -f "pm2 monit" 2>/dev/null || true
           
-          # Force clean exit
+          # Close file descriptors
+          exec 1>&-
+          exec 2>&-
+          
+          # Force exit
           exit 0
