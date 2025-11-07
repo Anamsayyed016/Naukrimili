@@ -214,27 +214,27 @@ export default function JobDetailsPage() {
       {/* Google-compliant JobPosting structured data */}
       <JobPostingSchema job={job} />
       
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+        <div className="container mx-auto px-4 py-8 max-w-full">
         {/* Breadcrumb */}
-        <nav className="mb-6">
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <button onClick={() => router.push('/')} className="hover:text-blue-600">
+        <nav className="mb-6 w-full overflow-x-auto">
+          <div className="flex items-center space-x-2 text-sm text-gray-600 whitespace-nowrap">
+            <button onClick={() => router.push('/')} className="hover:text-blue-600 flex-shrink-0">
               Home
             </button>
-            <span>/</span>
-            <button onClick={() => router.push('/jobs')} className="hover:text-blue-600">
+            <span className="flex-shrink-0">/</span>
+            <button onClick={() => router.push('/jobs')} className="hover:text-blue-600 flex-shrink-0">
               Jobs
             </button>
-            <span>/</span>
-            <span className="text-gray-900">{job.title}</span>
+            <span className="flex-shrink-0">/</span>
+            <span className="text-gray-900 truncate max-w-[200px] sm:max-w-md">{job.title}</span>
           </div>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 w-full max-w-full">
           {/* Main Content */}
-          <div className="lg:col-span-2 min-w-0">
-            <Card className="mb-4 sm:mb-6 overflow-visible">
+          <div className="lg:col-span-2 min-w-0 w-full max-w-full overflow-x-hidden">
+            <Card className="mb-4 sm:mb-6 overflow-hidden w-full">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -296,57 +296,53 @@ export default function JobDetailsPage() {
                 </div>
               </CardHeader>
               
-              <CardContent>
+              <CardContent className="w-full max-w-full overflow-x-hidden">
                 {/* Job Info */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 w-full">
                   {job.salaryMin || job.salaryMax || job.salary ? (
-                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 rounded-2xl border-2 border-emerald-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
-                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                      <div className="relative p-3 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl shadow-inner">
-                        <DollarSign className="w-5 h-5 text-emerald-600" />
+                    <div className="group relative flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 rounded-2xl border-2 border-emerald-200 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden" style={{ contain: 'layout style paint' }}>
+                      <div className="relative p-2 sm:p-3 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl shadow-inner flex-shrink-0">
+                        <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                       </div>
                       <div className="relative flex-1 min-w-0">
                         <p className="text-xs text-emerald-700 font-semibold uppercase tracking-wider mb-1">Salary</p>
-                        <p className="font-extrabold text-emerald-900 text-sm">{formatJobSalary(job)}</p>
+                        <p className="font-extrabold text-emerald-900 text-sm truncate">{formatJobSalary(job)}</p>
                       </div>
                     </div>
                   ) : null}
                   
                   {job.jobType && (
-                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50 rounded-2xl border-2 border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                      <div className="relative p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl shadow-inner">
-                        <Briefcase className="w-5 h-5 text-blue-600" />
+                    <div className="group relative flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50 rounded-2xl border-2 border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden" style={{ contain: 'layout style paint' }}>
+                      <div className="relative p-2 sm:p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl shadow-inner flex-shrink-0">
+                        <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                       </div>
                       <div className="relative flex-1 min-w-0">
                         <p className="text-xs text-blue-600 font-semibold uppercase tracking-wider mb-1">Type</p>
-                        <p className="font-extrabold text-blue-900 text-base uppercase tracking-wide">{job.jobType.replace(/-/g, ' ')}</p>
+                        <p className="font-extrabold text-blue-900 text-sm sm:text-base uppercase tracking-wide truncate">{job.jobType.replace(/-/g, ' ')}</p>
                       </div>
                     </div>
                   )}
                   
                   {job.experienceLevel && (
-                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-fuchsia-50 rounded-2xl border-2 border-purple-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                      <div className="relative p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl shadow-inner">
-                        <Users className="w-5 h-5 text-purple-600" />
+                    <div className="group relative flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-fuchsia-50 rounded-2xl border-2 border-purple-200 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden" style={{ contain: 'layout style paint' }}>
+                      <div className="relative p-2 sm:p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl shadow-inner flex-shrink-0">
+                        <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                       </div>
                       <div className="relative flex-1 min-w-0">
                         <p className="text-xs text-purple-600 font-semibold uppercase tracking-wider mb-1">Experience</p>
-                        <p className="font-extrabold text-purple-900 text-base uppercase tracking-wide">{job.experienceLevel}</p>
+                        <p className="font-extrabold text-purple-900 text-sm sm:text-base uppercase tracking-wide truncate">{job.experienceLevel}</p>
                       </div>
                     </div>
                   )}
                   
                   {job.postedAt && (
-                    <div className="group relative flex items-center gap-3 p-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl border-2 border-orange-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
-                      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                      <div className="relative p-3 bg-gradient-to-br from-orange-100 to-amber-100 rounded-xl shadow-inner">
-                        <Calendar className="w-5 h-5 text-orange-600" />
+                    <div className="group relative flex items-center gap-3 p-3 sm:p-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 rounded-2xl border-2 border-orange-200 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden" style={{ contain: 'layout style paint' }}>
+                      <div className="relative p-2 sm:p-3 bg-gradient-to-br from-orange-100 to-amber-100 rounded-xl shadow-inner flex-shrink-0">
+                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
                       </div>
                       <div className="relative flex-1 min-w-0">
                         <p className="text-xs text-orange-600 font-semibold uppercase tracking-wider mb-1">Posted</p>
-                        <p className="font-extrabold text-orange-900 text-sm">{new Date(job.postedAt).toLocaleDateString()}</p>
+                        <p className="font-extrabold text-orange-900 text-sm truncate">{new Date(job.postedAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                   )}
@@ -354,11 +350,11 @@ export default function JobDetailsPage() {
 
                 {/* Skills */}
                 {(skillsArray || []).length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-3">Required Skills</h3>
+                  <div className="mb-6 w-full overflow-x-hidden">
+                    <h3 className="text-base sm:text-lg font-semibold mb-3">Required Skills</h3>
                     <div className="flex flex-wrap gap-2">
                       {skillsArray.map((skill, index) => (
-                        <Badge key={index} variant="secondary" className="text-sm">
+                        <Badge key={index} variant="secondary" className="text-xs sm:text-sm truncate max-w-full">
                           {skill}
                         </Badge>
                       ))}
@@ -367,23 +363,23 @@ export default function JobDetailsPage() {
                 )}
 
                 {/* Job Description */}
-                <div className="mb-6">
+                <div className="mb-6 w-full overflow-x-hidden">
                   <h3 className="text-base sm:text-lg font-semibold mb-3">Job Description</h3>
-                  <div className="prose prose-sm sm:prose max-w-none">
-                    <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{job.description}</p>
+                  <div className="prose prose-sm sm:prose max-w-full overflow-x-hidden">
+                    <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base leading-relaxed break-words">{job.description}</p>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="space-y-4">
+                <div className="space-y-4 w-full">
                   {/* Primary Action: Internal Application */}
                   <Button 
                     onClick={handleInternalApply}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
                   >
                     <Send className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                    <span className="hidden sm:inline">Apply on NaukriMili (Recommended)</span>
-                    <span className="sm:hidden">Apply on NaukriMili ⭐</span>
+                    <span className="hidden sm:inline truncate">Apply on NaukriMili (Recommended)</span>
+                    <span className="sm:hidden truncate">Apply on NaukriMili ⭐</span>
                   </Button>
                   
                   {/* Secondary Action: External Job Link */}
@@ -401,11 +397,11 @@ export default function JobDetailsPage() {
                       <Button 
                         onClick={handleExternalApply}
                         variant="outline"
-                        className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 py-3 sm:py-4 px-4 sm:px-8 rounded-lg font-semibold text-sm sm:text-base md:text-lg transition-all duration-200 flex items-center justify-center gap-2"
+                        className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-semibold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-2"
                       >
                         <Globe className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                        <span className="hidden sm:inline">Search Company Career Page</span>
-                        <span className="sm:hidden">Company Career Page</span>
+                        <span className="hidden sm:inline truncate">Search Company Career Page</span>
+                        <span className="sm:hidden truncate">Company Career Page</span>
                       </Button>
                       
                       <p className="text-xs text-center text-gray-500">
@@ -420,53 +416,53 @@ export default function JobDetailsPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-4 sm:space-y-6 min-w-0">
+          <div className="space-y-4 sm:space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
             {/* Job Stats - Enhanced and Responsive */}
-            <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-blue-200 shadow-lg overflow-visible" style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}>
+            <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-blue-200 shadow-lg overflow-hidden w-full" style={{ contain: 'layout style paint' }}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   📊 Job Statistics
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2 sm:space-y-3">
-                <div className="flex items-center justify-between p-2 sm:p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
+              <CardContent className="space-y-2 sm:space-y-3 w-full overflow-x-hidden">
+                <div className="flex items-center justify-between p-2 sm:p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-blue-100 hover:bg-white/80 transition-colors w-full" style={{ contain: 'layout style paint' }}>
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div className="p-1.5 bg-blue-100 rounded-lg flex-shrink-0">
                       <Eye className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
                     </div>
-                    <span className="text-slate-700 font-medium text-sm sm:text-base truncate">Views</span>
+                    <span className="text-slate-700 font-medium text-xs sm:text-sm truncate">Views</span>
                   </div>
-                  <span className="font-bold text-blue-700 text-base sm:text-lg flex-shrink-0 ml-2">{job.views || 0}</span>
+                  <span className="font-bold text-blue-700 text-sm sm:text-base flex-shrink-0 ml-2">{job.views || 0}</span>
                 </div>
-                <div className="flex items-center justify-between p-2 sm:p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-green-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
+                <div className="flex items-center justify-between p-2 sm:p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-green-100 hover:bg-white/80 transition-colors w-full" style={{ contain: 'layout style paint' }}>
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div className="p-1.5 bg-green-100 rounded-lg flex-shrink-0">
                       <Users className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                     </div>
-                    <span className="text-slate-700 font-medium text-sm sm:text-base truncate">Applications</span>
+                    <span className="text-slate-700 font-medium text-xs sm:text-sm truncate">Applications</span>
                   </div>
-                  <span className="font-bold text-green-700 text-base sm:text-lg flex-shrink-0 ml-2">{job.applicationsCount || 0}</span>
+                  <span className="font-bold text-green-700 text-sm sm:text-base flex-shrink-0 ml-2">{job.applicationsCount || 0}</span>
                 </div>
                 {job.sector && (
-                  <div className="flex items-center justify-between p-2 sm:p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-purple-100 hover:bg-white/80 transition-all" style={{ contain: 'layout style' }}>
+                  <div className="flex items-center justify-between p-2 sm:p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-purple-100 hover:bg-white/80 transition-colors w-full" style={{ contain: 'layout style paint' }}>
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <div className="p-1.5 bg-purple-100 rounded-lg flex-shrink-0">
                         <Building2 className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
                       </div>
-                      <span className="text-slate-700 font-medium text-sm sm:text-base truncate">Sector</span>
+                      <span className="text-slate-700 font-medium text-xs sm:text-sm truncate">Sector</span>
                     </div>
-                    <span className="font-bold text-purple-700 text-xs sm:text-sm capitalize flex-shrink-0 ml-2">{job.sector}</span>
+                    <span className="font-bold text-purple-700 text-xs sm:text-sm capitalize flex-shrink-0 ml-2 truncate max-w-[100px]">{job.sector}</span>
                   </div>
                 )}
                 {/* Additional dynamic metrics */}
-                <div className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-100" style={{ contain: 'layout style' }}>
+                <div className="flex items-center justify-between p-2 sm:p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-100 w-full" style={{ contain: 'layout style paint' }}>
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div className="p-1.5 bg-yellow-100 rounded-lg flex-shrink-0">
                       <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600" />
                     </div>
-                    <span className="text-slate-700 font-medium text-sm sm:text-base truncate">Engagement</span>
+                    <span className="text-slate-700 font-medium text-xs sm:text-sm truncate">Engagement</span>
                   </div>
-                  <span className="font-bold text-yellow-700 text-base sm:text-lg flex-shrink-0 ml-2">
+                  <span className="font-bold text-yellow-700 text-sm sm:text-base flex-shrink-0 ml-2">
                     {Math.round(((job.applicationsCount || 0) / Math.max(job.views || 1, 1)) * 100)}%
                   </span>
                 </div>
@@ -475,11 +471,11 @@ export default function JobDetailsPage() {
 
             {/* Company Info */}
             {job.companyRelation && (
-              <Card>
+              <Card className="w-full overflow-hidden">
                 <CardHeader>
-                  <CardTitle className="text-lg">About Company</CardTitle>
+                  <CardTitle className="text-base sm:text-lg truncate">About Company</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="w-full overflow-x-hidden">
                   <div className="text-center">
                     {job.companyRelation.logo && (
                       <img 
@@ -488,15 +484,15 @@ export default function JobDetailsPage() {
                         className="w-16 h-16 mx-auto mb-4 rounded-lg object-cover"
                       />
                     )}
-                    <h4 className="font-semibold text-lg mb-2">{job.companyRelation.name}</h4>
-                    <p className="text-gray-600 mb-2">{job.companyRelation.location}</p>
-                    <p className="text-sm text-gray-500">{job.companyRelation.industry}</p>
+                    <h4 className="font-semibold text-base sm:text-lg mb-2 truncate">{job.companyRelation.name}</h4>
+                    <p className="text-gray-600 mb-2 text-sm truncate">{job.companyRelation.location}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 truncate">{job.companyRelation.industry}</p>
                     {job.companyRelation.website && (
                       <a 
                         href={job.companyRelation.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm mt-2 inline-block"
+                        className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm mt-2 inline-block truncate max-w-full"
                       >
                         Visit Website
                       </a>
@@ -507,11 +503,11 @@ export default function JobDetailsPage() {
             )}
 
             {/* Share Job */}
-            <Card className="overflow-visible">
+            <Card className="w-full overflow-hidden">
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Share This Job</CardTitle>
+                <CardTitle className="text-base sm:text-lg truncate">Share This Job</CardTitle>
               </CardHeader>
-              <CardContent className="overflow-visible">
+              <CardContent className="w-full overflow-x-hidden">
                 <JobShare job={job} />
               </CardContent>
             </Card>

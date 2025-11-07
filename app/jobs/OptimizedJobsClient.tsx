@@ -366,6 +366,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     const sector = searchParams.get('sector') || '';
     const countryParam = (searchParams.get('country') || '').toUpperCase();
     
+    // Scroll to top smoothly when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     setCurrentPage(page);
     fetchJobs(query, location, page, {
       jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
@@ -383,7 +386,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full overflow-x-hidden">
 
       {/* Loading State */}
       {loading && (jobs || []).length === 0 && (
@@ -433,8 +436,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       )}
 
       {/* Search Results Header with Filters */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 w-full max-w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
               {totalJobs > 0 ? `${totalJobs} Jobs Found` : 'No Jobs Found'}
@@ -591,7 +594,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           </div>
 
           {/* Jobs Grid/List */}
-          <div className={`${
+          <div className={`w-full max-w-full ${
             viewMode === 'grid' 
               ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
               : viewMode === 'compact'
@@ -611,7 +614,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center mt-8">
+            <div className="flex justify-center mt-8 w-full max-w-full" style={{ minHeight: '80px' }}>
               <EnhancedPagination
                 config={{
                   page: currentPage,
@@ -623,6 +626,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   showPageNumbers: true
                 }}
                 onPageChange={handlePageChange}
+                className="w-full"
               />
             </div>
           )}

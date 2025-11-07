@@ -101,10 +101,14 @@ export default function EnhancedJobCard({
     return (
       <>
         <motion.div
-          className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 p-3 sm:p-4"
-          whileHover={{ y: -2 }}
-          layoutId={`job-card-${normalizedJob.id}`}
-          style={{ willChange: 'transform', transform: 'translateZ(0)', contain: 'layout style' }}
+          className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 p-3 sm:p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.15 }}
+          style={{ 
+            contain: 'layout style paint',
+            contentVisibility: 'auto'
+          }}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
@@ -215,12 +219,16 @@ export default function EnhancedJobCard({
   return (
     <>
       <motion.div
-        className={`group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden ${
+        className={`group bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-200 overflow-hidden ${
           viewMode === 'grid' ? 'h-full' : ''
         }`}
-        style={{ willChange: 'transform', transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
-        whileHover={{ y: -4, boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
-        layoutId={`job-card-${job.id}`}
+        style={{ 
+          contain: 'layout style paint',
+          contentVisibility: 'auto'
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
       >
         {/* Card Header */}
         <div className="p-6 bg-gradient-to-br from-white to-slate-50/50">
@@ -229,16 +237,12 @@ export default function EnhancedJobCard({
               {/* Status badges - Enhanced with gradients */}
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 {job.is_urgent && (
-                  <motion.span 
+                  <span 
                     className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border border-red-300 text-xs font-semibold rounded-full shadow-sm"
-                    style={{ willChange: 'transform' }}
-                    initial={{ scale: 0.9 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', duration: 0.2 }}
                   >
                     <FireIcon className="w-3 h-3" />
                     Urgent Hiring
-                  </motion.span>
+                  </span>
                 )}
                 {job.is_featured && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 border border-yellow-300 text-xs font-semibold rounded-full shadow-sm">

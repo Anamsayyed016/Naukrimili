@@ -89,6 +89,21 @@
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Prevent horizontal scroll on body */
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pinch-zoom;
+}
+
+/* Optimize all containers for mobile scroll */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Custom scrollbar */
@@ -107,4 +122,24 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* Mobile-specific smooth scrolling */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+    position: relative;
+  }
+  
+  /* Prevent layout shift during scroll */
+  * {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* Optimize touch scrolling for iOS */
+  div, section, main, article {
+    -webkit-overflow-scrolling: touch;
+  }
 }

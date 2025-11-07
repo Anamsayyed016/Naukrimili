@@ -61,14 +61,14 @@ export function EnhancedPagination({
 
   if (compact) {
     return (
-      <div className={`flex items-center justify-between ${className}`}>
+      <div className={`flex items-center justify-between w-full max-w-full ${className}`}>
         {showInfo && (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 truncate">
             {pagination.infoText}
           </div>
         )}
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 flex-shrink-0">
           {pagination.hasPrev && (
             <Button
               variant="outline"
@@ -100,16 +100,16 @@ export function EnhancedPagination({
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 w-full max-w-full ${className}`}>
       {/* Pagination Info */}
       {showInfo && (
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-600 w-full">
+          <div className="truncate">
             {pagination.infoText}
           </div>
           
           {showItemsPerPage && (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <span>Show:</span>
               <Select
                 value={pagination.itemsPerPage.toString()}
@@ -133,7 +133,7 @@ export function EnhancedPagination({
       )}
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-center space-x-1">
+      <div className="flex items-center justify-center space-x-1 flex-wrap gap-1 w-full overflow-x-auto touch-pan-x" style={{ WebkitOverflowScrolling: 'touch' as any }}>
         {/* First Page */}
         {pagination.pages.some(p => p.type === 'first') && (
           <Button
