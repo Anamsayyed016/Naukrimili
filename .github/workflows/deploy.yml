@@ -49,9 +49,9 @@ jobs:
           
           # Install/update dependencies
           echo "📦 Installing dependencies..."
-          npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || {
+          timeout 10m npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || {
             echo "⚠️ npm ci failed, trying npm install..."
-            npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+            timeout 10m npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
           }
           
           # Generate Prisma client
@@ -63,7 +63,12 @@ jobs:
           export NODE_ENV=production
           export NEXT_TELEMETRY_DISABLED=1
           export NODE_OPTIONS="--max-old-space-size=4096"
-          npm run build
+          
+          # Build with timeout (30 minutes max)
+          timeout 30m npm run build || {
+            echo "❌ Build timed out or failed"
+            exit 1
+          }
           
           # Verify build
           if [ ! -d ".next" ]; then
@@ -79,29 +84,42 @@ jobs:
           
           # Start with PM2
           echo "🚀 Starting with PM2..."
-          pm2 start ecosystem.config.cjs --env production
+          pm2 start ecosystem.config.cjs --env production --update-env
           
           # Wait for startup
-          sleep 10
+          echo "⏳ Waiting for app to initialize..."
+          sleep 15
           
           # Check status
           echo "📊 PM2 Status:"
-          pm2 status
+          pm2 status | head -20
           
           # Health check
           echo "🏥 Running health check..."
+          HEALTH_PASSED=false
           for i in {1..5}; do
             if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
               echo "✅ Health check passed!"
+              HEALTH_PASSED=true
               break
             else
               echo "❌ Health check failed (attempt $i/5)"
-              sleep 5
+              if [ $i -lt 5 ]; then
+                sleep 5
+              fi
             fi
           done
           
           # Save PM2 configuration
           pm2 save
           
-          echo "✅ Deployment completed successfully!"
-          pm2 logs naukrimili --lines 50 --nostream
+          if [ "$HEALTH_PASSED" = true ]; then
+            echo "✅ Deployment completed successfully!"
+          else
+            echo "⚠️ Deployment completed but health check failed"
+          fi
+          
+          # Show recent logs (timeout after 5 seconds)
+          timeout 5 pm2 logs naukrimili --lines 20 --nostream || echo "📋 Logs retrieved"
+          
+          echo "🎯 Deployment script finished"
