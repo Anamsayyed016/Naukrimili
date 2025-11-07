@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     description: 'Find the latest jobs in India, USA, UK, and UAE on Naukrimili. Build your free professional resume and apply for top companies worldwide.',
     images: [
       {
-        url: 'https://res.cloudinary.com/dko2hk0yo/image/upload/e_background_removal/v1762546509/1naukkkLogo_gw9g5z.jpg',
+        url: 'https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/v1762546509/1naukkkLogo_gw9g5z.jpg',
         width: 1200,
         height: 630,
         alt: 'Naukrimili - Job Portal with Free Resume Builder',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Jobs - Recruitment - Job Search - Employment - Free Resume Builder | Naukrimili',
     description: 'Find the latest jobs in India, USA, UK, and UAE on Naukrimili. Build your free professional resume and apply for top companies worldwide.',
-    images: ['https://res.cloudinary.com/dko2hk0yo/image/upload/e_background_removal/v1762546509/1naukkkLogo_gw9g5z.jpg'],
+    images: ['https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/v1762546509/1naukkkLogo_gw9g5z.jpg'],
     creator: '@naukrimili',
     site: '@naukrimili',
   },
@@ -117,7 +117,7 @@ export default function RootLayout({
               "name": "Naukrimili",
               "alternateName": "Naukrimili Job Portal",
               "url": "https://www.naukrimili.com",
-              "logo": "https://res.cloudinary.com/dko2hk0yo/image/upload/e_background_removal/v1762546509/1naukkkLogo_gw9g5z.jpg",
+              "logo": "https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/v1762546509/1naukkkLogo_gw9g5z.jpg",
               "description": "Leading job portal connecting job seekers with top employers across India, USA, UK, and UAE. Free resume builder included.",
               "foundingDate": "2024",
               "address": {
@@ -180,7 +180,7 @@ export default function RootLayout({
                 "name": "Naukrimili",
                 "logo": {
                   "@type": "ImageObject",
-                  "url": "https://res.cloudinary.com/dko2hk0yo/image/upload/e_background_removal/v1762546509/1naukkkLogo_gw9g5z.jpg"
+                  "url": "https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/v1762546509/1naukkkLogo_gw9g5z.jpg"
                 }
               }
             })
