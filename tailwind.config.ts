@@ -13,7 +13,9 @@ const config: Config = {
   // Safelist arbitrary values for production builds
   safelist: [
     'h-[78px]',
+    'h-[82px]',
     'h-[94px]',
+    'h-[98px]',
   ],
   
   // Dark mode class strategy
