@@ -14,8 +14,10 @@ const config: Config = {
   safelist: [
     'h-[78px]',
     'h-[82px]',
+    'h-[86px]',
     'h-[94px]',
     'h-[98px]',
+    'h-[102px]',
   ],
   
   // Dark mode class strategy
