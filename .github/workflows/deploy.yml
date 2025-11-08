@@ -32,17 +32,12 @@ jobs:
           echo "✅ All secrets are configured"
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT || '22' }}
+          host: "${{ secrets.SSH_HOST }}"
+          username: "${{ secrets.SSH_USERNAME }}"
+          key: "${{ secrets.SSH_KEY }}"
+          port: "${{ secrets.SSH_PORT || 22 }}"
           timeout: 60s
           command_timeout: 30m
           script: |
