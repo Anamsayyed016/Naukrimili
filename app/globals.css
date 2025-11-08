@@ -110,7 +110,7 @@ body {
 /* Adjust padding for larger screens to match navbar height */
 @media (min-width: 1024px) {
   body {
-    padding-top: 7rem; /* 112px for desktop (lg:h-28) */
+    padding-top: 6rem; /* 96px for desktop (lg:h-24) */
   }
 }
 
