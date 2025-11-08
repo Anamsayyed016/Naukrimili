@@ -104,13 +104,13 @@ body {
    * Navbar is fixed (not sticky) to ensure it's always visible when scrolling
    * @see components/MainNavigation.tsx
    */
-  padding-top: 5rem; /* 80px for mobile (h-20) */
+  padding-top: 6rem; /* 96px for mobile (h-24) */
 }
 
 /* Adjust padding for larger screens to match navbar height */
 @media (min-width: 1024px) {
   body {
-    padding-top: 6rem; /* 96px for desktop (lg:h-24) */
+    padding-top: 7rem; /* 112px for desktop (lg:h-28) */
   }
 }
 
