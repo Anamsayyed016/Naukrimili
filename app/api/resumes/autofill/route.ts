@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';  // Use singleton instance
 import EnhancedResumeAI, { ExtractedResumeData } from '@/lib/enhanced-resume-ai';
 import PDFExtractor from '@/lib/pdf-extractor';
-
-const prisma = new PrismaClient();
 
 const ALLOWED_TYPES = [
   'application/pdf',

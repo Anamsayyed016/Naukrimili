@@ -15,6 +15,8 @@ module.exports = {
         HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
+        // Database - CRITICAL: Must be loaded from .env file
+        DATABASE_URL: process.env.DATABASE_URL,
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",
@@ -41,6 +43,8 @@ module.exports = {
         HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
+        // Database - CRITICAL: Must be loaded from .env file
+        DATABASE_URL: process.env.DATABASE_URL,
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",

@@ -2,11 +2,9 @@ import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import GitHubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { PrismaClient } from "@prisma/client"
 import { getServerSession } from "next-auth/next"
 import bcrypt from "bcryptjs"
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"  // Use singleton instance instead of creating new one
 
 const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,

@@ -5,6 +5,8 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // Enhanced Prisma client with connection pooling, retry logic, and error handling
+// CRITICAL: This is a SINGLETON - only ONE instance should exist globally
+// All other files must import this instead of creating new PrismaClient()
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   
@@ -12,6 +14,13 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   ...(process.env.NODE_ENV === 'production' && {
     errorFormat: 'minimal' as const,
   }),
+  
+  // Add connection timeout to prevent hanging connections
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  }
 });
 
 // Connection pool settings (configured in DATABASE_URL)

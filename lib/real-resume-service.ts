@@ -1,7 +1,5 @@
 import fs from 'fs';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';  // Use singleton instance
 
 export interface ExtractedResumeData {
   fullName: string;

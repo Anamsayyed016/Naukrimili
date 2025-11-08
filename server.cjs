@@ -4,6 +4,26 @@ const next = require('next');
 const path = require('path');
 const fs = require('fs');
 
+// Load environment variables from .env file FIRST (before anything else)
+// This ensures DATABASE_URL is available for Prisma connections
+try {
+  const envPath = path.join(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+    console.log('✅ Environment variables loaded from .env');
+    // Verify DATABASE_URL is loaded
+    if (process.env.DATABASE_URL) {
+      console.log('✅ DATABASE_URL is set');
+    } else {
+      console.warn('⚠️  DATABASE_URL not found in environment');
+    }
+  } else {
+    console.warn('⚠️  .env file not found, using system environment variables');
+  }
+} catch (error) {
+  console.error('❌ Error loading .env:', error.message);
+}
+
 // Force production mode
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
