@@ -98,12 +98,12 @@ export default function MainNavigation({
               <Image 
                 src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762546509/1naukkkLogo_gw9g5z.jpg" 
                 alt="NaukriMili - Job Portal" 
-                className="h-10 sm:h-12 lg:h-14 w-auto"
-                width={200}
-                height={56}
+                className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+                width={240}
+                height={64}
                 priority
                 unoptimized
-                style={{ display: 'block' }}
+                style={{ display: 'block', backgroundColor: 'transparent', mixBlendMode: 'multiply' }}
               />
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
@@ -173,12 +173,12 @@ export default function MainNavigation({
             <Image 
               src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762546509/1naukkkLogo_gw9g5z.jpg" 
               alt="NaukriMili - Job Portal" 
-              className="h-10 sm:h-12 lg:h-14 w-auto"
-              width={200}
-              height={56}
+              className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+              width={240}
+              height={64}
               priority
               unoptimized
-              style={{ display: 'block' }}
+              style={{ display: 'block', backgroundColor: 'transparent', mixBlendMode: 'multiply' }}
             />
           </Link>
 
