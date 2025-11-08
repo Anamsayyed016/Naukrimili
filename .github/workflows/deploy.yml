@@ -1,76 +1,98 @@
-name: 🚀 Production Deployment
+name: Deploy to Production
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   deploy:
+    name: Deploy to Server
     runs-on: ubuntu-latest
-    timeout-minutes: 25
     
     steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v4
-      
-    - name: 🚀 Deploy via SSH
-      uses: appleboy/ssh-action@v0.1.9
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        timeout: 15m
-        command_timeout: 12m
-        script: |
-          set -e
-          echo "🚀 Starting deployment..."
-          
-          cd /var/www/naukrimili
-          echo "📁 Working in: $(pwd)"
-          
-          pm2 stop naukrimili 2>/dev/null || true
-          pm2 delete naukrimili 2>/dev/null || true
-          
-          git fetch origin main
-          git reset --hard origin/main
-          git pull origin main
-          
-          rm -rf .next
-          
-          npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
-          
-          npx prisma generate
-          
-          export NODE_ENV=production
-          export NEXT_TELEMETRY_DISABLED=1
-          export NODE_OPTIONS="--max-old-space-size=4096"
-          npm run build
-          
-          if [ ! -d ".next" ]; then
-            echo "❌ Build failed"
-            exit 1
-          fi
-          
-          echo "✅ Build completed"
-          
-          mkdir -p ./logs
-          
-          pm2 start ecosystem.config.cjs --env production --update-env
-          
-          sleep 10
-          pm2 status
-          
-          for i in {1..5}; do
-            if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
-              echo "✅ Health check passed!"
-              break
-            else
-              echo "❌ Health check failed (attempt $i/5)"
-              sleep 5
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          timeout: 60s
+          command_timeout: 30m
+          script: |
+            set -e
+            echo "🚀 Starting deployment..."
+            
+            cd /var/www/naukrimili
+            echo "📁 Working in: $(pwd)"
+            
+            # Stop PM2 process
+            pm2 stop naukrimili 2>/dev/null || true
+            pm2 delete naukrimili 2>/dev/null || true
+            
+            # Pull latest code
+            git fetch origin main
+            git reset --hard origin/main
+            git pull origin main
+            
+            # Clean build
+            rm -rf .next
+            
+            # Install dependencies
+            npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+            
+            # Generate Prisma client
+            npx prisma generate
+            
+            # Set environment variables
+            export NODE_ENV=production
+            export NEXT_TELEMETRY_DISABLED=1
+            export NODE_OPTIONS="--max-old-space-size=4096"
+            
+            # Build
+            npm run build
+            
+            if [ ! -d ".next" ]; then
+              echo "❌ Build failed"
+              exit 1
             fi
-          done
-          
-          pm2 save
-          echo "✅ Deployment completed!"
+            
+            echo "✅ Build completed"
+            
+            # Create logs directory
+            mkdir -p ./logs
+            
+            # Start with PM2
+            pm2 start ecosystem.config.cjs --env production --update-env
+            
+            # Wait for app to start
+            sleep 10
+            
+            # Check PM2 status
+            pm2 status
+            
+            # Health check
+            for i in {1..5}; do
+              if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ Health check passed!"
+                break
+              else
+                echo "⚠️ Health check failed (attempt $i/5)"
+                if [ $i -eq 5 ]; then
+                  echo "❌ Health check failed after 5 attempts"
+                  pm2 logs naukrimili --lines 50
+                  exit 1
+                fi
+                sleep 5
+              fi
+            done
+            
+            # Save PM2 process list
+            pm2 save
+            
+            echo "✅ Deployment completed successfully!"
