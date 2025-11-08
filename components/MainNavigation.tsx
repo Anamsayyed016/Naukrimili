@@ -98,7 +98,7 @@ export default function MainNavigation({
               <Image 
                 src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
                 alt="NaukriMili - Job Portal" 
-                className="h-[110px] sm:h-[110px] lg:h-[120px] w-auto object-contain"
+                className="h-[120px] sm:h-[120px] lg:h-[130px] w-auto object-contain"
                 width={400}
                 height={160}
                 priority
@@ -172,7 +172,7 @@ export default function MainNavigation({
             <Image 
               src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
               alt="NaukriMili - Job Portal" 
-                className="h-[110px] sm:h-[110px] lg:h-[120px] w-auto object-contain"
+                className="h-[120px] sm:h-[120px] lg:h-[130px] w-auto object-contain"
               width={400}
               height={160}
               priority
