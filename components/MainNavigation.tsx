@@ -96,7 +96,7 @@ export default function MainNavigation({
           <div className="flex items-center justify-between h-20 lg:h-24">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
               <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_make_transparent/e_trim/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
                 alt="NaukriMili - Job Portal" 
                 className="h-[140px] sm:h-[140px] lg:h-[150px] w-auto object-contain"
                 width={400}
