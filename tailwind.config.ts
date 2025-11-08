@@ -10,6 +10,12 @@ const config: Config = {
     './lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   
+  // Safelist arbitrary values for production builds
+  safelist: [
+    'h-[78px]',
+    'h-[94px]',
+  ],
+  
   // Dark mode class strategy
   darkMode: 'class',
   
