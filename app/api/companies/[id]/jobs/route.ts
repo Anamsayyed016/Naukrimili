@@ -65,7 +65,7 @@ export async function GET(
       { error: 'Failed to fetch company jobs' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
+  // NOTE: Do NOT call prisma.$disconnect() on singleton instance!
+  // The connection pool is shared and managed globally in lib/prisma.ts
 }

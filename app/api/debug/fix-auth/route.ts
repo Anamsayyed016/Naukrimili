@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Test 2: Database connection
     try {
-      await prisma.$connect();
+      // Singleton prisma is already connected - just test query
       const userCount = await prisma.user.count();
       debugInfo.database = { connected: true, userCount };
       debugInfo.success.push('Database connection successful');

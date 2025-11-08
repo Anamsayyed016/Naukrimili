@@ -11,9 +11,8 @@ export async function GET(_request: NextRequest) {
   const { user } = auth;
 
   try {
-    // Test database connection first
-    await prisma.$connect();
-    console.log('✅ Database connected for admin stats');
+    // Singleton prisma is already connected - no need to call $connect()
+    console.log('✅ Using database connection for admin stats');
 
     // Get comprehensive system statistics with error handling
       let totalUsers = 0, newUsersThisWeek = 0, totalJobs = 0, activeJobs = 0, pendingJobs = 0;

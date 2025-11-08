@@ -18,8 +18,7 @@ export async function GET(request: NextRequest) {
   const { user: _user } = auth;
 
   try {
-    // Test database connection first
-    await prisma.$connect();
+    // Singleton prisma is already connected - no need to call $connect()
     
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');

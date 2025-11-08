@@ -13,9 +13,10 @@ export async function GET(_request: NextRequest) {
       success: []
     };
 
-    // Test 1: Basic database connection
+    // Test 1: Basic database connection (singleton is already connected)
     try {
-      await prisma.$connect();
+      // Just test a query - singleton handles connection automatically
+      await prisma.$queryRaw`SELECT 1`;
       debugInfo.connection = { status: 'Connected', success: true };
       debugInfo.success.push('Database connection successful');
     } catch (_error) {
