@@ -95,7 +95,15 @@ export default function MainNavigation({
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
-              <span className="text-2xl sm:text-3xl font-bold text-blue-600">NaukriMili</span>
+              <Image 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762601336/1naukrilogo_trd6vx.png" 
+                alt="NaukriMili - Job Portal" 
+                className="h-10 sm:h-12 lg:h-14 w-auto object-contain"
+                width={180}
+                height={56}
+                priority
+                unoptimized
+              />
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
           </div>
@@ -161,7 +169,15 @@ export default function MainNavigation({
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
-            <span className="text-2xl sm:text-3xl font-bold text-blue-600">NaukriMili</span>
+            <Image 
+              src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762601336/1naukrilogo_trd6vx.png" 
+              alt="NaukriMili - Job Portal" 
+              className="h-10 sm:h-12 lg:h-14 w-auto object-contain"
+              width={180}
+              height={56}
+              priority
+              unoptimized
+            />
           </Link>
 
           {/* Main Navigation - Enhanced Desktop */}
