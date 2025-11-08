@@ -26,10 +26,10 @@ jobs:
           command_timeout: 30m
           script: |
             set -e
-            echo "≡ƒÜÇ Starting deployment..."
+            echo "🚀 Starting deployment..."
             
             cd /var/www/naukrimili
-            echo "≡ƒôü Working in: $(pwd)"
+            echo "📁 Working in: $(pwd)"
             
             # Stop PM2 process
             pm2 stop naukrimili 2>/dev/null || true
@@ -58,11 +58,11 @@ jobs:
             npm run build
             
             if [ ! -d ".next" ]; then
-              echo "Γ¥î Build failed"
+              echo "❌ Build failed"
               exit 1
             fi
             
-            echo "Γ£à Build completed"
+            echo "✅ Build completed"
             
             # Create logs directory
             mkdir -p ./logs
@@ -79,12 +79,12 @@ jobs:
             # Health check
             for i in {1..5}; do
               if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "Γ£à Health check passed!"
+                echo "✅ Health check passed!"
                 break
               else
-                echo "ΓÜá∩╕Å Health check failed (attempt $i/5)"
+                echo "⚠️ Health check failed (attempt $i/5)"
                 if [ $i -eq 5 ]; then
-                  echo "Γ¥î Health check failed after 5 attempts"
+                  echo "❌ Health check failed after 5 attempts"
                   pm2 logs naukrimili --lines 50
                   exit 1
                 fi
@@ -95,4 +95,4 @@ jobs:
             # Save PM2 process list
             pm2 save
             
-            echo "Γ£à Deployment completed successfully!"
+            echo "✅ Deployment completed successfully!"
