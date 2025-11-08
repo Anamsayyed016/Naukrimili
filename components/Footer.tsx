@@ -63,7 +63,7 @@ export default function Footer() {
             <div className="mb-8">
               <div className="flex items-center mb-6">
                 <Image 
-                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/v1762601336/1naukrilogo_trd6vx.png" 
+                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/e_trim/b_white/f_png/q_auto/v1762601336/1naukrilogo_trd6vx.png" 
                   alt="NaukriMili - AI-Powered Job Portal" 
                   className="h-12 w-auto object-contain"
                   width={180}
