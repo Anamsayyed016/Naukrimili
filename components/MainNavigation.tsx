@@ -96,14 +96,14 @@ export default function MainNavigation({
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
               <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_replace_color:silver:30:white,w_320,h_80,c_fit,f_auto,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_replace_color:lightgray:80:white,w_320,h_80,c_fit,f_auto,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
                 alt="NaukriMili - Job Portal" 
                 className="h-[52px] sm:h-[60px] lg:h-[68px] w-auto object-contain max-w-[170px] sm:max-w-[210px] lg:max-w-[250px]"
                 width={320}
                 height={80}
                 priority
                 unoptimized
-                style={{ display: 'block' }}
+                style={{ display: 'block', imageRendering: 'crisp-edges' }}
               />
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
@@ -171,14 +171,14 @@ export default function MainNavigation({
           {/* Brand Logo */}
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
             <Image 
-              src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_replace_color:silver:30:white,w_320,h_80,c_fit,f_auto,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
+              src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_replace_color:lightgray:80:white,w_320,h_80,c_fit,f_auto,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
               alt="NaukriMili - Job Portal" 
               className="h-[52px] sm:h-[60px] lg:h-[68px] w-auto object-contain max-w-[170px] sm:max-w-[210px] lg:max-w-[250px]"
               width={320}
               height={80}
               priority
               unoptimized
-              style={{ display: 'block' }}
+              style={{ display: 'block', imageRendering: 'crisp-edges' }}
             />
           </Link>
 
