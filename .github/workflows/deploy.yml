@@ -1,4 +1,4 @@
-name: Deploy to Production
+﻿name: Deploy to Production
 
 on:
   push:
@@ -15,37 +15,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Validate secrets
-        run: |
-          if [ -z "${{ secrets.SSH_HOST }}" ]; then
-            echo "❌ SSH_HOST secret is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.SSH_USERNAME }}" ]; then
-            echo "❌ SSH_USERNAME secret is not set"
-            exit 1
-          fi
-          if [ -z "${{ secrets.SSH_KEY }}" ]; then
-            echo "❌ SSH_KEY secret is not set"
-            exit 1
-          fi
-          echo "✅ All secrets are configured"
-
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v0.1.9
         with:
-          host: "${{ secrets.SSH_HOST }}"
-          username: "${{ secrets.SSH_USERNAME }}"
-          key: "${{ secrets.SSH_KEY }}"
-          port: "${{ secrets.SSH_PORT || 22 }}"
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
           timeout: 60s
           command_timeout: 30m
           script: |
             set -e
-            echo "🚀 Starting deployment..."
+            echo "≡ƒÜÇ Starting deployment..."
             
             cd /var/www/naukrimili
-            echo "📁 Working in: $(pwd)"
+            echo "≡ƒôü Working in: $(pwd)"
             
             # Stop PM2 process
             pm2 stop naukrimili 2>/dev/null || true
@@ -74,11 +58,11 @@ jobs:
             npm run build
             
             if [ ! -d ".next" ]; then
-              echo "❌ Build failed"
+              echo "Γ¥î Build failed"
               exit 1
             fi
             
-            echo "✅ Build completed"
+            echo "Γ£à Build completed"
             
             # Create logs directory
             mkdir -p ./logs
@@ -95,12 +79,12 @@ jobs:
             # Health check
             for i in {1..5}; do
               if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ Health check passed!"
+                echo "Γ£à Health check passed!"
                 break
               else
-                echo "⚠️ Health check failed (attempt $i/5)"
+                echo "ΓÜá∩╕Å Health check failed (attempt $i/5)"
                 if [ $i -eq 5 ]; then
-                  echo "❌ Health check failed after 5 attempts"
+                  echo "Γ¥î Health check failed after 5 attempts"
                   pm2 logs naukrimili --lines 50
                   exit 1
                 fi
@@ -111,4 +95,4 @@ jobs:
             # Save PM2 process list
             pm2 save
             
-            echo "✅ Deployment completed successfully!"
+            echo "Γ£à Deployment completed successfully!"
