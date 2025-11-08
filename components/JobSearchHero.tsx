@@ -383,9 +383,9 @@ export default function JobSearchHero({
 
               {/* Main Search Form */}
               <div className="space-y-4 lg:space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6" style={{ position: 'relative' }}>
                   {/* Job Title Search with Suggestions & History */}
-                  <div className="relative w-full min-w-0" style={{ isolation: 'isolate', zIndex: 100 }}>
+                  <div className="relative w-full min-w-0" style={{ position: 'relative' }}>
                     <Search className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10 flex-shrink-0" />
                     <Input
                       ref={queryInputRef}
@@ -509,7 +509,7 @@ export default function JobSearchHero({
                   </div>
 
                   {/* Location Search with Enhanced Geolocation */}
-                  <div className="relative w-full min-w-0" style={{ isolation: 'isolate', zIndex: 10 }}>
+                  <div className="relative w-full min-w-0" style={{ position: 'relative' }}>
                     <MapPin className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10 flex-shrink-0" />
                     <Input
                       type="text"
@@ -537,7 +537,13 @@ export default function JobSearchHero({
                 </div>
 
                 {/* Search Button */}
-                <div className="flex justify-center px-2 sm:px-0" style={{ position: 'relative', zIndex: 1 }}>
+                <div 
+                  className="flex justify-center px-2 sm:px-0" 
+                  style={{ 
+                    position: 'relative', 
+                    zIndex: 1
+                  }}
+                >
                   <Button 
                     onClick={handleSearch} 
                     data-testid="search-button"
