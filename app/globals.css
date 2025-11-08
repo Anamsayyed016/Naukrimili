@@ -142,13 +142,6 @@ body {
   html, body {
     overflow-x: hidden !important;
     width: 100%;
-    position: relative;
-  }
-  
-  /* Prevent layout shift during scroll */
-  * {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
   }
   
   /* Optimize touch scrolling for iOS */

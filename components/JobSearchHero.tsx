@@ -383,9 +383,9 @@ export default function JobSearchHero({
 
               {/* Main Search Form */}
               <div className="space-y-4 lg:space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6" style={{ position: 'relative' }}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                   {/* Job Title Search with Suggestions & History */}
-                  <div className="relative w-full min-w-0" style={{ position: 'relative' }}>
+                  <div className="relative w-full min-w-0">
                     <Search className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10 flex-shrink-0" />
                     <Input
                       ref={queryInputRef}
@@ -412,10 +412,11 @@ export default function JobSearchHero({
                     {(showSuggestions || showHistory) && (
                       <div
                         ref={suggestionsRef}
-                        className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto"
+                        className="absolute left-0 right-0 bg-white border-2 border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto"
                         style={{
                           zIndex: 99999,
                           position: 'absolute',
+                          top: 'calc(100% + 8px)',
                           pointerEvents: 'auto'
                         }}
                         onMouseDown={(e) => e.stopPropagation()}
@@ -508,7 +509,7 @@ export default function JobSearchHero({
                   </div>
 
                   {/* Location Search with Enhanced Geolocation */}
-                  <div className="relative w-full min-w-0" style={{ position: 'relative' }}>
+                  <div className="relative w-full min-w-0">
                     <MapPin className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10 flex-shrink-0" />
                     <Input
                       type="text"
@@ -536,13 +537,7 @@ export default function JobSearchHero({
                 </div>
 
                 {/* Search Button */}
-                <div 
-                  className="flex justify-center px-2 sm:px-0" 
-                  style={{ 
-                    position: 'relative', 
-                    zIndex: 1
-                  }}
-                >
+                <div className="flex justify-center px-2 sm:px-0">
                   <Button 
                     onClick={handleSearch} 
                     data-testid="search-button"
