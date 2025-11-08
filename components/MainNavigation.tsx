@@ -91,7 +91,7 @@ export default function MainNavigation({
   // Don't render until mounted to prevent hydration mismatch
   if (!isMounted) {
     return (
-      <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, touchAction: 'pan-y', backfaceVisibility: 'hidden', transform: 'translateZ(0)', position: 'fixed' }}>
+      <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
@@ -165,7 +165,7 @@ export default function MainNavigation({
   const roleSpecificLinks = getRoleSpecificLinks();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, touchAction: 'pan-y', backfaceVisibility: 'hidden', transform: 'translateZ(0)', willChange: 'transform', position: 'fixed' }}>
+    <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Brand Logo */}

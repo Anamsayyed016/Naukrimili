@@ -414,9 +414,8 @@ export default function JobSearchHero({
                         ref={suggestionsRef}
                         className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto"
                         style={{
-                          zIndex: 9999,
+                          zIndex: 99999,
                           position: 'absolute',
-                          isolation: 'isolate',
                           pointerEvents: 'auto'
                         }}
                         onMouseDown={(e) => e.stopPropagation()}
