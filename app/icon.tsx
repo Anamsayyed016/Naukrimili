@@ -13,7 +13,7 @@ export default function Icon() {
     (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src="https://res.cloudinary.com/dko2hk0yo/image/upload/w_32,h_32,c_fit/v1762546542/naukkklogo2_kjlavn.png"
+        src="https://res.cloudinary.com/dko2hk0yo/image/upload/w_32,h_32,c_fit/v1762626132/naulokriilogo2_upnzxr.png"
         alt="NaukriMili"
         width={32}
         height={32}

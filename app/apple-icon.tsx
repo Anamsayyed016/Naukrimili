@@ -13,7 +13,7 @@ export default function AppleIcon() {
     (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src="https://res.cloudinary.com/dko2hk0yo/image/upload/w_180,h_180,c_fit/v1762546542/naukkklogo2_kjlavn.png"
+        src="https://res.cloudinary.com/dko2hk0yo/image/upload/w_180,h_180,c_fit/v1762626132/naulokriilogo2_upnzxr.png"
         alt="NaukriMili"
         width={180}
         height={180}
