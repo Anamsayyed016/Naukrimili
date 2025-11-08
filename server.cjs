@@ -139,6 +139,19 @@ app.prepare().then(() => {
     console.log('📝 To enable real-time notifications, ensure all socket dependencies are properly installed');
   }
 
+  // Global error handlers to prevent crashes
+  process.on('uncaughtException', (err) => {
+    console.error('❌ [CRITICAL] Uncaught Exception:', err);
+    console.error('Stack:', err.stack);
+    // Don't exit - let PM2 handle restart if needed
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ [CRITICAL] Unhandled Promise Rejection at:', promise);
+    console.error('Reason:', reason);
+    // Don't exit - log and continue
+  });
+
   server.on('error', (err) => {
     console.error('❌ Server error:', err);
     process.exit(1);
