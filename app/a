@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";  // Use singleton instance
 
 export async function GET(request: NextRequest) {
   try {
@@ -63,7 +61,7 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
+  // NOTE: Do NOT call prisma.$disconnect() on singleton instance!
+  // The connection pool is shared and managed globally in lib/prisma.ts
 }
