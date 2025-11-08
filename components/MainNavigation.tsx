@@ -94,16 +94,16 @@ export default function MainNavigation({
       <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
+            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300 bg-white px-2 py-1 rounded-md">
               <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/w_350,h_90,c_fit,f_auto,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/w_320,h_80,c_fit,f_auto,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
                 alt="NaukriMili - Job Portal" 
-                className="h-14 sm:h-16 lg:h-20 w-auto object-contain max-w-[180px] sm:max-w-[220px] lg:max-w-[280px]"
-                width={350}
-                height={90}
+                className="h-12 sm:h-14 lg:h-16 w-auto object-contain max-w-[160px] sm:max-w-[200px] lg:max-w-[240px]"
+                width={320}
+                height={80}
                 priority
                 unoptimized
-                style={{ display: 'block' }}
+                style={{ display: 'block', filter: 'brightness(1.05) contrast(1.05)' }}
               />
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
@@ -169,16 +169,16 @@ export default function MainNavigation({
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
+          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300 bg-white px-2 py-1 rounded-md">
             <Image 
-              src="https://res.cloudinary.com/dko2hk0yo/image/upload/w_350,h_90,c_fit,f_auto,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
+              src="https://res.cloudinary.com/dko2hk0yo/image/upload/w_320,h_80,c_fit,f_auto,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
               alt="NaukriMili - Job Portal" 
-              className="h-14 sm:h-16 lg:h-20 w-auto object-contain max-w-[180px] sm:max-w-[220px] lg:max-w-[280px]"
-              width={350}
-              height={90}
+              className="h-12 sm:h-14 lg:h-16 w-auto object-contain max-w-[160px] sm:max-w-[200px] lg:max-w-[240px]"
+              width={320}
+              height={80}
               priority
               unoptimized
-              style={{ display: 'block' }}
+              style={{ display: 'block', filter: 'brightness(1.05) contrast(1.05)' }}
             />
           </Link>
 
