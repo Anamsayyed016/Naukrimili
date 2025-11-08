@@ -46,6 +46,15 @@ interface MainNavigationProps {
   brandName?: string;
 }
 
+/**
+ * MainNavigation Component
+ * 
+ * Fixed navbar that stays visible when scrolling.
+ * Note: Changed from 'sticky' to 'fixed' positioning to resolve scroll visibility issue.
+ * The body has padding-top (4rem mobile, 5rem desktop) to compensate for the fixed navbar.
+ * 
+ * @see app/globals.css - body padding-top styles
+ */
 export default function MainNavigation({
   brandName = "NaukriMili"
 }: MainNavigationProps) {
@@ -82,7 +91,7 @@ export default function MainNavigation({
   // Don't render until mounted to prevent hydration mismatch
   if (!isMounted) {
     return (
-      <nav className="sticky top-0 z-50 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ touchAction: 'pan-y', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ touchAction: 'pan-y', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
@@ -156,7 +165,7 @@ export default function MainNavigation({
   const roleSpecificLinks = getRoleSpecificLinks();
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ touchAction: 'pan-y', backfaceVisibility: 'hidden', transform: 'translateZ(0)', willChange: 'transform' }}>
+    <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ touchAction: 'pan-y', backfaceVisibility: 'hidden', transform: 'translateZ(0)', willChange: 'transform' }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Brand Logo */}

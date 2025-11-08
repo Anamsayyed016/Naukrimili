@@ -99,6 +99,19 @@ body {
   max-width: 100vw;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y pinch-zoom;
+  /* 
+   * Add padding to compensate for fixed navbar
+   * Navbar is fixed (not sticky) to ensure it's always visible when scrolling
+   * @see components/MainNavigation.tsx
+   */
+  padding-top: 4rem; /* 64px for mobile (h-16) */
+}
+
+/* Adjust padding for larger screens to match navbar height */
+@media (min-width: 1024px) {
+  body {
+    padding-top: 5rem; /* 80px for desktop (lg:h-20) */
+  }
 }
 
 /* Optimize all containers for mobile scroll */
