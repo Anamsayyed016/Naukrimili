@@ -98,9 +98,9 @@ export default function MainNavigation({
               <Image 
                 src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
                 alt="NaukriMili - Job Portal" 
-                className="h-16 sm:h-20 lg:h-24 w-auto object-contain"
-                width={320}
-                height={128}
+                className="h-[70px] sm:h-[88px] lg:h-[100px] w-auto object-contain"
+                width={400}
+                height={160}
                 priority
                 unoptimized
               />
