@@ -344,14 +344,14 @@ export default function JobSearchHero({
   // Manual search only - no auto-redirect
 
   return (
-    <div className={`relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 ${className}`}>
+    <div className={`relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 ${className}`} style={{ overflow: 'visible' }}>
       {/* Animated background elements */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20"></div>
       <div className="absolute inset-0 opacity-30">
         <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
       </div>
       
-      <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-12 sm:py-16 lg:py-20 xl:py-24 max-w-full overflow-hidden">
+      <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-12 sm:py-16 lg:py-20 xl:py-24 max-w-full" style={{ overflow: 'visible' }}>
         <div className="text-center max-w-full lg:max-w-7xl mx-auto">
           {/* Enhanced Header */}
           <div className="mb-8 lg:mb-12">
