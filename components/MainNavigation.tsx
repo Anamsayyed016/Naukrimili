@@ -95,16 +95,7 @@ export default function MainNavigation({
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
-              <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_replace_color:C0C0C0:100:FFFFFF/e_replace_color:D3D3D3:100:FFFFFF/e_replace_color:E8E8E8:100:FFFFFF/b_white,c_pad,w_340,h_85,f_png,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
-                alt="NaukriMili - Job Portal" 
-                className="h-[56px] sm:h-[64px] lg:h-[72px] w-auto object-contain max-w-[180px] sm:max-w-[220px] lg:max-w-[260px]"
-                width={340}
-                height={85}
-                priority
-                unoptimized
-                style={{ display: 'block' }}
-              />
+              <span className="text-2xl sm:text-3xl font-bold text-blue-600">NaukriMili</span>
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
           </div>
@@ -170,16 +161,7 @@ export default function MainNavigation({
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
-            <Image 
-              src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_replace_color:C0C0C0:100:FFFFFF/e_replace_color:D3D3D3:100:FFFFFF/e_replace_color:E8E8E8:100:FFFFFF/b_white,c_pad,w_340,h_85,f_png,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
-              alt="NaukriMili - Job Portal" 
-              className="h-[56px] sm:h-[64px] lg:h-[72px] w-auto object-contain max-w-[180px] sm:max-w-[220px] lg:max-w-[260px]"
-              width={340}
-              height={85}
-              priority
-              unoptimized
-              style={{ display: 'block' }}
-            />
+            <span className="text-2xl sm:text-3xl font-bold text-blue-600">NaukriMili</span>
           </Link>
 
           {/* Main Navigation - Enhanced Desktop */}
