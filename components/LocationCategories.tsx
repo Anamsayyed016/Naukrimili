@@ -257,14 +257,19 @@ export default function LocationCategories({
       </div>
 
       {/* Compact Categories */}
-      <div className="space-y-2">
+      <div className="space-y-2" style={{ position: 'relative', zIndex: 1 }}>
         {categories.filter(category => category.locations.some(location => (location.jobCount || 0) > 0)).map((category) => (
-          <div key={category.id} className="bg-gradient-to-r from-gray-900 to-blue-900 rounded-xl border-2 border-blue-500/20 shadow-lg">
+          <div key={category.id} className="bg-gradient-to-r from-gray-900 to-blue-900 rounded-xl border-2 border-blue-500/20 shadow-lg" style={{ position: 'relative', zIndex: 1 }}>
             {/* Category Header */}
             <Button
               variant="ghost"
-              onClick={() => toggleCategory(category.id)}
-              className="w-full justify-between p-2 sm:p-3 h-auto hover:bg-blue-800/20 transition-all duration-200 text-white"
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleCategory(category.id);
+              }}
+              className="w-full justify-between p-2 sm:p-3 h-auto hover:bg-blue-800/20 transition-all duration-200 text-white cursor-pointer"
             >
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="p-1.5 sm:p-2 bg-gradient-to-r from-blue-400 to-purple-500 rounded-lg">
@@ -295,8 +300,13 @@ export default function LocationCategories({
                       key={location.id}
                       variant="outline"
                       size="sm"
-                      onClick={() => handleLocationClick(location)}
-                      className={`justify-start h-auto p-1.5 sm:p-2 text-left transition-all duration-200 ${
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleLocationClick(location);
+                      }}
+                      className={`justify-start h-auto p-1.5 sm:p-2 text-left transition-all duration-200 cursor-pointer ${
                         selectedLocation?.id === location.id
                           ? 'bg-gradient-to-r from-blue-500 to-purple-600 border-blue-400 text-white shadow-md' 
                           : 'bg-white/90 border-white/30 text-gray-800 hover:bg-blue-50 hover:border-blue-300'

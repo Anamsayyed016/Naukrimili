@@ -362,7 +362,7 @@ export default function JobSearchHero({
           
           {/* Unified Enhanced Search Interface */}
           <div className="w-full max-w-full lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 p-3 sm:p-4 lg:p-6 xl:p-8 overflow-visible">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 p-3 sm:p-4 lg:p-6 xl:p-8" style={{ position: 'relative', overflow: 'visible', minHeight: '300px' }}>
               {/* Search Header */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                 <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
@@ -385,7 +385,7 @@ export default function JobSearchHero({
               <div className="space-y-4 lg:space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                   {/* Job Title Search with Suggestions & History */}
-                  <div className="relative w-full min-w-0">
+                  <div className="relative w-full min-w-0" style={{ isolation: 'isolate', zIndex: 100 }}>
                     <Search className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10 flex-shrink-0" />
                     <Input
                       ref={queryInputRef}
@@ -412,7 +412,15 @@ export default function JobSearchHero({
                     {(showSuggestions || showHistory) && (
                       <div
                         ref={suggestionsRef}
-                        className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 max-h-80 overflow-y-auto"
+                        className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto"
+                        style={{
+                          zIndex: 9999,
+                          position: 'absolute',
+                          isolation: 'isolate',
+                          pointerEvents: 'auto'
+                        }}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                       >
                         {/* Search History */}
                         {showHistory && searchHistoryData && searchHistoryData.history.length > 0 && (
@@ -423,8 +431,13 @@ export default function JobSearchHero({
                                 <span>Recent Searches</span>
                               </div>
                               <button
-                                onClick={() => setShowHistory(false)}
-                                className="text-gray-400 hover:text-gray-600"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setShowHistory(false);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                                type="button"
                               >
                                 <X className="w-3 h-3" />
                               </button>
@@ -432,8 +445,13 @@ export default function JobSearchHero({
                             {searchHistoryData.history.slice(0, 5).map((item) => (
                               <button
                                 key={item.id}
-                                onClick={() => handleHistorySelect(item)}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-blue-50 rounded-lg transition-colors text-left group"
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleHistorySelect(item);
+                                }}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-blue-50 rounded-lg transition-colors text-left group cursor-pointer"
                               >
                                 <Clock className="w-4 h-4 text-gray-400 group-hover:text-blue-600 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
@@ -462,8 +480,13 @@ export default function JobSearchHero({
                               suggestions.map((suggestion, index) => (
                                 <button
                                   key={index}
-                                  onClick={() => handleSuggestionSelect(suggestion)}
-                                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-blue-50 rounded-lg transition-colors text-left group"
+                                  type="button"
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleSuggestionSelect(suggestion);
+                                  }}
+                                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-blue-50 rounded-lg transition-colors text-left group cursor-pointer"
                                 >
                                   <Search className="w-4 h-4 text-gray-400 group-hover:text-blue-600 flex-shrink-0" />
                                   <div className="flex-1 min-w-0">
@@ -486,7 +509,7 @@ export default function JobSearchHero({
                   </div>
 
                   {/* Location Search with Enhanced Geolocation */}
-                  <div className="relative w-full min-w-0">
+                  <div className="relative w-full min-w-0" style={{ isolation: 'isolate', zIndex: 10 }}>
                     <MapPin className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10 flex-shrink-0" />
                     <Input
                       type="text"
@@ -514,11 +537,12 @@ export default function JobSearchHero({
                 </div>
 
                 {/* Search Button */}
-                <div className="flex justify-center px-2 sm:px-0">
+                <div className="flex justify-center px-2 sm:px-0" style={{ position: 'relative', zIndex: 1 }}>
                   <Button 
                     onClick={handleSearch} 
                     data-testid="search-button"
-                    className="inline-flex items-center justify-center w-full sm:w-auto px-6 sm:px-8 lg:px-12 py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white font-bold rounded-lg sm:rounded-xl hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-sm sm:text-base lg:text-lg min-w-0 sm:min-w-[180px] lg:min-w-[220px] max-w-full"
+                    type="button"
+                    className="inline-flex items-center justify-center w-full sm:w-auto px-6 sm:px-8 lg:px-12 py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white font-bold rounded-lg sm:rounded-xl hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-sm sm:text-base lg:text-lg min-w-0 sm:min-w-[180px] lg:min-w-[220px] max-w-full cursor-pointer"
                   >
                     <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0" />
                     <span className="truncate">Search Jobs</span>
@@ -595,18 +619,20 @@ export default function JobSearchHero({
               )}
 
               {/* AI-Powered Location Categories */}
-              <LocationCategories 
-                onLocationSelect={handleLocationSelect}
-                onSearch={handleSearch}
-                selectedLocation={userLocation ? {
-                  id: userLocation.city,
+              <div style={{ marginTop: '1rem', position: 'relative', zIndex: 1 }}>
+                <LocationCategories 
+                  onLocationSelect={handleLocationSelect}
+                  onSearch={handleSearch}
+                  selectedLocation={userLocation ? {
+                    id: userLocation.city,
                   name: userLocation.city,
                   country: userLocation.country,
                   flag: '📍',
                   jobCount: 0,
                   type: 'city'
                 } : null}
-              />
+                />
+              </div>
 
               {/* Smart Filter Suggestions - Removed to fix infinite re-render */}
               {/* <div className="mt-6">
