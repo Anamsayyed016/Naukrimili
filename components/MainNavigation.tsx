@@ -93,12 +93,12 @@ export default function MainNavigation({
     return (
       <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-24 lg:h-32">
+          <div className="flex items-center justify-between h-20 lg:h-24">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
               <Image 
                 src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
                 alt="NaukriMili - Job Portal" 
-                className="h-20 sm:h-24 lg:h-28 w-auto object-contain"
+                className="h-[78px] sm:h-[78px] lg:h-[94px] w-auto object-contain"
                 width={400}
                 height={160}
                 priority
@@ -166,13 +166,13 @@ export default function MainNavigation({
   return (
     <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-24 lg:h-32">
+        <div className="flex items-center justify-between h-20 lg:h-24">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
             <Image 
               src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
               alt="NaukriMili - Job Portal" 
-                className="h-20 sm:h-24 lg:h-28 w-auto object-contain"
+                className="h-[78px] sm:h-[78px] lg:h-[94px] w-auto object-contain"
               width={400}
               height={160}
               priority
