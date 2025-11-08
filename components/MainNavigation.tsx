@@ -96,14 +96,14 @@ export default function MainNavigation({
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
               <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval,f_png,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval,c_trim,f_png,q_auto,w_400/v1762546509/1naukkkLogo_gw9g5z.jpg" 
                 alt="NaukriMili - Job Portal" 
-                className="h-14 sm:h-16 lg:h-18 w-auto object-contain"
-                width={280}
-                height={72}
+                className="h-16 sm:h-20 lg:h-24 w-auto object-contain max-w-[200px] sm:max-w-[250px] lg:max-w-[300px]"
+                width={400}
+                height={100}
                 priority
                 unoptimized
-                style={{ display: 'block' }}
+                style={{ display: 'block', filter: 'drop-shadow(0 0 0px transparent)' }}
               />
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
@@ -171,14 +171,14 @@ export default function MainNavigation({
           {/* Brand Logo */}
           <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
             <Image 
-              src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval,f_png,q_auto/v1762546509/1naukkkLogo_gw9g5z.jpg" 
+              src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval,c_trim,f_png,q_auto,w_400/v1762546509/1naukkkLogo_gw9g5z.jpg" 
               alt="NaukriMili - Job Portal" 
-              className="h-14 sm:h-16 lg:h-18 w-auto object-contain"
-              width={280}
-              height={72}
+              className="h-16 sm:h-20 lg:h-24 w-auto object-contain max-w-[200px] sm:max-w-[250px] lg:max-w-[300px]"
+              width={400}
+              height={100}
               priority
               unoptimized
-              style={{ display: 'block' }}
+              style={{ display: 'block', filter: 'drop-shadow(0 0 0px transparent)' }}
             />
           </Link>
 
