@@ -10,11 +10,8 @@ const config: Config = {
     './lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   
-  // Safelist arbitrary values for production builds
-  safelist: [
-    'h-[140px]',
-    'h-[150px]',
-  ],
+  // Safelist removed - using standard Tailwind classes only
+  safelist: [],
   
   // Dark mode class strategy
   darkMode: 'class',
