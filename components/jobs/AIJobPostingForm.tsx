@@ -72,6 +72,11 @@ export default function AIJobPostingForm() {
     openings: '1'
   });
 
+  // Debounce timers for auto AI suggestions
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const skillsDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const benefitsDebounceRef = useRef<NodeJS.Timeout | null>(null);
+
   // Fetch company profile on mount
   useEffect(() => {
     const fetchCompanyProfile = async () => {
@@ -96,17 +101,40 @@ export default function AIJobPostingForm() {
     fetchCompanyProfile();
   }, []);
 
-  // Cleanup debounce timer on unmount
+  // Cleanup debounce timers on unmount
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
+      if (skillsDebounceRef.current) {
+        clearTimeout(skillsDebounceRef.current);
+      }
+      if (benefitsDebounceRef.current) {
+        clearTimeout(benefitsDebounceRef.current);
+      }
     };
   }, []);
 
-  // Debounce timer for auto AI suggestions
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Auto-generate skills when title or requirements change
+  useEffect(() => {
+    if ((formData.title || formData.requirements) && formData.skills.length === 0) {
+      if (skillsDebounceRef.current) {
+        clearTimeout(skillsDebounceRef.current);
+      }
+      
+      skillsDebounceRef.current = setTimeout(() => {
+        console.log('🤖 Auto-generating skills based on title/requirements');
+        getAiSuggestions('skills');
+      }, 2000); // 2 second debounce
+    }
+
+    return () => {
+      if (skillsDebounceRef.current) {
+        clearTimeout(skillsDebounceRef.current);
+      }
+    };
+  }, [formData.title, formData.requirements]);
 
   const handleInputChange = (field: keyof JobFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -254,7 +282,11 @@ export default function AIJobPostingForm() {
     value: string
   ) => {
     handleInputChange(field as keyof JobFormData, value);
-    setAiSuggestions(prev => ({ ...prev, [field]: [] }));
+    // Clear suggestions with a small delay for better UX
+    toast.success('✨ Applied AI suggestion!', { duration: 2000 });
+    setTimeout(() => {
+      setAiSuggestions(prev => ({ ...prev, [field]: [] }));
+    }, 300);
   };
 
   const handleSubmit = async () => {
@@ -377,9 +409,14 @@ export default function AIJobPostingForm() {
                   style={{ overflow: 'visible' }}
                 >
                   <div>
-                    <Label className="text-base font-semibold text-slate-900 mb-2 block">
-                      Job Title *
-                    </Label>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                        Job Title *
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                          AI-Powered
+                        </Badge>
+                      </Label>
+                    </div>
                     <div className="flex flex-col sm:flex-row gap-2">
                       <div className="flex-1 relative">
                         <Input
@@ -409,28 +446,54 @@ export default function AIJobPostingForm() {
                         💡 AI will auto-suggest in 1.5s after you stop typing, or click "AI Suggest" now
                       </p>
                     )}
-                    {aiSuggestions.title?.length ? (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {aiSuggestions.title.map((s) => (
-                          <Button 
-                            key={s} 
-                            type="button" 
-                            variant="secondary" 
-                            size="sm" 
-                            className="bg-blue-50 text-blue-700 hover:bg-blue-100"
-                            onClick={() => applySuggestion('title', s)}
-                          >
-                            {s}
-                          </Button>
-                        ))}
-                      </div>
-                    ) : null}
+                    <AnimatePresence>
+                      {aiSuggestions.title?.length ? (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200"
+                        >
+                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
+                            <Sparkles className="h-3 w-3 animate-pulse" />
+                            AI Suggested Titles:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {aiSuggestions.title.map((s, idx) => (
+                              <motion.div
+                                key={s}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: idx * 0.05 }}
+                              >
+                                <Button 
+                                  type="button" 
+                                  variant="secondary" 
+                                  size="sm" 
+                                  className="bg-white border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-400 transition-all shadow-sm"
+                                  onClick={() => applySuggestion('title', s)}
+                                >
+                                  <Sparkles className="h-3 w-3 mr-1" />
+                                  {s}
+                                </Button>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
                   </div>
 
                   <div>
-                    <Label className="text-base font-semibold text-slate-900 mb-2 block">
-                      Job Description *
-                    </Label>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                        Job Description *
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                          AI-Powered
+                        </Badge>
+                      </Label>
+                    </div>
                     <div className="flex flex-col sm:flex-row items-start gap-2">
                       <div className="flex-1 w-full relative">
                         <Textarea
@@ -457,24 +520,44 @@ export default function AIJobPostingForm() {
                       </Button>
                     </div>
                     {formData.description && formData.description.length >= 3 && (
-                      <p className="text-xs text-slate-500 mt-1">
-                        💡 AI analyzing your input... Suggestions appear below after you stop typing
+                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
+                        <span className={aiLoading.description ? 'animate-pulse' : ''}>
+                          {aiLoading.description ? '🤖 AI is analyzing...' : '💡 AI analyzing your input... Suggestions appear below after you stop typing'}
+                        </span>
                       </p>
                     )}
-                    {aiSuggestions.description?.length ? (
-                      <div className="mt-2 space-y-2">
-                        {aiSuggestions.description.map((s) => (
-                          <button
-                            key={s}
-                            type="button"
-                            onClick={() => applySuggestion('description', s)}
-                            className="w-full text-left text-sm p-2 rounded border bg-white hover:bg-slate-50"
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
+                    <AnimatePresence>
+                      {aiSuggestions.description?.length ? (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                          className="mt-3 space-y-2"
+                        >
+                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
+                            <Sparkles className="h-3 w-3 animate-pulse" />
+                            AI Generated Descriptions (click to use):
+                          </p>
+                          {aiSuggestions.description.map((s, idx) => (
+                            <motion.button
+                              key={s}
+                              type="button"
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              onClick={() => applySuggestion('description', s)}
+                              className="w-full text-left text-sm p-4 rounded-xl border-2 border-purple-200 bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-blue-50 hover:border-purple-400 transition-all shadow-sm hover:shadow-md group"
+                            >
+                              <span className="flex items-start gap-2">
+                                <Sparkles className="h-4 w-4 text-purple-600 mt-0.5 group-hover:animate-pulse flex-shrink-0" />
+                                <span className="flex-1">{s}</span>
+                              </span>
+                            </motion.button>
+                          ))}
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
                   </div>
 
                   <div>
@@ -528,10 +611,15 @@ export default function AIJobPostingForm() {
                   {/* Requirements with AI */}
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border border-blue-100">
                     <div className="flex items-center justify-between mb-3">
-                      <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-blue-600" />
-                        Job Requirements *
-                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Job Requirements *
+                        </Label>
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                          AI-Powered
+                        </Badge>
+                      </div>
                       <Button
                         type="button"
                         size="sm"
@@ -550,30 +638,53 @@ export default function AIJobPostingForm() {
                       rows={7}
                       className="resize-none bg-white border-blue-200 focus:border-blue-400 focus:ring-blue-400"
                     />
-                    {aiSuggestions.requirements?.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        <p className="text-xs text-slate-600 font-medium">💡 AI Suggestions based on {companyProfile?.name || 'your company'}:</p>
-                        {aiSuggestions.requirements.map((suggestion, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => applySuggestion('requirements', suggestion)}
-                            className="w-full text-left text-sm p-3 rounded-lg border border-blue-200 bg-white hover:bg-blue-50 hover:border-blue-300 transition-all"
-                          >
-                            {suggestion}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    <AnimatePresence>
+                      {aiSuggestions.requirements?.length > 0 && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                          className="mt-3 space-y-2"
+                        >
+                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
+                            <Sparkles className="h-3 w-3 animate-pulse" />
+                            AI Suggestions based on {companyProfile?.name || 'your company'}:
+                          </p>
+                          {aiSuggestions.requirements.map((suggestion, idx) => (
+                            <motion.button
+                              key={idx}
+                              type="button"
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              onClick={() => applySuggestion('requirements', suggestion)}
+                              className="w-full text-left text-sm p-3 rounded-lg border-2 border-blue-200 bg-white hover:bg-blue-50 hover:border-blue-400 transition-all shadow-sm hover:shadow-md group"
+                            >
+                              <span className="flex items-start gap-2">
+                                <Sparkles className="h-4 w-4 text-blue-600 mt-0.5 group-hover:animate-pulse flex-shrink-0" />
+                                <span className="flex-1">{suggestion}</span>
+                              </span>
+                            </motion.button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Skills Section - Optional but encouraged */}
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-6 rounded-xl border border-purple-100">
                     <div className="flex items-center justify-between mb-3">
-                      <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
-                        <Users className="h-5 w-5 text-purple-600" />
-                        Required Skills <span className="text-xs text-slate-500 font-normal">(Optional - AI can suggest based on requirements)</span>
-                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                          <Users className="h-5 w-5 text-purple-600" />
+                          Required Skills
+                        </Label>
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                          Auto AI
+                        </Badge>
+                        <span className="text-xs text-slate-500 font-normal hidden sm:inline">(Optional - AI auto-suggests based on your job)</span>
+                      </div>
                       <Button
                         type="button"
                         size="sm"
@@ -622,28 +733,47 @@ export default function AIJobPostingForm() {
                     </div>
                     
                     {/* AI Suggested Skills */}
-                    {aiSuggestions.skills?.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        <p className="text-xs text-purple-600 font-medium">✨ AI Suggested Skills based on your requirements:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {aiSuggestions.skills.map((s) => (
-                            <Button 
-                              key={s} 
-                              type="button" 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => {
-                                addSkill(s);
-                                setAiSuggestions(prev => ({ ...prev, skills: (prev.skills || []).filter(x => x !== s) }));
-                              }}
-                              className="h-9 border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-700"
-                            >
-                              + {s}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    <AnimatePresence>
+                      {aiSuggestions.skills?.length > 0 && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                          className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200"
+                        >
+                          <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
+                            <Sparkles className="h-3 w-3 animate-pulse" />
+                            AI Suggested Skills (click to add):
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {aiSuggestions.skills.map((s, idx) => (
+                              <motion.div
+                                key={s}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: idx * 0.05 }}
+                              >
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => {
+                                    addSkill(s);
+                                    setAiSuggestions(prev => ({ ...prev, skills: (prev.skills || []).filter(x => x !== s) }));
+                                    toast.success(`✨ Added ${s}`, { duration: 1500 });
+                                  }}
+                                  className="h-9 border-2 border-purple-300 bg-white hover:bg-purple-100 text-purple-700 transition-all shadow-sm"
+                                >
+                                  <Sparkles className="h-3 w-3 mr-1" />
+                                  {s}
+                                </Button>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Experience & Salary */}
