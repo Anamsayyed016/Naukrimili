@@ -206,11 +206,12 @@ export async function PUT(
       updateData.isFeatured = body.isFeatured;
       console.log('  ✓ isFeatured:', body.isFeatured);
     }
+    // NOTE: applicationDeadline is not in Job schema - use expiryDate instead
     if (body.applicationDeadline !== undefined) {
-      updateData.applicationDeadline = body.applicationDeadline 
+      updateData.expiryDate = body.applicationDeadline 
         ? new Date(body.applicationDeadline) 
         : null;
-      console.log('  ✓ applicationDeadline:', body.applicationDeadline);
+      console.log('  ✓ expiryDate (from applicationDeadline):', body.applicationDeadline);
     }
     
     console.log('📊 Total fields to update:', Object.keys(updateData).length);
