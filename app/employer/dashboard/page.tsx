@@ -622,37 +622,37 @@ export default function EmployerDashboard() {
             <div className="space-y-4">
               {stats.recentJobs.slice(0, 3).map((job) => (
                 <Card key={job.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{job.title}</h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            {job.location}
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{job.title}</h3>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-gray-600 mb-3">
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="truncate max-w-[120px] sm:max-w-none">{job.location}</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            {new Date(job.createdAt).toLocaleDateString()}
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>{new Date(job.createdAt).toLocaleDateString()}</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            {job._count?.applications || 0} applications
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>{job._count?.applications || 0} applications</span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={job.isActive ? "default" : "secondary"}>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant={job.isActive ? "default" : "secondary"} className="text-xs">
                             {job.isActive ? "Active" : "Inactive"}
                           </Badge>
-                          {job.isUrgent && <Badge variant="destructive">Urgent</Badge>}
-                          {job.isFeatured && <Badge className="bg-purple-100 text-purple-800">Featured</Badge>}
+                          {job.isUrgent && <Badge variant="destructive" className="text-xs">Urgent</Badge>}
+                          {job.isFeatured && <Badge className="bg-purple-100 text-purple-800 text-xs">Featured</Badge>}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-shrink-0 self-start sm:self-center">
                         <Link href={`/employer/jobs/${job.id}/edit`}>
-                          <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-50">
-                            <Edit className="h-4 w-4 mr-1" />
-                            Edit
+                          <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-50 h-9 px-3">
+                            <Edit className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Edit</span>
                           </Button>
                         </Link>
                         <Button
@@ -660,17 +660,17 @@ export default function EmployerDashboard() {
                           size="sm"
                           onClick={() => handleDeleteJob(job.id)}
                           disabled={deletingJob === job.id}
-                          className="text-red-600 border-red-300 hover:bg-red-50"
+                          className="text-red-600 border-red-300 hover:bg-red-50 h-9 px-3"
                         >
                           {deletingJob === job.id ? (
                             <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-1"></div>
-                              Deleting...
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 sm:mr-1"></div>
+                              <span className="hidden sm:inline">Deleting...</span>
                             </>
                           ) : (
                             <>
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              Delete
+                              <Trash2 className="h-4 w-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Delete</span>
                             </>
                           )}
                         </Button>
