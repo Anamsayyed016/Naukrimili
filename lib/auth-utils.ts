@@ -174,14 +174,29 @@ export async function requireAuth(): Promise<{ user: AuthUser } | { error: strin
 export async function requireEmployerAuth(): Promise<{ user: CompanyUser } | { error: string; status: number }> {
   console.log('🔐 Requiring employer authentication...');
   const user = await getAuthenticatedEmployer();
-  console.log('👤 Employer auth result:', user);
+  console.log('👤 Employer auth result:', user ? { id: user.id, email: user.email, role: user.role, hasCompany: !!user.company } : 'null');
   
   if (!user) {
-    console.log('❌ Employer authentication failed - returning 403');
-    return { error: "Access denied. Employer account required.", status: 403 };
+    console.log('❌ Employer authentication failed');
+    
+    // Check if it's just missing company or actually not authenticated
+    const basicUser = await getAuthenticatedUser();
+    if (!basicUser) {
+      console.log('❌ User not authenticated at all - returning 401');
+      return { error: "Authentication required. Please sign in.", status: 401 };
+    }
+    
+    if (basicUser.role !== 'employer') {
+      console.log('❌ User is not an employer - returning 403');
+      return { error: "Access denied. Employer account required.", status: 403 };
+    }
+    
+    // User is authenticated as employer but has no company
+    console.log('⚠️ Employer has no company profile - returning 404');
+    return { error: "Company profile required. Please create your company profile first.", status: 404 };
   }
   
-  console.log('✅ Employer authentication successful');
+  console.log('✅ Employer authentication successful with company');
   return { user };
 }
 

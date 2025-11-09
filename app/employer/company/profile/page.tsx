@@ -75,21 +75,49 @@ export default function CompanyProfilePage() {
   const [aiSuggestions, setAiSuggestions] = useState<{[key: string]: string}>({});
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === 'loading') {
+      console.log('⏳ Session loading...');
+      return;
+    }
+    
     if (status === 'unauthenticated') {
+      console.log('❌ Unauthenticated - redirecting to signin');
       router.push('/auth/signin?redirect=/employer/company/profile');
       return;
     }
     
-    fetchCompanyProfile();
-  }, [status, router]);
+    if (status === 'authenticated' && session?.user?.role !== 'employer') {
+      console.log('❌ Not an employer - redirecting to dashboard');
+      router.push('/dashboard');
+      return;
+    }
+    
+    if (status === 'authenticated' && session?.user?.id) {
+      console.log('✅ Authenticated employer - fetching profile');
+      fetchCompanyProfile();
+    }
+  }, [status, session, router]);
 
   const fetchCompanyProfile = async () => {
+    // Don't make API calls if not authenticated
+    if (status !== 'authenticated' || !session?.user?.id) {
+      console.log('⏸️ Skipping API call - not authenticated yet');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch('/api/employer/company-profile');
+      console.log('🔍 Fetching company profile...');
+      const response = await fetch('/api/employer/company-profile', {
+        credentials: 'include',
+      });
+      
+      console.log('📡 Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
+        if (data.success && data.data) {
+          console.log('✅ Company profile loaded:', data.data.name);
           setCompany(data.data);
           setFormData(data.data);
         } else {
@@ -98,18 +126,29 @@ export default function CompanyProfilePage() {
         }
       } else if (response.status === 401) {
         // User not authenticated, redirect to login
-        router.push('/auth/signin');
+        console.log('❌ 401 Unauthorized - redirecting to signin');
+        toast.error('Session expired', {
+          description: 'Please sign in again to continue.',
+          duration: 3000,
+        });
+        router.push('/auth/signin?redirect=/employer/company/profile');
         return;
       } else if (response.status === 404) {
         // No company profile found, redirect to create
+        console.log('ℹ️ No company profile found - redirecting to create');
+        toast.info('No company profile found', {
+          description: 'Let\'s create your company profile first.',
+          duration: 3000,
+        });
         router.push('/employer/company/create');
+        return;
       } else {
         // Other error
         const errorData = await response.json().catch(() => ({}));
         console.error('Error fetching company profile:', response.status, response.statusText, errorData);
         toast.error(errorData.error || 'Failed to load company profile');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error fetching company profile:', error);
       toast.error('Failed to load company profile');
     } finally {

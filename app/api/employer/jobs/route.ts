@@ -1,34 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireEmployerAuth } from "@/lib/auth-utils";
-import { auth } from "@/lib/nextauth-config";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
-    // Verify authentication and get user
-    const auth = await requireEmployerAuth();
-    if ("error" in auth) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
-    }
-
-    const { user } = auth;
-    console.log('🔍 Fetching jobs for employer:', user.id);
+    console.log('🔍 [GET /api/employer/jobs] Starting request...');
     
-    // Get the user's company
-    const company = await prisma.company.findFirst({
-      where: { createdBy: user.id }
-    });
-
-    if (!company) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          jobs: [],
-          pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
-          stats: { totalJobs: 0, totalApplications: 0 }
-        }
-      });
+    // Verify authentication and get user
+    const authResult = await requireEmployerAuth();
+    console.log('🔐 Auth result:', authResult);
+    
+    if ("error" in authResult) {
+      console.log('❌ Auth failed:', authResult.error, 'Status:', authResult.status);
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+
+    const { user } = authResult;
+    console.log('✅ User authenticated:', { id: user.id, email: user.email, role: user.role });
+    console.log('🔍 User has company:', user.company ? { id: user.company.id, name: user.company.name } : 'None');
+    
+    // CompanyUser type guarantees company exists
+    const company = user.company;
+    console.log('🏢 Fetching jobs for company:', company.id, '-', company.name);
 
     const { searchParams } = new URL(request.url);
     
