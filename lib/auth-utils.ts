@@ -63,7 +63,6 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
         email: true,
         firstName: true,
         lastName: true,
-        name: true,
         role: true,
         isActive: true
       }
@@ -84,7 +83,7 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
     const result = {
       id: user.id,
       email: user.email,
-      name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+      name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
       role: (user as any).role || 'jobseeker'
     };
     
